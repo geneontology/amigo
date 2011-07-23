@@ -1,0 +1,22 @@
+#!/usr/bin/perl -w
+
+## TODO: Think of a way around this preamble.
+## Actually, making a perl package might be the best way...
+BEGIN { require "config.pl"; }
+use lib $ENV{GO_DEV_ROOT} . '/go-perl';
+use lib $ENV{GO_DEV_ROOT} . '/go-db-perl';
+use lib $ENV{GO_DEV_ROOT} . '/amigo/perl';
+use lib $ENV{GOBO_ROOT};
+
+use AmiGO;
+
+use AmiGO::WebApp::HTMLClientExp;
+my $amigo_exp =
+  AmiGO::WebApp::HTMLClientExp->new(
+				    PARAMS => {
+					       'thing_1' => 'some val',
+					       'thing_2' => 'some val',
+					      }
+				   );
+
+$amigo_exp->run();

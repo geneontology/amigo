@@ -1,0 +1,473 @@
+#!/usr/bin/perl -w
+####
+#### NODE: ???
+#### TODO: ???
+#### BUG: ???
+####
+
+use utf8;
+use strict;
+use Config::YAML;
+use File::Basename;
+use File::Find;
+use Cwd;
+use Data::Dumper;
+use vars qw(
+	     $opt_h
+	     $opt_v
+	     $opt_g
+	     $opt_e
+	     $opt_t
+	  );
+use Getopt::Std;
+
+
+## Since internal checks are done, get ready for user input.
+getopts('hvget');
+
+## Embedded help through perldoc.
+if( $opt_h ){
+  system('perldoc', __FILE__);
+  exit 0;
+}
+
+## Empty init (helps later scoping fun).
+my @args = ();
+
+## Check our options.
+ll("Will print verbose messages.");
+if ( $opt_t ) {
+  ll("Will do test run.");
+}
+if ( $opt_e ) {
+  ll("Will also install experimental binaries and executables.)");
+}
+if ( $opt_g ) {
+  ll("Will also install GOOSE.");
+}
+
+## First check that we are in the proper directory. Installation
+## should only occur in the top directory.
+if ( ! -f "./scripts/version.pl" ||
+     ! -f "./scripts/simulate.pl" ||
+     ! -f "./conf/.initial_values.yaml" ) {
+  ll("This does not seem to be the base AmiGO directory!");
+  ll("Please run \"install\" from the base AmiGO directory.");
+  exit 0;
+}
+
+###
+### Get oriented.
+###
+
+my $current_dir = getcwd();
+my $amigo_base = $current_dir;
+
+## Start a little YAMLing.
+my $amigo_vars = $amigo_base . "/conf/.initial_values.yaml";
+my $amigo_conf = $amigo_base . "/conf/amigo.yaml";
+my $yconf = Config::YAML->new(config => $amigo_vars, output => $amigo_conf);
+
+ll("Looking for an already made amigo.yaml configuration file...");
+if( -e $amigo_conf && -f $amigo_conf && -R $amigo_conf ) {
+  ll("Found it! Will merge in values from $amigo_conf...");
+  $yconf->read($amigo_conf);
+}else{
+  ll("None found, will make a new one at $amigo_conf.");
+  $yconf->write();
+}
+
+## 
+#ll(Dumper($yconf));
+#ll("yc: " . $yconf->{AMIGO_CONFIGURED}{value});
+if( int($yconf->{AMIGO_CONFIGURED}{value}) ){
+  ll("AmiGO configured, will proceed...");
+}else{
+  ll("AmiGO not yet configured, see INSTALL.txt.");
+  die "AmiGO not yet configured, see INSTALL.txt";
+}
+
+###
+###
+###
+
+my %env_conf;
+
+## Roll into env_conf.
+for my $var (keys %$yconf){
+  ## Check that it is a real var, and not Config::YAML overhead.
+  #if( $yconf->{$var} ){
+  if( $yconf->{$var} && ref($yconf->{$var}) eq 'HASH' ){
+    my $var_type = $yconf->{$var}{type};
+    if( $var_type eq 'boolean' ||
+	$var_type eq 'integer' ||
+	$var_type eq 'number' ){
+      $env_conf{$var} = int($yconf->{$var}{value});
+    }else{
+      $env_conf{$var} = $yconf->{$var}{value};
+    }
+  }
+}
+
+## As a convenience, let's switch the amigo_beta new_value on the "-e"
+## flag. This will tie installation and experimental.
+if( $opt_e ){
+  $env_conf{AMIGO_BETA} = 1;
+}
+
+###
+### We now have as much information as we're going to get about the
+### wanted environment, so let's make new variables, directories, and
+### write everything out to the config.pl file.
+###
+
+## Htdocs root directory for AmiGO on the filesystem.
+$env_conf{AMIGO_HTDOCS_ROOT_DIR} =
+  eval {
+    my $foo = '';
+    ( $foo = $env_conf{AMIGO_HTDOCS_PARTIAL_PATH} ) =~ s/\/$//;
+    $foo; } . '/' . $env_conf{AMIGO_PROJECT_NAME};
+safe_make_dir( $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
+
+## CGI root directory for AmiGO on the filesystem.
+$env_conf{AMIGO_CGI_ROOT_DIR} =
+  eval {
+    my $foo = '';
+    ( $foo = $env_conf{AMIGO_CGI_PARTIAL_PATH} ) =~ s/\/$//;
+    $foo; } . '/' . $env_conf{AMIGO_PROJECT_NAME};
+safe_make_dir( $env_conf{AMIGO_CGI_ROOT_DIR} );
+
+## AmiGO CGI URL.
+$env_conf{AMIGO_CGI_URL} =
+  eval {
+    my $foo = '';
+    ( $foo = $env_conf{AMIGO_CGI_PARTIAL_URL} ) =~ s/\/$//;
+    $foo; } . '/' . $env_conf{AMIGO_PROJECT_NAME};
+
+## URL for AmiGO services.
+$env_conf{AMIGO_SERVICE_URL} = $env_conf{AMIGO_CGI_URL} . '/aserve';
+
+## URL for the public production AmiGO.
+$env_conf{AMIGO_PUBLIC_CGI_URL} =
+  eval {
+    my $foo = '';
+    ( $foo = $env_conf{AMIGO_PUBLIC_CGI_PARTIAL_URL} ) =~ s/\/$//;
+    $foo; } . '/amigo';
+
+## Root AmiGO URL.
+$env_conf{AMIGO_HTML_URL} =
+  eval {
+    my $foo = '';
+    ( $foo = $env_conf{AMIGO_HTDOCS_PARTIAL_URL} ) =~ s/\/$//;
+    $foo; } . '/' . $env_conf{AMIGO_PROJECT_NAME};
+
+## Image URL and dir.
+$env_conf{AMIGO_IMAGE_DIR} =
+  $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/images';
+$env_conf{AMIGO_IMAGE_URL} =
+  $env_conf{AMIGO_HTML_URL} . '/images';
+
+## A place for caching databases.
+$env_conf{AMIGO_CACHE_DIR} =
+  $env_conf{AMIGO_CGI_ROOT_DIR} . '/cache';
+safe_make_dir( $env_conf{AMIGO_CACHE_DIR} );
+make_permissive( $env_conf{AMIGO_CACHE_DIR} );
+
+## A place for log files.
+$env_conf{AMIGO_LOG_DIR} =
+  $env_conf{AMIGO_CGI_ROOT_DIR} . '/log';
+safe_make_dir( $env_conf{AMIGO_LOG_DIR} );
+make_permissive( $env_conf{AMIGO_LOG_DIR} );
+
+## Session top-level location.
+$env_conf{AMIGO_SESSIONS_ROOT_DIR} =
+  $env_conf{AMIGO_CGI_ROOT_DIR} .'/sessions';
+safe_make_dir( $env_conf{AMIGO_SESSIONS_ROOT_DIR});
+make_permissive( $env_conf{AMIGO_SESSIONS_ROOT_DIR});
+
+## A place for scratch files.
+$env_conf{AMIGO_SCRATCH_DIR} =
+  $env_conf{AMIGO_CGI_ROOT_DIR} . '/sessions/scratch';
+safe_make_dir( $env_conf{AMIGO_SCRATCH_DIR} );
+make_permissive( $env_conf{AMIGO_SCRATCH_DIR} );
+
+ll("Finish setting the installation environment.");
+
+###
+### Roll out files to the appropriate directories.
+###
+
+ll("Starting installation...");
+
+## Move perl config over.
+create_synthetic_amigo_environmental_variables();
+
+## Standard modules
+my @mods = ();
+push @mods,
+  qw(
+      amigo
+      aserve
+      visualize
+   );
+
+## Copy bulk experimental things over to the new directory.
+if ( $opt_e ) {
+  push @mods,
+    qw(
+	amigo_exp
+	aserve_exp
+     );
+}
+
+## Copy new GOOSE over on -g or -G.
+if ( $opt_g ) {
+  push @mods,
+    qw(
+	goose
+     );
+}
+
+## Install desired modules.
+foreach( @mods ){
+  force_copy(Cwd::cwd() . '/perl/bin/' . $_,
+	     $env_conf{AMIGO_CGI_ROOT_DIR} . '/');
+  make_executable( $env_conf{AMIGO_CGI_ROOT_DIR} . '/' . $_);
+}
+
+## Copy statics.
+force_copy(Cwd::cwd() . '/templates', $env_conf{AMIGO_CGI_ROOT_DIR} );
+force_copy(Cwd::cwd() . '/css', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
+force_copy(Cwd::cwd() . '/images', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
+force_copy(Cwd::cwd() . '/javascript', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
+
+# ## Things to copy only in an experimental environment.
+# if ( $opt_e ) {
+#   ## Copy JSON config over.
+#   force_copy(Cwd::cwd() . '/config.json',
+# 	       $env_conf{AMIGO_CGI_ROOT_DIR} . '/');
+#   make_readable( $env_conf{AMIGO_CGI_ROOT_DIR} . '/config.json' );
+
+## Get the (new) graph/tree stuff over.
+## TODO/BUG: Redo this layout later.
+
+force_copy($env_conf{GO_JS_ROOT},
+	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
+
+#}
+
+
+## Done.
+print <<EOC;
+Done.
+
+Your new installation is at: $env_conf{AMIGO_CGI_URL}/amigo
+
+You may use the refresh script (refresh.pl) with the "-r" flag to regularly
+purge unneeded and old files generated while AmiGO is running.
+
+The refresh.pl script has many other uses, please see the
+documentation for flags that apply to you.
+
+EOC
+
+
+###
+### Helper functions.
+###
+
+##
+sub create_synthetic_amigo_environmental_variables{
+
+  ## Open file.
+  my $pconf_name = $env_conf{AMIGO_CGI_ROOT_DIR} . '/config.pl';
+  open(FILE, ">$pconf_name");
+
+  print FILE <<EOC;
+############################
+####
+#### See INSTALL.txt on how to change these variables.
+####
+############################
+
+EOC
+
+  ##
+  foreach ( keys %env_conf ) {
+
+    my $syn = "\$ENV{" . $_. "}=";
+    #if( $_ eq 'PATH' ){
+    #  $syn .= $env_conf{$_};
+    #}else{
+    $syn .= "\'" . $env_conf{$_} . "\'";
+    #}
+    print FILE $syn . ";\n";
+    #ll("Created: " . $syn);
+  }
+
+  ## End.
+  print FILE <<EOC;
+
+1;
+EOC
+
+  ## Close file.
+  close(FILE);
+  make_readable( $pconf_name );
+  ll("Created synthetic variables and configuration file \"config.pl\".");
+
+  # ## Emit JSON version for experimental. Already did this once, so we
+  # ## can ignore the checks.
+  # if( $opt_e ){
+
+  #   use JSON;
+
+  #   ## Dump it out to file.
+  #   my $json = JSON->new();
+  #   $json->pretty(1);
+  #   $json->indent(1);
+  #   $json->space_after(1);
+  #   $json->utf8(1);
+  #   my $jtext = $json->encode(\%env_conf);
+  #   open(JFILE, ">config.json");
+  #   print JFILE $jtext;
+  #   close(JFILE);
+
+  #   ll("Created configuration file \"config.json\".");
+  # }
+
+}
+
+
+##
+sub safe_make_dir {
+
+  my $dir_to_make = shift || die "no first arg";
+
+  ## Make the new session directory if necessary.
+  if ( ! -e  $dir_to_make ) {
+    my @args = ("mkdir", $dir_to_make);
+    ll("System: \"@args\"");
+    system(@args) == 0 || die "system @args failed: $?" if ! $opt_t;
+  }
+}
+
+
+##
+sub force_copy {
+
+  my $from = shift || die "no first arg";
+  my $to = shift || die "no second arg";
+
+  my @args = ("cp", "-r", "-f", $from, $to);
+  ll("System: \"@args\"");
+  system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
+}
+
+
+##
+sub make_executable {
+
+  my $file = shift || die "no first arg";
+
+  my @args = ("chmod", "a+x", $file);
+  ll("System: \"@args\"");
+  system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
+}
+
+
+##
+sub make_permissive {
+
+  my $file = shift || die "no first arg";
+
+  my @args = ("chmod", "777", $file);
+  ll("System: \"@args\"");
+  system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
+}
+
+
+##
+sub make_readable {
+
+  my $file = shift || die "no first arg";
+
+  my @args = ("chmod", "644", $file);
+  ll("System: \"@args\"");
+  system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
+}
+
+
+## Make all of the old .cgi filenames accessible through no-cgi names,
+## if applicable.
+sub make_non_cgi_link {
+
+  my $file = shift || die "no first arg";
+
+  if ( $file =~ /(.*)\.cgi$/ ) {
+    my @args = ("ln", "-f", "-s", $file, $1);
+    ll("Old CGI link: new link from $1 to $file");
+    system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
+  }
+}
+
+
+## Just a little printin' when feeling verbose.
+sub ll {
+  my $str = shift || '';
+  print $str . "\n" if $opt_v;
+}
+
+
+## Just a little printin' when feeling afraid.
+sub ww {
+  my $str = shift || '';
+  print STDERR $str . "\n";
+}
+
+
+
+=head1 NAME
+
+install.pl
+
+=head1 SYNOPSIS
+
+install.pl [-h] [-v] [-g] [-e] [-t]
+
+=head1 DESCRIPTION
+
+This is the main AmiGO installation script--it moves files to the
+proper location with the proper permissions.
+
+Please see README.txt and INSTALL.txt for more details.
+
+=head1 OPTIONS
+
+=over
+
+=item -v
+
+Enable more verbose messages. This is useful for checking installation errors.
+
+=item -t
+
+Do a test run. Only configure files will be read and written.
+
+=item -e
+
+Also install experimental CGIs, binaries, and config.json as well as
+config.pl (same information, different format).
+
+=item -g
+
+Also install GOOSE.
+
+=back
+
+=head1 SEE ALSO
+
+http://wiki.geneontology.org/index.php/AmiGO_Manual:_Installation
+
+
+=cut

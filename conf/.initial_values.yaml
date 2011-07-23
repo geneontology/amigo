@@ -1,0 +1,194 @@
+####
+#### AmiGO variables for installation.
+####
+---
+AMIGO_CONFIGURED:
+  value: 0
+  comment: >
+    This variable must be edited (to 1) before installing AmiGO.
+  type: boolean
+  
+###
+### Path and binary variables.
+###
+
+AMIGO_ROOT:
+  value: ''
+  comment: >
+    Please enter the full path to the SVN geneontology/AmiGO[/trunk] directory.
+  type: directory
+    
+GOBO_ROOT:
+  value: ''
+  comment: >
+    Please enter the full path to the SVN geneontology/gobo-dbic directory.
+    You may not need this if you already have the package loaded as a library.
+  type: true
+
+GO_JS_ROOT:
+  value: ''
+  comment: >
+    Please enter the full path to the SVN geneontology/javascript directory.
+  type: directory
+
+# - NAME: AMIGO_DOT_PATH
+#   value: /usr/bin/dot
+#   comment: "Please enter the full path for the \"dot\" command"
+#   type: executable
+
+###
+### Database variables (still need for GOOSE?).
+###
+  
+GO_DBNAME:
+  value: go_latest
+  comment: Please enter the name of the GO database on the server.
+  type: string
+
+GO_DBHOST:
+  value: localhost
+  comment: Please enter the hostname of the GO database.
+  type: url
+
+GO_DBUSER:
+  value: ''
+  comment: Please enter the database user login.
+  type: string
+
+GO_DBAUTH:
+  value: ''
+  comment: Please enter the database user password.
+  type: string
+
+GO_DBSOCKET:
+  value: ''
+  comment: Please enter the database socket.
+  type: string
+
+GO_DBPORT:
+  value: ''
+  comment: >
+    Please enter the database port (the default nothing is a sane default)
+  type: string
+
+###
+### AmiGO mapping variables.
+###
+
+AMIGO_PROJECT_NAME:
+  value: amigo2
+  comment: Please enter the name of this AmiGO installation.
+  type: string
+    
+AMIGO_HTDOCS_PARTIAL_PATH:
+  value: /srv/www/htdocs
+  comment: Please enter the full path to a usable static document directory.
+  type: directory
+
+AMIGO_HTDOCS_PARTIAL_URL:
+  value: http://localhost
+  comment: Please enter the URL that this path maps to.
+  type: url
+
+AMIGO_CGI_PARTIAL_PATH:
+  value: /srv/www/cgi-bin
+  comment: Please enter the full path to a usable CGI enabled directory.
+  type: directory
+
+AMIGO_CGI_PARTIAL_URL:
+  value: http://localhost/cgi-bin
+  comment: Please enter the URL that this path maps to.
+  type: url
+
+AMIGO_PUBLIC_CGI_PARTIAL_URL:
+  value: http://amigo.geneontology.org/cgi-bin
+  comment: Please enter the partial public URL.
+  type: true
+
+AMIGO_PUBLIC_GOLR_URL:
+  value: http://accordion.lbl.gov:8080/solr
+  comment: Please enter the public URL of the GOlr server.
+  type: url
+
+###
+### AmiGO internal variables.
+###
+
+AMIGO_SHOW_GOOSE_LINKS:
+  value: 1
+  comment: >
+    Do you wish to show links to GOOSE, the GO Online SQL Environment?
+
+    Note that this is only suitable for if you are installing the
+    GO GOLD database.
+
+    Use 1 for yes and 0 for no.
+  type: boolean
+
+AMIGO_TERM_REGEXP:
+  value: all|GO:[0-9]{7}
+  comment: The regular expressions to identify ontology ids.
+  type: string
+
+AMIGO_MAX_SESSIONS:
+  value: 200
+  comment: The number of sessions AmiGO will not purge at a time.
+  type: integer
+
+AMIGO_SESSION_TIMEOUT:
+  value: 7200
+  comment: The amount of time before an AmiGO session expires.
+  type: integer
+
+AMIGO_OBSOLETE_BEHAVIOUR:
+  value: include_all
+  comment: >
+    AmiGO term searches may return obsolete terms.
+    Please choose how AmiGO should handle these terms:
+
+    "ignore": all obsolete terms will be excluded from the results
+
+    "include_commented": obsolete terms which have a GO id tucked away
+    in a nearby field will be included; non-GO sites should never use
+    this value as the GO id part is currently hard-coded
+
+    "include_all": no obsolete terms will be excluded from the results
+  type: string
+
+AMIGO_VERBOSE:
+  value: 0
+  comment: Log verbose AmiGO debugging messages.
+  type: boolean
+
+AMIGO_TROUBLE_SWITCH:
+  value: 0
+  comment: Mark the AmiGO site as TROUBLED (triggers some changes).
+  type: boolean
+
+AMIGO_TROUBLE_MESSAGE:
+  value: >
+    <h2 style="text-align: center;">
+    AmiGO is currently experiencing some difficulty.<br />
+    You may want to temporarily try <a
+    href="http://amigo.berkeleybop.org/cgi-bin/amigo/go.cgi"
+    title="Go to AmiGO Labs">AmiGO Labs</a>
+    instead.</h2>
+  comment: "Message to present when AmiGO\'s TROUBLE switch is true."
+  type: string
+
+AMIGO_BETA:
+  value: 0
+  comment: >
+    Mark the AmiGO site as BETA (triggers some changes in
+    variables and installed features).
+  type: boolean
+
+AMIGO_VERSION:
+  value: 2.0
+  comment: Displayed AmiGO version string.
+  type: string
+
+AMIGO_GOOGLE_ANALYTICS_ID:
+  value: ''
+  comment: Google analytics ID. Optional.
+  type: string
