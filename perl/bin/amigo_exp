@@ -3,11 +3,7 @@
 ## TODO: Think of a way around this preamble.
 ## Actually, making a perl package might be the best way...
 BEGIN { require "config.pl"; }
-use lib $ENV{GO_DEV_ROOT} . '/go-perl';
-use lib $ENV{GO_DEV_ROOT} . '/go-db-perl';
-use lib $ENV{GO_DEV_ROOT} . '/amigo/perl';
-use lib $ENV{GOBO_ROOT};
-
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
 use AmiGO;
 
 use AmiGO::WebApp::HTMLClientExp;

@@ -60,8 +60,7 @@ if ( ! -f "./scripts/version.pl" ||
 ### Get oriented.
 ###
 
-my $current_dir = getcwd();
-my $amigo_base = $current_dir;
+my $amigo_base = getcwd();
 
 ## Start a little YAMLing.
 my $amigo_vars = $amigo_base . "/conf/.initial_values.yaml";
@@ -70,14 +69,25 @@ my $yconf = Config::YAML->new(config => $amigo_vars, output => $amigo_conf);
 
 ll("Looking for an already made amigo.yaml configuration file...");
 if( -e $amigo_conf && -f $amigo_conf && -R $amigo_conf ) {
-  ll("Found it! Will merge in values from $amigo_conf...");
+  ll("Found it! Will use values from $amigo_conf...");
   $yconf->read($amigo_conf);
 }else{
   ll("None found, will make a new one at $amigo_conf.");
-  $yconf->write();
 }
 
-## 
+## Check and see if AMIGO_ROOT is defined. If not, go ahead and take a
+## guess at it.
+if( ! $yconf->{AMIGO_ROOT}{value} ){
+  ll("Guessing the location of AmiGO\'s root directory...");
+  $yconf->{AMIGO_ROOT}{value} = $amigo_base;
+}
+
+## Always want the writeback as the values in amigo.yaml will always
+## supersede the ones in the initial file.
+$yconf->write();
+
+## Check that the configuration file has at least been minimally
+## altered.
 #ll(Dumper($yconf));
 #ll("yc: " . $yconf->{AMIGO_CONFIGURED}{value});
 if( int($yconf->{AMIGO_CONFIGURED}{value}) ){

@@ -18,12 +18,12 @@ AMIGO_ROOT:
     Please enter the full path to the SVN geneontology/AmiGO[/trunk] directory.
   type: directory
     
-GOBO_ROOT:
-  value: ''
-  comment: >
-    Please enter the full path to the SVN geneontology/gobo-dbic directory.
-    You may not need this if you already have the package loaded as a library.
-  type: true
+# GOBO_ROOT:
+#   value: ''
+#   comment: >
+#     Please enter the full path to the SVN geneontology/gobo-dbic directory.
+#     You may not need this if you already have the package loaded as a library.
+#   type: true
 
 GO_JS_ROOT:
   value: ''
