@@ -99,7 +99,7 @@ sub mode_visualize {
     ##
     $self->_common_params_settings({title=>'AmiGO: Visualization',
 				    'amigo_mode' => 'visualize'});
-    $self->add_template_content('html/main/visualize.tmpl');
+    $self->add_template_content('pages/visualize.tmpl');
     $output = $self->generate_template_page();
 
   }else{
@@ -174,7 +174,7 @@ sub mode_software_list {
   my $foo = $self->{CORE}->amigo_env('AMIGO_CGI_PARTIAL_URL');
   $self->set_template_parameter('OLD_LOC', $foo);
 
-  $self->add_template_content('html/main/software_list.tmpl');
+  $self->add_template_content('pages/software_list.tmpl');
   return $self->generate_template_page();
 }
 
@@ -242,7 +242,7 @@ sub mode_live_search_gold {
      ],
      content =>
      [
-      'html/main/live_search_gold.tmpl'
+      'pages/live_search_gold.tmpl'
      ]
     };
   $self->add_template_bulk($prep);

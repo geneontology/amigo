@@ -376,7 +376,7 @@ sub mode_golr_term_details {
     # if( $type eq 'compact' ){
     #   $self->add_template_content('html/main/term_details_compact.tmpl');
     # }else{
-      $self->add_template_content('html/main/term_details.tmpl');
+      $self->add_template_content('pages/term_details.tmpl');
     # }
   # }else{
   #   $self->add_template_content('html/main/subset_details.tmpl');
@@ -467,7 +467,7 @@ sub mode_golr_gene_product_details {
   # $self->add_template_javascript($self->{JS}->get_lib('GPDetails.js'));
   # $self->add_template_javascript($self->{JS}->initializer_jquery('GPDetailsInit();'));
 
-  $self->add_template_content('html/main/gene_product_details.tmpl');
+  $self->add_template_content('pages/gene_product_details.tmpl');
 
   return $self->generate_template_page();
 }
@@ -543,7 +543,7 @@ sub mode_live_search_term {
 
   ## 
   $self->set_template_parameter('query', $self->{CORE}->html_safe($query));
-  $self->add_template_content('html/main/live_search_term.tmpl');
+  $self->add_template_content('pages/live_search_term.tmpl');
   return $self->generate_template_page();
 }
 
@@ -652,7 +652,7 @@ sub mode_live_search_gene_product {
 
   ## 
   $self->set_template_parameter('query', $self->{CORE}->html_safe($query));
-  $self->add_template_content('html/main/live_search_gene_product.tmpl');
+  $self->add_template_content('pages/live_search_gene_product.tmpl');
   return $self->generate_template_page();
 }
 
@@ -740,7 +740,7 @@ sub mode_ntree {
   $self->{CORE}->kvetch('raw: ' . $raw_data);
 
   ##
-  $self->add_template_content('html/main/phylo_ntree.tmpl');
+  $self->add_template_content('pages/phylo_ntree.tmpl');
   return $self->generate_template_page();
 }
 
@@ -821,7 +821,7 @@ sub mode_ptree {
   $self->{CORE}->kvetch('raw: ' . $raw_data);
 
   ##
-  $self->add_template_content('html/main/phylo_ntree.tmpl');
+  $self->add_template_content('pages/phylo_ntree.tmpl');
   return $self->generate_template_page();
 }
 
@@ -885,7 +885,7 @@ sub mode_scratch {
   $self->add_template_javascript($self->{JS}->initializer_jquery('ScratchClientInit();'));
 
   ##
-  $self->add_template_content('html/main/scratch.tmpl');
+  $self->add_template_content('pages/scratch.tmpl');
   return $self->generate_template_page();
 }
 
@@ -924,13 +924,13 @@ sub mode_workspace_client {
      content =>
      [
       '<div class="ui-layout-north">',
-      'includes/header.tmpl',
+      'common/header.tmpl',
       '</div>',
       '<div class="ui-layout-center">',
-      'html/main/workspace_client.tmpl',
+      'pages/workspace_client.tmpl',
       '</div>',
       '<div class="ui-layout-south">',
-      'includes/footer.tmpl',
+      'common/footer.tmpl',
       '</div>'
      ],
     };
@@ -1003,7 +1003,7 @@ sub mode_exhibit_exp {
      ],
      content =>
      [
-      'html/main/exhibit_exp.tmpl'
+      'pages/exhibit_exp.tmpl'
      ]
     };
   $self->add_template_bulk($prep);
@@ -1044,7 +1044,7 @@ sub mode_front_page {
   $self->add_template_javascript($self->{JS}->initializer_jquery('new org.bbop.amigo.ui.autocomplete({id:"query", search_type:"general", completion_type:"acc", jump: true});'));
 
   ##
-  $self->add_template_content('html/main/front_page.tmpl');
+  $self->add_template_content('pages/front_page.tmpl');
   return $self->generate_template_page();
 }
 
@@ -1174,7 +1174,7 @@ sub mode_kick_to_main {
   my $self = shift;
 
   $self->set_template_parameter('page_title', 'AmiGO: No Page Here');
-  $self->add_template_content('html/main/forward_to_main.tmpl');
+  $self->add_template_content('pages/forward_to_main.tmpl');
 
   return $self->generate_template_page();
 }
