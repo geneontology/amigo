@@ -50,17 +50,14 @@ sub setup {
 
   ## Configure how the session stuff is going to be handled when and
   ## if it is necessary.
-  $self->session_config(
-			CGI_SESSION_OPTIONS => [
-						"driver:File",
-						$self->query,
-						{Directory=> $self->{CORE}->amigo_env('AMIGO_SESSIONS_ROOT_DIR')}
-					       ],
-			COOKIE_PARAMS       => {
-						-path  => '/',
-					       },
-			SEND_COOKIE         => 1,
- );
+  $self->session_config(CGI_SESSION_OPTIONS =>
+			["driver:File",
+			 $self->query,
+			 {Directory=>
+			  $self->{CORE}->amigo_env('AMIGO_SESSIONS_ROOT_DIR')}
+			],
+			COOKIE_PARAMS => {-path  => '/'},
+			SEND_COOKIE => 1);
 
   # $self->tt_config(TEMPLATE_OPTIONS =>
   # 		   {INCLUDE_PATH =>
