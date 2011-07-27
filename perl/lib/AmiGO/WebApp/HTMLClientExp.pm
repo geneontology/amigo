@@ -62,15 +62,16 @@ sub setup {
 			SEND_COOKIE         => 1,
  );
 
-  $self->tt_config(TEMPLATE_OPTIONS =>
-		   {INCLUDE_PATH =>
-		    $self->{CORE}->amigo_env('AMIGO_ROOT') .
-		    '/amigo/amigo/templates'});
+  # $self->tt_config(TEMPLATE_OPTIONS =>
+  # 		   {INCLUDE_PATH =>
+  # 		    $self->{CORE}->amigo_env('AMIGO_ROOT') .
+  # 		    '/templates/html'});
+  $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
+			 '/templates/html');
 
   $self->mode_param('mode');
   $self->start_mode('kick_to_main');
   $self->error_mode('mode_fatal');
-  #$self->tt_include_path('templates/html/inc');
   $self->run_modes(
 		   ## Client apps.
 		   'golr_term_details'   =>  'mode_golr_term_details',

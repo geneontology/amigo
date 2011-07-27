@@ -1,0 +1,47 @@
+<!-- Begin: footer.tmpl -->
+<!-- release_date = [% release_date %] -->
+<!-- version = [% version %] -->
+<!-- VERSION = [% VERSION %] -->
+[% final_version = version %]
+[% IF VERSION %]
+[%    final_version = VERSION %]
+[% END %]
+<div id="footer">
+  <div class="left">
+    &nbsp;<small>AmiGO version: <a title="View release notes for the current version" href="http://wiki.geneontology.org/index.php/AmiGO_1_8">[% final_version %]</a></small>
+    <br />
+    [% IF BETA == 1 %]
+    &nbsp;<a href="http://amigo.geneontology.org" title="Use the stable public version of AmiGO"><small>Return to AmiGO home</small></a>
+    [% ELSE %]
+     &nbsp;<a href="http://wiki.geneontology.org/index.php/AmiGO_Labs" title="Try out an experimental version of AmiGO"><small>Try AmiGO Labs</small></a>
+    [% END %]
+  </div>
+
+  <p>
+    [% # Remove confusing database date. %]
+    [% UNLESS is_goose_p %]
+    GO database release [% release_date %]
+    <!-- GO database release [% release_name %] ([% release_type %]) -->
+    <br>
+    [% END %]
+    <a href="http://www.geneontology.org/GO.cite.shtml#data" title="How to cite AmiGO data">Cite this data</a> &bull; <a href="http://www.geneontology.org/GO.cite.shtml" title="Terms of use for the GO project">Terms of use</a> &bull; <a href="http://www.geneontology.org/GO.contacts.shtml" title="Contact the GO helpdesk">GO helpdesk</a>
+ <!--
+     How can we improve AmiGO? <a href="http://www.geneontology.org/amigo/suggest.shtml" title="Send us your AmiGO suggestions">Send us your suggestions</a> -->
+ <br>
+ Copyright &copy; 1999-2010 <a href="http://www.geneontology.org/index.shtml" title="Gene Ontology home page">the Gene Ontology</a>
+  </p>
+</div>
+[% IF GOOGLE_ANALYTICS_ID AND GOOGLE_ANALYTICS_ID.length > 1 %]
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("[% GOOGLE_ANALYTICS_ID %]");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+[% ELSE %]
+<!-- no analytics -->
+[% END %]
+<!-- End: footer.tmpl -->

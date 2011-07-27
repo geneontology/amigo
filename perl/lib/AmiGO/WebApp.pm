@@ -666,15 +666,15 @@ sub generate_template_page {
   my @mbuf = ();
 
   ## Do head. First CSS, then JS.
-  push @mbuf, $self->_eval_content('includes/head_open.tmpl');
-  push @mbuf, $self->_eval_content('includes/head_info_lite.tmpl') if ! $lite_p;
+  push @mbuf, $self->_eval_content('common/head_open.tmpl');
+  push @mbuf, $self->_eval_content('common/head_info_lite.tmpl') if ! $lite_p;
   foreach my $css (@{$self->{WEBAPP_CSS}}){ push @mbuf, $css; }
   foreach my $js (@{$self->{WEBAPP_JAVASCRIPT}}){ push @mbuf, $js; }
-  push @mbuf, $self->_eval_content('includes/head_close.tmpl');
+  push @mbuf, $self->_eval_content('common/head_close.tmpl');
 
   ## Do body.
-  push @mbuf, $self->_eval_content('includes/body_open.tmpl');
-  push @mbuf, $self->_eval_content('includes/header.tmpl')
+  push @mbuf, $self->_eval_content('common/body_open.tmpl');
+  push @mbuf, $self->_eval_content('common/header.tmpl')
     if ! $lite_p && $header_p;
 
   if( $self->{CORE}->verbose_p() ){
@@ -686,9 +686,9 @@ sub generate_template_page {
   }
 
   foreach my $content (@{$self->{WEBAPP_CONTENT}}){ push @mbuf, $content; }
-  push @mbuf, $self->_eval_content('includes/footer.tmpl')
+  push @mbuf, $self->_eval_content('common/footer.tmpl')
     if ! $lite_p && $footer_p;
-  push @mbuf, $self->_eval_content('includes/close.tmpl');
+  push @mbuf, $self->_eval_content('common/close.tmpl');
 
   ## Merge and return.
   my $output = '';
@@ -723,7 +723,7 @@ sub mode_fatal {
   $self->set_template_parameter('page_title', 'AmiGO: Fatal Error');
   $self->set_template_parameter('error', $@);
 
-  $self->add_template_content('includes/error.tmpl');
+  $self->add_template_content('common/error.tmpl');
   return $self->generate_template_page();
 }
 
@@ -739,7 +739,7 @@ sub mode_fatal_with_message {
   $self->set_template_parameter('page_title', 'AmiGO: Fatal Error');
   $self->set_template_parameter('error', $message);
 
-  $self->add_template_content('includes/error.tmpl');
+  $self->add_template_content('common/error.tmpl');
   return $self->generate_template_page();
 }
 
@@ -790,7 +790,7 @@ sub mode_die_with_message {
   $self->set_template_parameter('page_title', 'AmiGO: Input Error');
   $self->set_template_parameter('error', $message);
 
-  $self->add_template_content('includes/die.tmpl');
+  $self->add_template_content('common/die.tmpl');
   return $self->generate_template_page();
 }
 
@@ -806,7 +806,7 @@ sub mode_exception {
   $self->set_template_parameter('page_title', 'AmiGO: Exception');
   $self->set_template_parameter('error', "Looking for \"$intended_runmode\", but found no such method.");
 
-  $self->add_template_content('includes/error.tmpl');
+  $self->add_template_content('common/error.tmpl');
   return $self->generate_template_page();
 }
 
