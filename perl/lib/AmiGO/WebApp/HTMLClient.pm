@@ -540,8 +540,8 @@ sub mode_golr_gene_product_details {
   ### Get full gp info.
   ###
 
-  my $gp_worker = AmiGO::Worker::GOlr::GeneProduct->new();
-  my $gp_info_hash = $gp_worker->get_info($input_gp_id);
+  my $gp_worker = AmiGO::Worker::GOlr::GeneProduct->new($input_gp_id);
+  my $gp_info_hash = $gp_worker->get_info();
   if( ! defined($gp_info_hash) || $self->{CORE}->empty_hash_p($gp_info_hash) ){
     return $self->mode_die_with_message("GP acc could not be found" .
 					" in the index!");

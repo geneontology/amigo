@@ -20,14 +20,15 @@ Returns: hash containing various gp infomation, keyed by acc
 =cut
 sub new {
 
-  my $self = shift;
+  my $class = shift;
   my $args = shift || die "need an argument";
+  my $self = $class->SUPER::new();
 
   ## Only array refs internally.
   if( ref $args ne 'ARRAY' ){ $args = [$args]; }
 
   ## ...
-  my $gp_info = {};
+  $self->{AWGG_INFO} = {};
   foreach my $arg (@$args){
     my $found_doc = $self->{AEJ_GOLR_DOC}->get_by_id($arg);
 
@@ -54,10 +55,24 @@ sub new {
 	 #gp_dbxrefs => [],
 	};
     }
-    $gp_info->{$arg} = $intermediate;
+    $self->{AWGG_INFO}{$arg} = $intermediate;
   }
 
-  return $gp_info;
+  bless $self, $class;
+  return $self;
+}
+
+
+=item get_info
+
+Args: n/a
+Returns: hash ref containing various gene product information, keyed by acc
+
+=cut
+sub get_info {
+
+  my $self = shift;
+  return $self->{AWGG_INFO};
 }
 
 

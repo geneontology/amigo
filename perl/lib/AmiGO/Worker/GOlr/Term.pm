@@ -68,7 +68,7 @@ sub new {
 =item get_info
 
 Args: n/a
-Returns: hash containing various term infomation, keyed by acc
+Returns: hash ref containing various term information, keyed by acc
 
 =cut
 sub get_info {
