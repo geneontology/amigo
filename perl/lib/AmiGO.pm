@@ -42,21 +42,6 @@ use FileHandle;
 
 use FreezeThaw qw(freeze thaw);
 
-my $EXP_EVCODES = [
-		   'EXP',
-		   'IDA',
-		   'IPI',
-		   'IMP',
-		   'IGI',
-		   'IEP'
-		   ];
-my $ISS_EVCODES = [
-		   'ISS',
-		   'ISO',
-		   'ISA',
-		   'ISM'
-		   ];
-
 
 ## TODO: Make sure that the variables that must be defined for a sane
 ## environment are defined.
@@ -105,7 +90,7 @@ sub new {
   $self->{ERROR_MESSAGE} = undef;
 
   ## Logging verbosity.
-  $self->{VERBOSE} = int(internal_get_env_param('AMIGO_VERBOSE') || '0');
+  $self->{VERBOSE} = int(amigo_env($self, 'AMIGO_VERBOSE') || '0');
   #print STDERR "___" . $self->{VERBOSE} . "\n";
 
   bless $self, $class;
@@ -452,36 +437,6 @@ Returns: value string/hash pointer
 sub amigo_env {
   my $self = shift;
   my $var = shift;
-  return internal_get_env_param($var);
-}
-
-
-=item go_env
-
-Gets an environmental variable, including (and specically for)
-variables designated in config.pl.
-
-Arguments: name string/<>
-Returns: value string/hash pointer
-
-=cut
-sub go_env {
-
-  my $self = shift;
-  my $var = shift;
-  return internal_get_env_param($var);
-}
-
-
-### The actual env param getter (not an inherited method).
-#sub internal_get_env_param {
-#
-#  my $var = shift;
-#  return internal_get_env_param($var);
-#}
-sub internal_get_env_param {
-
-  my $var = shift;
 
   my $retval = undef;
   if ( $var && defined($ENV{uc('AMIGO_' . $var)})) {
@@ -590,127 +545,69 @@ sub kvetch {
 }
 
 
-###
-### Pre-rendering.
-###
+# ###
+# ### Pre-rendering.
+# ###
 
 
-=item url_pre_render
+# =item url_pre_render
 
-Args: string of filename
-Decides whether or not a file a page has been pre-rendered.
-Returns undef or url.
+# Args: string of filename
+# Decides whether or not a file a page has been pre-rendered.
+# Returns undef or url.
 
-=cut
-sub url_pre_render {
+# =cut
+# sub url_pre_render {
 
-  my $self = shift;
-  my $fname = shift;
-  my $ret_url = undef;
+#   my $self = shift;
+#   my $fname = shift;
+#   my $ret_url = undef;
 
-  my $file_back_half = '/' . $fname;
-  my $complete_file_pr_url =
-    $self->amigo_env('AMIGO_PRE_RENDER_URL') . $file_back_half;
-  my $complete_file_pr_file =
-    $self->amigo_env('AMIGO_PRE_RENDER_DIR') . $file_back_half;
+#   my $file_back_half = '/' . $fname;
+#   my $complete_file_pr_url =
+#     $self->amigo_env('AMIGO_PRE_RENDER_URL') . $file_back_half;
+#   my $complete_file_pr_file =
+#     $self->amigo_env('AMIGO_PRE_RENDER_DIR') . $file_back_half;
 
-  if( -f $complete_file_pr_file ){
-    $ret_url = $complete_file_pr_url;
-  }
+#   if( -f $complete_file_pr_file ){
+#     $ret_url = $complete_file_pr_url;
+#   }
 
-  return $ret_url;
-}
-
-
-=item file_pre_render
-
-Args: string of filename
-Decides whether or not a file a page has been pre-rendered.
-Returns undef or page contents.
-
-=cut
-sub file_pre_render {
-
-  my $self = shift;
-  my $fname = shift;
-  my $ret_file = undef;
-
-  my $file_back_half = '/' . $fname;
-  my $complete_file_pr_file =
-    $self->amigo_env('AMIGO_PRE_RENDER_DIR') . $file_back_half;
-
-  if( -f $complete_file_pr_file ){
-
-    open (FILE, $complete_file_pr_file)
-      or die "Cannot open $complete_file_pr_file: $!";
-
-    my @buf = ();
-    while (<FILE>) {
-      push @buf, $_;
-    }
-    $ret_file = join '', @buf;
-  }
-
-  return $ret_file;
-}
+#   return $ret_url;
+# }
 
 
-###
-### Error message passing and internal errors.
-###
+# =item file_pre_render
 
+# Args: string of filename
+# Decides whether or not a file a page has been pre-rendered.
+# Returns undef or page contents.
 
-=item ok
+# =cut
+# sub file_pre_render {
 
-Return 1 or 0 for all operations.
+#   my $self = shift;
+#   my $fname = shift;
+#   my $ret_file = undef;
 
-=cut
-sub ok {
-  my $self = shift;
-  my $retval = 1;
-  $retval = 0 if defined $self->{ERROR_MESSAGE};
-  return $retval;
-}
+#   my $file_back_half = '/' . $fname;
+#   my $complete_file_pr_file =
+#     $self->amigo_env('AMIGO_PRE_RENDER_DIR') . $file_back_half;
 
+#   if( -f $complete_file_pr_file ){
 
-=item error_p
+#     open (FILE, $complete_file_pr_file)
+#       or die "Cannot open $complete_file_pr_file: $!";
 
-Getter.
-Return 1 or 0 for all operations.
+#     my @buf = ();
+#     while (<FILE>) {
+#       push @buf, $_;
+#     }
+#     $ret_file = join '', @buf;
+#   }
 
-=cut
-sub error_p {
-  my $self = shift;
-  my $retval = 0;
-  $retval = 1 if defined $self->{ERROR_MESSSAGE};
-  return $retval;
-}
-
-
-=item error_message
-
-Getter.
-Returns the reason for the above error.
-
-=cut
-sub error_message {
-  my $self = shift;
-  return $self->{ERROR_MESSAGE};
-}
-
-
-=item set_error_message
-
-Setter.
-TODO: Add current package to the front of the error message.
-
-=cut
-sub set_error_message {
-  my $self = shift;
-  my $arg = shift || undef;
-  $self->{ERROR_MESSAGE} = $arg;
-  return $self->{ERROR_MESSAGE};
-}
+#   return $ret_file;
+# }
 
 
 ###
@@ -731,34 +628,34 @@ sub unknown_header{ print "content-type:unknown\n\n"; }
 ###
 
 
-=item release_name
+# =item release_name
 
-return a release name string
+# return a release name string
 
-=cut
-sub release_name {
+# =cut
+# sub release_name {
 
-  my $self = shift;
-  if( ! defined($self->{MISC_KEYS}) ){
-    ($self->{MISC_KEYS}) = _read_frozen_file($self, '/misc_keys.pl');
-  }
-  return $self->{MISC_KEYS}{instance_data}{release_name};
-}
+#   my $self = shift;
+#   if( ! defined($self->{MISC_KEYS}) ){
+#     ($self->{MISC_KEYS}) = _read_frozen_file($self, '/misc_keys.pl');
+#   }
+#   return $self->{MISC_KEYS}{instance_data}{release_name};
+# }
 
 
-=item release_type
+# =item release_type
 
-return a release type string
+# return a release type string
 
-=cut
-sub release_type {
+# =cut
+# sub release_type {
 
-  my $self = shift;
-  if( ! defined($self->{MISC_KEYS}) ){
-    ($self->{MISC_KEYS}) = _read_frozen_file($self, '/misc_keys.pl');
-  }
-  return $self->{MISC_KEYS}{instance_data}{release_type};
-}
+#   my $self = shift;
+#   if( ! defined($self->{MISC_KEYS}) ){
+#     ($self->{MISC_KEYS}) = _read_frozen_file($self, '/misc_keys.pl');
+#   }
+#   return $self->{MISC_KEYS}{instance_data}{release_type};
+# }
 
 
 ###
@@ -766,342 +663,342 @@ sub release_type {
 ###
 
 
-=item evidence_codes
+# =item evidence_codes
 
-return an array ref of the evidence codes
+# return an array ref of the evidence codes
 
-=cut
-sub evidence_codes {
+# =cut
+# sub evidence_codes {
 
-  my $self = shift;
-  if( ! defined($self->{MISC_KEYS}) ){
-    ($self->{MISC_KEYS}) = _read_frozen_file($self, '/misc_keys.pl');
-  }
-  return $self->{MISC_KEYS}{evcode};
-}
-
-
-=item evidence_codes_sans
-
-Arg: an array ref of evcode strings
-Return: an array ref of the evidence codes without the ones listed in the arg
-
-=cut
-sub evidence_codes_sans {
-
-  my $self = shift;
-  my $sans_codes = shift || [];
-
-  my $new_list = [];
-  my %skip_cache = ();
-
-  foreach my $ev (@$sans_codes){
-    $skip_cache{$ev} = 1;
-  }
-
-  foreach my $ev ( @{$self->evidence_codes()} ){
-    push @$new_list, $ev if ! defined( $skip_cache{$ev} );
-  }
-
-  return $new_list;
-}
+#   my $self = shift;
+#   if( ! defined($self->{MISC_KEYS}) ){
+#     ($self->{MISC_KEYS}) = _read_frozen_file($self, '/misc_keys.pl');
+#   }
+#   return $self->{MISC_KEYS}{evcode};
+# }
 
 
-=item experimental_evidence_codes
+# =item evidence_codes_sans
 
-The list of experimental evidence codes.
+# Arg: an array ref of evcode strings
+# Return: an array ref of the evidence codes without the ones listed in the arg
 
-=cut
-sub experimental_evidence_codes {
+# =cut
+# sub evidence_codes_sans {
 
-  my $self = shift;
-  return $EXP_EVCODES;
-}
+#   my $self = shift;
+#   my $sans_codes = shift || [];
 
+#   my $new_list = [];
+#   my %skip_cache = ();
 
-=item iss_evidence_codes
+#   foreach my $ev (@$sans_codes){
+#     $skip_cache{$ev} = 1;
+#   }
 
-The list of ISS evidence codes.
+#   foreach my $ev ( @{$self->evidence_codes()} ){
+#     push @$new_list, $ev if ! defined( $skip_cache{$ev} );
+#   }
 
-=cut
-sub iss_evidence_codes {
-
-  my $self = shift;
-  return $ISS_EVCODES;
-}
-
-
-=item experimental_evidence_hash
-
-The hash of experimental evidence codes.
-
-=cut
-sub experimental_evidence_hash {
-
-  my $self = shift;
-  my %experimental_evcodes = ();
-  foreach ( @{$EXP_EVCODES} ){
-    $experimental_evcodes{$_} = 1;
-  }
-
-  return \%experimental_evcodes;
-}
+#   return $new_list;
+# }
 
 
-=item iss_evidence_hash
+# =item experimental_evidence_codes
 
-The hash of iss evidence codes.
+# The list of experimental evidence codes.
 
-=cut
-sub iss_evidence_hash {
+# =cut
+# sub experimental_evidence_codes {
 
-  my $self = shift;
-  my %iss_evcodes = ();
-  foreach ( @{$ISS_EVCODES} ){
-    $iss_evcodes{$_} = 1;
-  }
+#   my $self = shift;
+#   return $EXP_EVCODES;
+# }
 
-  return \%iss_evcodes;
-}
+
+# =item iss_evidence_codes
+
+# The list of ISS evidence codes.
+
+# =cut
+# sub iss_evidence_codes {
+
+#   my $self = shift;
+#   return $ISS_EVCODES;
+# }
+
+
+# =item experimental_evidence_hash
+
+# The hash of experimental evidence codes.
+
+# =cut
+# sub experimental_evidence_hash {
+
+#   my $self = shift;
+#   my %experimental_evcodes = ();
+#   foreach ( @{$EXP_EVCODES} ){
+#     $experimental_evcodes{$_} = 1;
+#   }
+
+#   return \%experimental_evcodes;
+# }
+
+
+# =item iss_evidence_hash
+
+# The hash of iss evidence codes.
+
+# =cut
+# sub iss_evidence_hash {
+
+#   my $self = shift;
+#   my %iss_evcodes = ();
+#   foreach ( @{$ISS_EVCODES} ){
+#     $iss_evcodes{$_} = 1;
+#   }
+
+#   return \%iss_evcodes;
+# }
 
 ###
 ### Species, source, gptype, ontology.
 ###
 
-=item species
+# =item species
 
-Return href of species_strings => species_id
+# Return href of species_strings => species_id
 
-=cut
-sub species {
+# =cut
+# sub species {
 
-  my $self = shift;
+#   my $self = shift;
 
-  if( ! defined($self->{SPECIES}) ){
+#   if( ! defined($self->{SPECIES}) ){
 
-    my ($ret_hash) = _read_frozen_file($self, '/spec_keys.pl');
+#     my ($ret_hash) = _read_frozen_file($self, '/spec_keys.pl');
 
-    ## Full names versus contractions (lift from Amelia's original).
-    #if ($self->get_saved_param('use_full_spp_names') eq 'no'){
-    if ( 1 == 1 ){
-      # truncate the genus to a single letter
-      foreach my $h (values %$ret_hash){
-	if ($h->[1]){
-	  $h = substr($h->[0], 0, 1).". ".$h->[1];
-	}else{
-	  $h = $h->[0];
-	}
-      }
-    }else{
-      $_ = join(" ", @$_) foreach values %$ret_hash;
-    }
+#     ## Full names versus contractions (lift from Amelia's original).
+#     #if ($self->get_saved_param('use_full_spp_names') eq 'no'){
+#     if ( 1 == 1 ){
+#       # truncate the genus to a single letter
+#       foreach my $h (values %$ret_hash){
+# 	if ($h->[1]){
+# 	  $h = substr($h->[0], 0, 1).". ".$h->[1];
+# 	}else{
+# 	  $h = $h->[0];
+# 	}
+#       }
+#     }else{
+#       $_ = join(" ", @$_) foreach values %$ret_hash;
+#     }
 
-    $self->{SPECIES} = $ret_hash;
-  }
+#     $self->{SPECIES} = $ret_hash;
+#   }
 
-  ## BUG?: check caching, does ecoli not make the cut?
-  if( ! defined $self->{SPECIES}{83333} ){
-    $self->{SPECIES}{83333} = 'E. coli';
-  }
+#   ## BUG?: check caching, does ecoli not make the cut?
+#   if( ! defined $self->{SPECIES}{83333} ){
+#     $self->{SPECIES}{83333} = 'E. coli';
+#   }
 
-  return $self->{SPECIES};
-}
-
-
-=item source
-
-# TODO:
-
-=cut
-sub source {
-
-  my $self = shift;
-
-  if( ! defined($self->{SOURCE}) ){
-
-    my($ret_hash) = _read_frozen_file($self, '/misc_keys.pl');
-
-    ## Populate our hash.
-    $self->{SOURCE} = {};
-    if( defined $ret_hash->{speciesdb} ){
-      my $sdb = $ret_hash->{speciesdb};
-      foreach my $n (@$sdb){
-	$self->{SOURCE}{$n} = $n;
-	#$self->kvetch('source: ' . $n);
-      }
-    }
-  }
-  return $self->{SOURCE};
-}
+#   return $self->{SPECIES};
+# }
 
 
-=item gptype
+# =item source
 
-# TODO:
+# # TODO:
 
-=cut
-sub gptype {
+# =cut
+# sub source {
 
-  my $self = shift;
+#   my $self = shift;
 
-  if( ! defined($self->{GPTYPE}) ){
+#   if( ! defined($self->{SOURCE}) ){
 
-    my($ret_hash) = _read_frozen_file($self, '/misc_keys.pl');
+#     my($ret_hash) = _read_frozen_file($self, '/misc_keys.pl');
 
-    ## Populate our hash.
-    $self->{GPTYPE} = {};
-    if( defined $ret_hash->{gptype} ){
-      my $gpt = $ret_hash->{gptype};
-      foreach my $n (@$gpt){
-	$self->{GPTYPE}{$n} = $n;
-	#$self->kvetch('gptype: ' . $n);
-      }
-    }
-  }
-  return $self->{GPTYPE};
-}
-
-
-=item database_link
-
-Args: database id, entity id
-Returns: URL string
-
-=cut
-sub database_link {
-
-  my $self = shift;
-  my $db = shift || '';
-  my $id = shift || '';
-
-  #print STDERR "_db_" . $db . "\n";
-  #print STDERR "_id_" . $id . "\n";
-
-  ## WARNING
-  ## TODO: Temporary Reactome special case. This should be removeable
-  ## in a couple of months when Reactome has entirely switched over to
-  ## satable ids...
-  ## Stable id:
-  ## http://www.reactome.org/cgi-bin/link?SOURCE=Reactome&ID=REACT_604
-  ## DB id:
-  ## http://www.reactome.org/cgi-bin/eventbrowser?DB=gk_current&ID=10046
-  # $self->kvetch("Reactome test: $db $id");
-  if( $db =~ /^reactome$/i && $id =~ /^[0-9]+$/i ){
-    $self->kvetch("looks like a Reactome db id--special case!");
-    return 'http://www.reactome.org/cgi-bin/eventbrowser?DB=gk_current&ID='.$id;
-  }
-
-  ## Revive the cache if we don't have it.
-  if( ! defined($self->{DB_INFO}) ){
-    ## Populate our hash.
-    my($ret_hash) = _read_frozen_file($self, '/db_info.pl');
-    $self->{DB_INFO} = $ret_hash || {};
-    #print STDERR "_init_...\n";
-    #print STDERR "_keys: " . scalar(keys %$ret_hash) . "\n";
-  }
-
-  #$self->kvetch("DB_INFO: " . Dumper($self->{DB_INFO}));
-
-  ## Get the link string through the cache.
-  $db = lc($db);
-  my $retval = undef;
-  if( defined $self->{DB_INFO}{$db} ){
-
-    my $link_string = $self->{DB_INFO}{$db}{url_syntax};
-
-    #print STDERR "_Ls_ $link_string\n";
-
-    ## Insert the id through the link string if one was available.
-    if( $link_string ){
-      # ## Special case for UniGene?
-      # if( $db eq lc('UniGene') ){
-      # 	## Split id on '.'. First part goes to
-      # 	## [organism_abbreviation], second part goes to [cluster_id].
-      # 	my($first, $second) = split(/\./, $id);
-      # 	$link_string =~ s/\[organism\_abbreviation\]/$first/g;
-      # 	$link_string =~ s/\[cluster\_id\]/$second/g;
-      # }else{
-      $link_string =~ s/\[example\_id\]/$id/g;
-      # }
-      $retval = $link_string;
-    }
-  }
-
-  return $retval;
-}
+#     ## Populate our hash.
+#     $self->{SOURCE} = {};
+#     if( defined $ret_hash->{speciesdb} ){
+#       my $sdb = $ret_hash->{speciesdb};
+#       foreach my $n (@$sdb){
+# 	$self->{SOURCE}{$n} = $n;
+# 	#$self->kvetch('source: ' . $n);
+#       }
+#     }
+#   }
+#   return $self->{SOURCE};
+# }
 
 
-=item ontology
+# =item gptype
 
-# TODO:
+# # TODO:
 
-=cut
-sub ontology {
+# =cut
+# sub gptype {
 
-  my $self = shift;
+#   my $self = shift;
 
-  if( ! defined($self->{ONTOLOGY}) ){
+#   if( ! defined($self->{GPTYPE}) ){
 
-    my($ret_hash) = _read_frozen_file($self, '/misc_keys.pl');
+#     my($ret_hash) = _read_frozen_file($self, '/misc_keys.pl');
 
-    ## Populate our hash.
-    $self->{ONTOLOGY} = {};
-    if( defined $ret_hash->{ontology} ){
-      my $ont = $ret_hash->{ontology};
-      foreach my $o (@$ont){
-	$self->{ONTOLOGY}{$o} = $o;
-	#$self->kvetch('ontology: ' . $o);
-      }
-    }
-  }
-  return $self->{ONTOLOGY};
-}
-
-
-=item subset
-
-# TODO:
-
-=cut
-sub subset {
-
-  my $self = shift;
-
-  if( ! defined($self->{SUBSET}) ){
-
-    my($ret_hash) = _read_frozen_file($self, '/misc_keys.pl');
-
-    ## Populate our hash.
-    $self->{SUBSET} = {};
-    if( defined $ret_hash->{subset} ){
-      my $subs = $ret_hash->{subset};
-      foreach my $s (@$subs){
-	$self->{SUBSET}{$s} = $s;
-	#$self->kvetch('subset: ' . $s);
-      }
-    }
-  }
-  return $self->{SUBSET};
-}
+#     ## Populate our hash.
+#     $self->{GPTYPE} = {};
+#     if( defined $ret_hash->{gptype} ){
+#       my $gpt = $ret_hash->{gptype};
+#       foreach my $n (@$gpt){
+# 	$self->{GPTYPE}{$n} = $n;
+# 	#$self->kvetch('gptype: ' . $n);
+#       }
+#     }
+#   }
+#   return $self->{GPTYPE};
+# }
 
 
-=item species_to_ncbi_map
+# =item database_link
 
-Return href of species.id => species.ncbi_taxa_id
-WARNING: This is experimental and may be removed/replaced.
+# Args: database id, entity id
+# Returns: URL string
 
-=cut
-sub species_to_ncbi_map {
+# =cut
+# sub database_link {
 
-  my $self = shift;
+#   my $self = shift;
+#   my $db = shift || '';
+#   my $id = shift || '';
 
-  if( ! defined($self->{SPECIES_TO_NCBI_MAP}) ){
-    my ($ret_hash) = _read_frozen_file($self, '/spec_ncbi_map.pl');
-    $self->{SPECIES_TO_NCBI_MAP} = $ret_hash;
-  }
+#   #print STDERR "_db_" . $db . "\n";
+#   #print STDERR "_id_" . $id . "\n";
 
-  return $self->{SPECIES_TO_NCBI_MAP};
-}
+#   ## WARNING
+#   ## TODO: Temporary Reactome special case. This should be removeable
+#   ## in a couple of months when Reactome has entirely switched over to
+#   ## satable ids...
+#   ## Stable id:
+#   ## http://www.reactome.org/cgi-bin/link?SOURCE=Reactome&ID=REACT_604
+#   ## DB id:
+#   ## http://www.reactome.org/cgi-bin/eventbrowser?DB=gk_current&ID=10046
+#   # $self->kvetch("Reactome test: $db $id");
+#   if( $db =~ /^reactome$/i && $id =~ /^[0-9]+$/i ){
+#     $self->kvetch("looks like a Reactome db id--special case!");
+#     return 'http://www.reactome.org/cgi-bin/eventbrowser?DB=gk_current&ID='.$id;
+#   }
+
+#   ## Revive the cache if we don't have it.
+#   if( ! defined($self->{DB_INFO}) ){
+#     ## Populate our hash.
+#     my($ret_hash) = _read_frozen_file($self, '/db_info.pl');
+#     $self->{DB_INFO} = $ret_hash || {};
+#     #print STDERR "_init_...\n";
+#     #print STDERR "_keys: " . scalar(keys %$ret_hash) . "\n";
+#   }
+
+#   #$self->kvetch("DB_INFO: " . Dumper($self->{DB_INFO}));
+
+#   ## Get the link string through the cache.
+#   $db = lc($db);
+#   my $retval = undef;
+#   if( defined $self->{DB_INFO}{$db} ){
+
+#     my $link_string = $self->{DB_INFO}{$db}{url_syntax};
+
+#     #print STDERR "_Ls_ $link_string\n";
+
+#     ## Insert the id through the link string if one was available.
+#     if( $link_string ){
+#       # ## Special case for UniGene?
+#       # if( $db eq lc('UniGene') ){
+#       # 	## Split id on '.'. First part goes to
+#       # 	## [organism_abbreviation], second part goes to [cluster_id].
+#       # 	my($first, $second) = split(/\./, $id);
+#       # 	$link_string =~ s/\[organism\_abbreviation\]/$first/g;
+#       # 	$link_string =~ s/\[cluster\_id\]/$second/g;
+#       # }else{
+#       $link_string =~ s/\[example\_id\]/$id/g;
+#       # }
+#       $retval = $link_string;
+#     }
+#   }
+
+#   return $retval;
+# }
+
+
+# =item ontology
+
+# # TODO:
+
+# =cut
+# sub ontology {
+
+#   my $self = shift;
+
+#   if( ! defined($self->{ONTOLOGY}) ){
+
+#     my($ret_hash) = _read_frozen_file($self, '/misc_keys.pl');
+
+#     ## Populate our hash.
+#     $self->{ONTOLOGY} = {};
+#     if( defined $ret_hash->{ontology} ){
+#       my $ont = $ret_hash->{ontology};
+#       foreach my $o (@$ont){
+# 	$self->{ONTOLOGY}{$o} = $o;
+# 	#$self->kvetch('ontology: ' . $o);
+#       }
+#     }
+#   }
+#   return $self->{ONTOLOGY};
+# }
+
+
+# =item subset
+
+# # TODO:
+
+# =cut
+# sub subset {
+
+#   my $self = shift;
+
+#   if( ! defined($self->{SUBSET}) ){
+
+#     my($ret_hash) = _read_frozen_file($self, '/misc_keys.pl');
+
+#     ## Populate our hash.
+#     $self->{SUBSET} = {};
+#     if( defined $ret_hash->{subset} ){
+#       my $subs = $ret_hash->{subset};
+#       foreach my $s (@$subs){
+# 	$self->{SUBSET}{$s} = $s;
+# 	#$self->kvetch('subset: ' . $s);
+#       }
+#     }
+#   }
+#   return $self->{SUBSET};
+# }
+
+
+# =item species_to_ncbi_map
+
+# Return href of species.id => species.ncbi_taxa_id
+# WARNING: This is experimental and may be removed/replaced.
+
+# =cut
+# sub species_to_ncbi_map {
+
+#   my $self = shift;
+
+#   if( ! defined($self->{SPECIES_TO_NCBI_MAP}) ){
+#     my ($ret_hash) = _read_frozen_file($self, '/spec_ncbi_map.pl');
+#     $self->{SPECIES_TO_NCBI_MAP} = $ret_hash;
+#   }
+
+#   return $self->{SPECIES_TO_NCBI_MAP};
+# }
 
 
 ###
@@ -1214,22 +1111,6 @@ sub get_interlink {
     (
 
      ## First, things that are in the main app set...
-
-     'gp-details' =>
-     sub {
-       die "interlink mode 'gp-details' requires args" if ! defined $args;
-       my $gp = $args->{gp} || '';
-       my $acc = $args->{acc} || undef;
-       my $db = $args->{db} || undef;
-       if( defined($acc) && defined($db) ){
-	 $gp = $db . ':' . $acc;
-       }
-       my $sid = $args->{session_id} || '';
-       # $ilink = 'gp-details.cgi?gp=' .
-       # 	 #$self->html_safe($gp) . '&session_id=' . $sid;
-       # 	 $gp . '&session_id=' . $sid;
-       $ilink = 'amigo_exp?mode=golr_gene_product_details&gp=' . $gp;
-     },
      'gp_details' =>
      sub {
        die "interlink mode 'gp_details' requires args" if ! defined $args;
@@ -1242,27 +1123,7 @@ sub get_interlink {
        $ilink = 'amigo_exp?mode=golr_gene_product_details&gp=' . $gp;
      },
 
-     'term-assoc' =>
-     sub {
-       die "interlink mode 'term-assoc' requires args" if ! defined $args;
-       my $acc = $args->{acc} || '';
-       my $sid = $args->{session_id} || '';
-       $ilink = 'term-assoc.cgi?term=' .
-	 #$self->html_safe($acc) . '&session_id=' . $sid;
-	 $acc . '&session_id=' . $sid;
-     },
-
-     ## "Classic" version.
-     # 'term-subset' =>
-     # sub {
-     #   die "interlink mode 'term-subset' requires args" if ! defined $args;
-     #   my $acc = $args->{acc} || '';
-     #   my $sid = $args->{session_id} || '';
-     #   $ilink = 'term-details.cgi?term=' .
-     # 	 #$self->html_safe($acc) . '&session_id=' . $sid;
-     # 	 $acc . '&session_id=' . $sid;
-     # },
-     'term-subset' =>
+     'term_subset' =>
      sub {
        die "interlink mode 'term-subset' requires args" if ! defined $args;
        my $acc = $args->{acc} || '';
@@ -1272,19 +1133,6 @@ sub get_interlink {
 	 $acc . '&session_id=' . $sid;
      },
 
-     'gp-assoc' =>
-     sub {
-       die "interlink mode 'gp-assoc' requires args" if ! defined $args;
-       my $gps = $args->{gps} || [];
-       my @prefixed_gps = map{ 'gp=' . $_ } @$gps;
-       my $gps_string = join('&', @prefixed_gps);
-
-       my $sid = $args->{session_id} || '';
-       $ilink = 'gp-assoc.cgi?' . $gps_string
-	 #$self->html_safe($gp) . '&session_id=' . $sid;
-	 . '&session_id=' . $sid;
-     },
-
      ## NOTE: Should now be the same as term-details.
      'term_details' =>
      sub {
@@ -1292,84 +1140,6 @@ sub get_interlink {
        my $acc = $args->{acc} || '';
        #$ilink = 'term_details?term=' . $acc;
        $ilink = 'amigo_exp?mode=golr_term_details&term=' . $acc;
-     },
-
-     ## Switch over to using the new pages.
-     'term-details' =>
-     sub {
-       die "interlink mode 'term-details' requires args" if ! defined $args;
-       my $acc = $args->{acc} || '';
-       my $sid = $args->{session_id} || '';
-       # #$ilink = 'term-details.cgi?term=' .
-       # $ilink = 'term_details?term=' .
-       # 	 #$self->html_safe($acc) . '&session_id=' . $sid;
-       # 	 $acc . '&session_id=' . $sid;
-       $ilink = 'amigo_exp?mode=golr_term_details&term=' . $acc;
-     },
-
-     ## The old way for things like GOOSE as we transition.
-     'term-details-old' =>
-     sub {
-       die "interlink mode 'term-details' requires args" if ! defined $args;
-       my $acc = $args->{acc} || '';
-       my $sid = $args->{session_id} || '';
-       #$ilink = 'term-details.cgi?term=' .
-       $ilink = 'term_details?term=' .
-       	 #$self->html_safe($acc) . '&session_id=' . $sid;
-       	 $acc . '&session_id=' . $sid;
-       #$ilink = 'amigo_exp?mode=golr_term_details&term=' . $acc;
-     },
-
-     'browse' =>
-     sub {
-       die "interlink mode 'browse' requires args" if ! defined $args;
-       my $action = $args->{action} || 'set-tree';
-       my $terms = $args->{terms} || [];
-       my $sid = $args->{session_id} || '';
-       $ilink = 'browse.cgi?action='.
-	 #$self->html_safe($action) .'&tree_view=compact';
-	 $action .'&tree_view=compact';
-       foreach my $acc (keys %$terms){
-	 #$ilink .= '&term=' . $self->html_safe($acc);
-	 $ilink .= '&term=' . $acc;
-       }
-       $ilink .= '&session_id=' . $sid;
-     },
-
-     'homolset_summary' =>
-     sub {
-       my $cache = $args->{cache};
-       my $jump = $args->{jump} || undef;
-       $ilink = 'amigo?mode=homolset_summary';
-       if( defined($cache) ){
-	 $ilink = $ilink . '&cache=' . $cache;
-       }
-       if( defined($jump) ){
-	 #$ilink = $ilink . '#' . $self->html_safe($jump);
-	 $ilink = $ilink . '#' . $jump;
-       }
-     },
-
-     'homolset_graph' =>
-     sub {
-       die "interlink mode 'homolset_graph' requires arg" if ! defined $args;
-       my $hid = $args->{set} || 0;
-       my $format = $args->{format} || 'svg';
-       my $cache = $args->{cache};
-       $ilink = 'amigo?mode=homolset_graph&set=' . $hid . '&format=' . $format;
-       if( defined($cache) ){
-	 $ilink = $ilink . '&cache=' . $cache;
-       }
-     },
-
-     'homolset_annotation' =>
-     sub{
-       die "interlink mode 'homolset_annotation' requires args"
-	 if ! defined $args;
-       my $hid = $args->{set} || 0;
-       my $order = $args->{order} || 'default';
-       $ilink = 'amigo?mode=homolset_annotation&set=' .
-	 $hid . '&order=' . $order;
      },
 
      'visualize' =>
@@ -1459,87 +1229,15 @@ sub get_interlink {
        $ilink = $self->_fuse_hash($ihash);
      },
 
-     'term_search' =>
-     sub {
-       if( ! $self->empty_hash_p($args) ){
-    	 $ilink = 'amigo_exp?mode=live_search_term&'.
-	   $self->hash_to_query_string($args);
-       }else{
-    	 $ilink = 'amigo_exp?mode=live_search_term';
-       }
-     },
-
-     #  ## Next, things that are in the experimental app set...
-     #  'exp_search' =>
-     #  sub {
-     #    my $query = $args->{query} || undef;
-     #    my $type = $args->{type} || 'gp';
-     #    my $page = $args->{page} || 1;
-     #    if( defined($query) ){
-     # 	 $ilink = 'amigo_exp?mode=exp_search'.
-     # 	   #'&query=' . $self->html_safe($query) .
-     # 	   #  '&type=' . $self->html_safe($type).
-     # 	   #    '&page=' . $self->html_safe($page);
-     # 	   '&query=' . $query .
-     # 	     '&type=' . $type .
-     # 	       '&page=' . $page;
-     #    }else{
-     # 	 $ilink = 'amigo_exp?mode=lexical_search';
-     #    }
-     #  },
-     #  'lexical_search' =>
-     #  sub {
-     #    my $query = $args->{query} || undef;
-     #    my $page = $args->{page} || 1;
-     #    if( defined($query) ){
-     # 	 $ilink = 'amigo_exp?mode=lexical_search'.
-     # 	   #'&query=' . $self->html_safe($query) .
-     # 	   #  '&page=' . $self->html_safe($page);
-     # 	   '&query=' . $query .
-     # 	     '&page=' . $page;
-     #    }else{
-     # 	 $ilink = 'amigo_exp?mode=lexical_search';
-     #    }
-     #  },
-
-     'gp_with_2_terms' =>
-     sub {
-       my $term_ids = $args->{terms} || [];
-       #print STDERR "_gw2t_" . @$term_ids . "\n";
-       my @buff = ();
-       foreach my $tid (@{$term_ids}){
-	 push @buff, $tid;
-       }
-       my $term_ids_string = join ' ', @buff;
-       $ilink = 'amigo_exp?mode=gp_with_2_terms&terms=' . $term_ids_string;
-     },
-
-     'layers_graph' =>
-     sub {
-       my $terms = $args->{terms} || [];
-       ## Arrayify.
-       if( ref $terms ne 'ARRAY' ){ $terms = [$terms]; }
-       $ilink = 'amigo_exp?mode=layers_graph&terms=' .
-	 $self->uri_safe(join(' ', @$terms));
-     },
-
-     'navi_js_data' =>
-     sub {
-       #my $i = AmiGO::WebApp::Input->new();
-       #my $params = $i->input_profile('gander');
-       my $lon = $args->{lon};
-       my $lat = $args->{lat};
-       my $focus = $args->{focus};
-       my $zoom = $args->{zoom};
-       my $terms = $args->{terms} || [];
-       my $opt_args = '';
-       $opt_args .= '&focus=' . $focus if $focus;
-       $opt_args .= '&zoom=' . $zoom if $zoom;
-       $opt_args .= '&lon=' . $lon if $lon;
-       $opt_args .= '&lat=' . $lat if $lat;
-       $ilink = 'aserve_exp?mode=navi_js_data' . $opt_args . '&terms=' .
-	 $self->uri_safe(join(' ', @$terms));
-     },
+     # 'term_search' =>
+     # sub {
+     #   if( ! $self->empty_hash_p($args) ){
+     # 	 $ilink = 'amigo_exp?mode=live_search_term&'.
+     # 	   $self->hash_to_query_string($args);
+     #   }else{
+     # 	 $ilink = 'amigo_exp?mode=live_search_term';
+     #   }
+     # },
 
      'id_request' =>
      sub {
@@ -1626,26 +1324,26 @@ sub get_interlink {
 }
 
 
-## Read misc_keys.pl (unless otherwise specified) and return the
-## thawed hash. BUG/TODO: we should be moving away from perl-specific
-## things (i.e. freeze/thaw) to more generic things (JSON & sqlite3).
-sub _read_frozen_file {
+# ## Read misc_keys.pl (unless otherwise specified) and return the
+# ## thawed hash. BUG/TODO: we should be moving away from perl-specific
+# ## things (i.e. freeze/thaw) to more generic things (JSON & sqlite3).
+# sub _read_frozen_file {
 
-  my $self = shift;
-  my $frozen_file = shift || '/misc_keys.pl';
+#   my $self = shift;
+#   my $frozen_file = shift || '/misc_keys.pl';
 
-  ## Try and get it from the spec_keys.pl file.
-  my $file = amigo_env($self, 'cgi_root_dir') . $frozen_file;
-  die "No hash file ($frozen_file) found ($file): $!" if ! -f $file;
-  open (FILE, $file) or die "Cannot open $file: $!";
+#   ## Try and get it from the spec_keys.pl file.
+#   my $file = $self->amigo_env('cgi_root_dir') . $frozen_file;
+#   die "No hash file ($frozen_file) found ($file): $!" if ! -f $file;
+#   open (FILE, $file) or die "Cannot open $file: $!";
 
-  ## Read in hash and thaw.
-  my $misc_hash = '';
-  while (<FILE>) {
-    $misc_hash .= $_;
-  }
-  return thaw $misc_hash;
-}
+#   ## Read in hash and thaw.
+#   my $misc_hash = '';
+#   while (<FILE>) {
+#     $misc_hash .= $_;
+#   }
+#   return thaw $misc_hash;
+# }
 
 
 =item hash_to_query_string
@@ -1827,26 +1525,6 @@ sub empty_hash_p {
   }
 }
 
-
-# =item string_to_range
-
-# Args: string, int
-# Returns: int
-
-# Uniformly (?) returns an int between 0 and int.
-
-# =cut
-# sub string_to_range {
-#   my $self = shift;
-#   my $hash = shift || {};
-
-#   my $num_keys = scalar(keys %$hash);
-#   if( $num_keys == 0 ){
-#     return 1;
-#   }else{
-#     return 0;
-#   }
-# }
 
 ###
 ### Resource and images.

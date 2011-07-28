@@ -31,63 +31,6 @@
     </li>
     [% END %] 
 
-    [% IF page_name == "browse" %]
-    <li class="here">Browse</li>
-    [% ELSE %]
-    <li>
-      <a href="browse.cgi?[% session_id_for_url %]" title="Browse the terms in the Gene Ontology">Browse</a>
-    </li>
-    [% END %]
-
-    [% IF show_blast;
-       IF page_name == 'blast_query' %] 
-    <li class="here">BLAST</li>
-    [% ELSE %] 
-    <li>
-      <a href="blast.cgi?[% session_id_for_url %]" title="BLAST search for gene products">BLAST</a>
-    </li>
-    [% END; END %] 
-    
-    <!--
-    [% IF page_name == "term_enrichment" %]
-    <li class="here">Term&nbsp;Enrichment</li>
-    [% ELSE %]
-    <li>
-      <a href="term_enrichment?[% session_id_for_url %]" title="Find significant terms in the GO">Term&nbsp;Enrichment</a> 
-    </li>
-    [% END %]
-
-    [% IF page_name == "slimmer" %]
-    <li class="here">GO&nbsp;Slimmer</li>
-    [% ELSE %]
-    <li>
-      <a href="slimmer?[% session_id_for_url %]"
-         title="Map your data to high level terms">GO&nbsp;Slimmer</a> 
-    </li>
-    [% END %]
--->
-
-<!--
-    [% IF show_goose_links %]
-       <li><a href="http://go.berkeleybop.org/goose" title="GO Online SQL Environment: query the GO database directly">GOOSE</a>
-       </li>
-    [% END %]
--->
-
-    [% # WARNING: Transition kludge for difference in modes in new amigo. %]
-    [% IF page_name == "amigo" && amigo_mode && amigo_mode == 'homolset_summary' %]
-    <li class="here">
-      <a style="border: 0; background-color: #e9effa; color: #006;"
-	 href="amigo?mode=homolset_summary&amp;session_id=[% session_id %]"
-         title="A table of homolog annotations">Homolog&nbsp;Annotations</a> 
-    </li>
-    [% ELSE %]
-    <li>
-      <a href="amigo?mode=homolset_summary&amp;session_id=[% session_id %]"
-         title="A table of homolog annotations">Homolog&nbsp;Annotations</a>
-    </li>
-    [% END %]
-
     [%# Link out to the stuff in the newer framework. %]
     [% IF page_name == "amigo" && ! amigo_mode %]
     <li class="here">

@@ -12,16 +12,16 @@ package AmiGO::Worker::GOlr::Term;
 use base ("AmiGO::Worker::GOlr");
 
 
-=item get_info
+=item new
 
 Args: term acc string # or arrayref of term acc strings.
-Returns: hash containing various term infomation, keyed by acc
 
 =cut
-sub get_info {
+sub new {
 
-  my $self = shift;
+  my $class = shift;
   my $args = shift || die "need an argument";
+  my $self = $class->SUPER::new();
 
   ## Only array refs internally.
   if( ref $args ne 'ARRAY' ){ $args = [$args]; }
@@ -30,7 +30,7 @@ sub get_info {
   ## (deprecated) AmiGO::Aid::term_information, except now that the
   ## incoming data is so much easier to work with, we remove the extra
   ## layer of abstraction.
-  my $term_info = {};
+  $self->{AWGT_INFO} = {};
   foreach my $arg (@$args){
     my $found_doc = $self->{AEJ_GOLR_DOC}->get_by_id($arg);
 
@@ -40,7 +40,8 @@ sub get_info {
 	{
 	 acc => $found_doc->{id},
 	 name => $found_doc->{label},
-	 ontology_readable => $self->{A_AID}->readable($found_doc->{source}),
+	 #ontology_readable => $self->{A_AID}->readable($found_doc->{source}),
+	 ontology_readable => $found_doc->{source},
 	 ontology => $found_doc->{source},
 	 term_link =>
 	 $self->get_interlink({mode=>'term-details',
@@ -56,10 +57,24 @@ sub get_info {
 	 term_dbxrefs => [],
 	};
     }
-    $term_info->{$arg} = $intermediate;
+    $self->{AWGT_INFO}{$arg} = $intermediate;
   }
 
-  return $term_info;
+  bless $self, $class;
+  return $self;
+}
+
+
+=item get_info
+
+Args: n/a
+Returns: hash containing various term infomation, keyed by acc
+
+=cut
+sub get_info {
+
+  my $self = shift;
+  return $self->{AWGT_INFO};
 }
 
 

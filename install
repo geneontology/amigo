@@ -246,7 +246,6 @@ foreach( @mods ){
 }
 
 ## Copy statics.
-force_copy(Cwd::cwd() . '/templates', $env_conf{AMIGO_CGI_ROOT_DIR} );
 force_copy(Cwd::cwd() . '/css', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
 force_copy(Cwd::cwd() . '/images', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
 force_copy(Cwd::cwd() . '/javascript', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
@@ -261,8 +260,10 @@ force_copy(Cwd::cwd() . '/javascript', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
 ## Get the (new) graph/tree stuff over.
 ## TODO/BUG: Redo this layout later.
 
+# force_copy($env_conf{GO_JS_ROOT},
+# 	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
 force_copy($env_conf{GO_JS_ROOT},
-	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
+	   $env_conf{AMIGO_HTDOCS_ROOT_DIR});
 
 #}
 

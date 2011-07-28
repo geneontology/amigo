@@ -4,9 +4,7 @@
 ####
 
 BEGIN { require "config.pl"; }
-use lib $ENV{GO_DEV_ROOT} . '/go-perl';
-use lib $ENV{GO_DEV_ROOT} . '/go-db-perl';
-use lib $ENV{GO_DEV_ROOT} . '/amigo/perl';
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
 use lib $ENV{GOBO_ROOT};
 
 package AmiGO::WebApp::Visualize;
@@ -31,10 +29,12 @@ sub setup {
 
   $self->{STATELESS} = 1;
 
-  $self->tt_config(TEMPLATE_OPTIONS =>
-		   {INCLUDE_PATH =>
-		    $self->{CORE}->amigo_env('GO_DEV_ROOT') .
-		    '/amigo/amigo/templates'});
+  # $self->tt_config(TEMPLATE_OPTIONS =>
+  # 		   {INCLUDE_PATH =>
+  # 		    $self->{CORE}->amigo_env('GO_DEV_ROOT') .
+  # 		    '/amigo/amigo/templates'});
+  $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
+			 '/templates/html');
 
   $self->mode_param('mode');
   $self->start_mode('status');

@@ -61,18 +61,18 @@ sub new {
   my $self  = $class->SUPER::new();
   #my $arg = shift || {};
 
-  #   my @foo = keys %{$self->{CORE}->species()};
-  #   $self->{POSSIBLE_SPECIES_LIST} = \@foo;
-  #   $self->{CORE}->kvetch('_in_spec_ ' . join ' ', @foo);
-  $self->{POSSIBLE_SPECIES_LIST} = [keys %{$self->{CORE}->species()}];
-  $self->{POSSIBLE_SOURCE_LIST} = [keys %{$self->{CORE}->source()}];
-  $self->{POSSIBLE_GPTYPE_LIST} = [keys %{$self->{CORE}->gptype()}];
-  $self->{POSSIBLE_ONTOLOGY_LIST} = [keys %{$self->{CORE}->ontology()}];
+  # # my @foo = keys %{$self->{CORE}->species()};
+  # # $self->{POSSIBLE_SPECIES_LIST} = \@foo;
+  # # $self->{CORE}->kvetch('_in_spec_ ' . join ' ', @foo);
+  # $self->{POSSIBLE_SPECIES_LIST} = [keys %{$self->{CORE}->species()}];
+  # $self->{POSSIBLE_SOURCE_LIST} = [keys %{$self->{CORE}->source()}];
+  # $self->{POSSIBLE_GPTYPE_LIST} = [keys %{$self->{CORE}->gptype()}];
+  # $self->{POSSIBLE_ONTOLOGY_LIST} = [keys %{$self->{CORE}->ontology()}];
 
-  $self->{CORE}->kvetch('_spec_ '.join(' ', @{$self->{POSSIBLE_SPECIES_LIST}}));
-  $self->{CORE}->kvetch('_src_ '.join(' ', @{$self->{POSSIBLE_SOURCE_LIST}}));
-  $self->{CORE}->kvetch('_gpt_ '.join(' ', @{$self->{POSSIBLE_GPTYPE_LIST}}));
-  $self->{CORE}->kvetch('_ont_ '.join(' ', @{$self->{POSSIBLE_ONTOLOGY_LIST}}));
+  # $self->{CORE}->kvetch('_spec_'.join(' ',@{$self->{POSSIBLE_SPECIES_LIST}}));
+  # $self->{CORE}->kvetch('_src_'.join(' ',@{$self->{POSSIBLE_SOURCE_LIST}}));
+  # $self->{CORE}->kvetch('_gpt_'.join(' ',@{$self->{POSSIBLE_GPTYPE_LIST}}));
+  # $self->{CORE}->kvetch('_ont_'.join(' ',@{$self->{POSSIBLE_ONTOLOGY_LIST}}));
 
   ## TODO: Junk below?
   ## We'll borrow SUCCESS and ERROR_MESSAGE from AmiGO.
@@ -460,8 +460,8 @@ sub _add_scientific {
 sub _add_species {
   my $self = shift;
   push @{$profile->{optional}}, 'species';
-  $profile->{constraint_methods}{species} =
-    is_in_list_p(@{$self->{POSSIBLE_SPECIES_LIST}});
+  # $profile->{constraint_methods}{species} =
+  #   is_in_list_p(@{$self->{POSSIBLE_SPECIES_LIST}});
 }
 
 
@@ -469,8 +469,8 @@ sub _add_species {
 sub _add_source {
   my $self = shift;
   push @{$profile->{optional}}, 'source';
-  $profile->{constraint_methods}{source} =
-    is_in_list_p(@{$self->{POSSIBLE_SOURCE_LIST}});
+  # $profile->{constraint_methods}{source} =
+  #   is_in_list_p(@{$self->{POSSIBLE_SOURCE_LIST}});
 }
 
 
@@ -478,8 +478,8 @@ sub _add_source {
 sub _add_gptype {
   my $self = shift;
   push @{$profile->{optional}}, 'gptype';
-  $profile->{constraint_methods}{gptype} =
-    is_in_list_p(@{$self->{POSSIBLE_GPTYPE_LIST}});
+  # $profile->{constraint_methods}{gptype} =
+  #   is_in_list_p(@{$self->{POSSIBLE_GPTYPE_LIST}});
 }
 
 

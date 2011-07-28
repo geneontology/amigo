@@ -1,0 +1,482 @@
+<!-- START template: term_details.tmpl -->
+
+<div class="contents term">
+  <h1 class="name">[% TERM_INFO.name %]</h1>
+  
+  [% IF TERM_INFO.obsolete_p %]
+  <div class="block obsolete" id="info">
+  [% ELSE %]
+    <ul id="navPage" class="inline C">
+      <li><a href="#info" title="View term information">Term information <img src="[% image_dir %]/down.png" alt="in-page link"></a></li>
+      <li><a href="#lineage" title="View the placement of the term in the tree">Term neighborhood <img src="[% image_dir %]/down.png" alt="in-page link"></a></li>
+      <li><a href="#xrefs" title="View cross-references to external databases">External references <img src="[% image_dir %]/down.png" alt="in-page link"></a></li>
+      <li>
+	<a href="[% GENE_PRODUCT_ASSOCIATIONS_LINK %]"
+	   title="View gene products associated with this term">
+	  [% IF GENE_PRODUCT_ASSOCIATIONS_LINK || ( GENE_PRODUCT_ASSOCIATIONS_COUNT && GENE_PRODUCT_ASSOCIATIONS_COUNT == 0 ) %]
+	  [%    IF GENE_PRODUCT_ASSOCIATIONS_COUNT %]
+	  [%       IF GENE_PRODUCT_ASSOCIATIONS_COUNT == 1 %]
+	  1 gene product association
+	  [%       ELSE %]
+	  [% GENE_PRODUCT_ASSOCIATIONS_COUNT %] gene product associations
+	  [%       END %]
+	  [%    ELSE %]
+	  Gene product associations
+	  [%    END %]
+	  <img src="[% image_dir %]/left.png" alt="link to another page" />
+	</a>
+	[% END %]
+      </li>
+      <!-- gp_assoc_text = TERM_INFO.n_deep_products _ ' gene product association'; -->
+      <!-- IF TERM_INFO.n_deep_products != 1; -->
+      <!-- gp_assoc_text = gp_assoc_text _ 's'; -->
+      <!-- <li><a href="term-assoc.cgi?term=[% TERM_INFO.acc %]&amp;session_id=[% session_id %]" title="View gene products associated with this term">[% gp_assoc_text %] <img src="[% image_dir %]/left.png" alt="link to another page"></a></li> -->
+      [% END %]
+    </ul>
+
+    <div class="block" id="info">
+
+      <h2>Term Information</h2>
+
+      <dl class="term-info">
+
+     <!-- Acc and ont. -->
+     <dt>Accession</dt>
+     <dd class="acc">[% TERM_INFO.acc %]</dd>
+     <dt>Ontology</dt>
+     <dd class="type">[% TERM_INFO.ontology_readable %]</dd>
+
+     <!-- Synonyms -->
+     <dt>Synonyms</dt>
+     [% sl = TERM_INFO.synonyms %]
+     [% IF sl.size == 0 %]
+     <dd>None</dd>
+     [% ELSE %]
+     [%    FOREACH synh IN sl %]
+     <dd class="syn">[% IF synh.scope %]<span class="type">[% synh.scope %]</span>: [% END %][% synh.acc %]</dd>
+     [%    END %]
+     [% END %]
+
+     <!-- Definition -->
+     <dt>Definition</dt>
+     [% IF TERM_INFO.definition %]
+     <dd class="def">[% TERM_INFO.definition %]
+       [% IF TERM_INFO.term_dbxrefs && TERM_INFO.term_dbxrefs.size > 0 %]
+       <br /><i>Source:</i>
+       [%    txref_count = TERM_INFO.term_dbxrefs.size %]
+       [%    txref_counter = 1 %]
+       [%    FOREACH txref = TERM_INFO.term_dbxrefs %]
+       [% #      href = txref.link %]
+       [%       vis = txref.id %]
+       [%       IF txref.dbname == "URL" %]
+       [% #         href = txref.key %]
+       [%          vis = txref.key %]
+       [%       END %]
+       [%    IF  txref.dbname == 'PMID' || txref.dbname == 'DOI' %]
+       <cite class="paper">[% ELSE %]<cite>[% END %][% IF txref.link %]<a title="Go to [% vis %]" href="[% txref.link %]">[% vis %]</a>[% ELSE %][% vis %][% END %]</cite>[% IF txref_counter < txref_count; txref_counter = txref_counter + 1 %],[% END %]
+       [%    END %]
+       [% ELSE %]
+       [ source: unknown ]
+       [% END %]
+     </dd>
+     [% ELSE %]
+     <dd>None</dd>
+     [% END %]
+
+     <!-- Comment -->
+     <dt>Comment</dt>
+     [% IF TERM_INFO.comment %]
+     <dd class="comment">[% TERM_INFO.comment %]</dd>
+     [% ELSE %]
+     <dd>None</dd>
+     [% END %]
+     [%	IF TERM_INFO.is_obsolete;
+     IF TERM_INFO.replaced_by_list;
+     '<dd>Replaced by';
+       FOREACH t = TERM_INFO.replaced_by_list %]
+       <a href="term_details?term=[% t.acc %]&amp;session_id=[% session_id %]">[% t.acc %] : [% t.name %]</a>
+       [%				END;
+       '</dd>';
+     END;
+     IF TERM_INFO.consider_list;
+     '<dd>Consider';
+       FOREACH t = TERM_INFO.consider_list %]
+       <a href="term_details?term=[% t.acc %]&amp;session_id=[% session_id %]">[% t.acc %] : [% t.name %]</a>
+       [%				END;
+       '</dd>';
+     END;
+     END %]
+
+     <!-- Subsets -->
+     <dt>Subset</dt>
+     [% IF TERM_INFO.subsets.size != 0 %]
+     <dd><ul class="subset">
+	 [% FOREACH sub = TERM_INFO.subsets %]
+	 [% #   IF sub.link %]
+	 [%    IF sub.acc.search('goslim') %]
+	 <li><a href="[% sub.link %]" title="View details of the [% sub.name %] GO slim">[% sub.name %]</a></li>
+	 [%    ELSE %]
+	 <!-- <li>Unavailable</li> -->
+	 <li>[% sub.name %]</li>
+	 [%    END %]
+	 [% END %]
+     </ul></dd>
+     [% ELSE %]
+     <dd>None</dd>
+     [% END %]
+     
+     [% INCLUDE common/term_details_gonuts.tmpl %]
+
+   </dl>
+
+   <p class="toTop">
+     <a href="#top" title="Back to the top of the page">Back to top</a> 
+   </p>
+ </div>
+ 
+ <!-- Hrm... -->
+ [% UNLESS TERM_INFO.obsolete_p %]
+ [% # IF graph %]
+ [% IF 1 == 1 %]
+
+ <noscript>
+   <div class="block warning">
+     <h2>Notice</h2>
+     <p>
+       Enable JavaScript in your browser and reload for gene product
+       count filters and links.
+     </p>
+   </div>
+ </noscript>
+
+ <div class="block" id="lineage">
+   <h2>Term Neighborhood for [% TERM_INFO.name %] ([% TERM_INFO.acc %])</h2>
+   
+   <!-- Holder for term gp filters. -->
+   <div id="gp-count-filters" class="filters"></div>
+
+   <!-- Display tabbing. -->
+   <div id="display-tabs" style="font-size:100%;">
+     <ul>
+       <li>
+	 <a href="#display-sentences"
+	    class="override"><span>Ancestors and Children</span></a>
+       </li>
+       <li>
+	 <a href="#display-graph"
+	    class="override"><span>Inferred Tree View</span></a>
+       </li>
+       <li>
+	 <a href="#display-qg"
+	    class="override"><span>Graph View</span></a>
+       </li>
+       <li>
+	 <a href="#display-out"
+	    class="override"><span>Other Views</span></a>
+       </li>
+       <li>
+	 <a href="#display-down"
+	    class="override"><span>Downloads</span></a>
+       </li>
+       <li>
+	 <a href="#display-xref"
+	    class="override"><span>Mappings</span></a>
+       </li>
+     </ul>
+
+     <!-- -->
+     <div id="display-graph">
+
+       <!-- <h4>Term lineage for [% TERM_INFO.name %], including inferred links:</h4> -->
+
+       <ul>
+	 <!-- <li> -->
+	 <!-- 	 <h4>[[% TERM_INFO.acc %]] [% TERM_INFO.name %]:</h4> -->
+	 <!-- </li> -->
+
+	 [% d = 0 %]
+	 [% IF PARENT_CHUNKS_BY_DEPTH && MAX_DEPTH > 0 %]
+	 [%    WHILE d <= MAX_DEPTH %]
+         [%       IF PARENT_CHUNKS_BY_DEPTH.$d %]
+         [%          ANCESTOR_CHUNKS = PARENT_CHUNKS_BY_DEPTH.$d %]
+         [%          FOREACH anc IN ANCESTOR_CHUNKS %]
+         [%             tmp_acc = anc.acc %]
+         [%             tmp_cnt = GPA_COUNTS.$tmp_acc %]
+         [%             default_count = '[' _ tmp_cnt _ ' gene products]' %]
+         [%             graph_entry = anc %]
+         [%             number_of_spaces = d %]
+         [%             INCLUDE common/term_details_entry.tmpl %]
+         [%             default_count = "" %]
+         [%          END %]
+         [%       END %]
+         [%       d = d + 1 %]
+         [%    END %]
+         [% ELSE %]
+         [%    d = d + 1 %]
+         [% END %]
+
+         [% graph_entry = TERM_INFO %]
+         [% number_of_spaces = d - 1 %]
+         [% override_image = image_dir _ "/" _ "term_lineage_wedge.png" %]
+         [% override_title = "Current term" %]
+         [% override_link = "1" %]
+         [% override_bold = "1" %]
+         [% tmp_acc = graph_entry.acc %]
+         [% tmp_cnt = GPA_COUNTS.$tmp_acc %]
+         [% default_count = '[' _ tmp_cnt _ ' gene products]' %]
+         [% INCLUDE common/term_details_entry.tmpl %]
+         [% # Reset subroutine values. %]
+         [% override_image = "" %]
+         [% override_title = "" %]
+         [% override_link = "" %]
+         [% override_bold = "" %]
+         [% default_count = "" %]
+
+         [% IF CHILD_CHUNKS && CHILD_CHUNKS.size > 0 %]
+         [%    FOREACH desc IN CHILD_CHUNKS %]
+         [%       tmp_acc = desc.acc %]
+         [%       tmp_cnt = GPA_COUNTS.$tmp_acc %]
+         [%       default_count = '[' _ tmp_cnt _ ' gene products]' %]
+         [%       graph_entry = desc %]
+         [%       number_of_spaces = d %]
+         [%       INCLUDE common/term_details_entry.tmpl %]
+         [%       default_count = "" %]
+         [%    END %]
+         [% ELSE %]
+         [% END %]
+       </ul>
+     </div>
+
+     <!-- -->
+     <div id="display-sentences">
+
+      [% IF PARENT_CHUNKS_BY_DEPTH && MAX_DEPTH > 0 %]
+
+       <table id="all-table-above"
+	      style="border-collapse: collapse;"
+	      cellpadding="0" cellspacing="0">
+
+	 <caption>
+	   Ancestors of [% TERM_INFO.name %] ([% TERM_INFO.acc %])
+	 </caption>
+
+	 <thead>
+	   <tr>
+	     <th style="width: 35%">subject<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by subject" /></th>
+	     <th style="width: 15%">relation<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by relation" /></th>
+	     <th style="width: 35%">object<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by object" /></th>
+	     <th style="width: 15%">annotations<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by count" /></th>
+	   </tr>
+	 </thead>
+
+	 <tbody>
+       
+	   [%    eo_rows = 0 %]
+           [%    d = 0 %]
+           [%    WHILE d <= MAX_DEPTH %]
+           [%       IF PARENT_CHUNKS_BY_DEPTH.$d %]
+           [%          ANCESTOR_CHUNKS = PARENT_CHUNKS_BY_DEPTH.$d %]
+           [%          FOREACH anc IN ANCESTOR_CHUNKS %]
+           [%             subject_chunk = TERM_INFO %]
+           [%             object_chunk = anc %]
+           [%             even_odd_rows = eo_rows %]
+           [%             munge_id_tail = "_a" %]
+           [%             count_type = "object" %]
+           [%             tmp_acc = anc.acc %]
+           [%             tmp_cnt = GPA_COUNTS.$tmp_acc %]
+           [%             default_count = tmp_cnt %]
+           [%             INCLUDE common/term_details_re_row.tmpl %]
+           [%             default_count = "" %]
+           [%             eo_rows = eo_rows + 1 %]
+           [%          END %]
+           [%       END %]
+           [%       d = d + 1 %]
+           [%    END %]
+
+	 </tbody>
+
+       </table>
+
+       [% ELSE %]
+
+       <p>
+	 This term has no ancestors.
+       </p>
+
+       [% END %]
+
+       [% IF CHILD_CHUNKS && CHILD_CHUNKS.size > 0 %]
+
+       <table id="all-table-below"
+	      style="border-collapse: collapse;"
+	      cellpadding="0" cellspacing="0">
+
+	 <caption>
+	   Children of [% TERM_INFO.name %] ([% TERM_INFO.acc %])
+	 </caption>
+
+	 <thead>
+	   <tr>
+	     <th style="width: 35%">subject<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by subject" /></th>
+	     <th style="width: 15%">relation<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by relation" /></th>
+	     <th style="width: 35%">object<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by object" /></th>
+	     <th style="width: 15%">annotations<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by count" /></th>
+	   </tr>
+	 </thead>
+
+	 <tbody>
+       
+	   [%    eo_rows = 0 %]
+           [%    FOREACH desc IN CHILD_CHUNKS %]
+           [%       subject_chunk = desc %]
+           [%       object_chunk = TERM_INFO %]
+           [%       even_odd_rows = eo_rows %]
+           [%       munge_id_tail = "_a" %]
+           [%       count_type = "subject" %]
+           [%       tmp_acc = desc.acc %]
+           [%       tmp_cnt = GPA_COUNTS.$tmp_acc %]
+           [%       default_count = tmp_cnt %]
+           [%       INCLUDE common/term_details_re_row.tmpl %]
+           [%       default_count = "" %]
+           [%       eo_rows = eo_rows + 1 %]
+           [%    END %]
+
+	 </tbody>
+
+       </table>
+
+       [% ELSE %]
+
+       <p>
+	 This term has no children.
+       </p>
+
+       [% END %]
+
+     </div>
+
+      <div id="display-qg">
+	[% IF QUICKGO_ENGINE_P %]
+	<p>
+	  View this term in
+	  <a href="[% QUICKGO_TERM_LINK %]"
+	     title="Go to the QuickGO term page for [% TERM_INFO.acc %]">QuickGO</a>.
+	</p>
+	<p>
+	  <a class="override"
+	     href="[% QUICKGO_TERM_LINK %]"
+	     title="Go to the QuickGO term page for [% TERM_INFO.acc %]">
+	    <img src="[% VIZ_QUICKGO_LINK %]"
+		 alt="Graph of [% TERM_INFO.acc %] from QuickGO" />
+	  </a>
+	</p>
+	[% ELSE %]
+	<p>
+	  <a class="override"
+	     href="[% VIZ_STATIC_LINK %]"
+	     title="Stand-alone graphic for [% TERM_INFO.acc %]">
+	    <img src="[% VIZ_STATIC_LINK %]"
+		 alt="Graph of [% TERM_INFO.acc %]" />
+	  </a>
+	</p>
+	[% END %]
+      </div>
+
+      <div id="display-out">
+	<p>
+	  <ul>
+	    <li><b>Additional viewing options...</b></li>
+	    <!-- TODO: do this with breadcrumbsy string (taken from REST URL) --> 
+	    <!-- <li>Last action: [% last_action || 'unknown' %]</li> -->
+	    <li><a href="browse.cgi?action=set-tree&amp;[% vbridge %]&amp;session_id=[% session_id %]" title="View tree in GO browser">View in tree browser</a></li>
+	    <li><a href="[% VIZ_STATIC_LINK %]"
+		   title="View the tree in graph form as a static PNG image">Graphical view (PNG)</a></li>
+	    <li><a href="[% VIZ_DYNAMIC_LINK %]"
+		   title="View the tree in graph form as an interactive SVG+JS document">Graphical view (SVG)</a></li>
+	    <!-- One day this will be out of experimental. -->
+	    <!-- <li><a href="[% NAVIGATION_LINK %]" -->
+		 <!-- 	      title="Navigate the GO, using the current term as a seed">GO Navigation</a></li> -->
+	  </ul>
+	</p>       
+      </div>
+
+      <div id="display-down">
+	<p>
+	  <ul>
+	    <li><b>Downloads in...</b></li>
+	    <li><a href="[% cgi %].cgi?[% vbridge %]&amp;format=obo" title="Download the tree in OBO text format">OBO</a></li>
+	    <li><a href="[% cgi %].cgi?[% vbridge %]&amp;format=rdfxml" title="Download the tree in RDF-XML format">RDF-XML</a></li>
+	    <li><a href="[% cgi %].cgi?[% vbridge %]&amp;format=dot" title="Download the tree in GraphViz dot format">GraphViz dot</a></li>
+	  </ul>
+	</p>       
+      </div>
+
+      <div id="display-xref">
+	<!-- <p> -->
+	<!--   <ul> -->
+	<!--     <li><b>External references...</b></li> -->
+	<!--     <li>...</li> -->
+	<!--   </ul> -->
+	<!-- </p>        -->
+	
+	<!-- XRefs -->
+	<!-- <div class="block" id="xrefs"> -->
+	<!--   <h2>External References</h2> -->
+	  [% IF TERM_INFO.dbxrefs && TERM_INFO.dbxrefs.size > 0 %]
+	  [% xref_hash = {} %]
+	  [% FOREACH xref = TERM_INFO.dbxrefs;
+          db = xref.dbname;
+          IF xref_hash.$db;
+          xref_list = xref_hash.$db;
+          xref_list.push(xref);
+          xref_hash.$db = xref_list;
+          ELSE;
+          xref_list = [];
+          xref_list.push(xref);
+          xref_hash.$db = xref_list;
+          END;
+	  END %]
+	  <dl class="ext-ref">
+	    [% FOREACH db =  xref_hash.keys.sort %]
+	    <dt>
+	      <a class="img"
+		 href="#[% db %]"><img src="[% image_dir %]/toggle-open.gif"
+				       alt="toggle" id="[% db %]Img"></a>
+	      [% db %] ([% xref_hash.$db.size %])
+	    </dt>
+	    <dd id="[% db %]"><ul>
+		[% FOREACH xref_item = xref_hash.$db %]
+		<li>
+		  [% xref_key = xref_item.key;
+		  db_link = xref_item.link;
+		  IF db_link %]
+		  <a href="[% db_link %]"
+		     title="View [% xref_key %] in [% db %]">[% xref_key %]</a>
+		  [% ELSE %]
+		  [%    xref_key %]
+		  [% END;
+		  IF xref_item.xref_desc %] [% xref_item.xref_desc %][% END %]
+		</li>
+		[% END %]
+	    </ul></dd>
+	    [% END %]
+	  </dl>
+
+	  [% ELSE %]
+	  <p>None.</p>
+	  [% END %]
+	<!-- </div> -->
+
+      </div>
+
+</div>
+
+   <p class="toTop">
+     <a href="#top" title="Back to the top of the page">Back to top</a> 
+   </p>
+ </div>
+ [% END %]
+ 
+ [% END %]
+</div>
+<!-- END template: term_details.tmpl -->

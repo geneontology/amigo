@@ -505,8 +505,6 @@ sub _common_params_settings {
   $params->{GOOGLE_ANALYTICS_ID} = $self->{CORE}->google_analytics_id();
 
   $params->{STANDARD_CSS} = 'yes';
-  $params->{STANDARD_YUI} = 'yes';
-  $params->{IE8_COMPAT_MODE} = 'no'; # force ie8 to act like ie7.
 
   ## Create and add to output buffer.
   ## TODO: these need to be folded in somewhere--shouldn't be here...
@@ -524,7 +522,7 @@ sub _common_params_settings {
   $params->{page_name} = 'amigo';
   $params->{amigo_mode} = $additional->{amigo_mode} || '';
   $params->{image_dir} = $self->{CORE}->amigo_env('AMIGO_HTML_URL') . '/images';
-  $params->{js_dir} = $self->{CORE}->amigo_env('AMIGO_HTML_URL') . '/js';
+  $params->{js_dir} = $self->{CORE}->amigo_env('AMIGO_HTML_URL') .'/javascript';
   $params->{css_dir} = $self->{CORE}->amigo_env('AMIGO_HTML_URL') . '/css';
   $params->{show_blast} = $self->{CORE}->amigo_env('AMIGO_SHOW_BLAST') || 0;
   $params->{html_url} = $self->{CORE}->amigo_env('AMIGO_HTML_URL');
@@ -680,7 +678,7 @@ sub generate_template_page {
   if( $self->{CORE}->verbose_p() ){
     push @mbuf, '<!-- DEBUG -->';
     foreach my $key (keys %{$self->{WEBAPP_TEMPLATE_PARAMS}}){
-      my $val = $self->{WEBAPP_TEMPLATE_PARAMS}{$key};
+      my $val = $self->{WEBAPP_TEMPLATE_PARAMS}{$key} || '<undefined>';
       push @mbuf, "<!-- $key : $val -->";
     }
   }

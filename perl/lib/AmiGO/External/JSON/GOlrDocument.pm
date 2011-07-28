@@ -7,10 +7,7 @@ returns nothing.
 =cut
 
 package AmiGO::External::JSON::GOlrDocument;
-
 use base ("AmiGO::External::JSON");
-
-use Data::Dumper;
 
 
 =item new

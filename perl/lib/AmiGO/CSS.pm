@@ -108,7 +108,7 @@ sub get_css {
   ## registry. Otherwise, hope the transformations goes well...
   if( $uicss2path->{$sig} ){
     push @mbuf, $self->amigo_env('AMIGO_HTML_URL');
-    push @mbuf, '/js/';
+    push @mbuf, '/javascript/';
     push @mbuf, $uicss2path->{$sig};
   }elsif( $css2path->{$sig} ){
     push @mbuf, $self->amigo_env('AMIGO_HTML_URL');

@@ -257,7 +257,7 @@ sub get_lib {
 
   ## If it is not in the registry, transform and hope for the best...
   push @mbuf, $self->amigo_env('AMIGO_HTML_URL');
-  push @mbuf, '/js/';
+  push @mbuf, '/javascript/';
   my $path = $sig2path->{$sig} ? $sig2path->{$sig} : $sig;
   if( $path =~ /\.js$/ ){
     push @mbuf, $path;

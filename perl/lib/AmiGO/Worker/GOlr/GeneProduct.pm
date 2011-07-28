@@ -12,13 +12,13 @@ package AmiGO::Worker::GOlr::GeneProduct;
 use base ("AmiGO::Worker::GOlr");
 
 
-=item get_info
+=item new
 
 Args: gp acc string # or arrayref of gp acc strings.
 Returns: hash containing various gp infomation, keyed by acc
 
 =cut
-sub get_info {
+sub new {
 
   my $self = shift;
   my $args = shift || die "need an argument";

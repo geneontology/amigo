@@ -1,0 +1,94 @@
+<!-- START: live_search_gold.tmpl -->
+
+<div class="contents">
+
+  <h1>Live Search</h1>
+
+  <div class="block">
+    <h2>Searches in AmiGO</h2>
+    
+    <p>
+      Live Search will return results from the Gene Ontology as you
+      type. No results will be returned until the search input is at
+      least three characters. After that, you may also use the filters
+      to limit or reduce the results.
+    </p>
+      
+    <p>
+      For a detailed explanation on how to search, a list of what
+      fields can be used in the search string, or an explanation for
+      how to get the results you want, please view the AmiGO
+      <a title="Go to Live Search documentation"
+	 href="http://wiki.geneontology.org/index.php/AmiGO_Manual:_Live_Search">Live Search documentation</a>.
+    </p>
+
+    <!-- <p> -->
+    <!--   <img src="[% STAR_IMAGE %]" -->
+    <!-- 	   alt="Belongs to a homolog set." /> -->
+    <!--   indicates that the gene product is a member of a -->
+    <!--   <a href="http://www.geneontology.org/GO.refgenome.shtml">homolog set</a>. -->
+    <!--   Click on the gene product id link for more information. -->
+    <!-- </p> -->
+
+    <!-- please read the -->
+    <!--      <a id="tiptarget" -->
+	      <!-- 	 title="Explanation of query syntax" -->
+	      <!-- 	 href="http://lucene.apache.org/java/1_4_3/queryparsersyntax.html">query syntax</a> documentation. -->
+	      
+  </div>
+
+  <noscript>
+    <div class="block warning">
+      <h2>Notice</h2>
+      <p>
+	Currently, the functionality of this page depends on
+	Javascript. To use this page, enable JavaScript in your
+	browser and reload.
+      </p>
+    </div>
+  </noscript>
+
+  <div class="twocol-wrapper">
+    <div class="twocol-leftcolumn" style="margin-top: -15px;">
+      <!-- Start controls insert -->
+      <div id="search_block" class="block">
+	<h2>Search and Filter</h2>
+	<div id="search">
+	  <form id="app-form" action="#" method="get">
+	    <div id="app-form-query">
+	      [Loading query box...]
+	    </div>
+	    <div id="app-form-filters">
+	      [Loading filters...]
+	    </div>
+	  </form>
+	</div>
+      </div>
+      <!-- End controls insert -->
+    </div>
+    <div class="twocol-content" style="margin-left: 26em; margin-top: -15px;">
+      <!-- Start results insert -->
+      <div id="results_block" class="block">
+	<h2>Results</h2>
+	<div id="load_float"></div>
+	<div id="meta_results">
+	  <p>
+	    No results yet.
+	  </p>
+	</div>
+	<div id="results_div">
+	  <p>
+	    Please read the
+	    <a title="Go to Live Search documentation"
+	       href="http://wiki.geneontology.org/index.php/AmiGO_Manual:_Live_Search">Live Search documentation</a>
+	    for usage.
+	  </p>
+	</div>
+      </div>
+      <!-- End results insert -->
+    </div>
+  </div>
+  
+</div>
+
+<!-- END: live_search_gold.tmpl -->

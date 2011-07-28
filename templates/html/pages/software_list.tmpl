@@ -1,0 +1,101 @@
+<!-- Begin: software_list.tmpl -->
+<div class="contents">
+
+  <h1>AmiGO Tools and Resources</h1>
+
+  <div class="block">
+
+    <h2>Tools and Resources in AmiGO</h2>
+
+    <p>
+      <a href="[% base %]/amigo?mode=live_search_gold">Search</a>
+      quickly searches the GO as you type and allows you to use a
+      powerful search syntax (including boolean operators). This is
+      the future--based off of the GOLD/Solr services (GOlr).
+    </p>
+    
+    <p>
+      <a href="http://berkeleybop.org/goose" title="GO Online SQL
+      Environment: query the GO database directly">GOOSE</a> is the GO
+      Online SQL Environment. Using this, users may query the GO
+      database directly using SQL, or edit one of the already made
+      templates.
+    </p>
+
+    <p>
+      <a href="[% base %]/amigo?mode=visualize&amp;session_id=[%
+      session_id %]">Visualization</a> of the GO graph. Freely make
+      your own ontology graph, including label and color
+      changes. Please see the documentation for
+      more <a href="http://wiki.geneontology.org/index.php/AmiGO_Manual:_Visualize">details</a>.
+    </p>
+    
+    <p>
+      <a href="[% base %]/amigo?mode=golr_term_details&term=GO:0022008">Term Details</a>
+      (trying to make the page work off of the Solr backend).
+    </p>
+    
+    <p>
+      <a href="[% base %]/amigo?mode=golr_gene_product_details&gp=dictyBase:DDB_G0267178">Gene Product Details</a>
+      (trying to make the page work off of the Solr backend).
+    </p>
+    
+  </div>
+
+  [% IF BETA == 1 %]
+
+  <div class="block">
+
+    <h2>AmiGO Software in the Lab</h2>
+
+    <h3>Beta features being tested and functional demos:</h3>
+
+    <p>
+      <a href="[% base %]/pgraph">Phylotree/Graph</a> test using new generic graph system (single static data set).
+    </p>
+
+    <p>
+      <a href="[% base %]/pgraph?mode=pthr10170">Phylotree/Graph of PTHR10170</a> test using new generic graph system (hand-coded test of PTHR10170).
+    </p>
+
+    <p>
+      <a href="[% base %]/phylotree">Phylotree</a> data using PANTHER and old Newick system.
+    </p>
+    
+    <p>
+      <a href="[% base %]/amigo_exp?mode=front_page">Front Page</a> (including mock-up of the with the autocompleter).</p>
+    
+    <p>
+      <a href="[% base %]/amigo_exp?mode=workspace_client">Workspace</a> is a workspace and session system interface.
+    </p>
+
+    <!-- <p> -->
+    <!--   <a href="[% base %]/amigo_exp?mode=exhibit">Ajax-Solr -->
+    <!--   Search</a> is a secondary attempt to create a fast search backed -->
+    <!--   by Solr, using the Ajax-Solr MVC(ish) library as the jumping-off -->
+    <!--   point. -->
+    <!-- </p> -->
+
+  </div>
+    
+  <div class="block">
+
+    <h2>AmiGO Software in the Garage</h2>
+
+    <h3>Alpha features or proofs of concept:</h3>
+
+    <p>
+      <a href="[% base %]/amigo_exp?mode=ntree">Phylogenic Tree</a> browser in JavaScript.
+    </p>
+    
+    <p>
+      <a href="[% base %]/amigo_exp?mode=scratch">Scratch</a> space
+      for pieces not part of something else; a rotating guest list.
+    </p>
+    
+  </div>
+
+  [% END %]
+
+</div>
+<!-- End: software_list.tmpl -->
