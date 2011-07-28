@@ -3,80 +3,81 @@
 <div class="contents term">
   <h1 class="name">[% TERM_INFO.name %]</h1>
   
-  [% IF TERM_INFO.obsolete_p %]
-  <div class="block obsolete" id="info">
-  [% ELSE %]
-    <ul id="navPage" class="inline C">
-      <li><a href="#info" title="View term information">Term information <img src="[% image_dir %]/down.png" alt="in-page link"></a></li>
-      <li><a href="#lineage" title="View the placement of the term in the tree">Term neighborhood <img src="[% image_dir %]/down.png" alt="in-page link"></a></li>
-      <li><a href="#xrefs" title="View cross-references to external databases">External references <img src="[% image_dir %]/down.png" alt="in-page link"></a></li>
-      <li>
-	<a href="[% GENE_PRODUCT_ASSOCIATIONS_LINK %]"
-	   title="View gene products associated with this term">
-	  [% IF GENE_PRODUCT_ASSOCIATIONS_LINK || ( GENE_PRODUCT_ASSOCIATIONS_COUNT && GENE_PRODUCT_ASSOCIATIONS_COUNT == 0 ) %]
-	  [%    IF GENE_PRODUCT_ASSOCIATIONS_COUNT %]
-	  [%       IF GENE_PRODUCT_ASSOCIATIONS_COUNT == 1 %]
-	  1 gene product association
-	  [%       ELSE %]
-	  [% GENE_PRODUCT_ASSOCIATIONS_COUNT %] gene product associations
-	  [%       END %]
-	  [%    ELSE %]
-	  Gene product associations
-	  [%    END %]
-	  <img src="[% image_dir %]/left.png" alt="link to another page" />
-	</a>
-	[% END %]
-      </li>
-      <!-- gp_assoc_text = TERM_INFO.n_deep_products _ ' gene product association'; -->
-      <!-- IF TERM_INFO.n_deep_products != 1; -->
-      <!-- gp_assoc_text = gp_assoc_text _ 's'; -->
-      <!-- <li><a href="term-assoc.cgi?term=[% TERM_INFO.acc %]&amp;session_id=[% session_id %]" title="View gene products associated with this term">[% gp_assoc_text %] <img src="[% image_dir %]/left.png" alt="link to another page"></a></li> -->
+  <!-- [% IF TERM_INFO.obsolete_p %] -->
+  <!-- <div class="block obsolete" id="info"> -->
+  <!-- [% ELSE %] -->
+  <!-- ??? <div class="block" id="info"> -->
+  <!-- ??? [% END %] -->
+  <ul id="navPage" class="inline C">
+    <li><a href="#info" title="View term information">Term information <img src="[% image_dir %]/down.png" alt="Term information link"></a></li>
+    <li><a href="#lineage" title="View the placement of the term in the tree">Term neighborhood <img src="[% image_dir %]/down.png" alt="Term neighborhood link"></a></li>
+    <li><a href="#xrefs" title="View cross-references to external databases">External references <img src="[% image_dir %]/down.png" alt="External references link"></a></li>
+    <li>
+      [% IF GENE_PRODUCT_ASSOCIATIONS_LINK || ( GENE_PRODUCT_ASSOCIATIONS_COUNT && GENE_PRODUCT_ASSOCIATIONS_COUNT == 0 ) %]
+      <a href="[% GENE_PRODUCT_ASSOCIATIONS_LINK %]"
+	 title="View gene products associated with this term">
+	[%    IF GENE_PRODUCT_ASSOCIATIONS_COUNT %]
+	[%       IF GENE_PRODUCT_ASSOCIATIONS_COUNT == 1 %]
+	1 gene product association
+	[%       ELSE %]
+	[% GENE_PRODUCT_ASSOCIATIONS_COUNT %] gene product associations
+	[%       END %]
+	[%    ELSE %]
+	Gene product associations
+	[%    END %]
+	<img src="[% image_dir %]/left.png" alt="link to another page" />
+      </a>
       [% END %]
-    </ul>
+    </li>
+    <!-- gp_assoc_text = TERM_INFO.n_deep_products _ ' gene product association'; -->
+    <!-- IF TERM_INFO.n_deep_products != 1; -->
+    <!-- gp_assoc_text = gp_assoc_text _ 's'; -->
+    <!-- <li><a href="term-assoc.cgi?term=[% TERM_INFO.acc %]&amp;session_id=[% session_id %]" title="View gene products associated with this term">[% gp_assoc_text %] <img src="[% image_dir %]/left.png" alt="link to another page"></a></li> -->
+  </ul>
 
-    <div class="block" id="info">
+  <div class="block" id="info">
 
-      <h2>Term Information</h2>
+    <h2>Term Information</h2>
 
-      <dl class="term-info">
+    <dl class="term-info">
 
-     <!-- Acc and ont. -->
-     <dt>Accession</dt>
-     <dd class="acc">[% TERM_INFO.acc %]</dd>
-     <dt>Ontology</dt>
-     <dd class="type">[% TERM_INFO.ontology_readable %]</dd>
+      <!-- Acc and ont. -->
+      <dt>Accession</dt>
+      <dd class="acc">[% TERM_INFO.acc %]</dd>
+      <dt>Ontology</dt>
+      <dd class="type">[% TERM_INFO.ontology_readable %]</dd>
+      
+      <!-- Synonyms -->
+      <dt>Synonyms</dt>
+      [% sl = TERM_INFO.synonyms %]
+      [% IF sl.size == 0 %]
+      <dd>None</dd>
+      [% ELSE %]
+      [%    FOREACH synh IN sl %]
+      <dd class="syn">[% IF synh.scope %]<span class="type">[% synh.scope %]</span>: [% END %][% synh.acc %]</dd>
+      [%    END %]
+      [% END %]
 
-     <!-- Synonyms -->
-     <dt>Synonyms</dt>
-     [% sl = TERM_INFO.synonyms %]
-     [% IF sl.size == 0 %]
-     <dd>None</dd>
-     [% ELSE %]
-     [%    FOREACH synh IN sl %]
-     <dd class="syn">[% IF synh.scope %]<span class="type">[% synh.scope %]</span>: [% END %][% synh.acc %]</dd>
-     [%    END %]
-     [% END %]
-
-     <!-- Definition -->
-     <dt>Definition</dt>
-     [% IF TERM_INFO.definition %]
-     <dd class="def">[% TERM_INFO.definition %]
-       [% IF TERM_INFO.term_dbxrefs && TERM_INFO.term_dbxrefs.size > 0 %]
-       <br /><i>Source:</i>
-       [%    txref_count = TERM_INFO.term_dbxrefs.size %]
-       [%    txref_counter = 1 %]
-       [%    FOREACH txref = TERM_INFO.term_dbxrefs %]
-       [% #      href = txref.link %]
-       [%       vis = txref.id %]
-       [%       IF txref.dbname == "URL" %]
-       [% #         href = txref.key %]
-       [%          vis = txref.key %]
-       [%       END %]
-       [%    IF  txref.dbname == 'PMID' || txref.dbname == 'DOI' %]
-       <cite class="paper">[% ELSE %]<cite>[% END %][% IF txref.link %]<a title="Go to [% vis %]" href="[% txref.link %]">[% vis %]</a>[% ELSE %][% vis %][% END %]</cite>[% IF txref_counter < txref_count; txref_counter = txref_counter + 1 %],[% END %]
+      <!-- Definition -->
+      <dt>Definition</dt>
+      [% IF TERM_INFO.definition %]
+      <dd class="def">[% TERM_INFO.definition %]
+	[% IF TERM_INFO.term_dbxrefs && TERM_INFO.term_dbxrefs.size > 0 %]
+	<br /><i>Source:</i>
+	[%    txref_count = TERM_INFO.term_dbxrefs.size %]
+	[%    txref_counter = 1 %]
+	[%    FOREACH txref = TERM_INFO.term_dbxrefs %]
+	[% #      href = txref.link %]
+	[%       vis = txref.id %]
+	[%       IF txref.dbname == "URL" %]
+	[% #         href = txref.key %]
+	[%          vis = txref.key %]
+	[%       END %]
+	[%    IF  txref.dbname == 'PMID' || txref.dbname == 'DOI' %]
+	<cite class="paper">[% ELSE %]<cite>[% END %][% IF txref.link %]<a title="Go to [% vis %]" href="[% txref.link %]">[% vis %]</a>[% ELSE %][% vis %][% END %]</cite>[% IF txref_counter < txref_count; txref_counter = txref_counter + 1 %],[% END %]
        [%    END %]
        [% ELSE %]
-       [ source: unknown ]
+       [source: unknown]
        [% END %]
      </dd>
      [% ELSE %]
@@ -153,7 +154,14 @@
    <h2>Term Neighborhood for [% TERM_INFO.name %] ([% TERM_INFO.acc %])</h2>
    
    <!-- Holder for term gp filters. -->
-   <div id="gp-count-filters" class="filters"></div>
+   <!-- <div id="gp-count-filters" class="filters"> -->
+   <div id="gp-count-filters" class="block warning">
+     <h2>Notice</h2>
+     <p>
+       Enable JavaScript in your browser and reload for gene product
+       count filters and links.
+     </p>
+   </div>
 
    <!-- Display tabbing. -->
    <div id="display-tabs" style="font-size:100%;">
@@ -385,10 +393,9 @@
       <div id="display-out">
 	<p>
 	  <ul>
-	    <li><b>Additional viewing options...</b></li>
+	    <li><b>Additional viewing options</b></li>
 	    <!-- TODO: do this with breadcrumbsy string (taken from REST URL) --> 
 	    <!-- <li>Last action: [% last_action || 'unknown' %]</li> -->
-	    <li><a href="browse.cgi?action=set-tree&amp;[% vbridge %]&amp;session_id=[% session_id %]" title="View tree in GO browser">View in tree browser</a></li>
 	    <li><a href="[% VIZ_STATIC_LINK %]"
 		   title="View the tree in graph form as a static PNG image">Graphical view (PNG)</a></li>
 	    <li><a href="[% VIZ_DYNAMIC_LINK %]"
@@ -400,16 +407,16 @@
 	</p>       
       </div>
 
-      <div id="display-down">
-	<p>
-	  <ul>
-	    <li><b>Downloads in...</b></li>
-	    <li><a href="[% cgi %].cgi?[% vbridge %]&amp;format=obo" title="Download the tree in OBO text format">OBO</a></li>
-	    <li><a href="[% cgi %].cgi?[% vbridge %]&amp;format=rdfxml" title="Download the tree in RDF-XML format">RDF-XML</a></li>
-	    <li><a href="[% cgi %].cgi?[% vbridge %]&amp;format=dot" title="Download the tree in GraphViz dot format">GraphViz dot</a></li>
-	  </ul>
-	</p>       
-      </div>
+      <!-- <div id="display-down"> -->
+      <!-- 	<p> -->
+      <!-- 	  <ul> -->
+      <!-- 	    <li><b>Downloads in...</b></li> -->
+      <!-- 	    <li><a href="[% cgi %].cgi?[% vbridge %]&amp;format=obo" title="Download the tree in OBO text format">OBO</a></li> -->
+      <!-- 	    <li><a href="[% cgi %].cgi?[% vbridge %]&amp;format=rdfxml" title="Download the tree in RDF-XML format">RDF-XML</a></li> -->
+      <!-- 	    <li><a href="[% cgi %].cgi?[% vbridge %]&amp;format=dot" title="Download the tree in GraphViz dot format">GraphViz dot</a></li> -->
+      <!-- 	  </ul> -->
+      <!-- 	</p>        -->
+      <!-- </div> -->
 
       <div id="display-xref">
 	<!-- <p> -->
@@ -421,7 +428,8 @@
 	
 	<!-- XRefs -->
 	<!-- <div class="block" id="xrefs"> -->
-	<!--   <h2>External References</h2> -->
+ 	  <!-- <h2>External references</h2> -->
+ 	  <b>External references</b>
 	  [% IF TERM_INFO.dbxrefs && TERM_INFO.dbxrefs.size > 0 %]
 	  [% xref_hash = {} %]
 	  [% FOREACH xref = TERM_INFO.dbxrefs;
