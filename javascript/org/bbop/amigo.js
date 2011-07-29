@@ -415,17 +415,17 @@ org.bbop.amigo.core = function(){
 	    _abstract_segment_template(segments);
     }
 
-    // Construct the templates using the segments.
-    function _navi_client_template(segments){
-	segments['mode'] = 'layers_graph';
-	return _abstract_link_template('amigo_exp', segments);
-    }
+    // // Construct the templates using the segments.
+    // function _navi_client_template(segments){
+    // 	segments['mode'] = 'layers_graph';
+    // 	return _abstract_link_template('amigo_exp', segments);
+    // }
 
-    // Construct the templates using the segments.
-    function _navi_data_template(segments){
-	segments['mode'] = 'navi_js_data';
-	return _abstract_link_template('aserve_exp', segments);
-    }
+    // // Construct the templates using the segments.
+    // function _navi_data_template(segments){
+    // 	segments['mode'] = 'navi_js_data';
+    // 	return _abstract_link_template('aserve_exp', segments);
+    // }
 
     // Construct the templates using the segments.
     function _ws_template(segments){
@@ -433,30 +433,30 @@ org.bbop.amigo.core = function(){
 	return _abstract_link_template('amigo_exp', segments);
     }
 
-    // Construct the templates using the segments.
-    function _ls_assoc_template(segments){
-	segments['mode'] = 'live_search_association';
-	return _abstract_link_template('aserve', segments);
-    }
-    function _ls_gp_template(segments){
-	segments['mode'] = 'live_search_gene_product';
-	return _abstract_link_template('aserve', segments);
-    }
-    function _ls_term_template(segments){
-	segments['mode'] = 'live_search_term';
-	return _abstract_link_template('aserve', segments);
-    }
+    // // Construct the templates using the segments.
+    // function _ls_assoc_template(segments){
+    // 	segments['mode'] = 'live_search_association';
+    // 	return _abstract_link_template('aserve', segments);
+    // }
+    // function _ls_gp_template(segments){
+    // 	segments['mode'] = 'live_search_gene_product';
+    // 	return _abstract_link_template('aserve', segments);
+    // }
+    // function _ls_term_template(segments){
+    // 	segments['mode'] = 'live_search_term';
+    // 	return _abstract_link_template('aserve', segments);
+    // }
 
-    // Construct the templates using the segments.
-    function _completion_template(segments){
-	return _abstract_link_template('completion', segments);
-    }
+    // // Construct the templates using the segments.
+    // function _completion_template(segments){
+    // 	return _abstract_link_template('completion', segments);
+    // }
 
-    // Construct the templates using the segments.
-    function _nmatrix_template(segments){
-	segments['mode'] = 'nmatrix';
-	return _abstract_link_template('amigo_exp', segments);
-    }
+    // // Construct the templates using the segments.
+    // function _nmatrix_template(segments){
+    // 	segments['mode'] = 'nmatrix';
+    // 	return _abstract_link_template('amigo_exp', segments);
+    // }
 
     this.util = {};
     this.api = {};
@@ -889,7 +889,7 @@ org.bbop.amigo.core = function(){
 	
 	var acc = final_args['acc'];
 	//return 'term_details?term=' + acc;
-	return 'amigo_exp?mode=golr_term_details&term=' + acc;
+	return 'amigo?mode=golr_term_details&term=' + acc;
     };
     this.link.term = _term_link;
 
@@ -912,7 +912,7 @@ org.bbop.amigo.core = function(){
 	
 	var acc = final_args['acc'];
 	//return 'gp-details.cgi?gp=' + acc;
-	return 'amigo_exp?mode=golr_gene_product_details&gp=' + acc;
+	return 'amigo?mode=golr_gene_product_details&gp=' + acc;
     };
     this.link.gene_product = _gene_product_link;
 

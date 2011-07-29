@@ -46,7 +46,7 @@ sub new {
 	 taxon_readable => $found_doc->{taxon},
 	 #ontology_readable => $self->{A_AID}->readable($found_doc->{source}),
 	 gp_link =>
-	 $self->get_interlink({mode=>'gp-details',
+	 $self->get_interlink({mode=>'gp_details',
 			       arg=>{gp=>$found_doc->{id}}}),
 	 descriptive_name => $found_doc->{descriptive_name},
 	 #comment => $found_doc->{comment},

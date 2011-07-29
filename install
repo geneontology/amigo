@@ -348,8 +348,8 @@ sub amigo_env_to_js {
   unlink $file_str if -f $file_str;
   open(FILE, ">$file_str") or die "can not open $file_str: $!";
 
-  $core->kvetch('file_str: ' . $file_str);
-  $core->kvetch('core: ' . $core);
+  # $core->kvetch('file_str: ' . $file_str);
+  # $core->kvetch('core: ' . $core);
 
   ## Get the basics. Should be fast as they are already cached in
   ## AmiGO.pm.
@@ -511,7 +511,11 @@ sub force_copy {
   my $from = shift || die "no first arg";
   my $to = shift || die "no second arg";
 
-  my @args = ("cp", "-r", "-f", $from, $to);
+  #my @args = ("cp", "-r", "-f", $from, $to);
+  my @args = ("rsync", "-r",
+	      "--exclude=.svn",
+	      "--exclude=.emacs.desktop",
+	      $from, $to);
   ll("System: \"@args\"");
   system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
 }
