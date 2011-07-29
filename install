@@ -240,12 +240,14 @@ if ( $opt_g ) {
 
 ## Install desired modules.
 foreach( @mods ){
+  ll("Install mod: $_.");
   force_copy(Cwd::cwd() . '/perl/bin/' . $_,
 	     $env_conf{AMIGO_CGI_ROOT_DIR} . '/');
   make_executable( $env_conf{AMIGO_CGI_ROOT_DIR} . '/' . $_);
 }
 
 ## Copy statics.
+ll("Install internal JS libraries.");
 force_copy(Cwd::cwd() . '/css', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
 force_copy(Cwd::cwd() . '/images', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
 force_copy(Cwd::cwd() . '/javascript', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
@@ -262,6 +264,7 @@ force_copy(Cwd::cwd() . '/javascript', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
 
 # force_copy($env_conf{GO_JS_ROOT},
 # 	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
+ll("Install GO JS libraries.");
 force_copy($env_conf{GO_JS_ROOT},
 	   $env_conf{AMIGO_HTDOCS_ROOT_DIR});
 amigo_env_to_js();
