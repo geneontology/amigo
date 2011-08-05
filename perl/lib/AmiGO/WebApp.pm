@@ -23,6 +23,7 @@ use AmiGO::JSON;
 use AmiGO::JavaScript;
 use AmiGO::CSS;
 use DBI;
+use Data::Dumper;
 #use AmiGO::Input.pm
 
 
@@ -509,7 +510,8 @@ sub _common_params_settings {
   ## Create and add to output buffer.
   ## TODO: these need to be folded in somewhere--shouldn't be here...
   $params->{base} = $self->{CORE}->amigo_env('AMIGO_CGI_URL');
-  $params->{public_base} = $self->{CORE}->amigo_env('AMIGO_PUBLIC_CGI_URL');
+  $params->{public_base} =
+    $self->{CORE}->amigo_env('AMIGO_PUBLIC_CGI_URL');
   $params->{BETA} = $self->{CORE}->amigo_env('AMIGO_BETA') || 0;
   $params->{TROUBLE} = $self->{CORE}->amigo_env('AMIGO_TROUBLE_SWITCH') || 0;
   $params->{TROUBLE_MESSAGE} =
@@ -705,7 +707,7 @@ sub mode_status {
 
   $self->set_template_parameter('hid', $self->{CORE}->unique_id());
   $self->set_template_parameter('page_title', 'AmiGO: Status');
-  $self->add_template_content('html/inc/status.tmpl');
+  $self->add_template_content('common/status.tmpl');
   $self->{CORE}->kvetch("added status");
   return $self->generate_template_page();
 }
@@ -772,7 +774,7 @@ sub mode_generic_message {
   $self->header_add( -status => '500 Internal Server Error' );
   $self->set_template_parameter('page_title', 'AmiGO: Input Error');
 
-  $self->add_template_content('html/main/generic_message.tmpl');
+  $self->add_template_content('pages/generic_message.tmpl');
   return $self->generate_template_page();
 }
 

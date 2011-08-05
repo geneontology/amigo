@@ -1,0 +1,69 @@
+####
+#### Current public GO mirrors.
+####
+---
+bbop:
+  label: Berkeley BOP
+  location: in Berkeley, CA
+  is_main_p: true
+  login: go_select
+  password: amigoer
+  database: go_latest
+  host: spitz.lbl.gov
+  type: mysql
+  port: 3306
+
+princeton:
+  label: Princeton
+  location: in Princeton, NJ
+  is_main_p: false
+  login: goclient
+  password: g00dness
+  database: go_latest
+  host: gomirror.princeton.edu
+  type: mysql
+  port: 13309
+
+ebi:
+  label: EBI
+  location: in Cambridge, UK
+  is_main_p: true
+  login: go_select
+  password: amigo
+  database: go_latest
+  host: mysql.ebi.ac.uk
+  type: mysql
+  port: 4085
+
+princeton_lite:
+  label: Princeton (lite)
+  location: in Princeton, NJ
+  is_main_p: false
+  login: goclient
+  password: g00dness
+  database: go_latest_lite
+  host: gomirror.princeton.edu
+  type: mysql
+  port: 13309
+
+bbop_lite:
+  label: Berkeley BOP (lite)
+  location: in Berkeley, CA
+  is_main_p: false
+  login: go_select
+  password: amigoer
+  database: go_latest_lite
+  host: spitz.lbl.gov
+  type: mysql
+  port: 3306
+
+gold_exp:
+  label: Experimental GOLD
+  location: in Berkeley, CA
+  is_main_p: false
+  login: gold_user
+  password: gold_pass
+  database: gold
+  host: ladle.lbl.gov
+  type: psql
+  port: 5432

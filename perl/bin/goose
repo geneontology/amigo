@@ -6,11 +6,7 @@
 ####
 
 BEGIN { require "config.pl"; }
-use lib $ENV{GO_DEV_ROOT} . '/go-perl';
-use lib $ENV{GO_DEV_ROOT} . '/go-db-perl';
-use lib $ENV{GO_DEV_ROOT} . '/amigo/perl';
-#use lib $ENV{GOBO_ROOT};
-#use AmiGO;
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
 
 use AmiGO::WebApp::GOOSE;
 my $goose = AmiGO::WebApp::GOOSE->new(PARAMS => {});

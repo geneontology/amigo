@@ -1,0 +1,27 @@
+<!-- Begin: generic_message.tmpl -->
+<div class="contents">
+  [% IF title AND title != '' %]
+  <h1>[% title %]</h1>
+  [% END %]
+  <div class="block fatal">
+    <h2>[% header %]</h2>
+    <p id="error">
+      [% IF error %]
+      <img src="[% image_dir %]/fatal.png"
+	   alt="fatal message"
+	   height="15"
+	   width="15" />
+      &nbsp;
+      [% END %]
+      [% message %]
+    </p>
+    <strong>[% IF error %]</strong>
+    <p>
+      If you feel that you have reached this message in error, please contact
+      <a title="Contact the GO Helpdesk"
+	 href="http://www.geneontology.org/GO.contacts.shtml">GO Helpdesk</a>.
+    </p>
+    [% END %]
+  </div>
+</div>
+<!-- End: generic_message.tmpl -->

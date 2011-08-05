@@ -1621,5 +1621,63 @@ sub vanilla_filehandle_p {
 }
 
 
+###
+### Error message passing and internal errors.
+###
+
+
+=item ok
+
+Return 1 or 0 for all operations.
+
+=cut
+sub ok {
+  my $self = shift;
+  my $retval = 1;
+  $retval = 0 if defined $self->{ERROR_MESSAGE};
+  return $retval;
+}
+
+
+=item error_p
+
+Getter.
+Return 1 or 0 for all operations.
+
+=cut
+sub error_p {
+  my $self = shift;
+  my $retval = 0;
+  $retval = 1 if defined $self->{ERROR_MESSSAGE};
+  return $retval;
+}
+
+
+=item error_message
+
+Getter.
+Returns the reason for the above error.
+
+=cut
+sub error_message {
+  my $self = shift;
+  return $self->{ERROR_MESSAGE};
+}
+
+
+=item set_error_message
+
+Setter.
+TODO: Add current package to the front of the error message.
+
+=cut
+sub set_error_message {
+  my $self = shift;
+  my $arg = shift || undef;
+  $self->{ERROR_MESSAGE} = $arg;
+  return $self->{ERROR_MESSAGE};
+}
+
+
 
 1;

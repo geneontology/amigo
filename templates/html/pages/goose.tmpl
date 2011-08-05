@@ -1,0 +1,229 @@
+<!-- START: goose.tmpl -->
+
+<div class="contents">
+      
+  <h1>GO Online SQL Environment</h1>
+    
+  <form action="goose"
+	method="GET"
+	name="goose_form"
+	id="goose_form">
+    
+    <div class="block">
+
+      <!--
+	  <input type="hidden" name="database" value="1" />
+	  -->
+      
+      <h2>Directly query the GO database</h2>
+	  
+      See some <a href="http://wiki.geneontology.org/index.php/Example_Queries">examples</a>
+      and learn more about the
+      <a href="http://www.geneontology.org/GO.database.shtml"
+	 title="GO database schema documentation">schema</a>.<br />
+      If your query takes a long time or returns a blank screen, you may want to try the download option. If your query is long-running or fails, you may also want to try a "lite" database from the mirror selection.
+       
+      <h3 class="first">
+	Enter your SQL query:
+      </h3>
+
+      <textarea id="sql"
+		name="sql"
+		cols="80"
+		rows="5">[% sql %]</textarea>
+
+      <div style=""
+	   id="goose_example_list">
+	[% IF examples_list %]
+	<!-- Assemble the examples table. -->
+	<select id="goose_example_selection"
+		class=""
+		style=""
+		size="1">
+	  [%    FOREACH ex = examples_list %]
+	  [%       value = ex.sql %]
+	  [%       title = ex.title %]
+	  <option title="[% value %]" 
+		  value="[% value %]">[% title %]</option>
+	  [%    END %]
+	</select>
+	[% ELSE %]
+	<!-- Unable to assemble the examples table. -->
+	(The GO SQL wiki page could not be contacted so SQL examples
+	are not available.)
+	[% END %]
+      </div>
+
+      Limit the number of results returned:
+      <select name="limit" size="1">
+	<option
+	   title="10" 
+	   value="10" 
+	   [% IF limit == 10 %]selected[% END %]
+	   class="" >10</option>
+	<option
+	   title="100" 
+	   value="100" 
+	   [% IF limit == 100 %]selected[% END %]
+	   class="">100</option>
+	<option
+	   title="1000" 
+	   value="1000" 
+	   [% IF limit == 1000 %]selected[% END %]
+	   class="">1000</option>
+	<option
+	   title="10000" 
+	   value="10000" 
+	   [% IF limit == 10000 %]selected[% END %]
+	   class="">10000</option>
+	<option
+	   title="unlimited" 
+	   value="0" 
+	   [% IF limit == 0 %]selected[% END %]
+	   class="">unlimited</option>
+      </select>
+
+      <br />
+
+      <div>
+        Download results directly in tab-delimited format
+	<input class="cbox" type="checkbox" name="format" value="tab" />
+      </div>
+
+      <fieldset class="block">
+	<legend>
+	  Mirrors
+	</legend>
+	<ul>
+
+	  [% FOREACH mirror = all_mirrors %]
+
+	  <li[% IF mirror_info.$mirror.type != 'mysql' %] style="color:#999999"[% END %]>
+	    <input type="radio" 
+		   name="mirror" 
+		   value="[% mirror %]" 
+		   [% IF my_mirror == mirror %]checked[% END %]
+		   class="cbox">
+	    <b>
+	      [% IF mirror_info.$mirror.is_alive_p == 0 %][UNAVAILABLE][% END %]
+	      [% mirror_info.$mirror.label %]
+	    </b>:
+	    [% IF mirror_info.$mirror.is_alive_p == 1 %]
+	    Use the database mirror [% mirror_info.$mirror.location %]
+	    <small>Last updated on [% mirror_info.$mirror.release_name %]
+	    ([% dbrt = mirror_info.$mirror.release_type; IF dbrt == 'termdb' OR dbrt == 'assocdb' OR dbrt == 'seqdb' OR dbrt == 'full' %]<a title="Go to GO database type documentation." href="http://geneontology.org/GO.database.shtml#dbtypes">[% dbrt %]</a>[% ELSE %][% dbrt %][% END %]).</small>
+	    [% ELSE %]
+	    Please check back later...
+	    [% END %]
+	  </li>
+
+	  [% END %]
+	  
+	</ul>	      
+      </fieldset>
+
+      <hr class="clearL">
+      <input type="submit" class="button" value="Query!" />
+	      
+    </div>
+
+  </form>		
+	
+  [% IF NOT results_count AND results_count == 0 %]
+  
+  <div class="block">
+
+    <h2>Results</h2>
+
+    <p>Your query did not return any results.</p>
+
+  </div>
+
+  [% ELSIF results_count %]
+
+  <div class="block">
+
+    <h2>Results</h2>
+
+    <p id="results_generated">
+
+      Your query generated      
+      [% IF limit AND results_count > limit  %]
+      <b>[% limit %]</b>
+      (limited from <b>[% results_count %]</b>)
+      [% ELSE %]
+      <b>[% results_count %]</b>
+      [% END %]
+
+      result(s).<br />
+      
+      [% IF terms_count > 0 AND terms_limit > terms_count %]
+      <a href="[% viz_link %]"
+	 title="Visualize the terms found in this query.">
+	Visualize</a>
+      the terms found in this query.
+      [% ELSIF terms_count > 0 %]
+      <a href="[% viz_link %]"
+	 title="Visualize the first [% terms_count %] terms found in this query.">
+	Visualize</a>
+      the first [% terms_count %] terms found in this query.
+      [% END %]
+      
+      <form style="display: inline;"
+	    action="goose"
+	    method="GET"
+	    name="goose_form"
+	    id="goose_form">
+	<input type="hidden" name="mirror" value="[% my_mirror %]" />
+	<input type="hidden" name="sql" value="[% sql %]" />
+	<input type="hidden" name="limit" value="[% limit %]" />
+	<input type="hidden" name="format" value="tab" />
+	<input type="submit"
+	       class="button"
+	       value="Download as tab-delimited format" />
+      </form>
+    </p>
+
+    <table summary="SQL query results">
+      <thead>
+	<tr>
+	  
+	  [% FOREACH header = results_headers %]
+	  <th style="">
+	    [% header %]
+	  </th>
+	  [% END%]
+	  
+	</tr>
+      </thead>
+
+      <tbody>
+
+	[% eo = 0 %]
+	[% FOREACH row = results %]
+	[%    IF eo % 2 == 0 %]
+	<tr class="even_row">
+	  [%  ELSE %]
+	<tr class="even_odd">
+	  [%  END %]
+	  [%  FOREACH col = row %]
+	  <td rowspan="1">
+	    [%   col %]
+	  </td>
+	  [%  END %]
+	</tr>
+	[%    eo = eo + 1 %]
+	[% END %]
+      </tbody>
+    </table>
+
+    <p class="toTop">
+      <a href="#top" title="Back to the top of the page">Back to top</a>
+    </p>
+
+  </div>
+  
+  [% END %]
+  
+</div>
+<!-- END: goose.tmpl -->

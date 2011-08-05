@@ -40,36 +40,36 @@ GO_JS_ROOT:
 ### Database variables (still need for GOOSE?).
 ###
   
-GO_DBNAME:
-  value: go_latest
-  comment: Please enter the name of the GO database on the server.
-  type: string
+# GO_DBNAME:
+#   value: go_latest
+#   comment: Please enter the name of the GO database on the server.
+#   type: string
 
-GO_DBHOST:
-  value: localhost
-  comment: Please enter the hostname of the GO database.
-  type: url
+# GO_DBHOST:
+#   value: localhost
+#   comment: Please enter the hostname of the GO database.
+#   type: url
 
-GO_DBUSER:
-  value: ''
-  comment: Please enter the database user login.
-  type: string
+# GO_DBUSER:
+#   value: ''
+#   comment: Please enter the database user login.
+#   type: string
 
-GO_DBAUTH:
-  value: ''
-  comment: Please enter the database user password.
-  type: string
+# GO_DBAUTH:
+#   value: ''
+#   comment: Please enter the database user password.
+#   type: string
 
-GO_DBSOCKET:
-  value: ''
-  comment: Please enter the database socket.
-  type: string
+# GO_DBSOCKET:
+#   value: ''
+#   comment: Please enter the database socket.
+#   type: string
 
-GO_DBPORT:
-  value: ''
-  comment: >
-    Please enter the database port (the default nothing is a sane default)
-  type: string
+# GO_DBPORT:
+#   value: ''
+#   comment: >
+#     Please enter the database port (the default nothing is a sane default)
+#   type: string
 
 ###
 ### AmiGO mapping variables.
