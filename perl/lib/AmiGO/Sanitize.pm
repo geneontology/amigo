@@ -1,4 +1,4 @@
-=head1 Utility::Sanitize
+=head1 AmiGO::Sanitize
 
 The idea is to have the GOOSE sanitizer built into AmiGO, hopefully to
 have GOOSE move completely move in. Also, this will be useful for
@@ -9,15 +9,10 @@ better.
 
 =cut
 
-use utf8;
-use strict;
+package AmiGO::Sanitize;
+use base ("AmiGO");
+
 use SQL::Tokenizer;
-use Utility::TrivialError;
-
-package Utility::Sanitize;
-
-use base ("Utility");
-
 
 =item new
 
@@ -41,9 +36,6 @@ sub new {
     if defined($args->{UPPER_LIMIT});
   $self->{FULL_QUERY} = $args->{FULL_QUERY}
     if defined($args->{FULL_QUERY});
-
-  ## Internal error handling.
-  $self->{TRIVIAL_ERROR} = Utility::TrivialError->new();
 
   #$self->verbose(1);
 
@@ -132,7 +124,7 @@ sub check {
 
   ## Length check (sorry about the early return)...
   if( length($str) > $self->{UPPER_LIMIT} ){
-    $self->{TRIVIAL_ERROR}->_failure("illegal query value");
+    $self->set_error_message("illegal query value");
     return;
   }
 
@@ -142,7 +134,7 @@ sub check {
   #$self->whine("__$tokens[0]__\n");
 
   if( $self->{FULL_QUERY} ){
-    $self->{TRIVIAL_ERROR}->_failure("There was something odd in your query (a).")
+    $self->set_error_message("There was something odd in your query (a).")
       if $tokens[0] !~ /^SELECT$/i;
   }
 
@@ -198,7 +190,7 @@ sub check {
 	$token =~ /^TABLE$/i ){
 
       ## Things that may be questionable.
-      $self->{TRIVIAL_ERROR}->_failure("There was something odd in your query (b).");
+      $self->set_error_message("There was something odd in your query (b).");
 
     }elsif( $token =~ /^SELECT$/i ){
 
@@ -207,7 +199,7 @@ sub check {
       ## anymore? I've upped this twice now...
       $number_of_selects++;
       if( $number_of_selects > 4 ){
-	$self->{TRIVIAL_ERROR}->_failure("There was something odd in your query (c).");
+	$self->set_error_message("There was something odd in your query (c).");
       }
 
     }elsif( $token =~ /^[\"].*[^\"]$/ ||
@@ -218,35 +210,35 @@ sub check {
 
       ## I don't want to see oddly matched or single quotes in a
       ## token.
-      $self->{TRIVIAL_ERROR}->_failure("There was something odd in your query (d).");
+      $self->set_error_message("There was something odd in your query (d).");
 
     }elsif( $token =~ /^[\"](.*)[\"]$/ ||
 	    $token =~ /^[\'](.*)[\']$/  ){
 
       ## I don't want to see quotes inside quotes.
       if( $1 =~ /[\"\']/ ){
-	$self->{TRIVIAL_ERROR}->_failure("There was something odd in your query (e).");
+	$self->set_error_message("There was something odd in your query (e).");
       }
 
       ## I don't want to see comments inside quotes.
       if( $1 =~ /--/ ){
-	$self->{TRIVIAL_ERROR}->_failure("There was something odd in your query (f).");
+	$self->set_error_message("There was something odd in your query (f).");
       }
 
       ## I don't want to see escapes inside quotes.
       if( $1 =~ /\\/ ){
-	$self->{TRIVIAL_ERROR}->_failure("There was something odd in your query (g).");
+	$self->set_error_message("There was something odd in your query (g).");
       }
 
     }elsif( $token =~ /\\/ ){
 
       ## You can do funny things with escapes.
-      $self->{TRIVIAL_ERROR}->_failure("There was something odd in your query (h).");
+      $self->set_error_message("There was something odd in your query (h).");
 
     }elsif( $token =~ /--/ ){
 
       ## You can do funny things with comments.
-      $self->{TRIVIAL_ERROR}->_failure("Please remove your comments before trying the query.");
+      $self->set_error_message("Please remove your comments before trying the query.");
 
     }else{
       ## Clear token.
@@ -255,11 +247,11 @@ sub check {
 
   ## TODO: check quotes and balance? It seems that the token parser
   ## drops a lot of the weirdness before we even get here...
-  $self->{TRIVIAL_ERROR}->_failure("Your query is unbalanced (a).")
+  $self->set_error_message("Your query is unbalanced (a).")
     if $unbalanced_paren != 0;
-  $self->{TRIVIAL_ERROR}->_failure("Your query is unbalanced (b).")
+  $self->set_error_message("Your query is unbalanced (b).")
     if ($double_quotes % 2) != 0;
-  $self->{TRIVIAL_ERROR}->_failure("Your query is unbalanced (c).")
+  $self->set_error_message("Your query is unbalanced (c).")
     if ($single_quotes % 2) != 0;
 
   #return join ' ', @tokens;

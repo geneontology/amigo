@@ -13,7 +13,7 @@ use YAML qw(LoadFile);
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
 
-use Utility::Sanitize;
+use AmiGO::Sanitize;
 use AmiGO::WebApp::Input;
 use AmiGO::External::HTML::SQLWiki;
 use AmiGO::External::LEAD::Status;

@@ -10,9 +10,7 @@ much as possible (hopefully preventing schema probes).
 package AmiGO::External::GOLD::Query;
 
 use base 'AmiGO::External::GOLD';
-use utf8;
-use strict;
-use Utility::Sanitize;
+use AmiGO::Sanitize;
 
 
 =item new
@@ -48,10 +46,10 @@ sub new {
 
   ## Set up sanitizer.
   $self->{LIMIT} = $limit;
-  $self->{SANE} = Utility::Sanitize->new({
-					  UPPER_LIMIT => $max_query_len,
-					  FULL_QUERY => 1,
-					 });
+  $self->{SANE} = AmiGO::Sanitize->new({
+					UPPER_LIMIT => $max_query_len,
+					FULL_QUERY => 1,
+				       });
 
   ## TODO: Look for database configuration file, read it in, enjoy.
 
