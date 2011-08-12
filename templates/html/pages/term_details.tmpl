@@ -1,9 +1,11 @@
 <!-- START template: term_details.tmpl -->
 
+[% IF TERM_INFO.name %]
+
 <div class="contents term">
   <h1 class="name">[% TERM_INFO.name %]</h1>
   
-  <!-- [% IF TERM_INFO.obsolete_p %] -->
+  <!-- [% IF TERM_INFO.is_obsolete == 'true' %] -->
   <!-- <div class="block obsolete" id="info"> -->
   <!-- [% ELSE %] -->
   <!-- ??? <div class="block" id="info"> -->
@@ -49,12 +51,18 @@
       
       <!-- Synonyms -->
       <dt>Synonyms</dt>
+      [% al = TERM_INFO.alternate_ids %]
       [% sl = TERM_INFO.synonyms %]
-      [% IF sl.size == 0 %]
+      [% IF sl.size == 0 AND al.size == 0 %]
       <dd>None</dd>
       [% ELSE %]
+      [%    FOREACH alth IN al %]
+      <dd class="syn"><b>alt. id</b>: [% alth %]</dd>
+      [%    END %]
       [%    FOREACH synh IN sl %]
-      <dd class="syn">[% IF synh.scope %]<span class="type">[% synh.scope %]</span>: [% END %][% synh.acc %]</dd>
+      <!-- BUG/TODO: Like this when we have scope available. -->
+      <!-- <dd class="syn">[% IF synh.scope %]<span class="type">[% synh.scope %]</span>: [% END %][% synh.acc %]</dd> -->
+      <dd class="syn"><b>scopeless label</b>: [% synh %]</dd>
       [%    END %]
       [% END %]
 
@@ -68,13 +76,14 @@
 	[%    txref_counter = 1 %]
 	[%    FOREACH txref = TERM_INFO.term_dbxrefs %]
 	[% #      href = txref.link %]
-	[%       vis = txref.id %]
-	[%       IF txref.dbname == "URL" %]
+	[% #      vis = txref.id %]
+	[% #      IF txref.dbname == "URL" %]
 	[% #         href = txref.key %]
-	[%          vis = txref.key %]
-	[%       END %]
-	[%    IF  txref.dbname == 'PMID' || txref.dbname == 'DOI' %]
-	<cite class="paper">[% ELSE %]<cite>[% END %][% IF txref.link %]<a title="Go to [% vis %]" href="[% txref.link %]">[% vis %]</a>[% ELSE %][% vis %][% END %]</cite>[% IF txref_counter < txref_count; txref_counter = txref_counter + 1 %],[% END %]
+	[% #         vis = txref.key %]
+	[% #      END %]
+	[% #   IF  txref.dbname == 'PMID' || txref.dbname == 'DOI' %]
+	[%    IF  txref.search('PMID') || txref.search('DOI') %]
+	<cite class="paper">[% ELSE %]<cite>[% END %][% IF txref.link %]<a title="Go to [% vis %]" href="[% txref.link %]">[% vis %]</a>[% ELSE %][% txref %][% END %]</cite>[% IF txref_counter < txref_count; txref_counter = txref_counter + 1 %],[% END %]
        [%    END %]
        [% ELSE %]
        [source: unknown]
@@ -84,42 +93,43 @@
      <dd>None</dd>
      [% END %]
 
-     <!-- Comment -->
+     <!-- Comment. -->
      <dt>Comment</dt>
      [% IF TERM_INFO.comment %]
      <dd class="comment">[% TERM_INFO.comment %]</dd>
      [% ELSE %]
-     <dd>None</dd>
+     <!-- <dd>None</dd> -->
+     <dd>TODO</dd>
      [% END %]
-     [%	IF TERM_INFO.is_obsolete;
-     IF TERM_INFO.replaced_by_list;
-     '<dd>Replaced by';
-       FOREACH t = TERM_INFO.replaced_by_list %]
-       <a href="term_details?term=[% t.acc %]&amp;session_id=[% session_id %]">[% t.acc %] : [% t.name %]</a>
-       [%				END;
-       '</dd>';
-     END;
-     IF TERM_INFO.consider_list;
-     '<dd>Consider';
-       FOREACH t = TERM_INFO.consider_list %]
-       <a href="term_details?term=[% t.acc %]&amp;session_id=[% session_id %]">[% t.acc %] : [% t.name %]</a>
-       [%				END;
-       '</dd>';
-     END;
-     END %]
+     [%	IF TERM_INFO.is_obsolete == 'true' %]
+     [%    IF TERM_INFO.replaced_by_list %]
+      <dd>Replaced by
+	[%    FOREACH t = TERM_INFO.replaced_by_list %]
+	<a href="term_details?term=[% t.acc %]&amp;session_id=[% session_id %]">[% t.acc %] : [% t.name %]</a>
+       [%     END %]
+      </dd>
+      [%   END %]
+      [%   IF TERM_INFO.consider_list %]
+      <dd>Consider
+	[%    FOREACH t = TERM_INFO.consider_list %]
+	<a href="term_details?term=[% t.acc %]&amp;session_id=[% session_id %]">[% t.acc %] : [% t.name %]</a>
+       [%     END %]
+      </dd>
+      [%   END %]
+     [% END %]
 
      <!-- Subsets -->
      <dt>Subset</dt>
      [% IF TERM_INFO.subsets.size != 0 %]
      <dd><ul class="subset">
 	 [% FOREACH sub = TERM_INFO.subsets %]
-	 [% #   IF sub.link %]
-	 [%    IF sub.acc.search('goslim') %]
-	 <li><a href="[% sub.link %]" title="View details of the [% sub.name %] GO slim">[% sub.name %]</a></li>
-	 [%    ELSE %]
+	 [% #   TODO/BUG: need more info through for links %]	 
+	 [% #   IF sub.search('goslim') %]
+	 <!-- <li><a href="[% sub.link %]" title="View details of the [% sub.name %] GO slim">[% sub.name %]</a></li> -->
+	 [% #   ELSE %]
 	 <!-- <li>Unavailable</li> -->
-	 <li>[% sub.name %]</li>
-	 [%    END %]
+	 <li>[% sub %]</li>
+	 [% #   END %]
 	 [% END %]
      </ul></dd>
      [% ELSE %]
@@ -136,7 +146,7 @@
  </div>
  
  <!-- Hrm... -->
- [% UNLESS TERM_INFO.obsolete_p %]
+ [% UNLESS TERM_INFO.is_obsolete == 'true' %]
  [% # IF graph %]
  [% IF 1 == 1 %]
 
@@ -487,4 +497,12 @@
  
  [% END %]
 </div>
+
+[% ELSE %]
+
+<div class="contents term">
+  <h3 class="name">No such term found.</h3>
+</div>
+
+[% END %]
 <!-- END template: term_details.tmpl -->
