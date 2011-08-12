@@ -50,7 +50,7 @@ sub new {
 	 comment => $found_doc->{comment},
 	 ## TODO/BUG: everything below here.
 	 #obsolete_p => $term->is_obsolete || 0, # TODO: get this into schema?
-	 obsolete_p => $found_doc->{is_obsolete} || 'false',
+	 is_obsolete => $found_doc->{is_obsolete} || 'false',
 	 subsets => $found_doc->{subset} || [],
 	 alternate_ids => $found_doc->{alternate_id} || [],
 	 synonyms => $found_doc->{synonym} || [],
