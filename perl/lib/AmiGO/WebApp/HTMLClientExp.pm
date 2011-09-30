@@ -132,7 +132,7 @@ sub mode_ntree {
      css_library =>
      [
       'standard', # basic GO-styles
-      'org.bbop.amigo.ui.widgets'
+      'bbop.amigo.ui.widgets'
      ],
      javascript_library =>
      [
@@ -141,9 +141,10 @@ sub mode_ntree {
       'newick.tree_utils',
       'newick.phylo',
       'com.jquery',
-      'org.bbop.amigo',
-      'org.bbop.amigo.go_meta',
-      'org.bbop.amigo.ui.widgets'
+      'bbop.core',
+      'bbop.amigo',
+      'bbop.amigo.go_meta',
+      'bbop.amigo.ui.widgets'
      ],
      javascript =>
      [
@@ -218,7 +219,7 @@ sub mode_ptree {
      css_library =>
      [
       'standard', # basic GO-styles
-      'org.bbop.amigo.ui.widgets'
+      'bbop.amigo.ui.widgets'
      ],
      javascript_library =>
      [
@@ -227,9 +228,10 @@ sub mode_ptree {
       'newick.tree_utils',
       'newick.phylo',
       'com.jquery',
-      'org.bbop.amigo',
-      'org.bbop.amigo.go_meta',
-      'org.bbop.amigo.ui.widgets'
+      'bbop.core',
+      'bbop.amigo',
+      'bbop.amigo.go_meta',
+      'bbop.amigo.ui.widgets'
      ],
      javascript =>
      [
@@ -270,23 +272,24 @@ sub mode_scratch {
      css_library =>
      [
       'standard', # basic GO-styles
-      'org.bbop.amigo.ui.standard',
-      'org.bbop.amigo.ui.widgets',
+      'bbop.amigo.ui.standard',
+      'bbop.amigo.ui.widgets',
       'com.jquery.redmond.custom'
      ],
      javascript_library =>
      [
       'com.jquery',
       'com.jquery-ui',
-      'org.bbop.amigo',
-      'org.bbop.amigo.go_meta',
-      'org.bbop.amigo.workspace',
-      'org.bbop.amigo.ui.workspace',
-      'org.bbop.amigo.ui.widgets',
-      'org.bbop.amigo.ui.cart',
-      'org.bbop.amigo.ui.shield',
-      'org.bbop.amigo.ui.wait',
-      'org.bbop.amigo.ui.shopping'
+      'bbop.core',
+      'bbop.amigo',
+      'bbop.amigo.go_meta',
+      'bbop.amigo.workspace',
+      'bbop.amigo.ui.workspace',
+      'bbop.amigo.ui.widgets',
+      'bbop.amigo.ui.cart',
+      'bbop.amigo.ui.shield',
+      'bbop.amigo.ui.wait',
+      'bbop.amigo.ui.shopping'
      ],
      javascript => []
     };
@@ -322,8 +325,8 @@ sub mode_workspace_client {
      css_library =>
      [
       'standard', # basic GO-styles
-      #'org.bbop.amigo.ui.autocomplete',
-      'org.bbop.amigo.ui.widgets',
+      #'bbop.amigo.ui.autocomplete',
+      'bbop.amigo.ui.widgets',
       'com.jquery.redmond.custom'
      ],
      ## Our AmiGO services JSS.
@@ -332,12 +335,13 @@ sub mode_workspace_client {
       'com.jquery',
       'com.jquery-ui',
       'com.jquery-layout',
-      'org.bbop.amigo',
-      'org.bbop.amigo.go_meta',
-      #'org.bbop.amigo.opensearch',
-      #'org.bbop.amigo.ui.autocomplete',
-      'org.bbop.amigo.workspace',
-      'org.bbop.amigo.ui.widgets'
+      'bbop.core',
+      'bbop.amigo',
+      'bbop.amigo.go_meta',
+      #'bbop.amigo.opensearch',
+      #'bbop.amigo.ui.autocomplete',
+      'bbop.amigo.workspace',
+      'bbop.amigo.ui.widgets'
      ],
      content =>
      [
@@ -383,16 +387,17 @@ sub mode_exhibit_exp {
      css_library =>
      [
       'standard', # basic GO-styles
-      #'org.bbop.amigo.ui.standard',
-      #'org.bbop.amigo.ui.widgets',
+      #'bbop.amigo.ui.standard',
+      #'bbop.amigo.ui.widgets',
       'com.jquery.redmond.custom'
      ],
      javascript_library =>
      [
       'com.jquery',
       'com.jquery-ui',
-      'org.bbop.amigo',
-      'org.bbop.amigo.go_meta',
+      'bbop.core',
+      'bbop.amigo',
+      'bbop.amigo.go_meta',
       'as.core.core',
       'as.core.abstractmanager',
       'as.managers.jquery',
@@ -402,13 +407,13 @@ sub mode_exhibit_exp {
       'as.helpers.jquery.ajaxsolr.theme',
       'as.widgets.jquery.pagerwidget',
       'as.core.abstractfacetwidget'
-      #'org.bbop.amigo.workspace',
-      #'org.bbop.amigo.ui.workspace',
-      #'org.bbop.amigo.ui.widgets',
-      #'org.bbop.amigo.ui.cart',
-      #'org.bbop.amigo.ui.shield',
-      #'org.bbop.amigo.ui.wait',
-      #'org.bbop.amigo.ui.shopping'
+      #'bbop.amigo.workspace',
+      #'bbop.amigo.ui.workspace',
+      #'bbop.amigo.ui.widgets',
+      #'bbop.amigo.ui.cart',
+      #'bbop.amigo.ui.shield',
+      #'bbop.amigo.ui.wait',
+      #'bbop.amigo.ui.shopping'
      ],
      javascript =>
      [
@@ -440,21 +445,22 @@ sub mode_front_page {
      css_library =>
      [
       'standard', # basic GO-styles
-      'org.bbop.amigo.ui.autocomplete'
+      'bbop.amigo.ui.autocomplete'
      ],
      javascript_library =>
      [
       'com.jquery',
-      'org.bbop.amigo',
-      'org.bbop.amigo.go_meta',
-      'org.bbop.amigo.opensearch',
-      'org.bbop.amigo.ui.autocomplete'
+      'bbop.core',
+      'bbop.amigo',
+      'bbop.amigo.go_meta',
+      'bbop.amigo.opensearch',
+      'bbop.amigo.ui.autocomplete'
      ]
     };
   $self->add_template_bulk($prep);
 
   ## Initialize javascript app.
-  $self->add_template_javascript($self->{JS}->initializer_jquery('new org.bbop.amigo.ui.autocomplete({id:"query", search_type:"general", completion_type:"acc", jump: true});'));
+  $self->add_template_javascript($self->{JS}->initializer_jquery('new bbop.amigo.ui.autocomplete({id:"query", search_type:"general", completion_type:"acc", jump: true});'));
 
   ##
   $self->add_template_content('pages/front_page.tmpl');

@@ -1,6 +1,6 @@
 ////////////
 ////
-//// org.bbop.amigo.ui.widgets
+//// bbop.amigo.ui.widgets
 ////
 //// Purpose: Provide standard HTML UI production functions. Also adds
 //// a few GUI elements that can be used as the app needs.
@@ -8,8 +8,9 @@
 //// Ajax widgets built on jQuery and automatically installed
 //// into the document (hidden until used).
 ////
-//// DEPENDS: org.bbop.amigo(.core)
-//// DEPENDS: org.bbop.amigo.go_meta
+//// DEPENDS: bbop.core
+//// DEPENDS: bbop.amigo
+//// DEPENDS: bbop.amigo.go_meta
 //// DEPENDS: com.jquery (1.3.2)
 ////
 //////////
@@ -17,21 +18,22 @@
 
 // Module and namespace checking.
 // TODO: Will we need a ui class up there?
-if ( typeof org.bbop.amigo.ui == "undefined" ){
-    org.bbop.amigo.ui = {};
-}
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'amigo');
+bbop.core.require('bbop', 'amigo', 'go_meta');
+bbop.core.namespace('bbop', 'amigo', 'ui');
 
 
 //
-//org.bbop.amigo.ui.widgets = function(wid){  
-org.bbop.amigo.ui.widgets = function(){  
+//bbop.amigo.ui.widgets = function(wid){  
+bbop.amigo.ui.widgets = function(){  
 
     // Bring in utilities.
-    var core = new org.bbop.amigo.core();
-    var meta = new org.bbop.amigo.go_meta();
+    var amigo = new bbop.amigo();
+    var meta = new bbop.amigo.go_meta();
 
     // We'll be doing a lot of debugging.
-    function ll(str){ core.kvetch(str); }
+    function ll(str){ bbop.core.kvetch(str); }
     ll("");
 
     // ...use this a lot...
@@ -55,7 +57,7 @@ org.bbop.amigo.ui.widgets = function(){
     // Generate and destory used tags.
     function _generate_element(ctype){
 
-	var UID = id_base + core.util.randomness();
+	var UID = id_base + amigo.util.randomness();
 	var div_text = '<div id="' + UID + '"></div>';
 
 	jQuery("body").append(jQuery(div_text).hide());
@@ -76,13 +78,13 @@ org.bbop.amigo.ui.widgets = function(){
     ///
 
     // Add to the document body and hide.
-    var WAITING = id_base + core.util.randomness();
+    var WAITING = id_base + amigo.util.randomness();
     var waiting_text = '<div id="' + WAITING + '"></div>';
     jQuery("body").append(jQuery(waiting_text).hide());
     jQuery('#' + WAITING).addClass("org_bbop_amigo_ui_widget_base");
     jQuery('#' + WAITING).addClass("org_bbop_amigo_ui_widget_for_waiting");
 
-    core.kvetch("Creating wait widget div: " + WAITING);
+    ll("Creating wait widget div: " + WAITING);
 
     //     // TESTING: run one through it's paces.
     //     jQuery('#' + WAITING).show();
@@ -97,11 +99,11 @@ org.bbop.amigo.ui.widgets = function(){
     var current_wait_message = "Processing...";
     this.start_wait = function(msg){
 
-	core.kvetch("Outstanding waits: " + current_waits + " for " + WAITING);
+	ll("Outstanding waits: " + current_waits + " for " + WAITING);
 
 	if( current_waits == 0 ){
 	    //jQuery('#' + WAITING).fadeIn('fast');
-	    core.kvetch("   None, so do slidedown for: " + WAITING);
+	    ll("   None, so do slidedown for: " + WAITING);
 	    jQuery('#' + WAITING).slideDown('fast');
 	}
 	//jQuery('#' + WAITING).html(msg + ' (' + (current_waits + 1) + ')');
@@ -122,14 +124,14 @@ org.bbop.amigo.ui.widgets = function(){
     ///
 
     // Add to the document body and hide.
-    var UTOOLTIP = id_base + core.util.randomness();
+    var UTOOLTIP = id_base + amigo.util.randomness();
     var utool_text = '<div id="' + UTOOLTIP + '"></div>';
     jQuery("body").append(jQuery(utool_text).hide());
     // TODO: better styles for this...
     jQuery('#' + UTOOLTIP).addClass("org_bbop_amigo_ui_widget_base");
     jQuery('#' + UTOOLTIP).addClass("org_bbop_amigo_ui_widget_for_waiting");
     
-    core.kvetch("Creating unitary_tooltip div: " + UTOOLTIP);
+    ll("Creating unitary_tooltip div: " + UTOOLTIP);
 
     //
     this.tooltip_show = function(msg){

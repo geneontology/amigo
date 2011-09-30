@@ -9,7 +9,7 @@
 
 // Load testing.
 load('test.js');
-var mr_t = new org.bbop.test();
+var mr_t = new bbop.test();
 
 // Correct environment.
 load('amigo.js');
@@ -19,7 +19,7 @@ load('amigo.js');
 ///
 
 // Constructors.
-var core = new org.bbop.amigo.core();
+var core = new bbop.amigo.core();
 mr_t.is_defined(core);
 
 // Test data. TODO: Split to separate file.
@@ -77,7 +77,7 @@ mr_t.is_defined(core);
     mr_t.is_same_atom(1, core.response.errors(d3).length);
 
     // JSON parser...
-    var good = org.bbop.amigo.json.parse(s0);
+    var good = bbop.amigo.json.parse(s0);
     mr_t.is_defined(good);
     mr_t.is_same_atom('GO:456', good.results.foo[1].key,
 		  'parsed object has correct key');
@@ -85,7 +85,7 @@ mr_t.is_defined(core);
     // Check a parse gone bad.
     var bad = null;
     try {
-	bad = org.bbop.amigo.json.parse(s1);
+	bad = bbop.amigo.json.parse(s1);
     }catch(err){
 	mr_t.is_same_atom(1, 1, 'should be error on bad parse');    
     }finally{
@@ -201,9 +201,9 @@ mr_t.report();
 ///
 
 core.kvetch("FAIL: You should *not* see this string (1)!");
-org.bbop.amigo.DEBUG = true;
+bbop.amigo.DEBUG = true;
 //core.kvetch("[You should see this string--please ignore.]");
-org.bbop.amigo.DEBUG = false;
+bbop.amigo.DEBUG = false;
 core.kvetch("FAIL: You should *not* see this string (2)!");
 
 ///

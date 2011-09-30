@@ -398,7 +398,7 @@ sub make_go_meta_js {
   my @args =
     ("perl",
      $core->amigo_env('GO_DEV_ROOT') . "/amigo/scripts/make_go_meta_js.pl",
-     $core->amigo_env('AMIGO_HTDOCS_ROOT_DIR').'/js/org/bbop/amigo/go_meta.js');
+     $core->amigo_env('AMIGO_HTDOCS_ROOT_DIR').'/js/bbop/amigo/go_meta.js');
   $core->kvetch("System: \"@args\"");
   system(@args) == 0 || die "System \"@args\" failed: $?";
   ll("Finished making go_meta JS file.");

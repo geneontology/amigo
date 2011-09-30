@@ -372,7 +372,7 @@ sub mode_goose {
        javascript_library =>
        [
 	'com.jquery',
-	'org.bbop.amigo',
+	'bbop.amigo',
 	'GOOSE'
        ]
       };

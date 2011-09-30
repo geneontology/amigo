@@ -1,6 +1,6 @@
 ////////////
 ////
-//// org.bbop.amigo.ui.interactive
+//// bbop.amigo.ui.interactive
 ////
 //// Purpose: Provide standard HTML UI production functions. Also adds
 //// a few GUI elements that can be used as the app needs.
@@ -8,8 +8,9 @@
 //// Ajax widgets built on jQuery and automatically installed
 //// into the document (hidden until used).
 ////
-//// DEPENDS: org.bbop.amigo(.core)
-//// DEPENDS: org.bbop.amigo.go_meta
+//// DEPENDS: bbop.core
+//// DEPENDS: bbop.amigo
+//// DEPENDS: bbop.amigo.go_meta
 //// DEPENDS: com.jquery (1.3.2)+?
 ////
 //////////
@@ -17,25 +18,23 @@
 
 // Module and namespace checking.
 // TODO: Will we need a ui class up there?
-if ( typeof org.bbop.amigo.ui == "undefined" ){
-    org.bbop.amigo.ui = {};
-}
-if ( typeof org.bbop.amigo.ui.interactive == "undefined" ){
-    org.bbop.amigo.ui.interactive = {};
-}
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'amigo');
+bbop.core.require('bbop', 'amigo', 'go_meta');
+bbop.core.namespace('bbop', 'amigo', 'ui', 'interactive');
 
 
 //
-org.bbop.amigo.ui.interactive.multi_model = function(in_data){
+bbop.amigo.ui.interactive.multi_model = function(in_data){
 
     var anchor = this; // top-level this
 
     // Bring in utilities.
-    var core = new org.bbop.amigo.core();
-    var meta = new org.bbop.amigo.go_meta();
+    var core = new bbop.amigo();
+    var meta = new bbop.amigo.go_meta();
 
     // We'll be doing a lot of debugging.
-    function ll(str){ core.kvetch(str); }
+    function ll(str){ bbop.core.kvetch(str); }
     ll("");
 
     // 
@@ -47,7 +46,7 @@ org.bbop.amigo.ui.interactive.multi_model = function(in_data){
     function _reset_data(){
 	
 	anchor.current_data = {};
-	//anchor.initial_data[core.util.randomness()] =
+	//anchor.initial_data[amigo.util.randomness()] =
 	anchor.current_data['_nil_'] =
 	    {
 		value: "",
@@ -57,7 +56,7 @@ org.bbop.amigo.ui.interactive.multi_model = function(in_data){
 		special: true
 	    };
 	for( var ms = 0; ms < anchor.initial_data.length; ms++ ){
-	    // anchor.current_data[core.util.randomness()] =
+	    // anchor.current_data[amigo.util.randomness()] =
 	    anchor.current_data[anchor.initial_data[ms][1]] =
 		{
 		    value: anchor.initial_data[ms][1],
@@ -89,7 +88,7 @@ org.bbop.amigo.ui.interactive.multi_model = function(in_data){
 	if( typeof anchor.current_data[in_arg_key] == 'undefined' ){
 	    // BUG/TODO: this should be a copy.
 	    anchor.current_data[in_arg_key] = data;
-	    //core.kvetch("add_item: adding key (w/data): " + in_arg_key);
+	    //ll("add_item: adding key (w/data): " + in_arg_key);
 	    retval = true;
 	}
 	return retval;
@@ -107,7 +106,7 @@ org.bbop.amigo.ui.interactive.multi_model = function(in_data){
 	    typeof anchor.current_data[inkey][intype] != 'undefined' ){
 		anchor.current_data[inkey][intype] = inval;
 		rval = true;
-		// core.kvetch("\tupdated: " + inkey +
+		// ll("\tupdated: " + inkey +
 		// 	    "'s " + intype +
 		// 	    ' to ' + inval);
 	    }
@@ -129,7 +128,7 @@ org.bbop.amigo.ui.interactive.multi_model = function(in_data){
     // filter.
     function _get_all_items(){
 	var ret_filters = [];
-	var complete_filters = core.util.get_hash_keys(anchor.current_data);
+	var complete_filters = amigo.util.get_hash_keys(anchor.current_data);
 	for( var cfi = 0; cfi < complete_filters.length; cfi++ ){
 	    var test_filter = complete_filters[cfi];
 	    if( test_filter != '_nil_' ){
@@ -178,17 +177,17 @@ org.bbop.amigo.ui.interactive.multi_model = function(in_data){
 
     
 //
-org.bbop.amigo.ui.interactive.multi_widget = function(in_id, in_name,
+bbop.amigo.ui.interactive.multi_widget = function(in_id, in_name,
 						      in_size, in_label){
 
     var anchor = this; // top-level this
 
     // Bring in utilities.
-    var core = new org.bbop.amigo.core();
-    //var meta = new org.bbop.amigo.go_meta();
+    var amigo = new bbop.amigo();
+    //var meta = new bbop.amigo.go_meta();
 
     // We'll be doing a lot of debugging.
-    function ll(str){ core.kvetch(str); }
+    function ll(str){ bbop.core.kvetch(str); }
     ll("");
 
     // Copy in atom arguments.
@@ -228,7 +227,7 @@ org.bbop.amigo.ui.interactive.multi_widget = function(in_id, in_name,
 	// Sort the items in the mdata array.
 	// Also keep a lookup for a "special" entry.
 	// var default_on_p = false;
-	var mdata_keys = core.util.get_hash_keys(anchor.mdata);
+	var mdata_keys = amigo.util.get_hash_keys(anchor.mdata);
 	function _data_comp(a, b){
 
 	    // Get the associated data.
@@ -294,8 +293,8 @@ org.bbop.amigo.ui.interactive.multi_widget = function(in_id, in_name,
 			buf.push(' selected="selected"');
 		    }
 		    buf.push('>');
-		    //buf.push(core.util.crop(write_data['label']));
-		    buf.push(core.util.crop(write_data['label'], 40));
+		    //buf.push(amigo.util.crop(write_data['label']));
+		    buf.push(amigo.util.crop(write_data['label'], 40));
 		    
 		    if( write_data['count'] && write_data['count'] > 0 ){
 			buf.push(' (' + write_data['count'] + ')');

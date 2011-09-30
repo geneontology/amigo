@@ -195,18 +195,19 @@ sub mode_live_search_gold {
       'standard',
       #'com.jquery.redmond.custom',
       'com.jquery.jqamigo.custom',
-      'org.bbop.amigo.ui.widgets'
-      #'org.bbop.amigo.ui.interactive'
+      'bbop.amigo.ui.widgets'
+      #'bbop.amigo.ui.interactive'
      ],
      javascript_library =>
      [
       'com.jquery',
       'com.jquery-ui',
-      'org.bbop.amigo',
-      'org.bbop.amigo.go_meta',
-      #'org.bbop.amigo.live_search',
-      'org.bbop.amigo.ui.widgets',
-      'org.bbop.amigo.ui.interactive'
+      'bbop.core',
+      'bbop.amigo',
+      'bbop.amigo.go_meta',
+      #'bbop.amigo.live_search',
+      'bbop.amigo.ui.widgets',
+      'bbop.amigo.ui.interactive'
      ],
      javascript =>
      [
@@ -466,20 +467,21 @@ sub mode_golr_term_details {
      css_library =>
      [
       # 'standard', # basic GO-styles
-      # 'org.bbop.amigo.ui.autocomplete'
+      # 'bbop.amigo.ui.autocomplete'
       'standard', # basic GO-styles
       'com.jquery.jqamigo.custom',
       #'com.jquery.tablesorter',
-      'org.bbop.amigo.ui.widgets'
+      'bbop.amigo.ui.widgets'
      ],
      javascript_library =>
      [
       'com.jquery',
       'com.jquery-ui',
       'com.jquery.tablesorter',
-      'org.bbop.amigo',
-      'org.bbop.amigo.go_meta',
-      'org.bbop.amigo.ui.widgets'
+      'bbop.core',
+      'bbop.amigo',
+      'bbop.amigo.go_meta',
+      'bbop.amigo.ui.widgets'
      ],
      javascript =>
      [
@@ -560,20 +562,21 @@ sub mode_golr_gene_product_details {
      css_library =>
      [
       # 'standard', # basic GO-styles
-      # 'org.bbop.amigo.ui.autocomplete'
+      # 'bbop.amigo.ui.autocomplete'
       'standard', # basic GO-styles
       'com.jquery.jqamigo.custom',
       #'com.jquery.tablesorter',
-      'org.bbop.amigo.ui.widgets'
+      'bbop.amigo.ui.widgets'
      ],
      javascript_library =>
      [
       'com.jquery',
       'com.jquery-ui',
       'com.jquery.tablesorter',
-      'org.bbop.amigo',
-      'org.bbop.amigo.go_meta',
-      'org.bbop.amigo.ui.widgets'
+      'bbop.core',
+      'bbop.amigo',
+      'bbop.amigo.go_meta',
+      'bbop.amigo.ui.widgets'
      ],
      javascript =>
      [

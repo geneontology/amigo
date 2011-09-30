@@ -9,10 +9,11 @@
 
 // Bring in the AmiGO core and keep a coder handy.
 // TODO/BUG: switch DEBUG to false for release.
-org.bbop.amigo.DEBUG = true;
-var core = new org.bbop.amigo.core();
-var gm = new org.bbop.amigo.go_meta();
-// var coder = new core.util.coder();
+bbop.core.DEBUG = true;
+var kvetch = bbop.core.kvetch;
+var amigo = new bbop.amigo();
+var gm = new bbop.amigo.go_meta();
+// var coder = new amigo.util.coder();
 var last_sent_packet = 0;
 var last_received_packet = 0;
 
@@ -25,8 +26,10 @@ var widgets = null;
 // Our discrete universal widgets.
 var type_model = null;
 var type_widget = null;
-var evidence_model = null;
-var evidence_widget = null;
+var evidence_type_model = null;
+var evidence_type_widget = null;
+var evidence_closure_model = null;
+var evidence_closure_widget = null;
 var source_model = null;
 var source_widget = null;
 var taxon_model = null;
@@ -62,7 +65,7 @@ var newline_finder = new RegExp("\n", "g");
 var watchdog_solr_is_responding = false;
 function _server_response_warning(){
     if( watchdog_solr_is_responding == false ){
-	core.kvetch("ERROR: can't seem to find the solr server...");
+	kvetch("ERROR: can't seem to find the solr server...");
 	//jQuery	
     }
 }
@@ -101,24 +104,24 @@ function SolrManager(in_args){
 
     // Check args.
     if( ! in_args ){
-	core.kvetch('SM: ERROR: no argument');
+	kvetch('SM: ERROR: no argument');
     }
     // There should be a string url argument.
     if( in_args && ! in_args['url'] ){
-	core.kvetch('SM: ERROR: no url argument');
+	kvetch('SM: ERROR: no url argument');
     }
     if( in_args && in_args['url'] && typeof in_args['url'] != 'string' ){
-	core.kvetch('SM: ERROR: no url string argument');
+	kvetch('SM: ERROR: no url string argument');
     }
     // There should be an array facets argument.
     if( in_args && ! in_args['facets'] ){
-	core.kvetch('SM: ERROR: no facets argument');
+	kvetch('SM: ERROR: no facets argument');
     }
     if( in_args && in_args['facets'] &&
 	( typeof in_args['facets'] != 'object' || 
 	  typeof in_args['facets'].length == 'undefined' ||
 	  typeof in_args['facets'].length == 0 )){
-	      core.kvetch('SM: ERROR: no facets sanely specified');
+	      kvetch('SM: ERROR: no facets sanely specified');
 	  }
     
     // Our default target url.
@@ -171,16 +174,16 @@ function SolrManager(in_args){
     // ...
     this._make_always_needed_section = function(){
 
-	//var resrc = core.api.live_search.golr(all_inputs);
+	//var resrc = amigo.api.live_search.golr(all_inputs);
 	//var url = gm.golr_base() + '/' + resrc;
 
 	var qbuff = [];	
-	var qargs = core.util.get_hash_keys(this.query_args);
+	var qargs = amigo.util.get_hash_keys(this.query_args);
 	for( var qname_i in qargs ){
 	    var qname = qargs[qname_i];
 	    var qval = this.query_args[qname];
-	    //core.kvetch('SM: qname:' + qname);
-	    //core.kvetch('SM: qval:' + qval);
+	    //kvetch('SM: qname:' + qname);
+	    //kvetch('SM: qval:' + qval);
 
 	    if( typeof qval == 'string' ||
 		typeof qval == 'number' ){
@@ -202,18 +205,18 @@ function SolrManager(in_args){
 			    qbuff.push(nano_buff.join(''));
 			}
 		    }else{
-			core.kvetch('SM: ERROR: no hash possible');
+			kvetch('SM: ERROR: no hash possible');
 			// // Is hash.
 			// // Use the a parser to change into
 			// // arbitrary sql-like request.
-			// core.kvetch('SM: ERROR: hash not done yet');
+			// kvetch('SM: ERROR: hash not done yet');
 			// // TODO: The "and" case is pretty much like
 			// // the array, the "or" case needs to be
 			// // handled carfeully. In both cases, care will
 			// // be needed to show which filters are marked.
 		    }
 		}else{
-		    core.kvetch('SM: make link unknown type!');
+		    kvetch('SM: make link unknown type!');
 		}
 	}
 
@@ -223,12 +226,12 @@ function SolrManager(in_args){
     // The main callback function called after a successful AJAX call
     // in the update function.
     this._rerender = function(json_data){
-	core.kvetch('SM: in rerender...');
+	kvetch('SM: in rerender...');
 	
 	// // Grab meta information.
-	// var total = core.golr_response.total_documents(json_data);
-	// var first = core.golr_response.start_document(json_data);
-	// var last = core.golr_response.end_document(json_data);
+	// var total = amigo.golr_response.total_documents(json_data);
+	// var first = amigo.golr_response.start_document(json_data);
+	// var last = amigo.golr_response.end_document(json_data);
 	// var meta_cache = new Array();
 	// meta_cache.push('Total: ' + total);
     };
@@ -254,7 +257,7 @@ function SolrManager(in_args){
 	    
 	//qurl = 'http://accordion.lbl.gov:8080/solr/select?qt=standard&indent=on&wt=json&version=2.2&rows=10&start=0&fl=*%2Cscore&facet=true&facet.mincount=1&facet.field=document_category&facet.field=type&facet.field=evidence_type&facet.field=source&facet.field=taxon&facet.field=isa_partof_label_closure&facet.field=annotation_extension_class_label&facet.field=annotation_extension_class_label_closure&q=*:*&packet=1';
 
-	core.kvetch('SM: try: ' + qurl);
+	kvetch('SM: try: ' + qurl);
 	//widgets.start_wait('Updating...');
 
 	// TODO: 
@@ -268,7 +271,7 @@ function SolrManager(in_args){
 	    success: _reren,
 	    error: function (result, status, error) {
 		
-	    	core.kvetch('SM: Failed server request: ' +
+	    	kvetch('SM: Failed server request: ' +
 			    result + ', ' +
 			    status + ', ' +
 			    error);
@@ -279,7 +282,7 @@ function SolrManager(in_args){
 		// if( req && req['errors'] &&
 		//     req['errors'].length > 0 ){
 		// 	var in_error = req['errors'][0];
-		// 	core.kvetch('SM: ERROR:' + in_error);
+		// 	kvetch('SM: ERROR:' + in_error);
 					
 		// 	// Split on newline if possible to get
 		// 	// at the nice part before the perl
@@ -303,8 +306,8 @@ function SolrManager(in_args){
 // Get the layout done and request GO meta-info.
 function LiveSearchGOlrInit(){
 
-    core.kvetch('');
-    core.kvetch('LiveSearchGOlrInit start.');
+    kvetch('');
+    kvetch('LiveSearchGOlrInit start.');
 
     ///
     /// Manager test.
@@ -320,13 +323,13 @@ function LiveSearchGOlrInit(){
     ///
 
     //
-    //core.kvetch('Apply tabs...');
+    //kvetch('Apply tabs...');
     //jQuery("#search-tabs").tabs();
     //jQuery("#search-tabs").tabs('select', 0);
 
-    widgets = new org.bbop.amigo.ui.widgets();
+    widgets = new bbop.amigo.ui.widgets();
 
-    core.kvetch('LiveSearchGOlr init completed.');
+    kvetch('LiveSearchGOlr init completed.');
 
     // Pull in GO meta info.
     //var ontology_data = gm.ontologies();
@@ -363,6 +366,8 @@ function LiveSearchGOlrInit(){
 	widgets.form.hidden_input('facet.field', 'type');
     var hidden_facet_field_ev_type_text =
 	widgets.form.hidden_input('facet.field', 'evidence_type');
+    var hidden_facet_field_ev_closure_text =
+	widgets.form.hidden_input('facet.field', 'evidence_closure');
     var hidden_facet_field_source_text =
 	widgets.form.hidden_input('facet.field', 'source');
     var hidden_facet_field_taxon_text =
@@ -394,9 +399,9 @@ function LiveSearchGOlrInit(){
     // 				 ontology_data, 'Ontology');
 
     // Get type filter going.
-    type_model = new org.bbop.amigo.ui.interactive.multi_model(type_data);
+    type_model = new bbop.amigo.ui.interactive.multi_model(type_data);
     type_widget =
-	new org.bbop.amigo.ui.interactive.multi_widget('type', 'type',
+	new bbop.amigo.ui.interactive.multi_widget('type', 'type',
 						       4, 'GP type');
     type_widget.update_with(type_model.get_state());
     var type_text = type_widget.render_initial();
@@ -405,64 +410,74 @@ function LiveSearchGOlrInit(){
     // var taxon_text =
     // 	widgets.form.multiselect('taxon', 'taxon', 4,
     // 				 species_data, 'Species');
-    taxon_model = new org.bbop.amigo.ui.interactive.multi_model(taxon_set);
+    taxon_model = new bbop.amigo.ui.interactive.multi_model(taxon_set);
     taxon_widget =
-	new org.bbop.amigo.ui.interactive.multi_widget('taxon', 'taxon',
+	new bbop.amigo.ui.interactive.multi_widget('taxon', 'taxon',
 						       4, 'Species');
     taxon_widget.update_with(taxon_model.get_state());
     var taxon_text = taxon_widget.render_initial();
 
     // Get source filter going.
-    source_model = new org.bbop.amigo.ui.interactive.multi_model(source_data);
+    source_model = new bbop.amigo.ui.interactive.multi_model(source_data);
     source_widget =
-	new org.bbop.amigo.ui.interactive.multi_widget('source', 'source',
+	new bbop.amigo.ui.interactive.multi_widget('source', 'source',
 						       4, 'Data source');
     source_widget.update_with(source_model.get_state());
     var source_text = source_widget.render_initial();
 
-    // Get evidence filter going.
-    evidence_model =
-	new org.bbop.amigo.ui.interactive.multi_model(evcode_set);
-    evidence_widget =
-	new org.bbop.amigo.ui.interactive.multi_widget('evidence_type',
+    // Get evidence type filter going.
+    evidence_type_model =
+	new bbop.amigo.ui.interactive.multi_model(evcode_set);
+    evidence_type_widget =
+	new bbop.amigo.ui.interactive.multi_widget('evidence_type',
 						       'evidence_type',
 						       4, 'Evidence');
-    evidence_widget.update_with(evidence_model.get_state());
-    var evidence_type_text = evidence_widget.render_initial();
+    evidence_type_widget.update_with(evidence_type_model.get_state());
+    var evidence_type_text = evidence_type_widget.render_initial();
+
+    // Get evidence closure filter going.
+    evidence_closure_model =
+	new bbop.amigo.ui.interactive.multi_model(evcode_set);
+    evidence_closure_widget =
+	new bbop.amigo.ui.interactive.multi_widget('evidence_closure',
+						       'evidence_closure',
+						       4, 'Evidence closure');
+    evidence_closure_widget.update_with(evidence_closure_model.get_state());
+    var evidence_closure_text = evidence_closure_widget.render_initial();
 
     // Get isa_partof_label_closure filter going.
     var ipl = 'isa_partof_label_closure';
     ip_lc_model =
-	new org.bbop.amigo.ui.interactive.multi_model({});
+	new bbop.amigo.ui.interactive.multi_model({});
     ip_lc_widget =
-	new org.bbop.amigo.ui.interactive.multi_widget(ipl, ipl,
+	new bbop.amigo.ui.interactive.multi_widget(ipl, ipl,
 						       4, 'Term closure');
     ip_lc_widget.update_with(ip_lc_model.get_state());
     var isa_partof_label_closure_text = ip_lc_widget.render_initial();
 
     // Get document_category filter going.
     var dcid = 'document_category';
-    document_category_model = new org.bbop.amigo.ui.interactive.multi_model({});
+    document_category_model = new bbop.amigo.ui.interactive.multi_model({});
     document_category_widget =
-	new org.bbop.amigo.ui.interactive.multi_widget(dcid, dcid,
+	new bbop.amigo.ui.interactive.multi_widget(dcid, dcid,
 						       3, 'Document type');
     document_category_widget.update_with(document_category_model.get_state());
     var document_category_text = document_category_widget.render_initial();
 
     // // Get annotation_extension_class_label filter going.
     // var aecl_id = 'annotation_extension_class_label';
-    // aecl_model = new org.bbop.amigo.ui.interactive.multi_model({});
+    // aecl_model = new bbop.amigo.ui.interactive.multi_model({});
     // aecl_widget =
-    // 	new org.bbop.amigo.ui.interactive.multi_widget(aecl_id, aecl_id, 4,
+    // 	new bbop.amigo.ui.interactive.multi_widget(aecl_id, aecl_id, 4,
     // 						       'Annotation extension');
     // aecl_widget.update_with(aecl_model.get_state());
     // var aecl_text = aecl_widget.render_initial();
 
     // Get annotation_extension_class_label filter going.
     var aecl_closure_id = 'annotation_extension_class_label_closure';
-    aecl_closure_model = new org.bbop.amigo.ui.interactive.multi_model({});
+    aecl_closure_model = new bbop.amigo.ui.interactive.multi_model({});
     aecl_closure_widget =
-	new org.bbop.amigo.ui.interactive.multi_widget(aecl_closure_id,
+	new bbop.amigo.ui.interactive.multi_widget(aecl_closure_id,
 						       aecl_closure_id, 4,
 						       'Annotation extension closure');
     aecl_closure_widget.update_with(aecl_closure_model.get_state());
@@ -475,6 +490,7 @@ function LiveSearchGOlrInit(){
     jQuery("#app-form").append(hidden_facet_field_document_category_text);
     jQuery("#app-form").append(hidden_facet_field_type_text);
     jQuery("#app-form").append(hidden_facet_field_ev_type_text);
+    jQuery("#app-form").append(hidden_facet_field_ev_closure_text);
     jQuery("#app-form").append(hidden_facet_field_source_text);
     jQuery("#app-form").append(hidden_facet_field_taxon_text);
     jQuery("#app-form").append(hidden_facet_field_term_label_closure_text);
@@ -487,24 +503,25 @@ function LiveSearchGOlrInit(){
     jQuery("#app-form-filters").append(taxon_text);
     jQuery("#app-form-filters").append(source_text);
     jQuery("#app-form-filters").append(evidence_type_text);
+    jQuery("#app-form-filters").append(evidence_closure_text);
     jQuery("#app-form-filters").append(isa_partof_label_closure_text);
     // jQuery("#app-form-filters").append(aecl_text);
     jQuery("#app-form-filters").append(aecl_closure_text);
 
-    //core.kvetch('GP type text: ' + type_text );
+    //kvetch('GP type text: ' + type_text );
 
     function _generate_action_to_server(marshaller, do_results){
 	return function(event){
 
-	    // core.kvetch('EV: ' + event );
-	    // core.kvetch('TP: ' + typeof(event) );
-	    // core.kvetch('SP: ' + event.stopPropagation );
+	    // kvetch('EV: ' + event );
+	    // kvetch('TP: ' + typeof(event) );
+	    // kvetch('SP: ' + event.stopPropagation );
 	    event.stopPropagation();
 
-	    // core.kvetch('event1...' + event);
-	    // core.kvetch('event3...' + event.keyCode);
-	    // core.kvetch('event4...' + event.metaKey);
-	    // core.kvetch('event5...' + event.ctrlKey);
+	    // kvetch('event1...' + event);
+	    // kvetch('event3...' + event.keyCode);
+	    // kvetch('event4...' + event.metaKey);
+	    // kvetch('event5...' + event.ctrlKey);
 
 	    var ignorable_event_p = false;
 
@@ -514,7 +531,7 @@ function LiveSearchGOlrInit(){
 	    // BUG/TODO: check across browsers...
 	    if( event ){
 		var kc = event.keyCode;
-		//core.kvetch('key event: ' + kc);
+		//kvetch('key event: ' + kc);
 		if( kc ){
 		    if( kc == 39 || // right
 			kc == 37 || // left
@@ -529,9 +546,9 @@ function LiveSearchGOlrInit(){
 			    // if( all_inputs['q'] &&
 			    // 	all_inputs['q'][0] &&
 			    // 	all_inputs['q'][0].length == 0 ){
-			    // 	    core.kvetch('non-ignorable 0 event');
+			    // 	    kvetch('non-ignorable 0 event');
 			    // 	}else{				    
-			    core.kvetch('ignorable key event: ' + kc);
+			    kvetch('ignorable key event: ' + kc);
 			    ignorable_event_p = true;
 			    // }
 			}
@@ -551,7 +568,7 @@ function LiveSearchGOlrInit(){
 		//     all_inputs['q'][0] &&
 		//     all_inputs['q'][0].length >= 3 ){
 			
-		//core.kvetch('input q: ' + all_inputs['q'][0]);
+		//kvetch('input q: ' + all_inputs['q'][0]);
 
 		// Increment packet (async ordering).
 		last_sent_packet++;
@@ -571,10 +588,10 @@ function LiveSearchGOlrInit(){
 			all_inputs['q'][0] = '*:*';
 		    }
 
-		var resrc = core.api.live_search.golr(all_inputs);
+		var resrc = amigo.api.live_search.golr(all_inputs);
 		var url = gm.golr_base() + '/' + resrc;
 
-		core.kvetch('try: ' + url);		    
+		kvetch('try: ' + url);		    
 		widgets.start_wait('Updating...');
 			
 		// TODO/BUG: JSONP for solr looks like?
@@ -588,7 +605,7 @@ function LiveSearchGOlrInit(){
 	    	    success: do_results,
 	    	    error: function (result, status, error) {
 			
-	    		core.kvetch('Failed server request ('+
+	    		kvetch('Failed server request ('+
 				    status + '): ' + error);
 			
 			// Get the error out if possible.
@@ -597,7 +614,7 @@ function LiveSearchGOlrInit(){
 			if( req && req['errors'] &&
 			    req['errors'].length > 0 ){
 				var in_error = req['errors'][0];
-				core.kvetch('ERROR:' + in_error);
+				kvetch('ERROR:' + in_error);
 				
 				// Split on newline if possible to get
 				// at the nice part before the perl
@@ -615,7 +632,7 @@ function LiveSearchGOlrInit(){
 		};
 		jQuery.ajax(argvars);
 		// }else{
-		// 	core.kvetch('Threshold not passed with: ' +
+		// 	kvetch('Threshold not passed with: ' +
 		// 		    all_inputs['q'][0]);
 		// }
 	    }
@@ -638,6 +655,7 @@ function LiveSearchGOlrInit(){
     jQuery("#taxon").change(server_action);
     jQuery("#source").change(server_action);
     jQuery("#evidence_type").change(server_action);
+    jQuery("#evidence_closure").change(server_action);
     jQuery("#isa_partof_label_closure").change(server_action);
     jQuery("#annotation_extension_class_label").change(server_action);
     jQuery("#annotation_extension_class_label_closure").change(server_action);
@@ -658,9 +676,9 @@ function LiveSearchGOlrInit(){
     jQuery("#app-form").submit(function(){return false;});
 
     // TODO: first pass update on all facets.
-    var init_url = gm.golr_base() + '/select?qt=standard&indent=on&wt=json&version=2.2&rows=10&start=0&fl=*%2Cscore&facet=true&facet.mincount=1&facet.field=document_category&facet.field=type&facet.field=evidence_type&facet.field=source&facet.field=taxon&facet.field=isa_partof_label_closure&facet.field=annotation_extension_class_label&facet.field=annotation_extension_class_label_closure&q=*:*&packet=1';
+    var init_url = gm.golr_base() + '/select?qt=standard&indent=on&wt=json&version=2.2&rows=10&start=0&fl=*%2Cscore&facet=true&facet.mincount=1&facet.field=document_category&facet.field=type&facet.field=evidence_type&facet.field=evidence_closure&facet.field=source&facet.field=taxon&facet.field=isa_partof_label_closure&facet.field=annotation_extension_class_label&facet.field=annotation_extension_class_label_closure&q=*:*&packet=1';
     last_sent_packet = 1; // TODO/BUG: Packeting getting awkward--class?
-    core.kvetch('trying initialization: ' + init_url);
+    kvetch('trying initialization: ' + init_url);
     // JSONP errors are hard to catch.
     // http://bugs.jquery.com/ticket/3442
     var init_argvars = {
@@ -670,14 +688,14 @@ function LiveSearchGOlrInit(){
 	jsonp: 'json.wrf',
 	success: _process_results,
 	error: function (result, status, error) {
-	    core.kvetch('ERROR: Failed initialization request (1)');
+	    kvetch('ERROR: Failed initialization request (1)');
 	}
     };
     jQuery.ajax(init_argvars);
     //var req = jQuery.ajax(init_argvars);
     //var req = jQuery.getJSON(init_argvars, _process_results);
     //req.error(function (result, status, error) {
-    // 		  core.kvetch('ERROR: Failed initialization request: ' +
+    // 		  kvetch('ERROR: Failed initialization request: ' +
     // 			     status + ', ' + error);
     // 	      });
 }
@@ -706,9 +724,9 @@ function _clear_app_forms(){
 function _process_meta_results (json_data){
 
     // Grab meta information.
-    var total = core.golr_response.total_documents(json_data);
-    var first = core.golr_response.start_document(json_data);
-    var last = core.golr_response.end_document(json_data);
+    var total = amigo.golr_response.total_documents(json_data);
+    var first = amigo.golr_response.start_document(json_data);
+    var last = amigo.golr_response.end_document(json_data);
     var meta_cache = new Array();
     meta_cache.push('Total: ' + total);
 
@@ -734,23 +752,23 @@ function _process_meta_results (json_data){
 	meta_cache.push('<br />');
 
 	// Our element ids.
-	var backward_id = 'bak_paging_id_' + core.util.randomness(10);
-	var forward_id = 'for_paging_id_' + core.util.randomness(10);
+	var backward_id = 'bak_paging_id_' + amigo.util.randomness(10);
+	var forward_id = 'for_paging_id_' + amigo.util.randomness(10);
 
 	// Determine which arguments we'll (or would) need to page
 	// forwards or backwards.
 	var b_args = null;
-	//b_args = core.util.clone(args);
-	b_args = core.util.clone(core.golr_response.parameters(json_data));
+	//b_args = amigo.util.clone(args);
+	b_args = amigo.util.clone(amigo.golr_response.parameters(json_data));
 	//if( ! b_args['index'] ){ b_args['index'] = 2; }
 	b_args['start'] = parseInt(b_args['start']) -
-	    core.golr_response.row_step(json_data);
+	    amigo.golr_response.row_step(json_data);
 	var f_args = null;
-	//f_args = core.util.clone(args);
-	f_args = core.util.clone(core.golr_response.parameters(json_data));
+	//f_args = amigo.util.clone(args);
+	f_args = amigo.util.clone(amigo.golr_response.parameters(json_data));
 	//if( ! f_args['index'] ){ f_args['index'] = 1; }
 	f_args['start'] = parseInt(f_args['start']) +
-	    core.golr_response.row_step(json_data);
+	    amigo.golr_response.row_step(json_data);
 
 	// Increment packet (async ordering).
 	b_args['packet'] = last_sent_packet++;
@@ -762,8 +780,8 @@ function _process_meta_results (json_data){
 	var backward_url = null;
 	var forward_url = null;
 	proc = _process_results;
-	backward_url = gm.golr_base() + '/' + core.api.live_search.golr(b_args);
-	forward_url = gm.golr_base() + '/' + core.api.live_search.golr(f_args);
+	backward_url = gm.golr_base() + '/' + amigo.api.live_search.golr(b_args);
+	forward_url = gm.golr_base() + '/' + amigo.api.live_search.golr(f_args);
 	
 	// Generate the necessary paging html.
 	if( first > 0 ){
@@ -793,16 +811,16 @@ function _process_meta_results (json_data){
 function _update_gui (json_data){
 
     // // Grab meta information.
-    // var total = core.golr_response.total_documents(json_data);
-    // var first = core.golr_response.start_document(json_data);
-    // var last = core.golr_response.end_document(json_data);
+    // var total = amigo.golr_response.total_documents(json_data);
+    // var first = amigo.golr_response.start_document(json_data);
+    // var last = amigo.golr_response.end_document(json_data);
 
-    core.kvetch("GUI: Updating...");
+    kvetch("GUI: Updating...");
 
     // Capture the current filters and facets. They come in as a hash
     // of arrays.
-    var qfilters = core.golr_response.query_filters(json_data);
-    var qfacets = core.golr_response.facet_counts(json_data);
+    var qfilters = amigo.golr_response.query_filters(json_data);
+    var qfacets = amigo.golr_response.facet_counts(json_data);
 
     // // Define pre-defined filters.
     // var filterables = [
@@ -815,17 +833,17 @@ function _update_gui (json_data){
     // 	var curr_model = filterable['model'];
     // 	var curr_widget = filterable['widget'];
 
-    // 	// core.kvetch("looking at facet: " + curr_filter_id);
-    // 	// core.kvetch("\tmodel: " + curr_model);
-    // 	// core.kvetch("\twidget: " + curr_widget);
+    // 	// kvetch("looking at facet: " + curr_filter_id);
+    // 	// kvetch("\tmodel: " + curr_model);
+    // 	// kvetch("\twidget: " + curr_widget);
 
     // 	// Update the model with query filters and facet counts. Since the
     // 	// return data is considered comprehensive, if one is not
     // 	var all_filters = curr_model.get_all_items();
-    // 	//core.kvetch("all " + curr_filter_id + " filters: " + all_filters);
+    // 	//kvetch("all " + curr_filter_id + " filters: " + all_filters);
     // 	for( var ptfi = 0; ptfi < all_filters.length; ptfi++ ){
     //  	    var try_filter = all_filters[ptfi];
-    //  	    // core.kvetch("try filter: " + try_filter);
+    //  	    // kvetch("try filter: " + try_filter);
     //  	    if( qfilters[curr_filter_id] &&
     // 		qfilters[curr_filter_id][try_filter] ){
     // 		curr_model.update_value(try_filter, 'selected', true);
@@ -867,8 +885,13 @@ function _update_gui (json_data){
 	},
 	{
 	    filter_id: 'evidence_type',
-	    model: evidence_model,
-	    widget: evidence_widget
+	    model: evidence_type_model,
+	    widget: evidence_type_widget
+	},
+	{
+	    filter_id: 'evidence_closure',
+	    model: evidence_closure_model,
+	    widget: evidence_closure_widget
 	},
 	{
 	    filter_id: 'document_category',
@@ -899,26 +922,26 @@ function _update_gui (json_data){
 	var curr_model = filterable['model'];
 	var curr_widget = filterable['widget'];
 
-    	// core.kvetch("looking at facet: " + curr_filter_id);
-    	// core.kvetch("\tmodel: " + curr_model);
-    	// core.kvetch("\twidget: " + curr_widget);
+    	// kvetch("looking at facet: " + curr_filter_id);
+    	// kvetch("\tmodel: " + curr_model);
+    	// kvetch("\twidget: " + curr_widget);
 
 	// Iterate over all facet values.
-	var facet_keys = core.util.get_hash_keys(qfacets[curr_filter_id]);
-	//core.kvetch("facet_keys: " + facet_keys);
+	var facet_keys = amigo.util.get_hash_keys(qfacets[curr_filter_id]);
+	//kvetch("facet_keys: " + facet_keys);
 
 	// Get all things currently in the model.
 	var all_item_keys = curr_model.get_all_items();
-	//core.kvetch("all_item_keys: " + all_item_keys);
+	//kvetch("all_item_keys: " + all_item_keys);
 
 	// Join them and update over the whole set.
 	var all_keys = facet_keys.concat(all_item_keys);
 
-	//core.kvetch("all " + curr_filter_id + " filters: " + all_keys);
+	//kvetch("all " + curr_filter_id + " filters: " + all_keys);
 
 	for( var aki = 0; aki < all_keys.length; aki++ ){
 	    var curr_asp = all_keys[aki];
-	    //core.kvetch("looking at: " + curr_asp);
+	    //kvetch("looking at: " + curr_asp);
 	    
 	    // Add things to the model if they aren't there.
 	    if( ! curr_model.has_item(curr_asp) ){
@@ -929,7 +952,7 @@ function _update_gui (json_data){
 					selected: false,
 					special: false
  				    });
-		//core.kvetch("added: " + curr_asp);
+		//kvetch("added: " + curr_asp);
 	    }
 
 	    // Look at whether or not there is a count with it. If
@@ -938,7 +961,7 @@ function _update_gui (json_data){
 		curr_model.update_value(curr_asp, 'count', 0);
 	    }else{
 		var new_val = qfacets[curr_filter_id][curr_asp];
-		//core.kvetch("change " + curr_asp + ' to ' + new_val);
+		//kvetch("change " + curr_asp + ' to ' + new_val);
 		curr_model.update_value(curr_asp, 'count', new_val);
 	    }
 	    
@@ -962,34 +985,34 @@ function _update_gui (json_data){
 // Convert the return JSON results into something usable...
 function _process_results (json_data, status){
 
-    core.kvetch('Checking results...');    
+    kvetch('Checking results...');    
 
     // Clear the watchdog:
     watchdog_solr_is_responding = true;
 
     // Some trivial validation here.
-    if( core.golr_response.success(json_data) ){
+    if( amigo.golr_response.success(json_data) ){
 
-	core.kvetch('Results okay...');
+	kvetch('Results okay...');
 	
 	// Packet order checking.
-	var in_params = core.golr_response.parameters(json_data);
+	var in_params = amigo.golr_response.parameters(json_data);
 	var our_packet = parseInt(in_params.packet);
-	core.kvetch("packet: "+ our_packet +" (>? "+ last_received_packet +")");
+	kvetch("packet: "+ our_packet +" (>? "+ last_received_packet +")");
 	if( our_packet && our_packet > last_received_packet ){
 	    
-	    core.kvetch("Usable return packet: " + our_packet);
+	    kvetch("Usable return packet: " + our_packet);
 	    
 	    // Set last received.
 	    last_received_packet = our_packet;
 	    
 	    // Check to see if there is someting there first
 	    var cache = new Array();
-	    if( core.golr_response.total_documents(json_data) < 1 ){
-		core.kvetch("No results (empty).");
+	    if( amigo.golr_response.total_documents(json_data) < 1 ){
+		kvetch("No results (empty).");
 	    }else{
 		// Process main results table.
-		var brdg = core.golr_response.documents(json_data);
+		var brdg = amigo.golr_response.documents(json_data);
 		cache = _table_cache_from_results(brdg);
 	    }
 	    
@@ -1004,36 +1027,36 @@ function _process_results (json_data, status){
 	    _update_gui(json_data);
 	    
 	}else{
-	    core.kvetch("Dropping packet.");
+	    kvetch("Dropping packet.");
 	}
     }else{
-	core.kvetch("Invalid response.");
-	core.kvetch("Data: " + json_data);
-	core.kvetch("Status: " + status);
+	kvetch("Invalid response.");
+	kvetch("Data: " + json_data);
+	kvetch("Status: " + status);
 	if( json_data ){
-	    core.kvetch("Data okay.");
+	    kvetch("Data okay.");
 	}
 	if( json_data.response ){
-	    core.kvetch("Response okay.");
+	    kvetch("Response okay.");
 	}
 	if( json_data.responseHeader ){
-	    core.kvetch("Header okay.");
+	    kvetch("Header okay.");
 	}
 	if( json_data.facet_counts ){
-	    core.kvetch("Facets okay.");
+	    kvetch("Facets okay.");
 	}
     }
-    //core.kvetch("finish wait");
+    //kvetch("finish wait");
     widgets.finish_wait();
-    core.kvetch("Pass finish.");
+    kvetch("Pass finish.");
 }
 
 
 //
 function _table_cache_from_results (dlist){
     
-    core.kvetch("Table: Refreshing...");
-    //core.kvetch("Table: dlist.length: " + dlist.length);
+    kvetch("Table: Refreshing...");
+    //kvetch("Table: dlist.length: " + dlist.length);
 
     // Results rows first to see what's in there.
     var row_cache = [];
@@ -1055,6 +1078,9 @@ function _table_cache_from_results (dlist){
 	// TODO: document type identification.
 	if( r.document_category ){
 	    if( 'annotation' == r.document_category ){
+		row_cache.push(_annotation_line(r));
+		has_annotation_p = true;
+	    }else if( 'annotation_aggregate' == r.document_category ){
 		row_cache.push(_annotation_line(r));
 		has_annotation_p = true;
 	    }else if( 'ontology_class' == r.document_category ){
@@ -1161,7 +1187,7 @@ function _table_cache_from_results (dlist){
 // Write an annotation line. Currently 9 columns.
 function _annotation_line(r){
     
-    //core.kvetch("Writing annotation line...");
+    //kvetch("Writing annotation line...");
     var cache = new Array();
 
     // 1 Score.
@@ -1177,14 +1203,14 @@ function _annotation_line(r){
 
     // 3 GP symbol.
     cache.push('<td>');
-    cache.push(core.html.gene_product_link(r.bioentity_id,
+    cache.push(amigo.html.gene_product_link(r.bioentity_id,
 					   r.bioentity_label));
     cache.push('</td>');
 
     // 4 Evidence.
     cache.push('<td>');
     cache.push(r.evidence_type);
-    // //core.kvetch('homolset status: ' + r.homolset);
+    // //kvetch('homolset status: ' + r.homolset);
     // if( r.homolset == 'included' ){
     //   cache.push('<img src="' + gm.get_image_resource('star') + '"');
     //   cache.push(' title="This gene product is a member of a homolset." />');
@@ -1194,9 +1220,9 @@ function _annotation_line(r){
     cache.push('</td>');
 
     // 5 Term info.
-    //var tlink = core.link.term({acc: r.annotation_class});
+    //var tlink = amigo.link.term({acc: r.annotation_class});
     cache.push('<td>');
-    cache.push(core.html.term_link(r.annotation_class,
+    cache.push(amigo.html.term_link(r.annotation_class,
 				   r.annotation_class_label));
     cache.push(' (');
     cache.push(r.annotation_class);
@@ -1265,7 +1291,7 @@ function _annotation_line(r){
 // Write an term line. Currently 3 (of 9) columns.
 function _term_line(r){
     
-    //core.kvetch("Writing annotation line...");
+    //kvetch("Writing annotation line...");
     var cache = new Array();
 
     // 1 Score.
@@ -1282,7 +1308,7 @@ function _term_line(r){
     // 3 ...
     cache.push('<td colspan="7">');
     //cache.push(r.label);
-    cache.push(core.html.term_link(r.id, r.label));
+    cache.push(amigo.html.term_link(r.id, r.label));
     cache.push(' (');
     cache.push(r.id);
     cache.push(')');
@@ -1300,7 +1326,7 @@ function _term_line(r){
 // Write a bioentity line. Currently X (of Y) columns.
 function _bioentity_line(r){
     
-    //core.kvetch("Writing bioentity line...");
+    //kvetch("Writing bioentity line...");
     var cache = new Array();
 
     // 1 Score.
@@ -1316,7 +1342,7 @@ function _bioentity_line(r){
 
     // 3 GP symbol.
     cache.push('<td>');
-    cache.push(core.html.gene_product_link(r.id, r.label));
+    cache.push(amigo.html.gene_product_link(r.id, r.label));
     cache.push('</td>');
 
     // 4 Type.
@@ -1352,14 +1378,14 @@ function _bioentity_line(r){
 function _paging_binding(elt_id, url, processor){
 
     // TODO: bind actions to things in the action column.
-    core.kvetch("paging bindings on " + elt_id + "...");
+    kvetch("paging bindings on " + elt_id + "...");
     var elt = jQuery("#" + elt_id);
     if( elt && elt.attr && elt.attr('id') == elt_id ){
 
 	// Show menu on click.
 	elt.click(function(){
 
-	    core.kvetch("clicked_on_pager, try: " + url);
+	    kvetch("clicked_on_pager, try: " + url);
 	    widgets.start_wait('Paging...');
 	    jQuery.ajax({
 	    	type: "GET",
@@ -1368,7 +1394,7 @@ function _paging_binding(elt_id, url, processor){
 		jsonp: 'json.wrf',
 	    	success: processor,
 	    	error: function (result, status, error) {
-	    	    core.kvetch('Failed server request (paging): ' + status);
+	    	    kvetch('Failed server request (paging): ' + status);
 		    widgets.finish_wait();
 	    	}
 	    });

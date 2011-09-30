@@ -1,6 +1,6 @@
 ////////////
 ////
-//// org.bbop.amigo
+//// bbop.amigo
 ////
 //// Purpose: Provide methods for accessing AmiGO/GO-related web
 ////          resources from the host server. A loose analog to
@@ -11,94 +11,77 @@
 //// AmiGO and its related services on the host.
 ////
 //// Taken name spaces:
-////    org.bbop.amigo.DEBUG // variable
-////    org.bbop.amigo.core
+////    bbop.amigo.DEBUG // variable
+////    bbop.amigo
 ////                     + .response
 ////                     + .link
-////                     + .kvetch
-////    org.bbop.amigo.json
+////    bbop.amigo.json
 ////
 //////////
 
-
-// General utility function.
-function extend(the_child, the_super){
-  for (var property in the_super.prototype) {
-    if (typeof the_child.prototype[property] == "undefined")
-      the_child.prototype[property] = the_super.prototype[property];
-  }
-  return the_child;
-}
-
-
 // Module and namespace checking.
-if ( typeof org == "undefined" ){ org = {}; }
-if ( typeof org.bbop == "undefined" ){ org.bbop = {}; }
-if ( typeof org.bbop.amigo == "undefined" ){ org.bbop.amigo = {}; }
-if ( typeof org.bbop.amigo.json == "undefined" ){ org.bbop.amigo.json = {}; }
-
-// Defined and false when loaded. Can be changed at runtime.
-org.bbop.amigo.DEBUG = false;
+bbop.core.require('bbop', 'core');
+bbop.core.namespace('bbop', 'amigo');
 
 // Links to useful things back on AmiGO.
-org.bbop.amigo.core = function(){
+bbop.amigo = function(){
 
-    ///
-    /// Generalized complaining.
-    /// 
+    // ///
+    // /// Generalized complaining.
+    // /// 
 
-    // We'll start with print because we're doing stuff from the
-    // command line in smjs, but we'll work our way out and see if we
-    // have a browser environment.
-    var sayer = function(){};
-    var ender = '';
+    // // We'll start with print because we're doing stuff from the
+    // // command line in smjs, but we'll work our way out and see if we
+    // // have a browser environment.
+    // var sayer = function(){};
+    // var ender = '';
 
-    // Check for: Opera, FF, Safari, etc.
-    if( typeof(opera) != 'undefined' &&
-	typeof(opera.postError) != 'undefined' ){
-	sayer = opera.postError;
-	ender = "\n";
-    }else if( typeof(window) != 'undefined' &&
-	      typeof(window.dump) != 'undefined' ){
-	// From developer.mozilla.org: To see the dump output you have
-	// to enable it by setting the preference
-	// browser.dom.window.dump.enabled to true. You can set the
-	// preference in about:config or in a user.js file. Note: this
-	// preference is not listed in about:config by default, you
-	// may need to create it (right-click the content area -> New
-	// -> Boolean).
-	sayer = dump;
-	ender = "\n";
-    }else if( typeof(window) != 'undefined' &&
-	      typeof(window.console) != 'undefined' &&
-	      typeof(window.console.log) != 'undefined' ){
-	// From developer.apple.com: Safari's "Debug" menu allows you to
-	// turn on the logging of JavaScript errors. To display the
-	// debug menu in Mac OS X, open a Terminal window and type:
-	// "defaults write com.apple.Safari IncludeDebugMenu 1"
-	// Need the wrapper function because safari has personality
-	// problems.
-	sayer = function(msg){ window.console.log(msg); };
-	ender = "\n";
-    }else if( typeof(console) != 'undefined' &&
-	      typeof(console.log) != 'undefined' ){
-	// This may be okay for Chrome...
-	sayer = console.log;
-	ender = "\n";
-    }else if( typeof(build) == 'function' &&
-	      typeof(getpda) == 'function' &&
-	      typeof(pc2line) == 'function' &&
-	      typeof(print) == 'function' ){
-	// This may detect SpiderMonkey on the comand line.
-	sayer = print;
-	ender = "";
-    }
+    // // Check for: Opera, FF, Safari, etc.
+    // if( typeof(opera) != 'undefined' &&
+    // 	typeof(opera.postError) != 'undefined' ){
+    // 	sayer = opera.postError;
+    // 	ender = "\n";
+    // }else if( typeof(window) != 'undefined' &&
+    // 	      typeof(window.dump) != 'undefined' ){
+    // 	// From developer.mozilla.org: To see the dump output you have
+    // 	// to enable it by setting the preference
+    // 	// browser.dom.window.dump.enabled to true. You can set the
+    // 	// preference in about:config or in a user.js file. Note: this
+    // 	// preference is not listed in about:config by default, you
+    // 	// may need to create it (right-click the content area -> New
+    // 	// -> Boolean).
+    // 	sayer = dump;
+    // 	ender = "\n";
+    // }else if( typeof(window) != 'undefined' &&
+    // 	      typeof(window.console) != 'undefined' &&
+    // 	      typeof(window.console.log) != 'undefined' ){
+    // 	// From developer.apple.com: Safari's "Debug" menu allows you to
+    // 	// turn on the logging of JavaScript errors. To display the
+    // 	// debug menu in Mac OS X, open a Terminal window and type:
+    // 	// "defaults write com.apple.Safari IncludeDebugMenu 1"
+    // 	// Need the wrapper function because safari has personality
+    // 	// problems.
+    // 	sayer = function(msg){ window.console.log(msg); };
+    // 	ender = "\n";
+    // }else if( typeof(console) != 'undefined' &&
+    // 	      typeof(console.log) != 'undefined' ){
+    // 	// This may be okay for Chrome...
+    // 	sayer = console.log;
+    // 	ender = "\n";
+    // }else if( typeof(build) == 'function' &&
+    // 	      typeof(getpda) == 'function' &&
+    // 	      typeof(pc2line) == 'function' &&
+    // 	      typeof(print) == 'function' ){
+    // 	// This may detect SpiderMonkey on the comand line.
+    // 	sayer = print;
+    // 	ender = "";
+    // }
 
-    this.kvetch = function(string){
-	if( org.bbop.amigo.DEBUG == true ){
-	    sayer(string + ender);
-	}
-    };
+    // this.kvetch = function(string){
+    // 	if( bbop.amigo.DEBUG == true ){
+    // 	    sayer(string + ender);
+    // 	}
+    // };
 
     ///
     /// GOlr response checking (after parsing).
@@ -757,6 +740,7 @@ org.bbop.amigo.core = function(){
 		source: [],
 		taxon: [],
 		evidence_type: [],
+		evidence_closure: [],
 		isa_partof_label_closure: [],
 		annotation_extension_class_label: [],
 		annotation_extension_class_label_closure: []
@@ -772,59 +756,6 @@ org.bbop.amigo.core = function(){
 	    complete_query = complete_query + '&' + addable_filters;
 	}
 	return complete_query;
-    };
-
-    this.api.live_search.association = function(in_args){
-
-	if( ! in_args ){ in_args = {}; }
-	var default_args =
-	    {
-		query: '',
-		ontology: [],
-		gptype: [],
-		source: [],
-		species: [],
-		evidence: [],
-		count: 10,
-		index: 1,
-		packet: 1
-	    };
-	var final_args = _merge(default_args, in_args);
-		
-	return _ls_assoc_template(final_args);
-    };
-    this.api.live_search.gene_product = function(in_args){
-	
-	if( ! in_args ){ in_args = {}; }
-	var default_args =
-	    {
-		query: '',
-		gptype: [],
-		source: [],
-		species: [],
-		homolset: [],
-		count: 10,
-		index: 1,
-		packet: 1
-	    };
-	var final_args = _merge(default_args, in_args);
-		
-	return _ls_gp_template(final_args);
-    };
-    this.api.live_search.term = function(in_args){
-
-	if( ! in_args ){ in_args = {}; }
-	var default_args =
-	    {
-		query: '',
-		ontology: [],
-		count: 10,
-		index: 1,
-		packet: 1
-	    };
-	var final_args = _merge(default_args, in_args);
-		
-	return _ls_term_template(final_args);
     };
 
     ///
@@ -1076,326 +1007,3 @@ org.bbop.amigo.core = function(){
 
     // TODO:
 };
-
-
-///
-/// Bring in the public domain JSON parser from
-/// http://www.json.org/json2.js with small small editing to make it
-/// fit in here with our namespaces.
-///
-
-(function () {
-
-    function f(n) {
-        // Format integers to have at least two digits.
-        return n < 10 ? '0' + n : n;
-    }
-
-    if (typeof Date.prototype.toJSON !== 'function') {
-
-        Date.prototype.toJSON = function (key) {
-
-            return this.getUTCFullYear()   + '-' +
-                 f(this.getUTCMonth() + 1) + '-' +
-                 f(this.getUTCDate())      + 'T' +
-                 f(this.getUTCHours())     + ':' +
-                 f(this.getUTCMinutes())   + ':' +
-                 f(this.getUTCSeconds())   + 'Z';
-        };
-
-        String.prototype.toJSON =
-        Number.prototype.toJSON =
-        Boolean.prototype.toJSON = function (key) {
-            return this.valueOf();
-        };
-    }
-
-    var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-        escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-        gap,
-        indent,
-        meta = {    // table of character substitutions
-            '\b': '\\b',
-            '\t': '\\t',
-            '\n': '\\n',
-            '\f': '\\f',
-            '\r': '\\r',
-            '"' : '\\"',
-            '\\': '\\\\'
-        },
-        rep;
-
-
-    function quote(string) {
-
-// If the string contains no control characters, no quote characters, and no
-// backslash characters, then we can safely slap some quotes around it.
-// Otherwise we must also replace the offending characters with safe escape
-// sequences.
-
-        escapable.lastIndex = 0;
-        return escapable.test(string) ?
-            '"' + string.replace(escapable, function (a) {
-                var c = meta[a];
-                return typeof c === 'string' ? c :
-                    '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-            }) + '"' :
-            '"' + string + '"';
-    }
-
-
-    function str(key, holder) {
-
-// Produce a string from holder[key].
-
-        var i,          // The loop counter.
-            k,          // The member key.
-            v,          // The member value.
-            length,
-            mind = gap,
-            partial,
-            value = holder[key];
-
-// If the value has a toJSON method, call it to obtain a replacement value.
-
-        if (value && typeof value === 'object' &&
-                typeof value.toJSON === 'function') {
-            value = value.toJSON(key);
-        }
-
-// If we were called with a replacer function, then call the replacer to
-// obtain a replacement value.
-
-        if (typeof rep === 'function') {
-            value = rep.call(holder, key, value);
-        }
-
-// What happens next depends on the value's type.
-
-        switch (typeof value) {
-        case 'string':
-            return quote(value);
-
-        case 'number':
-
-// JSON numbers must be finite. Encode non-finite numbers as null.
-
-            return isFinite(value) ? String(value) : 'null';
-
-        case 'boolean':
-        case 'null':
-
-// If the value is a boolean or null, convert it to a string. Note:
-// typeof null does not produce 'null'. The case is included here in
-// the remote chance that this gets fixed someday.
-
-            return String(value);
-
-// If the type is 'object', we might be dealing with an object or an array or
-// null.
-
-        case 'object':
-
-// Due to a specification blunder in ECMAScript, typeof null is 'object',
-// so watch out for that case.
-
-            if (!value) {
-                return 'null';
-            }
-
-// Make an array to hold the partial results of stringifying this object value.
-
-            gap += indent;
-            partial = [];
-
-// Is the value an array?
-
-            if (Object.prototype.toString.apply(value) === '[object Array]') {
-
-// The value is an array. Stringify every element. Use null as a placeholder
-// for non-JSON values.
-
-                length = value.length;
-                for (i = 0; i < length; i += 1) {
-                    partial[i] = str(i, value) || 'null';
-                }
-
-// Join all of the elements together, separated with commas, and wrap them in
-// brackets.
-
-                v = partial.length === 0 ? '[]' :
-                    gap ? '[\n' + gap +
-                            partial.join(',\n' + gap) + '\n' +
-                                mind + ']' :
-                          '[' + partial.join(',') + ']';
-                gap = mind;
-                return v;
-            }
-
-// If the replacer is an array, use it to select the members to be stringified.
-
-            if (rep && typeof rep === 'object') {
-                length = rep.length;
-                for (i = 0; i < length; i += 1) {
-                    k = rep[i];
-                    if (typeof k === 'string') {
-                        v = str(k, value);
-                        if (v) {
-                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
-                        }
-                    }
-                }
-            } else {
-
-// Otherwise, iterate through all of the keys in the object.
-
-                for (k in value) {
-                    if (Object.hasOwnProperty.call(value, k)) {
-                        v = str(k, value);
-                        if (v) {
-                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
-                        }
-                    }
-                }
-            }
-
-// Join all of the member texts together, separated with commas,
-// and wrap them in braces.
-
-            v = partial.length === 0 ? '{}' :
-                gap ? '{\n' + gap + partial.join(',\n' + gap) + '\n' +
-                        mind + '}' : '{' + partial.join(',') + '}';
-            gap = mind;
-            return v;
-        }
-    }
-
-// If the JSON object does not yet have a stringify method, give it one.
-
-    if (typeof org.bbop.amigo.json.stringify !== 'function') {
-        org.bbop.amigo.json.stringify = function (value, replacer, space) {
-
-// The stringify method takes a value and an optional replacer, and an optional
-// space parameter, and returns a JSON text. The replacer can be a function
-// that can replace values, or an array of strings that will select the keys.
-// A default replacer method can be provided. Use of the space parameter can
-// produce text that is more easily readable.
-
-            var i;
-            gap = '';
-            indent = '';
-
-// If the space parameter is a number, make an indent string containing that
-// many spaces.
-
-            if (typeof space === 'number') {
-                for (i = 0; i < space; i += 1) {
-                    indent += ' ';
-                }
-
-// If the space parameter is a string, it will be used as the indent string.
-
-            } else if (typeof space === 'string') {
-                indent = space;
-            }
-
-// If there is a replacer, it must be a function or an array.
-// Otherwise, throw an error.
-
-            rep = replacer;
-            if (replacer && typeof replacer !== 'function' &&
-                    (typeof replacer !== 'object' ||
-                     typeof replacer.length !== 'number')) {
-                throw new Error('org.bbop.amigo.json.stringify');
-            }
-
-// Make a fake root object containing our value under the key of ''.
-// Return the result of stringifying the value.
-
-            return str('', {'': value});
-        };
-    }
-
-
-// If the JSON object does not yet have a parse method, give it one.
-
-    if (typeof org.bbop.amigo.json.parse !== 'function') {
-        org.bbop.amigo.json.parse = function (text, reviver) {
-
-// The parse method takes a text and an optional reviver function, and returns
-// a JavaScript value if the text is a valid JSON text.
-
-            var j;
-
-            function walk(holder, key) {
-
-// The walk method is used to recursively walk the resulting structure so
-// that modifications can be made.
-
-                var k, v, value = holder[key];
-                if (value && typeof value === 'object') {
-                    for (k in value) {
-                        if (Object.hasOwnProperty.call(value, k)) {
-                            v = walk(value, k);
-                            if (v !== undefined) {
-                                value[k] = v;
-                            } else {
-                                delete value[k];
-                            }
-                        }
-                    }
-                }
-                return reviver.call(holder, key, value);
-            }
-
-
-// Parsing happens in four stages. In the first stage, we replace certain
-// Unicode characters with escape sequences. JavaScript handles many characters
-// incorrectly, either silently deleting them, or treating them as line endings.
-
-            cx.lastIndex = 0;
-            if (cx.test(text)) {
-                text = text.replace(cx, function (a) {
-                    return '\\u' +
-                        ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-                });
-            }
-
-// In the second stage, we run the text against regular expressions that look
-// for non-JSON patterns. We are especially concerned with '()' and 'new'
-// because they can cause invocation, and '=' because it can cause mutation.
-// But just to be safe, we want to reject all unexpected forms.
-
-// We split the second stage into 4 regexp operations in order to work around
-// crippling inefficiencies in IE's and Safari's regexp engines. First we
-// replace the JSON backslash pairs with '@' (a non-JSON character). Second, we
-// replace all simple value tokens with ']' characters. Third, we delete all
-// open brackets that follow a colon or comma or that begin the text. Finally,
-// we look to see that the remaining characters are only whitespace or ']' or
-// ',' or ':' or '{' or '}'. If that is so, then the text is safe for eval.
-
-            if (/^[\],:{}\s]*$/.
-test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@').
-replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
-replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
-
-// In the third stage we use the eval function to compile the text into a
-// JavaScript structure. The '{' operator is subject to a syntactic ambiguity
-// in JavaScript: it can begin a block or an object literal. We wrap the text
-// in parens to eliminate the ambiguity.
-
-                j = eval('(' + text + ')');
-
-// In the optional fourth stage, we recursively walk the new structure, passing
-// each name/value pair to a reviver function for possible transformation.
-
-                return typeof reviver === 'function' ?
-                    walk({'': j}, '') : j;
-            }
-
-// If the text is not JSON parseable, then a SyntaxError is thrown.
-
-            throw new SyntaxError('org.bbop.amigo.json.parse');
-        };
-    }
-}());

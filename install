@@ -265,8 +265,10 @@ force_copy(Cwd::cwd() . '/javascript', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
 # force_copy($env_conf{GO_JS_ROOT},
 # 	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
 ll("Install GO JS libraries.");
-force_copy($env_conf{GO_JS_ROOT},
-	   $env_conf{AMIGO_HTDOCS_ROOT_DIR});
+foreach my $jslib ('bbop', 'external', 'graph', 'newick_tree'){
+  force_copy($env_conf{GO_JS_ROOT} . '/' . $jslib,
+	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
+}
 amigo_env_to_js();
 #}
 
@@ -332,7 +334,7 @@ EOC
 }
 
 
-## file: /srv/www/htdocs/amigo/js/org/bbop/amigo/go_meta.js
+## file: /srv/www/htdocs/amigo/js/bbop/amigo/go_meta.js
 sub amigo_env_to_js {
 
   ## 
@@ -347,7 +349,7 @@ sub amigo_env_to_js {
 
   ## If the file is already there, blow it away.
   my $file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
-    '/javascript/org/bbop/amigo/go_meta.js';
+    '/javascript/bbop/amigo/go_meta.js';
   unlink $file_str if -f $file_str;
   open(FILE, ">$file_str") or die "can not open $file_str: $!";
 
@@ -439,13 +441,13 @@ sub amigo_env_to_js {
   print FILE <<EOJS;
 ////////////
 ////
-//// org.bbop.amigo.go_meta
+//// bbop.amigo.go_meta
 ////
 //// Purpose: Useful information about the GO and AmiGO.
 ////          Also serves as a repository and getter for web
 ////          resources such as images.
 ////
-//// Requirements: amigo.js for org.bbop.amigo namespace.
+//// Requirements: amigo.js for bbop.amigo namespace.
 ////
 //// NOTE: This file is generated dynamically at installation time.
 ////       Hard to work with unit tests--hope it's not too bad.
@@ -454,7 +456,7 @@ sub amigo_env_to_js {
 //////////
 
 //
-org.bbop.amigo.go_meta = function(){
+bbop.amigo.go_meta = function(){
 
     // All of the server/instance-specific meta-data.
     var meta_data = $json_str;

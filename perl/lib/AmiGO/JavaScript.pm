@@ -93,13 +93,13 @@ my $sig2path =
    'javascript/external/graffle.js',
 
    ## TODO/BUG: better layout for "external" libs
-   'org.bbop.graph.core' =>
+   'bbop.graph.core' =>
    'javascript/graph/core.js',
-   'org.bbop.graph.model' =>
+   'bbop.graph.model' =>
    'javascript/graph/model.js',
-   'org.bbop.graph.tree' =>
+   'bbop.graph.tree' =>
    'javascript/graph/tree.js',
-   'org.bbop.graph.render.phylo' =>
+   'bbop.graph.render.phylo' =>
    'javascript/graph/render/phylo.js',
    ## BUG: These two really have to go.
    'exp' =>
@@ -161,50 +161,50 @@ my $sig2path =
    'org.prototype' =>
    'org/prototype-1.6.0.3.js',
 
-   'org.bbop.kvetch' =>
-   'org/bbop/kvetch.js',
+   'bbop.core' =>
+   'bbop/core.js',
 
-   'org.bbop.go' =>
-   'org/bbop/go.js',
+   'bbop.go' =>
+   'bbop/go.js',
 
-   'org.bbop.amigo' =>
-   'org/bbop/amigo.js',
+   'bbop.amigo' =>
+   'bbop/amigo.js',
 
-   'org.bbop.amigo.workspace' =>
-   'org/bbop/amigo/workspace.js',
+   'bbop.amigo.workspace' =>
+   'bbop/amigo/workspace.js',
 
-   'org.bbop.amigo.live_search.term' =>
-   'org/bbop/amigo/live_search/term.js',
+   'bbop.amigo.live_search.term' =>
+   'bbop/amigo/live_search/term.js',
 
-   'org.bbop.amigo.live_search.gene_product' =>
-   'org/bbop/amigo/live_search/gene_product.js',
+   'bbop.amigo.live_search.gene_product' =>
+   'bbop/amigo/live_search/gene_product.js',
 
-   'org.bbop.amigo.go_meta' =>
-   'org/bbop/amigo/go_meta.js',
+   'bbop.amigo.go_meta' =>
+   'bbop/amigo/go_meta.js',
 
-   'org.bbop.amigo.opensearch' =>
-   'org/bbop/amigo/opensearch.js',
+   'bbop.amigo.opensearch' =>
+   'bbop/amigo/opensearch.js',
 
-   'org.bbop.amigo.ui.standard' =>
-   'org/bbop/amigo/ui/standard.js',
+   'bbop.amigo.ui.standard' =>
+   'bbop/amigo/ui/standard.js',
 
-   'org.bbop.amigo.ui.autocomplete' =>
-   'org/bbop/amigo/ui/autocomplete.js',
+   'bbop.amigo.ui.autocomplete' =>
+   'bbop/amigo/ui/autocomplete.js',
 
-   'org.bbop.amigo.ui.widgets' =>
-   'org/bbop/amigo/ui/widgets.js',
+   'bbop.amigo.ui.widgets' =>
+   'bbop/amigo/ui/widgets.js',
 
-   'org.bbop.SVG' =>
-   'org/bbop/SVG.js',
+   'bbop.SVG' =>
+   'bbop/SVG.js',
 
-   'org.bbop.AffineSVG' =>
-   'org/bbop/AffineSVG.js',
+   'bbop.AffineSVG' =>
+   'bbop/AffineSVG.js',
 
    'GONavi' =>
    'GONavi.js',
 
-   #'org.bbop.Viewer' =>
-   #'org/bbop/Viewer.js',
+   #'bbop.Viewer' =>
+   #'bbop/Viewer.js',
 
    ## If they're in the right place with the right name, they'll be
    ## picked up anyways.

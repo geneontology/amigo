@@ -6,6 +6,9 @@
   <h1 class="name">[% TERM_INFO.name %]</h1>
   
   <ul id="navPage" class="inline C">
+    [% IF TERM_INFO.is_obsolete == 'true' %]
+    <li><a href="#info" title="View obsolete term information">(Obsolete) Term information <img src="[% image_dir %]/down.png" alt="Obsolete term information link"></a></li>
+    [% ELSE %]
     <li><a href="#info" title="View term information">Term information <img src="[% image_dir %]/down.png" alt="Term information link"></a></li>
     <li><a href="#lineage" title="View the placement of the term in the tree">Term neighborhood <img src="[% image_dir %]/down.png" alt="Term neighborhood link"></a></li>
     <li><a href="#xrefs" title="View cross-references to external databases">External references <img src="[% image_dir %]/down.png" alt="External references link"></a></li>
@@ -26,6 +29,7 @@
       </a>
       [% END %]
     </li>
+    [% END %]
     <!-- gp_assoc_text = TERM_INFO.n_deep_products _ ' gene product association'; -->
     <!-- IF TERM_INFO.n_deep_products != 1; -->
     <!-- gp_assoc_text = gp_assoc_text _ 's'; -->
@@ -33,6 +37,7 @@
   </ul>
 
   [% IF TERM_INFO.is_obsolete == 'true' %]
+  <!-- <div class="block warning" id="info"> -->
   <div class="block obsolete" id="info">
     <h2>(Obsolete) Term Information</h2>
   [% ELSE %]
