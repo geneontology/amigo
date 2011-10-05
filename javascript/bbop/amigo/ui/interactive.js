@@ -19,6 +19,7 @@
 // Module and namespace checking.
 // TODO: Will we need a ui class up there?
 bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'logger');
 bbop.core.require('bbop', 'amigo');
 bbop.core.require('bbop', 'amigo', 'go_meta');
 bbop.core.namespace('bbop', 'amigo', 'ui', 'interactive');
@@ -34,7 +35,9 @@ bbop.amigo.ui.interactive.multi_model = function(in_data){
     var meta = new bbop.amigo.go_meta();
 
     // We'll be doing a lot of debugging.
-    function ll(str){ bbop.core.kvetch(str); }
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch(str); }
     ll("");
 
     // 
@@ -46,7 +49,7 @@ bbop.amigo.ui.interactive.multi_model = function(in_data){
     function _reset_data(){
 	
 	anchor.current_data = {};
-	//anchor.initial_data[amigo.util.randomness()] =
+	//anchor.initial_data[bbop.core.randomness()] =
 	anchor.current_data['_nil_'] =
 	    {
 		value: "",
@@ -56,7 +59,7 @@ bbop.amigo.ui.interactive.multi_model = function(in_data){
 		special: true
 	    };
 	for( var ms = 0; ms < anchor.initial_data.length; ms++ ){
-	    // anchor.current_data[amigo.util.randomness()] =
+	    // anchor.current_data[bbop.core.randomness()] =
 	    anchor.current_data[anchor.initial_data[ms][1]] =
 		{
 		    value: anchor.initial_data[ms][1],
@@ -128,7 +131,7 @@ bbop.amigo.ui.interactive.multi_model = function(in_data){
     // filter.
     function _get_all_items(){
 	var ret_filters = [];
-	var complete_filters = amigo.util.get_hash_keys(anchor.current_data);
+	var complete_filters = bbop.core.get_hash_keys(anchor.current_data);
 	for( var cfi = 0; cfi < complete_filters.length; cfi++ ){
 	    var test_filter = complete_filters[cfi];
 	    if( test_filter != '_nil_' ){
@@ -187,7 +190,9 @@ bbop.amigo.ui.interactive.multi_widget = function(in_id, in_name,
     //var meta = new bbop.amigo.go_meta();
 
     // We'll be doing a lot of debugging.
-    function ll(str){ bbop.core.kvetch(str); }
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch(str); }
     ll("");
 
     // Copy in atom arguments.
@@ -227,7 +232,7 @@ bbop.amigo.ui.interactive.multi_widget = function(in_id, in_name,
 	// Sort the items in the mdata array.
 	// Also keep a lookup for a "special" entry.
 	// var default_on_p = false;
-	var mdata_keys = amigo.util.get_hash_keys(anchor.mdata);
+	var mdata_keys = bbop.core.get_hash_keys(anchor.mdata);
 	function _data_comp(a, b){
 
 	    // Get the associated data.
@@ -293,8 +298,8 @@ bbop.amigo.ui.interactive.multi_widget = function(in_id, in_name,
 			buf.push(' selected="selected"');
 		    }
 		    buf.push('>');
-		    //buf.push(amigo.util.crop(write_data['label']));
-		    buf.push(amigo.util.crop(write_data['label'], 40));
+		    //buf.push(bbop.core.crop(write_data['label']));
+		    buf.push(bbop.core.crop(write_data['label'], 40, '...'));
 		    
 		    if( write_data['count'] && write_data['count'] > 0 ){
 			buf.push(' (' + write_data['count'] + ')');

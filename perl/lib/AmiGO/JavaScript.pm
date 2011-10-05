@@ -164,6 +164,12 @@ my $sig2path =
    'bbop.core' =>
    'bbop/core.js',
 
+   'bbop.json' =>
+   'bbop/json.js',
+
+   'bbop.logger' =>
+   'bbop/logger.js',
+
    'bbop.go' =>
    'bbop/go.js',
 

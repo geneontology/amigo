@@ -9,11 +9,12 @@
 
 // Bring in the AmiGO core and keep a coder handy.
 // TODO/BUG: switch DEBUG to false for release.
-bbop.core.DEBUG = true;
-var kvetch = bbop.core.kvetch;
+var logger = new bbop.logger();
+logger.DEBUG = true;
+function kvetch(str){ logger.kvetch(str); };
 var amigo = new bbop.amigo();
 var gm = new bbop.amigo.go_meta();
-// var coder = new amigo.util.coder();
+// var coder = new bbop.core.coder();
 var last_sent_packet = 0;
 var last_received_packet = 0;
 
@@ -73,236 +74,6 @@ function _server_response_warning(){
 window.setTimeout(_server_response_warning, 3000);
 
 
-// TODO/BUG: make work, split out
-// Thinking about lessons learned from solr ajax.
-// Updatable model that connects to the Solr server.
-// Makes no attempt to join to a form--entirely held as an internal model.
-// {url: 'http://theplace', facets: ['foo', 'bar']}
-
-// This should act as a model--since we start with a completely open
-// query (whether we display it or not), we will have all possible
-// facets and can build the initial model off of that.
-function SolrManager(in_args){
-
-    // TODO: Block requests from the past from haunting us.
-    this.last_sent_packet = 0;
-    this.last_received_packet = 0;
-
-    // TODO:
-    this.register = function(fun_id, in_function){
-    };
-    // 
-    this.vanish = function(fun_id){
-    };
-    this.reveal = function(fun_id){
-    };
-    // TODO?
-    this.add_facet = function(){	
-    };
-    this.remove_facet = function(){	
-    };
-
-    // Check args.
-    if( ! in_args ){
-	kvetch('SM: ERROR: no argument');
-    }
-    // There should be a string url argument.
-    if( in_args && ! in_args['url'] ){
-	kvetch('SM: ERROR: no url argument');
-    }
-    if( in_args && in_args['url'] && typeof in_args['url'] != 'string' ){
-	kvetch('SM: ERROR: no url string argument');
-    }
-    // There should be an array facets argument.
-    if( in_args && ! in_args['facets'] ){
-	kvetch('SM: ERROR: no facets argument');
-    }
-    if( in_args && in_args['facets'] &&
-	( typeof in_args['facets'] != 'object' || 
-	  typeof in_args['facets'].length == 'undefined' ||
-	  typeof in_args['facets'].length == 0 )){
-	      kvetch('SM: ERROR: no facets sanely specified');
-	  }
-    
-    // Our default target url.
-    this.solr_url = in_args['url'];
-    
-    // Our default query args, with facet fields plugged in.
-    this.query_args =
-	{
-	    // TODO/BUG? need jsonp things here?
-	    qt: 'standard',
-	    indent: 'on',
-	    wt: 'json',
-	    version: '2.2',
-	    rows: 10,
-	    //start: 1,
-	    start: 0, // Solr is offset indexing
-	    fl: '*%2Cscore',
-	    
-	    // Control of facets.
-	    facet: 'true',
-	    'facet.mincount': 1,
-	    // TODO?: 'facet.limit': 20,
-	    // TODO?: 'f.???.facet.limit': 50,
-	    'facet.field': in_args['facets'],
-	    // TODO: 'json.nl': [flat|map|arrarr]
-	    'json.nl': 'arrarr',
-
-	    // Facet filtering.
-	    // TODO: This needs to be left to a different part of the
-	    // model.
-	    //fq: [],
-	    // Query-type stuff.
-	    //q: '*:*', // start by going after everything
-	    
-	    // Our bookkeeping.
-	    packet: 0
-	};
-    //var final_query_args = _merge(default_query_args, in_args);
-		
-    // // Ready possible filterable facets.
-    // filter_state: a combination of q and fq to produce a result
-    // results: 
-    // // This should include, set_type: intersection/union
-    // this.facet_filters = {};
-    // for( var in_facets in in_args['facets'] ){
-    // 	this.facet_filters[in_facets] = {};
-    // }
-    // //var final_filter_args = _merge(default_filter_args, in_args);
-
-    // ...
-    this._make_always_needed_section = function(){
-
-	//var resrc = amigo.api.live_search.golr(all_inputs);
-	//var url = gm.golr_base() + '/' + resrc;
-
-	var qbuff = [];	
-	var qargs = amigo.util.get_hash_keys(this.query_args);
-	for( var qname_i in qargs ){
-	    var qname = qargs[qname_i];
-	    var qval = this.query_args[qname];
-	    //kvetch('SM: qname:' + qname);
-	    //kvetch('SM: qval:' + qval);
-
-	    if( typeof qval == 'string' ||
-		typeof qval == 'number' ){
-		    // Is standard name/value pair.
-		    var nano_buff = [];
-		    nano_buff.push(qname);
-		    nano_buff.push('=');
-		    nano_buff.push(qval);
-		    qbuff.push(nano_buff.join(''));
-		}else if( typeof qval == 'object' ){
-		    if( typeof qval.length != 'undefined' ){
-			// Is array (probably).
-			// Iterate through and double on.
-			for(var qval_i = 0; qval_i < qval.length ; qval_i++){
-			    var nano_buff = [];
-			    nano_buff.push(qname);
-			    nano_buff.push('=');
-			    nano_buff.push(qval[qval_i]);
-			    qbuff.push(nano_buff.join(''));
-			}
-		    }else{
-			kvetch('SM: ERROR: no hash possible');
-			// // Is hash.
-			// // Use the a parser to change into
-			// // arbitrary sql-like request.
-			// kvetch('SM: ERROR: hash not done yet');
-			// // TODO: The "and" case is pretty much like
-			// // the array, the "or" case needs to be
-			// // handled carfeully. In both cases, care will
-			// // be needed to show which filters are marked.
-		    }
-		}else{
-		    kvetch('SM: make link unknown type!');
-		}
-	}
-
-	return qbuff.join('&');
-    };
-    
-    // The main callback function called after a successful AJAX call
-    // in the update function.
-    this._rerender = function(json_data){
-	kvetch('SM: in rerender...');
-	
-	// // Grab meta information.
-	// var total = amigo.golr_response.total_documents(json_data);
-	// var first = amigo.golr_response.start_document(json_data);
-	// var last = amigo.golr_response.end_document(json_data);
-	// var meta_cache = new Array();
-	// meta_cache.push('Total: ' + total);
-    };
-    var _reren = this._rerender;
-
-    // ...
-    this.update = function(in_arg){
-	
-	// TODO?
-	// Increment packet.
-	// this.query_args['packet'] = this.query_args['packet'] + 1;
-	
-	// Condintional join of all the parts.
-	var qshead = this.solr_url + 'select?';
-	var always_needed = this._make_always_needed_section();
-	var qurl = qshead + always_needed;
-	if( in_arg && in_arg == 'reset' ){
-	    // Reset and do completely open query.
-	    qurl = qurl + '&q=*:*';
-	}else{
-	    // TODO: standard assemble with filter and state.
-	}
-	    
-	//qurl = 'http://accordion.lbl.gov:8080/solr/select?qt=standard&indent=on&wt=json&version=2.2&rows=10&start=0&fl=*%2Cscore&facet=true&facet.mincount=1&facet.field=document_category&facet.field=type&facet.field=evidence_type&facet.field=source&facet.field=taxon&facet.field=isa_partof_label_closure&facet.field=annotation_extension_class_label&facet.field=annotation_extension_class_label_closure&q=*:*&packet=1';
-
-	kvetch('SM: try: ' + qurl);
-	//widgets.start_wait('Updating...');
-
-	// TODO: 
-		
-	// TODO/BUG: JSONP for solr looks like?
-	var argvars = {
-	    type: "GET",
-	    url: qurl,
-	    dataType: 'json',
-	    jsonp: 'json.wrf',
-	    success: _reren,
-	    error: function (result, status, error) {
-		
-	    	kvetch('SM: Failed server request: ' +
-			    result + ', ' +
-			    status + ', ' +
-			    error);
-		
-		// // Get the error out if possible.
-		// var jreq = result.responseText;
-		// var req = jQuery.parseJSON(jreq);
-		// if( req && req['errors'] &&
-		//     req['errors'].length > 0 ){
-		// 	var in_error = req['errors'][0];
-		// 	kvetch('SM: ERROR:' + in_error);
-					
-		// 	// Split on newline if possible to get
-		// 	// at the nice part before the perl
-		// 	// error.
-		// 	var reg = new RegExp("\n+", "g");
-		// 	var clean_error_split =
-		// 	    in_error.split(reg);
-		// 	var clean_error = clean_error_split[0];
-		// 	//widgets.error(clean_error);
-		//     }
-		
-		// // Close wait no matter what.
-		// //widgets.finish_wait();
-	    }
-	};
-	//jQuery.ajax(argvars);
-    };
-}
-
-
 // Get the layout done and request GO meta-info.
 function LiveSearchGOlrInit(){
 
@@ -313,19 +84,37 @@ function LiveSearchGOlrInit(){
     /// Manager test.
     ///
 
-    var sm = new SolrManager({url: 'http://accordion.lbl.gov:8080/solr/',
-			      facets: ['document_category', 'type']});
+    // Get my four managers ready.
+    var sm_ann = new SolrManager({url: 'http://accordion.lbl.gov:8080/solr/',
+				  filters: {'document_category': 'annotation'},
+				  facets: ['type', 'taxon', 'source',
+					   'evidence', 'term_closure']});
+    var sm_agg = new SolrManager({url: 'http://accordion.lbl.gov:8080/solr/',
+				  filters: {'document_category':
+					    'annotation_aggregate'},
+				  facets: ['type', 'taxon', 'source',
+					   'evidence_closure']});
+    var sm_bio = new SolrManager({url: 'http://accordion.lbl.gov:8080/solr/',
+				  filters: {'document_category': 'bioentity'},
+				  facets: ['type', 'taxon', 'source']});
+    var sm_cls = new SolrManager({url: 'http://accordion.lbl.gov:8080/solr/',
+				  filters: {'document_category':
+					    'ontology_class'},
+				  facets: ['source']});
 
-    sm.update('reset');
+    // sm_bio.register('response', 'foo_1', function(){ kvetch('foo_1'); }, 1);
+    // sm_bio.register('response', 'foo_2', function(){ kvetch('foo_2'); }, -1);
+    sm_bio.update('reset');
 
     ///
+    /// Past attempt.
     /// Try and get UI ready.
     ///
 
     //
-    //kvetch('Apply tabs...');
-    //jQuery("#search-tabs").tabs();
-    //jQuery("#search-tabs").tabs('select', 0);
+    kvetch('Applying tabs...');
+    jQuery("#search-tabs").tabs();
+    jQuery("#search-tabs").tabs('select', 0);
 
     widgets = new bbop.amigo.ui.widgets();
 
@@ -752,20 +541,20 @@ function _process_meta_results (json_data){
 	meta_cache.push('<br />');
 
 	// Our element ids.
-	var backward_id = 'bak_paging_id_' + amigo.util.randomness(10);
-	var forward_id = 'for_paging_id_' + amigo.util.randomness(10);
+	var backward_id = 'bak_paging_id_' + bbop.core.randomness(10);
+	var forward_id = 'for_paging_id_' + bbop.core.randomness(10);
 
 	// Determine which arguments we'll (or would) need to page
 	// forwards or backwards.
 	var b_args = null;
-	//b_args = amigo.util.clone(args);
-	b_args = amigo.util.clone(amigo.golr_response.parameters(json_data));
+	//b_args = bbop.core.clone(args);
+	b_args = bbop.core.clone(amigo.golr_response.parameters(json_data));
 	//if( ! b_args['index'] ){ b_args['index'] = 2; }
 	b_args['start'] = parseInt(b_args['start']) -
 	    amigo.golr_response.row_step(json_data);
 	var f_args = null;
-	//f_args = amigo.util.clone(args);
-	f_args = amigo.util.clone(amigo.golr_response.parameters(json_data));
+	//f_args = bbop.core.clone(args);
+	f_args = bbop.core.clone(amigo.golr_response.parameters(json_data));
 	//if( ! f_args['index'] ){ f_args['index'] = 1; }
 	f_args['start'] = parseInt(f_args['start']) +
 	    amigo.golr_response.row_step(json_data);
@@ -927,7 +716,7 @@ function _update_gui (json_data){
     	// kvetch("\twidget: " + curr_widget);
 
 	// Iterate over all facet values.
-	var facet_keys = amigo.util.get_hash_keys(qfacets[curr_filter_id]);
+	var facet_keys = bbop.core.get_hash_keys(qfacets[curr_filter_id]);
 	//kvetch("facet_keys: " + facet_keys);
 
 	// Get all things currently in the model.

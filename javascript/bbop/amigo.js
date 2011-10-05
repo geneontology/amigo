@@ -26,63 +26,6 @@ bbop.core.namespace('bbop', 'amigo');
 // Links to useful things back on AmiGO.
 bbop.amigo = function(){
 
-    // ///
-    // /// Generalized complaining.
-    // /// 
-
-    // // We'll start with print because we're doing stuff from the
-    // // command line in smjs, but we'll work our way out and see if we
-    // // have a browser environment.
-    // var sayer = function(){};
-    // var ender = '';
-
-    // // Check for: Opera, FF, Safari, etc.
-    // if( typeof(opera) != 'undefined' &&
-    // 	typeof(opera.postError) != 'undefined' ){
-    // 	sayer = opera.postError;
-    // 	ender = "\n";
-    // }else if( typeof(window) != 'undefined' &&
-    // 	      typeof(window.dump) != 'undefined' ){
-    // 	// From developer.mozilla.org: To see the dump output you have
-    // 	// to enable it by setting the preference
-    // 	// browser.dom.window.dump.enabled to true. You can set the
-    // 	// preference in about:config or in a user.js file. Note: this
-    // 	// preference is not listed in about:config by default, you
-    // 	// may need to create it (right-click the content area -> New
-    // 	// -> Boolean).
-    // 	sayer = dump;
-    // 	ender = "\n";
-    // }else if( typeof(window) != 'undefined' &&
-    // 	      typeof(window.console) != 'undefined' &&
-    // 	      typeof(window.console.log) != 'undefined' ){
-    // 	// From developer.apple.com: Safari's "Debug" menu allows you to
-    // 	// turn on the logging of JavaScript errors. To display the
-    // 	// debug menu in Mac OS X, open a Terminal window and type:
-    // 	// "defaults write com.apple.Safari IncludeDebugMenu 1"
-    // 	// Need the wrapper function because safari has personality
-    // 	// problems.
-    // 	sayer = function(msg){ window.console.log(msg); };
-    // 	ender = "\n";
-    // }else if( typeof(console) != 'undefined' &&
-    // 	      typeof(console.log) != 'undefined' ){
-    // 	// This may be okay for Chrome...
-    // 	sayer = console.log;
-    // 	ender = "\n";
-    // }else if( typeof(build) == 'function' &&
-    // 	      typeof(getpda) == 'function' &&
-    // 	      typeof(pc2line) == 'function' &&
-    // 	      typeof(print) == 'function' ){
-    // 	// This may detect SpiderMonkey on the comand line.
-    // 	sayer = print;
-    // 	ender = "";
-    // }
-
-    // this.kvetch = function(string){
-    // 	if( bbop.amigo.DEBUG == true ){
-    // 	    sayer(string + ender);
-    // 	}
-    // };
-
     ///
     /// GOlr response checking (after parsing).
     ///
@@ -145,14 +88,15 @@ bbop.amigo = function(){
 
     // // ...
     // this.golr_response.facet_fields = function(robj){
-    // 	return _get_hash_keys(robj.facet_counts.facet_fields);
+    // 	return bbop.core.get_hash_keys(robj.facet_counts.facet_fields);
     // };
 
     this.golr_response.facet_counts = function(robj, in_field){
 
 	var ret_hash = {};
 
-	var facet_list = _get_hash_keys(robj.facet_counts.facet_fields);
+	var facet_list =
+	    bbop.core.get_hash_keys(robj.facet_counts.facet_fields);
 	for( var fli = 0; fli < facet_list.length; fli++ ){
 	    
 	    var facet_name = facet_list[fli];
@@ -441,149 +385,9 @@ bbop.amigo = function(){
     // 	return _abstract_link_template('amigo_exp', segments);
     // }
 
-    this.util = {};
     this.api = {};
     this.link = {};
     this.html = {};
-
-    // Crop a string to a certain limit and add ellipses.
-    this.util.crop = function(str, lim){
-	var ret = str;
-	var limit = 10;
-	if( lim ){ limit = lim; }
-	if( str.length > limit ){
-	    ret = str.substring(0, (limit - 3)) + '...';
-	}
-	return ret;
-    };
-
-    // Merge a pair of hashes, using the first as default and template.
-    function _merge(default_hash, arg_hash){
-
-	if( ! default_hash ){ default_hash = {}; }
-	if( ! arg_hash ){ arg_hash = {}; }
-
-	var ret_hash = {};
-	for( var key in default_hash ){
-	    if( arg_hash[key] ){
-		ret_hash[key] = arg_hash[key];
-	    }else{
-		ret_hash[key] = default_hash[key];
-	    }
-	}
-	return ret_hash;
-    };
-    this.util.merge = _merge;
-
-    // Get the hash keys from a hash.
-    function _get_hash_keys (arg_hash){
-
-	if( ! arg_hash ){ arg_hash = {}; }
-	var out_keys = [];
-	for (var out_key in arg_hash) {
-	    if (arg_hash.hasOwnProperty(out_key)) {
-		out_keys.push(out_key);
-	    }
-	}
-
-	return out_keys;
-    };
-    this.util.get_hash_keys = _get_hash_keys;
-
-    // Clone a thing down to its atoms.
-    function _clone_object(thing){
-
-	var clone = null;
-	if( typeof(thing) == 'undefined' ){
-	    // Nothin' doin'.
-	    //print("looks undefined");
-	}else if( typeof(thing) == 'function' ){
-	    // Dunno about this case...
-	    //print("looks like a function");
-	    clone = thing;
-	}else if( typeof(thing) == 'boolean' ||
-		  typeof(thing) == 'number' ||
-		  typeof(thing) == 'string' ){
-	    // Atomic types can be returned as-is (i.e. assignment in
-	    // JS is the same as copy for atomic types).
-	    //print("cloning atom: " + thing);
-	    clone = thing;
-	}else if( typeof(thing) == 'object' ){
-	    // Is it a hash or an array?
-	    if( typeof(thing.length) == 'undefined' ){
-		// Looks like a hash!
-		//print("looks like a hash");
-		clone = {};
-		for(var h in thing){
-		    clone[h] = _clone_object(thing[h]);
-		}
-	    }else{
-		// Looks like an array!
-		//print("looks like an array");
-		clone = [];
-		for(var i = 0; i < thing.length; i++){
-		    clone[i] = _clone_object(thing[i]);
-		}
-	    }
-	}else{
-	    // Then I don't know what it is--might be platform dep.
-	    //print("no idea what it is");
-	}
-	return clone;
-    };
-    this.util.clone = _clone_object;
-
-    // Random number generator of fixed length.
-    // Return a randome number string of length len.
-    var random_base =
-	['1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
-	 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-	 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-    function _randomness(len){
-	var length = 10;
-	if( len ){
-	    length = len;
-	}
-	var cache = new Array();
-	for( var ii = 0; ii < length; ii++ ){
-	    var rbase_index = Math.floor(Math.random() * random_base.length);
-	    cache.push(random_base[rbase_index]);
-	}
-	return cache.join('');
-    };
-    this.util.randomness = _randomness;
-
-    // Functions to encode and decode data that we'll be hiding
-    // in the element ids. This is a 
-    this.util.coder = function(args){
-
-	var mangle_base_string = "org_bbop_amigo_coder_mangle_";
-	var mangle_base_space_size = 10;
-
-	var defs = {string: mangle_base_string, size: mangle_base_space_size};
-	var final_args = _merge(defs, args);
-	var mangle_str = final_args['string'];
-	var space_size = final_args['size'];
-
-	// TODO/BUG: apparently, html ids can only be of a limited
-	// character set.
-	//var en_re = new RegExp("/:/", "gi");
-	//var de_re = new RegExp("/-_-/", "gi");
-	this.encode = function(str){
-	    // Mangle and encode.
-	    var new_str = mangle_str + _randomness(space_size) +'_'+ str;
-	    // TODO:
-	    // str.replace(en_re, "-_-");
-	    return new_str;
-	};
-	this.decode = function(str){	    
-	    // Decode and demangle.
-	    var new_str = str.substring(mangle_str.length + space_size + 1);
-	    // TODO:
-	    // str.replace(de_re, ":");
-	    return new_str;
-	};
-    };
 
     //     // Some handling for a workspace object once we get one.
     //     this.util.workspace = {};
@@ -730,7 +534,7 @@ bbop.amigo = function(){
 		// Our bookkeeping.
 		packet: 0
 	    };
-	var final_query_args = _merge(default_query_args, in_args);
+	var final_query_args = bbop.core.merge(default_query_args, in_args);
 		
 	var default_filter_args =
 	    {
@@ -745,7 +549,7 @@ bbop.amigo = function(){
 		annotation_extension_class_label: [],
 		annotation_extension_class_label_closure: []
 	    };
-	var final_filter_args = _merge(default_filter_args, in_args);
+	var final_filter_args = bbop.core.merge(default_filter_args, in_args);
 
 	// ...
 	//return _abstract_link_template('select', segments);	
@@ -816,7 +620,7 @@ bbop.amigo = function(){
 	    {
 		acc: ''
 	    };
-	var final_args = _merge(default_args, in_args);
+	var final_args = bbop.core.merge(default_args, in_args);
 	
 	var acc = final_args['acc'];
 	//return 'term_details?term=' + acc;
@@ -839,7 +643,7 @@ bbop.amigo = function(){
 	    {
 		acc: ''
 	    };
-	var final_args = _merge(default_args, in_args);
+	var final_args = bbop.core.merge(default_args, in_args);
 	
 	var acc = final_args['acc'];
 	//return 'gp-details.cgi?gp=' + acc;
@@ -868,7 +672,7 @@ bbop.amigo = function(){
 		speciesdb: [],
 		taxid: []
 	    };
-	var final_args = _merge(default_args, in_args);
+	var final_args = bbop.core.merge(default_args, in_args);
 	var acc = final_args['acc'];
 	var speciesdbs = final_args['speciesdb'];
 	var taxids = final_args['taxid'];
@@ -895,7 +699,7 @@ bbop.amigo = function(){
 	    {
 		acc: ''
 	    };
-	var final_args = _merge(default_args, in_args);
+	var final_args = bbop.core.merge(default_args, in_args);
 	
 	var acc = final_args['acc'];
 	return 'blast.cgi?action=blast&seq_id=' + acc;
@@ -912,7 +716,7 @@ bbop.amigo = function(){
 	    {
 		gp_list: [] 
 	    };
-	var final_args = _merge(default_args, in_args);
+	var final_args = bbop.core.merge(default_args, in_args);
 	
 	var acc = final_args['acc'];
 	return 'term_enrichment?' +
@@ -931,7 +735,7 @@ bbop.amigo = function(){
 		gp_list: [], 
 		slim_list: []
 	    };
-	var final_args = _merge(default_args, in_args);
+	var final_args = bbop.core.merge(default_args, in_args);
 	
 	return 'slimmer?' +
 	    'gp_list=' + final_args['gp_list'].join(' ') +
@@ -950,7 +754,7 @@ bbop.amigo = function(){
 		term_set_1: '',
 		term_set_2: ''
 	    };
-	var final_args = _merge(default_args, in_args);
+	var final_args = bbop.core.merge(default_args, in_args);
 
 	//
 	var terms_buf = new Array();

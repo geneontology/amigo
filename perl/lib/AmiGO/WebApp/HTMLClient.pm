@@ -203,6 +203,7 @@ sub mode_live_search_gold {
       'com.jquery',
       'com.jquery-ui',
       'bbop.core',
+      'bbop.logger',
       'bbop.amigo',
       'bbop.amigo.go_meta',
       #'bbop.amigo.live_search',
@@ -211,6 +212,7 @@ sub mode_live_search_gold {
      ],
      javascript =>
      [
+      $self->{JS}->get_lib('GOlrManager.js'),
       $self->{JS}->get_lib('LiveSearchGOlr.js')
      ],
      javascript_init =>
@@ -479,6 +481,7 @@ sub mode_golr_term_details {
       'com.jquery-ui',
       'com.jquery.tablesorter',
       'bbop.core',
+      'bbop.logger',
       'bbop.amigo',
       'bbop.amigo.go_meta',
       'bbop.amigo.ui.widgets'
@@ -574,6 +577,7 @@ sub mode_golr_gene_product_details {
       'com.jquery-ui',
       'com.jquery.tablesorter',
       'bbop.core',
+      'bbop.logger',
       'bbop.amigo',
       'bbop.amigo.go_meta',
       'bbop.amigo.ui.widgets'

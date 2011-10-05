@@ -19,6 +19,7 @@
 // Module and namespace checking.
 // TODO: Will we need a ui class up there?
 bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'logger');
 bbop.core.require('bbop', 'amigo');
 bbop.core.require('bbop', 'amigo', 'go_meta');
 bbop.core.namespace('bbop', 'amigo', 'ui');
@@ -33,7 +34,9 @@ bbop.amigo.ui.widgets = function(){
     var meta = new bbop.amigo.go_meta();
 
     // We'll be doing a lot of debugging.
-    function ll(str){ bbop.core.kvetch(str); }
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch(str); }
     ll("");
 
     // ...use this a lot...
@@ -57,7 +60,7 @@ bbop.amigo.ui.widgets = function(){
     // Generate and destory used tags.
     function _generate_element(ctype){
 
-	var UID = id_base + amigo.util.randomness();
+	var UID = id_base + bbop.core.randomness();
 	var div_text = '<div id="' + UID + '"></div>';
 
 	jQuery("body").append(jQuery(div_text).hide());
@@ -78,7 +81,7 @@ bbop.amigo.ui.widgets = function(){
     ///
 
     // Add to the document body and hide.
-    var WAITING = id_base + amigo.util.randomness();
+    var WAITING = id_base + bbop.core.randomness();
     var waiting_text = '<div id="' + WAITING + '"></div>';
     jQuery("body").append(jQuery(waiting_text).hide());
     jQuery('#' + WAITING).addClass("org_bbop_amigo_ui_widget_base");
@@ -124,7 +127,7 @@ bbop.amigo.ui.widgets = function(){
     ///
 
     // Add to the document body and hide.
-    var UTOOLTIP = id_base + amigo.util.randomness();
+    var UTOOLTIP = id_base + bbop.core.randomness();
     var utool_text = '<div id="' + UTOOLTIP + '"></div>';
     jQuery("body").append(jQuery(utool_text).hide());
     // TODO: better styles for this...

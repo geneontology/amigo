@@ -142,6 +142,7 @@ sub mode_ntree {
       'newick.phylo',
       'com.jquery',
       'bbop.core',
+      'bbop.logger',
       'bbop.amigo',
       'bbop.amigo.go_meta',
       'bbop.amigo.ui.widgets'
@@ -229,6 +230,7 @@ sub mode_ptree {
       'newick.phylo',
       'com.jquery',
       'bbop.core',
+      'bbop.logger',
       'bbop.amigo',
       'bbop.amigo.go_meta',
       'bbop.amigo.ui.widgets'
@@ -281,6 +283,7 @@ sub mode_scratch {
       'com.jquery',
       'com.jquery-ui',
       'bbop.core',
+      'bbop.logger',
       'bbop.amigo',
       'bbop.amigo.go_meta',
       'bbop.amigo.workspace',
@@ -336,6 +339,7 @@ sub mode_workspace_client {
       'com.jquery-ui',
       'com.jquery-layout',
       'bbop.core',
+      'bbop.logger',
       'bbop.amigo',
       'bbop.amigo.go_meta',
       #'bbop.amigo.opensearch',
@@ -396,6 +400,7 @@ sub mode_exhibit_exp {
       'com.jquery',
       'com.jquery-ui',
       'bbop.core',
+      'bbop.logger',
       'bbop.amigo',
       'bbop.amigo.go_meta',
       'as.core.core',
@@ -451,6 +456,7 @@ sub mode_front_page {
      [
       'com.jquery',
       'bbop.core',
+      'bbop.logger',
       'bbop.amigo',
       'bbop.amigo.go_meta',
       'bbop.amigo.opensearch',
