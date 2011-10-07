@@ -74,6 +74,15 @@ function _server_response_warning(){
 window.setTimeout(_server_response_warning, 3000);
 
 
+// An experimental dynamic UI builder.
+function UIBuilder(json_data){
+
+    kvetch('UIB: Build UI from response...');
+
+    
+    
+}
+
 // Get the layout done and request GO meta-info.
 function LiveSearchGOlrInit(){
 
@@ -102,9 +111,11 @@ function LiveSearchGOlrInit(){
 					    'ontology_class'},
 				  facets: ['source']});
 
-    // sm_bio.register('response', 'foo_1', function(){ kvetch('foo_1'); }, 1);
-    // sm_bio.register('response', 'foo_2', function(){ kvetch('foo_2'); }, -1);
+    sm_bio.register('reset', 'ui_builder', UIBuilder, 0);
+    //sm_bio.register('response', 'resp_1', function(){ kvetch('resp_1'); }, 0);
+    //sm_bio.register('response', 'resp_2', function(){ kvetch('resp_2'); }, 1);
     sm_bio.update('reset');
+    //sm_bio.update('response');
 
     ///
     /// Past attempt.

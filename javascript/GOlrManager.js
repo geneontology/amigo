@@ -19,6 +19,10 @@ function SolrManager(in_args){
     logger.DEBUG = true;
     function ll(str){ logger.kvetch(str); }
 
+    // AmiGO helper.
+    var amigo = new bbop.amigo();
+    var golr = amigo.golr_response;
+
     // TODO: Block requests from the past from haunting us.
     this.last_sent_packet = 0;
     this.last_received_packet = 0;
@@ -35,7 +39,7 @@ function SolrManager(in_args){
     this.register = function(category, function_id, in_function, in_priority){
 
 	// Only these categories.
-	if( typeof(this.callback_registry[category]) == 'undefined'){
+	if( typeof(anchor.callback_registry[category]) == 'undefined'){
 	    throw new Error('cannot register, unknown category');
 	}
 
@@ -43,7 +47,7 @@ function SolrManager(in_args){
 	var priority = 0;
 	if( in_priority ){ priority = in_priority; }
 
-	this.callback_registry[category][function_id] =
+	anchor.callback_registry[category][function_id] =
 	    {
 		runner: in_function,
 		priority: priority
@@ -51,22 +55,11 @@ function SolrManager(in_args){
     };
     // Remove the specified function from the registry.
     this.unregister = function(category, function_id){
-	if( this.callback_registry[category] &&
-	    this.callback_registry[category][function_id] ){
-	    delete this.callback_registry[category][function_id];
+	if( anchor.callback_registry[category] &&
+	    anchor.callback_registry[category][function_id] ){
+	    delete anchor.callback_registry[category][function_id];
         }
     };
-
-    // TODO: I don't remember what I was going to do with these...
-    this.vanish = function(fun_id){
-    };
-    this.reveal = function(fun_id){
-    };
-
-    // // TODO?
-    // These are currently handled at creation.
-    // this.add_facet = function(){ };
-    // this.remove_facet = function(){ };
 
     // Check args.
     if( ! in_args ){
@@ -133,10 +126,40 @@ function SolrManager(in_args){
 	    //packet: 0
 	};
     
-    // 
+    // Generic getter for callback functions.
+    this._get_prioritized_callbacks = function(category){
+
+	var cb_id_list =
+	    bbop.core.get_hash_keys(anchor.callback_registry[category]);
+	// Sort callback list according to priority.
+	var ptype_anchor = this;
+	cb_id_list.sort(function(a, b){  
+			    var pkg_a =
+				ptype_anchor.callback_registry[category][a];
+			    var pkg_b =
+				ptype_anchor.callback_registry[category][b];
+			    return pkg_b['priority'] - pkg_a['priority'];
+			});
+	
+	// Collect the actual stored functions by priority.
+	var cb_fun_list = [];
+	for( var cbi = 0; cbi < cb_id_list.length; cbi++ ){
+	    var cb_id = cb_id_list[cbi];
+	    var to_run = anchor.callback_registry[category][cb_id]['runner'];
+	    cb_fun_list.push(to_run);
+	    // ll('callback: ' + category + ', ' + cb_id + ', ' +
+	    //    this.callback_registry[category][cb_id]['priority']);
+	}
+	
+	return cb_fun_list;
+    };
+
+    // The callback function called after a successful AJAX
+    // intialization/reset cal. First it runs some template code, then it
+    // does all of the callbacks.
     this._run_reset_callbacks = function(json_data){
 	ll('SM: in reset...');
-
+    
 	// Run all against registered functions.
 	var callbacks = anchor._get_prioritized_callbacks('reset');
 	for( var cbi = 0; cbi < callbacks.length; cbi++ ){
@@ -144,19 +167,17 @@ function SolrManager(in_args){
 	    run_fun(json_data);
 	}
     };
-    var _run_reset_callbacks = this._run_reset_callbacks;
 
-    // The main callback function called after a successful AJAX call
-    // in the update function.
+    // The main callback function called after a successful AJAX call in
+    // the update function. First it runs some template code, then it does
+    // all of the callbacks.
     this._run_response_callbacks = function(json_data){
 	ll('SM: in response...');
 	
 	// // Grab meta information.
-	// var total = amigo.golr_response.total_documents(json_data);
-	// var first = amigo.golr_response.start_document(json_data);
-	// var last = amigo.golr_response.end_document(json_data);
-	// var meta_cache = new Array();
-	// meta_cache.push('Total: ' + total);
+	// var total = golr.total_documents(json_data);
+	// var first = golr_response.start_document(json_data);
+	// var last = golr_response.end_document(json_data);
 	
 	// Run all against registered functions.
 	var callbacks = anchor._get_prioritized_callbacks('response');
@@ -166,65 +187,97 @@ function SolrManager(in_args){
 	    run_fun(json_data);
 	}
     };
-    var _run_response_callbacks = this._run_response_callbacks;
 
-    // 
+    // This is the function that runs where there is an AJAX error
+    // during an update. First it runs some template code, then it
+    // does all of the callbacks.
     this._run_error_callbacks = function(result, status, error) {
 
 	ll('SM: in error...');	
 	ll('SM: Failed server request: '+ result +', '+ status +', '+ error);
 		
-	// // Get the error out if possible.
-	// var jreq = result.responseText;
-	// var req = jQuery.parseJSON(jreq);
-	// if( req && req['errors'] &&
-	//     req['errors'].length > 0 ){
-	// 	var in_error = req['errors'][0];
-	// 	kvetch('SM: ERROR:' + in_error);
-					
-	// 	// Split on newline if possible to get
-	// 	// at the nice part before the perl
-	// 	// error.
-	// 	var reg = new RegExp("\n+", "g");
-	// 	var clean_error_split =
-	// 	    in_error.split(reg);
-	// 	var clean_error = clean_error_split[0];
-	// 	//widgets.error(clean_error);
-	//     }
+	// Get the error out if possible.
+	var jreq = result.responseText;
+	var req = jQuery.parseJSON(jreq);
+	if( req && req['errors'] && req['errors'].length > 0 ){
+	    var in_error = req['errors'][0];
+	    ll('SM: ERROR:' + in_error);
+	    // Split on newline if possible to get
+	    // at the nice part before the perl
+	    // error.
+	    var reg = new RegExp("\n+", "g");
+	    var clean_error_split =
+		in_error.split(reg);
+	    var clean_error = clean_error_split[0];
+	}
 	
-	// // Close wait no matter what.
-	// //widgets.finish_wait();
-
 	// Run all against registered functions.
-	var callbacks = anchor._get_prioritized_callbacks('reset');
+	var callbacks = anchor._get_prioritized_callbacks('error');
 	for( var cbi = 0; cbi < callbacks.length; cbi++ ){
 	    var run_fun = callbacks[cbi];
-	    run_fun(result, status, error);
+	    run_fun(clean_error);
 	}
     };
     var _run_error_callbacks = this._run_error_callbacks;
 
-    // ...
-    this.update = function(in_arg){
+    // Try and decide between a reset callback and a response
+    // callback.
+    function _callback_type_decider(json_data){
+    	ll('SM: in callback type decider...');
+
+	// // DEBUG: let's see what we gots!
+	// ll('SM: ' + golr.success(json_data));
+	// ll('SM: ' + golr.callback_type(json_data));
+	// ll('SM: ' + golr.parameters(json_data));
+	// ll('SM: ' + golr.row_step(json_data));
+	// ll('SM: ' + golr.total_documents(json_data));
+	// ll('SM: ' + golr.start_document(json_data));
+	// ll('SM: ' + golr.end_document(json_data));
+	// ll('SM: ' + golr.documents(json_data));
+	// ll('SM: ' + golr.facet_field_list(json_data));
+	// //ll('SM: ' + golr.facet_counts(json_data));
+	// //ll('SM: ' + golr.query_filters(json_data));
+	
+    	// 
+    	if( ! golr.success(json_data) ){
+    	    throw new Error("Unsuccessful response from golr server!");
+    	}else{
+    	    var cb_type = golr.callback_type(json_data);
+    	    ll('SM: okay response, will probe...: ' + cb_type);
+    	    if( cb_type == 'reset' ){
+    		anchor._run_reset_callbacks(json_data);
+    	    }else if( cb_type == 'response' ){
+    		anchor._run_response_callbacks(json_data);
+    	    }else{
+    		throw new Error("Unknown callback type!");
+    	    }
+    	}
+    };
+
+    // The user code to select the type of update (and thus the type
+    // of callbacks to be called on data return).
+    this.update = function(update_type){
 
 	// Increment packet.
-	this.last_sent_packet = this.last_sent_packet + 1;
+	anchor.last_sent_packet = anchor.last_sent_packet + 1;
 	
 	// Necessary variants.
 	var query_variants = {
-	    packet: this.last_sent_packet
+	    packet: anchor.last_sent_packet,
+	    callback_type: update_type
 	};
 
 	// Structure of the necessary invariant parts.	
-	var qs_head = this.solr_url + 'select?';
-	var invariant_qs = bbop.core.get_assemble(this.query_invariants);
+	var qs_head = anchor.solr_url + 'select?';
+	var invariant_qs = bbop.core.get_assemble(anchor.query_invariants);
 	var qurl = qs_head + invariant_qs;
 
 	// Conditional merging of the remaining variant parts.
-	if( in_arg && in_arg == 'reset' ){
+	if( update_type && update_type == 'reset' ){
 	    // Reset and do completely open query.
 	    var variant_qs = bbop.core.get_assemble(query_variants);
-	    qurl = qurl + '&' + variant_qs + '&state=initial&q=*:*';
+	    ll('SM: varient_qs: ' + variant_qs);
+	    qurl = qurl + '&' + variant_qs + '&q=*:*';
 	}else{
 	    // TODO: standard assemble with filter and state.
 	}
@@ -238,36 +291,9 @@ function SolrManager(in_args){
 	    url: qurl,
 	    dataType: 'json',
 	    jsonp: 'json.wrf',
-	    success: _run_response_callbacks,
+	    success: _callback_type_decider,
 	    error: _run_error_callbacks
 	};
 	jQuery.ajax(argvars);
     };
 }
-
-// Generic getter for callback functions.
-SolrManager.prototype._get_prioritized_callbacks = function(category){
-
-    var ptype_anchor = this;
-    var cb_id_list =
-	bbop.core.get_hash_keys(this.callback_registry[category]);
-    // Sort callback list according to priority.
-    cb_id_list.sort(function(a, b){  
-			var pkg_a = ptype_anchor.callback_registry[category][a];
-			var pkg_b = ptype_anchor.callback_registry[category][b];
-			return pkg_b['priority'] - pkg_a['priority'];
-		    });
-    
-    // Collect the actual stored functions by priority.
-    var cb_fun_list = [];
-    for( var cbi = 0; cbi < cb_id_list.length; cbi++ ){
-	var cb_id = cb_id_list[cbi];
-	cb_fun_list.push(this.callback_registry[category][cb_id]['runner']);
-	
-	// ll('callback: ' + category + ', ' + cb_id + ', ' +
-	//    this.callback_registry[category][cb_id]['priority']);
-    }
-    
-    return cb_fun_list;
-};
-    

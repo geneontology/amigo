@@ -32,7 +32,8 @@ bbop.amigo = function(){
 
     this.golr_response = {};
 
-    // Simple return verification.
+    // Simple return verification of sane response from server.
+    // Returns a boolean value.
     this.golr_response.success = function(robj){
 	var retval = false;
 	if( robj &&
@@ -52,12 +53,25 @@ bbop.amigo = function(){
 	return retval;
     };
 
+    // Return the callback type if it was specified in the query,
+    // otherwise return null. For example "reset" and "response".
+    // Returns a string or null.
+    this.golr_response.callback_type = function(robj){
+	var retval = null;
+	if( robj.responseHeader.params.callback_type &&
+	    typeof robj.responseHeader.params.callback_type != 'undefined' ){
+	    retval = robj.responseHeader.params.callback_type;
+	}
+	return retval;
+    };
+
     // Get the parameter chunk--variable stuff we put in.
+    // Returns a hash.
     this.golr_response.parameters = function(robj){
 	return robj.responseHeader.params;
     };
 
-    // ...
+    // Returns the number of rows requested (int).
     this.golr_response.row_step = function(robj){	
 	return parseInt(robj.responseHeader.params.rows);
     };
@@ -68,29 +82,31 @@ bbop.amigo = function(){
     }
     this.golr_response.total_documents = _golr_response_total_documents;
 
-    // ...
+    // Returns the start document for this response as an int.
     function _golr_response_start_document(robj){
 	//return parseInt(robj.response.start) + 1;
 	return parseInt(robj.response.start);
     }
     this.golr_response.start_document = _golr_response_start_document;
 
-    // ...
+    // Returns the end document for this response as an int.
     this.golr_response.end_document = function(robj){
 	return _golr_response_start_document(robj) +
 	    parseInt(robj.response.docs.length);
     };
 
-    // ...
+    // Returns an array of docs hashes.
     this.golr_response.documents = function(robj){
 	return robj.response.docs;
     };
 
-    // // ...
-    // this.golr_response.facet_fields = function(robj){
-    // 	return bbop.core.get_hash_keys(robj.facet_counts.facet_fields);
-    // };
+    // Return a sorted array of the response's facet fields.
+    this.golr_response.facet_field_list = function(robj){
+    	return bbop.core.get_hash_keys(robj.facet_counts.facet_fields).sort();
+    };
 
+    // For a given facet field, return a hash of that field's items
+    // and their counts.
     this.golr_response.facet_counts = function(robj, in_field){
 
 	var ret_hash = {};
@@ -115,7 +131,8 @@ bbop.amigo = function(){
 	return ret_hash;
     };
 
-    // TODO: fq can be irritating single value or irritating array
+    // fq can be irritating single value or irritating array.
+    // Return a hash of ???
     this.golr_response.query_filters = function(robj){
 
 	//sayer('fq 1a: ' + robj + "\n");
@@ -124,63 +141,61 @@ bbop.amigo = function(){
 	//sayer('fq 2b: ' + typeof(robj.responseHeader) + "\n");
 
 	var ret_hash = {};
-	if( robj.responseHeader.params &&
-	    robj.responseHeader.params.fq ){
+	if( robj.responseHeader.params && robj.responseHeader.params.fq ){
 
-		//sayer('fq in' + "\n");
-
-		var process_list = [];
-
-		// Check to see if it's not an array and copy it to be
-		// one. Otherwise, copy over the array contents.
-		if( typeof robj.responseHeader.params.fq == 'string'){
-		    process_list.push(robj.responseHeader.params.fq);
-		    //sayer('fq adjust for single' + "\n");
-		}else{
-		    for( var fqi = 0;
-			 fqi < robj.responseHeader.params.fq.length;
-			 fqi++ ){
-			     var new_bit = robj.responseHeader.params.fq[fqi];
-			     process_list.push(new_bit);
-			 }
-		}
-		    
-		//sayer('fq go through adjusted incoming' + "\n");
-
-		// Make the return fq more tolerable.
-		for( var pli = 0; pli < process_list.length; pli++ ){
-		    var list_item = process_list[pli];
-
-		    //sayer('fq process ' + list_item + "\n");
-
-		    // Split on the colon.
-		    var splits = list_item.split(":");
-		    var type = splits.shift();
-		    var value = splits.join(":");
-
-		    if( ! ret_hash[type] ){
-			ret_hash[type] = {};
-		    }
-
-		    // Remove internal quotes.
-		    // Actually, I want just the first quote and the
-		    // final quote.
-		    if( value.charAt(0) == '"' &&
-			value.charAt(value.length -1) == '"' ){
-			    //sayer('fq needs cropping: ' + value + "\n");
-			    value = value.substring(1, value.length -1);
-			    //sayer('fq cropped to: ' + value + "\n");
-			}
-
-
-		    ret_hash[type][value] = true;
-
-		    //sayer('fq done: ' + type + ':' + value + ":true\n");
-		}
+	    //sayer('fq in' + "\n");
+	    
+	    var process_list = [];
+	    
+	    // Check to see if it's not an array and copy it to be
+	    // one. Otherwise, copy over the array contents.
+	    if( typeof robj.responseHeader.params.fq == 'string'){
+		process_list.push(robj.responseHeader.params.fq);
+		//sayer('fq adjust for single' + "\n");
 	    }else{
-		//ll('fq out');
+		for( var fqi = 0;
+		     fqi < robj.responseHeader.params.fq.length;
+		     fqi++ ){
+		    var new_bit = robj.responseHeader.params.fq[fqi];
+		    process_list.push(new_bit);
+		}
 	    }
+		    
+	    //sayer('fq go through adjusted incoming' + "\n");
 
+	    // Make the return fq more tolerable.
+	    for( var pli = 0; pli < process_list.length; pli++ ){
+		var list_item = process_list[pli];
+		
+		//sayer('fq process ' + list_item + "\n");
+		
+		// Split on the colon.
+		var splits = list_item.split(":");
+		var type = splits.shift();
+		var value = splits.join(":");
+		
+		if( ! ret_hash[type] ){
+		    ret_hash[type] = {};
+		}
+		
+		// Remove internal quotes.
+		// Actually, I want just the first quote and the
+		// final quote.
+		if( value.charAt(0) == '"' &&
+		    value.charAt(value.length -1) == '"' ){
+			//sayer('fq needs cropping: ' + value + "\n");
+			value = value.substring(1, value.length -1);
+			//sayer('fq cropped to: ' + value + "\n");
+		    }
+				
+		ret_hash[type][value] = true;
+		
+		//sayer('fq done: ' + type + ':' + value + ":true\n");
+	    }
+	}else{
+	    //ll('fq out');
+	}
+	
     	return ret_hash;
     };
 
