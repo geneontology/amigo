@@ -102,7 +102,7 @@ bbop.amigo = function(){
 
     // Return a sorted array of the response's facet fields.
     this.golr_response.facet_field_list = function(robj){
-    	return bbop.core.get_hash_keys(robj.facet_counts.facet_fields).sort();
+    	return bbop.core.get_keys(robj.facet_counts.facet_fields).sort();
     };
 
     // For a given facet field, return a hash of that field's items
@@ -112,7 +112,7 @@ bbop.amigo = function(){
 	var ret_hash = {};
 
 	var facet_list =
-	    bbop.core.get_hash_keys(robj.facet_counts.facet_fields);
+	    bbop.core.get_keys(robj.facet_counts.facet_fields);
 	for( var fli = 0; fli < facet_list.length; fli++ ){
 	    
 	    var facet_name = facet_list[fli];

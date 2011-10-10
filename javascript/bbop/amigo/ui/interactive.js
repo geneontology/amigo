@@ -131,7 +131,7 @@ bbop.amigo.ui.interactive.multi_model = function(in_data){
     // filter.
     function _get_all_items(){
 	var ret_filters = [];
-	var complete_filters = bbop.core.get_hash_keys(anchor.current_data);
+	var complete_filters = bbop.core.get_keys(anchor.current_data);
 	for( var cfi = 0; cfi < complete_filters.length; cfi++ ){
 	    var test_filter = complete_filters[cfi];
 	    if( test_filter != '_nil_' ){
@@ -232,7 +232,7 @@ bbop.amigo.ui.interactive.multi_widget = function(in_id, in_name,
 	// Sort the items in the mdata array.
 	// Also keep a lookup for a "special" entry.
 	// var default_on_p = false;
-	var mdata_keys = bbop.core.get_hash_keys(anchor.mdata);
+	var mdata_keys = bbop.core.get_keys(anchor.mdata);
 	function _data_comp(a, b){
 
 	    // Get the associated data.

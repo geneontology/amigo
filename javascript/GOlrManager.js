@@ -130,7 +130,7 @@ function SolrManager(in_args){
     this._get_prioritized_callbacks = function(category){
 
 	var cb_id_list =
-	    bbop.core.get_hash_keys(anchor.callback_registry[category]);
+	    bbop.core.get_keys(anchor.callback_registry[category]);
 	// Sort callback list according to priority.
 	var ptype_anchor = this;
 	cb_id_list.sort(function(a, b){  

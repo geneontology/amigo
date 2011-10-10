@@ -758,7 +758,7 @@ function _update_gui (json_data){
     	// kvetch("\twidget: " + curr_widget);
 
 	// Iterate over all facet values.
-	var facet_keys = bbop.core.get_hash_keys(qfacets[curr_filter_id]);
+	var facet_keys = bbop.core.get_keys(qfacets[curr_filter_id]);
 	//kvetch("facet_keys: " + facet_keys);
 
 	// Get all things currently in the model.
