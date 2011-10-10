@@ -13,6 +13,7 @@ var logger = new bbop.logger();
 logger.DEBUG = true;
 function kvetch(str){ logger.kvetch(str); };
 var amigo = new bbop.amigo();
+var golr = amigo.golr_response;
 var gm = new bbop.amigo.go_meta();
 // var coder = new bbop.core.coder();
 var last_sent_packet = 0;
@@ -79,8 +80,38 @@ function UIBuilder(json_data){
 
     kvetch('UIB: Build UI from response...');
 
+    // // DEBUG: let's see what we gots!
+    // ll('SM: ' + golr.success(json_data));
+    // ll('SM: ' + golr.callback_type(json_data));
+    // ll('SM: ' + golr.parameters(json_data));
+    // ll('SM: ' + golr.row_step(json_data));
+    // ll('SM: ' + golr.total_documents(json_data));
+    // ll('SM: ' + golr.start_document(json_data));
+    // ll('SM: ' + golr.end_document(json_data));
+    // ll('SM: ' + golr.documents(json_data));
+    // ll('SM: ' + golr.facet_field_list(json_data));
+    // //ll('SM: ' + golr.facet_counts(json_data));
+    // //ll('SM: ' + golr.query_filters(json_data));
     
-    
+    var field_attr_hash = {};
+    var field_list = golr.facet_field_list(json_data);
+    function look_at_fields(in_field, in_i){
+	kvetch('SM: saw field: ' + in_field);
+	// field_attr_hash[in_field] = {
+	//     'id' : in_field,
+	//     //'model' : new bbop.amigo.ui.interactive.multi_model(type_data),
+	//     'widget' : new bbop.amigo.ui.interactive.multi_widget(in_field,
+	// 							  in_field,
+	// 							  4, in_field)
+	// };
+    }
+    bbop.core.each(field_list, look_at_fields);
+
+    // TODO
+    var query_text =
+    	widgets.form.text_input('q', 'q', 25, 
+				'Search for<br />');
+
 }
 
 // Get the layout done and request GO meta-info.

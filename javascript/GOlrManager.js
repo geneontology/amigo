@@ -174,11 +174,6 @@ function SolrManager(in_args){
     this._run_response_callbacks = function(json_data){
 	ll('SM: in response...');
 	
-	// // Grab meta information.
-	// var total = golr.total_documents(json_data);
-	// var first = golr_response.start_document(json_data);
-	// var last = golr_response.end_document(json_data);
-	
 	// Run all against registered functions.
 	var callbacks = anchor._get_prioritized_callbacks('response');
 	ll('callbacks: ' + callbacks);
@@ -225,19 +220,6 @@ function SolrManager(in_args){
     function _callback_type_decider(json_data){
     	ll('SM: in callback type decider...');
 
-	// // DEBUG: let's see what we gots!
-	// ll('SM: ' + golr.success(json_data));
-	// ll('SM: ' + golr.callback_type(json_data));
-	// ll('SM: ' + golr.parameters(json_data));
-	// ll('SM: ' + golr.row_step(json_data));
-	// ll('SM: ' + golr.total_documents(json_data));
-	// ll('SM: ' + golr.start_document(json_data));
-	// ll('SM: ' + golr.end_document(json_data));
-	// ll('SM: ' + golr.documents(json_data));
-	// ll('SM: ' + golr.facet_field_list(json_data));
-	// //ll('SM: ' + golr.facet_counts(json_data));
-	// //ll('SM: ' + golr.query_filters(json_data));
-	
     	// 
     	if( ! golr.success(json_data) ){
     	    throw new Error("Unsuccessful response from golr server!");
