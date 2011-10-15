@@ -161,63 +161,67 @@ my $sig2path =
    'org.prototype' =>
    'org/prototype-1.6.0.3.js',
 
-   'bbop.core' =>
-   'bbop/core.js',
+   ## Should be pick-up anyways.
+   # 'bbop.core' =>
+   # 'bbop/core.js',
 
-   'bbop.json' =>
-   'bbop/json.js',
+   # 'bbop.json' =>
+   # 'bbop/json.js',
 
-   'bbop.logger' =>
-   'bbop/logger.js',
+   # 'bbop.logger' =>
+   # 'bbop/logger.js',
 
-   'bbop.go' =>
-   'bbop/go.js',
+   # 'bbop.html' =>
+   # 'bbop/html.js',
 
-   'bbop.amigo' =>
-   'bbop/amigo.js',
+   # 'bbop.go' =>
+   # 'bbop/go.js',
 
-   'bbop.amigo.workspace' =>
-   'bbop/amigo/workspace.js',
+   # 'bbop.amigo' =>
+   # 'bbop/amigo.js',
 
-   'bbop.amigo.live_search.term' =>
-   'bbop/amigo/live_search/term.js',
+   # 'bbop.amigo.workspace' =>
+   # 'bbop/amigo/workspace.js',
 
-   'bbop.amigo.live_search.gene_product' =>
-   'bbop/amigo/live_search/gene_product.js',
+   # 'bbop.amigo.live_search.term' =>
+   # 'bbop/amigo/live_search/term.js',
 
-   'bbop.amigo.go_meta' =>
-   'bbop/amigo/go_meta.js',
+   # 'bbop.amigo.live_search.gene_product' =>
+   # 'bbop/amigo/live_search/gene_product.js',
 
-   'bbop.amigo.opensearch' =>
-   'bbop/amigo/opensearch.js',
+   # 'bbop.amigo.go_meta' =>
+   # 'bbop/amigo/go_meta.js',
 
-   'bbop.amigo.ui.standard' =>
-   'bbop/amigo/ui/standard.js',
+   # 'bbop.amigo.opensearch' =>
+   # 'bbop/amigo/opensearch.js',
 
-   'bbop.amigo.ui.autocomplete' =>
-   'bbop/amigo/ui/autocomplete.js',
+   # 'bbop.amigo.ui.standard' =>
+   # 'bbop/amigo/ui/standard.js',
 
-   'bbop.amigo.ui.widgets' =>
-   'bbop/amigo/ui/widgets.js',
+   # 'bbop.amigo.ui.autocomplete' =>
+   # 'bbop/amigo/ui/autocomplete.js',
 
-   'bbop.SVG' =>
-   'bbop/SVG.js',
+   # 'bbop.amigo.ui.widgets' =>
+   # 'bbop/amigo/ui/widgets.js',
 
-   'bbop.AffineSVG' =>
-   'bbop/AffineSVG.js',
+   # 'bbop.SVG' =>
+   # 'bbop/SVG.js',
 
-   'GONavi' =>
-   'GONavi.js',
+   # 'bbop.AffineSVG' =>
+   # 'bbop/AffineSVG.js',
 
-   #'bbop.Viewer' =>
-   #'bbop/Viewer.js',
+   # 'GONavi' =>
+   # 'GONavi.js',
 
-   ## If they're in the right place with the right name, they'll be
-   ## picked up anyways.
-   #'RefGenome' =>
-   #'RefGenome.js',
-   #'orb' =>
-   #'orb.js',
+   # #'bbop.Viewer' =>
+   # #'bbop/Viewer.js',
+
+   # ## If they're in the right place with the right name, they'll be
+   # ## picked up anyways.
+   # #'RefGenome' =>
+   # #'RefGenome.js',
+   # #'orb' =>
+   # #'orb.js',
   };
 
 

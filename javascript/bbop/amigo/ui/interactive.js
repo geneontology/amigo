@@ -181,7 +181,7 @@ bbop.amigo.ui.interactive.multi_model = function(in_data){
     
 //
 bbop.amigo.ui.interactive.multi_widget = function(in_id, in_name,
-						      in_size, in_label){
+						  in_size, in_label){
 
     var anchor = this; // top-level this
 

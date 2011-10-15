@@ -78,7 +78,24 @@ window.setTimeout(_server_response_warning, 3000);
 // An experimental dynamic UI builder.
 function UIBuilder(json_data){
 
-    kvetch('UIB: Build UI from response...');
+    kvetch('UIB: Build UI from reset response...');
+
+    // AmiGO helper.
+    var amigo = new bbop.amigo();
+    var golr = amigo.golr_response;
+
+    // Get the user interface hook.
+    var ui_div_hook = golr.parameter(json_data, 'interface_id');
+
+    // Mangle everything around this unique id so we don't collide
+    // with other instances on the same page.
+    var mangle = ui_div_hook + '_ui_element_';
+
+    // First, remove anything that was there.
+    jQuery('#' + ui_div_hook).empty();
+
+    // // Next, add fields for the available filters found in the response.
+    // new bbop.amigo.ui.interactive.multi_model(type_data);
 
     // // DEBUG: let's see what we gots!
     // ll('SM: ' + golr.success(json_data));
@@ -93,25 +110,63 @@ function UIBuilder(json_data){
     // //ll('SM: ' + golr.facet_counts(json_data));
     // //ll('SM: ' + golr.query_filters(json_data));
     
-    var field_attr_hash = {};
+    // Start building the accordion here.
+    var filter_accordion_attrs = {
+	id: mangle + 'filter-accordion',
+	style: 'width: 25em;'
+    };
+    var filter_accordion = new bbop.html.accordion([], filter_accordion_attrs);
+    
+    //var field_attr_hash = {};
     var field_list = golr.facet_field_list(json_data);
-    function look_at_fields(in_field, in_i){
-	kvetch('SM: saw field: ' + in_field);
-	// field_attr_hash[in_field] = {
-	//     'id' : in_field,
-	//     //'model' : new bbop.amigo.ui.interactive.multi_model(type_data),
-	//     'widget' : new bbop.amigo.ui.interactive.multi_widget(in_field,
-	// 							  in_field,
-	// 							  4, in_field)
-	// };
+    function _look_at_fields(in_field, in_i){
+	//kvetch('SM: saw field: ' + in_field);
+
+	// Create ul lists of the facet contents.
+	var facet_list_ul_attrs = {
+	    id: mangle + 'filter-list-' + in_field,
+	    'class': 'golr-filter-selectable',
+	    style: 'height: 30em;'
+	};
+	var facet_list_ul = new bbop.html.list([], facet_list_ul_attrs);
+	var facet_contents_list = golr.facet_field(json_data, in_field);
+	bbop.core.each(facet_contents_list,
+		       function(item, i){
+			   var name = item[0];
+			   var count = item[1];
+			   //kvetch('SM: saw facet item: ' + name);
+			   facet_list_ul.add_child(name);
+		       });
+	
+	// Add the ul list to the accordion.
+	//kvetch('SM: out');
+	//kvetch('SM: add to accordion: ' + facet_list_ul.output());
+	//kvetch('SM: passed');
+	filter_accordion.add_child(in_field, facet_list_ul);
     }
-    bbop.core.each(field_list, look_at_fields);
+    bbop.core.each(field_list, _look_at_fields);
 
-    // TODO
-    var query_text =
-    	widgets.form.text_input('q', 'q', 25, 
-				'Search for<br />');
+    // TODO: Add the output from the accordion to the page.
+    jQuery('#' + ui_div_hook).html(filter_accordion.output());
 
+    // // TODO
+    // var query_text =
+    // 	widgets.form.text_input('q', 'q', 25, 
+    // 				'Search for<br />');
+
+    jQuery(function() {
+	       // Add the jQuery accordioning.
+	       jQuery("#" + mangle +
+		      "filter-accordion").accordion({ clearStyle: true,
+						      collapsible: true,
+						      active: false });
+	       // Add the jQuery selectableing.
+	       bbop.core.each(field_list, function(item, i){
+				  kvetch('SM examining: ' + item);
+				  jQuery("#" + mangle +
+					 "filter-list-" + item).selectable();
+			      });
+	   });    
 }
 
 // Get the layout done and request GO meta-info.
@@ -125,22 +180,23 @@ function LiveSearchGOlrInit(){
     ///
 
     // Get my four managers ready.
-    var sm_ann = new SolrManager({url: 'http://accordion.lbl.gov:8080/solr/',
-				  filters: {'document_category': 'annotation'},
-				  facets: ['type', 'taxon', 'source',
-					   'evidence', 'term_closure']});
-    var sm_agg = new SolrManager({url: 'http://accordion.lbl.gov:8080/solr/',
-				  filters: {'document_category':
-					    'annotation_aggregate'},
-				  facets: ['type', 'taxon', 'source',
-					   'evidence_closure']});
-    var sm_bio = new SolrManager({url: 'http://accordion.lbl.gov:8080/solr/',
+    // var sm_ann = new GOlrManager({url: 'http://accordion.lbl.gov:8080/solr/',
+    // 				  filters: {'document_category': 'annotation'},
+    // 				  facets: ['type', 'taxon', 'source',
+    // 					   'evidence', 'term_closure']});
+    // var sm_agg = new GOlrManager({url: 'http://accordion.lbl.gov:8080/solr/',
+    // 				  filters: {'document_category':
+    // 					    'annotation_aggregate'},
+    // 				  facets: ['type', 'taxon', 'source',
+    // 					   'evidence_closure']});
+    var sm_bio = new GOlrManager({url: 'http://accordion.lbl.gov:8080/solr/',
+				  interface_id: 'interface-test',
 				  filters: {'document_category': 'bioentity'},
 				  facets: ['type', 'taxon', 'source']});
-    var sm_cls = new SolrManager({url: 'http://accordion.lbl.gov:8080/solr/',
-				  filters: {'document_category':
-					    'ontology_class'},
-				  facets: ['source']});
+    // var sm_cls = new GOlrManager({url: 'http://accordion.lbl.gov:8080/solr/',
+    // 				  filters: {'document_category':
+    // 					    'ontology_class'},
+    // 				  facets: ['source']});
 
     sm_bio.register('reset', 'ui_builder', UIBuilder, 0);
     //sm_bio.register('response', 'resp_1', function(){ kvetch('resp_1'); }, 0);

@@ -71,6 +71,16 @@ bbop.amigo = function(){
 	return robj.responseHeader.params;
     };
 
+    // Get the parameter chunk--variable stuff we put in.
+    // Returns a hash.
+    this.golr_response.parameter = function(robj, key){
+	var retval = null;
+	if( robj.responseHeader.params[key] ){
+	    retval = robj.responseHeader.params[key];
+	}
+	return retval;
+    };
+
     // Returns the number of rows requested (int).
     this.golr_response.row_step = function(robj){	
 	return parseInt(robj.responseHeader.params.rows);
@@ -103,6 +113,11 @@ bbop.amigo = function(){
     // Return a sorted array of the response's facet fields.
     this.golr_response.facet_field_list = function(robj){
     	return bbop.core.get_keys(robj.facet_counts.facet_fields).sort();
+    };
+
+    // Return a count-sorted array of a facet field's response.
+    this.golr_response.facet_field = function(robj, facet_name){
+	return robj.facet_counts.facet_fields[facet_name];
     };
 
     // For a given facet field, return a hash of that field's items

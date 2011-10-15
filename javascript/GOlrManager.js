@@ -10,7 +10,7 @@
 // This should act as a model--since we start with a completely open
 // query (whether we display it or not), we will have all possible
 // facets and can build the initial model off of that.
-function SolrManager(in_args){
+function GOlrManager(in_args){
 
     var anchor = this;
 
@@ -72,6 +72,13 @@ function SolrManager(in_args){
 	    ll('SM: ERROR: no url string argument');
 	}
     }
+    // There should be a string interface_id argument.
+    if( in_args && ! in_args['interface_id'] ){
+	ll('SM: ERROR: no interface_id argument');
+	if( typeof in_args['interface_id'] != 'string' ){
+	    ll('SM: ERROR: no interface_id string argument');
+	}
+    }
     // There could be a hash of pinned filters argument.
     if( in_args && in_args['filters'] ){
 	if( typeof in_args['facets'] != 'object' ){
@@ -90,6 +97,9 @@ function SolrManager(in_args){
     
     // Our default target url.
     this.solr_url = in_args['url'];
+    
+    // The location where we'll build the interface on callback.
+    this.interface_id = in_args['interface_id'];
     
     // Our default query args, with facet fields plugged in.
     this.query_invariants =
@@ -117,13 +127,14 @@ function SolrManager(in_args){
 
 	    // For restricting ourselves to a certain part if the
 	    // index as an initial condition.
-	    fq: in_args['filters']
+	    fq: in_args['filters'],
 
-	    // TODO: move these to a more variant section.
-	    // Query-type stuff.
+	    // Fixed UI location.
+	    interface_id: this.interface_id
+
+	    // Query-type stuff is variant--see update and
+	    // query_variants.
 	    //q: '*:*', // start by going after everything
-	    // Our bookkeeping.
-	    //packet: 0
 	};
     
     // Generic getter for callback functions.
@@ -240,7 +251,7 @@ function SolrManager(in_args){
     // of callbacks to be called on data return).
     this.update = function(update_type){
 
-	// Increment packet.
+	// Our bookkeeping--increment packet.
 	anchor.last_sent_packet = anchor.last_sent_packet + 1;
 	
 	// Necessary variants.
