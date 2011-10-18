@@ -214,6 +214,7 @@ sub mode_live_search_gold {
      javascript =>
      [
       $self->{JS}->get_lib('GOlrManager.js'),
+      $self->{JS}->get_lib('GOlrUIBeta.js'),
       $self->{JS}->get_lib('LiveSearchGOlr.js')
      ],
      javascript_init =>

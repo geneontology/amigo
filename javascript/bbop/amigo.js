@@ -15,7 +15,6 @@
 ////    bbop.amigo
 ////                     + .response
 ////                     + .link
-////    bbop.amigo.json
 ////
 //////////
 
@@ -404,10 +403,10 @@ bbop.amigo = function(){
     // 	return _abstract_link_template('aserve', segments);
     // }
 
-    // // Construct the templates using the segments.
-    // function _completion_template(segments){
-    // 	return _abstract_link_template('completion', segments);
-    // }
+    // Construct the templates using the segments.
+    function _completion_template(segments){
+    	return _abstract_link_template('completion', segments);
+    }
 
     // // Construct the templates using the segments.
     // function _nmatrix_template(segments){

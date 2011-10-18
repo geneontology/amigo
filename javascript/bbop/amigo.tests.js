@@ -8,7 +8,9 @@
 
 
 // Load testing.
-load('test.js');
+load('../../../../javascript/bbop/core.js');
+load('../../../../javascript/bbop/json.js');
+load('../../../../javascript/bbop/test.js');
 var mr_t = new bbop.test();
 
 // Correct environment.
@@ -19,8 +21,8 @@ load('amigo.js');
 ///
 
 // Constructors.
-var core = new bbop.amigo.core();
-mr_t.is_defined(core);
+var amigo = new bbop.amigo();
+mr_t.is_defined(amigo);
 
 // Test data. TODO: Split to separate file.
 (function(){
@@ -61,23 +63,23 @@ mr_t.is_defined(core);
     '{"success": 1, "errors": [], "results": {"default": [], "new": [], "foo": [{"date": "2009-05-21 01:39:07", "name": "", "type": "term", "key": "GO:123"},{"date":" 2009-05-21 01:39:24", "name": "", "type": "term", "key": "GO:456"} }}';
     
     // Response success.
-    mr_t.is_same_atom(true, core.response.success(d0) , '');
-    mr_t.is_same_atom(true, core.response.success(d1) , '');
-    mr_t.is_same_atom(false, core.response.success(d2) , '');
-    mr_t.is_same_atom(false, core.response.success(d3) , '');
+    mr_t.is_same_atom(true, amigo.response.success(d0) , '');
+    mr_t.is_same_atom(true, amigo.response.success(d1) , '');
+    mr_t.is_same_atom(false, amigo.response.success(d2) , '');
+    mr_t.is_same_atom(false, amigo.response.success(d3) , '');
 
     // Right type?
-    mr_t.is_same_atom('foo', core.response.type(d0) , '');
-    mr_t.is_same_atom('unknown', core.response.type(d1) , '');
+    mr_t.is_same_atom('foo', amigo.response.type(d0) , '');
+    mr_t.is_same_atom('unknown', amigo.response.type(d1) , '');
     
     // Find error messages?
-    mr_t.is_same_atom(0, core.response.errors(d0).length , '');
-    mr_t.is_same_atom(0, core.response.errors(d1).length , '');
-    mr_t.is_same_atom(2, core.response.errors(d2).length);
-    mr_t.is_same_atom(1, core.response.errors(d3).length);
+    mr_t.is_same_atom(0, amigo.response.errors(d0).length , '');
+    mr_t.is_same_atom(0, amigo.response.errors(d1).length , '');
+    mr_t.is_same_atom(2, amigo.response.errors(d2).length);
+    mr_t.is_same_atom(1, amigo.response.errors(d3).length);
 
     // JSON parser...
-    var good = bbop.amigo.json.parse(s0);
+    var good = bbop.json.parse(s0);
     mr_t.is_defined(good);
     mr_t.is_same_atom('GO:456', good.results.foo[1].key,
 		  'parsed object has correct key');
@@ -85,7 +87,7 @@ mr_t.is_defined(core);
     // Check a parse gone bad.
     var bad = null;
     try {
-	bad = bbop.amigo.json.parse(s1);
+	bad = bbop.json.parse(s1);
     }catch(err){
 	mr_t.is_same_atom(1, 1, 'should be error on bad parse');    
     }finally{
@@ -97,35 +99,35 @@ mr_t.is_defined(core);
 
 // Check randomness.
 (function(){
-    mr_t.is_same_atom(10, core.util.randomness().length);
-    mr_t.is_same_atom(1, core.util.randomness(1).length);
-    mr_t.is_same_atom(10, core.util.randomness(10).length);
-    mr_t.is_same_atom(100, core.util.randomness(100).length);
-    mr_t.is_true(core.util.randomness(10) != core.util.randomness(10),
+    mr_t.is_same_atom(10, bbop.core.randomness().length);
+    mr_t.is_same_atom(1, bbop.core.randomness(1).length);
+    mr_t.is_same_atom(10, bbop.core.randomness(10).length);
+    mr_t.is_same_atom(100, bbop.core.randomness(100).length);
+    mr_t.is_true(bbop.core.randomness(10) != bbop.core.randomness(10),
 		 "checking entropy in universe");
 })();
 
 // Check urls.
 (function(){
     // Do some link testing.
-    mr_t.is_same_url(core.api.completion({}),
+    mr_t.is_same_url(amigo.api.completion({}),
 		     "completion?narrow=false&ontology=&format=amigo&type=general&query=",
 		     "link compare testing 1");
     // Different order.
-    mr_t.is_same_url(core.api.completion({}),
+    mr_t.is_same_url(amigo.api.completion({}),
 		     "completion?narrow=false&ontology=&type=general&format=amigo&query=",
 		     "link compare testing 2");
     // Just different.
-    mr_t.is_different_url(core.api.completion({}),
+    mr_t.is_different_url(amigo.api.completion({}),
 			  "completion?type=general&format=opensearch&query=",
 			  "link compare testing 3");
     // Again just different.
-    mr_t.is_different_url(core.api.completion({}),
+    mr_t.is_different_url(amigo.api.completion({}),
 			  "completion?type=general&format=&query=",
 			  "link compare testing 4");
     
     // A little real link testing.
-    mr_t.is_same_url(core.api.completion({type:'term', format:'opensearch'}),
+    mr_t.is_same_url(amigo.api.completion({type:'term', format:'opensearch'}),
 		     "completion?narrow=false&ontology=&type=term&format=opensearch&query=",
 		     "completion api test 1");
 })();
@@ -133,11 +135,11 @@ mr_t.is_defined(core);
 // Check hash merging.
 (function(){
     var a_hash = {foo: 1, bar: 2};
-    mr_t.is_same_hash({}, core.util.merge({},{}), 'empty merge');
-    mr_t.is_same_hash(a_hash, core.util.merge({foo:1, bar:2},{}), 'same merge');
-    mr_t.is_same_hash(a_hash, core.util.merge({foo:1, bar:3},{bar:2}),
+    mr_t.is_same_hash({}, bbop.core.merge({},{}), 'empty merge');
+    mr_t.is_same_hash(a_hash, bbop.core.merge({foo:1, bar:2},{}),'same merge');
+    mr_t.is_same_hash(a_hash, bbop.core.merge({foo:1, bar:3},{bar:2}),
 		      'distinct merge');
-    mr_t.is_different_hash(a_hash, core.util.merge({foo:1},{bar:2}),
+    mr_t.is_different_hash(a_hash, bbop.core.merge({foo:1},{bar:2}),
 			   'bar merge');
 })();
 
@@ -145,7 +147,7 @@ mr_t.is_defined(core);
 (function(){
 
     var foo = {a: 1, b: true, c:[1,2,[3]], d:{one: 'a', two: ['b']}};
-    var bar = core.util.clone(foo);
+    var bar = bbop.core.clone(foo);
 
     // Change the original.
     foo.a = 2;
@@ -169,8 +171,8 @@ mr_t.is_defined(core);
 (function(){
 
     var rounds = ["GO:1234567", "GO::GO:1234567", "::1:2::3:"];
-    var coders = [new core.util.coder(),
-		  new core.util.coder({string: "_TEST_", size: 1})];
+    var coders = [new bbop.core.coder(),
+		  new bbop.core.coder({string: "_TEST_", size: 1})];
 
     // Iterate through coders and strings.
     for( var cdr = 0; cdr < coders.length; cdr++ ){
@@ -200,101 +202,102 @@ mr_t.report();
 /// See how kvetch behaves.
 ///
 
-core.kvetch("FAIL: You should *not* see this string (1)!");
-bbop.amigo.DEBUG = true;
-//core.kvetch("[You should see this string--please ignore.]");
-bbop.amigo.DEBUG = false;
-core.kvetch("FAIL: You should *not* see this string (2)!");
+// amigo.kvetch("FAIL: You should *not* see this string (1)!");
+// bbop.amigo.DEBUG = true;
+// //amigo.kvetch("[You should see this string--please ignore.]");
+// bbop.amigo.DEBUG = false;
+// amigo.kvetch("FAIL: You should *not* see this string (2)!");
 
 ///
+/// TODO: redo this stuff.
 /// Play with prototypes...
 ///
 
-function Foo(id){
+// function Foo(id){
 
-    var internal_id = id;
-    this.id = function(){
-	return internal_id;
-    }
+//     var internal_id = id;
+//     this.id = function(){
+// 	return internal_id;
+//     };
 
-    // Private?
-    var power_p = false;
-    this.on = function(){
-	power_p = true;
-    }
-    this.off = function(){
-	power_p = false;
-    }
-    this.power_p = function(){
-	return power_p;
-    };
+//     // Private?
+//     var power_p = false;
+//     this.on = function(){
+// 	power_p = true;
+//     };
+//     this.off = function(){
+// 	power_p = false;
+//     };
+//     this.power_p = function(){
+// 	return power_p;
+//     };
 
-    // Public?
-    this.moving_p = false;
-    this.go = function(){
-	this.moving_p = true;
-    };
-}
+//     // Public?
+//     this.moving_p = false;
+//     this.go = function(){
+// 	this.moving_p = true;
+//     };
+// }
 
-// NOTE: not attached during apply.
-Foo.prototype.stopFoo = function(){
-    this.moving_p = false;
-};
+// // NOTE: not attached during apply.
+// Foo.prototype.stopFoo = function(){
+//     this.moving_p = false;
+// };
 
-function Bar(name){
+// function Bar(name){
 
-    // Apply the Foo "constructor" to this (which is our Bar
-    // instance). Mangle the if on the way.
-    Foo.apply(this, [arguments[0] + "_blah"]);
+//     // Apply the Foo "constructor" to this (which is our Bar
+//     // instance). Mangle the if on the way.
+//     Foo.apply(this, [arguments[0] + "_blah"]);
 
-    // Capture.
-    this.status = function(){
-	return " (type, " + this.id() +
-	    ") (power, " + this.power_p() +
-	    ") (moving, " + this.moving_p + ")";
-    }
-}
-Bar.prototype.stopBar = function(){
-    this.moving_p = false;
-};
-// NOTE: although the the prototype is correct, cannot pass
-// constructor arguments as above.
-//Bar.prototype = new Foo;
+//     // Capture.
+//     this.status = function(){
+// 	return " (type, " + this.id() +
+// 	    ") (power, " + this.power_p() +
+// 	    ") (moving, " + this.moving_p + ")";
+//     };
+// }
+// Bar.prototype.stopBar = function(){
+//     this.moving_p = false;
+// };
+// // NOTE: although the the prototype is correct, cannot pass
+// // constructor arguments as above.
+// //Bar.prototype = new Foo;
 
-c = new Bar("123");
-c.status();
-c.on();
-c.go();
-//c.stopFoo(); // Nope.
-c.stopBar(); // Okay.
-c.status();
-
-
-// Define A.
-Arg = function (prop){
-    if(prop){
-	this.prop_a = prop;
-    }
-    prop_b = prop + '...but not';
-};
-Arg.prototype = {
-    prop_a: 'n/a',
-    get_prop_a: function(){
-	return this.prop_a;
-    }
-    ,
-    get_prop_b: function(){
-	return this.prop_b || 'n/b';
-    }
-};
-
-// Define B.
-Arg.Blah = function(prop_a, prop_c){
-    Arg.call(this, prop_a);
-    this.prop_c = prop_c || 'n/c';
-};
-extend(Arg.Blah, Arg);
+// var c = new Bar("123");
+// c.status();
+// c.on();
+// c.go();
+// //c.stopFoo(); // Nope.
+// c.stopBar(); // Okay.
+// c.status();
 
 
-ab = new Arg.Blah('foo', 'bar');
-ab.get_prop_b();
+// // Define A.
+// var Arg = function (prop){
+//     if(prop){
+// 	this.prop_a = prop;
+//     }
+//     var prop_b = prop + '...but not';
+// };
+// Arg.prototype = {
+//     prop_a: 'n/a',
+//     get_prop_a: function(){
+// 	return this.prop_a;
+//     }
+//     ,
+//     get_prop_b: function(){
+// 	return this.prop_b || 'n/b';
+//     }
+// };
+
+// // Define B.
+// Arg.Blah = function(prop_a, prop_c){
+//     Arg.call(this, prop_a);
+//     this.prop_c = prop_c || 'n/c';
+// };
+// extend(Arg.Blah, Arg);
+
+
+// var ab = new Arg.Blah('foo', 'bar');
+// ab.get_prop_b();

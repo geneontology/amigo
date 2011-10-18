@@ -529,6 +529,12 @@ class. */
  * Some stuff for GOlr
  */
 
+/* Filter box issues. */
+.golr-embiggen {
+    height: 40em;
+}
+
+/* Filter box issues. */
 .golr-filter-selectable .ui-selecting {
     background: #FECA40;
 }

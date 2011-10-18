@@ -72,13 +72,13 @@ function GOlrManager(in_args){
 	    ll('SM: ERROR: no url string argument');
 	}
     }
-    // There should be a string interface_id argument.
-    if( in_args && ! in_args['interface_id'] ){
-	ll('SM: ERROR: no interface_id argument');
-	if( typeof in_args['interface_id'] != 'string' ){
-	    ll('SM: ERROR: no interface_id string argument');
-	}
-    }
+    // // There should be a string interface_id argument.
+    // if( in_args && ! in_args['interface_id'] ){
+    // 	ll('SM: ERROR: no interface_id argument');
+    // 	if( typeof in_args['interface_id'] != 'string' ){
+    // 	    ll('SM: ERROR: no interface_id string argument');
+    // 	}
+    // }
     // There could be a hash of pinned filters argument.
     if( in_args && in_args['filters'] ){
 	if( typeof in_args['facets'] != 'object' ){
@@ -98,8 +98,8 @@ function GOlrManager(in_args){
     // Our default target url.
     this.solr_url = in_args['url'];
     
-    // The location where we'll build the interface on callback.
-    this.interface_id = in_args['interface_id'];
+    // // The location where we'll build the interface on callback.
+    // this.interface_id = in_args['interface_id'];
     
     // Our default query args, with facet fields plugged in.
     this.query_invariants =
@@ -127,10 +127,11 @@ function GOlrManager(in_args){
 
 	    // For restricting ourselves to a certain part if the
 	    // index as an initial condition.
-	    fq: in_args['filters'],
+	    fq: in_args['filters']
 
-	    // Fixed UI location.
-	    interface_id: this.interface_id
+	    // // Fixed UI location.
+	    // NOTE: punted to UI object.
+	    // interface_id: this.interface_id
 
 	    // Query-type stuff is variant--see update and
 	    // query_variants.
