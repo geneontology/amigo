@@ -133,10 +133,6 @@ function GOlrUIBeta(in_args){
 	// DEBUG: First, remove anything that was there.
 	var result = jQuery("#DEBUG").empty();
 
-	// TODO: Construct an object containing the logic.
-	// {and: [{or: ...}, {or: ...}, {and: ...} ]}
-	var filters = {'and': []};
-
 	// Figure out where our filters are and what they are.
 	ll('UIB: Scanning filter accordion: ' + accordion_div_hook);
 	jQuery(".golr-filter-selectable .ui-selected").each(
