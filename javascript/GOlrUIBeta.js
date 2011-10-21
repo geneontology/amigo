@@ -76,14 +76,14 @@ function GOlrUIBeta(in_args){
 	
 	    // Add the ul list to the accordion.
 	    //ll('GUI: out');
-	    //ll('GUI: add to accordion: ' + facet_list_ul.output());
+	    //ll('GUI: add to accordion: ' + facet_list_ul.to_string());
 	    //ll('GUI: passed');
 	    filter_accordion.add_child(in_field, facet_list_ul);
 	}
 	bbop.core.each(field_list, _look_at_fields);
 
 	// TODO: Add the output from the accordion to the page.
-	jQuery('#' + ui_div_hook).html(filter_accordion.output());
+	jQuery('#' + ui_div_hook).html(filter_accordion.to_string());
 
 	// // TODO
 	// var query_text =
