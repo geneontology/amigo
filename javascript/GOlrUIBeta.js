@@ -15,9 +15,9 @@ function GOlrUIBeta(in_args){
 
     // There should be a string interface_id argument.
     if( in_args && ! in_args['interface_id'] ){
-	ll('GUI: ERROR: no interface_id argument');
+	ll('UIB: ERROR: no interface_id argument');
 	if( typeof in_args['interface_id'] != 'string' ){
-	    ll('GUI: ERROR: no interface_id string argument');
+	    ll('UIB: ERROR: no interface_id string argument');
 	}
     }
     // The location where we'll build and manage the interface.
@@ -56,7 +56,7 @@ function GOlrUIBeta(in_args){
 	//var field_attr_hash = {};
 	var field_list = golr.facet_field_list(json_data);
 	function _look_at_fields(in_field, in_i){
-	    //ll('GUI: saw field: ' + in_field);
+	    //ll('UIB: saw field: ' + in_field);
 
 	    // Create ul lists of the facet contents.
 	    var facet_list_ul_attrs = {
@@ -70,14 +70,14 @@ function GOlrUIBeta(in_args){
 			   function(item, i){
 			       var name = item[0];
 			       var count = item[1];
-			       //ll('GUI: saw facet item: ' + name);
+			       //ll('UIB: saw facet item: ' + name);
 			       facet_list_ul.add_child(name);
 			   });
 	
 	    // Add the ul list to the accordion.
-	    //ll('GUI: out');
-	    //ll('GUI: add to accordion: ' + facet_list_ul.to_string());
-	    //ll('GUI: passed');
+	    //ll('UIB: out');
+	    //ll('UIB: add to accordion: ' + facet_list_ul.to_string());
+	    //ll('UIB: passed');
 	    filter_accordion.add_child(in_field, facet_list_ul);
 	}
 	bbop.core.each(field_list, _look_at_fields);
@@ -115,7 +115,7 @@ function GOlrUIBeta(in_args){
 			       // 	   });
 			       gui_anchor.check_status();
 			   }};
-		       ll('GUI examining: ' + item);
+		       ll('UIB examining: ' + item);
 		       jQuery("#" + mangle +
 			      "filter-list-" + item).selectable(_select_arg);
 		   }

@@ -86,19 +86,19 @@ function LiveSearchGOlrInit(){
     ///
 
     // Get my four managers ready.
-    // var sm_ann = new GOlrManager({url: 'http://accordion.lbl.gov:8080/solr/',
+    // var sm_ann = new GOlrManager({url: 'http://skewer.lbl.gov:8080/solr/',
     // 				  filters: {'document_category': 'annotation'},
     // 				  facets: ['type', 'taxon', 'source',
     // 					   'evidence', 'term_closure']});
-    // var sm_agg = new GOlrManager({url: 'http://accordion.lbl.gov:8080/solr/',
+    // var sm_agg = new GOlrManager({url: 'http://skewer.lbl.gov:8080/solr/',
     // 				  filters: {'document_category':
     // 					    'annotation_aggregate'},
     // 				  facets: ['type', 'taxon', 'source',
     // 					   'evidence_closure']});
-    var sm_bio = new GOlrManager({url: 'http://accordion.lbl.gov:8080/solr/',
+    var sm_bio = new GOlrManager({url: 'http://skewer.lbl.gov:8080/solr/',
 				  filters: {'document_category': 'bioentity'},
 				  facets: ['type', 'taxon', 'source']});
-    var sm_cls = new GOlrManager({url: 'http://accordion.lbl.gov:8080/solr/',
+    var sm_cls = new GOlrManager({url: 'http://skewer.lbl.gov:8080/solr/',
     				  filters: {'document_category':
     					    'ontology_class'},
     				  facets: ['source']});
@@ -614,7 +614,7 @@ function _update_gui (json_data){
     // var first = amigo.golr_response.start_document(json_data);
     // var last = amigo.golr_response.end_document(json_data);
 
-    kvetch("GUI: Updating...");
+    kvetch("LS GUI: Updating...");
 
     // Capture the current filters and facets. They come in as a hash
     // of arrays.
