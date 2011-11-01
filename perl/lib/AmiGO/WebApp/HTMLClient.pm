@@ -204,6 +204,7 @@ sub mode_live_search_gold {
       'com.jquery-ui',
       'bbop.core',
       'bbop.logger',
+      'bbop.logic',
       'bbop.html',
       'bbop.amigo',
       'bbop.amigo.go_meta',

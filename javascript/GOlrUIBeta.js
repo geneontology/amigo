@@ -23,7 +23,6 @@ function GOlrUIBeta(in_args){
     // The location where we'll build and manage the interface.
     this.interface_id = in_args['interface_id'];
    
-
     // AmiGO helper.
     var amigo = new bbop.amigo();
     var golr = amigo.golr_response;
@@ -36,6 +35,7 @@ function GOlrUIBeta(in_args){
     var mangle = ui_div_hook + '_ui_element_';
     // ...
     var accordion_div_hook = mangle + 'filter-accordion';
+    var q_input_hook = mangle + 'q';
 
     // Initialze with reseting data.
     this.init = function(json_data){
@@ -44,7 +44,32 @@ function GOlrUIBeta(in_args){
 	
 	// First, remove anything that was there.
 	jQuery('#' + ui_div_hook).empty();
-	
+
+	// Start building free text input here.
+	// 				'Search for<br />');
+	var free_input_label =
+	    new bbop.html.tag('label', {'for': 'q'}, 'Search: ');
+	jQuery('#' + ui_div_hook).append(free_input_label.to_string());
+	var free_input_attrs = {
+	    'id': q_input_hook,
+	    'name': 'q',
+	    'class': "golr-q textBox textBoxLighten",
+	    'value': "",
+	    'size': "30",
+	    'type': 'text'
+	};
+	var free_input = new bbop.html.input(free_input_attrs);	
+	jQuery('#' + ui_div_hook).append(free_input.to_string());
+
+	// TODO?
+	// Add event for q input. Same as other, but filter at three
+	// characters and up.
+	function _three_filter(){
+	    gui_anchor.check_status();
+	}
+	jQuery('#' + q_input_hook).keyup(_three_filter);
+
+
 	// Start building the accordion here.
 	var filter_accordion_attrs = {
 	    id: accordion_div_hook,
@@ -82,14 +107,11 @@ function GOlrUIBeta(in_args){
 	}
 	bbop.core.each(field_list, _look_at_fields);
 
-	// TODO: Add the output from the accordion to the page.
-	jQuery('#' + ui_div_hook).html(filter_accordion.to_string());
+	// Add the output from the accordion to the page.
+	//jQuery('#' + ui_div_hook).html(filter_accordion.to_string());
+	jQuery('#' + ui_div_hook).append(filter_accordion.to_string());
 
-	// // TODO
-	// var query_text =
-	// 	widgets.form.text_input('q', 'q', 25, 
-	// 				'Search for<br />');
-
+	// Make the accordion controls live.
 	jQuery(function() {
 		   // Add the jQuery accordioning.
 		   jQuery("#" + mangle +
@@ -125,17 +147,41 @@ function GOlrUIBeta(in_args){
 
 
     // Return a query object?
+    // Return the current status of the HTML layer.
     // TODO: Eventually call anything that registered for GUI events.
     this.check_status = function(){
     
-	ll('UIB: Build UI from reset response: ' + ui_div_hook);
+	// Logic.
+	var query_logic = new bbop.logic();
+
+	ll('UIB: find current status of user display: ' + ui_div_hook);
 	
 	// DEBUG: First, remove anything that was there.
 	var result = jQuery("#DEBUG").empty();
 
+	// TODO: Hunt down anything using the golr-* class namespace.
+	// jQuery('input[id^="'+ mangle +'"]').each(
+	//     function(){
+	// 	ll('UIB: squirrel away q...');
+	//     });
+	ll('UIB: Scanning for q input: ' + q_input_hook);
+	var q_val = jQuery('#' + q_input_hook)[0].value;
+	ll('UIB: squirrel away q: ' + q_val);
+	query_logic.add('q:' + q_val);
+	// Debug.
+	//result.append("q " + q_val);
+
+	// //jQuery('input[class^="golr"]')[1]
+	// //jQuery("input:regex(class, golr-.*)").each(
+	// jQuery('input[class^="golr"]').each(
+	//     function(){
+	// 	ll('UIB: found golr-* class: ');
+	//  });
+
 	// Figure out where our filters are and what they are.
 	ll('UIB: Scanning filter accordion: ' + accordion_div_hook);
-	jQuery(".golr-filter-selectable .ui-selected").each(
+	//jQuery(".golr-filter-selectable .ui-selected").each(
+	jQuery('#' + accordion_div_hook + ' > * > * > .ui-selected').each(
 	    function(){
 		// Filter set in question. Subtract the head from the
 		// id to get the original mangled filter set.
@@ -147,11 +193,14 @@ function GOlrUIBeta(in_args){
 		
 		// Actual item.
 		var filter_item = jQuery(this).html();
-
+		
 		// Debug.
-		result.append(" " + filter_set + " " + filter_item);
+		//result.append(" " + filter_set + " " + filter_item);
+		query_logic.add(filter_set + ':' + filter_item);
 	    });
 	
+	result.append("url " + query_logic.url());
+
 	// NOTE: the first item in the hash is the default op.
 	// TODO: need a special object for adding and translations
 	//       would be easy for testing!
