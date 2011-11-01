@@ -37,7 +37,7 @@ function GOlrUIBeta(in_args){
     var accordion_div_hook = mangle + 'filter-accordion';
     var q_input_hook = mangle + 'q';
 
-    // Initialze with reseting data.
+    // Initialize with reseting data.
     this.init = function(json_data){
     
 	ll('UIB: Build UI from reset response: ' + ui_div_hook);
@@ -201,10 +201,12 @@ function GOlrUIBeta(in_args){
 	
 	result.append("url " + query_logic.url());
 
-	// NOTE: the first item in the hash is the default op.
-	// TODO: need a special object for adding and translations
-	//       would be easy for testing!
+	// ???
+	// // NOTE: the first item in the hash is the default op.
+	// // TODO: need a special object for adding and translations
+	// //       would be easy for testing!
+	// // TODO: Callbacks.
 
-	// TODO: Callbacks.
+	return query_logic;
     };
 }
