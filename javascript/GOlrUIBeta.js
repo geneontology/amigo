@@ -2,9 +2,15 @@
 //// An all-encompassing UI object.
 ////
 
+// // NOTE: the first item in the hash is the default op.
+// // TODO: need a special object for adding and translations
+// //       would be easy for testing!
+// // TODO: Callbacks.
+
 // An experimental dynamic UI builder.
 // TODO: will also probably need to take go_meta at some point.
 function GOlrUIBeta(in_args){
+    bbop.registry.call(this, ['action']);
 
     var gui_anchor = this;
     
@@ -27,29 +33,41 @@ function GOlrUIBeta(in_args){
     var amigo = new bbop.amigo();
     var golr = amigo.golr_response;
 
-    // Get the user interface hook.
-    //var ui_div_hook = golr.parameter(json_data, 'interface_id');
+    // Get the user interface hook and remove anything that was there.
     var ui_div_hook = this.interface_id;
+    jQuery('#' + ui_div_hook).empty();
+
     // Mangle everything around this unique id so we don't collide
     // with other instances on the same page.
     var mangle = ui_div_hook + '_ui_element_';
-    // ...
+
+    // Render a control section into HTML.
+    var ui_controls_div_hook = mangle + 'controls';
+    var controls_div = new bbop.html.tag('div', {'id': ui_controls_div_hook});
+    jQuery('#' + ui_div_hook).append(controls_div.to_string());
+
+    // Render a results section into HTML.
+    var ui_results_div_hook = mangle + 'results';
+    var results_div = new bbop.html.tag('div', {'id': ui_results_div_hook});
+    jQuery('#' + ui_div_hook).append(results_div.to_string());
+
+    // Additional id hooks for easy callbacks.
     var accordion_div_hook = mangle + 'filter-accordion';
     var q_input_hook = mangle + 'q';
 
     // Initialize with reseting data.
-    this.init = function(json_data){
+    this.init_controls = function(json_data){
     
 	ll('UIB: Build UI from reset response: ' + ui_div_hook);
 	
 	// First, remove anything that was there.
-	jQuery('#' + ui_div_hook).empty();
+	jQuery('#' + ui_controls_div_hook).empty();
 
 	// Start building free text input here.
 	// 				'Search for<br />');
 	var free_input_label =
 	    new bbop.html.tag('label', {'for': 'q'}, 'Search: ');
-	jQuery('#' + ui_div_hook).append(free_input_label.to_string());
+	jQuery('#' + ui_controls_div_hook).append(free_input_label.to_string());
 	var free_input_attrs = {
 	    'id': q_input_hook,
 	    'name': 'q',
@@ -59,15 +77,16 @@ function GOlrUIBeta(in_args){
 	    'type': 'text'
 	};
 	var free_input = new bbop.html.input(free_input_attrs);	
-	jQuery('#' + ui_div_hook).append(free_input.to_string());
+	jQuery('#' + ui_controls_div_hook).append(free_input.to_string());
 
 	// TODO?
 	// Add event for q input. Same as other, but filter at three
 	// characters and up.
-	function _three_filter(){
-	    gui_anchor.check_status();
-	}
-	jQuery('#' + q_input_hook).keyup(_three_filter);
+	// function _three_filter(){
+	//     gui_anchor.state();
+	// }
+	// jQuery('#' + q_input_hook).keyup(_three_filter);
+	jQuery('#' + q_input_hook).keyup(gui_anchor._run_action_callbacks);
 
 
 	// Start building the accordion here.
@@ -109,7 +128,7 @@ function GOlrUIBeta(in_args){
 
 	// Add the output from the accordion to the page.
 	//jQuery('#' + ui_div_hook).html(filter_accordion.to_string());
-	jQuery('#' + ui_div_hook).append(filter_accordion.to_string());
+	jQuery('#' + ui_controls_div_hook).append(filter_accordion.to_string());
 
 	// Make the accordion controls live.
 	jQuery(function() {
@@ -135,7 +154,7 @@ function GOlrUIBeta(in_args){
 			       // 	       result.append(" " + item + " " +
 			       // 			     ( index + 1));
 			       // 	   });
-			       gui_anchor.check_status();
+			       gui_anchor._run_action_callbacks();
 			   }};
 		       ll('UIB examining: ' + item);
 		       jQuery("#" + mangle +
@@ -145,40 +164,33 @@ function GOlrUIBeta(in_args){
 	       });
     };
 
-
-    // Return a query object?
-    // Return the current status of the HTML layer.
-    // TODO: Eventually call anything that registered for GUI events.
-    this.check_status = function(){
+    // Get the current state of the HTML GUI layer.
+    // Returns hash of logic objects keyed by solr filter type
+    // (e.g. q, fq, etc.).
+    this.state = function(){
     
-	// Logic.
-	var query_logic = new bbop.logic();
-
-	ll('UIB: find current status of user display: ' + ui_div_hook);
+	ll('UIB: find current status of user display: ' + ui_controls_div_hook);
 	
-	// DEBUG: First, remove anything that was there.
-	var result = jQuery("#DEBUG").empty();
+	///
+	/// Get the logic contained in the free query string.
+	///
 
-	// TODO: Hunt down anything using the golr-* class namespace.
-	// jQuery('input[id^="'+ mangle +'"]').each(
-	//     function(){
-	// 	ll('UIB: squirrel away q...');
-	//     });
 	ll('UIB: Scanning for q input: ' + q_input_hook);
+
+	var q_logic = new bbop.logic();
 	var q_val = jQuery('#' + q_input_hook)[0].value;
 	ll('UIB: squirrel away q: ' + q_val);
-	query_logic.add('q:' + q_val);
-	// Debug.
-	//result.append("q " + q_val);
+	//q_logic.add('q:' + q_val);
+	q_logic.add(q_val);
 
-	// //jQuery('input[class^="golr"]')[1]
-	// //jQuery("input:regex(class, golr-.*)").each(
-	// jQuery('input[class^="golr"]').each(
-	//     function(){
-	// 	ll('UIB: found golr-* class: ');
-	//  });
+	///
+	/// Get the logic contained in the accordion filters (a little
+	/// trickier).
+	///
 
-	// Figure out where our filters are and what they are.
+	var fq_logic = new bbop.logic();
+
+	// Figure out where our filters are and what they contain.
 	ll('UIB: Scanning filter accordion: ' + accordion_div_hook);
 	//jQuery(".golr-filter-selectable .ui-selected").each(
 	jQuery('#' + accordion_div_hook + ' > * > * > .ui-selected').each(
@@ -196,17 +208,42 @@ function GOlrUIBeta(in_args){
 		
 		// Debug.
 		//result.append(" " + filter_set + " " + filter_item);
-		query_logic.add(filter_set + ':' + filter_item);
+		fq_logic.add(filter_set + ':' + filter_item);
 	    });
 	
-	result.append("url " + query_logic.url());
+	// DEBUG
+	var result = jQuery("#DEBUG").empty();
+	result.append("str: "+ q_logic.to_string() +" "+ fq_logic.to_string());
 
-	// ???
-	// // NOTE: the first item in the hash is the default op.
-	// // TODO: need a special object for adding and translations
-	// //       would be easy for testing!
-	// // TODO: Callbacks.
-
-	return query_logic;
+	return {
+	    'q' : q_logic,
+	    'fq' : fq_logic
+	};
     };
+
+    // Run registered action callbacks against.
+    this._run_action_callbacks = function(json_data){
+	ll('UIB: in action callbacks with state argument...');
+
+	var current_state = gui_anchor.state();
+
+	gui_anchor.apply_callbacks('action', [current_state]);
+    };
+
+    // TODO:
+    this.init_results = function(){
+	ll('UIB: Initialize results div...');
+	
+	// TODO: Get back the type of callback.
+    };
+
+    // TODO: Draw results from template depending on the return type
+    // picked up from the results ball.
+    this.draw_results = function(){
+	ll('UIB: Draw results div...');
+	
+	// TODO: Get back the type of callback.
+    };
+
 }
+GOlrUIBeta.prototype = new bbop.registry;

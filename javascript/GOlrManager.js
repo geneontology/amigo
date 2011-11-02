@@ -1,5 +1,5 @@
 ////
-////
+//// Keep in mind that this is a "subclass" of bbop.registry.
 ////
 
 // Thinking about lessons learned from solr ajax.
@@ -11,6 +11,8 @@
 // query (whether we display it or not), we will have all possible
 // facets and can build the initial model off of that.
 function GOlrManager(in_args){
+    // We are a registry like this:
+    bbop.registry.call(this, ['reset', 'search', 'error']);
 
     var anchor = this;
 
@@ -27,41 +29,7 @@ function GOlrManager(in_args){
     this.last_sent_packet = 0;
     this.last_received_packet = 0;
 
-    // Handle the registration of call functions to get activated
-    // after certain events.
-    this.callback_registry ={
-	reset: {},
-	response : {},
-	error: {}
-    };
-    // Remove the specified function from the registry, with an
-    // optional relative priority against other callback functions.
-    this.register = function(category, function_id, in_function, in_priority){
-
-	// Only these categories.
-	if( typeof(anchor.callback_registry[category]) == 'undefined'){
-	    throw new Error('cannot register, unknown category');
-	}
-
-	// The default priority is 0.
-	var priority = 0;
-	if( in_priority ){ priority = in_priority; }
-
-	anchor.callback_registry[category][function_id] =
-	    {
-		runner: in_function,
-		priority: priority
-	    };
-    };
-    // Remove the specified function from the registry.
-    this.unregister = function(category, function_id){
-	if( anchor.callback_registry[category] &&
-	    anchor.callback_registry[category][function_id] ){
-	    delete anchor.callback_registry[category][function_id];
-        }
-    };
-
-    // Check args.
+    // Check incoming arguments.
     if( ! in_args ){
 	ll('SM: ERROR: no argument');
     }
@@ -72,13 +40,6 @@ function GOlrManager(in_args){
 	    ll('SM: ERROR: no url string argument');
 	}
     }
-    // // There should be a string interface_id argument.
-    // if( in_args && ! in_args['interface_id'] ){
-    // 	ll('SM: ERROR: no interface_id argument');
-    // 	if( typeof in_args['interface_id'] != 'string' ){
-    // 	    ll('SM: ERROR: no interface_id string argument');
-    // 	}
-    // }
     // There could be a hash of pinned filters argument.
     if( in_args && in_args['filters'] ){
 	if( typeof in_args['facets'] != 'object' ){
@@ -97,9 +58,6 @@ function GOlrManager(in_args){
     
     // Our default target url.
     this.solr_url = in_args['url'];
-    
-    // // The location where we'll build the interface on callback.
-    // this.interface_id = in_args['interface_id'];
     
     // Our default query args, with facet fields plugged in.
     this.query_invariants =
@@ -138,61 +96,20 @@ function GOlrManager(in_args){
 	    //q: '*:*', // start by going after everything
 	};
     
-    // Generic getter for callback functions.
-    this._get_prioritized_callbacks = function(category){
-
-	var cb_id_list =
-	    bbop.core.get_keys(anchor.callback_registry[category]);
-	// Sort callback list according to priority.
-	var ptype_anchor = this;
-	cb_id_list.sort(function(a, b){  
-			    var pkg_a =
-				ptype_anchor.callback_registry[category][a];
-			    var pkg_b =
-				ptype_anchor.callback_registry[category][b];
-			    return pkg_b['priority'] - pkg_a['priority'];
-			});
-	
-	// Collect the actual stored functions by priority.
-	var cb_fun_list = [];
-	for( var cbi = 0; cbi < cb_id_list.length; cbi++ ){
-	    var cb_id = cb_id_list[cbi];
-	    var to_run = anchor.callback_registry[category][cb_id]['runner'];
-	    cb_fun_list.push(to_run);
-	    // ll('callback: ' + category + ', ' + cb_id + ', ' +
-	    //    this.callback_registry[category][cb_id]['priority']);
-	}
-	
-	return cb_fun_list;
-    };
-
     // The callback function called after a successful AJAX
     // intialization/reset cal. First it runs some template code, then it
     // does all of the callbacks.
     this._run_reset_callbacks = function(json_data){
-	ll('SM: in reset...');
-    
-	// Run all against registered functions.
-	var callbacks = anchor._get_prioritized_callbacks('reset');
-	for( var cbi = 0; cbi < callbacks.length; cbi++ ){
-	    var run_fun = callbacks[cbi];
-	    run_fun(json_data);
-	}
+	ll('SM: run reset callbacks...');
+	anchor.apply_callbacks('reset', [json_data]);
     };
 
     // The main callback function called after a successful AJAX call in
     // the update function. First it runs some template code, then it does
     // all of the callbacks.
-    this._run_response_callbacks = function(json_data){
-	ll('SM: in response...');
-	
-	// Run all against registered functions.
-	var callbacks = anchor._get_prioritized_callbacks('response');
-	ll('callbacks: ' + callbacks);
-	for( var cbi = 0; cbi < callbacks.length; cbi++ ){
-	    var run_fun = callbacks[cbi];
-	    run_fun(json_data);
-	}
+    this._run_search_callbacks = function(json_data){
+	ll('SM: run search callbacks...');
+	anchor.apply_callbacks('search', [json_data]);
     };
 
     // This is the function that runs where there is an AJAX error
@@ -200,7 +117,6 @@ function GOlrManager(in_args){
     // does all of the callbacks.
     this._run_error_callbacks = function(result, status, error) {
 
-	ll('SM: in error...');	
 	ll('SM: Failed server request: '+ result +', '+ status +', '+ error);
 		
 	// Get the error out if possible.
@@ -219,16 +135,12 @@ function GOlrManager(in_args){
 	}
 	
 	// Run all against registered functions.
-	var callbacks = anchor._get_prioritized_callbacks('error');
-	for( var cbi = 0; cbi < callbacks.length; cbi++ ){
-	    var run_fun = callbacks[cbi];
-	    run_fun(clean_error);
-	}
+	ll('SM: run error callbacks...');
+	anchor.apply_callbacks('error', [clean_error]);
     };
     var _run_error_callbacks = this._run_error_callbacks;
 
-    // Try and decide between a reset callback and a response
-    // callback.
+    // Try and decide between a reset callback and a search callback.
     function _callback_type_decider(json_data){
     	ll('SM: in callback type decider...');
 
@@ -237,11 +149,11 @@ function GOlrManager(in_args){
     	    throw new Error("Unsuccessful response from golr server!");
     	}else{
     	    var cb_type = golr.callback_type(json_data);
-    	    ll('SM: okay response, will probe...: ' + cb_type);
+    	    ll('SM: okay response from server, will probe type...: ' + cb_type);
     	    if( cb_type == 'reset' ){
     		anchor._run_reset_callbacks(json_data);
-    	    }else if( cb_type == 'response' ){
-    		anchor._run_response_callbacks(json_data);
+    	    }else if( cb_type == 'search' ){
+    		anchor._run_search_callbacks(json_data);
     	    }else{
     		throw new Error("Unknown callback type!");
     	    }
@@ -250,7 +162,7 @@ function GOlrManager(in_args){
 
     // The user code to select the type of update (and thus the type
     // of callbacks to be called on data return).
-    this.update = function(update_type){
+    this.update = function(update_type, logic_hash){
 
 	// Our bookkeeping--increment packet.
 	anchor.last_sent_packet = anchor.last_sent_packet + 1;
@@ -267,13 +179,51 @@ function GOlrManager(in_args){
 	var qurl = qs_head + invariant_qs;
 
 	// Conditional merging of the remaining variant parts.
-	if( update_type && update_type == 'reset' ){
+	if( update_type == 'reset' ){
+
 	    // Reset and do completely open query.
 	    var variant_qs = bbop.core.get_assemble(query_variants);
 	    ll('SM: varient_qs: ' + variant_qs);
 	    qurl = qurl + '&' + variant_qs + '&q=*:*';
+
+	}else if( update_type == 'search' ){
+
+	    // NOTE/TODO: a lot of previous wacky q handling was done
+	    // in perl on the server, some of that will probably have
+	    // to be ported over to JS around here.
+
+	    // NOTE/TODO: Make this work well enough until we get
+	    // dismax working properly.
+	    var query_string = '*:*';
+	    if( logic_hash && logic_hash['q'] ){
+		var q_logic = logic_hash['q'];
+		var str_rep = q_logic.to_string();
+
+		if( str_rep.length > 0 ){
+		    query_string = 'label:' + str_rep +
+			' OR annotation_class_label:' + str_rep;
+		}
+	    }
+
+	    // NOTE/TODO: Assemble filters from logic. Make clean for
+	    // URLs.
+	    var filter_qs = '';
+	    if( logic_hash && logic_hash['fq'] ){
+		var fq_logic = logic_hash['fq'];
+		var str_rep = fq_logic.to_string();	    
+
+		if( str_rep.length > 0 ){
+		    filter_qs = '&fq=' + str_rep;
+		}
+	    }
+
+	    // Finalize it.
+	    var variant_qs = bbop.core.get_assemble(query_variants);
+	    //ll('SM: varient_qs: ' + variant_qs);
+	    qurl = qurl + '&' + variant_qs + filter_qs + '&q=' + query_string;
+
 	}else{
-	    // TODO: standard assemble with filter and state.
+	    throw new Error("SM: Unknown update_type: " + update_type);
 	}
 
 	ll('SM: try: ' + qurl);
@@ -290,4 +240,16 @@ function GOlrManager(in_args){
 	};
 	jQuery.ajax(argvars);
     };
+
+    // Trigger the "reset" chain of events.
+    this.reset = function(){
+	anchor.update('reset', null);
+    };
+
+    // Trigger the "search" chain of events.
+    // Takes a field-keyed hash of bbop.logics as an argument.
+    this.search = function(logics){
+	anchor.update('search', logics);
+    };
 }
+GOlrManager.prototype = new bbop.registry;

@@ -205,6 +205,7 @@ sub mode_live_search_gold {
       'bbop.core',
       'bbop.logger',
       'bbop.logic',
+      'bbop.registry',
       'bbop.html',
       'bbop.amigo',
       'bbop.amigo.go_meta',
