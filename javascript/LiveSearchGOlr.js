@@ -86,15 +86,6 @@ function LiveSearchGOlrInit(){
     ///
 
     // Get my four managers ready.
-    // var gm_ann = new GOlrManager({url: 'http://skewer.lbl.gov:8080/solr/',
-    // 				  filters: {'document_category': 'annotation'},
-    // 				  facets: ['type', 'taxon', 'source',
-    // 					   'evidence', 'term_closure']});
-    // var gm_agg = new GOlrManager({url: 'http://skewer.lbl.gov:8080/solr/',
-    // 				  filters: {'document_category':
-    // 					    'annotation_aggregate'},
-    // 				  facets: ['type', 'taxon', 'source',
-    // 					   'evidence_closure']});
     var gm_bio = new GOlrManager({url: 'http://skewer.lbl.gov:8080/solr/',
 				  filters: {'document_category': 'bioentity'},
 				  facets: ['type', 'taxon', 'source']});
@@ -102,30 +93,48 @@ function LiveSearchGOlrInit(){
     				  filters: {'document_category':
     					    'ontology_class'},
     				  facets: ['source']});
+    var gm_ann = new GOlrManager({url: 'http://skewer.lbl.gov:8080/solr/',
+    				  filters: {'document_category': 'annotation'},
+    				  facets: ['type', 'taxon', 'source',
+    					   'evidence_type',
+					   'isa_partof_label_closure']});
+    var gm_agg = new GOlrManager({url: 'http://skewer.lbl.gov:8080/solr/',
+    				  filters: {'document_category':
+    					    'annotation_aggregate'},
+    				  facets: ['type', 'taxon', 'source',
+    					   'evidence_closure']});
 
     var ui_bio = new GOlrUIBeta({interface_id: 'interface-bio'});
     var ui_cls = new GOlrUIBeta({interface_id: 'interface-cls'});
+    var ui_ann = new GOlrUIBeta({interface_id: 'interface-ann'});
+    var ui_agg = new GOlrUIBeta({interface_id: 'interface-agg'});
 
     // Bioentity init.
     gm_bio.register('reset', 'control_init', ui_bio.init_controls);
     gm_bio.register('reset', 'results_init', ui_bio.init_results);
-    // Class init.
+    gm_bio.register('reset', 'results_first', ui_bio.draw_results, -1);
+    // Class/term init.
     gm_cls.register('reset', 'control_init', ui_cls.init_controls);
     gm_cls.register('reset', 'results_init', ui_cls.init_results);
+    gm_cls.register('reset', 'results_first', ui_cls.draw_results, -1);
+    // Annotation.
+    gm_ann.register('reset', 'control_init', ui_ann.init_controls);
+    gm_ann.register('reset', 'results_init', ui_ann.init_results);
+    gm_ann.register('reset', 'results_first', ui_ann.draw_results, -1);
+    // Aggregate.
+    gm_agg.register('reset', 'control_init', ui_agg.init_controls);
+    gm_agg.register('reset', 'results_init', ui_agg.init_results);
+    gm_agg.register('reset', 'results_first', ui_agg.draw_results, -1);
 
     // TODO: GUI callback on search response, should look like:
-    //gm_bio.register('search', 'gm_update', ui_bio.draw_results);
-    //gm_cls.register('search', 'gm_update', ui_cls.response);    
-
-    // function _bio_act(foo){
-    // 	kvetch('_bio_act: ' + bbop.core.what_is(foo));	
-    // }
-    ui_bio.register('action', 'ui_action', gm_bio.search);
-    ui_cls.register('action', 'ui_action', gm_cls.search);
+    // ui_bio.register('action', 'ui_action', gm_bio.search);
+    // ui_cls.register('action', 'ui_action', gm_cls.search);
 
     // Start everything for new GUI...
     gm_bio.reset();
     gm_cls.reset();
+    gm_ann.reset();
+    gm_agg.reset();
 
     ///
     /// Past attempt.

@@ -42,26 +42,35 @@ function GOlrUIBeta(in_args){
     var mangle = ui_div_hook + '_ui_element_';
 
     // Render a control section into HTML.
-    var ui_controls_div_hook = mangle + 'controls';
+    var ui_controls_div_hook = mangle + 'ui-controls-wrapper';
     var controls_div = new bbop.html.tag('div', {'id': ui_controls_div_hook});
-    jQuery('#' + ui_div_hook).append(controls_div.to_string());
+    //jQuery('#' + ui_div_hook).append(controls_div.to_string());
 
     // Render a results section into HTML.
-    var ui_results_div_hook = mangle + 'results';
+    var ui_results_div_hook = mangle + 'ui-results-wrapper';
     var results_div = new bbop.html.tag('div', {'id': ui_results_div_hook});
-    jQuery('#' + ui_div_hook).append(results_div.to_string());
+    //jQuery('#' + ui_div_hook).append(results_div.to_string());
+
+    // Main hooks to the changable areas of the display.
+    var hook_meta_div = mangle + 'meta';
+    var hook_results_div = mangle + 'results';
+
+    // Add the sections to a two column layout and add that into the
+    // main ui div.
+    var two_col = new GOlrTemplate.two_column_layout(controls_div, results_div);
+    jQuery('#' + ui_div_hook).append(two_col.to_string());
 
     // Additional id hooks for easy callbacks.
     var accordion_div_hook = mangle + 'filter-accordion';
     var q_input_hook = mangle + 'q';
-
+    
     // Initialize with reseting data.
     this.init_controls = function(json_data){
     
 	ll('UIB: Build UI from reset response: ' + ui_div_hook);
 	
-	// First, remove anything that was there.
-	jQuery('#' + ui_controls_div_hook).empty();
+	// // First, remove anything that was there.
+	// jQuery('#' + ui_controls_div_hook).empty();
 
 	// Start building free text input here.
 	// 				'Search for<br />');
@@ -115,14 +124,14 @@ function GOlrUIBeta(in_args){
 			       var name = item[0];
 			       var count = item[1];
 			       //ll('UIB: saw facet item: ' + name);
-			       facet_list_ul.add_child(name);
+			       facet_list_ul.add_to(name);
 			   });
 	
 	    // Add the ul list to the accordion.
 	    //ll('UIB: out');
 	    //ll('UIB: add to accordion: ' + facet_list_ul.to_string());
 	    //ll('UIB: passed');
-	    filter_accordion.add_child(in_field, facet_list_ul);
+	    filter_accordion.add_to(in_field, facet_list_ul);
 	}
 	bbop.core.each(field_list, _look_at_fields);
 
@@ -230,19 +239,110 @@ function GOlrUIBeta(in_args){
 	gui_anchor.apply_callbacks('action', [current_state]);
     };
 
-    // TODO:
+    //  No arguments necessary as this is just a scaffold.. For
+    //  actual initial results rendering, see .draw_results.
     this.init_results = function(){
 	ll('UIB: Initialize results div...');
 	
-	// TODO: Get back the type of callback.
+	// <div id="results_block" class="block">
+	// <h2>Found entities</h2>
+	// <div id="load_float"></div>
+	// <div id="meta_results">
+	// <div id="results_div">
+	var results = new bbop.html.tag('div', {'id': hook_results_div});
+	var meta = new bbop.html.tag('div', {'id': hook_meta_div});
+	var header = new bbop.html.tag('h2', {}, 'Found entities');
+	var block = new bbop.html.tag('div', {'class': 'block'});
+	block.add_to(header);
+	block.add_to(meta);
+	block.add_to(results);
+
+	jQuery('#' + ui_results_div_hook).append(block.to_string());
+
     };
 
     // TODO: Draw results from template depending on the return type
     // picked up from the results ball.
-    this.draw_results = function(){
-	ll('UIB: Draw results div...');
+    this.draw_results = function(json_data){
 	
 	// TODO: Get back the type of callback.
+
+	// TODO: Draw meta--the same for every type of return.
+	ll('UIB: Draw meta div...');
+	var total_c = golr.total_documents(json_data);
+	var first_d = golr.start_document(json_data);
+	var last_d = golr.end_document(json_data);
+	var dmeta = new GOlrTemplate.meta_results(total_c, first_d, last_d);
+	jQuery('#' + hook_meta_div).empty();
+	jQuery('#' + hook_meta_div).append(dmeta.to_string());
+
+	// TODO: Draw returns, different for every type.
+	ll('UIB: Draw results div...');
+
+	// Scrape out what type of template we should use.
+	var qfilters = golr.query_filters(json_data);
+	var found_doc_cat = 'unreadable or ambiguous';
+	if( qfilters && qfilters['document_category'] ){
+	    var doc_cats = bbop.core.get_keys(qfilters['document_category']);
+	    if( doc_cats.length == 1 ){
+		found_doc_cat = doc_cats[0];
+		// }else{
+		// 	found_doc_cat = 'ambiguous';
+	    }
+	}
+
+	// TODO: scrape the docs into headers and data.
+	var docs = golr.documents(json_data);
+
+	// Select and run template.
+	var final_table = "Unknown document category type!";
+	if( found_doc_cat == 'bioentity' ){	    
+
+	    // ...
+	    var headers = ['symbol','type','description','source','species'];
+	    var table_buff = [];	    
+	    bbop.core.each(docs,
+			   function(doc){
+			       var entry_buff = [];
+			       //entry_buff.push(doc['id'] || null);
+			       //entry_buff.push(doc['score'] || 'n/a');
+			       entry_buff.push(doc['label'] || 'n/a');
+			       entry_buff.push(doc['type'] || 'n/a');
+			       entry_buff.push(doc['descriptive_name']|| 'n/a');
+			       entry_buff.push(doc['source'] || 'n/a');
+			       entry_buff.push(doc['taxon'] || 'n/a');
+			       table_buff.push(entry_buff);
+			   });
+
+	    final_table = (new bbop.html.table(headers,table_buff)).to_string();
+
+	}else if( found_doc_cat == 'ontology_class' ){
+
+	    // ...
+	    var headers = ['name', 'id', 'source', 'description'];
+	    var table_buff = [];
+	    bbop.core.each(docs,
+			   function(doc){
+			       var entry_buff = [];
+			       //entry_buff.push(doc['score'] || 'n/a');
+			       entry_buff.push(doc['label'] || 'n/a');
+			       entry_buff.push(doc['id'] || null);
+			       entry_buff.push(doc['source'] || 'n/a');
+			       entry_buff.push(doc['description']|| 'n/a');
+			       table_buff.push(entry_buff);
+			   });
+
+	    final_table = (new bbop.html.table(headers,table_buff)).to_string();
+
+	}else if( found_doc_cat == 'annotation' ){
+
+	    final_table = 'annotation';
+
+	}
+
+	// Display product.
+	jQuery('#' + hook_results_div).empty();
+	jQuery('#' + hook_results_div).append(final_table);
     };
 
 }

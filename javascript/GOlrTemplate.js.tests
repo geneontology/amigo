@@ -1,0 +1,43 @@
+////
+//// Some testing for GOlrTemplate sub-classes (GOlrTemplate.js).
+////
+//// Usage:
+////    Command line: "js -f GOlrTemplate.js.tests"
+////    Interactive: "js -f GOlrTemplate.js.tests -f -"
+////
+
+
+// Load testing.
+load('../../../javascript/bbop/test.js');
+var mr_t = new bbop.test();
+
+// Correct environment.
+load('../../../javascript/bbop/core.js');
+load('../../../javascript/bbop/logger.js');
+load('../../../javascript/bbop/html.js');
+load('GOlrTemplate.js');
+
+///
+/// Start testing.
+///
+
+//
+//(function(){
+
+// js> c.to_string()
+// 
+
+c = new GOlrTemplate.two_column_layout('foo', 'bar');
+mr_t.is_same_atom(c.to_string(),
+		  '<div class="twocol-wrapper"><div class="twocol-leftcolumn" style="margin-top: -15px;">foo</div><div class="twocol-content" style="margin-left: 26em; margin-top: -15px;">bar</div></div>',
+     		  "same div compound");
+
+
+// })();
+
+///
+/// End unit testing.
+///
+
+// Final report.
+mr_t.report();

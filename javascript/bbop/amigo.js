@@ -104,7 +104,7 @@ bbop.amigo = function(){
 	    parseInt(robj.response.docs.length);
     };
 
-    // Returns an array of docs hashes.
+    // Returns an array of doc hashes.
     this.golr_response.documents = function(robj){
 	return robj.response.docs;
     };
