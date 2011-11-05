@@ -87,14 +87,16 @@ function LiveSearchGOlrInit(){
 
     // Get my four managers ready.
     var gm_bio = new GOlrManager({url: 'http://skewer.lbl.gov:8080/solr/',
-				  filters: {'document_category': 'bioentity'},
+				  filters: {'document_category':
+					    'bioentity'},
 				  facets: ['type', 'taxon', 'source']});
     var gm_cls = new GOlrManager({url: 'http://skewer.lbl.gov:8080/solr/',
     				  filters: {'document_category':
     					    'ontology_class'},
     				  facets: ['source']});
     var gm_ann = new GOlrManager({url: 'http://skewer.lbl.gov:8080/solr/',
-    				  filters: {'document_category': 'annotation'},
+    				  filters: {'document_category':
+					    'annotation'},
     				  facets: ['type', 'taxon', 'source',
     					   'evidence_type',
 					   'isa_partof_label_closure']});
@@ -113,22 +115,28 @@ function LiveSearchGOlrInit(){
     gm_bio.register('reset', 'control_init', ui_bio.init_controls);
     gm_bio.register('reset', 'results_init', ui_bio.init_results);
     gm_bio.register('reset', 'results_first', ui_bio.draw_results, -1);
+    gm_bio.register('search', 'results_usual', ui_bio.draw_results);
     // Class/term init.
     gm_cls.register('reset', 'control_init', ui_cls.init_controls);
     gm_cls.register('reset', 'results_init', ui_cls.init_results);
     gm_cls.register('reset', 'results_first', ui_cls.draw_results, -1);
+    gm_cls.register('search', 'results_usual', ui_cls.draw_results);
     // Annotation.
     gm_ann.register('reset', 'control_init', ui_ann.init_controls);
     gm_ann.register('reset', 'results_init', ui_ann.init_results);
     gm_ann.register('reset', 'results_first', ui_ann.draw_results, -1);
+    gm_ann.register('search', 'results_usual', ui_ann.draw_results);
     // Aggregate.
     gm_agg.register('reset', 'control_init', ui_agg.init_controls);
     gm_agg.register('reset', 'results_init', ui_agg.init_results);
     gm_agg.register('reset', 'results_first', ui_agg.draw_results, -1);
+    gm_agg.register('search', 'results_usual', ui_agg.draw_results);
 
-    // TODO: GUI callback on search response, should look like:
-    // ui_bio.register('action', 'ui_action', gm_bio.search);
-    // ui_cls.register('action', 'ui_action', gm_cls.search);
+    // GUI callback on search response, should look like:
+    ui_bio.register('action', 'ui_action', gm_bio.search);
+    ui_cls.register('action', 'ui_action', gm_cls.search);
+    ui_ann.register('action', 'ui_action', gm_ann.search);
+    ui_agg.register('action', 'ui_action', gm_agg.search);
 
     // Start everything for new GUI...
     gm_bio.reset();

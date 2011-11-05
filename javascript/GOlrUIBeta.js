@@ -296,53 +296,20 @@ function GOlrUIBeta(in_args){
 
 	// Select and run template.
 	var final_table = "Unknown document category type!";
-	if( found_doc_cat == 'bioentity' ){	    
-
-	    // ...
-	    var headers = ['symbol','type','description','source','species'];
-	    var table_buff = [];	    
-	    bbop.core.each(docs,
-			   function(doc){
-			       var entry_buff = [];
-			       //entry_buff.push(doc['id'] || null);
-			       //entry_buff.push(doc['score'] || 'n/a');
-			       entry_buff.push(doc['label'] || 'n/a');
-			       entry_buff.push(doc['type'] || 'n/a');
-			       entry_buff.push(doc['descriptive_name']|| 'n/a');
-			       entry_buff.push(doc['source'] || 'n/a');
-			       entry_buff.push(doc['taxon'] || 'n/a');
-			       table_buff.push(entry_buff);
-			   });
-
-	    final_table = (new bbop.html.table(headers,table_buff)).to_string();
-
-	}else if( found_doc_cat == 'ontology_class' ){
-
-	    // ...
-	    var headers = ['name', 'id', 'source', 'description'];
-	    var table_buff = [];
-	    bbop.core.each(docs,
-			   function(doc){
-			       var entry_buff = [];
-			       //entry_buff.push(doc['score'] || 'n/a');
-			       entry_buff.push(doc['label'] || 'n/a');
-			       entry_buff.push(doc['id'] || null);
-			       entry_buff.push(doc['source'] || 'n/a');
-			       entry_buff.push(doc['description']|| 'n/a');
-			       table_buff.push(entry_buff);
-			   });
-
-	    final_table = (new bbop.html.table(headers,table_buff)).to_string();
-
+	if( found_doc_cat == 'ontology_class' ){
+	    final_table = new GOlrTemplate.results_term_table(docs);
+	}else if( found_doc_cat == 'bioentity' ){	    
+	    final_table = new GOlrTemplate.results_gp_table(docs);
 	}else if( found_doc_cat == 'annotation' ){
-
-	    final_table = 'annotation';
-
+	    final_table = new GOlrTemplate.results_annotation_table(docs);
+	}else if( found_doc_cat == 'annotation_aggregate' ){
+	    final_table =
+		new GOlrTemplate.results_annotation_aggregate_table(docs);
 	}
 
 	// Display product.
 	jQuery('#' + hook_results_div).empty();
-	jQuery('#' + hook_results_div).append(final_table);
+	jQuery('#' + hook_results_div).append(bbop.core.to_string(final_table));
     };
 
 }
