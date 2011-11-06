@@ -54,6 +54,7 @@ function GOlrUIBeta(in_args){
     // Main hooks to the changable areas of the display.
     var hook_meta_div = mangle + 'meta';
     var hook_results_div = mangle + 'results';
+    var hook_filters_div = mangle + 'filters';
 
     // Add the sections to a two column layout and add that into the
     // main ui div.
@@ -64,16 +65,18 @@ function GOlrUIBeta(in_args){
     var accordion_div_hook = mangle + 'filter-accordion';
     var q_input_hook = mangle + 'q';
     
-    // Initialize with reseting data.
-    this.init_controls = function(json_data){
-    
-	ll('UIB: Build UI from reset response: ' + ui_div_hook);
-	
-	// // First, remove anything that was there.
-	// jQuery('#' + ui_controls_div_hook).empty();
+    // This structure is used in multiple functions
+    var filter_accordion = null;
 
-	// Start building free text input here.
-	// 				'Search for<br />');
+    // Initialize with reseting data.
+    this.make_controls_frame = function(json_data){
+    
+	ll('UIB: Initial build of UI from reset response: ' + ui_div_hook);
+
+	///
+	/// Start building free text input here.
+	///
+
 	var free_input_label =
 	    new bbop.html.tag('label', {'for': 'q'}, 'Search: ');
 	jQuery('#' + ui_controls_div_hook).append(free_input_label.to_string());
@@ -88,65 +91,97 @@ function GOlrUIBeta(in_args){
 	var free_input = new bbop.html.input(free_input_attrs);	
 	jQuery('#' + ui_controls_div_hook).append(free_input.to_string());
 
-	// TODO?
-	// Add event for q input. Same as other, but filter at three
-	// characters and up.
-	// function _three_filter(){
-	//     gui_anchor.state();
-	// }
-	// jQuery('#' + q_input_hook).keyup(_three_filter);
+	// Add event for q input.
 	jQuery('#' + q_input_hook).keyup(gui_anchor._run_action_callbacks);
 
+	///
+	/// Create a frame to hang the query and filters on.
+	///
+	var filter_input = new bbop.html.tag('div', {'id': hook_filters_div});
+	jQuery('#' + ui_controls_div_hook).append(filter_input.to_string());
 
-	// Start building the accordion here.
+	///
+	/// Start building the accordion here. Not updatable parts.
+	///
+
 	var filter_accordion_attrs = {
 	    id: accordion_div_hook,
 	    style: 'width: 25em;'
 	};
-	var filter_accordion =
-	    new bbop.html.accordion([], filter_accordion_attrs);
+	filter_accordion =
+	    new bbop.html.accordion([], filter_accordion_attrs, true);
+
+	// Add the sections with no contents as a skeleton to be
+	// filled by draw filters.
+	var field_list = golr.facet_field_list(json_data);
+	function _process_in_fields_as_sections(in_field){
+	    ll('UIB: saw field: ' + in_field);
+	    filter_accordion.add_to(in_field, '', true);
+	}
+	bbop.core.each(field_list, _process_in_fields_as_sections);
+
+	// Add the output from the accordion to the page.
+	//jQuery('#' + ui_div_hook).html(filter_accordion.to_string());
+	jQuery('#' + hook_filters_div).append(filter_accordion.to_string());
+
+	// Add the jQuery accordioning.
+	jQuery("#" + accordion_div_hook).accordion({ clearStyle: true,
+						     collapsible: true,
+						     active: false });
+    };
+
+    // ...
+    this.draw_filters = function(json_data){
     
+	ll('UIB: Draw current filters: ' + ui_div_hook);
+
+	// Make sure that accordion has already been inited.
+	if( typeof(filter_accordion) == 'undefined'){
+	    throw new Error('Need to init accordion ().');
+	}
+
+	///
+	/// The replacable accordion ul lists--this leaves the
+	/// accordions in tact while we do changes.
+	///
+
 	//var field_attr_hash = {};
 	var field_list = golr.facet_field_list(json_data);
-	function _look_at_fields(in_field, in_i){
+	function _process_in_fields(in_field, in_i){
 	    //ll('UIB: saw field: ' + in_field);
 
+	    // // If a list was already there, clear it out.
+	    // // if( jQuery("#" + ul_id) ){ jQuery("#" + ul_id).remove(); }
+
 	    // Create ul lists of the facet contents.
+	    var ul_id = mangle + 'filter-list-' + in_field;
 	    var facet_list_ul_attrs = {
-		id: mangle + 'filter-list-' + in_field,
+		id: ul_id,
 		'class': 'golr-filter-selectable',
 		style: 'height: 30em;'
 	    };
 	    var facet_list_ul = new bbop.html.list([], facet_list_ul_attrs);
 	    var facet_contents_list = golr.facet_field(json_data, in_field);
 	    bbop.core.each(facet_contents_list,
-			   function(item, i){
+			   function(item){
 			       var name = item[0];
-			       var count = item[1];
+			       //var count = item[1];
 			       //ll('UIB: saw facet item: ' + name);
 			       facet_list_ul.add_to(name);
 			   });
-	
-	    // Add the ul list to the accordion.
-	    //ll('UIB: out');
-	    //ll('UIB: add to accordion: ' + facet_list_ul.to_string());
-	    //ll('UIB: passed');
-	    filter_accordion.add_to(in_field, facet_list_ul);
-	}
-	bbop.core.each(field_list, _look_at_fields);
 
-	// Add the output from the accordion to the page.
-	//jQuery('#' + ui_div_hook).html(filter_accordion.to_string());
-	jQuery('#' + ui_controls_div_hook).append(filter_accordion.to_string());
+	    // Add the ul list to the accordion.
+	    var sect_id = filter_accordion.get_section_id(in_field);
+	    ll('UIB: add to accordion: ' + sect_id + ' ' +
+	       facet_list_ul.to_string());
+	    jQuery('#' + sect_id).empty();
+	    var final_ul_str = facet_list_ul.to_string();
+	    jQuery('#' + sect_id).append(final_ul_str);
+	}
+	bbop.core.each(field_list, _process_in_fields);
 
 	// Make the accordion controls live.
 	jQuery(function() {
-		   // Add the jQuery accordioning.
-		   jQuery("#" + mangle +
-			  "filter-accordion").accordion({ clearStyle: true,
-							  collapsible: true,
-							  active: false });
-
 		   // Add the jQuery selectableing. When any selecting
 		   // activity is stopped, grab all items from the
 		   // entire interface and create a filtering object.
@@ -165,7 +200,7 @@ function GOlrUIBeta(in_args){
 			       // 	   });
 			       gui_anchor._run_action_callbacks();
 			   }};
-		       ll('UIB examining: ' + item);
+		       ll('UIB: examining for callback: ' + item);
 		       jQuery("#" + mangle +
 			      "filter-list-" + item).selectable(_select_arg);
 		   }
@@ -216,8 +251,8 @@ function GOlrUIBeta(in_args){
 		var filter_item = jQuery(this).html();
 		
 		// Debug.
-		//result.append(" " + filter_set + " " + filter_item);
-		fq_logic.add(filter_set + ':' + filter_item);
+		//fq_logic.add(filter_set + ':' + filter_item);
+		fq_logic.add(filter_set + ':"' + filter_item + '"');
 	    });
 	
 	// DEBUG
@@ -241,7 +276,7 @@ function GOlrUIBeta(in_args){
 
     //  No arguments necessary as this is just a scaffold.. For
     //  actual initial results rendering, see .draw_results.
-    this.init_results = function(){
+    this.make_results_frame = function(){
 	ll('UIB: Initialize results div...');
 	
 	// <div id="results_block" class="block">

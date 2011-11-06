@@ -84,23 +84,25 @@ function LiveSearchGOlrInit(){
     ///
     /// Manager test.
     ///
+    var solr_server = gm.golr_base();
 
     // Get my four managers ready.
-    var gm_bio = new GOlrManager({url: 'http://skewer.lbl.gov:8080/solr/',
+    var gm_bio = new GOlrManager({url: solr_server,
 				  filters: {'document_category':
 					    'bioentity'},
 				  facets: ['type', 'taxon', 'source']});
-    var gm_cls = new GOlrManager({url: 'http://skewer.lbl.gov:8080/solr/',
+    var gm_cls = new GOlrManager({url: solr_server,
     				  filters: {'document_category':
     					    'ontology_class'},
     				  facets: ['source']});
-    var gm_ann = new GOlrManager({url: 'http://skewer.lbl.gov:8080/solr/',
+    var gm_ann = new GOlrManager({url: solr_server,
     				  filters: {'document_category':
 					    'annotation'},
     				  facets: ['type', 'taxon', 'source',
     					   'evidence_type',
+					   'annotation_extension_class',
 					   'isa_partof_label_closure']});
-    var gm_agg = new GOlrManager({url: 'http://skewer.lbl.gov:8080/solr/',
+    var gm_agg = new GOlrManager({url: solr_server,
     				  filters: {'document_category':
     					    'annotation_aggregate'},
     				  facets: ['type', 'taxon', 'source',
@@ -112,37 +114,63 @@ function LiveSearchGOlrInit(){
     var ui_agg = new GOlrUIBeta({interface_id: 'interface-agg'});
 
     // Bioentity init.
-    gm_bio.register('reset', 'control_init', ui_bio.init_controls);
-    gm_bio.register('reset', 'results_init', ui_bio.init_results);
-    gm_bio.register('reset', 'results_first', ui_bio.draw_results, -1);
+    gm_bio.register('reset', 'control_init_q', ui_bio.make_controls_frame, 0);
+    gm_bio.register('reset', 'control_init_fq', ui_bio.draw_filters, -1);
+    gm_bio.register('reset', 'results_init', ui_bio.make_results_frame, -2);
+    gm_bio.register('reset', 'results_first', ui_bio.draw_results, -3);
+    gm_bio.register('search', 'controls_usual', ui_bio.draw_filters);
     gm_bio.register('search', 'results_usual', ui_bio.draw_results);
-    // Class/term init.
-    gm_cls.register('reset', 'control_init', ui_cls.init_controls);
-    gm_cls.register('reset', 'results_init', ui_cls.init_results);
-    gm_cls.register('reset', 'results_first', ui_cls.draw_results, -1);
-    gm_cls.register('search', 'results_usual', ui_cls.draw_results);
-    // Annotation.
-    gm_ann.register('reset', 'control_init', ui_ann.init_controls);
-    gm_ann.register('reset', 'results_init', ui_ann.init_results);
-    gm_ann.register('reset', 'results_first', ui_ann.draw_results, -1);
-    gm_ann.register('search', 'results_usual', ui_ann.draw_results);
-    // Aggregate.
-    gm_agg.register('reset', 'control_init', ui_agg.init_controls);
-    gm_agg.register('reset', 'results_init', ui_agg.init_results);
-    gm_agg.register('reset', 'results_first', ui_agg.draw_results, -1);
-    gm_agg.register('search', 'results_usual', ui_agg.draw_results);
+    // // Class/term init.
+    // gm_cls.register('reset', 'control_init', ui_cls.make_controls_frame);
+    // gm_cls.register('reset', 'results_init', ui_cls.make_results_frame);
+    // gm_cls.register('reset', 'results_first', ui_cls.draw_results, -1);
+    // gm_cls.register('search', 'results_usual', ui_cls.draw_results);
+    // // Annotation.
+    // gm_ann.register('reset', 'control_init', ui_ann.make_controls_frame);
+    // gm_ann.register('reset', 'results_init', ui_ann.make_results_frame);
+    // gm_ann.register('reset', 'results_first', ui_ann.draw_results, -1);
+    // gm_ann.register('search', 'results_usual', ui_ann.draw_results);
+    // // Aggregate.
+    // gm_agg.register('reset', 'control_init', ui_agg.make_controls_frame);
+    // gm_agg.register('reset', 'results_init', ui_agg.make_results_frame);
+    // gm_agg.register('reset', 'results_first', ui_agg.draw_results, -1);
+    // gm_agg.register('search', 'results_usual', ui_agg.draw_results);
 
     // GUI callback on search response, should look like:
     ui_bio.register('action', 'ui_action', gm_bio.search);
-    ui_cls.register('action', 'ui_action', gm_cls.search);
-    ui_ann.register('action', 'ui_action', gm_ann.search);
-    ui_agg.register('action', 'ui_action', gm_agg.search);
+    // ui_cls.register('action', 'ui_action', gm_cls.search);
+    // ui_ann.register('action', 'ui_action', gm_ann.search);
+    // ui_agg.register('action', 'ui_action', gm_agg.search);
 
-    // Start everything for new GUI...
-    gm_bio.reset();
-    gm_cls.reset();
-    gm_ann.reset();
-    gm_agg.reset();
+    // Start everything going...
+    // BUG/TODO: wacky function prevents init overload
+    // gm_bio.reset();
+    // gm_cls.reset();
+    // gm_ann.reset();
+    // gm_agg.reset();
+    function sleep(action_closure, delay_in_ms){
+	if( typeof(window.inputTimeout) != 'undefined' ){
+    	    window.clearTimeout(window.inputTimeout);
+	}
+	window.inputTimeout = window.setTimeout(action_closure, delay_in_ms);
+    }
+    var tmp_delay = 250;
+    // sleep(function(){ gm_bio.reset(); }, tmp_delay);
+    // sleep(function(){ gm_cls.reset(); }, tmp_delay);
+    // sleep(function(){ gm_ann.reset(); }, tmp_delay);
+    // sleep(function(){ gm_agg.reset(); }, tmp_delay);
+    sleep(function(){
+	      gm_bio.reset();
+	      // sleep(function(){
+	      // 		gm_cls.reset();
+	      // 		sleep(function(){
+	      // 			  gm_ann.reset();
+	      // 			  sleep(function(){
+	      // 				    gm_agg.reset();
+	      // 				}, tmp_delay);
+	      // 		      }, tmp_delay);
+	      // 	    }, tmp_delay);
+	  }, tmp_delay);
 
     ///
     /// Past attempt.
@@ -416,7 +444,7 @@ function LiveSearchGOlrInit(){
 		    }
 
 		var resrc = amigo.api.live_search.golr(all_inputs);
-		var url = gm.golr_base() + '/' + resrc;
+		var url = gm.golr_base() + resrc;
 
 		kvetch('try: ' + url);		    
 		widgets.start_wait('Updating...');
@@ -503,7 +531,7 @@ function LiveSearchGOlrInit(){
     jQuery("#app-form").submit(function(){return false;});
 
     // TODO: first pass update on all facets.
-    var init_url = gm.golr_base() + '/select?qt=standard&indent=on&wt=json&version=2.2&rows=10&start=0&fl=*%2Cscore&facet=true&facet.mincount=1&facet.field=document_category&facet.field=type&facet.field=evidence_type&facet.field=evidence_closure&facet.field=source&facet.field=taxon&facet.field=isa_partof_label_closure&facet.field=annotation_extension_class_label&facet.field=annotation_extension_class_label_closure&q=*:*&packet=1';
+    var init_url = gm.golr_base() + 'select?qt=standard&indent=on&wt=json&version=2.2&rows=10&start=0&fl=*%2Cscore&facet=true&facet.mincount=1&facet.field=document_category&facet.field=type&facet.field=evidence_type&facet.field=evidence_closure&facet.field=source&facet.field=taxon&facet.field=isa_partof_label_closure&facet.field=annotation_extension_class_label&facet.field=annotation_extension_class_label_closure&q=*:*&packet=1';
     last_sent_packet = 1; // TODO/BUG: Packeting getting awkward--class?
     kvetch('trying initialization: ' + init_url);
     // JSONP errors are hard to catch.
@@ -607,8 +635,8 @@ function _process_meta_results (json_data){
 	var backward_url = null;
 	var forward_url = null;
 	proc = _process_results;
-	backward_url = gm.golr_base() + '/' + amigo.api.live_search.golr(b_args);
-	forward_url = gm.golr_base() + '/' + amigo.api.live_search.golr(f_args);
+	backward_url = gm.golr_base() + amigo.api.live_search.golr(b_args);
+	forward_url = gm.golr_base() + amigo.api.live_search.golr(f_args);
 	
 	// Generate the necessary paging html.
 	if( first > 0 ){

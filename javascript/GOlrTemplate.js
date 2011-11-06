@@ -155,8 +155,8 @@ GOlrTemplate.results_gp_table.prototype = new bbop.html.tag;
 GOlrTemplate.results_annotation_table = function (docs){
     // bbop.html.tag.call(this, 'div');
 
-    var headers = ['score', 'term', 'evidence', 'gp symbol', 'type',
-		   'source', 'species'];
+    var headers = ['score', 'term', 'evidence', 'gp symbol',
+		   'type', 'source', 'species', 'extension'];
     // 'extension',
     var table_buff = [];
     bbop.core.each(docs,
@@ -205,6 +205,12 @@ GOlrTemplate.results_annotation_table = function (docs){
 		       // Seventh slot.
 		       entry_buff.push(doc['taxon'] || 'n/a');
 
+		       // Eighth slot.
+		       var exts = doc['annotation_extension_class'] || [];
+		       var exts_str = exts.join(' ');
+		       if( exts_str.length == 0 ){ exts_str = 'n/a'; }
+		       entry_buff.push(exts_str);
+
 		       table_buff.push(entry_buff);
 		   });
     
@@ -216,8 +222,8 @@ GOlrTemplate.results_annotation_table.prototype = new bbop.html.tag;
 GOlrTemplate.results_annotation_aggregate_table = function (docs){
     // bbop.html.tag.call(this, 'div');
 
-    var headers = ['score', 'term', 'evidence', 'gp symbol', 'type',
-		   'source', 'species'];
+    var headers = ['score', 'term', 'evidence', 'symbol',
+		   'type', 'source', 'species'];
     // 'extension',
     var table_buff = [];
     bbop.core.each(docs,

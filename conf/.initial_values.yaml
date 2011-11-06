@@ -106,7 +106,7 @@ AMIGO_PUBLIC_CGI_PARTIAL_URL:
   type: true
 
 AMIGO_PUBLIC_GOLR_URL:
-  value: http://skewer.lbl.gov:8080/solr
+  value: http://localhost:8080/solr/
   comment: Please enter the public URL of the GOlr server.
   type: url
 
