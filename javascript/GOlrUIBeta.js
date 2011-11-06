@@ -140,11 +140,6 @@ function GOlrUIBeta(in_args){
 	    throw new Error('Need to init accordion ().');
 	}
 
-	///
-	/// The replacable accordion ul lists--this leaves the
-	/// accordions in tact while we do changes.
-	///
-
 	//var field_attr_hash = {};
 	var field_list = golr.facet_field_list(json_data);
 	function _process_in_fields(in_field, in_i){
@@ -172,8 +167,8 @@ function GOlrUIBeta(in_args){
 
 	    // Add the ul list to the accordion.
 	    var sect_id = filter_accordion.get_section_id(in_field);
-	    ll('UIB: add to accordion: ' + sect_id + ' ' +
-	       facet_list_ul.to_string());
+	    // ll('UIB: add to accordion: ' + sect_id + ' ' +
+	    //    facet_list_ul.to_string());
 	    jQuery('#' + sect_id).empty();
 	    var final_ul_str = facet_list_ul.to_string();
 	    jQuery('#' + sect_id).append(final_ul_str);
@@ -206,6 +201,12 @@ function GOlrUIBeta(in_args){
 		   }
 		   bbop.core.each(field_list, _init_lambda);
 	       });
+    };
+
+    // Color the filters according to what we find in the results that
+    // are coming back.
+    this.color_filters = function(json_data){
+	// TODO
     };
 
     // Get the current state of the HTML GUI layer.

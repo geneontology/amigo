@@ -120,27 +120,33 @@ function LiveSearchGOlrInit(){
     gm_bio.register('reset', 'results_first', ui_bio.draw_results, -3);
     gm_bio.register('search', 'controls_usual', ui_bio.draw_filters);
     gm_bio.register('search', 'results_usual', ui_bio.draw_results);
-    // // Class/term init.
-    // gm_cls.register('reset', 'control_init', ui_cls.make_controls_frame);
-    // gm_cls.register('reset', 'results_init', ui_cls.make_results_frame);
-    // gm_cls.register('reset', 'results_first', ui_cls.draw_results, -1);
-    // gm_cls.register('search', 'results_usual', ui_cls.draw_results);
+    // Class/term init.
+    gm_cls.register('reset', 'control_init_q', ui_cls.make_controls_frame, 0);
+    gm_cls.register('reset', 'control_init_fq', ui_cls.draw_filters, -1);
+    gm_cls.register('reset', 'results_init', ui_cls.make_results_frame, -2);
+    gm_cls.register('reset', 'results_first', ui_cls.draw_results, -3);
+    gm_cls.register('search', 'controls_usual', ui_cls.draw_filters);
+    gm_cls.register('search', 'results_usual', ui_cls.draw_results);
     // // Annotation.
-    // gm_ann.register('reset', 'control_init', ui_ann.make_controls_frame);
-    // gm_ann.register('reset', 'results_init', ui_ann.make_results_frame);
-    // gm_ann.register('reset', 'results_first', ui_ann.draw_results, -1);
-    // gm_ann.register('search', 'results_usual', ui_ann.draw_results);
+    gm_ann.register('reset', 'control_init_q', ui_ann.make_controls_frame, 0);
+    gm_ann.register('reset', 'control_init_fq', ui_ann.draw_filters, -1);
+    gm_ann.register('reset', 'results_init', ui_ann.make_results_frame, -2);
+    gm_ann.register('reset', 'results_first', ui_ann.draw_results, -3);
+    gm_ann.register('search', 'controls_usual', ui_ann.draw_filters);
+    gm_ann.register('search', 'results_usual', ui_ann.draw_results);
     // // Aggregate.
-    // gm_agg.register('reset', 'control_init', ui_agg.make_controls_frame);
-    // gm_agg.register('reset', 'results_init', ui_agg.make_results_frame);
-    // gm_agg.register('reset', 'results_first', ui_agg.draw_results, -1);
-    // gm_agg.register('search', 'results_usual', ui_agg.draw_results);
+    gm_agg.register('reset', 'control_init_q', ui_agg.make_controls_frame, 0);
+    gm_agg.register('reset', 'control_init_fq', ui_agg.draw_filters, -1);
+    gm_agg.register('reset', 'results_init', ui_agg.make_results_frame, -2);
+    gm_agg.register('reset', 'results_first', ui_agg.draw_results, -3);
+    gm_agg.register('search', 'controls_usual', ui_agg.draw_filters);
+    gm_agg.register('search', 'results_usual', ui_agg.draw_results);
 
     // GUI callback on search response, should look like:
     ui_bio.register('action', 'ui_action', gm_bio.search);
-    // ui_cls.register('action', 'ui_action', gm_cls.search);
-    // ui_ann.register('action', 'ui_action', gm_ann.search);
-    // ui_agg.register('action', 'ui_action', gm_agg.search);
+    ui_cls.register('action', 'ui_action', gm_cls.search);
+    ui_ann.register('action', 'ui_action', gm_ann.search);
+    ui_agg.register('action', 'ui_action', gm_agg.search);
 
     // Start everything going...
     // BUG/TODO: wacky function prevents init overload
@@ -154,22 +160,18 @@ function LiveSearchGOlrInit(){
 	}
 	window.inputTimeout = window.setTimeout(action_closure, delay_in_ms);
     }
-    var tmp_delay = 250;
-    // sleep(function(){ gm_bio.reset(); }, tmp_delay);
-    // sleep(function(){ gm_cls.reset(); }, tmp_delay);
-    // sleep(function(){ gm_ann.reset(); }, tmp_delay);
-    // sleep(function(){ gm_agg.reset(); }, tmp_delay);
+    var tmp_delay = 500;
     sleep(function(){
 	      gm_bio.reset();
-	      // sleep(function(){
-	      // 		gm_cls.reset();
-	      // 		sleep(function(){
-	      // 			  gm_ann.reset();
-	      // 			  sleep(function(){
-	      // 				    gm_agg.reset();
-	      // 				}, tmp_delay);
-	      // 		      }, tmp_delay);
-	      // 	    }, tmp_delay);
+	      sleep(function(){
+	      		gm_cls.reset();
+			sleep(function(){
+				  gm_ann.reset();
+				  sleep(function(){
+					    gm_agg.reset();
+					}, tmp_delay);
+			      }, tmp_delay);
+	      	    }, tmp_delay);
 	  }, tmp_delay);
 
     ///

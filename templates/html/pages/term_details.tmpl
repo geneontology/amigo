@@ -169,17 +169,25 @@
    
    <!-- Holder for term gp filters. -->
    <!-- <div id="gp-count-filters" class="filters"> -->
-   <div id="gp-count-filters" class="block warning">
-     <h2>Notice</h2>
-     <p>
-       Enable JavaScript in your browser and reload for gene product
-       count filters and links.
-     </p>
-   </div>
+   <!-- <div id="gp-count-filters" class="block warning"> -->
+   <!--   <h2>Notice</h2> -->
+   <!--   <p> -->
+   <!--     Enable JavaScript in your browser and reload for gene product -->
+   <!--     count filters and links. -->
+   <!--   </p> -->
+   <!-- </div> -->
 
    <!-- Display tabbing. -->
    <div id="display-tabs" style="font-size:100%;">
      <ul>
+       <li>
+	 <a href="#display-associations"
+	    class="override"><span>Associations</span></a>
+       </li>
+       <li>
+	 <a href="#display-qg"
+	    class="override"><span>Graph View</span></a>
+       </li>
        <li>
 	 <a href="#display-sentences"
 	    class="override"><span>Ancestors and Children</span></a>
@@ -187,10 +195,6 @@
        <li>
 	 <a href="#display-graph"
 	    class="override"><span>Inferred Tree View</span></a>
-       </li>
-       <li>
-	 <a href="#display-qg"
-	    class="override"><span>Graph View</span></a>
        </li>
        <li>
 	 <a href="#display-out"
@@ -207,6 +211,37 @@
      </ul>
 
      <!-- -->
+     <div id="display-associations">
+       Contacting server...
+     </div>
+
+     <div id="display-qg">
+	[% # IF QUICKGO_ENGINE_P %]
+	<p>
+	  View this term in
+	  <a href="[% QUICKGO_TERM_LINK %]"
+	     title="Go to the QuickGO term page for [% TERM_INFO.acc %]">QuickGO</a>.
+	</p>
+	<p>
+	  <a class="override"
+	     href="[% QUICKGO_TERM_LINK %]"
+	     title="Go to the QuickGO term page for [% TERM_INFO.acc %]">
+	    <img src="[% VIZ_QUICKGO_LINK %]"
+		 alt="Graph of [% TERM_INFO.acc %] from QuickGO" />
+	  </a>
+	</p>
+	[% # ELSE %]
+	<!-- <p> -->
+	<!--   <a class="override" -->
+	<!--      href="[% VIZ_STATIC_LINK %]" -->
+	<!--      title="Stand-alone graphic for [% TERM_INFO.acc %]"> -->
+	<!--     <img src="[% VIZ_STATIC_LINK %]" -->
+	<!-- 	 alt="Graph of [% TERM_INFO.acc %]" /> -->
+	<!--   </a> -->
+	<!-- </p> -->
+	[% # END %]
+      </div>
+
      <div id="display-graph">
 
        <!-- <h4>Term lineage for [% TERM_INFO.name %], including inferred links:</h4> -->
@@ -376,33 +411,6 @@
        [% END %]
 
      </div>
-
-      <div id="display-qg">
-	[% IF QUICKGO_ENGINE_P %]
-	<p>
-	  View this term in
-	  <a href="[% QUICKGO_TERM_LINK %]"
-	     title="Go to the QuickGO term page for [% TERM_INFO.acc %]">QuickGO</a>.
-	</p>
-	<p>
-	  <a class="override"
-	     href="[% QUICKGO_TERM_LINK %]"
-	     title="Go to the QuickGO term page for [% TERM_INFO.acc %]">
-	    <img src="[% VIZ_QUICKGO_LINK %]"
-		 alt="Graph of [% TERM_INFO.acc %] from QuickGO" />
-	  </a>
-	</p>
-	[% ELSE %]
-	<p>
-	  <a class="override"
-	     href="[% VIZ_STATIC_LINK %]"
-	     title="Stand-alone graphic for [% TERM_INFO.acc %]">
-	    <img src="[% VIZ_STATIC_LINK %]"
-		 alt="Graph of [% TERM_INFO.acc %]" />
-	  </a>
-	</p>
-	[% END %]
-      </div>
 
       <div id="display-out">
 	<p>

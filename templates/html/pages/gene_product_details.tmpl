@@ -21,25 +21,25 @@
       </a>
     </li>
     <li>
-      [% IF TERM_ASSOCIATIONS_LINK || ( TERM_ASSOCIATIONS_COUNT && TERM_ASSOCIATIONS_COUNT == 0 ) %]
-      <a href="[% TERM_ASSOCIATIONS_LINK %]"
-	 title="View terms associated with this term">
-	[%    IF TERM_ASSOCIATIONS_COUNT %]
-	[%       IF TERM_ASSOCIATIONS_COUNT == 1 %]
-	1 term association
-	[%       ELSE %]
-	[% TERM_ASSOCIATIONS_COUNT %] term associations
-	[%       END %]
-	[%    ELSE %]
-	Term associations
-	[%    END %]
-	<img src="[% image_dir %]/left.png"
-	     alt="link to term association page" />
-      </a>
-      [%   ELSE %]
-      No term associations
-      [%   END %]
-    </li>
+    <!--   [% IF TERM_ASSOCIATIONS_LINK || ( TERM_ASSOCIATIONS_COUNT && TERM_ASSOCIATIONS_COUNT == 0 ) %] -->
+    <!--   <a href="[% TERM_ASSOCIATIONS_LINK %]" -->
+    <!-- 	 title="View terms associated with this term"> -->
+    <!-- 	[%    IF TERM_ASSOCIATIONS_COUNT %] -->
+    <!-- 	[%       IF TERM_ASSOCIATIONS_COUNT == 1 %] -->
+    <!-- 	1 term association -->
+    <!-- 	[%       ELSE %] -->
+    <!-- 	[% TERM_ASSOCIATIONS_COUNT %] term associations -->
+    <!-- 	[%       END %] -->
+    <!-- 	[%    ELSE %] -->
+    <!-- 	Term associations -->
+    <!-- 	[%    END %] -->
+    <!-- 	<img src="[% image_dir %]/left.png" -->
+    <!-- 	     alt="link to term association page" /> -->
+    <!--   </a> -->
+    <!--   [%   ELSE %] -->
+    <!--   No term associations -->
+    <!--   [%   END %] -->
+    <!-- </li> -->
   </ul>
   
   <div class="block" id="info">
@@ -102,254 +102,22 @@
   </noscript>
 
  <div class="block" id="lineage">
-   <h2>Term Neighborhood for [% GP_INFO.name %] ([% GP_INFO.acc %])</h2>
+   <h2>Additional Information for [% GP_INFO.name %] ([% GP_INFO.acc %])</h2>
    
-   <!-- Holder for term gp filters. -->
-   <div id="gp-count-filters" class="filters"></div>
-
    <!-- Display tabbing. -->
    <div id="display-tabs" style="font-size:100%;">
      <ul>
        <li>
-	 <a href="#display-graph"
-	    class="override"><span>Inferred Tree View</span></a>
-       </li>
-       <li>
-	 <a href="#display-sentences"
-	    class="override"><span>Ancestors and Children</span></a>
-       </li>
-       <li>
-	 <a href="#display-qg"
-	    class="override"><span>Graph View</span></a>
-       </li>
-       <li>
-	 <a href="#display-out"
-	    class="override"><span>Other Views</span></a>
+	 <a href="#display-associations"
+	    class="override"><span>Associations</span></a>
        </li>
        <li>
 	 <a href="#display-down"
 	    class="override"><span>Downloads</span></a>
        </li>
-       <li>
-	 <a href="#display-xref"
-	    class="override"><span>Mappings</span></a>
-       </li>
-     </ul>
 
-     <!-- -->
-     <div id="display-graph">
-
-       <!-- <h4>Term lineage for [% GP_INFO.name %], including inferred links:</h4> -->
-
-       <ul>
-	 <!-- <li> -->
-	 <!-- 	 <h4>[[% GP_INFO.acc %]] [% GP_INFO.name %]:</h4> -->
-	 <!-- </li> -->
-
-	 [% d = 0 %]
-	 [% IF PARENT_CHUNKS_BY_DEPTH && MAX_DEPTH > 0 %]
-	 [%    WHILE d <= MAX_DEPTH %]
-         [%       IF PARENT_CHUNKS_BY_DEPTH.$d %]
-         [%          ANCESTOR_CHUNKS = PARENT_CHUNKS_BY_DEPTH.$d %]
-         [%          FOREACH anc IN ANCESTOR_CHUNKS %]
-         [%             tmp_acc = anc.acc %]
-         [%             tmp_cnt = GPA_COUNTS.$tmp_acc %]
-         [%             default_count = '[' _ tmp_cnt _ ' gene products]' %]
-         [%             graph_entry = anc %]
-         [%             number_of_spaces = d %]
-         [%             # INCLUDE html/inc/term_details_entry.tmpl %]
-         [%             default_count = "" %]
-         [%          END %]
-         [%       END %]
-         [%       d = d + 1 %]
-         [%    END %]
-         [% ELSE %]
-         [%    d = d + 1 %]
-         [% END %]
-
-         [% graph_entry = GP_INFO %]
-         [% number_of_spaces = d - 1 %]
-         [% override_image = image_dir _ "/" _ "term_lineage_wedge.png" %]
-         [% override_title = "Current term" %]
-         [% override_link = "1" %]
-         [% override_bold = "1" %]
-         [% tmp_acc = graph_entry.acc %]
-         [% tmp_cnt = GPA_COUNTS.$tmp_acc %]
-         [% default_count = '[' _ tmp_cnt _ ' gene products]' %]
-         [% # INCLUDE html/inc/term_details_entry.tmpl %]
-         [% # Reset subroutine values. %]
-         [% override_image = "" %]
-         [% override_title = "" %]
-         [% override_link = "" %]
-         [% override_bold = "" %]
-         [% default_count = "" %]
-
-         [% IF CHILD_CHUNKS && CHILD_CHUNKS.size > 0 %]
-         [%    FOREACH desc IN CHILD_CHUNKS %]
-         [%       tmp_acc = desc.acc %]
-         [%       tmp_cnt = GPA_COUNTS.$tmp_acc %]
-         [%       default_count = '[' _ tmp_cnt _ ' gene products]' %]
-         [%       graph_entry = desc %]
-         [%       number_of_spaces = d %]
-         [%       # INCLUDE html/inc/term_details_entry.tmpl %]
-         [%       default_count = "" %]
-         [%    END %]
-         [% ELSE %]
-         [% END %]
-       </ul>
-     </div>
-
-     <!-- -->
-     <div id="display-sentences">
-
-      [% IF PARENT_CHUNKS_BY_DEPTH && MAX_DEPTH > 0 %]
-
-       <table id="all-table-above"
-	      style="border-collapse: collapse;"
-	      cellpadding="0" cellspacing="0">
-
-	 <caption>
-	   Ancestors of [% GP_INFO.name %] ([% GP_INFO.acc %])
-	 </caption>
-
-	 <thead>
-	   <tr>
-	     <th style="width: 35%">subject<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by subject" /></th>
-	     <th style="width: 15%">relation<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by relation" /></th>
-	     <th style="width: 35%">object<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by object" /></th>
-	     <th style="width: 15%">annotations<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by count" /></th>
-	   </tr>
-	 </thead>
-
-	 <tbody>
-       
-	   [%    eo_rows = 0 %]
-           [%    d = 0 %]
-           [%    WHILE d <= MAX_DEPTH %]
-           [%       IF PARENT_CHUNKS_BY_DEPTH.$d %]
-           [%          ANCESTOR_CHUNKS = PARENT_CHUNKS_BY_DEPTH.$d %]
-           [%          FOREACH anc IN ANCESTOR_CHUNKS %]
-           [%             subject_chunk = GP_INFO %]
-           [%             object_chunk = anc %]
-           [%             even_odd_rows = eo_rows %]
-           [%             munge_id_tail = "_a" %]
-           [%             count_type = "object" %]
-           [%             tmp_acc = anc.acc %]
-           [%             tmp_cnt = GPA_COUNTS.$tmp_acc %]
-           [%             default_count = tmp_cnt %]
-           [%             # INCLUDE html/inc/term_details_re_row.tmpl %]
-           [%             default_count = "" %]
-           [%             eo_rows = eo_rows + 1 %]
-           [%          END %]
-           [%       END %]
-           [%       d = d + 1 %]
-           [%    END %]
-
-	 </tbody>
-
-       </table>
-
-       [% ELSE %]
-
-       <p>
-	 This term has no ancestors.
-       </p>
-
-       [% END %]
-
-       [% IF CHILD_CHUNKS && CHILD_CHUNKS.size > 0 %]
-
-       <table id="all-table-below"
-	      style="border-collapse: collapse;"
-	      cellpadding="0" cellspacing="0">
-
-	 <caption>
-	   Children of [% GP_INFO.name %] ([% GP_INFO.acc %])
-	 </caption>
-
-	 <thead>
-	   <tr>
-	     <th style="width: 35%">subject<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by subject" /></th>
-	     <th style="width: 15%">relation<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by relation" /></th>
-	     <th style="width: 35%">object<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by object" /></th>
-	     <th style="width: 15%">annotations<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by count" /></th>
-	   </tr>
-	 </thead>
-
-	 <tbody>
-       
-	   [%    eo_rows = 0 %]
-           [%    FOREACH desc IN CHILD_CHUNKS %]
-           [%       subject_chunk = desc %]
-           [%       object_chunk = GP_INFO %]
-           [%       even_odd_rows = eo_rows %]
-           [%       munge_id_tail = "_a" %]
-           [%       count_type = "subject" %]
-           [%       tmp_acc = desc.acc %]
-           [%       tmp_cnt = GPA_COUNTS.$tmp_acc %]
-           [%       default_count = tmp_cnt %]
-           [%       # INCLUDE html/inc/term_details_re_row.tmpl %]
-           [%       default_count = "" %]
-           [%       eo_rows = eo_rows + 1 %]
-           [%    END %]
-
-	 </tbody>
-
-       </table>
-
-       [% ELSE %]
-
-       <p>
-	 This term has no children.
-       </p>
-
-       [% END %]
-
-     </div>
-
-      <div id="display-qg">
-	[% IF QUICKGO_ENGINE_P %]
-	<p>
-	  View this term in
-	  <a href="[% QUICKGO_TERM_LINK %]"
-	     title="Go to the QuickGO term page for [% GP_INFO.acc %]">QuickGO</a>.
-	</p>
-	<p>
-	  <a class="override"
-	     href="[% QUICKGO_TERM_LINK %]"
-	     title="Go to the QuickGO term page for [% GP_INFO.acc %]">
-	    <img src="[% VIZ_QUICKGO_LINK %]"
-		 alt="Graph of [% GP_INFO.acc %] from QuickGO" />
-	  </a>
-	</p>
-	[% ELSE %]
-	<p>
-	  <a class="override"
-	     href="[% VIZ_STATIC_LINK %]"
-	     title="Stand-alone graphic for [% GP_INFO.acc %]">
-	    <img src="[% VIZ_STATIC_LINK %]"
-		 alt="Graph of [% GP_INFO.acc %]" />
-	  </a>
-	</p>
-	[% END %]
-      </div>
-
-      <div id="display-out">
-	<p>
-	  <ul>
-	    <li><b>Additional viewing options...</b></li>
-	    <!-- TODO: do this with breadcrumbsy string (taken from REST URL) --> 
-	    <!-- <li>Last action: [% last_action || 'unknown' %]</li> -->
-	    <li><a href="browse.cgi?action=set-tree&amp;[% vbridge %]&amp;session_id=[% session_id %]" title="View tree in GO browser">View in tree browser</a></li>
-	    <li><a href="[% VIZ_STATIC_LINK %]"
-		   title="View the tree in graph form as a static PNG image">Graphical view (PNG)</a></li>
-	    <li><a href="[% VIZ_DYNAMIC_LINK %]"
-		   title="View the tree in graph form as an interactive SVG+JS document">Graphical view (SVG)</a></li>
-	    <!-- One day this will be out of experimental. -->
-	    <!-- <li><a href="[% NAVIGATION_LINK %]" -->
-		 <!-- 	      title="Navigate the GO, using the current term as a seed">GO Navigation</a></li> -->
-	  </ul>
-	</p>       
+      <div id="display-associations">
+	Contacting server...
       </div>
 
       <div id="display-down">

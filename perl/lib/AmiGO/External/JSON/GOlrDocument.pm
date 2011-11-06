@@ -34,7 +34,7 @@ sub new {
     };
 
   $self->{JSLS_BASE_URL} =
-    $self->amigo_env('AMIGO_PUBLIC_GOLR_URL') . '/select?';
+    $self->amigo_env('AMIGO_PUBLIC_GOLR_URL') . 'select?';
 
   bless $self, $class;
   return $self;
