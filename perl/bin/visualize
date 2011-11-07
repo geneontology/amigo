@@ -5,7 +5,7 @@
 
 BEGIN { require "config.pl"; }
 use lib $ENV{AMIGO_ROOT} . '/perl/lib';
-use lib $ENV{GOBO_ROOT};
+#use lib $ENV{GOBO_ROOT};
 
 package AmiGO::WebApp::Visualize;
 use base 'AmiGO::WebApp';
