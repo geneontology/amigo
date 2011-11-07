@@ -145,6 +145,18 @@ bbop.amigo = function(){
 	return ret_hash;
     };
 
+    // Return the raw query "q".
+    this.golr_response.query = function(robj){
+
+	var retval = null;
+
+	if( robj.responseHeader.params && robj.responseHeader.params.q ){
+	    retval = robj.responseHeader.params.q;
+	}
+
+	return retval;
+    };
+
     // fq can be irritating single value or irritating array.
     // Return a hash of ???
     this.golr_response.query_filters = function(robj){

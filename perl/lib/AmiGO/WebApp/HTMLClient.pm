@@ -487,16 +487,25 @@ sub mode_golr_term_details {
       'com.jquery.tablesorter',
       'bbop.core',
       'bbop.logger',
+      'bbop.logic',
+      'bbop.registry',
+      'bbop.html',
       'bbop.amigo',
       'bbop.amigo.go_meta',
-      'bbop.amigo.ui.widgets'
+      'bbop.amigo.ui.widgets',
+      'bbop.amigo.ui.interactive'
      ],
      javascript =>
      [
+      $self->{JS}->get_lib('GOlrTemplate.js'),
+      $self->{JS}->get_lib('GOlrManager.js'),
+      $self->{JS}->get_lib('GOlrUIBeta.js'),
       # $self->{JS}->make_var('global_count_data', $gpc_info),
       # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
       # $self->{JS}->make_var('global_acc_to_rand', $acc_to_rand),
-      $self->{JS}->make_var('global_acc', $input_term_id)
+      $self->{JS}->make_var('global_acc', $input_term_id),
+      $self->{JS}->make_var('global_label',
+			    $term_info_hash->{$input_term_id}{'name'})
      ]
     };
   $self->add_template_bulk($prep);

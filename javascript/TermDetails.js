@@ -383,45 +383,78 @@ function TermDetailsInit(){
 	};
     }
 
-    var filter_saction = _generate_action(marshal_filter_form);
 
-    // Attach to event.
-    jQuery("#app-term-filter-source").change(filter_saction);
-    jQuery("#app-term-filter-species").change(filter_saction);
+// TODO/BUG
+// Causing problems, so cutoff for now
+//    var filter_saction = _generate_action(marshal_filter_form);
+//    // Attach to event.
+//    jQuery("#app-term-filter-source").change(filter_saction);
+//   jQuery("#app-term-filter-species").change(filter_saction);
 
-    // Sound off for the first time through on its own.
-    filter_saction(null);
+//    // Sound off for the first time through on its own.
+//    filter_saction(null);
 
-    // Callback for text extraction work form table.
-    ll('Sorting tables.');
-    var ts_callback = function(node) { 
-    	var retval = jQuery(node).text();
-    	return retval; 
-    };
-    // jQuery("#neighborhood-table-above").tablesorter(
+    // // Callback for text extraction work form table.
+    // ll('Sorting tables.');
+    // var ts_callback = function(node) { 
+    // 	var retval = jQuery(node).text();
+    // 	return retval; 
+    // };
+    // // jQuery("#neighborhood-table-above").tablesorter(
+    // // 	{ 
+    // // 	    textExtraction: ts_callback,
+    // // 	    // widgets: ['zebra'],
+    // //         headers: { 3: { sorter:'integer' }} 
+    // // 	});
+    // // jQuery("#neighborhood-table-below").tablesorter(
+    // // 	{ 
+    // // 	    textExtraction: ts_callback,
+    // // 	    // widgets: ['zebra'],
+    // //         headers: { 3: { sorter:'integer' }} 
+    // // 	});
+    // jQuery("#all-table-above").tablesorter(
     // 	{ 
     // 	    textExtraction: ts_callback,
     // 	    // widgets: ['zebra'],
     //         headers: { 3: { sorter:'integer' }} 
     // 	});
-    // jQuery("#neighborhood-table-below").tablesorter(
+    // jQuery("#all-table-below").tablesorter(
     // 	{ 
     // 	    textExtraction: ts_callback,
     // 	    // widgets: ['zebra'],
     //         headers: { 3: { sorter:'integer' }} 
     // 	});
-    jQuery("#all-table-above").tablesorter(
-	{ 
-	    textExtraction: ts_callback,
-	    // widgets: ['zebra'],
-            headers: { 3: { sorter:'integer' }} 
-	});
-    jQuery("#all-table-below").tablesorter(
-	{ 
-	    textExtraction: ts_callback,
-	    // widgets: ['zebra'],
-            headers: { 3: { sorter:'integer' }} 
-	});
+
+    var solr_server = gm.golr_base();
+    var gm_ann = new GOlrManager({url: solr_server,
+    				  filters: {'document_category':
+					    'annotation'},
+    				  facets: ['type', 'taxon', 'source',
+    					   'evidence_type',
+					   'annotation_extension_class',
+					   'isa_partof_label_closure']});
+    var ui_ann = new GOlrUIBeta({interface_id: 'display-associations'});
+
+    // ...
+    function _peg_q(){
+	jQuery("#" + "display-associations_ui_element_q").val("\"" +
+							      global_label +
+							      "\"");
+	jQuery("#" + "display-associations_ui_element_q").keyup();
+    }
+
+    // Class/term init.
+    gm_ann.register('reset', 'control_init_q', ui_ann.make_controls_frame, 0);
+    gm_ann.register('reset', 'control_init_fq', ui_ann.draw_filters, -1);
+    gm_ann.register('reset', 'results_init', ui_ann.make_results_frame, -2);
+    gm_ann.register('reset', 'results_first', ui_ann.draw_results, -3);
+    gm_ann.register('reset', 'results_init_after', _peg_q, -4);
+
+    gm_ann.register('search', 'controls_usual', ui_ann.draw_filters);
+    gm_ann.register('search', 'results_usual', ui_ann.draw_results);
+
+    ui_ann.register('action', 'ui_action', gm_ann.search);
+    gm_ann.reset();
 
     //
     ll('TermDetailsInit done.');

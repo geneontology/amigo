@@ -203,11 +203,58 @@ function GOlrUIBeta(in_args){
 	       });
     };
 
-    // Color the filters according to what we find in the results that
-    // are coming back.
-    this.color_filters = function(json_data){
-	// TODO
-    };
+    // // BUG/TODO: the accordion search is highly wasteful and brittle.
+    // // Color the filters according to what we find in the results that
+    // // are coming back; similarly, fill the q.
+    // this.color_controls = function(json_data){
+
+    // 	var q = golr.query(json_data);
+    // 	var r = /.*annotation_class_label\:(.*)$/;
+    // 	var matches = r.exec(q);
+    // 	if( matches && matches[1] && matches[1] != '*:*' ){
+    // 	    var m = matches[1];
+    // 	    ll('UIB: for color, m: ' + m);
+    // 	}
+
+    // 	// var qf = golr.query_filters(json_data);
+
+    // 	// // // TODO
+    // 	// // // Find all of the fields we look at, get out all of the fq
+    // 	// // // info we have on them.
+    // 	// // var field_list = golr.facet_field_list(json_data);
+    // 	// // function _process_in_fields(in_field){
+    // 	// //     ll('UIB: for color, field: ' + in_field);
+    // 	// //     //filter_accordion.add_to(in_field, '', true);
+    // 	// //     var filtered_fields_hash = qf[in_field];
+    // 	// //     if( filtered_fields_hash ){
+    // 	// // 	var filtered_fields = bbop.core.get_keys(filtered_fields_hash);
+    // 	// // 	ll('UIB: for field, fqs: ' + filtered_fields);
+    // 	// // 	// TODO: find in DOM
+    // 	// // 	// TODO: color in DOM
+    // 	// //     }
+    // 	// // }
+    // 	// // bbop.core.each(field_list, _process_in_fields);
+
+    // 	// jQuery('#' + accordion_div_hook + ' > * > * > .ui-selectee').each(
+    // 	//     function(){
+    // 	// 	// Filter set in question. Subtract the head from the
+    // 	// 	// id to get the original mangled filter set.
+    // 	// 	var filter_set_id_head = mangle + "filter-list-";
+    // 	// 	var filter_set_id = jQuery(this).parent().attr('id');
+    // 	// 	var filter_set =
+    // 	// 	    filter_set_id.substring(filter_set_id_head.length,
+    // 	// 				    filter_set_id.length);
+		
+    // 	// 	// Actual item.
+    // 	// 	var filter_item = jQuery(this).html();
+
+    // 	// 	// Compare
+    // 	// 	if( qf[filter_set] && qf[filter_set][filter_item] ){
+    // 	// 	    ll('UIB: for fqs, found ' + filter_set + ' ' + filter_item);
+    // 	// 	    jQuery(this).addClass('ui-selected');
+    // 	// 	}
+    // 	//     });
+    // };
 
     // Get the current state of the HTML GUI layer.
     // Returns hash of logic objects keyed by solr filter type
