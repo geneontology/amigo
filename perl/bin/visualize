@@ -12,7 +12,7 @@ use base 'AmiGO::WebApp';
 
 
 use CGI::Application::Plugin::TT;
-use GOBO::DBIC::GODBModel::Graph;
+#use GOBO::DBIC::GODBModel::Graph;
 use Data::Dumper;
 #use AmiGO::GraphViz;
 #use AmiGO::SVGRewrite;
