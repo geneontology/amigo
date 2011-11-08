@@ -132,65 +132,6 @@ mr_t.is_defined(amigo);
 		     "completion api test 1");
 })();
 
-// Check hash merging.
-(function(){
-    var a_hash = {foo: 1, bar: 2};
-    mr_t.is_same_hash({}, bbop.core.merge({},{}), 'empty merge');
-    mr_t.is_same_hash(a_hash, bbop.core.merge({foo:1, bar:2},{}),'same merge');
-    mr_t.is_same_hash(a_hash, bbop.core.merge({foo:1, bar:3},{bar:2}),
-		      'distinct merge');
-    mr_t.is_different_hash(a_hash, bbop.core.merge({foo:1},{bar:2}),
-			   'bar merge');
-})();
-
-// Check cloning.
-(function(){
-
-    var foo = {a: 1, b: true, c:[1,2,[3]], d:{one: 'a', two: ['b']}};
-    var bar = bbop.core.clone(foo);
-
-    // Change the original.
-    foo.a = 2;
-    foo.b = false;
-    foo.c[2][0] = 4;
-    foo.d.two[0] = 'c';
-
-    // Check the similarities.
-    mr_t.is_same_atom(foo.c.length, bar.c.length, 'array length preserved');
-    mr_t.is_same_atom(foo.c[0], bar.c[0], 'array 0 preserved');
-    mr_t.is_same_atom(foo.d.one, bar.d.one, 'hash prop preserved');    
-
-    // Check differences.
-    mr_t.is_different_atom(foo.a, bar.a, 'different int');
-    mr_t.is_different_atom(foo.b, bar.b, 'different bool');
-    mr_t.is_different_atom(foo.c[2][0], bar.c[2][0], 'different double index');
-    mr_t.is_different_atom(foo.d.two[0], bar.d.two[0], 'different in hash');
-})();
-
-// Check encoding ids.
-(function(){
-
-    var rounds = ["GO:1234567", "GO::GO:1234567", "::1:2::3:"];
-    var coders = [new bbop.core.coder(),
-		  new bbop.core.coder({string: "_TEST_", size: 1})];
-
-    // Iterate through coders and strings.
-    for( var cdr = 0; cdr < coders.length; cdr++ ){
-	var coder = coders[cdr];
-	for( var rnd = 0; rnd < rounds.length; rnd++ ){
-	    var round = rounds[rnd];
-
-	    //
-	    var enc = coder.encode(round);
-	    //print(enc);
-	    mr_t.is_same_atom(round, coder.decode(enc),
-			      "round trip (coder: " +
-			      cdr + ', string: "' +
-			      round + '")');
-	}
-    }
-})();
-
 ///
 /// End unit testing.
 ///

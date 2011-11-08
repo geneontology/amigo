@@ -575,7 +575,7 @@ bbop.amigo = function(){
 		// Our bookkeeping.
 		packet: 0
 	    };
-	var final_query_args = bbop.core.merge(default_query_args, in_args);
+	var final_query_args = bbop.core.fold(default_query_args, in_args);
 		
 	var default_filter_args =
 	    {
@@ -590,7 +590,7 @@ bbop.amigo = function(){
 		annotation_extension_class_label: [],
 		annotation_extension_class_label_closure: []
 	    };
-	var final_filter_args = bbop.core.merge(default_filter_args, in_args);
+	var final_filter_args = bbop.core.fold(default_filter_args, in_args);
 
 	// ...
 	//return _abstract_link_template('select', segments);	
@@ -661,7 +661,7 @@ bbop.amigo = function(){
 	    {
 		acc: ''
 	    };
-	var final_args = bbop.core.merge(default_args, in_args);
+	var final_args = bbop.core.fold(default_args, in_args);
 	
 	var acc = final_args['acc'];
 	//return 'term_details?term=' + acc;
@@ -684,7 +684,7 @@ bbop.amigo = function(){
 	    {
 		acc: ''
 	    };
-	var final_args = bbop.core.merge(default_args, in_args);
+	var final_args = bbop.core.fold(default_args, in_args);
 	
 	var acc = final_args['acc'];
 	//return 'gp-details.cgi?gp=' + acc;
@@ -713,7 +713,7 @@ bbop.amigo = function(){
 		speciesdb: [],
 		taxid: []
 	    };
-	var final_args = bbop.core.merge(default_args, in_args);
+	var final_args = bbop.core.fold(default_args, in_args);
 	var acc = final_args['acc'];
 	var speciesdbs = final_args['speciesdb'];
 	var taxids = final_args['taxid'];
@@ -740,7 +740,7 @@ bbop.amigo = function(){
 	    {
 		acc: ''
 	    };
-	var final_args = bbop.core.merge(default_args, in_args);
+	var final_args = bbop.core.fold(default_args, in_args);
 	
 	var acc = final_args['acc'];
 	return 'blast.cgi?action=blast&seq_id=' + acc;
@@ -757,7 +757,7 @@ bbop.amigo = function(){
 	    {
 		gp_list: [] 
 	    };
-	var final_args = bbop.core.merge(default_args, in_args);
+	var final_args = bbop.core.fold(default_args, in_args);
 	
 	var acc = final_args['acc'];
 	return 'term_enrichment?' +
@@ -776,7 +776,7 @@ bbop.amigo = function(){
 		gp_list: [], 
 		slim_list: []
 	    };
-	var final_args = bbop.core.merge(default_args, in_args);
+	var final_args = bbop.core.fold(default_args, in_args);
 	
 	return 'slimmer?' +
 	    'gp_list=' + final_args['gp_list'].join(' ') +
@@ -795,7 +795,7 @@ bbop.amigo = function(){
 		term_set_1: '',
 		term_set_2: ''
 	    };
-	var final_args = bbop.core.merge(default_args, in_args);
+	var final_args = bbop.core.fold(default_args, in_args);
 
 	//
 	var terms_buf = new Array();

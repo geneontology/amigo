@@ -13,6 +13,7 @@ var mr_t = new bbop.test();
 
 // Correct environment.
 load('../../../javascript/bbop/core.js');
+load('bbop/amigo.js');
 load('../../../javascript/bbop/logger.js');
 load('../../../javascript/bbop/html.js');
 load('GOlrTemplate.js');
