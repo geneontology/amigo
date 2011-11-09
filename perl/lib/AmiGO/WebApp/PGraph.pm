@@ -25,25 +25,18 @@ sub setup {
   ## if it is necessary.
   $self->session_config(
 			CGI_SESSION_OPTIONS =>
-			[
-			 "driver:File",
+			["driver:File",
 			 $self->query,
-			 {
-			  Directory =>
+			 {Directory =>
 			  $self->{CORE}->amigo_env('AMIGO_SESSIONS_ROOT_DIR'),
 			 }
 			],
-			COOKIE_PARAMS =>
-			{
-			 -path  => '/',
-			},
-			SEND_COOKIE => 1,
-		       );
+			COOKIE_PARAMS => {-path  => '/',},
+			SEND_COOKIE => 1);
 
-  $self->tt_config(TEMPLATE_OPTIONS =>
-		   {INCLUDE_PATH =>
-		    $self->{CORE}->amigo_env('GO_DEV_ROOT') .
-		    '/amigo/amigo/templates'});
+  ## Templates.
+  $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
+			 '/templates/html');
 
   $self->mode_param('mode');
   $self->start_mode('exp');
