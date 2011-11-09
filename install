@@ -227,6 +227,7 @@ if ( $opt_e ) {
     qw(
 	amigo_exp
 	aserve_exp
+	pgraph
      );
 }
 

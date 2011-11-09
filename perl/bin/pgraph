@@ -1,0 +1,16 @@
+#!/usr/bin/perl -w
+use warnings;
+use strict;
+BEGIN { require "config.pl"; }
+use lib $ENV{GO_DEV_ROOT} . '/amigo/perl';
+use lib $ENV{GOBO_ROOT};
+use AmiGO::WebApp::PGraph;
+
+###
+### Callables:
+###
+
+#use AmiGO;
+#use Visualize;
+my $pg = AmiGO::WebApp::PGraph->new(PARAMS => {});
+$pg->run();
