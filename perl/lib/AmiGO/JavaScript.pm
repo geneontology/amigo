@@ -78,34 +78,35 @@ my $sig2path =
    ## are kept in SVN, not CVS. This will be taken care of after the
    ## merge.
    'newick.json' =>
-   'javascript/newick_tree/json2.js',
+   'newick_tree/json2.js',
    'newick.tree' =>
-   'javascript/newick_tree/NewickTree.js',
+   'newick_tree/NewickTree.js',
    'newick.tree_utils' =>
-   'javascript/newick_tree/NewickTreeUtils.js',
+   'newick_tree/NewickTreeUtils.js',
    'newick.phylo' =>
-   'javascript/newick_tree/phylo_tree.js',
+   'newick_tree/phylo_tree.js',
 
    ## TODO/BUG: better layout for "external" libs
    'com.raphael' =>
-   'javascript/external/raphael-min.js',
+   'external/raphael-min.js',
    'com.raphael.graffle' =>
-   'javascript/external/graffle.js',
+   'external/graffle.js',
 
-   ## TODO/BUG: better layout for "external" libs
-   'bbop.graph.core' =>
-   'javascript/graph/core.js',
-   'bbop.graph.model' =>
-   'javascript/graph/model.js',
-   'bbop.graph.tree' =>
-   'javascript/graph/tree.js',
+   # ## The graph and tree models.
+   # ## TODO/BUG: better layout for "external" libs
+   # 'bbop.model' =>
+   # 'bbop/model.js',
+   # 'bbop.tree' =>
+   # 'bbop/tree.js',
+
+   ## Renderers live elsewhere...
    'bbop.graph.render.phylo' =>
-   'javascript/graph/render/phylo.js',
+   'graph/render/phylo.js',
    ## BUG: These two really have to go.
    'exp' =>
-   'javascript/graph/render/exp.js',
+   'graph/render/exp.js',
    'pthr10170' =>
-   'javascript/graph/render/pthr10170.js',
+   'graph/render/pthr10170.js',
 
    ## TODO/BUG: better layout for Ajax-Solr libs
    'as.core.abstractfacetwidget' =>

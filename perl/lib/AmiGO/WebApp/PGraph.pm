@@ -75,11 +75,11 @@ sub mode_exp {
      [
       'com.raphael',
       'com.raphael.graffle',
-      'org.bbop.graph.core',
-      'org.bbop.graph.core',
-      'org.bbop.graph.model',
-      'org.bbop.graph.tree',
-      'org.bbop.graph.render.phylo',
+      'bbop.core',
+      'bbop.logger',
+      'bbop.model',
+      'bbop.model.tree',
+      'bbop.graph.render.phylo',
       'exp'
      ]
     };
@@ -93,7 +93,7 @@ sub mode_exp {
   ## Juggle onto absolute version of header template.
   #$self->set_template_parameter('page_name', 'amigo'); # menu bar okay
   $self->set_template_parameter('STANDARD_YUI', 'no');
-  $self->add_template_content('html/main/pgraph.tmpl');
+  $self->add_template_content('pages/pgraph.tmpl');
   return $self->generate_template_page();
 }
 
@@ -114,11 +114,11 @@ sub mode_pthr10170 {
      [
       'com.raphael',
       'com.raphael.graffle',
-      'org.bbop.graph.core',
-      'org.bbop.graph.core',
-      'org.bbop.graph.model',
-      'org.bbop.graph.tree',
-      'org.bbop.graph.render.phylo',
+      'bbop.core',
+      'bbop.logger',
+      'bbop.model',
+      'bbop.model.tree',
+      'bbop.graph.render.phylo',
       'pthr10170'
      ]
     };
