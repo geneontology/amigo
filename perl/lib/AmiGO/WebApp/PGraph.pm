@@ -124,7 +124,7 @@ sub mode_pthr10170 {
     };
   $self->add_template_bulk($prep);
   $self->set_template_parameter('STANDARD_YUI', 'no');
-  $self->add_template_content('html/main/pgraph.tmpl');
+  $self->add_template_content('pages/pgraph.tmpl');
   return $self->generate_template_page();
 }
 
