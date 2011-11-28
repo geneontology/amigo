@@ -87,14 +87,8 @@ sub try {
     ## If something went wrong with the sanitation, do a hard bail
     ## while passing the errors out. Keep in mind that sane and amigo
     ## are using separate (but very similar) error passing here.
-    if( ! $sane->success() ){
-      my $errors = $sane->error_messages;
-      if( scalar($errors) ){
-	my $error = pop @$errors;
-	$self->set_error_message($error);
-      }else{
-	$self->set_error_message("There was an unknown error...");
-      }
+    if( ! $sane->ok() ){
+      ## The error message should already be set...
     }else{
 
       ## If it looks like the SQL is sane, run it.

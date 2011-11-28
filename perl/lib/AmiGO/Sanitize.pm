@@ -4,9 +4,6 @@ The idea is to have the GOOSE sanitizer built into AmiGO, hopefully to
 have GOOSE move completely move in. Also, this will be useful for
 things like completion tools.
 
-BUG/TODO: The error stuff is naive--needs to be folded into something
-better.
-
 =cut
 
 package AmiGO::Sanitize;
@@ -153,7 +150,7 @@ sub check {
     $self->{ALREADY_HAS_LIMIT}++ if $token =~ /^LIMIT$/i;
 
     ## Better start with select.
-    $self->whine("token: $token");
+    #$self->whine("token: $token");
 
     if( $token =~ /^ADD$/i ||
 	$token =~ /^ALTER$/i ||
@@ -255,20 +252,6 @@ sub check {
     if ($single_quotes % 2) != 0;
 
   #return join ' ', @tokens;
-}
-
-
-##
-sub success {
-  my $self = shift;
-  return $self->{TRIVIAL_ERROR}->success;
-}
-
-
-##
-sub error_messages {
-  my $self = shift;
-  return $self->{TRIVIAL_ERROR}->error_messages;
 }
 
 
