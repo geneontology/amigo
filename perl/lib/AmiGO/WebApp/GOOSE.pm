@@ -8,18 +8,21 @@ package AmiGO::WebApp::GOOSE;
 use base 'AmiGO::WebApp';
 
 use YAML qw(LoadFile);
-#use Data::Dumper;
+use Data::Dumper;
 
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
 
 use AmiGO::Sanitize;
 use AmiGO::WebApp::Input;
+
 use AmiGO::External::HTML::SQLWiki;
 use AmiGO::External::LEAD::Status;
 use AmiGO::External::LEAD::Query;
 use AmiGO::External::GOLD::Status;
 use AmiGO::External::GOLD::Query;
+use AmiGO::External::JSON::Solr::Status;
+use AmiGO::External::JSON::Solr::Query;
 
 my $VISUALIZE_LIMIT = 50;
 
@@ -73,7 +76,7 @@ sub mode_goose {
   my $in_format = $params->{format};
   my $in_limit = $self->{CORE}->atoi($params->{limit}); # convert to int
   my $in_mirror = $params->{mirror};
-  my $in_sql = $params->{sql};
+  my $in_query = $params->{query};
 
   ###
   ### Get SQL from wiki. Add the discovered template variables at the
@@ -113,19 +116,28 @@ sub mode_goose {
   ## Run the mirror test on every mirror and at the same time see if
   ## they are a "main" (mirrors that should be considered for random
   ## default status) mirror or not.
+  ## All mirrors go into one of these three mutually exclusive categories.
   my $main_mirrors = {};
   my $aux_mirrors = {};
+  my $exp_mirrors = {};
+  ## These are mutually exclusive, but not complete (no exp).
+  my $alive_main_mirrors = {};
+  my $alive_aux_mirrors = {};
+  my $alive_exp_mirrors = {};
   my $dead_mirrors = {};
-  my $alive_mirrors = {};
-  my $default_mirrors = {};
   foreach my $m (keys %$mirror_info){
 
     my $mirror = $mirror_info->{$m};
     #$self->{CORE}->kvetch("_mirrors_:" . Dumper($mirror));
 
-    ## Mark main or not.
-    if( defined $mirror->{is_main_p} && $mirror->{is_main_p} ){
+    ## Mark main or not, exp or not.
+    $self->{CORE}->kvetch("mirror: " . $m .
+			  ", is_main_p: " . $mirror->{is_main_p} .
+			  ", is_exp_p: " . $mirror->{is_exp_p});
+    if( defined $mirror->{is_main_p} && $mirror->{is_main_p} eq 'true' ){
       $main_mirrors->{$m} = 1;
+    }elsif( defined $mirror->{is_exp_p} && $mirror->{is_exp_p} eq 'true' ){
+      $exp_mirrors->{$m} = 1;
     }else{
       $aux_mirrors->{$m} = 1;
     }
@@ -147,6 +159,9 @@ sub mode_goose {
       $status = AmiGO::External::LEAD::Status->new($props);
     }elsif( $mirror->{type} eq 'psql' ){
       $status = AmiGO::External::GOLD::Status->new($props);
+    }elsif( $mirror->{type} eq 'solr' ){
+      ## Solr behaves a little differently.
+      $status = AmiGO::External::JSON::Solr::Status->new($mirror->{database});
     }else{
       $self->{CORE}->kvetch("_unknown database_");
       $tmpl_args->{message} = "_unknown database_";
@@ -163,37 +178,46 @@ sub mode_goose {
 	#$self->{CORE}->kvetch($m . " is ALIVE!!!");
 
 	## Mark alive and cache status.
-	$alive_mirrors->{$m} = 1;
+	if( defined $main_mirrors->{$m} ){
+	  $alive_main_mirrors->{$m} = 1;
+	}elsif( defined $aux_mirrors->{$m} ){
+	  $alive_aux_mirrors->{$m} = 1;
+	}elsif( defined $exp_mirrors->{$m} ){
+	  $alive_exp_mirrors->{$m} = 1;
+	}
 	$mirror_info->{$m}{is_alive_p} = 1;
 	$mirror_info->{$m}{release_name} = $status->release_name();
 	$mirror_info->{$m}{release_type} = $status->release_type();
-
-	## Since we're alive, anything main here would be a good
-	## default--mark them as well.
-	$default_mirrors->{$m} = 1
-	  if defined $mirror->{is_main_p} && $mirror->{is_main_p};
       }
     }
   }
+
+  # ## DEBUG.
+  # $self->{CORE}->kvetch("main_mirrors: " . Dumper($main_mirrors));
+  # $self->{CORE}->kvetch("aux_mirrors: " . Dumper($aux_mirrors));
+  # $self->{CORE}->kvetch("exp_mirrors: " . Dumper($exp_mirrors));
+  # $self->{CORE}->kvetch("alive_main_mirrors: " . Dumper($alive_main_mirrors));
+  # $self->{CORE}->kvetch("alive_aux_mirrors: " . Dumper($alive_aux_mirrors));
+  # $self->{CORE}->kvetch("alive_exp_mirrors: " . Dumper($alive_exp_mirrors));
 
   ## How do we pick our mirror? First check to see if there is an
   ## incoming mirror and if it is on the alive list. If not that,
   ## pick a random mirror from the intersection of the alive and main
   ## list. Finally, bail and pick any alive mirror.
-  #$self->{CORE}->kvetch("GOOSE: will use mirror: " . $in_mirror);
-  #$self->{CORE}->kvetch("GOOSE: alive_mirrors: " . Dumper($alive_mirrors));
   my $my_mirror = undef;
-  if( defined $alive_mirrors->{$in_mirror} ){
+  if( defined $alive_main_mirrors->{$in_mirror} ||
+      defined $alive_aux_mirrors->{$in_mirror} ||
+      defined $alive_exp_mirrors->{$in_mirror} ){
     $my_mirror = $in_mirror;
+    #$self->{CORE}->kvetch("will use default incoming mirror: " . $my_mirror);
   }else{
     ## Pick a random default if there is one.
-    if( scalar(keys %$default_mirrors) > 0 ){
-      $my_mirror = $self->{CORE}->random_hash_key($default_mirrors);
-    }else{
-      ## Otherwise, pick a random living mirror.
-      if( scalar(keys %$alive_mirrors) > 0 ){
-	$my_mirror = $self->{CORE}->random_hash_key($alive_mirrors);
-      }
+    if( scalar(keys %$alive_main_mirrors) > 0 ){
+      $my_mirror = $self->{CORE}->random_hash_key($alive_main_mirrors);
+      #$self->{CORE}->kvetch("will use random alive main mirror: " .$my_mirror);
+    }elsif( scalar(keys %$alive_aux_mirrors) > 0 ){
+      $my_mirror = $self->{CORE}->random_hash_key($alive_aux_mirrors);
+      #$self->{CORE}->kvetch("will use random alive aux mirror: " .$my_mirror);
     }
   }
 
@@ -212,10 +236,13 @@ sub mode_goose {
   ###
 
   ##
+  my $in_type = $mirror_info->{$my_mirror}{type};
   my $results = undef;
   my $count = undef;
-  my $headers = undef;
-  if( $in_sql && defined $in_limit ){
+  my $headers = undef; # for sql results
+  my $direct_url = undef; # for solr results
+  my $direct_results = undef; # for solr results
+  if( $in_query && defined $in_limit ){
 
     ## Get connection info.
     my $mirror = $mirror_info->{$my_mirror};
@@ -229,54 +256,85 @@ sub mode_goose {
        'type' => $mirror->{type} || undef,
       };
 
-    ## Get the right query worker.
-    my $q = undef;
-    if( $mirror->{type} eq 'mysql' ){
-      $q = AmiGO::External::LEAD::Query->new($props, $in_limit);
-    }elsif( $mirror->{type} eq 'psql' ){
-      $q = AmiGO::External::GOLD::Query->new($props, $in_limit);
+    ###
+    ### From this point on, two work flows--one for Solr and one for
+    ### SQL (else).
+    ###
+
+    $self->{CORE}->kvetch("trying query:" . $in_query);
+
+    if( $in_type eq 'solr' ){
+
+      ## Grab the solr worker.
+      my $q = AmiGO::External::JSON::Solr::Query->new($props->{database});
+      $q->safe_query($in_query);
+      $results = $q->docs();
+
+      ## Let's check it again.
+      if( defined $results ){
+	$count = $q->total() || 0;
+	$in_limit = $q->count() || 0;
+	$self->{CORE}->kvetch("Got Solr results: " . $count);
+	$direct_url = $q->url();
+	$direct_results = $q->raw();
+      }else{
+	## Final run sanity check.
+	if( $self->{CORE}->error_p() ){
+	  $tmpl_args->{message} = $self->{CORE}->error_message();
+	}else{
+	  $tmpl_args->{message} =
+	    "Something failed in Solr query process. Bailing.";
+	}
+	return $self->mode_generic_message($tmpl_args);
+      }
+
     }else{
-      $self->{CORE}->kvetch("_unknown database_");
-      $tmpl_args->{message} = "_unknown database_";
-      return $self->mode_generic_message($tmpl_args);
-    }
 
-    ## Try sql.
-    $self->{CORE}->kvetch("trying sql:" . $in_sql);
-    $self->{CORE}->kvetch("using limit: " . $in_limit);
-    $results = $q->try($in_sql);
-    #$self->{CORE}->kvetch("_res_: " . Dumper($results));
+      ## Get the right query worker.
+      my $q = undef;
+      if( $in_type eq 'mysql' ){
+	$q = AmiGO::External::LEAD::Query->new($props, $in_limit);
+      }elsif( $in_type eq 'psql' ){
+	$q = AmiGO::External::GOLD::Query->new($props, $in_limit);
+      }else{
+	$self->{CORE}->kvetch("_unknown database_");
+	$tmpl_args->{message} = "_unknown database_";
+	return $self->mode_generic_message($tmpl_args);
+      }
 
-    ## Check processing.
-    if( ! $q->ok() ){
-      $self->{CORE}->kvetch("_not ok_!");
-      $tmpl_args->{message} = $q->error_message();
-      return $self->mode_generic_message($tmpl_args);
-    }
+      ## Try sql.
+      $self->{CORE}->kvetch("using limit: " . $in_limit);
+      $results = $q->try($in_query);
+      #$self->{CORE}->kvetch("_res_: " . Dumper($results));
 
-    ## Let's check it again.
-    if( defined $results ){
-      $count = $q->count() || 0;
-      $self->{CORE}->kvetch("Got results: " . $count);
-      $headers = $q->headers();
-    }else{
-      ## Final run sanity check.
-      $tmpl_args->{message} =
-	"Something failed in the final results check. Bailing";
-      return $self->mode_generic_message($tmpl_args);
+      ## Check processing.
+      if( ! $q->ok() ){
+	$self->{CORE}->kvetch("_not ok_!");
+	$tmpl_args->{message} = $q->error_message();
+	return $self->mode_generic_message($tmpl_args);
+      }
+
+      ## Let's check it again.
+      if( defined $results ){
+	$count = $q->count() || 0;
+	$self->{CORE}->kvetch("Got SQL results: " . $count);
+	$headers = $q->headers();
+      }else{
+	## Final run sanity check.
+	$tmpl_args->{message} =
+	  "Something failed in the final SQL results check. Bailing";
+	return $self->mode_generic_message($tmpl_args);
+      }
     }
   }
 
-
   ###
-  ### Quick if format is tab, otherwise go to standard page prep.
-  ### TODO: This should be muxed out to a different function.
-  ###
-  ### Otherwise: Page preparation.
+  ### Four gross choices for output: text vs. html and SQL vs. Solr.
   ###
 
   my $output = '';
-  if( $in_format eq 'tab' ){
+  if( $in_format eq 'text' && ( $in_type eq 'mysql' || $in_type eq 'psql' )){
+    $self->{CORE}->kvetch("text/sql combination");
 
     $self->header_add( -type => 'plain/text' );
 
@@ -290,52 +348,72 @@ sub mode_goose {
     }
     $output = join "\n", @$nlbuf;
 
+  }elsif( $in_format eq 'text' && $in_type eq 'solr' ){
+    $self->{CORE}->kvetch("text/solr combination: " . $direct_results);
+    $self->header_add( -type => 'plain/text' );
+    $output = $direct_results;
   }else{
+    $self->{CORE}->kvetch("some html combination");
 
-    ## Cycle through results and webify them. This may include
-    ## cleaning, text IDing for linking, etc.
-    my $htmled_results = [];
-    my $found_terms = [];
-    my $found_terms_i = 0;
-    if( defined $results ){
+    if( $in_type eq 'mysql' || $in_type eq 'psql' ){
+      $self->{CORE}->kvetch("html/sql combination");
 
-      ## TODO: fix headers
-      #$q->escapeHTML($header);
+      ## Cycle through results and webify them. This may include
+      ## cleaning, text IDing for linking, etc.
+      my $htmled_results = [];
+      my $found_terms = [];
+      my $found_terms_i = 0;
+      if( defined $results ){
 
-      ##
-      my $treg = $self->{CORE}->term_regexp();
-      foreach my $row (@$results){
-	my $rowbuf = [];
-	foreach my $col (@$row){
-	  ## Some things may be undef.
-	  if( $col ){
-	    $col =~ s/\&/\&amp\;/g;
-	    $col =~ s/\</\&lt\;/g;
-	    $col =~ s/\>/\&gt\;/g;
+	## TODO: fix headers
+	#$q->escapeHTML($header);
 
-	    ## Linkify things that look like terms.
-	    if( $col =~ /($treg)/ ){
-	      my $link =
-		$self->{CORE}->get_interlink({
-					      mode => 'term-details-old',
-					      optional => { public => 1 },
-					      arg => { acc => $1 }
-					     });
-	      $col = '<a title="'. $1 .'" href="'. $link .'">'. $1 .'</a>';
-	      if( $found_terms_i < $VISUALIZE_LIMIT ){
-		$found_terms_i++;
-		push @$found_terms, $1;
+	##
+	my $treg = $self->{CORE}->term_regexp();
+	foreach my $row (@$results){
+	  my $rowbuf = [];
+	  foreach my $col (@$row){
+	    ## Some things may be undef.
+	    if( $col ){
+	      $col =~ s/\&/\&amp\;/g;
+	      $col =~ s/\</\&lt\;/g;
+	      $col =~ s/\>/\&gt\;/g;
+
+	      ## Linkify things that look like terms.
+	      if( $col =~ /($treg)/ ){
+		my $link =
+		  $self->{CORE}->get_interlink({
+						mode => 'term-details-old',
+						optional => { public => 1 },
+						arg => { acc => $1 }
+					       });
+		$col = '<a title="'. $1 .'" href="'. $link .'">'. $1 .'</a>';
+		if( $found_terms_i < $VISUALIZE_LIMIT ){
+		  $found_terms_i++;
+		  push @$found_terms, $1;
+		}
 	      }
 	    }
+	    push @$rowbuf, $col;
 	  }
-	  push @$rowbuf, $col;
+	  push @$htmled_results, $rowbuf;
 	}
-	push @$htmled_results, $rowbuf;
       }
+    }elsif( $in_type eq 'solr' ){
+      $self->{CORE}->kvetch("html/solr combination");
+      $output = "TODO: solr html output";
+    }else{
+      ## Huh...that shouldn't happen...
+      $self->{CORE}->kvetch("Unknown combination");
+      $tmpl_args->{message} = "Unknown type/format combination";
+      return $self->mode_generic_message($tmpl_args);
     }
-    $self->set_template_parameter('sql', $in_sql);
+
+    ## HTML return phrasing.
+    $self->set_template_parameter('query', $in_query);
     $self->set_template_parameter('results_count', $count);
     $self->set_template_parameter('results_headers', $headers);
+    $self->set_template_parameter('results_direct_url', $direct_url);
     $self->set_template_parameter('results', $htmled_results);
 
     ## Things that worry about term visualization.
@@ -344,17 +422,19 @@ sub mode_goose {
     $self->set_template_parameter('viz_link',
 				  $self->{CORE}->get_interlink({mode=>'visualize_term_list', arg=>{terms=>$found_terms}}));
 
-    ## Sort mirrors into ordered list.
+    ## Sort mirrors into ordered list by desirability.
     my $mlist = [];
     foreach my $m (keys %$main_mirrors){ push @$mlist, $m; }
     foreach my $m (keys %$aux_mirrors){ push @$mlist, $m; }
+    foreach my $m (keys %$exp_mirrors){ push @$mlist, $m; }
     $self->set_template_parameter('all_mirrors', $mlist);
     $self->set_template_parameter('my_mirror', $my_mirror);
     $self->set_template_parameter('mirror_info', $mirror_info);
 
     ## Non-standard settings.
     $self->set_template_parameter('STANDARD_YUI', 'no'); # no YUI please
-    $self->set_template_parameter('page_title', 'GO Online SQL Environment');
+    $self->set_template_parameter('page_title',
+				  'GO Online SQL/Solr Environment');
 
     ## 
     $self->{CORE}->kvetch("pre-template limit: " . $in_limit);
@@ -372,6 +452,8 @@ sub mode_goose {
        javascript_library =>
        [
 	'com.jquery',
+	'bbop.core',
+	'bbop.logger',
 	'bbop.amigo',
 	'GOOSE'
        ]

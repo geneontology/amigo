@@ -21,7 +21,10 @@ sub new {
   my $class = shift;
   my $self  = $class->SUPER::new();
 
-  ## http://accordion.lbl.gov:8080/solr/select?qt=standard&indent=on&wt=json&version=2.2&rows=10&start=0&fl=*%2Cscore&q=id:%22GO:0022008%22
+  ## Allow for non-local targets.
+  my $target = shift || $self->amigo_env('AMIGO_PUBLIC_GOLR_URL');
+
+  ## http://skewer.lbl.gov:8080/solr/select?qt=standard&indent=on&wt=json&version=2.2&rows=10&start=0&fl=*%2Cscore&q=id:%22GO:0022008%22
   $self->{JSLS_BASE_HASH} =
     {
      'qt' => 'standard',
@@ -33,25 +36,11 @@ sub new {
      'fl' => '*%2Cscore',
     };
 
-  $self->{JSLS_BASE_URL} =
-    $self->amigo_env('AMIGO_PUBLIC_GOLR_URL') . 'select?';
+  $self->{JSLS_BASE_URL} = $target . 'select?';
+  $self->{JSLS_LAST_URL} = undef;
 
   bless $self, $class;
   return $self;
-}
-
-
-## Create URL
-sub _create_url {
-
-  my $self = shift;
-  my $hash = shift || {};
-
-  my $qstr = $self->hash_to_query_string($hash);
-  my $url = $self->{JSLS_BASE_URL};
-  $url .= '&' . $qstr if $qstr;
-
-  return $url;
 }
 
 
@@ -71,7 +60,9 @@ sub get_by_id {
   $self->{JSLS_BASE_HASH}{q} = 'id:%22' . $in_id . '%22';
 
   ## Create URL.
-  my $url = $self->_create_url($self->{JSLS_BASE_HASH});
+  my $url = $self->{JSLS_BASE_URL} .
+    $self->hash_to_query_string($self->{JSLS_BASE_HASH});
+  $self->{JSLS_LAST_URL} = $url;
 
   ## Make query against resource and try to perlify it.
   $self->kvetch("url:" . $url);
@@ -89,6 +80,17 @@ sub get_by_id {
   return $retval;
 }
 
+
+=item last_url
+
+Args: none
+Return: the last url queried as a string
+
+=cut
+sub last_url {
+  my $self = shift;
+  return $self->{JSLS_LAST_URL};
+}
 
 
 1;

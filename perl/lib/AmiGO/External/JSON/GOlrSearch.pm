@@ -18,7 +18,24 @@ sub new {
   ##
   my $class = shift;
   my $self  = $class->SUPER::new();
-  # my $doctype = shift || die "Need a document category type: $!";
+
+  ## Allow for non-local targets.
+  my $target = shift || $self->amigo_env('AMIGO_PUBLIC_GOLR_URL');
+
+  ## http://skewer.lbl.gov:8080/solr/select?qt=standard&indent=on&wt=json&version=2.2&rows=10&start=0&fl=*%2Cscore&q=id:%22GO:0022008%22
+  $self->{JSLS_BASE_HASH} =
+    {
+     'qt' => 'standard',
+     'indent' => 'on',
+     'wt' => 'json',
+     'version' => 2.2,
+     'rows' => 10,
+     'start' => 0,
+     'fl' => '*%2Cscore',
+    };
+
+  $self->{JSLS_BASE_URL} = $target . 'select?';
+  $self->{JSLS_LAST_URL} = undef;
 
   bless $self, $class;
   return $self;
@@ -42,7 +59,9 @@ sub query {
   #$self->kvetch("in_hash:" . Dumper($in_hash));
 
   ## Create URL.
-  my $url = $self->_create_url($final_hash);
+  my $url = $self->{JSLS_BASE_URL} .
+    $self->hash_to_query_string($self->{JSLS_BASE_HASH});
+  $self->{JSLS_LAST_URL} = $url;
 
   ## Make query against resource and try to perlify it.
   $self->kvetch("url:" . $url);
@@ -55,6 +74,18 @@ sub query {
   }
 
   return $retval;
+}
+
+
+=item last_url
+
+Args: none
+Return: the last url queried as a string
+
+=cut
+sub last_url {
+  my $self = shift;
+  return $self->{JSLS_LAST_URL};
 }
 
 

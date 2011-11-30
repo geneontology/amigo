@@ -22,7 +22,6 @@ sub new {
   my $self = $class->SUPER::new();
   #my $doctype = shift || die "Need a document category type: $!";
 
-  $self->{AWGS_ENGINE} = AmiGO::External::JSON::GOlrSearch->new();
   $self->{AWGS_BASE_HASH} =
     {
      query => '',

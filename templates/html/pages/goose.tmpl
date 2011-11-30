@@ -2,7 +2,7 @@
 
 <div class="contents">
       
-  <h1>GO Online SQL Environment</h1>
+  <h1>GO Online SQL/Solr Environment</h1>
     
   <form action="goose"
 	method="GET"
@@ -15,22 +15,24 @@
 	  <input type="hidden" name="database" value="1" />
 	  -->
       
-      <h2>Directly query the GO database</h2>
+      <h2>Directly query GO databases</h2>
 	  
-      See some <a href="http://wiki.geneontology.org/index.php/Example_Queries">examples</a>
-      and learn more about the
+      See some LEAD SQL
+      <a href="http://wiki.geneontology.org/index.php/Example_Queries">examples</a>
+      and learn more about the LEAD
       <a href="http://www.geneontology.org/GO.database.shtml"
-	 title="GO database schema documentation">schema</a>.<br />
+	 title="LEAD database schema documentation">schema</a>.<br />
+      Learn more about the experimental GOLD
+      <a href="http://www.geneontology.org/GO.gold.schema.shtml"
+	 title="GOLD database schema documentation">schema</a>.<br />
       If your query takes a long time or returns a blank screen, you may want to try the download option. If your query is long-running or fails, you may also want to try a "lite" database from the mirror selection.
        
-      <h3 class="first">
-	Enter your SQL query:
-      </h3>
+      <h3 class="first">Enter your query:</h3>
 
-      <textarea id="sql"
-		name="sql"
+      <textarea id="query"
+		name="query"
 		cols="80"
-		rows="5">[% sql %]</textarea>
+		rows="5">[% query %]</textarea>
 
       <div style=""
 	   id="goose_example_list">
@@ -86,8 +88,8 @@
       <br />
 
       <div>
-        Download results directly in tab-delimited format
-	<input class="cbox" type="checkbox" name="format" value="tab" />
+        Download results directly in a text format
+	<input class="cbox" type="checkbox" name="format" value="text" />
       </div>
 
       <fieldset class="block">
@@ -98,7 +100,7 @@
 
 	  [% FOREACH mirror = all_mirrors %]
 
-	  <li[% IF mirror_info.$mirror.type != 'mysql' %] style="color:#999999"[% END %]>
+	  <li[% IF mirror_info.$mirror.is_exp_p %] style="color:#999999"[% END %]>
 	    <input type="radio" 
 		   name="mirror" 
 		   value="[% mirror %]" 
@@ -175,16 +177,16 @@
 	    name="goose_form"
 	    id="goose_form">
 	<input type="hidden" name="mirror" value="[% my_mirror %]" />
-	<input type="hidden" name="sql" value="[% sql %]" />
+	<input type="hidden" name="query" value="[% query %]" />
 	<input type="hidden" name="limit" value="[% limit %]" />
-	<input type="hidden" name="format" value="tab" />
+	<input type="hidden" name="format" value="text" />
 	<input type="submit"
 	       class="button"
-	       value="Download as tab-delimited format" />
+	       value="Download in a text format" />
       </form>
     </p>
 
-    <table summary="SQL query results">
+    <table summary="Query results">
       <thead>
 	<tr>
 	  

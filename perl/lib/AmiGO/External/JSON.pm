@@ -18,7 +18,7 @@ sub new {
 
   ##
   my $class = shift;
-  my $self  = $class->SUPER::new();
+  my $self = $class->SUPER::new();
   #my $arg = shift || {};
 
   ##
@@ -49,6 +49,7 @@ sub get_external_data {
   };
   if( $@ ){
     $self->kvetch("error in GETing the document from: '$url': $@");
+    $self->set_error_message("error in GETing the document from: '$url': $@");
     ## Grab the content if possible.
     #$self->kvetch("c: " . $mech->response->content());
     $doc = $mech->response->content();
@@ -57,16 +58,18 @@ sub get_external_data {
 
     if ( ! $mech->success() ){
       $self->kvetch("failed to contact data source at: $url");
+      $self->set_error_message("failed to contact data source at: $url");
     }else{
       ## Grab the content.
       $doc = $mech->content();
+      #$self->kvetch("got some content: " . $doc);
+      #$self->kvetch("got some content");
       $self->{EXT_DATA} = $doc;
     }
   }
 
   return $doc;
 }
-
 
 
 =item try
@@ -82,11 +85,23 @@ sub try {
 
   my $self = shift;
 
+  #$self->kvetch("convert attempt");
   my $json_string = $self->{EXT_DATA};
   my $js = AmiGO::JavaScript->new();
   my $json_blob = $js->parse_json_data($json_string);
 
   return $json_blob;
+}
+
+
+=item raw
+
+Return the raw response.
+
+=cut
+sub raw {
+  my $self = shift;
+  return $self->{EXT_DATA};
 }
 
 

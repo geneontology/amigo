@@ -24,7 +24,6 @@ sub new {
 
   ## TODO: Try to find a cache first, the do it for reals.
 
-  $self->{AWGS_ENGINE} = AmiGO::External::JSON::GOlrSearch->new();
   $self->{AWGS_BASE_HASH} =
     {
      query => '',

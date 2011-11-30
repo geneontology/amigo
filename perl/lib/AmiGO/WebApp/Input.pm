@@ -169,7 +169,7 @@ sub input_profile {
     $self->_add_simple_argument('limit', '1000',
 				['0', '10', '100', '1000', '10000']);
     $self->_add_simple_argument('mirror', '');
-    $self->_add_simple_argument('sql', '');
+    $self->_add_simple_argument('query', '');
   }elsif( $profile_name eq 'term_info' ){
     $self->_add_terms_string();
     $self->_add_full_p();
