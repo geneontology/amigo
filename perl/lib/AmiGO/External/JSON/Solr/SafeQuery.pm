@@ -1,4 +1,4 @@
-=head1 AmiGO::External::JSON::Solr::Query
+=head1 AmiGO::External::JSON::Solr::SafeQuery
 
 TODO
 
@@ -7,7 +7,7 @@ server.
 
 =cut
 
-package AmiGO::External::JSON::Solr::Query;
+package AmiGO::External::JSON::Solr::SafeQuery;
 
 use base 'AmiGO::External::JSON::Solr';
 #use AmiGO::Sanitize;
@@ -65,12 +65,33 @@ sub safe_query {
       $self->set_error_message("Query too long.");
     }else{
 
-      $self->kvetch("query to run: " . $in_query);
+      ## Cleanse input.
+      $in_query =~ s/^\s+//; # trim ws from front
+      $in_query =~ s/\s+$//; # trim ws from end
+      $in_query =~ s/\n\n*/\n/g; # remove extra newlines
+      $in_query =~ s/\n/\&/g; # convert newlines to ampersands
+      ## Convert input into hash.
+      my $in_hash = $self->query_string_to_hash($in_query);
 
-      ## TODO: clean input?
+      ## If it's in the preset hash, overwrite it; otherwise, add it
+      ## in--there may be multiples.
+      foreach my $key (keys %$in_hash){
+	my $val = $in_hash->{$key};
+	## BUG/TODO
+	if( $self->get_variable($key) ){
+	  $self->set_variable($key, $val);
+	  $self->kvetch("set variable: " . $val . ' to ' . $key);
+	}else{
+	  $self->add_variable($key, $val);
+	  $self->kvetch("add variable: " . $val . ' to ' . $key);
+	}
+      }
+
+      #$self->kvetch("query to run: " . $in_query);
+      #$self->query($in_query);
 
       ## Run query...
-      $self->query($in_query);
+      $self->query();
       $retval = 1;
     }
   }

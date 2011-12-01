@@ -22,7 +22,7 @@ use AmiGO::External::LEAD::Query;
 use AmiGO::External::GOLD::Status;
 use AmiGO::External::GOLD::Query;
 use AmiGO::External::JSON::Solr::Status;
-use AmiGO::External::JSON::Solr::Query;
+use AmiGO::External::JSON::Solr::SafeQuery;
 
 my $VISUALIZE_LIMIT = 50;
 
@@ -237,11 +237,12 @@ sub mode_goose {
 
   ##
   my $in_type = $mirror_info->{$my_mirror}{type};
-  my $results = undef;
+  my $sql_results = undef;
   my $count = undef;
-  my $headers = undef; # for sql results
-  my $direct_url = undef; # for solr results
-  my $direct_results = undef; # for solr results
+  my $sql_headers = undef; # for sql results
+  my $direct_solr_url = undef; # for solr results
+  my $solr_results = undef; # for solr results
+  my $direct_solr_results = undef; # for solr results
   if( $in_query && defined $in_limit ){
 
     ## Get connection info.
@@ -263,24 +264,32 @@ sub mode_goose {
 
     $self->{CORE}->kvetch("trying query:" . $in_query);
 
+    ## Solr work, otherwise SQL.
     if( $in_type eq 'solr' ){
 
       ## Grab the solr worker.
-      my $q = AmiGO::External::JSON::Solr::Query->new($props->{database});
+      my $q = AmiGO::External::JSON::Solr::SafeQuery->new($props->{database});
       $q->safe_query($in_query);
-      $results = $q->docs();
+      $solr_results = $q->docs();
 
       ## Let's check it again.
-      if( defined $results ){
+      if( defined $solr_results ){
 	$count = $q->total() || 0;
 	$in_limit = $q->count() || 0;
 	$self->{CORE}->kvetch("Got Solr results: " . $count);
-	$direct_url = $q->url();
-	$direct_results = $q->raw();
+	$direct_solr_url = $q->url();
+	$direct_solr_results = $q->raw();
       }else{
+
 	## Final run sanity check.
-	if( $self->{CORE}->error_p() ){
-	  $tmpl_args->{message} = $self->{CORE}->error_message();
+	#$self->{CORE}->kvetch('$q: ' . Dumper($q));
+	if( $q->error_p() ){
+	  if( $q->raw() ){
+	    my $raw_out = $q->html_safe($q->raw());
+	    $tmpl_args->{message} = $q->error_message() . " " . $raw_out;
+	  }else{
+	    $tmpl_args->{message} = $q->error_message();
+	  }
 	}else{
 	  $tmpl_args->{message} =
 	    "Something failed in Solr query process. Bailing.";
@@ -290,7 +299,7 @@ sub mode_goose {
 
     }else{
 
-      ## Get the right query worker.
+      ## Get the right query worker for SQL.
       my $q = undef;
       if( $in_type eq 'mysql' ){
 	$q = AmiGO::External::LEAD::Query->new($props, $in_limit);
@@ -304,8 +313,8 @@ sub mode_goose {
 
       ## Try sql.
       $self->{CORE}->kvetch("using limit: " . $in_limit);
-      $results = $q->try($in_query);
-      #$self->{CORE}->kvetch("_res_: " . Dumper($results));
+      $sql_results = $q->try($in_query);
+      #$self->{CORE}->kvetch("_res_: " . Dumper($sql_results));
 
       ## Check processing.
       if( ! $q->ok() ){
@@ -315,10 +324,10 @@ sub mode_goose {
       }
 
       ## Let's check it again.
-      if( defined $results ){
+      if( defined $sql_results ){
 	$count = $q->count() || 0;
 	$self->{CORE}->kvetch("Got SQL results: " . $count);
-	$headers = $q->headers();
+	$sql_headers = $q->sql_headers();
       }else{
 	## Final run sanity check.
 	$tmpl_args->{message} =
@@ -339,7 +348,7 @@ sub mode_goose {
     $self->header_add( -type => 'plain/text' );
 
     my $nlbuf = [];
-    foreach my $row (@$results){
+    foreach my $row (@$sql_results){
       my $tabbuf = [];
       foreach my $col (@$row){
 	push @$tabbuf, $col;
@@ -349,9 +358,9 @@ sub mode_goose {
     $output = join "\n", @$nlbuf;
 
   }elsif( $in_format eq 'text' && $in_type eq 'solr' ){
-    $self->{CORE}->kvetch("text/solr combination: " . $direct_results);
+    $self->{CORE}->kvetch("text/solr combination: " . $direct_solr_results);
     $self->header_add( -type => 'plain/text' );
-    $output = $direct_results;
+    $output = $direct_solr_results;
   }else{
     $self->{CORE}->kvetch("some html combination");
 
@@ -363,14 +372,14 @@ sub mode_goose {
       my $htmled_results = [];
       my $found_terms = [];
       my $found_terms_i = 0;
-      if( defined $results ){
+      if( defined $sql_results ){
 
-	## TODO: fix headers
+	## TODO: fix sql_headers
 	#$q->escapeHTML($header);
 
 	##
 	my $treg = $self->{CORE}->term_regexp();
-	foreach my $row (@$results){
+	foreach my $row (@$sql_results){
 	  my $rowbuf = [];
 	  foreach my $col (@$row){
 	    ## Some things may be undef.
@@ -401,7 +410,53 @@ sub mode_goose {
       }
     }elsif( $in_type eq 'solr' ){
       $self->{CORE}->kvetch("html/solr combination");
-      $output = "TODO: solr html output";
+      #push @$htmled_results, "TODO: solr html output";
+
+      # $direct_solr_results =~ s/\n/\<br \/\>/g;
+      # push @$htmled_results, '<pre>' . $direct_solr_results . '</pre>';
+
+      $self->{CORE}->kvetch("results: " . Dumper($results));
+      my $treg = $self->{CORE}->term_regexp();
+
+      foreach my $doc_hash (@$solr_results){
+	my $sbuf = [];
+
+	#$self->{CORE}->kvetch("row: " . Dumper($doc_hash));
+	my @solr_keys = keys %$doc_hash;
+	my @sorted_solr_keys =
+	  sort {
+	    if( $a eq 'id' ){
+	      return -1;
+	    }elsif( $b eq 'id' ){
+	      return 1;
+	    }else{
+	      return 0;
+	    }
+	  }
+	  @solr_keys;
+	foreach my $k (@sorted_solr_keys){
+	  my $v = $doc_hash->{$k};
+	  if( ref($v) eq 'HASH' ){
+	    push @$sbuf, '<b>' . $k . '</b>: ' . $v;
+	  }elsif( ref($v) eq 'ARRAY' ){
+	    push @$sbuf, '<b>' . $k . '</b>: ' . join(', ', @$v);
+	  }else{
+	    if( $v =~ /($treg)/ ){
+	      my $link =
+		$self->{CORE}->get_interlink({
+					      mode => 'term_details',
+					      arg => { acc => $1 }
+					     });
+	      $v = '<a title="'. $1 .'" href="'. $link .'">'. $1 .'</a>';
+	    }
+	    push @$sbuf, '<b>' . $k . '</b>: ' . $v;
+	  }
+	}
+
+	push @$htmled_results,
+	  '<ul></li>' . join('</li><li>', @$sbuf) . '</li></ul>';
+      }
+
     }else{
       ## Huh...that shouldn't happen...
       $self->{CORE}->kvetch("Unknown combination");
@@ -412,8 +467,8 @@ sub mode_goose {
     ## HTML return phrasing.
     $self->set_template_parameter('query', $in_query);
     $self->set_template_parameter('results_count', $count);
-    $self->set_template_parameter('results_headers', $headers);
-    $self->set_template_parameter('results_direct_url', $direct_url);
+    $self->set_template_parameter('results_headers', $sql_headers);
+    $self->set_template_parameter('direct_solr_url', $direct_solr_url);
     $self->set_template_parameter('results', $htmled_results);
 
     ## Things that worry about term visualization.
@@ -448,10 +503,12 @@ sub mode_goose {
        css_library =>
        [
 	'standard', # basic GO-styles
+	'com.jquery.jqamigo.custom',
        ],
        javascript_library =>
        [
 	'com.jquery',
+	'com.jquery-ui',
 	'bbop.core',
 	'bbop.logger',
 	'bbop.amigo',

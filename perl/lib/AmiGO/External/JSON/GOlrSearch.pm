@@ -77,17 +77,5 @@ sub query {
 }
 
 
-=item last_url
-
-Args: none
-Return: the last url queried as a string
-
-=cut
-sub last_url {
-  my $self = shift;
-  return $self->{JSLS_LAST_URL};
-}
-
-
 
 1;

@@ -83,7 +83,7 @@ sub query {
   $self->get_external_data($url);
   my $doc_blob = $self->try();
 
-  $self->kvetch("doc_blob: " . Dumper($doc_blob));
+  #$self->kvetch("doc_blob: " . Dumper($doc_blob));
 
   ## Make sure we got something.
   if( ! $self->empty_hash_p($doc_blob) &&
@@ -93,6 +93,97 @@ sub query {
   }
 
   return $retval;
+}
+
+
+=item variables
+
+Arguments: n/a
+Returns: aref of current variable keys
+
+=cut
+sub variables {
+
+  my $self = shift;
+  my $retref;
+
+  foreach my $k (keys %{$self->{AEJS_BASE_HASH}} ){
+    push @$retref, $k;
+  }
+
+  return $retref;
+}
+
+
+=item get_variable
+
+Arguments: string name of solr variable.
+Returns: variable or undef
+
+=cut
+sub get_variable {
+
+  my $self = shift;
+  my $qkey = shift || undef;
+  my $retval = undef;
+
+  if( defined $qkey && defined $self->{AEJS_BASE_HASH}{$qkey} ){
+    $retval = $self->{AEJS_BASE_HASH}{$qkey};
+  }
+
+  return $retval;
+}
+
+
+=item set_variable
+
+Arguments: string name of solr variable, value
+Returns: the value of the set variable
+
+=cut
+sub set_variable {
+
+  my $self = shift;
+  my $qkey = shift || undef;
+  my $qval = shift || undef;
+  my $retval = $qval;
+
+  if( defined $qkey ){
+    $self->{AEJS_BASE_HASH}{$qkey} = $qval;
+  }
+
+  return $qval;
+}
+
+
+=item add_variable
+
+Arguments: string name of solr variable, value to be added to key
+Returns: the value of the added variable
+
+=cut
+sub add_variable {
+
+  my $self = shift;
+  my $qkey = shift || undef;
+  my $qval = shift || undef;
+  my $retval = $qval;
+
+  if( defined $qkey ){
+    if( ! defined $self->{AEJS_BASE_HASH}{$qkey} ){
+      $self->{AEJS_BASE_HASH}{$qkey} = $qval;
+    }elsif( defined $self->{AEJS_BASE_HASH}{$qkey} &&
+	    ref(@{$self->{AEJS_BASE_HASH}{$qkey}}) eq 'ARRAY' ){
+      push @{$self->{AEJS_BASE_HASH}{$qkey}}, $qval;
+    }else{
+      my $tmp_val = $self->{AEJS_BASE_HASH}{$qkey};
+      $self->{AEJS_BASE_HASH}{$qkey} = [];
+      push @{$self->{AEJS_BASE_HASH}{$qkey}}, $tmp_val;
+      push @{$self->{AEJS_BASE_HASH}{$qkey}}, $qval;
+    }
+  }
+
+  return $qval;
 }
 
 

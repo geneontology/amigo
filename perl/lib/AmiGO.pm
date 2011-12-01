@@ -524,9 +524,13 @@ sub kvetch {
     my $log = $ald . '/kvetch.log';
     if( -f $log && -w $log ){
       eval{
-	open(LOG, ">>$log") or die("Error opening log: $!");
-	print LOG $final_str;
-	close(LOG);
+	my $fh = FileHandle->new(">>$log");
+	$fh->autoflush(1);
+	#open(LOG, ">>$log") or die("Error opening log: $!");
+	$fh->print($final_str);
+	$fh->flush();
+	#close(LOG);
+	undef $fh;
       };
       if( $@ ){
 	$retval = 0;
@@ -1346,6 +1350,45 @@ sub get_interlink {
 # }
 
 
+=item query_string_to_hash
+
+Turn a query string into a single-level hash. Multiple values for a
+single key will turn a hash entry into an aref.
+
+Accepts strings.
+
+=cut
+sub query_string_to_hash {
+
+  my $self = shift;
+  my $in_str = shift || '';
+  my $rethash = {};
+
+  if( $in_str ){
+    my @pairs = split /\&/, $in_str;
+    foreach my $pair (@pairs){
+      my($key, $new_val) = split /=/, $pair;
+
+      ## If it's already there, push it on an aref (which itself might
+      ## need to be created). Threee cases.
+      if( ! defined $rethash->{$key} ){
+	$rethash->{$key} = $new_val;
+      }elsif( defined $rethash->{$key} && ref($rethash->{$key}) eq 'ARRAY' ){
+	push @{$rethash->{$key}}, $new_val;
+      }else{
+	## Value there, but no aref yet...
+	my $curr_val = $rethash->{$key};
+	$rethash->{$key} = [];
+	push @{$rethash->{$key}}, $curr_val;
+	push @{$rethash->{$key}}, $new_val;
+      }
+    }
+  }
+
+  return $rethash;
+}
+
+
 =item hash_to_query_string
 
 Turn a single-level hash ref into a remarkably URL-like string using
@@ -1648,7 +1691,8 @@ Return 1 or 0 for all operations.
 sub error_p {
   my $self = shift;
   my $retval = 0;
-  $retval = 1 if defined $self->{ERROR_MESSSAGE};
+  $self->kvetch("in: " . $retval . " " . $self->{ERROR_MESSAGE});
+  $retval = 1 if defined $self->{ERROR_MESSAGE};
   return $retval;
 }
 

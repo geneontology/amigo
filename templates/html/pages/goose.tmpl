@@ -15,87 +15,40 @@
 	  <input type="hidden" name="database" value="1" />
 	  -->
       
-      <h2>Directly query GO databases</h2>
-	  
-      See some LEAD SQL
-      <a href="http://wiki.geneontology.org/index.php/Example_Queries">examples</a>
-      and learn more about the LEAD
-      <a href="http://www.geneontology.org/GO.database.shtml"
-	 title="LEAD database schema documentation">schema</a>.<br />
-      Learn more about the experimental GOLD
-      <a href="http://www.geneontology.org/GO.gold.schema.shtml"
-	 title="GOLD database schema documentation">schema</a>.<br />
-      If your query takes a long time or returns a blank screen, you may want to try the download option. If your query is long-running or fails, you may also want to try a "lite" database from the mirror selection.
+      <h2>Directly query GO data</h2>
+      
+      <h3 id="information_click" class="first"><a href="#">Information</a></h3>
+      
+      <div id="information">
+
+	<b>General SQL</b>
+	<p>
+	  If your query takes a long time or returns a blank screen,
+	  you may want to try the download option. If your query is
+	  long-running or fails, you may also want to try a "lite"
+	  database from the mirror selection.
+	</p>
+
+	<b>LEAD SQL</b>
+	<p>
+	  See some LEAD SQL <a href="http://wiki.geneontology.org/index.php/Example_Queries">examples</a> and learn more about the LEAD <a href="http://www.geneontology.org/GO.database.shtml" title="LEAD database schema documentation">schema</a>.
+	</p>
+
+	<b>GOLD SQL</b>
+	<p>
+	  Learn more about the experimental GOLD <a href="http://www.geneontology.org/GO.gold.schema.shtml" title="GOLD database schema documentation">schema</a>.<br />
+	</p>
+
+	<b>GO Solr (GOlr)</b>
+	<p>
+	  See some GOlr  <a href="http://wiki.geneontology.org/index.php/Example_Solr_Queries">examples</a>. Preliminary <a href="http://geneontology.svn.sourceforge.net/viewvc/geneontology/java/gold/solr/conf/schema.xml?content-type=text%2Fplain">schema</a> information.
+	</p>
+      </div>
        
-      <h3 class="first">Enter your query:</h3>
-
-      <textarea id="query"
-		name="query"
-		cols="80"
-		rows="5">[% query %]</textarea>
-
-      <div style=""
-	   id="goose_example_list">
-	[% IF examples_list %]
-	<!-- Assemble the examples table. -->
-	<select id="goose_example_selection"
-		class=""
-		style=""
-		size="1">
-	  [%    FOREACH ex = examples_list %]
-	  [%       value = ex.sql %]
-	  [%       title = ex.title %]
-	  <option title="[% value %]" 
-		  value="[% value %]">[% title %]</option>
-	  [%    END %]
-	</select>
-	[% ELSE %]
-	<!-- Unable to assemble the examples table. -->
-	(The GO SQL wiki page could not be contacted so SQL examples
-	are not available.)
-	[% END %]
-      </div>
-
-      Limit the number of results returned:
-      <select name="limit" size="1">
-	<option
-	   title="10" 
-	   value="10" 
-	   [% IF limit == 10 %]selected[% END %]
-	   class="" >10</option>
-	<option
-	   title="100" 
-	   value="100" 
-	   [% IF limit == 100 %]selected[% END %]
-	   class="">100</option>
-	<option
-	   title="1000" 
-	   value="1000" 
-	   [% IF limit == 1000 %]selected[% END %]
-	   class="">1000</option>
-	<option
-	   title="10000" 
-	   value="10000" 
-	   [% IF limit == 10000 %]selected[% END %]
-	   class="">10000</option>
-	<option
-	   title="unlimited" 
-	   value="0" 
-	   [% IF limit == 0 %]selected[% END %]
-	   class="">unlimited</option>
-      </select>
-
-      <br />
-
-      <div>
-        Download results directly in a text format
-	<input class="cbox" type="checkbox" name="format" value="text" />
-      </div>
-
-      <fieldset class="block">
-	<legend>
-	  Mirrors
-	</legend>
+      <h3 id="mirrors_click" class="first"><a href="#">Available mirrors</a></h3>
+      
+      <div id="mirrors">
+	
 	<ul>
 
 	  [% FOREACH mirror = all_mirrors %]
@@ -122,7 +75,83 @@
 	  [% END %]
 	  
 	</ul>	      
-      </fieldset>
+      </div>
+
+      <h3 class="first">Enter your query:</h3>
+
+      <div>
+	<textarea id="query"
+		  name="query"
+		  cols="80"
+		  rows="5">[% query %]</textarea>
+      </div>
+
+      <h3 id="sql_options_click" class="first"><a href="#">SQL options</h3></a>
+      
+      <div id="sql_options">
+	
+	<p>
+	  Options only for use when making queries against an SQL database.
+	</p>
+
+	<div style="" id="goose_example_list">
+	  [% IF examples_list %]
+	  <!-- Assemble the examples table. -->
+	  <select id="goose_example_selection"
+		  class=""
+		  style=""
+		  size="1">
+	    [%    FOREACH ex = examples_list %]
+	    [%       value = ex.sql %]
+	    [%       title = ex.title %]
+	    <option title="[% value %]" 
+		    value="[% value %]">[% title %]</option>
+	    [%    END %]
+	  </select>
+	  [% ELSE %]
+	  <!-- Unable to assemble the examples table. -->
+	  (The GO LEAD SQL wiki page could not be contacted so LEAD SQL examples
+	  are not available.)
+	  [% END %]
+	</div>
+
+	Limit the number of results returned:
+	<select name="limit" size="1">
+	  <option
+	     title="10" 
+	     value="10" 
+	     [% IF limit == 10 %]selected[% END %]
+	     class="" >10</option>
+	  <option
+	     title="100" 
+	     value="100" 
+	     [% IF limit == 100 %]selected[% END %]
+	     class="">100</option>
+	  <option
+	     title="1000" 
+	     value="1000" 
+	     [% IF limit == 1000 %]selected[% END %]
+	     class="">1000</option>
+	  <option
+	     title="10000" 
+	     value="10000" 
+	     [% IF limit == 10000 %]selected[% END %]
+	     class="">10000</option>
+	  <option
+	     title="unlimited" 
+	     value="0" 
+	     [% IF limit == 0 %]selected[% END %]
+	     class="">unlimited</option>
+	</select>
+
+	<br />
+
+	<div>
+          Download results directly in a text format
+	  <input class="cbox" type="checkbox" name="format" value="text" />
+	</div>
+	
+      </div>
 
       <hr class="clearL">
       <input type="submit" class="button" value="Query!" />
@@ -159,17 +188,24 @@
 
       result(s).<br />
       
-      [% IF terms_count > 0 AND terms_limit > terms_count %]
+      [% ## Using this to detect Solr vs. SQL. %]
+      [% IF direct_solr_url %]
+      Full Solr results: <a href="[% direct_solr_url %]"
+	 title="Link to full Solr results.">[% direct_solr_url %]</a>
+      <br />
+      [% ELSE %]
+
+      [%   IF terms_count > 0 AND terms_limit > terms_count %]
       <a href="[% viz_link %]"
 	 title="Visualize the terms found in this query.">
 	Visualize</a>
       the terms found in this query.
-      [% ELSIF terms_count > 0 %]
+      [%   ELSIF terms_count > 0 %]
       <a href="[% viz_link %]"
 	 title="Visualize the first [% terms_count %] terms found in this query.">
 	Visualize</a>
       the first [% terms_count %] terms found in this query.
-      [% END %]
+      [%   END %]
       
       <form style="display: inline;"
 	    action="goose"
@@ -184,6 +220,9 @@
 	       class="button"
 	       value="Download in a text format" />
       </form>
+
+      [% END %]
+
     </p>
 
     <table summary="Query results">

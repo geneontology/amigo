@@ -22,11 +22,21 @@ function GOOSEInit(){
 	    jQuery("#" + "query").val(sql);
 	});
 
+    // Make unnecessary things roll up.
+    bbop.core.each(["information", "mirrors", "sql_options"],
+		   function(eltid){
+		       jQuery('#'+eltid).hide();
+		       var elt = jQuery('#' + eltid + '_click');
+		       elt.click(function(){
+				     jQuery('#'+eltid).toggle("blind",{},250);
+				     return false;
+				 })});
+    
+    // TODO: scan and add things to the page.
     // Check to see if a results-only id shows up.
     var results_ping = jQuery("#" + "results_generated");
     if( results_ping && results_ping.attr('id') ){
 	ll('Looks like a results page.');
-	// TODO: scan and add things to the page.
     }else{
 	ll('Looks like a starting page.');
     }

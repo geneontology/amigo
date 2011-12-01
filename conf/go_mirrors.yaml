@@ -35,16 +35,16 @@ ebi:
   type: mysql
   port: 4085
 
-princeton_lite:
-  label: Princeton (lite)
-  location: in Princeton, NJ
-  is_main_p: false
-  login: goclient
-  password: g00dness
-  database: go_latest_lite
-  host: gomirror.princeton.edu
-  type: mysql
-  port: 13309
+# princeton_lite:
+#   label: Princeton (lite)
+#   location: in Princeton, NJ
+#   is_main_p: false
+#   login: goclient
+#   password: g00dness
+#   database: go_latest_lite
+#   host: gomirror.princeton.edu
+#   type: mysql
+#   port: 13309
 
 bbop_lite:
   label: Berkeley BOP (lite)

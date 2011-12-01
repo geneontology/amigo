@@ -751,7 +751,7 @@ sub mode_generic_message {
   my $self = shift;
   my $in_args = shift || {};
 
-  $self->{CORE}->kvetch("_do_generic_message_");
+  #$self->{CORE}->kvetch("_do_generic_message_");
 
   ## Merge incoming args with template.
   my $args = $self->{CORE}->merge({
@@ -761,8 +761,8 @@ sub mode_generic_message {
 				   error => 1,
 				  }, $in_args);
 
-  $self->{CORE}->kvetch("_in_" . Dumper($in_args));
-  $self->{CORE}->kvetch("_out_" . Dumper($args));
+  #$self->{CORE}->kvetch("_in_" . Dumper($in_args));
+  #$self->{CORE}->kvetch("_out_" . Dumper($args));
 
   ## Page variables.
   $self->set_template_parameter('title', $args->{title});
