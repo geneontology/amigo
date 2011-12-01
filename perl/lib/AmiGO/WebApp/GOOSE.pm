@@ -276,7 +276,7 @@ sub mode_goose {
       if( defined $solr_results ){
 	$count = $q->total() || 0;
 	$in_limit = $q->count() || 0;
-	$self->{CORE}->kvetch("Got Solr results: " . $count);
+	$self->{CORE}->kvetch("Got Solr results #: " . $count);
 	$direct_solr_url = $q->url();
 	$direct_solr_results = $q->raw();
       }else{
@@ -326,7 +326,7 @@ sub mode_goose {
       ## Let's check it again.
       if( defined $sql_results ){
 	$count = $q->count() || 0;
-	$self->{CORE}->kvetch("Got SQL results: " . $count);
+	$self->{CORE}->kvetch("Got SQL results #: " . $count);
 	$sql_headers = $q->sql_headers();
       }else{
 	## Final run sanity check.
@@ -415,7 +415,7 @@ sub mode_goose {
       # $direct_solr_results =~ s/\n/\<br \/\>/g;
       # push @$htmled_results, '<pre>' . $direct_solr_results . '</pre>';
 
-      $self->{CORE}->kvetch("results: " . Dumper($results));
+      #$self->{CORE}->kvetch("results: " . Dumper($results));
       my $treg = $self->{CORE}->term_regexp();
 
       foreach my $doc_hash (@$solr_results){
@@ -468,7 +468,8 @@ sub mode_goose {
     $self->set_template_parameter('query', $in_query);
     $self->set_template_parameter('results_count', $count);
     $self->set_template_parameter('results_headers', $sql_headers);
-    $self->set_template_parameter('direct_solr_url', $direct_solr_url);
+    $self->set_template_parameter('direct_solr_url',
+				  $self->{CORE}->html_safe($direct_solr_url));
     $self->set_template_parameter('results', $htmled_results);
 
     ## Things that worry about term visualization.

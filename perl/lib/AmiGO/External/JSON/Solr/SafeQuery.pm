@@ -11,6 +11,7 @@ package AmiGO::External::JSON::Solr::SafeQuery;
 
 use base 'AmiGO::External::JSON::Solr';
 #use AmiGO::Sanitize;
+use Data::Dumper;
 
 
 =item new
@@ -66,10 +67,11 @@ sub safe_query {
     }else{
 
       ## Cleanse input.
+      $in_query =~ tr/\r/\n/; # convert invisible \r to \n
       $in_query =~ s/^\s+//; # trim ws from front
       $in_query =~ s/\s+$//; # trim ws from end
-      $in_query =~ s/\n\n*/\n/g; # remove extra newlines
-      $in_query =~ s/\n/\&/g; # convert newlines to ampersands
+      $in_query =~ tr/\n//s; # remove extra newlines
+      $in_query =~ tr/\n/&/; # convert newlines to ampersands
       ## Convert input into hash.
       my $in_hash = $self->query_string_to_hash($in_query);
 
@@ -78,12 +80,10 @@ sub safe_query {
       foreach my $key (keys %$in_hash){
 	my $val = $in_hash->{$key};
 	## BUG/TODO
-	if( $self->get_variable($key) ){
+	if( defined $self->get_variable($key) ){
 	  $self->set_variable($key, $val);
-	  $self->kvetch("set variable: " . $val . ' to ' . $key);
 	}else{
 	  $self->add_variable($key, $val);
-	  $self->kvetch("add variable: " . $val . ' to ' . $key);
 	}
       }
 

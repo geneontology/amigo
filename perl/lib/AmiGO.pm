@@ -526,10 +526,7 @@ sub kvetch {
       eval{
 	my $fh = FileHandle->new(">>$log");
 	$fh->autoflush(1);
-	#open(LOG, ">>$log") or die("Error opening log: $!");
 	$fh->print($final_str);
-	$fh->flush();
-	#close(LOG);
 	undef $fh;
       };
       if( $@ ){
@@ -1368,6 +1365,10 @@ sub query_string_to_hash {
     my @pairs = split /\&/, $in_str;
     foreach my $pair (@pairs){
       my($key, $new_val) = split /=/, $pair;
+      chomp $new_val;
+
+      # $self->kvetch('$key: ' . $key);
+      # $self->kvetch('$new_val: ' . $new_val);
 
       ## If it's already there, push it on an aref (which itself might
       ## need to be created). Threee cases.
@@ -1385,6 +1386,7 @@ sub query_string_to_hash {
     }
   }
 
+  $self->kvetch('$rethash: ' . Dumper($rethash));
   return $rethash;
 }
 

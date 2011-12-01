@@ -173,7 +173,7 @@ sub add_variable {
     if( ! defined $self->{AEJS_BASE_HASH}{$qkey} ){
       $self->{AEJS_BASE_HASH}{$qkey} = $qval;
     }elsif( defined $self->{AEJS_BASE_HASH}{$qkey} &&
-	    ref(@{$self->{AEJS_BASE_HASH}{$qkey}}) eq 'ARRAY' ){
+	    ref($self->{AEJS_BASE_HASH}{$qkey}) eq 'ARRAY' ){
       push @{$self->{AEJS_BASE_HASH}{$qkey}}, $qval;
     }else{
       my $tmp_val = $self->{AEJS_BASE_HASH}{$qkey};
