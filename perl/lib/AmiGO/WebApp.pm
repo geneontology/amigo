@@ -767,8 +767,9 @@ sub generate_template_page {
     my $messages = $self->get_mq($queue);
     foreach my $message (@$messages){
       $self->{CORE}->kvetch('in queue output try: '. $queue . ": " . $message);
+      $self->{WEBAPP_TEMPLATE_PARAMS}{'mq_last_message_type'} = $queue;
       $self->{WEBAPP_TEMPLATE_PARAMS}{'mq_last_message'} = $message;
-      push @mbuf, $self->_eval_content('common/message_' . $queue . '.tmpl')
+      push @mbuf, $self->_eval_content('common/mq_message.tmpl')
     }
   }
 

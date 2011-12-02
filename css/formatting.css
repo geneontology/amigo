@@ -26,7 +26,7 @@ th { padding: 0 2px; font-size: 90%; }
 
 .gp dd + dt, .term-info dd + dt, .seq dd + dt { margin: -1em 0 0 0; }
 
-h1 { text-align: center; padding: 20px; }
+h1 { text-align: center; padding: 10px 20px; }
 
 h2 { line-height: 1.0; }
 
@@ -550,3 +550,21 @@ class. */
 .golr-filter-selectable li {
     /* margin: 3px; padding: 0.4em; font-size: 1.4em; height: 18px; */
 }
+
+/*
+ * Items for the various message queue (mq) communications.
+ */
+
+/* Warning block. */
+div .mq_message {
+    padding: 0 .5em;
+    margin-left: 15%;
+    margin-right: 15%;
+}
+.mq_message img {
+    width: 1em;
+    height: 1em;
+}
+.mq_error { background: #ffcfcf; border: 1px solid #ff0000; }
+.mq_warning { background: #ffffab; border: 1px solid #ffa000; }
+.mq_notice { background: #acffac; border: 1px solid #007000; }
