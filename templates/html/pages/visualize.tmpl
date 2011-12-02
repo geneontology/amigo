@@ -1,0 +1,64 @@
+<!-- START template: visualize.tmpl -->
+<!-- SEARCH_P = [% SEARCHED_P %] -->
+
+  <div class="block">
+
+    <h2>Vizualize an Arbitrary GO Graph</h2>
+    
+    <p> This is a simple interface to the visualizations in
+      AmiGO. Type in your GO IDs (in the form GO:xxxxxxx) or use the
+       <a title="AmiGO Visualize documentation" href="http://wiki.geneontology.org/index.php/AmiGO_Manual:_Visualize">advanced format</a>
+        for more control.</p>
+
+    <p>
+      <b>Caution</b>: The static image may be very large and
+      inappropriate for viewing within a web browser.
+    </p>
+
+    <form action="amigo" id="term_input_form" method="GET">
+      <input type="hidden" name="mode" value="[% amigo_mode %]" />
+      <p>
+	<label for="term_data">GO IDs or advanced format:</label>
+	<br />
+	<textarea cols="50"
+		  rows="10"
+		  name="term_data"
+		  id="terms"></textarea>
+	<br />
+	<label for="png">Use
+       <a title="AmiGO Visualize documentation" href="http://wiki.geneontology.org/index.php/AmiGO_Manual:_Visualize">advanced format</a>:</label>
+	<input type="checkbox"
+	       name="term_data_type"
+	       value="json"
+	       class="checkbox"
+	       id="term_data_type" />
+	<br />
+	<label for="format">Select output format:</label>
+	<input type="radio"
+	       name="format"
+	       value="png"
+	       class="radio"
+	       checked
+	       id="png" />
+	<label for="png">static (png)</label>
+	<input type="radio"
+	       name="format"
+	       value="svg"
+	       class="radio"
+	       id="svg" />
+	<label for="svg">dynamic (svg+xml)</label>
+	[% IF BETA == 1 %]
+	<input type="radio"
+	       name="format"
+	       value="navi"
+	       class="radio"
+	       id="navi" />
+	<label for="navi">navigation (javascript alpha)</label>
+	[% END %]
+	<br />
+	<input type="submit" class="button" value="Visualize" />
+      </p>
+    </form>
+  </div>
+  
+<!-- END template: visualize.tmpl -->

@@ -65,6 +65,14 @@ sub cgiapp_prerun {
   $self->{WEBAPP_CONTENT} = [];
   $self->{WEBAPP_TEMPLATE_PARAMS} = {};
 
+  ## Hold on to the various message queues.
+  $self->{WEBAPP_MQ} =
+    {
+     'error' => [],
+     'warning' => [],
+     'notice' => [],
+    };
+
   ## 
   $self->{CORE}->kvetch("_in prerun...defining variables");
   $self->_common_params_settings();
@@ -188,6 +196,67 @@ sub cgiapp_postrun {
     my $session = $self->session;
     $self->session->flush();
   }
+}
+
+
+=item add_mq
+
+Args: queue string and message string
+Returns: the message added to the queue or undef if no such queue was found
+
+=cut
+sub add_mq {
+  my $self = shift;
+  my $queue = shift || die "need to define a queue";
+  my $message = shift || die "need to define a queue";
+  my $retval = undef;
+
+  if( defined $self->{WEBAPP_MQ}{$queue} ){
+    push @{$self->{WEBAPP_MQ}{$queue}}, $message;
+    $retval = $message;
+  }
+
+  return $retval;
+}
+
+
+=item flush_mq
+
+Args: queue string
+Returns: true if messages were flushed, false otherwise
+
+=cut
+sub flush_mq {
+  my $self = shift;
+  my $queue = shift || die "need to define a queue";
+  my $retval = 0;
+
+  if( defined $self->{WEBAPP_MQ}{$queue} &&
+      scalar( @{$self->{WEBAPP_MQ}{$queue}} ) ){
+    $retval = 1;
+  }
+  $self->{WEBAPP_MQ}{$queue} = [];
+
+  return $retval;
+}
+
+
+=item get_mq
+
+Args: queue string
+Returns: aref of message string or undef if no such queue
+
+=cut
+sub get_mq {
+  my $self = shift;
+  my $queue = shift || die "need to define a queue";
+  my $retval = undef;
+
+  if( defined $self->{WEBAPP_MQ}{$queue} ){
+    $retval = $self->{WEBAPP_MQ}{$queue};
+  }
+
+  return $retval;
 }
 
 
@@ -674,9 +743,8 @@ sub generate_template_page {
 
   ## Do body.
   push @mbuf, $self->_eval_content('common/body_open.tmpl');
-  push @mbuf, $self->_eval_content('common/header.tmpl')
-    if ! $lite_p && $header_p;
 
+  ## Optional debugging output.
   if( $self->{CORE}->verbose_p() ){
     push @mbuf, '<!-- DEBUG -->';
     foreach my $key (keys %{$self->{WEBAPP_TEMPLATE_PARAMS}}){
@@ -685,6 +753,26 @@ sub generate_template_page {
     }
   }
 
+  ## The usual everywhere header.
+  push @mbuf, $self->_eval_content('common/header.tmpl')
+    if ! $lite_p && $header_p;
+
+  ## Pre-main content output.
+  push @mbuf, $self->_eval_content('common/content_open.tmpl');
+
+  ## TODO: It looks like RoR-stlye messages and the like should go
+  ## here.
+  ## First error (X), then warning (!), then notice (<check>).
+  foreach my $queue (("error", "warning", "notice")){
+    my $messages = $self->get_mq($queue);
+    foreach my $message (@$messages){
+      $self->{CORE}->kvetch('in queue output try: '. $queue . ": " . $message);
+      $self->{WEBAPP_TEMPLATE_PARAMS}{'mq_last_message'} = $message;
+      push @mbuf, $self->_eval_content('common/message_' . $queue . '.tmpl')
+    }
+  }
+
+  ## Main content output.
   foreach my $content (@{$self->{WEBAPP_CONTENT}}){ push @mbuf, $content; }
   push @mbuf, $self->_eval_content('common/footer.tmpl')
     if ! $lite_p && $footer_p;

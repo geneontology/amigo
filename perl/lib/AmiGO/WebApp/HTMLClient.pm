@@ -50,8 +50,8 @@ sub setup {
   $self->start_mode('software_list');
   $self->error_mode('mode_fatal');
   $self->run_modes(
-		   'visualize'           => 'mode_visualize',
 		   'software_list'       => 'mode_software_list',
+		   'visualize'           => 'mode_visualize',
 		   'subset_summary'      => 'mode_subset_summary',
 		   'live_search_gold'    => 'mode_live_search_gold',
 		   'golr_term_details'   =>  'mode_golr_term_details',
@@ -60,6 +60,34 @@ sub setup {
 		   'css'                 => 'mode_dynamic_style',
 		   'AUTOLOAD'            => 'mode_exception'
 		  );
+}
+
+
+##
+sub mode_software_list {
+
+  my $self = shift;
+
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile();
+
+  ## Page settings.
+  $self->set_template_parameter('page_title', 'AmiGO: Software List');
+  $self->set_template_parameter('content_title', 'Software List');
+
+  ## Where would the ancient demos page hide...?
+  my $foo = $self->{CORE}->amigo_env('AMIGO_CGI_PARTIAL_URL');
+  $self->set_template_parameter('OLD_LOC', $foo);
+
+  # ## DEBUG:
+  # ## Let's try getting some random messages out.
+  # $self->add_mq('warning', 'warning floats to middle');
+  # $self->add_mq('notice', 'Hello, World!');
+  # $self->add_mq('error', 'error floats to top');
+  # $self->add_mq('notice', 'Part2: Hello, World!');
+
+  $self->add_template_content('pages/software_list.tmpl');
+  return $self->generate_template_page();
 }
 
 
@@ -85,8 +113,9 @@ sub mode_visualize {
   if( ! defined $input_term_data ){
 
     ##
-    $self->_common_params_settings({title=>'AmiGO: Visualization',
-				    'amigo_mode' => 'visualize'});
+    $self->set_template_parameter('amigo_mode', 'visualize');
+    $self->set_template_parameter('page_title', 'AmiGO: Visualize');
+    $self->set_template_parameter('content_title', 'Visualize');
     $self->add_template_content('pages/visualize.tmpl');
     $output = $self->generate_template_page();
 
@@ -136,25 +165,6 @@ sub mode_visualize {
 }
 
 
-##
-sub mode_software_list {
-
-  my $self = shift;
-
-  my $i = AmiGO::WebApp::Input->new();
-  my $params = $i->input_profile();
-
-  $self->_common_params_settings({title=>'AmiGO: Software List'});
-
-  ## Where would the ancient demos page hide...?
-  my $foo = $self->{CORE}->amigo_env('AMIGO_CGI_PARTIAL_URL');
-  $self->set_template_parameter('OLD_LOC', $foo);
-
-  $self->add_template_content('pages/software_list.tmpl');
-  return $self->generate_template_page();
-}
-
-
 ## TODO/BUG: get new info to need this.
 sub mode_dynamic_style {
 
@@ -180,8 +190,10 @@ sub mode_live_search_gold {
 
   my $self = shift;
 
-  ## Non-standard settings.
+  ## Page settings.
   $self->set_template_parameter('STANDARD_CSS', 'no');
+  $self->set_template_parameter('page_title', 'AmiGO: Search');
+  $self->set_template_parameter('content_title', 'Search');
 
   ## Grab resources we want.
   $self->set_template_parameter('STAR_IMAGE',
@@ -245,8 +257,6 @@ sub mode_golr_term_details {
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile('term');
   my $input_term_id = $params->{term};
-  $self->_common_params_settings({'title' =>
-				  'AmiGO: Term Details for ' . $input_term_id});
 
   ## Input sanity check.
   if( ! $input_term_id ){
@@ -510,6 +520,12 @@ sub mode_golr_term_details {
     };
   $self->add_template_bulk($prep);
 
+  ## Page settings.
+  $self->set_template_parameter('page_title',
+				'AmiGO: Term Details for ' . $input_term_id);
+  $self->set_template_parameter('content_title',
+				$term_info_hash->{$input_term_id}{'name'});
+
   ## Initialize javascript app.
   $self->add_template_javascript($self->{JS}->get_lib('TermDetails.js'));
   $self->add_template_javascript($self->{JS}->initializer_jquery('TermDetailsInit();'));
@@ -540,9 +556,6 @@ sub mode_golr_gene_product_details {
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile('gp');
   my $input_gp_id = $params->{gp};
-  $self->_common_params_settings({'title' =>
-				  'AmiGO: Gene Product Details for ' .
-				  $input_gp_id});
 
   ## Input sanity check.
   if( ! $input_gp_id ){
@@ -605,6 +618,13 @@ sub mode_golr_gene_product_details {
      ]
     };
   $self->add_template_bulk($prep);
+
+  ## Page seetings.
+  $self->set_template_parameter('page_title',
+				'AmiGO: Gene Product Details for ' .
+				$input_gp_id);
+  $self->set_template_parameter('content_title',
+				$gp_info_hash->{$input_gp_id}{'name'});
 
   # ## Initialize javascript app.
   # $self->add_template_javascript($self->{JS}->get_lib('GPDetails.js'));

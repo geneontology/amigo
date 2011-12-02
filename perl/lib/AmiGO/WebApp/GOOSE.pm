@@ -487,9 +487,10 @@ sub mode_goose {
     $self->set_template_parameter('my_mirror', $my_mirror);
     $self->set_template_parameter('mirror_info', $mirror_info);
 
-    ## Non-standard settings.
-    $self->set_template_parameter('STANDARD_YUI', 'no'); # no YUI please
+    ## Page settings.
     $self->set_template_parameter('page_title',
+				  'GO Online SQL/Solr Environment');
+    $self->set_template_parameter('content_title',
 				  'GO Online SQL/Solr Environment');
 
     ## 
@@ -522,13 +523,14 @@ sub mode_goose {
     my $jsinit ='GOOSEInit();';
     $self->add_template_javascript($self->{JS}->initializer_jquery($jsinit));
 
-    ## Juggle onto absolute version of header template.
-    $self->set_template_parameter('page_name', 'amigo'); # menu bar okay
-    $self->set_template_parameter('is_goose_p', '1'); # ...but we are goose
+    ## BUG?: Juggle onto absolute version of header template.
+    #$self->set_template_parameter('page_name', 'amigo'); # menu bar okay
+    #$self->set_template_parameter('is_goose_p', '1'); # ...but we are goose
     #$self->set_template_parameter('page_name', 'goose'); # rm menu bar
-    $self->add_template_content('common/header.tmpl');
+    #$self->add_template_content('common/header.tmpl');
     $self->add_template_content('pages/goose.tmpl');
-    $output = $self->generate_template_page({header=>0});
+    #$output = $self->generate_template_page({header=>0});
+    $output = $self->generate_template_page();
   }
   return $output;
 }

@@ -1,9 +1,4 @@
 <!-- START template: term_details.tmpl -->
-
-[% IF TERM_INFO.name %]
-
-<div class="contents term">
-  <h1 class="name">[% TERM_INFO.name %]</h1>
   
   <ul id="navPage" class="inline C">
     [% IF TERM_INFO.is_obsolete == 'true' %]
@@ -510,13 +505,4 @@
  [% END %]
  
  [% END %]
-</div>
-
-[% ELSE %]
-
-<div class="contents term">
-  <h3 class="name">No such term found.</h3>
-</div>
-
-[% END %]
 <!-- END template: term_details.tmpl -->

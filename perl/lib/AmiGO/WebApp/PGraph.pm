@@ -92,7 +92,7 @@ sub mode_exp {
 
   ## Juggle onto absolute version of header template.
   #$self->set_template_parameter('page_name', 'amigo'); # menu bar okay
-  $self->set_template_parameter('STANDARD_YUI', 'no');
+  $self->set_template_parameter('page_title', 'Phylo Demo');
   $self->add_template_content('pages/pgraph.tmpl');
   return $self->generate_template_page();
 }
@@ -123,7 +123,7 @@ sub mode_pthr10170 {
      ]
     };
   $self->add_template_bulk($prep);
-  $self->set_template_parameter('STANDARD_YUI', 'no');
+  $self->set_template_parameter('page_title', 'Phylo Demo 2');
   $self->add_template_content('pages/pgraph.tmpl');
   return $self->generate_template_page();
 }

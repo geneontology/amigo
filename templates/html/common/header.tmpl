@@ -27,7 +27,7 @@
     <li class="here">Search</li>
     [% ELSE %] 
     <li>
-      <a href="[% public_base %]/amigo?mode=live_search_gold" title="Search for GO terms, gene product annotations, and other entities.">Search</a>
+      <a href="[% base %]/amigo?mode=live_search_gold" title="Search for GO terms, gene product annotations, and other entities.">Search</a>
     </li>
     [% END %] 
 
@@ -35,12 +35,12 @@
     [% IF page_name == "amigo" && ! amigo_mode %]
     <li class="here">
       <a style="border: 0; background-color: #e9effa; color: #006;"
-	 href="[% public_base %]/amigo?[% session_id_for_url %]"
+	 href="[% base %]/amigo?[% session_id_for_url %]"
          title="More tools to explore the Gene Ontology">Tools&nbsp;&amp;&nbsp;Resources</a> 
     </li>
     [% ELSE %]
     <li>
-      <a href="[% public_base %]/amigo?[% session_id_for_url %]"
+      <a href="[% base %]/amigo"
          title="More tools to explore the Gene Ontology">Tools&nbsp;&amp;&nbsp;Resources</a> 
     </li>
     [% END %]
