@@ -357,7 +357,7 @@ sub mode_goose {
       if( defined $sql_results ){
 	$count = $q->count() || 0;
 	$self->{CORE}->kvetch("Got SQL results #: " . $count);
-	$sql_headers = $q->sql_headers();
+	$sql_headers = $q->headers();
       }else{
 	## Final run sanity check.
 	$tmpl_args->{message} =
@@ -404,7 +404,7 @@ sub mode_goose {
       my $found_terms_i = 0;
       if( defined $sql_results ){
 
-	## TODO: fix sql_headers
+	## TODO: fix headers
 	#$q->escapeHTML($header);
 
 	##
