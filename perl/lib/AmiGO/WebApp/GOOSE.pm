@@ -394,14 +394,16 @@ sub mode_goose {
   }else{
     $self->{CORE}->kvetch("some html combination");
 
+    ## HTML output collection.
+    my $htmled_results = [];
+    my $found_terms = [];
+    my $found_terms_i = 0;
+
     if( $in_type eq 'mysql' || $in_type eq 'psql' ){
       $self->{CORE}->kvetch("html/sql combination");
 
       ## Cycle through results and webify them. This may include
       ## cleaning, text IDing for linking, etc.
-      my $htmled_results = [];
-      my $found_terms = [];
-      my $found_terms_i = 0;
       if( defined $sql_results ){
 
 	## TODO: fix headers
@@ -445,7 +447,6 @@ sub mode_goose {
       # $direct_solr_results =~ s/\n/\<br \/\>/g;
       # push @$htmled_results, '<pre>' . $direct_solr_results . '</pre>';
 
-      #$self->{CORE}->kvetch("results: " . Dumper($results));
       my $treg = $self->{CORE}->term_regexp();
 
       foreach my $doc_hash (@$solr_results){
