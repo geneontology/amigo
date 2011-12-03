@@ -16,7 +16,8 @@ use CGI::Application::Plugin::TT;
 use AmiGO::Sanitize;
 use AmiGO::WebApp::Input;
 
-use AmiGO::External::HTML::SQLWiki;
+use AmiGO::External::HTML::Wiki::LEAD;
+use AmiGO::External::HTML::Wiki::GOlr;
 use AmiGO::External::LEAD::Status;
 use AmiGO::External::LEAD::Query;
 use AmiGO::External::GOLD::Status;
@@ -58,12 +59,58 @@ sub setup {
 }
 
 
+## TODO/NOTE: These are separate for what again...?
 my $tmpl_args =
   {
    title => 'Error!',
    header => 'GOOSE could not proceed!',
    message => 'This query could not be processed by GOOSE.',
   };
+
+
+## Get the LEAD SQL examples from the wiki.
+sub _goose_get_wiki_lead_examples {
+
+  my $self = shift;
+
+  ##
+  my $x = AmiGO::External::HTML::Wiki::LEAD->new();
+  my $examples_list = $x->extract();
+  if( scalar(@$examples_list) ){
+
+    ## Push on default.
+    unshift @$examples_list,
+      {
+       title => '(Select example LEAD SQL query from the wiki)',
+       sql => '',
+      };
+  }
+
+  return $examples_list;
+}
+
+
+## Get the LEAD SQL examples from the wiki.
+sub _goose_get_wiki_golr_examples {
+
+  my $self = shift;
+
+  ##
+  my $x = AmiGO::External::HTML::Wiki::GOlr->new();
+  my $examples_list = $x->extract();
+  if( scalar(@$examples_list) ){
+
+    ## Push on default.
+    unshift @$examples_list,
+      {
+       title => '(Select example GOlr Solr query from the wiki)',
+       solr => '',
+      };
+  }
+
+  return $examples_list;
+}
+
 
 ## Maybe how things should look in this framework?
 sub mode_goose {
@@ -78,28 +125,11 @@ sub mode_goose {
   my $in_mirror = $params->{mirror};
   my $in_query = $params->{query};
 
-  ###
-  ### Get SQL from wiki. Add the discovered template variables at the
-  ### end.
-  ###
-
-  $self->set_template_parameter('examples_list', undef);
-
-  ##
-  my $x = AmiGO::External::HTML::SQLWiki->new();
-  my $examples_list = $x->extract_sql();
-  if( scalar(@$examples_list) ){
-
-    ## Push on default.
-    unshift @$examples_list,
-      {
-       title => '(Select example query from the wiki)',
-       sql => '',
-      };
-
-    ## Override undefined default.
-    $self->set_template_parameter('examples_list', $examples_list);
-  }
+  ## Get LEAD SQL from wiki.
+  $self->set_template_parameter('lead_examples_list',
+				$self->_goose_get_wiki_lead_examples());
+  $self->set_template_parameter('golr_examples_list',
+				$self->_goose_get_wiki_golr_examples());
 
   ###
   ### Read in mirror information and check status. Add status

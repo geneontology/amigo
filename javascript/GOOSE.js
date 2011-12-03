@@ -15,15 +15,23 @@ function GOOSEInit(){
     //ll('');
     ll('GOOSEInit start...');
 
-    // Enter things from pulldown into textarea on change.
-    jQuery("#" + "goose_example_selection").change(
+    // LEAD: Enter things from pulldown into textarea on change.
+    jQuery("#" + "goose_lead_example_selection").change(
 	function(){
 	    var sql = jQuery(this).val();
 	    jQuery("#" + "query").val(sql);
 	});
 
+    // GOlr: Enter things from pulldown into textarea on change.
+    jQuery("#" + "goose_golr_example_selection").change(
+	function(){
+	    var semi_solr = jQuery(this).val();
+	    //ll('semi_solr: ' + semi_solr);
+	    jQuery("#" + "query").val(semi_solr);
+	});
+
     // Make unnecessary things roll up.
-    bbop.core.each(["information", "mirrors", "sql_options"],
+    bbop.core.each(["information", "mirrors", "sql_options", "solr_options"],
 		   function(eltid){
 		       jQuery('#'+eltid).hide();
 		       var elt = jQuery('#' + eltid + '_click');

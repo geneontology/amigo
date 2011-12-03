@@ -40,7 +40,7 @@
 	</p>
       </div>
        
-      <h3 id="mirrors_click" class="first"><a href="#">Available mirrors</a></h3>
+      <h3 id="mirrors_click" class="first"><a href="#">Available mirrors (choose between LEAD, GOLD, and GOlr)</a></h3>
       
       <div id="mirrors">
 	
@@ -81,7 +81,7 @@
 		  rows="5">[% query %]</textarea>
       </div>
 
-      <h3 id="sql_options_click" class="first"><a href="#">SQL options</h3></a>
+      <h3 id="sql_options_click" class="first"><a href="#">SQL options (LEAD and GOLD)</h3></a>
       
       <div id="sql_options">
 	
@@ -89,14 +89,14 @@
 	  Options only for use when making queries against an SQL database.
 	</p>
 
-	<div style="" id="goose_example_list">
-	  [% IF examples_list %]
+	<div style="" id="goose_lead_example_list">
+	  [% IF lead_examples_list %]
 	  <!-- Assemble the examples table. -->
-	  <select id="goose_example_selection"
+	  <select id="goose_lead_example_selection"
 		  class=""
 		  style=""
 		  size="1">
-	    [%    FOREACH ex = examples_list %]
+	    [%    FOREACH ex = lead_examples_list %]
 	    [%       value = ex.sql %]
 	    [%       title = ex.title %]
 	    <option title="[% value %]" 
@@ -146,6 +146,33 @@
 	  <input class="cbox" type="checkbox" name="format" value="text" />
 	</div>
 	
+      </div>
+
+      <h3 id="solr_options_click" class="first"><a href="#">Solr options (GOlr)</h3></a>
+      
+      <div id="solr_options">
+	
+	<div style="" id="goose_golr_example_list">
+	  [% IF golr_examples_list %]
+	  <!-- Assemble the examples table. -->
+	  <select id="goose_golr_example_selection"
+		  class=""
+		  style=""
+		  size="1">
+	    [%    FOREACH ex = golr_examples_list %]
+	    [%       value = ex.solr %]
+	    [%       title = ex.title %]
+	    <option title='[% value %]' 
+		    value='[% value %]'>[% title %]</option>
+	    [%    END %]
+	  </select>
+	  [% ELSE %]
+	  <!-- Unable to assemble the examples table. -->
+	  (The GO Solr wiki page could not be contacted so GOlr examples
+	  are not available.)
+	  [% END %]
+	</div>
+
       </div>
 
       <hr class="clearL">
