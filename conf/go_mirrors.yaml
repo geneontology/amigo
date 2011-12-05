@@ -10,7 +10,7 @@ bbop:
   password: amigoer
   database: go_latest
   host: spitz.lbl.gov
-  type: mysql
+  type: lead
   port: 3306
 
 princeton:
@@ -21,7 +21,7 @@ princeton:
   password: g00dness
   database: go_latest
   host: gomirror.princeton.edu
-  type: mysql
+  type: lead
   port: 13309
 
 ebi:
@@ -32,7 +32,7 @@ ebi:
   password: amigo
   database: go_latest
   host: mysql.ebi.ac.uk
-  type: mysql
+  type: lead
   port: 4085
 
 # princeton_lite:
@@ -43,7 +43,7 @@ ebi:
 #   password: g00dness
 #   database: go_latest_lite
 #   host: gomirror.princeton.edu
-#   type: mysql
+#   type: lead
 #   port: 13309
 
 bbop_lite:
@@ -54,7 +54,7 @@ bbop_lite:
   password: amigoer
   database: go_latest_lite
   host: spitz.lbl.gov
-  type: mysql
+  type: lead
   port: 3306
 
 gold_exp:
@@ -66,7 +66,7 @@ gold_exp:
   password: gold_pass
   database: gold
   host: ladle.lbl.gov
-  type: psql
+  type: gold
   port: 5432
 
 bbop_golr:

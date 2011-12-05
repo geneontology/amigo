@@ -10,6 +10,7 @@ This is not a search tool, but an efficient data retrieval tool.
 
 package AmiGO::Worker::GOlr::Term;
 use base ("AmiGO::Worker::GOlr");
+use Data::Dumper;
 
 
 =item new
@@ -23,6 +24,8 @@ sub new {
   my $args = shift || die "need an argument";
   my $self = $class->SUPER::new();
 
+  #$self->kvetch('searcher: ' . $self->{AEJS_GOLR_DOC});
+
   ## Only array refs internally.
   if( ref $args ne 'ARRAY' ){ $args = [$args]; }
 
@@ -32,7 +35,9 @@ sub new {
   ## layer of abstraction.
   $self->{AWGT_INFO} = {};
   foreach my $arg (@$args){
-    my $found_doc = $self->{AEJ_GOLR_DOC}->get_by_id($arg);
+    my $found_doc = $self->{AEJS_GOLR_DOC}->get_by_id($arg);
+
+    #$self->kvetch('$found_doc: ' . Dumper($found_doc));
 
     my $intermediate = undef;
     if( $found_doc ){

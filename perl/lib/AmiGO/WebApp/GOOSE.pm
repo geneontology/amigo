@@ -17,6 +17,7 @@ use AmiGO::Sanitize;
 use AmiGO::WebApp::Input;
 
 use AmiGO::External::HTML::Wiki::LEAD;
+use AmiGO::External::HTML::Wiki::GOLD;
 use AmiGO::External::HTML::Wiki::GOlr;
 use AmiGO::External::LEAD::Status;
 use AmiGO::External::LEAD::Query;
@@ -90,6 +91,28 @@ sub _goose_get_wiki_lead_examples {
 }
 
 
+## Get the GOLD SQL examples from the wiki.
+sub _goose_get_wiki_gold_examples {
+
+  my $self = shift;
+
+  ##
+  my $x = AmiGO::External::HTML::Wiki::GOLD->new();
+  my $examples_list = $x->extract();
+  if( scalar(@$examples_list) ){
+
+    ## Push on default.
+    unshift @$examples_list,
+      {
+       title => '(Select example GOLD SQL query from the wiki)',
+       sql => '',
+      };
+  }
+
+  return $examples_list;
+}
+
+
 ## Get the LEAD SQL examples from the wiki.
 sub _goose_get_wiki_golr_examples {
 
@@ -128,6 +151,8 @@ sub mode_goose {
   ## Get LEAD SQL from wiki.
   $self->set_template_parameter('lead_examples_list',
 				$self->_goose_get_wiki_lead_examples());
+  $self->set_template_parameter('gold_examples_list',
+				$self->_goose_get_wiki_gold_examples());
   $self->set_template_parameter('golr_examples_list',
 				$self->_goose_get_wiki_golr_examples());
 
@@ -185,9 +210,9 @@ sub mode_goose {
 
     ## Get the right status worker.
     my $status = undef;
-    if( $mirror->{type} eq 'mysql' ){
+    if( $mirror->{type} eq 'lead' ){
       $status = AmiGO::External::LEAD::Status->new($props);
-    }elsif( $mirror->{type} eq 'psql' ){
+    }elsif( $mirror->{type} eq 'gold' ){
       $status = AmiGO::External::GOLD::Status->new($props);
     }elsif( $mirror->{type} eq 'solr' ){
       ## Solr behaves a little differently.
@@ -331,9 +356,9 @@ sub mode_goose {
 
       ## Get the right query worker for SQL.
       my $q = undef;
-      if( $in_type eq 'mysql' ){
+      if( $in_type eq 'lead' ){
 	$q = AmiGO::External::LEAD::Query->new($props, $in_limit);
-      }elsif( $in_type eq 'psql' ){
+      }elsif( $in_type eq 'gold' ){
 	$q = AmiGO::External::GOLD::Query->new($props, $in_limit);
       }else{
 	$self->{CORE}->kvetch("_unknown database_");
@@ -372,7 +397,7 @@ sub mode_goose {
   ###
 
   my $output = '';
-  if( $in_format eq 'text' && ( $in_type eq 'mysql' || $in_type eq 'psql' )){
+  if( $in_format eq 'text' && ( $in_type eq 'lead' || $in_type eq 'gold' )){
     $self->{CORE}->kvetch("text/sql combination");
 
     $self->header_add( -type => 'plain/text' );
@@ -399,7 +424,7 @@ sub mode_goose {
     my $found_terms = [];
     my $found_terms_i = 0;
 
-    if( $in_type eq 'mysql' || $in_type eq 'psql' ){
+    if( $in_type eq 'lead' || $in_type eq 'gold' ){
       $self->{CORE}->kvetch("html/sql combination");
 
       ## Cycle through results and webify them. This may include
@@ -496,6 +521,7 @@ sub mode_goose {
     }
 
     ## HTML return phrasing.
+    $self->set_template_parameter('database_type', $in_type);
     $self->set_template_parameter('query', $in_query);
     $self->set_template_parameter('results_count', $count);
     $self->set_template_parameter('results_headers', $sql_headers);

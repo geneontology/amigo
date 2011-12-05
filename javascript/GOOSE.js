@@ -22,6 +22,13 @@ function GOOSEInit(){
 	    jQuery("#" + "query").val(sql);
 	});
 
+    // GOLD: Enter things from pulldown into textarea on change.
+    jQuery("#" + "goose_gold_example_selection").change(
+	function(){
+	    var sql = jQuery(this).val();
+	    jQuery("#" + "query").val(sql);
+	});
+
     // GOlr: Enter things from pulldown into textarea on change.
     jQuery("#" + "goose_golr_example_selection").change(
 	function(){

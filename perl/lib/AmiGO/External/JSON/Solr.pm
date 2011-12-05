@@ -52,6 +52,38 @@ sub new {
 }
 
 
+=item _query_url
+
+Arguments: Post "select?" query string or internal hash manipulation.
+Return: query string
+
+Helper function (not meant to be called directly) to get the url of
+the current state of the object.
+
+Does not change object state.
+
+=cut
+sub _query_url {
+
+  my $self = shift;
+  my $qstr = shift || undef;
+
+  $self->kvetch("base hash: " . Dumper($self->{AEJS_BASE_HASH}));
+
+  ## Create URL.
+  my $url = $self->{AEJS_BASE_URL} .
+    $self->hash_to_query_string($self->{AEJS_BASE_HASH});
+
+  ## Add more if it is defined as an argument.
+  $url = $url . '&' . $qstr if $qstr;
+
+  ## Make query against resource and try to perlify it.
+  $self->kvetch("url: " . $url);
+
+  return $url;
+};
+
+
 =item query
 
 Arguments: Post "select?" query string or internal hash manipulation.
@@ -67,19 +99,17 @@ sub query {
   my $qstr = shift || undef;
   my $retval = 0;
 
-  #$self->kvetch("base hash: " . Dumper($self->{AEJS_BASE_HASH}));
+  $self->kvetch("base hash: " . Dumper($self->{AEJS_BASE_HASH}));
 
   ## Create URL.
-  my $url = $self->{AEJS_BASE_URL} .
-    $self->hash_to_query_string($self->{AEJS_BASE_HASH});
+  my $url = $self->_query_url($qstr);
 
-  ## Add more if it is defined as an argument.
-  $url = $url . '&' . $qstr if $qstr;
-
+  ## Update last query url.
   $self->{AEJS_LAST_URL} = $url;
 
   ## Make query against resource and try to perlify it.
   $self->kvetch("url: " . $url);
+
   $self->get_external_data($url);
   my $doc_blob = $self->try();
 
@@ -284,6 +314,54 @@ sub first_doc {
   }
 
   return $retval;
+}
+
+
+=item _ready_paging
+
+Args: n/a
+Return: n/a
+
+A helper function to make sure paging stays sane. Called in first part
+of functions that deal with paging.
+
+Changes object state.
+
+=cut
+sub _ready_paging {
+
+  my $self = shift;
+
+  ## Our index is either correct or set to 1;
+  if( ! defined $self->{AEJS_BASE_HASH}{index} ){
+    # $curr_index = $self->{AEJS_BASE_HASH}{index};
+    # }else{
+    $self->{AEJS_BASE_HASH}{index} = 1;
+    #   $curr_index = 1;
+  }
+}
+
+
+=item next_page_url
+
+Args: n/a
+Return: url for the _next_ "page" on the service.
+
+=cut
+sub next_page_url {
+
+  my $self = shift;
+  my $returl = undef;
+
+  $self->_ready_paging();
+
+  ## Our current is either correct or set to 1;
+  my $curr_index = $self->{AEJS_BASE_HASH}{index};
+  $self->{AEJS_BASE_HASH}{index}++;
+  $returl = $self->_query_url();
+  $self->{AEJS_BASE_HASH}{index} = $curr_index;
+
+  return $returl;
 }
 
 

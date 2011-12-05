@@ -26,21 +26,21 @@
 
 	<b>LEAD SQL</b>
 	<p>
-	  See some LEAD SQL <a href="http://wiki.geneontology.org/index.php/Example_Queries">examples</a> and learn more about the LEAD <a href="http://www.geneontology.org/GO.database.shtml" title="LEAD database schema documentation">schema</a>.
+	  See some LEAD SQL <a href="http://wiki.geneontology.org/index.php/Example_LEAD_Queries">examples</a> and learn more about the LEAD <a href="http://www.geneontology.org/GO.database.shtml" title="LEAD database schema documentation">schema</a>.
 	</p>
 
 	<b>GOLD SQL</b>
 	<p>
-	  Learn more about the experimental GOLD <a href="http://www.geneontology.org/GO.gold.schema.shtml" title="GOLD database schema documentation">schema</a>.<br />
+	  See some GOLD SQL <a href="http://wiki.geneontology.org/index.php/Example_GOLD_Queries">examples</a> and learn more about the experimental GOLD <a href="http://www.geneontology.org/GO.gold.schema.shtml" title="GOLD database schema documentation">schema</a>.<br />
 	</p>
 
 	<b>GO Solr (GOlr)</b>
 	<p>
-	  See some GOlr  <a href="http://wiki.geneontology.org/index.php/Example_Solr_Queries">examples</a>. Preliminary <a href="http://geneontology.svn.sourceforge.net/viewvc/geneontology/java/gold/solr/conf/schema.xml?content-type=text%2Fplain">schema</a> information.
+	  See some GOlr  <a href="http://wiki.geneontology.org/index.php/Example_Solr_Queries">examples</a> and preliminary <a href="http://geneontology.svn.sourceforge.net/viewvc/geneontology/java/gold/solr/conf/schema.xml?content-type=text%2Fplain">schema</a> information.
 	</p>
       </div>
        
-      <h3 id="mirrors_click" class="first"><a href="#">Available mirrors (choose between LEAD, GOLD, and GOlr)</a></h3>
+      <h3 id="mirrors_click" class="first"><a href="#">Available mirrors--choose between LEAD, GOLD, and GOlr</a></h3>
       
       <div id="mirrors">
 	
@@ -72,7 +72,7 @@
 	</ul>	      
       </div>
 
-      <h3 class="first">Enter your query:</h3>
+      <h3 class="first">Enter your query (currently a <em>[% IF database_type == 'solr' %]Solr[% ELSIF database_type == 'lead' %]LEAD[% ELSIF database_type == 'gold' %]GOLD[% ELSE %]???[% END %]</em> database):</h3>
 
       <div>
 	<textarea id="query"
@@ -92,6 +92,7 @@
 	<div style="" id="goose_lead_example_list">
 	  [% IF lead_examples_list %]
 	  <!-- Assemble the examples table. -->
+	  <!-- LEAD -->
 	  <select id="goose_lead_example_selection"
 		  class=""
 		  style=""
@@ -106,6 +107,28 @@
 	  [% ELSE %]
 	  <!-- Unable to assemble the examples table. -->
 	  (The GO LEAD SQL wiki page could not be contacted so LEAD SQL examples
+	  are not available.)
+	  [% END %]
+	</div>
+
+	<!-- GOLD -->
+	<div style="" id="goose_gold_example_list">
+	  [% IF lead_examples_list %]
+	  <!-- Assemble the examples table. -->
+	  <select id="goose_gold_example_selection"
+		  class=""
+		  style=""
+		  size="1">
+	    [%    FOREACH ex = gold_examples_list %]
+	    [%       value = ex.sql %]
+	    [%       title = ex.title %]
+	    <option title="[% value %]" 
+		    value="[% value %]">[% title %]</option>
+	    [%    END %]
+	  </select>
+	  [% ELSE %]
+	  <!-- Unable to assemble the examples table. -->
+	  (The GO GOLD SQL wiki page could not be contacted so GOLD SQL examples
 	  are not available.)
 	  [% END %]
 	</div>

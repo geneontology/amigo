@@ -30,7 +30,7 @@ sub new {
   ## ...
   $self->{AWGG_INFO} = {};
   foreach my $arg (@$args){
-    my $found_doc = $self->{AEJ_GOLR_DOC}->get_by_id($arg);
+    my $found_doc = $self->{AEJS_GOLR_DOC}->get_by_id($arg);
 
     my $intermediate = undef;
     if( $found_doc ){

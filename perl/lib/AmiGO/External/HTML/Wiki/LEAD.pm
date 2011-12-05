@@ -24,7 +24,7 @@ use base ("AmiGO::External::HTML::Wiki");
 This is the URL that points to the GO SQL wiki.
 
 =cut
-my $URL_FOR_SQLWIKI = 'http://wiki.geneontology.org/index.php/Example_Queries';
+my $URL_FOR_SQLWIKI = 'http://wiki.geneontology.org/index.php/Example_LEAD_Queries';
 my $MATCH_FOR_SQLWIKI = '<span class=\"mw-headline\" id=\"[\w\s\_\-\:\;\,\.]*\">\s*([^\n]*?)<\/span><\/h[3-4]>.*?<pre>\s*(.*?)<\/pre>';
 
 
