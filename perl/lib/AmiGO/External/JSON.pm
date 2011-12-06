@@ -4,10 +4,12 @@ TODO: Specialize onto HTML resources. Add ??? for EXT_DATA and such.
 
 =cut
 
-package AmiGO::External::JSON;
 
+package AmiGO::External::JSON;
 use base ("AmiGO::External");
+
 use AmiGO::JavaScript;
+
 
 =item new
 

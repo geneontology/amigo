@@ -5,14 +5,14 @@ There must be one object per external source.
 
 =cut
 
+
+package AmiGO::External;
+use base ("AmiGO");
+
 use utf8;
 use strict;
 use WWW::Mechanize;
 use Carp;
-
-package AmiGO::External;
-
-use base ("AmiGO");
 
 
 =item new
@@ -24,12 +24,14 @@ sub new {
 
   ##
   my $class = shift;
-  my $self  = $class->SUPER::new();
-  #my $arg = shift || {};
+  my $self = $class->SUPER::new();
+
+  #print STDERR "___: " . $self . "\n";
 
   ## Ready mech.
-  $self->{MECH} = WWW::Mechanize->new(agent => 'AmiGO ' .
-				      $self->amigo_env('AMIGO_VERSION'));
+  my $agent_version = $self->amigo_env('AMIGO_VERSION') || '?.?';
+  $self->{MECH} = WWW::Mechanize->new(agent => 'AmiGO ' . $agent_version);
+
   ## TODO: Tie this to an AmiGO variable after merge from MAINTENANCE
   $self->{MECH}->timeout(2); # Timeout in seconds
 

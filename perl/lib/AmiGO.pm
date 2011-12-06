@@ -110,6 +110,8 @@ environment.
 
 NOTE: MySQL only.
 
+DEPRECATED?
+
 =cut
 sub db_connector {
 
@@ -447,6 +449,7 @@ sub amigo_env {
     ## A "nice" fallback.
     $retval = $ENV{uc($var)};
   }elsif ( ! defined($var) ){
+    ## Fallback and try and find old "GO_"-style variables.
     $retval = {};
     foreach my $k (%ENV){
       if( $k =~ /^GO_(.+)/ ){

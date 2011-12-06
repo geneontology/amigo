@@ -27,9 +27,8 @@ sub new {
   my $class = shift;
   my $self = $class->SUPER::new();
 
-  #my $args = shift || {};
-  my $target = shift || $self->amigo_env('AMIGO_PUBLIC_GOLR_URL');
-  #my $host = $args->{host} || die "need a host: $!";
+   my $target = shift ||
+     $self->amigo_env('AMIGO_PUBLIC_GOLR_URL') || 'http://localhost:8080/solr/';
 
   ## http://skewer.lbl.gov:8080/solr/select?qt=standard&indent=on&wt=json&version=2.2&rows=10&start=0&fl=*%2Cscore&q=id:%22GO:0022008%22
   $self->{AEJS_BASE_HASH} =
