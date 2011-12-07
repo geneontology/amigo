@@ -34,7 +34,10 @@ sub new {
 
   ## Run the query.
   $self->{AWG_SOLR} = AmiGO::External::JSON::Solr->new($server_url);
-  $self->{AWG_SOLR}->query($query);
+  ## Clobber certain fiddly fields with the incoming parameters.
+  $self->{AWG_SOLR}->update($query, ['q', 'qt', 'fl', 'wt', 'facet', 'indent',
+				     'version', 'start', 'rows']);
+  $self->{AWG_SOLR}->query();
   $self->{AWG_SOLR_DOCS} = $self->{AWG_SOLR}->docs();
 
   bless $self, $class;

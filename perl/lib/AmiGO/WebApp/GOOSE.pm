@@ -152,7 +152,7 @@ sub mode_goose {
   my $in_galaxy = $params->{GALAXY_URI};
   if( $in_galaxy ){
     #$self->add_mq('notice', 'Welcome to Galaxy visitor from ' . $in_galaxy);
-    $self->add_mq('notice', 'Welcome to Galaxy visitor.');
+    $self->add_mq('notice', 'Welcome Galaxy visitor!');
     $self->set_template_parameter('galaxy_uri', $in_galaxy);
   }
 

@@ -89,7 +89,9 @@ Arguments: Post "select?" query string or internal hash manipulation.
 Return: true or false on minimal success
 
 Basically, the main way subclasses should be handling Solr queries.
-Also updates last URL tried, count, etc.
+Also updates last URL tried, count, etc. Any specified string
+parameters will there in addition to the ones in the hash. If you want
+to override hash parameters, use the *_variable functions or update.
 
 =cut
 sub query {
@@ -114,6 +116,43 @@ sub query {
   if( ! $self->empty_hash_p($doc_blob) &&
       $doc_blob->{response} ){
     $self->{AEJS_RESPONSE} = $doc_blob;
+    $retval = 1;
+  }
+
+  return $retval;
+}
+
+
+=item update
+
+Arguments: Post "select?" query string and an aref list of clobberable values.
+Return: 1 if a change was made, 0 otherwise
+
+The point is to update the internal hash with a query string in a
+sensible way. Items that are not in the clobber list will have
+multiple values in the final query.
+
+=cut
+sub update {
+
+  my $self = shift;
+  my $qstr = shift || '';
+  my $clobber_list = shift || [];
+  my $retval = 0;
+
+  ## Convert clobber array into easy to use hash.
+  my $clobberables = $self->to_hash($clobber_list);
+
+  ## Run through all of thekeys and merge them into out main data. If
+  ## they are clobberable, do so; otherwise just add them to what's
+  ## already there.
+  my $q_hash = $self->query_string_to_hash($qstr);
+  foreach my $q_key (keys %$q_hash){
+    if( defined $clobberables->{$q_key} ){
+      $self->set_variable($q_key, $q_hash->{$q_key});
+    }else{
+      $self->add_variable($q_key, $q_hash->{$q_key});
+    }
     $retval = 1;
   }
 

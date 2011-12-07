@@ -1397,7 +1397,7 @@ sub query_string_to_hash {
     }
   }
 
-  $self->kvetch('$rethash: ' . Dumper($rethash));
+  # $self->kvetch('$rethash: ' . Dumper($rethash));
   return $rethash;
 }
 
