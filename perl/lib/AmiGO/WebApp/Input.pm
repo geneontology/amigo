@@ -118,6 +118,8 @@ sub input_profile {
     #$self->_add_simple_argument('graph_type', 'correct', ['all', 'correct']);
   }elsif( $profile_name eq 'gp' ){
     $self->_add_gp_set();
+  }elsif( $profile_name eq 'gaffer' ){
+    $self->_add_simple_argument('data_url', '');
   }elsif( $profile_name eq 'matrix' ){
     $self->_add_named_terms_string();
     $self->_add_species();
@@ -305,8 +307,13 @@ sub input_profile {
 ##
 sub _add_core_set {
 
+  my $self = shift;
+
   ## I think this will be easier in the end for the optional args.
   $profile->{missing_optional_valid} = 1;
+
+  ## Allow for incoming galaxy instances.
+  $self->_add_simple_argument('GALAXY_URI', '');
 
   ## Request.
   #push @{$profile->{required}}, 'request';

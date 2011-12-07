@@ -148,6 +148,14 @@ sub mode_goose {
   my $in_mirror = $params->{mirror};
   my $in_query = $params->{query};
 
+  ## Galaxy prep.
+  my $in_galaxy = $params->{GALAXY_URI};
+  if( $in_galaxy ){
+    #$self->add_mq('notice', 'Welcome to Galaxy visitor from ' . $in_galaxy);
+    $self->add_mq('notice', 'Welcome to Galaxy visitor.');
+    $self->set_template_parameter('galaxy_uri', $in_galaxy);
+  }
+
   ## Get LEAD SQL from wiki.
   $self->set_template_parameter('lead_examples_list',
 				$self->_goose_get_wiki_lead_examples());
@@ -329,11 +337,28 @@ sub mode_goose {
 
       ## Let's check it again.
       if( defined $solr_results ){
+
+	## Basic results.
 	$count = $q->total() || 0;
 	$in_limit = $q->count() || 0;
 	$self->{CORE}->kvetch("Got Solr results #: " . $count);
 	$direct_solr_url = $q->url();
 	$direct_solr_results = $q->raw();
+
+	## Prepare to go through the gaffer.
+	my $full_id_url = $q->full_results_url('id');
+	my $tmp_gurl =
+	  $self->{CORE}->get_interlink({
+					mode => 'gaffer',
+					arg =>
+					{
+					 mode => 'solr_to_id_list',
+					 url => $full_id_url
+					}});
+	$self->{CORE}->kvetch('id_url: ' . $full_id_url);
+	$self->{CORE}->kvetch('gurl: ' . $tmp_gurl);
+	$self->set_template_parameter('direct_gaffer_url',
+				      $self->{CORE}->html_safe($tmp_gurl));
       }else{
 
 	## Final run sanity check.

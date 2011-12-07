@@ -1,0 +1,13 @@
+#!/usr/bin/perl -w
+####
+#### A standalone proxy that will take urls to output and transform
+#### them info something useful.
+####
+
+BEGIN { require "config.pl"; }
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
+
+use AmiGO::WebApp::Gaffer;
+my $gaffer = AmiGO::WebApp::Gaffer->new(PARAMS => {});
+$gaffer->run();
+	

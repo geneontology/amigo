@@ -218,6 +218,7 @@ push @mods,
   qw(
       amigo
       aserve
+      gaffer
       visualize
    );
 

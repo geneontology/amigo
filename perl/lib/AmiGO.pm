@@ -1146,6 +1146,14 @@ sub get_interlink {
        $ilink = 'amigo?mode=golr_term_details&term=' . $acc;
      },
 
+     ## SLightly different than the others.
+     'gaffer' =>
+     sub {
+       my $gmode = $args->{mode} || die 'need mode';
+       my $gurl = $args->{url} || die 'need url';
+       $ilink = 'gaffer?mode=' . $gmode . '&data_url=' . $self->uri_safe($gurl);
+     },
+
      'visualize' =>
      sub {
        #print STDERR Dumper($arg_hash);

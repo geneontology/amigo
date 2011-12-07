@@ -4,13 +4,13 @@ Specialize onto external document store resource.
 
 =cut
 
+package AmiGO::External::JSON::Solr;
+use base ("AmiGO::External::JSON");
+
 use utf8;
 use strict;
 use Carp;
-
-package AmiGO::External::JSON::Solr;
-
-use base ("AmiGO::External::JSON");
+use Clone;
 use Data::Dumper;
 
 
@@ -98,8 +98,6 @@ sub query {
   my $qstr = shift || undef;
   my $retval = 0;
 
-  $self->kvetch("base hash: " . Dumper($self->{AEJS_BASE_HASH}));
-
   ## Create URL.
   my $url = $self->_query_url($qstr);
 
@@ -107,8 +105,6 @@ sub query {
   $self->{AEJS_LAST_URL} = $url;
 
   ## Make query against resource and try to perlify it.
-  $self->kvetch("url: " . $url);
-
   $self->get_external_data($url);
   my $doc_blob = $self->try();
 
@@ -324,7 +320,7 @@ Return: n/a
 A helper function to make sure paging stays sane. Called in first part
 of functions that deal with paging.
 
-Changes object state.
+Changes object state permanently by making sure that index is defined.
 
 =cut
 sub _ready_paging {
@@ -359,6 +355,35 @@ sub next_page_url {
   $self->{AEJS_BASE_HASH}{index}++;
   $returl = $self->_query_url();
   $self->{AEJS_BASE_HASH}{index} = $curr_index;
+
+  return $returl;
+}
+
+
+=item full_results_url
+
+Args: optional field (as solr fl argument) to be collected
+Return: url for the _full_ results of the current query
+
+=cut
+sub full_results_url {
+
+  my $self = shift;
+  my $fl = shift || undef;
+
+  ## Save our little trip--we're going to need to make some changes.
+  my $save = Clone::clone($self->{AEJS_BASE_HASH});
+
+  ## Settings to get everything.
+  $self->{AEJS_BASE_HASH}{start} = 0;
+  $self->{AEJS_BASE_HASH}{rows} = $self->total();
+  if( defined $fl ){
+    $self->{AEJS_BASE_HASH}{fl} = $fl;
+  }
+  my $returl = $self->_query_url();
+
+  ## Restore back to where we began.
+  $self->{AEJS_BASE_HASH} = $save;
 
   return $returl;
 }

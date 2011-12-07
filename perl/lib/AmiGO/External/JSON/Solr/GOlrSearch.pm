@@ -1,4 +1,4 @@
-=head1 AmiGO::External::JSON::GOlrSearch
+=head1 AmiGO::External::JSON::Solr::GOlrSearch
 
 ...
 

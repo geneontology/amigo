@@ -6,9 +6,9 @@
     
     <div class="block">
 
-      <!--
-	  <input type="hidden" name="database" value="1" />
-	  -->
+      [% IF galaxy_uri %]
+      <input type="hidden" name="GALAXY_URI" value="[% galaxy_uri %]" />
+      [% END %]
       
       <h2>Directly query GO data</h2>
       
@@ -16,7 +16,16 @@
       
       <div id="information">
 
-	<b>General SQL</b>
+	<h4>Instructions</h4>
+	<p>
+	  Select a mirror to reflect the type of query you want to
+	  make--queries intended for one type of database that get
+	  sent to another will almost always end in a hard to
+	  understand error message. Please check this first before
+	  reporting any problems.
+	</p>
+
+	<h4>General SQL</h4>
 	<p>
 	  If your query takes a long time or returns a blank screen,
 	  you may want to try the download option. If your query is
@@ -24,17 +33,17 @@
 	  database from the mirror selection.
 	</p>
 
-	<b>LEAD SQL</b>
+	<h4>LEAD SQL</h4>
 	<p>
 	  See some LEAD SQL <a href="http://wiki.geneontology.org/index.php/Example_LEAD_Queries">examples</a> and learn more about the LEAD <a href="http://www.geneontology.org/GO.database.shtml" title="LEAD database schema documentation">schema</a>.
 	</p>
 
-	<b>GOLD SQL</b>
+	<h4>GOLD SQL</h4>
 	<p>
 	  See some GOLD SQL <a href="http://wiki.geneontology.org/index.php/Example_GOLD_Queries">examples</a> and learn more about the experimental GOLD <a href="http://www.geneontology.org/GO.gold.schema.shtml" title="GOLD database schema documentation">schema</a>.<br />
 	</p>
 
-	<b>GO Solr (GOlr)</b>
+	<h4>GO Solr (GOlr)</h4>
 	<p>
 	  See some GOlr  <a href="http://wiki.geneontology.org/index.php/Example_Solr_Queries">examples</a> and preliminary <a href="http://geneontology.svn.sourceforge.net/viewvc/geneontology/java/gold/solr/conf/schema.xml?content-type=text%2Fplain">schema</a> information.
 	</p>
@@ -235,9 +244,14 @@
       
       [% ## Using this to detect Solr vs. SQL. %]
       [% IF direct_solr_url %]
-      Full Solr results: <a href="[% direct_solr_url %]"
+      Direct Solr results: <a href="[% direct_solr_url %]"
 	 title="Link to full Solr results.">[% direct_solr_url %]</a>
       <br />
+      [%    IF galaxy_uri AND direct_gaffer_url %]
+      Downloadable id list <a href="[% direct_gaffer_url %]"
+	 title="Link to downloadable list results.">results</a>.     
+      <br />
+      [%    END %]
       [% ELSE %]
 
       [%   IF terms_count > 0 AND terms_limit > terms_count %]
@@ -257,6 +271,9 @@
 	    method="GET"
 	    name="goose_form"
 	    id="goose_form">
+	[% IF galaxy_uri %]
+	<input type="hidden" name="GALAXY_URI" value="[% galaxy_uri %]" />
+	[% END %]
 	<input type="hidden" name="mirror" value="[% my_mirror %]" />
 	<input type="hidden" name="query" value="[% query %]" />
 	<input type="hidden" name="limit" value="[% limit %]" />
