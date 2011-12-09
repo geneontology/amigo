@@ -5,63 +5,62 @@
 bbop:
   label: Berkeley BOP
   location: in Berkeley, CA
-  is_main_p: true
+  class: main
   login: go_select
   password: amigoer
   database: go_latest
   host: spitz.lbl.gov
-  type: lead
+  type: lead_full
   port: 3306
 
 princeton:
   label: Princeton
   location: in Princeton, NJ
-  is_main_p: false
+  class: aux
   login: goclient
   password: g00dness
   database: go_latest
   host: gomirror.princeton.edu
-  type: lead
+  type: lead_full
   port: 13309
 
 ebi:
   label: EBI
   location: in Cambridge, UK
-  is_main_p: true
+  class: main
   login: go_select
   password: amigo
   database: go_latest
   host: mysql.ebi.ac.uk
-  type: lead
+  type: lead_full
   port: 4085
 
 # princeton_lite:
 #   label: Princeton (lite)
 #   location: in Princeton, NJ
-#   is_main_p: false
+#   class: aux
 #   login: goclient
 #   password: g00dness
 #   database: go_latest_lite
 #   host: gomirror.princeton.edu
-#   type: lead
+#   type: lead_lite
 #   port: 13309
 
 bbop_lite:
   label: Berkeley BOP (lite)
   location: in Berkeley, CA
-  is_main_p: false
+  class: aux
   login: go_select
   password: amigoer
   database: go_latest_lite
   host: spitz.lbl.gov
-  type: lead
+  type: lead_lite
   port: 3306
 
 gold_exp:
   label: Experimental GOLD
   location: in Berkeley, CA
-  is_main_p: false
-  is_exp_p: true
+  class: exp
   login: gold_user
   password: gold_pass
   database: gold
@@ -72,7 +71,6 @@ gold_exp:
 bbop_golr:
   label: Experimental GO Solr
   location: in Berkeley, CA
-  is_main_p: false
-  is_exp_p: true
+  class: exp
   database: http://skewer.lbl.gov:8080/solr/
   type: solr

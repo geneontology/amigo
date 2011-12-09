@@ -29,14 +29,14 @@ sub new {
     die 'unable to parse incoming target solr url';
   }
 
-  $self->kvetch('$server_url: ' . $server_url);
-  $self->kvetch('$query: ' . $query);
+  #$self->kvetch('$server_url: ' . $server_url);
+  #$self->kvetch('$query: ' . $query);
 
   ## Run the query.
   $self->{AWG_SOLR} = AmiGO::External::JSON::Solr->new($server_url);
   ## Clobber certain fiddly fields with the incoming parameters.
-  $self->{AWG_SOLR}->update($query, ['q', 'qt', 'fl', 'wt', 'facet', 'indent',
-				     'version', 'start', 'rows']);
+  $self->{AWG_SOLR}->update($query, ['q', 'fl', 'wt', 'facet', 'indent',
+				     'qt', 'version', 'start', 'rows']);
   $self->{AWG_SOLR}->query();
   $self->{AWG_SOLR_DOCS} = $self->{AWG_SOLR}->docs();
 

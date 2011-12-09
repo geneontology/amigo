@@ -8,6 +8,7 @@ package AmiGO::WebApp::GOOSE;
 use base 'AmiGO::WebApp';
 
 use YAML qw(LoadFile);
+use Clone;
 use Data::Dumper;
 
 use CGI::Application::Plugin::Session;
@@ -135,6 +136,114 @@ sub _goose_get_wiki_golr_examples {
 }
 
 
+## Return a properties hash usable for *::Status functions. Assume the
+## the arguments are mostly legit.
+sub _goose_get_mirror_properties {
+
+  my $self = shift;
+  my $mirror = shift || die 'need a mirror';
+  my $mirror_info = shift || die 'need a mirror info hash';
+
+  my $props =
+    {
+     'login' => $mirror_info->{$mirror}{login} || '',
+     'password' => $mirror_info->{$mirror}{password} || '',
+     'host' => $mirror_info->{$mirror}{host} || undef,
+     'port' => $mirror_info->{$mirror}{port} || '3306',
+     'database' => $mirror_info->{$mirror}{database} || undef,
+     'type' => $mirror_info->{$mirror}{type} || undef,
+    };
+
+  return $props;
+}
+
+
+## Return the status of the mirror, with a proper properties hash as
+## an argument.
+sub _goose_get_mirror_status {
+
+  my $self = shift;
+  my $mirror_props = shift || die 'need a mirror property hash';
+  my $retval = 0;
+
+  ## Get the right status worker.
+  my $status = undef;
+  if( $mirror_props->{type} =~ /lead/ ){
+    $status = AmiGO::External::LEAD::Status->new($mirror_props);
+  }elsif( $mirror_props->{type} =~ /gold/ ){
+    $status = AmiGO::External::GOLD::Status->new($mirror_props);
+  }elsif( $mirror_props->{type} =~ /solr/ ){
+    ## Solr behaves a little differently.
+    $status =
+      AmiGO::External::JSON::Solr::Status->new($mirror_props->{database});
+  }else{
+    $self->{CORE}->kvetch("_unknown database_");
+    #$tmpl_args->{message} = "_unknown database_";
+    #return $self->mode_generic_message($tmpl_args);
+  }
+
+  ## If we got a status, see if it's alive.
+  if( $status ){
+    if( $status->alive() ){
+      $retval = 1;
+    }
+  }
+
+  return $retval;
+}
+
+
+## Try and select a random live mirror from a set of mirrors. Return a
+## mirror string for success, otherwise undef.
+sub _goose_mirror_select_from_set {
+
+  my $self = shift;
+  my $in_mirror_set = shift || die 'need a mirror set';
+  my $wanted_mirror = shift || undef; # optional first try in the set
+  my $ret_mirror = undef;
+
+  ## Clone the mirror set as well be doing some destructive operations
+  ## on it since we don't want a repeat in the loop.
+  my $mirror_set = Clone::clone($in_mirror_set);
+
+  ## First test if the wanted mirror is okay.
+  if( defined $wanted_mirror ){ # do we have an incoming mirror?
+
+    if( defined $mirror_set->{$wanted_mirror} ){ # is it in the set?
+
+      ## If the wanted mirror looks good, take it.
+      my $mirror_props =
+	$self->_goose_get_mirror_properties($wanted_mirror, $mirror_set);
+      if( $self->_goose_get_mirror_status($mirror_props) ){
+	$ret_mirror = $wanted_mirror;
+      }
+
+      ## Either way, let's take the wanted mirror out of the
+      ## set...only important if it turns out that it wasn't any good
+      ## so we can skip it in the loop below.
+      delete $mirror_set->{$wanted_mirror};
+    }
+  }
+
+  ## If $ret_mirror is still not defined...
+  if( ! defined $ret_mirror ){
+
+    ## Randomly walk through the rest of the set and try them out,
+    ## break out if we find one.
+    foreach my $rand_mirror (@{$self->{CORE}->random_hash_keys($mirror_set)}){
+      my $mirror_props =
+	$self->_goose_get_mirror_properties($rand_mirror, $mirror_set);
+      if( $self->_goose_get_mirror_status($mirror_props) ){
+	$ret_mirror = $rand_mirror;
+	last;
+      }
+    }
+  }
+
+  return $ret_mirror;
+}
+
+
 ## Maybe how things should look in this framework?
 sub mode_goose {
 
@@ -156,7 +265,7 @@ sub mode_goose {
     $self->set_template_parameter('galaxy_uri', $in_galaxy);
   }
 
-  ## Get LEAD SQL from wiki.
+  ## Get various examples from the wiki.
   $self->set_template_parameter('lead_examples_list',
 				$self->_goose_get_wiki_lead_examples());
   $self->set_template_parameter('gold_examples_list',
@@ -165,126 +274,116 @@ sub mode_goose {
 				$self->_goose_get_wiki_golr_examples());
 
   ###
-  ### Read in mirror information and check status. Add status
-  ### information to the mirror information hash.
+  ### The idea is to make GOOSE more responsive by not checking all of
+  ### the mirrors, but using either a random main mirror or trying to
+  ### use the user's selected mirror as an initial hint. Availability
+  ### will be communicated only after the fact through the mq system
+  ### or an error page. The whole purpose of this next section is to
+  ### try and get values for: $my_mirror and $mirror_type_mismatch_p.
   ###
 
+  my $my_mirror = undef;
+  my $mirror_type_mismatch_p = 0;
+
+  ## Read in known mirror information and check status.
   my $mirror_loc =
     $self->{CORE}->amigo_env('AMIGO_ROOT') . '/conf/go_mirrors.yaml';
+  #my $mirror_conf_info = $self->{JS}->parse_json_file($mirror_loc);
+  my $mirror_conf_info = LoadFile($mirror_loc);
+  #$self->{CORE}->kvetch("_mirror_conf_info_dump_:".Dumper($mirror_conf_info));
 
-  #my $mirror_info = $self->{JS}->parse_json_file($mirror_loc);
-  my $mirror_info = LoadFile($mirror_loc);
-  #$self->{CORE}->kvetch("_mirror_info_dump_:" . Dumper($mirror_info));
+  ## Go through all of our mirrors and categorize them into the
+  ## exclusive class sets.
+  my $main_mirrors = {}; # have the class flag 'main'
+  my $aux_mirrors = {}; # have the class flag 'aux'
+  my $exp_mirrors = {}; # have the class flag 'exp'
+  foreach my $m (keys %$mirror_conf_info){
 
-  ## Run the mirror test on every mirror and at the same time see if
-  ## they are a "main" (mirrors that should be considered for random
-  ## default status) mirror or not.
-  ## All mirrors go into one of these three mutually exclusive categories.
-  my $main_mirrors = {};
-  my $aux_mirrors = {};
-  my $exp_mirrors = {};
-  ## These are mutually exclusive, but not complete (no exp).
-  my $alive_main_mirrors = {};
-  my $alive_aux_mirrors = {};
-  my $alive_exp_mirrors = {};
-  my $dead_mirrors = {};
-  foreach my $m (keys %$mirror_info){
+    my $mirror = $mirror_conf_info->{$m};
+    #$self->{CORE}->kvetch("curr mirror: " .  Dumper($mirror_conf_info));
+    #$self->{CORE}->kvetch("curr mirror: " .  Dumper($mirror));
 
-    my $mirror = $mirror_info->{$m};
-    #$self->{CORE}->kvetch("_mirrors_:" . Dumper($mirror));
-
-    ## Mark main or not, exp or not.
-    $self->{CORE}->kvetch("mirror: " . $m .
-			  ", is_main_p: " . $mirror->{is_main_p} .
-			  ", is_exp_p: " . $mirror->{is_exp_p});
-    if( defined $mirror->{is_main_p} && $mirror->{is_main_p} eq 'true' ){
-      $main_mirrors->{$m} = 1;
-    }elsif( defined $mirror->{is_exp_p} && $mirror->{is_exp_p} eq 'true' ){
-      $exp_mirrors->{$m} = 1;
-    }else{
-      $aux_mirrors->{$m} = 1;
-    }
-
-    ## Gather connection information.
-    my $props =
-      {
-       'login' => $mirror->{login} || '',
-       'password' => $mirror->{password} || '',
-       'host' => $mirror->{host} || undef,
-       'port' => $mirror->{port} || '3306',
-       'database' => $mirror->{database} || undef,
-       'type' => $mirror->{type} || undef,
-      };
-
-    ## Get the right status worker.
-    my $status = undef;
-    if( $mirror->{type} eq 'lead' ){
-      $status = AmiGO::External::LEAD::Status->new($props);
-    }elsif( $mirror->{type} eq 'gold' ){
-      $status = AmiGO::External::GOLD::Status->new($props);
-    }elsif( $mirror->{type} eq 'solr' ){
-      ## Solr behaves a little differently.
-      $status = AmiGO::External::JSON::Solr::Status->new($mirror->{database});
-    }else{
-      $self->{CORE}->kvetch("_unknown database_");
-      $tmpl_args->{message} = "_unknown database_";
-      return $self->mode_generic_message($tmpl_args);
-    }
-
-    ## Check aliveness status and mark/cache accordingly.
-    if( defined $status ){
-      if( ! $status->alive() ){
-	#$self->{CORE}->kvetch("DEAD DEAD DEAD " . $m);
-	$dead_mirrors->{$m} = 1;
-	$mirror_info->{$m}{is_alive_p} = 0;
+    if( defined $mirror->{class} ){
+      if( $mirror->{class} eq 'main' ){
+	$main_mirrors->{$m} = $mirror;
+      }elsif( $mirror->{class} eq 'aux' ){
+	$aux_mirrors->{$m} = $mirror;
+      }elsif( $mirror->{class} eq 'exp' ){
+	$exp_mirrors->{$m} = $mirror;
       }else{
-	#$self->{CORE}->kvetch($m . " is ALIVE!!!");
+	$self->{CORE}->kvetch('unknown mirror class, dropping...');
+      }
+    }else{
+      $self->{CORE}->kvetch('class not defined for this mirror, dropping...');
+    }
+  }
 
-	## Mark alive and cache status.
-	if( defined $main_mirrors->{$m} ){
-	  $alive_main_mirrors->{$m} = 1;
-	}elsif( defined $aux_mirrors->{$m} ){
-	  $alive_aux_mirrors->{$m} = 1;
-	}elsif( defined $exp_mirrors->{$m} ){
-	  $alive_exp_mirrors->{$m} = 1;
+  ## If there is an already selected mirror, check to see if it's
+  ## okay. If it's not okay, do nothing and send message back.
+  my $in_mirror_type = undef;
+  if( defined $in_mirror && $in_mirror ){
+    if( defined $mirror_conf_info->{$in_mirror} ){
+      ## Make an attempt at contacting the chosen mirror.
+      my $props =
+	$self->_goose_get_mirror_properties($in_mirror, $mirror_conf_info);
+      $in_mirror_type = $props->{'type'};
+      if( $self->_goose_get_mirror_status($props) ){
+	$my_mirror = $in_mirror;
+      }else{
+	$self->add_mq('warning', "GOOSE couldn't contact your selection; " .
+		      "GOOSE will try and find another mirror...")
+      }
+    }else{
+      $self->add_mq('warning', "The mirror you selected wasn't defined; " .
+		    "GOOSE will try and find another mirror...")
+    }
+  }
+
+  ## If my mirror isn't defined, either none came in or the one we
+  ## wanted is no longer available. Try and find something else: main
+  ## > aux > exp.
+  if( defined $my_mirror ){
+    $self->{CORE}->kvetch('found a usable incoming mirror: ' . $my_mirror);
+  }else{
+
+    ## First try the main mirrors.
+    $my_mirror = $self->_goose_mirror_select_from_set($main_mirrors);
+    if( defined $my_mirror ){
+      $self->{CORE}->kvetch('found a usable main mirror: ' . $my_mirror);
+    }else{
+
+      ## Odd, there should be a main mirror...
+      $self->add_mq('warning', "No main recommended mirror was found! " .
+		    "GOOSE will try and select an auxiliary mirror...");
+
+      ## Next try the aux mirrors.
+      $my_mirror = $self->_goose_mirror_select_from_set($aux_mirrors);
+      if(  defined $my_mirror ){
+	$self->{CORE}->kvetch('found a usable aux mirror: ' . $my_mirror);
+      }else{
+
+	## Odd, not even an experimental mirror...
+	$self->add_mq('warning', "No auxiliary mirror was found! " .
+		      "GOOSE will try and select an experimental mirror...");
+
+	## Finally try the exp mirrors.
+	$my_mirror = $self->_goose_mirror_select_from_set($exp_mirrors);
+	if( defined $my_mirror ){
+	  $self->{CORE}->kvetch('found a usable exp mirror: ' . $my_mirror);
+	}else{
+	  $self->add_mq('error', "No live mirror was found! " .
+			"Please contact the GO Helpdesk for assistance.");
+	  $self->{CORE}->kvetch('no usable exp mirror');
 	}
-	$mirror_info->{$m}{is_alive_p} = 1;
-	$mirror_info->{$m}{release_name} = $status->release_name();
-	$mirror_info->{$m}{release_type} = $status->release_type();
       }
     }
   }
 
-  # ## DEBUG.
   # $self->{CORE}->kvetch("main_mirrors: " . Dumper($main_mirrors));
   # $self->{CORE}->kvetch("aux_mirrors: " . Dumper($aux_mirrors));
   # $self->{CORE}->kvetch("exp_mirrors: " . Dumper($exp_mirrors));
-  # $self->{CORE}->kvetch("alive_main_mirrors: " . Dumper($alive_main_mirrors));
-  # $self->{CORE}->kvetch("alive_aux_mirrors: " . Dumper($alive_aux_mirrors));
-  # $self->{CORE}->kvetch("alive_exp_mirrors: " . Dumper($alive_exp_mirrors));
 
-  ## How do we pick our mirror? First check to see if there is an
-  ## incoming mirror and if it is on the alive list. If not that,
-  ## pick a random mirror from the intersection of the alive and main
-  ## list. Finally, bail and pick any alive mirror.
-  my $my_mirror = undef;
-  if( defined $alive_main_mirrors->{$in_mirror} ||
-      defined $alive_aux_mirrors->{$in_mirror} ||
-      defined $alive_exp_mirrors->{$in_mirror} ){
-    $my_mirror = $in_mirror;
-    #$self->{CORE}->kvetch("will use default incoming mirror: " . $my_mirror);
-  }else{
-    ## Pick a random default if there is one.
-    if( scalar(keys %$alive_main_mirrors) > 0 ){
-      $my_mirror = $self->{CORE}->random_hash_key($alive_main_mirrors);
-      #$self->{CORE}->kvetch("will use random alive main mirror: " .$my_mirror);
-    }elsif( scalar(keys %$alive_aux_mirrors) > 0 ){
-      $my_mirror = $self->{CORE}->random_hash_key($alive_aux_mirrors);
-      #$self->{CORE}->kvetch("will use random alive aux mirror: " .$my_mirror);
-    }
-  }
-
-  ## Check for major malfunction/problem.
+  ## Check for major malfunctions/problems in finding a mirror.
   if( ! defined $my_mirror ){
     $tmpl_args->{message} =
       "No functioning mirror found--please contact GO Help.";
@@ -293,32 +392,35 @@ sub mode_goose {
     $self->{CORE}->kvetch("GOOSE: using_mirror: " . $my_mirror);
   }
 
+  ## Was there a critical change in mirror type?
+  if( defined $in_mirror_type &&
+      $in_mirror_type ne $mirror_conf_info->{$in_mirror}{type} ){
+    $self->{CORE}->kvetch("mirror type mismatch!");
+    $mirror_type_mismatch_p = 1;
+    $self->add_mq('error', "A mirror of the same type could not be found.")
+  }
+
   ###
-  ### TODO: Everything is safe if we're here and usable mirror has
-  ### been selected. Make actual query if there is input.
+  ### Everything is safe if we're here and usable mirror has been
+  ### selected--otherwise, we would have errored out earlier. Make an
+  ### actual query if there is input. We do skip the query if there
+  ### was a mirror class mismatch.
   ###
 
   ##
-  my $in_type = $mirror_info->{$my_mirror}{type};
+  my $in_type = $mirror_conf_info->{$my_mirror}{type};
   my $sql_results = undef;
   my $count = undef;
   my $sql_headers = undef; # for sql results
   my $direct_solr_url = undef; # for solr results
   my $solr_results = undef; # for solr results
   my $direct_solr_results = undef; # for solr results
-  if( $in_query && defined $in_limit ){
+  if( $in_query && defined $in_limit && ! $mirror_type_mismatch_p ){
 
     ## Get connection info.
-    my $mirror = $mirror_info->{$my_mirror};
+    my $mirror = $mirror_conf_info->{$my_mirror};
     my $props =
-      {
-       'login' => $mirror->{login} || '',
-       'password' => $mirror->{password} || '',
-       'host' => $mirror->{host} || undef,
-       'port' => $mirror->{port} || '3306',
-       'database' => $mirror->{database} || undef,
-       'type' => $mirror->{type} || undef,
-      };
+      $self->_goose_get_mirror_properties($my_mirror, $mirror_conf_info);
 
     ###
     ### From this point on, two work flows--one for Solr and one for
@@ -328,7 +430,7 @@ sub mode_goose {
     $self->{CORE}->kvetch("trying query:" . $in_query);
 
     ## Solr work, otherwise SQL.
-    if( $in_type eq 'solr' ){
+    if( $in_type =~ /solr/ ){
 
       ## Grab the solr worker.
       my $q = AmiGO::External::JSON::Solr::SafeQuery->new($props->{database});
@@ -381,9 +483,9 @@ sub mode_goose {
 
       ## Get the right query worker for SQL.
       my $q = undef;
-      if( $in_type eq 'lead' ){
+      if( $in_type =~ /lead/ ){
 	$q = AmiGO::External::LEAD::Query->new($props, $in_limit);
-      }elsif( $in_type eq 'gold' ){
+      }elsif( $in_type =~ /gold/ ){
 	$q = AmiGO::External::GOLD::Query->new($props, $in_limit);
       }else{
 	$self->{CORE}->kvetch("_unknown database_");
@@ -422,7 +524,7 @@ sub mode_goose {
   ###
 
   my $output = '';
-  if( $in_format eq 'text' && ( $in_type eq 'lead' || $in_type eq 'gold' )){
+  if( $in_format eq 'text' && ( $in_type =~ /lead/ || $in_type =~ /gold/ )){
     $self->{CORE}->kvetch("text/sql combination");
 
     $self->header_add( -type => 'plain/text' );
@@ -437,7 +539,7 @@ sub mode_goose {
     }
     $output = join "\n", @$nlbuf;
 
-  }elsif( $in_format eq 'text' && $in_type eq 'solr' ){
+  }elsif( $in_format eq 'text' && $in_type =~ /solr/ ){
     $self->{CORE}->kvetch("text/solr combination: " . $direct_solr_results);
     $self->header_add( -type => 'plain/text' );
     $output = $direct_solr_results;
@@ -449,7 +551,7 @@ sub mode_goose {
     my $found_terms = [];
     my $found_terms_i = 0;
 
-    if( $in_type eq 'lead' || $in_type eq 'gold' ){
+    if( $in_type =~ /lead/ || $in_type =~ /gold/ ){
       $self->{CORE}->kvetch("html/sql combination");
 
       ## Cycle through results and webify them. This may include
@@ -490,7 +592,7 @@ sub mode_goose {
 	  push @$htmled_results, $rowbuf;
 	}
       }
-    }elsif( $in_type eq 'solr' ){
+    }elsif( $in_type =~ /solr/ ){
       $self->{CORE}->kvetch("html/solr combination");
       #push @$htmled_results, "TODO: solr html output";
 
@@ -567,7 +669,7 @@ sub mode_goose {
     foreach my $m (keys %$exp_mirrors){ push @$mlist, $m; }
     $self->set_template_parameter('all_mirrors', $mlist);
     $self->set_template_parameter('my_mirror', $my_mirror);
-    $self->set_template_parameter('mirror_info', $mirror_info);
+    $self->set_template_parameter('mirror_info', $mirror_conf_info);
 
     ## Page settings.
     $self->set_template_parameter('page_title',

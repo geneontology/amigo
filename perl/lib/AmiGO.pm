@@ -34,6 +34,7 @@ use URI::Escape;
 # use JSON;
 use JSON::PP;
 use Data::UUID;
+use List::Util 'shuffle';
 
 ## File type guessing games.
 #use File::MMagic;
@@ -1531,6 +1532,19 @@ sub random_hash_key {
   my $self = shift;
   my $hash = shift || {};
   return (keys %$hash)[rand(keys %$hash)];
+}
+
+
+=item random_hash_keys
+
+Returns a random aref of hash keys from a hashref.
+
+=cut
+sub random_hash_keys {
+  my $self = shift;
+  my $hash = shift || {};
+  my @shuffled_keys = shuffle(keys %$hash);
+  return \@shuffled_keys;
 }
 
 
