@@ -258,11 +258,11 @@ sub mode_goose {
   my $in_query = $params->{query};
 
   ## Galaxy prep.
-  my $in_galaxy = $params->{GALAXY_URI};
+  my $in_galaxy = $params->{GALAXY_URL};
   if( $in_galaxy ){
     #$self->add_mq('notice', 'Welcome to Galaxy visitor from ' . $in_galaxy);
     $self->add_mq('notice', 'Welcome Galaxy visitor!');
-    $self->set_template_parameter('galaxy_uri', $in_galaxy);
+    $self->set_template_parameter('galaxy_url', $in_galaxy);
   }
 
   ## Get various examples from the wiki.
@@ -330,12 +330,14 @@ sub mode_goose {
       if( $self->_goose_get_mirror_status($props) ){
 	$my_mirror = $in_mirror;
       }else{
+	$self->{CORE}->kvetch('selection not contactable: ' . $in_mirror);
 	$self->add_mq('warning', "GOOSE couldn't contact your selection; " .
-		      "GOOSE will try and find another mirror...")
+		      "GOOSE will try and use another mirror...")
       }
     }else{
+      $self->{CORE}->kvetch('undefined $in_mirror');
       $self->add_mq('warning', "The mirror you selected wasn't defined; " .
-		    "GOOSE will try and find another mirror...")
+		    "GOOSE will try and use another mirror...")
     }
   }
 
@@ -389,15 +391,20 @@ sub mode_goose {
       "No functioning mirror found--please contact GO Help.";
     return $self->mode_generic_message($tmpl_args);
   }else{
-    $self->{CORE}->kvetch("GOOSE: using_mirror: " . $my_mirror);
+    $self->{CORE}->kvetch("using_mirror: " . $my_mirror);
   }
+
+  $self->{CORE}->kvetch('$in_mirror_type: ' . $in_mirror_type);
+  $self->{CORE}->kvetch('reported mirror type: ' .
+			$mirror_conf_info->{$in_mirror}{type});
 
   ## Was there a critical change in mirror type?
   if( defined $in_mirror_type &&
-      $in_mirror_type ne $mirror_conf_info->{$in_mirror}{type} ){
+      $in_mirror_type ne $mirror_conf_info->{$my_mirror}{type} ){
     $self->{CORE}->kvetch("mirror type mismatch!");
     $mirror_type_mismatch_p = 1;
-    $self->add_mq('error', "A mirror of the same type could not be found.")
+    $self->add_mq('error', "A mirror of the same type could not be found; " . 
+		 'please select another method for your query.');
   }
 
   ###

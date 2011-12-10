@@ -763,7 +763,8 @@ sub generate_template_page {
   ## TODO: It looks like RoR-stlye messages and the like should go
   ## here.
   ## First error (X), then warning (!), then notice (<check>).
-  foreach my $queue (("error", "warning", "notice")){
+  #foreach my $queue (("error", "warning", "notice")){
+  foreach my $queue (("notice", "warning", "error")){
     my $messages = $self->get_mq($queue);
     foreach my $message (@$messages){
       $self->{CORE}->kvetch('in queue output try: '. $queue . ": " . $message);

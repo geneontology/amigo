@@ -6,8 +6,8 @@
     
     <div class="block">
 
-      [% IF galaxy_uri %]
-      <input type="hidden" name="GALAXY_URI" value="[% galaxy_uri %]" />
+      [% IF galaxy_url %]
+      <input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
       [% END %]
       
       <h2>Directly query GO data</h2>
@@ -54,34 +54,26 @@
       <div id="mirrors">
 	
 	<ul>
-
 	  [% FOREACH mirror = all_mirrors %]
 
-	  <li[% IF mirror_info.$mirror.is_exp_p %] style="color:#999999"[% END %]>
+	  <li>
 	    <input type="radio" 
 		   name="mirror" 
 		   value="[% mirror %]" 
 		   [% IF my_mirror == mirror %]checked[% END %]
 		   class="cbox">
 	    <b>
-	      [% IF mirror_info.$mirror.is_alive_p == 0 %][UNAVAILABLE][% END %]
+	      <!-- [% IF mirror_info.$mirror.is_alive_p == 0 %][UNAVAILABLE][% END %] -->
 	      [% mirror_info.$mirror.label %]
 	    </b>:
-	    [% IF mirror_info.$mirror.is_alive_p == 1 %]
-	    Use the database mirror [% mirror_info.$mirror.location %]
-	    <small>Last updated on [% mirror_info.$mirror.release_name %]
-	    ([% dbrt = mirror_info.$mirror.release_type; IF dbrt == 'termdb' OR dbrt == 'assocdb' OR dbrt == 'seqdb' OR dbrt == 'full' %]<a title="Go to GO database type documentation." href="http://geneontology.org/GO.database.shtml#dbtypes">[% dbrt %]</a>[% ELSE %][% dbrt %][% END %]).</small>
-	    [% ELSE %]
-	    Please check back later...
-	    [% END %]
+	    Use the [% IF mirror_info.$mirror.type.search('solr') %]Solr[% ELSIF mirror_info.$mirror.type.search('lead') %]LEAD[% ELSIF mirror_info.$mirror.type.search('gold') %]GOLD[% ELSE %]???[% END %] [% IF mirror_info.$mirror.type.search('full') %]full[% ELSIF mirror_info.$mirror.type.search('lite') %]lite[% END %] [% IF mirror_info.$mirror.class.search('main') %]main[% ELSIF mirror_info.$mirror.class.search('aux') %]auxiliary[% ELSIF mirror_info.$mirror.class.search('exp') %]experimental[% END %] mirror [% mirror_info.$mirror.location %].
 	  </li>
 
-	  [% END %]
-	  
+	  [% END %]	  
 	</ul>	      
       </div>
 
-      <h3 class="first">Enter your query (currently a <em>[% IF database_type == 'solr' %]Solr[% ELSIF database_type == 'lead' %]LEAD[% ELSIF database_type == 'gold' %]GOLD[% ELSE %]???[% END %]</em> database):</h3>
+      <h3 class="first">Enter your query (currently a <em>[% IF database_type.search('solr') %]Solr[% ELSIF database_type.search('lead') %]LEAD[% ELSIF database_type.search('gold') %]GOLD[% ELSE %]???[% END %]</em> database):</h3>
 
       <div>
 	<textarea id="query"
@@ -97,6 +89,50 @@
 	<p>
 	  Options only for use when making queries against an SQL database.
 	</p>
+
+	Limit the number of results returned:
+	<select name="limit" size="1">
+	  <option
+	     title="10" 
+	     value="10" 
+	     [% IF limit == 10 %]selected[% END %]
+	     class="" >10</option>
+	  <option
+	     title="100" 
+	     value="100" 
+	     [% IF limit == 100 %]selected[% END %]
+	     class="">100</option>
+	  <option
+	     title="1000" 
+	     value="1000" 
+	     [% IF limit == 1000 %]selected[% END %]
+	     class="">1000</option>
+	  <option
+	     title="10000" 
+	     value="10000" 
+	     [% IF limit == 10000 %]selected[% END %]
+	     class="">10000</option>
+	  <option
+	     title="unlimited" 
+	     value="0" 
+	     [% IF limit == 0 %]selected[% END %]
+	     class="">unlimited</option>
+	</select>
+
+	<br />
+
+	<div>
+          Download results directly in a text format
+	  <input class="cbox" type="checkbox" name="format" value="text" />
+	</div>
+	
+      </div>
+
+      <!-- <h3 id="solr_options_click" class="first"><a href="#">Solr options (GOlr)</h3></a> -->
+      
+      <!-- <div id="solr_options"> -->
+	
+      <!-- </div> -->
 
 	<div style="" id="goose_lead_example_list">
 	  [% IF lead_examples_list %]
@@ -142,48 +178,7 @@
 	  [% END %]
 	</div>
 
-	Limit the number of results returned:
-	<select name="limit" size="1">
-	  <option
-	     title="10" 
-	     value="10" 
-	     [% IF limit == 10 %]selected[% END %]
-	     class="" >10</option>
-	  <option
-	     title="100" 
-	     value="100" 
-	     [% IF limit == 100 %]selected[% END %]
-	     class="">100</option>
-	  <option
-	     title="1000" 
-	     value="1000" 
-	     [% IF limit == 1000 %]selected[% END %]
-	     class="">1000</option>
-	  <option
-	     title="10000" 
-	     value="10000" 
-	     [% IF limit == 10000 %]selected[% END %]
-	     class="">10000</option>
-	  <option
-	     title="unlimited" 
-	     value="0" 
-	     [% IF limit == 0 %]selected[% END %]
-	     class="">unlimited</option>
-	</select>
-
-	<br />
-
-	<div>
-          Download results directly in a text format
-	  <input class="cbox" type="checkbox" name="format" value="text" />
-	</div>
-	
-      </div>
-
-      <h3 id="solr_options_click" class="first"><a href="#">Solr options (GOlr)</h3></a>
-      
-      <div id="solr_options">
-	
+	<!-- Solr -->
 	<div style="" id="goose_golr_example_list">
 	  [% IF golr_examples_list %]
 	  <!-- Assemble the examples table. -->
@@ -204,8 +199,6 @@
 	  are not available.)
 	  [% END %]
 	</div>
-
-      </div>
 
       <hr class="clearL">
       <input type="submit" class="button" value="Query!" />
@@ -247,7 +240,7 @@
       Direct Solr results: <a href="[% direct_solr_url %]"
 	 title="Link to full Solr results.">[% direct_solr_url %]</a>
       <br />
-      [%    IF galaxy_uri AND direct_gaffer_url %]
+      [%    IF galaxy_url AND direct_gaffer_url %]
       Downloadable id list <a href="[% direct_gaffer_url %]"
 	 title="Link to downloadable list results.">results</a>.     
       <br />
@@ -271,8 +264,8 @@
 	    method="GET"
 	    name="goose_form"
 	    id="goose_form">
-	[% IF galaxy_uri %]
-	<input type="hidden" name="GALAXY_URI" value="[% galaxy_uri %]" />
+	[% IF galaxy_url %]
+	<input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
 	[% END %]
 	<input type="hidden" name="mirror" value="[% my_mirror %]" />
 	<input type="hidden" name="query" value="[% query %]" />

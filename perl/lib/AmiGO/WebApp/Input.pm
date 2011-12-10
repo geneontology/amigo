@@ -313,7 +313,7 @@ sub _add_core_set {
   $profile->{missing_optional_valid} = 1;
 
   ## Allow for incoming galaxy instances.
-  $self->_add_simple_argument('GALAXY_URI', '');
+  $self->_add_simple_argument('GALAXY_URL', '');
 
   ## Request.
   #push @{$profile->{required}}, 'request';
