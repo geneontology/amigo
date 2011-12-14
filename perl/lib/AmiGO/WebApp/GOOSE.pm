@@ -463,6 +463,10 @@ sub mode_goose {
 					{
 					 mode => 'solr_to_id_list',
 					 url => $full_id_url
+					},
+					optional =>
+					{
+					 full => 1
 					}});
 	$self->{CORE}->kvetch('id_url: ' . $full_id_url);
 	$self->{CORE}->kvetch('gurl: ' . $tmp_gurl);

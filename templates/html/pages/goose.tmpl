@@ -244,6 +244,21 @@
       Downloadable id list <a href="[% direct_gaffer_url %]"
 	 title="Link to downloadable list results.">results</a>.     
       <br />
+
+      <form id="galaxyform" action="[% galaxy_url %]" name="galaxyform" method="POST" target="_blank">
+	<input id="URL" type="hidden" name="URL"
+	       value="[% direct_gaffer_url %]" />
+	<input id="queryXML" type="hidden" name="query">
+	<input id="size" type="hidden" name="size">
+	<input type="hidden" name="URL_method" value="post">
+	<input id="data_type" type="hidden" name="data_type">
+	<input id="dbkey" type="hidden" name="dbkey">
+	<input id="info" type="hidden" name="info">
+	<input name="submit" type="submit" value="Export to Galaxy" />
+      </form>
+
+      <br />
+
       [%    END %]
       [% ELSE %]
 
