@@ -1,6 +1,7 @@
 =head1 AmiGO::Worker::Gaffer
 
-A Swiss Army knife class for GOlr to GAF (and whatever else) translations. The idea is to make
+A Swiss Army knife class for GOlr to GAF (and whatever else)
+translations. The idea is to make
 
 =cut
 
@@ -32,11 +33,16 @@ sub new {
   #$self->kvetch('$server_url: ' . $server_url);
   #$self->kvetch('$query: ' . $query);
 
-  ## Run the query.
+  ## Get the agent, and give it a large timeout as some of these might
+  ## take a while...
   $self->{AWG_SOLR} = AmiGO::External::JSON::Solr->new($server_url);
+  $self->{AWG_SOLR}{MECH}->timeout(60); # give it a minute
+
   ## Clobber certain fiddly fields with the incoming parameters.
   $self->{AWG_SOLR}->update($query, ['q', 'fl', 'wt', 'facet', 'indent',
 				     'qt', 'version', 'start', 'rows']);
+
+  ## Run the query and get the docs.
   $self->{AWG_SOLR}->query();
   $self->{AWG_SOLR_DOCS} = $self->{AWG_SOLR}->docs();
 
