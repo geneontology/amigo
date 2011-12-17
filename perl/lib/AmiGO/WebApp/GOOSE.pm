@@ -470,8 +470,10 @@ sub mode_goose {
 					}});
 	$self->{CORE}->kvetch('id_url: ' . $full_id_url);
 	$self->{CORE}->kvetch('gurl: ' . $tmp_gurl);
-	$self->set_template_parameter('direct_gaffer_url',
+	$self->set_template_parameter('direct_gaffer_url_safe',
 				      $self->{CORE}->html_safe($tmp_gurl));
+	$self->set_template_parameter('direct_gaffer_url_unsafe',
+				      $tmp_gurl);
       }else{
 
 	## Final run sanity check.
