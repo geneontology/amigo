@@ -345,7 +345,8 @@ sub amigo_env_to_js {
 
   ## Bring in necessaries.
   use AmiGO;
-  use JSON::PP;
+  #use JSON::PP;
+  use JSON::XS;
 
   my $core = AmiGO->new();
 
@@ -419,8 +420,9 @@ sub amigo_env_to_js {
     };
 
   ##
-  my $js = JSON::PP->new();
-  $js->allow_bignum(1);
+  #my $js = JSON::PP->new();
+  my $js = JSON::XS->new();
+  #$js->allow_bignum(1); # if needed, go back to ::PP
   my $json_str = $js->encode($ret);
 
   ##

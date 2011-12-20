@@ -31,8 +31,9 @@ use strict;
 use POSIX qw(strftime floor);
 use Data::Dumper;
 use URI::Escape;
-# use JSON;
-use JSON::PP;
+#use JSON;
+#use JSON::PP;
+use JSON::XS;
 use Data::UUID;
 use List::Util 'shuffle';
 
@@ -65,10 +66,14 @@ sub new {
     # $self->{JSON_TRUE} = JSON::true;
     # $self->{JSON_FALSE} = JSON::false;
   }else{
-    $self->{JSON} = JSON::PP->new();
-    $self->{JSON_TRUE} = JSON::PP::true;
-    $self->{JSON_FALSE} = JSON::PP::false;
-    $self->{JSON}->allow_bignum(1);
+    # $self->{JSON} = JSON::PP->new();
+    # $self->{JSON_TRUE} = JSON::PP::true;
+    # $self->{JSON_FALSE} = JSON::PP::false;
+    # $self->{JSON}->allow_bignum(1);
+    $self->{JSON} = JSON::XS->new();
+    $self->{JSON_TRUE} = JSON::XS::true;
+    $self->{JSON_FALSE} = JSON::XS::false;
+    #$self->{JSON}->allow_bignum(1); # if needed, go back to ::PP
   }
 
   $self->{UUID_SOURCE} = Data::UUID->new();

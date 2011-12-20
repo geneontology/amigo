@@ -10,7 +10,8 @@ use Test::More 'no_plan';
 
 ## Necessary libs.
 use WWW::Mechanize;
-use JSON::PP;
+#use JSON::PP;
+use JSON::XS;
 
 
 ## Start with a simple agent.
@@ -23,7 +24,8 @@ my $json_doc = $mech->content();
 print STDERR "Found document:\n" . $json_doc . "\n";
 
 ## Parse JSON.
-my $json_parser = JSON::PP->new();
+#my $json_parser = JSON::PP->new();
+my $json_parser = JSON::XS->new();
 my $results = $json_parser->decode($json_doc);
 
 ## Run tests.
