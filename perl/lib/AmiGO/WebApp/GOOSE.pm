@@ -456,7 +456,7 @@ sub mode_goose {
 
 	## Prepare to go through the gaffer.
 	my $full_id_url = $q->full_results_url('id');
-	my $tmp_gurl =
+	my $tmp_id_gurl =
 	  $self->{CORE}->get_interlink({
 					mode => 'gaffer',
 					arg =>
@@ -468,10 +468,28 @@ sub mode_goose {
 					{
 					 full => 1
 					}});
-	$self->{CORE}->kvetch('id_url: ' . $full_id_url);
-	$self->{CORE}->kvetch('gurl: ' . $tmp_gurl);
-	$self->set_template_parameter('direct_gaffer_url_safe',
-				      $self->{CORE}->html_safe($tmp_gurl));
+	#my $full_gaf_url = $q->full_results_url('id');
+	my $full_gaf_url = $q->full_results_url('*');
+	my $tmp_gaf_gurl =
+	  $self->{CORE}->get_interlink({
+					mode => 'gaffer',
+					arg =>
+					{
+					 mode => 'solr_to_gaf',
+					 url => $full_gaf_url
+					},
+					optional =>
+					{
+					 full => 1
+					}});
+	$self->{CORE}->kvetch('full id url: ' . $full_id_url);
+	$self->{CORE}->kvetch('full gaf url: ' . $full_gaf_url);
+	$self->{CORE}->kvetch('id gurl: ' . $tmp_id_gurl);
+	$self->{CORE}->kvetch('gaf gurl: ' . $tmp_gaf_gurl);
+	$self->set_template_parameter('direct_gaffer_id_url_safe',
+				      $self->{CORE}->html_safe($tmp_id_gurl));
+	$self->set_template_parameter('direct_gaffer_gaf_url_safe',
+				      $self->{CORE}->html_safe($tmp_gaf_gurl));
       }else{
 
 	## Final run sanity check.

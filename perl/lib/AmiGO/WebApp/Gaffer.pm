@@ -38,6 +38,7 @@ sub setup {
 		   'nil'             => 'mode_nil',
 		   'solr_proxy'           => 'mode_solr_proxy',
 		   'solr_to_id_list' => 'mode_solr_to_id_list',
+		   'solr_to_gaf'     => 'mode_solr_to_gaf',
 		   'AUTOLOAD'        => 'mode_exception'
 		  );
 }
@@ -58,7 +59,8 @@ sub mode_solr_proxy {
   return 'solr proxy';
 }
 
-## Maybe how things should look in this framework?
+
+## ...
 sub mode_solr_to_id_list {
 
   my $self = shift;
@@ -74,6 +76,29 @@ sub mode_solr_to_id_list {
   if( $data_url ){
     my $gaffer = AmiGO::Worker::Gaffer->new($data_url);
     $output = $gaffer->solr_to_id_list();
+  }
+
+  $self->header_add( -type => 'plain/text' );
+  return $output;
+}
+
+
+## ...
+sub mode_solr_to_gaf {
+
+  my $self = shift;
+
+  ## Input handling.
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile('gaffer');
+  my $data_url = $params->{data_url};
+
+  $self->{CORE}->kvetch('data_url: ' . $data_url);
+
+  my $output = '';
+  if( $data_url ){
+    my $gaffer = AmiGO::Worker::Gaffer->new($data_url);
+    $output = $gaffer->solr_to_gaf();
   }
 
   $self->header_add( -type => 'plain/text' );
