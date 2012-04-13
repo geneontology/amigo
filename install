@@ -268,7 +268,7 @@ force_copy(Cwd::cwd() . '/javascript', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
 # 	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
 ll("Install GO JS libraries.");
 foreach my $jslib ('bbop', 'external', 'graph', 'newick_tree'){
-  force_copy($env_conf{GO_JS_ROOT} . '/' . $jslib,
+  force_copy($env_conf{GO_JS_ROOT} . '/lib/' . $jslib,
 	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
 }
 amigo_env_to_js();

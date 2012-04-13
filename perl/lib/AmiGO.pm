@@ -37,6 +37,9 @@ use JSON::XS;
 use Data::UUID;
 use List::Util 'shuffle';
 
+## Trying to work with YAML.
+use Config::YAML;
+
 ## File type guessing games.
 #use File::MMagic;
 use File::Type;
@@ -101,6 +104,42 @@ sub new {
 
   bless $self, $class;
   return $self;
+}
+
+
+###
+### Resource reader.
+###
+
+=item read_config_resource
+
+Returns a hash object with the correct defaults from the GOlr config files.
+
+=cut
+sub read_config_resource {
+
+  my $self = shift;
+  my $fstr = shift || die "need a file string or something";
+  my $rethash = {};
+
+  ## Read the config.
+  $rethash = Config::YAML->new(config => $fstr);
+
+  ## Cram in the defaults.
+  my $new_fields = [];
+  foreach my $field (@{$rethash->{fields}}){
+    push @$new_fields,
+      $self->merge({
+		    required => 'false',
+		    cardinality => 'single',
+		    property_type => 'dynamic',
+		    weight => 0,
+		    transform => []
+		   }, $field);
+  }
+  $rethash->{fields} = $new_fields;
+
+  return $rethash;
 }
 
 
