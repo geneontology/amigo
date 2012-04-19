@@ -1,4 +1,4 @@
-=head1 AmiGO::External::JSON::Solr::SafeQuery
+=head1 AmiGO::External::JSON::Solr::GOlr::SafeQuery
 
 TODO
 
@@ -7,9 +7,9 @@ server.
 
 =cut
 
-package AmiGO::External::JSON::Solr::SafeQuery;
+package AmiGO::External::JSON::Solr::GOlr::SafeQuery;
 
-use base 'AmiGO::External::JSON::Solr';
+use base 'AmiGO::External::JSON::Solr::GOlr';
 #use AmiGO::Sanitize;
 use Data::Dumper;
 

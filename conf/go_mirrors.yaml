@@ -72,5 +72,5 @@ bbop_golr:
   label: Experimental GO Solr
   location: in Berkeley, CA
   class: exp
-  database: http://skewer.lbl.gov:8080/solr/
+  database: http://golr.berkeleybop.org/
   type: solr

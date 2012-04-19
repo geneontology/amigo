@@ -1,4 +1,4 @@
-=head1 AmiGO::External::JSON::GOlrDocument
+=head1 AmiGO::External::JSON::GOlr::Document
 
 Solr/JSON interface for retrieving objects with useful ids from the
 GOlr. Transforms the returned JSON into a similar perl object or
@@ -6,8 +6,8 @@ returns nothing.
 
 =cut
 
-package AmiGO::External::JSON::Solr::GOlrDocument;
-use base ("AmiGO::External::JSON::Solr");
+package AmiGO::External::JSON::Solr::GOlr::Document;
+use base ("AmiGO::External::JSON::Solr::GOlr");
 use Data::Dumper;
 
 

@@ -1,4 +1,4 @@
-=head1 AmiGO::External::JSON::Solr::Status
+=head1 AmiGO::External::JSON::Solr::GOlr::Status
 
 ...
 
@@ -10,15 +10,15 @@ Usage:
 use utf8;
 use strict;
 
-package AmiGO::External::JSON::Solr::Status;
+package AmiGO::External::JSON::Solr::GOlr::Status;
 
-use base ("AmiGO::External::JSON::Solr");
+use base ("AmiGO::External::JSON::Solr::GOlr");
 use Date::Format;
 
 
 =item new
 
-See AmiGO::External::JSON::Solr
+See AmiGO::External::JSON::Solr::GOlr
 
 =cut
 sub new {

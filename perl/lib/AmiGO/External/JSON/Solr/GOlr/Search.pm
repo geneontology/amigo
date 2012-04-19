@@ -1,11 +1,11 @@
-=head1 AmiGO::External::JSON::Solr::GOlrSearch
+=head1 AmiGO::External::JSON::Solr::GOlr::Search
 
 ...
 
 =cut
 
-package AmiGO::External::JSON::Solr::GOlrSearch;
-use base ("AmiGO::External::JSON::Solr");
+package AmiGO::External::JSON::Solr::GOlr::Search;
+use base ("AmiGO::External::JSON::Solr::GOlr");
 
 
 =item new

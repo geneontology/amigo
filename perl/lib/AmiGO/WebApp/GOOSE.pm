@@ -24,8 +24,8 @@ use AmiGO::External::LEAD::Status;
 use AmiGO::External::LEAD::Query;
 use AmiGO::External::GOLD::Status;
 use AmiGO::External::GOLD::Query;
-use AmiGO::External::JSON::Solr::Status;
-use AmiGO::External::JSON::Solr::SafeQuery;
+use AmiGO::External::JSON::Solr::GOlr::Status;
+use AmiGO::External::JSON::Solr::GOlr::SafeQuery;
 
 my $VISUALIZE_LIMIT = 50;
 
@@ -175,7 +175,7 @@ sub _goose_get_mirror_status {
   }elsif( $mirror_props->{type} =~ /solr/ ){
     ## Solr behaves a little differently.
     $status =
-      AmiGO::External::JSON::Solr::Status->new($mirror_props->{database});
+      AmiGO::External::JSON::Solr::GOlr::Status->new($mirror_props->{database});
   }else{
     $self->{CORE}->kvetch("_unknown database_");
     #$tmpl_args->{message} = "_unknown database_";
@@ -440,7 +440,8 @@ sub mode_goose {
     if( $in_type =~ /solr/ ){
 
       ## Grab the solr worker.
-      my $q = AmiGO::External::JSON::Solr::SafeQuery->new($props->{database});
+      my $q =
+	AmiGO::External::JSON::Solr::GOlr::SafeQuery->new($props->{database});
       $q->safe_query($in_query);
       $solr_results = $q->docs();
 
