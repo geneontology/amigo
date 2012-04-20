@@ -354,7 +354,7 @@ sub amigo_env_to_js {
   my $file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
     '/javascript/bbop/amigo/go_meta.js';
   unlink $file_str if -f $file_str;
-  open(FILE, ">$file_str") or die "can not open $file_str: $!";
+  open(FILE, ">$file_str") or die "cannot open $file_str: $!";
 
   # $core->kvetch('file_str: ' . $file_str);
   # $core->kvetch('core: ' . $core);
