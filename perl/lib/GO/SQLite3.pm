@@ -48,7 +48,7 @@ sub new {
 }
 
 
-=item destroy
+=item create
 
 Args:
 Returns: 1/0 on creation or not.

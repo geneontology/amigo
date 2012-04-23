@@ -274,6 +274,41 @@ foreach my $jslib ('bbop', 'external', 'graph', 'newick_tree'){
 amigo_env_to_js();
 #}
 
+###
+### Lets chew up the search/GOlr configurations and setup a data
+### structure that we can use for it.
+###
+
+## TODO/BUG: temporarily hard-coded--his needs to be dynamic, but for
+## now we're just gunna write them in for debugging fun.
+my $yaml_path =
+  "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/";
+my $yaml_confs = [
+		  $yaml_path . "ont-config.yaml",
+		  $yaml_path . "bio-config.yaml",
+		  $yaml_path . "ann-config.yaml",
+		  $yaml_path . "ann_ev_agg-config.yaml"
+		 ];
+
+golr_config_to_js($yaml_confs);
+
+# print STDOUT "Ready to process GOlr YAML conf files...(1)\n";
+# #$core->kvetch("Ready to process GOlr YAML conf files...(2)");
+# my $foo = $core->read_config_resource($yaml_confs);
+# #$core->kvetch(Dumper($foo));
+# print STDOUT "GOlr YAML conf files...(1)\n" . Dumper($foo);
+
+# my $json_foo = $core->make_js($foo);
+# print STDOUT "GOlr YAML conf files...(1)\n" . Dumper($json_foo);
+# #$core->kvetch(Dumper($json_foo));
+
+## 0 > weight: invisible
+## 100 > weight >= 0: visible and in order; minor
+## weight >= 100: visible and in order; major
+
+###
+### Finish.
+###
 
 ## Done.
 print <<EOC;
@@ -336,6 +371,121 @@ EOC
 }
 
 
+## file: /srv/www/htdocs/amigo/js/bbop/amigo/golr_conf_data.js
+sub golr_config_to_js {
+
+  ## 
+  use lib getcwd() . '/perl/lib';
+
+  ## Bring in necessaries.
+  use AmiGO::JavaScript;
+  #use JSON::PP;
+  use JSON::XS;
+
+  my $core = AmiGO::JavaScript->new();
+
+  my $yaml_confs = shift || die "need a file string or something";
+  my $rethash = {};
+
+  ## Make array ref.
+  if( ref $yaml_confs ne 'ARRAY' ){
+    $yaml_confs = [$yaml_confs];
+  }
+
+  foreach my $yaml_conf (@$yaml_confs){
+
+    ## Read the config and pull the id.
+    my $conf_hash = Config::YAML->new(config => $yaml_conf);
+    my $conf_id = $conf_hash->{id};
+
+    ## Make sure that the top level hash the required fields.
+    $rethash->{ $conf_id } =
+      $core->merge({
+		    searchable_extension => "_searchable",
+		    weight => 0,
+		    default_fields_and_boosts => ""
+		   }, $conf_hash);
+
+    ## Also make sure that the default fields are there properly for
+    ## each config.
+    my $new_fields = [];
+    foreach my $field (@{$rethash->{$conf_id}{fields}}){
+      push @$new_fields,
+	$core->merge({
+		      required => 'false',
+		      cardinality => 'single',
+		      property_type => 'dynamic',
+		      weight => 0,
+		      searchable => 'false',
+		      transform => []
+		     }, $field);
+    }
+    $rethash->{$conf_id}{fields} = $new_fields;
+  }
+
+  #return $rethash;
+
+  # ## Transform them into something a little more useful for the client
+  # ## (i.e. arrayified and ordered instead of the straight hash refs
+  # ## that we have.
+  # my $fix = sub {
+
+  #   my $thing = shift;
+
+  #   ## Arrayify.
+  #   $thing = [map { [$thing->{$_} , $_ ] } keys %$thing];
+
+  #   ## Sort on key.
+  #   $thing = [sort{
+  #     #print STDERR $$a[0]. ' vs ' . $$b[0] . "\n";
+  #     return $$a[0] cmp $$b[0];
+  #   } @$thing];
+
+  #   return $thing;
+  # };
+
+  ##
+  #my $js = JSON::PP->new();
+  my $js = JSON::XS->new()->pretty(1);
+  #$js->allow_bignum(1); # if needed, go back to ::PP
+  my $json_str = $js->encode($rethash);
+
+  ## If the file is already there, blow it away.
+  my $file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
+    '/javascript/bbop/amigo/golr_conf_data.js';
+  unlink $file_str if -f $file_str;
+  open(FILE, ">$file_str") or die "cannot open $file_str: $!";
+
+  # $core->kvetch('file_str: ' . $file_str);
+  # $core->kvetch('core: ' . $core);
+
+  ##
+  print FILE <<EOJS;
+////////////
+////
+//// bbop.amigo.golr_conf_data
+////
+//// Purpose: Useful information about GOlr for AmiGO.
+////
+//// Requirements: amigo.js for bbop.amigo namespace.
+////
+//// NOTE: This file is generated dynamically at installation time.
+////       Hard to work with unit tests--hope it's not too bad.
+////       Want to keep this real simple.
+////
+//////////
+
+// All of the server/instance-specific meta-data.
+bbop.amigo.golr_conf_data = $json_str;
+EOJS
+
+  ## Close file.
+  close(FILE);
+  make_readable($file_str);
+  ll("Created GOlr js meta file: \"$file_str\".");
+}
+
+
 ## file: /srv/www/htdocs/amigo/js/bbop/amigo/go_meta.js
 sub amigo_env_to_js {
 
@@ -344,11 +494,11 @@ sub amigo_env_to_js {
   require $env_conf{AMIGO_CGI_ROOT_DIR} . '/config.pl';
 
   ## Bring in necessaries.
-  use AmiGO;
+  use AmiGO::JavaScript;
   #use JSON::PP;
   use JSON::XS;
 
-  my $core = AmiGO->new();
+  my $core = AmiGO::JavaScript->new();
 
   ## If the file is already there, blow it away.
   my $file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
