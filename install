@@ -449,6 +449,7 @@ sub golr_config_to_js {
   my $js = JSON::XS->new()->pretty(1);
   #$js->allow_bignum(1); # if needed, go back to ::PP
   my $json_str = $js->encode($rethash);
+  chomp $json_str;
 
   ## If the file is already there, blow it away.
   my $file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
@@ -463,7 +464,7 @@ sub golr_config_to_js {
   print FILE <<EOJS;
 ////////////
 ////
-//// bbop.amigo.golr_conf_data
+//// bbop.golr.conf_data
 ////
 //// Purpose: Useful information about GOlr for AmiGO.
 ////
@@ -476,7 +477,7 @@ sub golr_config_to_js {
 //////////
 
 // All of the server/instance-specific meta-data.
-bbop.amigo.golr_conf_data = $json_str;
+bbop.golr.conf_data = $json_str;
 EOJS
 
   ## Close file.
