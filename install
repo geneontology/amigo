@@ -281,8 +281,8 @@ amigo_env_to_js();
 
 ## TODO/BUG: temporarily hard-coded--his needs to be dynamic, but for
 ## now we're just gunna write them in for debugging fun.
-my $yaml_path =
-  "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/";
+my $yaml_path =  $env_conf{GO_OWLTOOLS_ROOT} .
+  '/OWLTools-Solr/src/main/resources/';
 my $yaml_confs = [
 		  $yaml_path . "ont-config.yaml",
 		  $yaml_path . "bio-config.yaml",

@@ -31,6 +31,12 @@ GO_JS_ROOT:
     Please enter the full path to the SVN geneontology/javascript directory.
   type: directory
 
+GO_OWLTOOLS_ROOT:
+  value: ''
+  comment: >
+    Please enter the full path to the Google Code SVN owltools directory.
+  type: directory
+
 # - NAME: AMIGO_DOT_PATH
 #   value: /usr/bin/dot
 #   comment: "Please enter the full path for the \"dot\" command"
