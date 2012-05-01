@@ -9,7 +9,7 @@ package AmiGO::Worker::GOlr;
 use base ("AmiGO::Worker");
 
 use AmiGO::External::JSON::Solr::GOlr::Document;
-use AmiGO::External::JSON::Solr::GOlr::Search;
+#use AmiGO::External::JSON::Solr::GOlr::Search;
 
 =item new
 

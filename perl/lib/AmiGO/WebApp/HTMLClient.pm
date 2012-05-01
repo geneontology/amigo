@@ -49,9 +49,11 @@ sub setup {
 			 '/templates/html');
 
   $self->mode_param('mode');
-  $self->start_mode('software_list');
+  $self->start_mode('landing');
   $self->error_mode('mode_fatal');
   $self->run_modes(
+		   'landing'             => 'mode_landing',
+		   'simple_search'       => 'mode_simple_search',
 		   'software_list'       => 'mode_software_list',
 		   'visualize'           => 'mode_visualize',
 		   'subset_summary'      => 'mode_subset_summary',
@@ -67,6 +69,128 @@ sub setup {
 
 
 ##
+sub mode_landing {
+
+  my $self = shift;
+
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile();
+
+  ## Page settings.
+  $self->set_template_parameter('page_name', 'landing');
+  $self->set_template_parameter('page_title', 'AmiGO: Welcome');
+  $self->set_template_parameter('content_title', 'AmiGO 2');
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      'standard',
+      #'com.jquery.redmond.custom',
+      'com.jquery.jqamigo.custom',
+      'bbop.amigo.ui.widgets'
+      #'bbop.amigo.ui.interactive'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.jquery-ui',
+      'bbop.core',
+      'bbop.logger',
+      'bbop.logic',
+      'bbop.registry',
+      'bbop.html',
+      'bbop.amigo',
+      'bbop.amigo.go_meta',
+      #'bbop.amigo.live_search',
+      'bbop.amigo.ui.widgets',
+      'bbop.amigo.ui.interactive'
+     ],
+     # javascript =>
+     # [
+     #  #$self->{JS}->get_lib('GOlrTemplate.js'),
+     #  #$self->{JS}->get_lib('GOlrManager.js'),
+     #  #$self->{JS}->get_lib('GOlrUIBeta.js'),
+     #  #$self->{JS}->get_lib('LiveSearchGOlr.js')
+     # ],
+     # javascript_init =>
+     # [
+     #  #'LiveSearchGOlrInit();'
+     # ],
+     content =>
+     [
+      'pages/landing.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page();
+}
+
+
+##
+sub mode_simple_search {
+
+  my $self = shift;
+
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile('simple_search');
+
+  ## Page settings.
+  $self->set_template_parameter('page_name', 'simple_search');
+  $self->set_template_parameter('page_title', 'AmiGO: Simple Search');
+  $self->set_template_parameter('content_title', 'Simple Search');
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      'standard',
+      #'com.jquery.redmond.custom',
+      'com.jquery.jqamigo.custom',
+      'bbop.amigo.ui.widgets'
+      #'bbop.amigo.ui.interactive'
+     ],
+     # javascript_library =>
+     # [
+     #  'com.jquery',
+     #  'com.jquery-ui',
+     #  'bbop.core',
+     #  'bbop.logger',
+     #  'bbop.logic',
+     #  'bbop.registry',
+     #  'bbop.html',
+     #  'bbop.amigo',
+     #  'bbop.amigo.go_meta',
+     #  #'bbop.amigo.live_search',
+     #  'bbop.amigo.ui.widgets',
+     #  'bbop.amigo.ui.interactive'
+     # ],
+     # # javascript =>
+     # # [
+     # #  #$self->{JS}->get_lib('GOlrTemplate.js'),
+     # #  #$self->{JS}->get_lib('GOlrManager.js'),
+     # #  #$self->{JS}->get_lib('GOlrUIBeta.js'),
+     # #  #$self->{JS}->get_lib('LiveSearchGOlr.js')
+     # # ],
+     # # javascript_init =>
+     # # [
+     # #  #'LiveSearchGOlrInit();'
+     # # ],
+     content =>
+     [
+      'pages/simple_search.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page();
+}
+
+
+##
 sub mode_software_list {
 
   my $self = shift;
@@ -75,6 +199,7 @@ sub mode_software_list {
   my $params = $i->input_profile();
 
   ## Page settings.
+  $self->set_template_parameter('page_name', 'software_list');
   $self->set_template_parameter('page_title', 'AmiGO: Software List');
   $self->set_template_parameter('content_title', 'Software List');
 
@@ -278,6 +403,7 @@ sub mode_live_search_gold {
   ## Page settings.
   $self->set_template_parameter('STANDARD_CSS', 'no');
   $self->set_template_parameter('page_title', 'AmiGO: Search');
+  $self->set_template_parameter('page_name', 'live_search_gold');
   $self->set_template_parameter('content_title', 'Search');
 
   ## Grab resources we want.

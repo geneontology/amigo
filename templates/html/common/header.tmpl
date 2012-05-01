@@ -23,7 +23,16 @@
 <div id="searchbar">
 [% END %]
   <ul id="menuToggle">
-    [% IF page_name == 'advanced_query' %] 
+
+    [% IF page_name == 'landing' %]
+    <li class="here">Home</li>
+    [% ELSE %] 
+    <li>
+      <a href="[% base %]/amigo" title="The AmiGO 2 landing page.">Home</a>
+    </li>
+    [% END %] 
+
+    [% IF page_name == 'live_search_gold' %] 
     <li class="here">Search</li>
     [% ELSE %] 
     <li>
@@ -32,15 +41,15 @@
     [% END %] 
 
     [%# Link out to the stuff in the newer framework. %]
-    [% IF page_name == "amigo" && ! amigo_mode %]
+    [% IF page_name == "software_list" %]
     <li class="here">
       <a style="border: 0; background-color: #e9effa; color: #006;"
-	 href="[% base %]/amigo?[% session_id_for_url %]"
+	 href="[% base %]/amigo?mode=software_list"
          title="More tools to explore the Gene Ontology">Tools&nbsp;&amp;&nbsp;Resources</a> 
     </li>
     [% ELSE %]
     <li>
-      <a href="[% base %]/amigo"
+      <a href="[% base %]/amigo?mode=software_list"
          title="More tools to explore the Gene Ontology">Tools&nbsp;&amp;&nbsp;Resources</a> 
     </li>
     [% END %]

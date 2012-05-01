@@ -1,0 +1,42 @@
+<!-- Begin: landing.tmpl -->
+
+<br />
+
+<p style="align: center">
+  <form action="" id="landing-form" method="GET">
+    <label for="landing-query">Search GO</label>
+    <br />
+    <input type="text"
+	   class="textBox"
+	   name="landing-query"
+	   size="35"
+	   value="[% HTML.escape(query) %]"
+	   id="landing-query" />
+    <br />
+    <input type="submit" class="button" />
+  </form>
+</p>
+
+<br />
+<br />
+
+<div class="block">
+
+  <!-- <h3>Beta features being tested and functional demos:</h3> -->
+  
+  <h2>About AmiGO 2</h2>
+  
+  <p>
+    More information
+    <a href="http://wiki.geneontology.org/index.php/AmiGO_2">here</a>.
+  </p>
+  
+</div>
+
+  [% IF BETA == 1 %]
+
+  <!-- <div class="block"> -->
+  <!-- </div> -->
+    
+  [% END %]
+<!-- End: landing.tmpl -->
