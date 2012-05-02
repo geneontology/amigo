@@ -658,6 +658,7 @@ sub set_template_parameter {
   my $value = shift; # we love zeros too
   if( defined $name && defined $value ){
     $self->{WEBAPP_TEMPLATE_PARAMS}{$name} = $value;
+    $self->{CORE}->kvetch($self->{WEBAPP_TEMPLATE_PARAMS}{$name});
   }
 }
 
@@ -730,6 +731,8 @@ sub generate_template_page {
   $footer_p = 0 if defined $args->{footer} && $args->{footer} == 0;
   my $header_p = 1;
   $header_p = 0 if defined $args->{header} && $args->{header} == 0;
+  # my $search_p = 1;
+  # $search_p = 0 if defined $args->{search} && $args->{search} == 0;
 
   ## Generate the page output.
   my @mbuf = ();

@@ -25,6 +25,9 @@ use AmiGO::External::QuickGO::Term;
 use AmiGO::External::XML::GONUTS;
 #use AmiGO::External::Raw;
 
+## TODO: Maybe make this a worker later when we get the feel for it.
+use AmiGO::External::JSON::Solr::GOlr::Search;
+
 
 ##
 sub setup {
@@ -137,12 +140,38 @@ sub mode_simple_search {
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile('simple_search');
 
+  ## Pull our one parameter.
+  my $q = $params->{query};
+  if( ! defined $q ){
+    $self->add_mq('warning', 'No search was defined--please try again.');
+  }else{
+    $self->set_template_parameter('query', $q);
+  }
+
+  ## See if there are any results.
+  my $results_p = 0;
+  my $results = undef;
+
+  my $gs = AmiGO::External::JSON::Solr::GOlr::Search->new();
+  $self->{CORE}->kvetch("target: " . $gs->{AEJS_BASE_URL});
+  $gs->smart_query($q);
+  $self->{CORE}->kvetch("passed");
+  #$results = $gs->query({q=>$q});
+
+  # if( defined $results && ! $self->{CORE}->empty_hash_p($results) ){
+  #   $results_p = 1;
+  # }
+
+  ## Set with our findings.
+  $self->set_template_parameter('results_p', $results_p);
+  $self->set_template_parameter('results', $results);
+
   ## Page settings.
   $self->set_template_parameter('page_name', 'simple_search');
   $self->set_template_parameter('page_title', 'AmiGO: Simple Search');
   $self->set_template_parameter('content_title', 'Simple Search');
 
-  ## Our AmiGO services CSS.
+  ## The rest of our environment.
   my $prep =
     {
      css_library =>

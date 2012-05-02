@@ -1,12 +1,43 @@
 <!-- START: simple_search.tmpl -->
+[% USE HTML %]
 
 <div class="block">
-  <h2>Searches in AmiGO</h2>
+  <h2>Search</h2>
   
+  <form action="[% base %]/amigo" id="landing-form" method="GET">
+    <label for="query">Search GO</label>
+    <br />
+    <input type="hidden"
+	   name="mode"
+	   value="simple_search" />
+    <input type="text"
+	   class="textBox"
+	   name="query"
+	   size="35"
+	   value="[% query %]"
+	   id="query" />
+    <br />
+    <input type="submit" class="button" />
+  </form>
+
+</div>
+
+<div class="block">
+  <h2>Search Results</h2>
+  
+  [% IF results_p == 0 %]
   <p>
-    You searched!
+    No results were found for "[% HTML.escape(query) %]".
+    <br />
+    Please search again.
   </p>
-  
+  [% ELSE %]
+  <p>
+    TODO: Found something!
+    Maybe share a generic page with GOOSE? Or steal GOOSE's?
+  </p>
+  [% END %]
+
 </div>
 
 <!-- <noscript> -->
@@ -21,8 +52,8 @@
 <!-- </noscript> -->
 
 <!-- TODO/DEBUG: remove this later on. -->
-<div>
-  DEBUG: <span id="DEBUG"></span>
-</div>
+<!-- <div> -->
+<!--   DEBUG: <span id="DEBUG"></span> -->
+<!-- </div> -->
 
 <!-- END: simple_search.tmpl -->

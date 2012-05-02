@@ -18,43 +18,36 @@ sub new {
   ## Pass the buck back for getting a sensible default.
   my $class = shift;
   my $target = shift || undef;
-  my $self  = $class->SUPER::new($target);
+  my $self = $class->SUPER::new($target);
 
   bless $self, $class;
   return $self;
 }
 
 
-=item query
+=item smart_query
 
-Args: hash ref (see service/js docs)
-Return: perl hash structure (see service/js docs) or undef
+Arguments: simple query string
+Return: true or false on minimal success
+
+edismax built through our config hash
+
+mostly runs off of Solr::query
 
 =cut
-sub query {
+sub smart_query {
 
   my $self = shift;
-  my $in_hash = shift || {};
-  my $retval = undef;
+  my $qstr = shift || undef;
 
-  ## Merge incoming with default template.
-  my $final_hash = $self->merge($self->{AEJS_BASE_HASH}, $in_hash);
-  #$self->kvetch("in_hash:" . Dumper($in_hash));
 
-  ## Create URL.
-  my $url = $self->{AEJS_BASE_URL} .
-    $self->hash_to_query_string($self->{AEJS_BASE_HASH});
-  $self->{AEJS_LAST_URL} = $url;
+  ## TODO: Manipulate the config to get the hash.
+  $self->kvetch("query with: " . $qstr);
 
-  ## Make query against resource and try to perlify it.
-  $self->kvetch("url:" . $url);
-  $self->get_external_data($url);
-  my $final_blob = $self->try();
+  ## TODO: Fold the hash into what we have.
 
-  ## Make sure we got something.
-  if ( ! $self->empty_hash_p($final_blob) ) {
-    $retval = $final_blob;
-  }
+  ## Call the main engine.
+  my $retval = $self->query();
 
   return $retval;
 }

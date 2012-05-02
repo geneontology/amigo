@@ -70,28 +70,10 @@
     [% END %]
 -->
   </ul>
+
   [% IF page_name == 'front' || page_content_layout == 'wide' %]
   [% ELSE %]
-  <div id="menuSearchForm">
-    <form action="[% public_base %]/search.cgi" id="bar-form" method="GET">
-      <p>
-	<label for="bar-query">Search GO</label><input class="textBox" type="text" name="search_query" size="25" value="[% HTML.escape(query) %]" id="bar-query">
-	[% IF !search_constraint || search_constraint == 'term' %]
-	<input type="radio" name="search_constraint" value="term" class="radio" checked id="term"> <label for="term">terms</label>
-	<input type="radio" name="search_constraint" value="gp" class="radio" id="gp"> <label for="gp">genes or proteins</label>
-	[% ELSE %]
-	<input type="radio" name="search_constraint" value="term" class="radio" id="term"><label for="term">GO terms</label>
-	<input type="radio" name="search_constraint" value="gp" class="radio" checked id="gp"><label for="gp">genes or proteins</label>
-	[% END %]
-	<input type="checkbox" id="bar-exact_match" name="exact_match" value="1" class="cbox"><label for="exact_match">exact match</label>
-	[% IF session_id %]
-	<input type="hidden" name="session_id" value="[% session_id %]">
-	[% END %]
-	<input type="hidden" name="action" value="new-search">
-	<input type="submit" class="button">
-      </p>
-    </form>
-  </div>
+  [% #  INCLUDE header_search.tmpl %]
   [% END %] 
 </div>
 [% END %] 

@@ -24,12 +24,15 @@ sub new {
 
   ##
   my $class = shift;
-  my $self = $class->SUPER::new();
-  my $target = shift ||
-    $self->amigo_env('AMIGO_PUBLIC_GOLR_URL') ||
-      'http://localhost:8080/solr/';
+  my $target = shift || undef;
+  my $self = $class->SUPER::new($target);
 
-  $self->{AEJS_BASE_URL} = $target . 'select?';
+  ## Should be handled by super-class.
+  # my $target = shift ||
+  #   $self->amigo_env('AMIGO_PUBLIC_GOLR_URL') ||
+  #     'http://localhost:8080/solr/';
+
+  # $self->{AEJS_BASE_URL} = $target . 'select?';
 
   bless $self, $class;
   return $self;

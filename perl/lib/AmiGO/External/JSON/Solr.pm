@@ -90,6 +90,8 @@ sub _query_url {
 Arguments: Post "select?" query string or internal hash manipulation.
 Return: true or false on minimal success
 
+This is the most raw of the searches. Hope you know what you're doing.
+
 Basically, the main way subclasses should be handling Solr queries.
 Also updates last URL tried, count, etc. Any specified string
 parameters will there in addition to the ones in the hash. If you want
