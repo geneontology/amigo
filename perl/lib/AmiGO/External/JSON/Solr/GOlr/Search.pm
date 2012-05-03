@@ -7,6 +7,10 @@
 package AmiGO::External::JSON::Solr::GOlr::Search;
 use base ("AmiGO::External::JSON::Solr::GOlr");
 
+use utf8;
+use strict;
+use Data::Dumper;
+
 
 =item new
 
@@ -43,6 +47,10 @@ sub smart_query {
 
   ## TODO: Manipulate the config to get the hash.
   $self->kvetch("query with: " . $qstr);
+  my $gconf = $self->get_golr_configuration();
+  $self->kvetch("conf: " . Dumper($gconf));
+
+  $self->get_golr_info_by_weight(25);
 
   ## TODO: Fold the hash into what we have.
 

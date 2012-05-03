@@ -30,6 +30,7 @@ use utf8;
 use strict;
 use POSIX qw(strftime floor);
 use Data::Dumper;
+
 use URI::Escape;
 #use JSON;
 #use JSON::PP;
@@ -69,7 +70,7 @@ sub new {
     # $self->{JSON_TRUE} = JSON::true;
     # $self->{JSON_FALSE} = JSON::false;
   }else{
-    # $self->{JSON} = JSON::PP->new();
+    #$self->{JSON_PP} = JSON::PP->new();
     # $self->{JSON_TRUE} = JSON::PP::true;
     # $self->{JSON_FALSE} = JSON::PP::false;
     # $self->{JSON}->allow_bignum(1);
@@ -624,7 +625,7 @@ sub kvetch {
 
 #   if( -f $complete_file_pr_file ){
 
-#     open (FILE, $complete_file_pr_file)
+#     open(FILE, $complete_file_pr_file)
 #       or die "Cannot open $complete_file_pr_file: $!";
 
 #     my @buf = ();
@@ -1360,6 +1361,91 @@ sub get_interlink {
 }
 
 
+## TODO
+sub _read_json_file {
+
+  my $self = shift;
+  my $file = shift || die 'yes, but what file do you want read?';
+
+  ## Try and get it.
+  die "No hash file found ($file): $!" if ! -f $file;
+  open(FILE, '<', $file) or die "Cannot open $file: $!";
+  my $json_str = <FILE>;
+  close FILE;
+
+  #$self->kvetch("JSON contents: " . $json_str);
+
+  ## Read in data.
+  # $self->kvetch("json: " . $self->{JSON});
+  # $self->kvetch("json max depth: " . $self->{JSON}->get_max_depth());
+  # $self->kvetch("json max size: " . $self->{JSON}->get_max_size());
+
+  my $rethash = undef;
+  # eval {
+  $rethash = $self->{JSON}->decode($json_str);
+  # };
+  # if( $@ ){
+  # die "nope: $@: $!";
+  # }
+  # $self->kvetch("passed: " . Dumper($rethash));
+
+  return $rethash;
+}
+
+
+=item get_golr_configuration
+
+Return href of the GOlr configuration from the installation.
+
+=cut
+sub get_golr_configuration {
+
+  my $self = shift;
+  my $json_file = $self->amigo_env('AMIGO_HTDOCS_ROOT_DIR') .
+    '/javascript/bbop/amigo/golr_configuration.json';
+
+  #$self->kvetch("looking up conf: " . $json_file);
+
+  return $self->_read_json_file($json_file);
+}
+
+
+=item get_golr_info_by_weight
+
+Return aref of necessary info for conduction simple searches.
+
+TODO
+
+=cut
+sub get_golr_info_by_weight {
+
+  my $self = shift;
+  my $cutoff = shift || 25;
+
+  ## Gather golr info.
+  my $gconf = $self->get_golr_configuration();
+
+  ## Collect the good bits.
+  my $rets = [];
+  foreach my $id (keys(%{$gconf})){
+    if( defined $gconf->{$id}{weight} &&
+    	$gconf->{$id}{weight} >= $cutoff ){
+      push @$rets,
+    	{
+    	 id => $id,
+    	 display_name => $gconf->{$id}{display_name},
+    	 description => $gconf->{$id}{description},
+    	 document_category => $gconf->{$id}{document_category}
+    	};
+    }
+  }
+
+  $self->kvetch('rets: ' . Dumper($rets));
+
+  return $rets;
+}
+
+
 # ## Read misc_keys.pl (unless otherwise specified) and return the
 # ## thawed hash. BUG/TODO: we should be moving away from perl-specific
 # ## things (i.e. freeze/thaw) to more generic things (JSON & sqlite3).
@@ -1371,7 +1457,7 @@ sub get_interlink {
 #   ## Try and get it from the spec_keys.pl file.
 #   my $file = $self->amigo_env('cgi_root_dir') . $frozen_file;
 #   die "No hash file ($frozen_file) found ($file): $!" if ! -f $file;
-#   open (FILE, $file) or die "Cannot open $file: $!";
+#   open(FILE, $file) or die "Cannot open $file: $!";
 
 #   ## Read in hash and thaw.
 #   my $misc_hash = '';

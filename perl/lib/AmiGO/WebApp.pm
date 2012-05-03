@@ -810,11 +810,21 @@ sub mode_status {
 sub mode_fatal {
 
   my $self = shift;
+  my $err = shift || $@ || $! || $? || $^E;
 
   $self->header_add( -status => '500 Internal Server Error' );
 
   $self->set_template_parameter('page_title', 'AmiGO: Fatal Error');
-  $self->set_template_parameter('error', $@);
+  # # $self->{CORE}->kvetch('ERROR: falling into mode_error: ' . $@);
+  # my $ers = [];
+  # # foreach my $er ($@, $!, $?, $^E){
+  # foreach my $er ($@, $!, $?){
+  #   if( defined $er && $er ne '' ){
+  #     push @$ers, $er;
+  #   }
+  # }
+  # $self->set_template_parameter('error', join('; ', @$ers));
+  $self->set_template_parameter('error', $err);
 
   $self->add_template_content('common/error.tmpl');
   return $self->generate_template_page();

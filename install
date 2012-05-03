@@ -103,6 +103,7 @@ if( int($yconf->{AMIGO_CONFIGURED}{value}) ){
 
 my %env_conf;
 
+## TODO: could do simple validation in here...
 ## Roll into env_conf.
 for my $var (keys %$yconf){
   ## Check that it is a real var, and not Config::YAML overhead.
@@ -113,6 +114,8 @@ for my $var (keys %$yconf){
 	$var_type eq 'integer' ||
 	$var_type eq 'number' ){
       $env_conf{$var} = int($yconf->{$var}{value});
+    }elsif( $var_type eq 'list' ){
+      $env_conf{$var} = '["' . join('", "', @{$yconf->{$var}{value}}) . '"]';
     }else{
       $env_conf{$var} = $yconf->{$var}{value};
     }
@@ -371,7 +374,8 @@ EOC
 }
 
 
-## file: /srv/www/htdocs/amigo/js/bbop/amigo/golr_conf_data.js
+## file: /srv/www/htdocs/amigo/js/bbop/amigo/golr_configuration.js
+## file: /srv/www/htdocs/amigo/js/bbop/amigo/golr_configuration.json
 sub golr_config_to_js {
 
   ## 
@@ -423,42 +427,20 @@ sub golr_config_to_js {
     $rethash->{$conf_id}{fields} = $new_fields;
   }
 
-  #return $rethash;
+  ###
+  ### Conf to JS.
+  ###
 
-  # ## Transform them into something a little more useful for the client
-  # ## (i.e. arrayified and ordered instead of the straight hash refs
-  # ## that we have.
-  # my $fix = sub {
-
-  #   my $thing = shift;
-
-  #   ## Arrayify.
-  #   $thing = [map { [$thing->{$_} , $_ ] } keys %$thing];
-
-  #   ## Sort on key.
-  #   $thing = [sort{
-  #     #print STDERR $$a[0]. ' vs ' . $$b[0] . "\n";
-  #     return $$a[0] cmp $$b[0];
-  #   } @$thing];
-
-  #   return $thing;
-  # };
-
-  ##
-  #my $js = JSON::PP->new();
   my $js = JSON::XS->new()->pretty(1);
   #$js->allow_bignum(1); # if needed, go back to ::PP
-  my $json_str = $js->encode($rethash);
-  chomp $json_str;
+  my $js_str = $js->encode($rethash);
+  chomp $js_str;
 
   ## If the file is already there, blow it away.
-  my $file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
-    '/javascript/bbop/amigo/golr_conf_data.js';
-  unlink $file_str if -f $file_str;
-  open(FILE, ">$file_str") or die "cannot open $file_str: $!";
-
-  # $core->kvetch('file_str: ' . $file_str);
-  # $core->kvetch('core: ' . $core);
+  my $js_file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
+    '/javascript/bbop/amigo/golr_configuration.js';
+  unlink $js_file_str if -f $js_file_str;
+  open(FILE, ">$js_file_str") or die "cannot open $js_file_str: $!";
 
   ##
   print FILE <<EOJS;
@@ -477,13 +459,39 @@ sub golr_config_to_js {
 //////////
 
 // All of the server/instance-specific meta-data.
-bbop.golr.conf_data = $json_str;
+bbop.golr.conf_data = $js_str;
 EOJS
 
   ## Close file.
   close(FILE);
-  make_readable($file_str);
-  ll("Created GOlr js meta file: \"$file_str\".");
+  make_readable($js_file_str);
+  ll("Created GOlr JavaScript meta file: \"$js_file_str\".");
+
+  ###
+  ### Conf to JSON.
+  ###
+
+  my $json = JSON::XS->new();
+  #$js->allow_bignum(1); # if needed, go back to ::PP
+  my $json_str = $json->encode($rethash);
+  chomp $json_str;
+
+  ## If the file is already there, blow it away.
+  my $json_file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
+    '/javascript/bbop/amigo/golr_configuration.json';
+  unlink $json_file_str if -f $json_file_str;
+  open(FILE, ">$json_file_str") or die "cannot open $json_file_str: $!";
+
+  ##
+  print FILE <<EOJS;
+$json_str
+EOJS
+
+  ## Close file.
+  close(FILE);
+  make_readable($json_file_str);
+  ll("Created GOlr JSON meta file: \"$json_file_str\".");
+
 }
 
 
