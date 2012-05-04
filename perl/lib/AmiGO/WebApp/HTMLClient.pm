@@ -216,9 +216,24 @@ sub mode_simple_search {
 				    arg => {'query' => $q,
 					    'document_category'=> $dc,
 					    'page' => $page - 1}});
+    my $first_page_url =
+      $self->{CORE}->get_interlink({mode=>'simple_search',
+				    arg => {'query' => $q,
+					    'document_category'=> $dc,
+					    'page' => 1}});
+    my $last_page_url =
+      $self->{CORE}->get_interlink({mode=>'simple_search',
+				    arg => {'query' => $q,
+					    'document_category'=> $dc,
+					    'page' => $gs->last_page()}});
+    $self->set_template_parameter('first_page_url', $first_page_url);
+    $self->set_template_parameter('last_page_url', $last_page_url);
     $self->set_template_parameter('next_page_url', $next_page_url);
     $self->set_template_parameter('prev_page_url', $prev_page_url);
     $self->set_template_parameter('next_page_p', $gs->more_p());
+    $self->set_template_parameter('range_high', $gs->range_high($page));
+    $self->set_template_parameter('range_low', $gs->range_low($page));
+    $self->set_template_parameter('range', $gs->count());
   }
 
   ## Page settings.

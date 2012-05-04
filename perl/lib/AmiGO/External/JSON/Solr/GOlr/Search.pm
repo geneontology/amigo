@@ -96,7 +96,7 @@ sub smart_query {
     $self->{AEJS_BASE_HASH}{q} = $qstr;
 
     ## Calculate any necessary paging.
-    my $nrows = $self->get_variable('rows') || 10;
+    my $nrows = $self->rows_requested() || 10;
     $self->{AEJS_BASE_HASH}{start} = ($nrows * $page) - $nrows;
 
     ## Call the main engine.
@@ -121,10 +121,64 @@ sub more_p {
   my $retval = 1;
 
   ## Make sure we got something.
-  my $num_rows = $self->get_variable('rows') || 10;
+  my $num_rows = $self->rows_requested() || 10;
   my $current_returned = $self->count() || 10;
   if( $num_rows > $current_returned ){
     $retval = 0;
+  }
+
+  return $retval;
+}
+
+
+=item range_high
+
+Return: undef or int
+
+Returns the highest index of items returned with the current
+start/rows settings.
+
+=cut
+sub range_high {
+
+  my $self = shift;
+  my $curr_page = shift || die 'we need to know the current "page" for this';
+  my $retval = undef;
+
+  ## Make sure we got something.
+  my $rows_req = $self->rows_requested();
+  my $current_returned = $self->count();
+
+  if( defined $rows_req &&
+      defined $current_returned ){
+    $retval = ($rows_req * $curr_page) - ($rows_req - $current_returned);
+  }
+
+  return $retval;
+}
+
+
+=item range_low
+
+Return: undef or int
+
+Returns the lowest index of items returned with the current
+start/rows settings.
+
+=cut
+sub range_low {
+
+  my $self = shift;
+  my $curr_page = shift || die 'we need to know the current "page" for this';
+  my $retval = undef;
+
+  ## Make sure we got something.
+  my $rows_req = $self->rows_requested();
+  my $current_returned = $self->count();
+
+  if( defined $rows_req &&
+      defined $current_returned ){
+    $retval = ($rows_req * ($curr_page - 1)) + 1;
   }
 
   return $retval;

@@ -27,8 +27,11 @@
   <p>
   <p>
     [% results_total %] results were found for "[% HTML.escape(query) %]"
-    in "[% HTML.escape(document_category) %]". Currently viewing
-    page [% HTML.escape(page_number) %].
+    in "[% HTML.escape(document_category) %]".
+    <br />
+    Currently viewing [% range %]
+    results on page [% HTML.escape(page_number) %]
+    ([% range_low %]-[% range_high %]).
 
     [% INCLUDE common/simple_search_results.tmpl %]
 

@@ -13,7 +13,7 @@ use strict;
 use Carp;
 use Clone;
 use Data::Dumper;
-
+use POSIX qw(ceil);
 
 =item new
 
@@ -288,6 +288,19 @@ sub total {
 }
 
 
+=item rows_requested
+
+Return: int or undef
+
+Count of docs we wanted returned during the last query.
+
+=cut
+sub rows_requested {
+  my $self = shift;
+  return $self->get_variable('rows');
+}
+
+
 =item count
 
 Return: int or undef
@@ -310,27 +323,26 @@ sub count {
 }
 
 
-# =item last_page
+=item last_page
 
-# Return: int or undef
+Return: int or undef
 
-# The page of the...last page.
+The page of the...last page.
 
-# =cut
-# sub last_page {
+=cut
+sub last_page {
 
-#   my $self = shift;
-#   my $retval = undef;
+  my $self = shift;
+  my $retval = undef;
 
-#   ## Make sure we got something.
-#   if( $self->{AEJS_RESPONSE}{response} &&
-#   if( $self->{AEJS_RESPONSE}{response} &&
-#       $self->{AEJS_RESPONSE}{response}{docs} ){
-#     $retval = scalar(@{$self->{AEJS_RESPONSE}{response}{docs}});
-#   }
+  my $total = $self->total();
+  my $rows = $self->rows_requested();
+  if( $total && $rows ){
+    $retval = ceil( $total / $rows );
+  }
 
-#   return $retval;
-# }
+  return $retval;
+}
 
 
 =item docs

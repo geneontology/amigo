@@ -2,10 +2,18 @@
 
 <p>
   [% IF page_number > 1 %]
+  <a href="[% first_page_url %]" name="first page">first</a>
   <a href="[% prev_page_url %]" name="previous page">previous</a>
+  [% ELSE %]
+  first
+  previous
   [% END %]
   [% IF next_page_p %]
   <a href="[% next_page_url %]" name="next page">next</a>
+  <a href="[% last_page_url %]" name="last page">last</a>
+  [% ELSE %]
+  next
+  last
   [% END %]
 </p>
 
