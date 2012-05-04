@@ -1,0 +1,29 @@
+<!-- Begin: simple_search_form.tmpl -->
+<!-- simple_search_form_info: [% simple_search_form_info %] -->
+
+<form action="[% base %]/amigo" id="query-form" method="GET">
+  <!-- <label for="query">Search GO</label> -->
+  <br />
+  <input type="hidden"
+	 name="mode"
+	 value="simple_search" />
+  <input type="hidden"
+	 name="page"
+	 value="[% page || 1 %]" />
+  <input type="text"
+	 class="textBox"
+	 name="query"
+	 size="35"
+	   value="[% query %]"
+	 id="query" />
+  <br />
+
+  [% FOREACH infi IN simple_search_form_info %]
+  <input type="submit"
+	 class="button"
+	 name="document_category"
+	 value="[% infi.id %]">
+  [% END %]
+</form>
+
+<!-- End: simple_search_form.tmpl -->

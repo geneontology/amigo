@@ -9,6 +9,8 @@
 package AmiGO::WebApp::HTMLClient;
 use base 'AmiGO::WebApp';
 
+use strict;
+use utf8;
 use Data::Dumper;
 #use AmiGO::JavaS
 
@@ -84,6 +86,10 @@ sub mode_landing {
   $self->set_template_parameter('page_title', 'AmiGO: Welcome');
   $self->set_template_parameter('content_title', 'AmiGO 2');
 
+  ## Grab the config info for the simple search form construction.
+  my $ss_info = $self->{CORE}->golr_class_info_by_weight(25);
+  $self->set_template_parameter('simple_search_form_info', $ss_info);
+
   ## Our AmiGO services CSS.
   my $prep =
     {
@@ -140,36 +146,89 @@ sub mode_simple_search {
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile('simple_search');
 
-  ## Pull our one parameter.
+  ## Tally up if we have insufficient information to do a query.
+  my $insufficient_info_p = 2;
+
+  ## Pull our query parameter.
   my $q = $params->{query};
-  if( ! defined $q ){
-    $self->add_mq('warning', 'No search was defined--please try again.');
+  if( ! defined $q || $q eq '' ){
+    $self->add_mq('warning', 'No search query was defined--please try again.');
   }else{
     $self->set_template_parameter('query', $q);
+    $self->{CORE}->kvetch('query: ' . $q);
+    $insufficient_info_p--;
   }
+
+  ## Pull our document_category parameter.
+  my $dc = $params->{document_category};
+  if( ! defined $dc || $dc eq '' ){
+    $self->add_mq('warning',
+		  'No search category was defined--please try again.');
+  }else{
+    $self->set_template_parameter('document_category', $dc);
+    $self->{CORE}->kvetch('document_category: ' . $dc);
+    $insufficient_info_p--;
+  }
+
+  ## Pull our page parameter. 1 if nothing else.
+  my $page = $self->{CORE}->atoi($params->{page}) || 1;
+  $self->set_template_parameter('page_number', $page);
 
   ## See if there are any results.
   my $results_p = 0;
   my $results = undef;
 
-  my $gs = AmiGO::External::JSON::Solr::GOlr::Search->new();
-  $self->{CORE}->kvetch("target: " . $gs->{AEJS_BASE_URL});
-  $gs->smart_query($q);
-  $self->{CORE}->kvetch("passed");
-  #$results = $gs->query({q=>$q});
+  ## Only attempt a search if there is not insufficient
+  ## information. Otherwise, we'll let the warnings speak for
+  ## themselves.
+  if( $insufficient_info_p != 0 ){
+    $self->set_template_parameter('search_performed_p', 0);
+  }else{
+    $self->set_template_parameter('search_performed_p', 1);
 
-  # if( defined $results && ! $self->{CORE}->empty_hash_p($results) ){
-  #   $results_p = 1;
-  # }
+    ## Actually do the search up proper.
 
-  ## Set with our findings.
-  $self->set_template_parameter('results_p', $results_p);
-  $self->set_template_parameter('results', $results);
+    my $gs = AmiGO::External::JSON::Solr::GOlr::Search->new();
+    #$self->{CORE}->kvetch("target: " . $gs->{AEJS_BASE_URL});
+    my $results_ok_p = $gs->smart_query($q, $dc, $page);
+
+    $results = $gs->docs();
+    my $results_total = $gs->total();
+    my $results_count = $gs->count();
+    if( $results_ok_p && $results && $gs->count() > 0 ){
+      $results_p = 1;
+    }
+
+    ## Set with our findings.
+    $self->set_template_parameter('results_p', $results_p);
+    $self->set_template_parameter('results', $results);
+    $self->set_template_parameter('results_total', $results_total);
+    $self->set_template_parameter('results_count', $results_count);
+
+    ## Take care of paging.
+    my $next_page_url =
+      $self->{CORE}->get_interlink({mode=>'simple_search',
+				    arg => {'query' => $q,
+					    'document_category'=> $dc,
+					    'page' => $page + 1}});
+    my $prev_page_url =
+      $self->{CORE}->get_interlink({mode=>'simple_search',
+				    arg => {'query' => $q,
+					    'document_category'=> $dc,
+					    'page' => $page - 1}});
+    $self->set_template_parameter('next_page_url', $next_page_url);
+    $self->set_template_parameter('prev_page_url', $prev_page_url);
+    $self->set_template_parameter('next_page_p', $gs->more_p());
+  }
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'simple_search');
   $self->set_template_parameter('page_title', 'AmiGO: Simple Search');
   $self->set_template_parameter('content_title', 'Simple Search');
+
+  ## Grab the config info for the simple search form construction.
+  my $ss_info = $self->{CORE}->golr_class_info_by_weight(25);
+  $self->set_template_parameter('simple_search_form_info', $ss_info);
 
   ## The rest of our environment.
   my $prep =

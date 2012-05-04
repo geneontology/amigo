@@ -1,27 +1,10 @@
 <!-- Begin: landing.tmpl -->
 
-<br />
-
 <p style="align: center">
-  <form action="[% base %]/amigo" id="landing-form" method="GET">
-    <label for="query">Search GO</label>
-    <br />
-    <input type="hidden"
-	   name="mode"
-	   value="simple_search" />
-    <input type="text"
-	   class="textBox"
-	   name="query"
-	   size="35"
-	   value=""
-	   id="query" />
-    <br />
-    <input type="submit" class="button" />
-  </form>
-</p>
 
-<br />
-<br />
+[% INCLUDE common/simple_search_form.tmpl %]
+
+</p>
 
 <div class="block">
 

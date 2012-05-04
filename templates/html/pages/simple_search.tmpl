@@ -2,43 +2,42 @@
 [% USE HTML %]
 
 <div class="block">
-  <h2>Search</h2>
+  <h2>Search GO</h2>
   
-  <form action="[% base %]/amigo" id="landing-form" method="GET">
-    <label for="query">Search GO</label>
-    <br />
-    <input type="hidden"
-	   name="mode"
-	   value="simple_search" />
-    <input type="text"
-	   class="textBox"
-	   name="query"
-	   size="35"
-	   value="[% query %]"
-	   id="query" />
-    <br />
-    <input type="submit" class="button" />
-  </form>
+  [% INCLUDE common/simple_search_form.tmpl %]
+
+  <br />
 
 </div>
+
+[% IF search_performed_p %]
 
 <div class="block">
   <h2>Search Results</h2>
   
   [% IF results_p == 0 %]
   <p>
-    No results were found for "[% HTML.escape(query) %]".
+    No results were found for "[% HTML.escape(query) %]"
+    in "[% HTML.escape(document_category) %]"
+    on page [% HTML.escape(page_number) %].
     <br />
     Please search again.
   </p>
   [% ELSE %]
   <p>
-    TODO: Found something!
-    Maybe share a generic page with GOOSE? Or steal GOOSE's?
+  <p>
+    [% results_total %] results were found for "[% HTML.escape(query) %]"
+    in "[% HTML.escape(document_category) %]". Currently viewing
+    page [% HTML.escape(page_number) %].
+
+    [% INCLUDE common/simple_search_results.tmpl %]
+
   </p>
   [% END %]
 
 </div>
+
+[% END %]
 
 <!-- <noscript> -->
 <!--   <div class="block warning"> -->

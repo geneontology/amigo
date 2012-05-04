@@ -35,10 +35,10 @@ sub new {
   ## http://skewer.lbl.gov:8080/solr/select?qt=standard&indent=on&wt=json&version=2.2&rows=10&start=0&fl=*%2Cscore&q=id:%22GO:0022008%22
   $self->{AEJS_BASE_HASH} =
     {
-     'qt' => 'standard',
+     #'qt' => 'standard',
      'indent' => 'on',
      'wt' => 'json',
-     'version' => 2.2,
+     #'version' => 2.2,
      'rows' => 10,
      'start' => 0,
      'fl' => '*%2Cscore',
@@ -308,6 +308,29 @@ sub count {
 
   return $retval;
 }
+
+
+# =item last_page
+
+# Return: int or undef
+
+# The page of the...last page.
+
+# =cut
+# sub last_page {
+
+#   my $self = shift;
+#   my $retval = undef;
+
+#   ## Make sure we got something.
+#   if( $self->{AEJS_RESPONSE}{response} &&
+#   if( $self->{AEJS_RESPONSE}{response} &&
+#       $self->{AEJS_RESPONSE}{response}{docs} ){
+#     $retval = scalar(@{$self->{AEJS_RESPONSE}{response}{docs}});
+#   }
+
+#   return $retval;
+# }
 
 
 =item docs

@@ -1,0 +1,45 @@
+<!-- START: simple_search.tmpl -->
+
+<p>
+  [% IF page_number > 1 %]
+  <a href="[% prev_page_url %]" name="previous page">previous</a>
+  [% END %]
+  [% IF next_page_p %]
+  <a href="[% next_page_url %]" name="next page">next</a>
+  [% END %]
+</p>
+
+<table summary="Search results">
+  <thead>
+    <tr>
+	  
+      [% FOREACH header = results_headers %]
+      <th style="">
+	[% header %]
+      </th>
+      [% END%]
+      
+    </tr>
+  </thead>
+  
+  <tbody>
+    
+    [% eo = 0 %]
+    [% FOREACH row = results %]
+    [%    IF eo % 2 == 0 %]
+    <tr class="even_row">
+      [%  ELSE %]
+    <tr class="even_odd">
+      [%  END %]
+      [%  FOREACH col = row %]
+      <td rowspan="1">
+	[%   col %]
+      </td>
+      [%  END %]
+    </tr>
+    [%    eo = eo + 1 %]
+    [% END %]
+  </tbody>
+</table>
+
+<!-- END: simple_search_results.tmpl -->

@@ -1265,17 +1265,18 @@ sub get_interlink {
 
        $ilink = $self->_fuse_hash($ihash);
      },
-
-     # 'term_search' =>
-     # sub {
-     #   if( ! $self->empty_hash_p($args) ){
-     # 	 $ilink = 'amigo_exp?mode=live_search_term&'.
-     # 	   $self->hash_to_query_string($args);
-     #   }else{
-     # 	 $ilink = 'amigo_exp?mode=live_search_term';
-     #   }
-     # },
-
+     'simple_search' =>
+     sub {
+       if( ! $self->empty_hash_p($args) ){
+	 # $args->{query}
+	 # $args->{document_category}
+	 # $args->{page}
+     	 $ilink = 'amigo?mode=simple_search&'.
+     	   $self->hash_to_query_string($args);
+       }else{
+     	 $ilink = 'amigo?mode=simple_search';
+       }
+     },
      'id_request' =>
      sub {
        my $data = $args->{data} || '';
@@ -1393,12 +1394,12 @@ sub _read_json_file {
 }
 
 
-=item get_golr_configuration
+=item golr_configuration
 
 Return href of the GOlr configuration from the installation.
 
 =cut
-sub get_golr_configuration {
+sub golr_configuration {
 
   my $self = shift;
   my $json_file = $self->amigo_env('AMIGO_HTDOCS_ROOT_DIR') .
@@ -1410,20 +1411,20 @@ sub get_golr_configuration {
 }
 
 
-=item get_golr_info_by_weight
+=item golr_class_info_by_weight
 
 Return aref of necessary info for conduction simple searches.
 
 TODO
 
 =cut
-sub get_golr_info_by_weight {
+sub golr_class_info_by_weight {
 
   my $self = shift;
   my $cutoff = shift || 25;
 
   ## Gather golr info.
-  my $gconf = $self->get_golr_configuration();
+  my $gconf = $self->golr_configuration();
 
   ## Collect the good bits.
   my $rets = [];
@@ -1435,14 +1436,102 @@ sub get_golr_info_by_weight {
     	 id => $id,
     	 display_name => $gconf->{$id}{display_name},
     	 description => $gconf->{$id}{description},
-    	 document_category => $gconf->{$id}{document_category}
+    	 document_category => $gconf->{$id}{document_category},
+    	 weight => $gconf->{$id}{weight}
     	};
     }
   }
 
-  $self->kvetch('rets: ' . Dumper($rets));
+  ## Sort by weight.
+  my @sorted_rets = sort { $b->{weight} <=> $a->{weight} } @$rets;
 
-  return $rets;
+  #$self->kvetch('sorted rets: ' . Dumper(\@sorted_rets));
+
+  return \@sorted_rets;
+}
+
+
+=item golr_class_searchable_extension
+
+Arguments: string identifying the golr class
+Return: the searchable extension string
+
+=cut
+sub golr_class_searchable_extension {
+
+  my $self = shift;
+  my $id = shift || die "which golr class?";
+
+  ## Gather golr info.
+  my $gconf = $self->golr_configuration();
+
+  ##
+  my $ret = undef;
+  if( defined $gconf->{$id} &&
+      defined $gconf->{$id}{searchable_extension} ){
+    $ret = $gconf->{$id}{searchable_extension};
+  }
+
+  return $ret || die "we seem to be trying to work with a damaged conf";
+}
+
+
+=item golr_class_document_category
+
+Arguments: string identifying the golr class
+Return: the document_category string
+
+=cut
+sub golr_class_document_category {
+
+  my $self = shift;
+  my $id = shift || die "which golr class?";
+
+  ## Gather golr info.
+  my $gconf = $self->golr_configuration();
+
+  ##
+  my $ret = undef;
+  if( defined $gconf->{$id} &&
+      defined $gconf->{$id}{document_category} ){
+    $ret = $gconf->{$id}{document_category};
+  }
+
+  return $ret || die "we seem to be trying to work with a damaged conf";
+}
+
+
+=item golr_class_field_searchable_p
+
+Arguments: string identifying the golr class and a string identifying a field
+Return: 0 or 1 on whether the field in question is searchable.
+
+=cut
+sub golr_class_field_searchable_p {
+
+  my $self = shift;
+  my $class_id = shift || die "which golr class?";
+  my $field_id = shift || die "which field?";
+
+  ## Gather golr info.
+  my $gconf = $self->golr_configuration();
+
+  ##
+  my $ret = undef;
+  if( defined $gconf->{$class_id} &&
+      defined $gconf->{$class_id}{fields_hash} &&
+      defined $gconf->{$class_id}{fields_hash}{$field_id} &&
+      defined $gconf->{$class_id}{fields_hash}{$field_id}{searchable} ){
+    $ret = 0;
+    if( $gconf->{$class_id}{fields_hash}{$field_id}{searchable} eq 'true' ){
+      $ret = 1;
+    }
+  }
+
+  die "we seem to be trying to work with a damaged conf"
+    if !defined $ret;
+
+  return $ret;
 }
 
 

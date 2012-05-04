@@ -114,8 +114,8 @@ for my $var (keys %$yconf){
 	$var_type eq 'integer' ||
 	$var_type eq 'number' ){
       $env_conf{$var} = int($yconf->{$var}{value});
-    }elsif( $var_type eq 'list' ){
-      $env_conf{$var} = '["' . join('", "', @{$yconf->{$var}{value}}) . '"]';
+    # }elsif( $var_type eq 'list' ){
+    #   $env_conf{$var} = '["' . join('", "', @{$yconf->{$var}{value}}) . '"]';
     }else{
       $env_conf{$var} = $yconf->{$var}{value};
     }
@@ -405,25 +405,29 @@ sub golr_config_to_js {
     ## Make sure that the top level hash the required fields.
     $rethash->{ $conf_id } =
       $core->merge({
+		    id => $conf_id,
 		    searchable_extension => "_searchable",
 		    weight => 0,
+		    document_category => "",
 		    default_fields_and_boosts => ""
 		   }, $conf_hash);
 
     ## Also make sure that the default fields are there properly for
     ## each config.
+    my $new_fields_hash = {};
     my $new_fields = [];
     foreach my $field (@{$rethash->{$conf_id}{fields}}){
-      push @$new_fields,
-	$core->merge({
-		      required => 'false',
-		      cardinality => 'single',
-		      property_type => 'dynamic',
-		      weight => 0,
-		      searchable => 'false',
-		      transform => []
-		     }, $field);
+      my $new_bit = $core->merge({
+				  required => 'false',
+				  cardinality => 'single',
+				  weight => 0,
+				  searchable => 'false',
+				  transform => []
+				 }, $field);
+      $new_fields_hash->{$field->{'id'}} = $new_bit; # id better be defined...
+      push @$new_fields, $new_bit;
     }
+    $rethash->{$conf_id}{fields_hash} = $new_fields_hash;
     $rethash->{$conf_id}{fields} = $new_fields;
   }
 
@@ -450,16 +454,21 @@ sub golr_config_to_js {
 ////
 //// Purpose: Useful information about GOlr for AmiGO.
 ////
-//// Requirements: amigo.js for bbop.amigo namespace.
+//// TODO: Requirements: amigo.js for bbop.golr namespace.
 ////
 //// NOTE: This file is generated dynamically at installation time.
 ////       Hard to work with unit tests--hope it's not too bad.
 ////       Want to keep this real simple.
 ////
+//// NOTE: This file has a slightly different latout from the YAML
+////       configurations files--in addition instead of the fields
+////       being in lists (fields), they are in hashes keyed by the
+////       field id (fields_hash).
+////
 //////////
 
 // All of the server/instance-specific meta-data.
-bbop.golr.conf_data = $js_str;
+bbop.golr.configuration = $js_str;
 EOJS
 
   ## Close file.
