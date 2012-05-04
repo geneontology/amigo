@@ -779,6 +779,7 @@ sub generate_template_page {
 
   ## Main content output.
   foreach my $content (@{$self->{WEBAPP_CONTENT}}){ push @mbuf, $content; }
+  push @mbuf, $self->_eval_content('common/content_close.tmpl');
   push @mbuf, $self->_eval_content('common/footer.tmpl')
     if ! $lite_p && $footer_p;
   push @mbuf, $self->_eval_content('common/close.tmpl');

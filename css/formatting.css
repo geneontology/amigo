@@ -154,7 +154,8 @@ div.links { float: right; font-size: 80%; margin: 0 0 10px 10px; padding: 5px; b
 
 .txt, .textBox { margin: 0 5px; }
 
-input.textBox { font: 90% arial, sans-serif; }
+/* input.textBox { font: 90% arial, sans-serif; } */
+input.textBox { }
 
 .button { padding: 2px; margin: 5px; font-size: 90%; }
 
