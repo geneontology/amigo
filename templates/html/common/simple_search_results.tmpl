@@ -1,4 +1,4 @@
-<!-- START: simple_search.tmpl -->
+<!-- START: simple_search_results.tmpl -->
 
 <p>
   [% IF page_number > 1 %]
@@ -21,9 +21,9 @@
   <thead>
     <tr>
 	  
-      [% FOREACH header = results_headers %]
+      [% FOREACH field_name = results_order %]
       <th style="">
-	[% header %]
+	[% field_name %]
       </th>
       [% END%]
       
@@ -39,11 +39,12 @@
       [%  ELSE %]
     <tr class="even_odd">
       [%  END %]
-      [%  FOREACH col = row %]
+
+      [% FOREACH field_name = results_order %]
       <td rowspan="1">
-	[%   col %]
+	[% row.$field_name %]
       </td>
-      [%  END %]
+      [% END%]      
     </tr>
     [%    eo = eo + 1 %]
     [% END %]

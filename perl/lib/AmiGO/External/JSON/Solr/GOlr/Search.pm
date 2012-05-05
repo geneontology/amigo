@@ -64,13 +64,13 @@ sub smart_query {
     ## Grab the main nutrients. Let's assumed that nobody screwed up
     ## the format. Now we need to break it down, see if there are any
     ## searchable fields to use, transfer to them, and reassemble.
-    my $dfab = $gconf->{$gc_id}{default_fields_and_boosts};
-    my @fields = split /\s+/, $dfab;
+    my $dfab = $self->golr_class_weights($gc_id, 'boost');
+    #my @fields = split /\s+/, $dfab;
     my $fixed_boosts = [];
     #my $fields_to_search = [];
     my $search_ext = $self->golr_class_searchable_extension($gc_id);
-    foreach my $f (@fields){
-      my($field, $boost) = split /\^/, $f;
+    foreach my $field (keys %{$dfab}){
+      my $boost = $dfab->{$field};
 
       ## TODO: Check to see if the field is searchable, and if it is,
       ## add the extension.
@@ -82,10 +82,10 @@ sub smart_query {
       #push @$fields_to_search, $field;
       push @$fixed_boosts, $field . '^' . $boost;
     }
-    my $final_dfab = join ' ', @$fixed_boosts;
+    my $final_dfab_str = join ' ', @$fixed_boosts;
 
-    ## TODO: Fold the hash into what we have.
-    $self->{AEJS_BASE_HASH}{qf} = $final_dfab;
+    ## Fold what we have into the hash.
+    $self->{AEJS_BASE_HASH}{qf} = $final_dfab_str;
     $self->{AEJS_BASE_HASH}{defType} = 'edismax';
     $self->{AEJS_BASE_HASH}{fq} =
       'document_category:"' . $self->golr_class_document_category($gc_id) . '"';

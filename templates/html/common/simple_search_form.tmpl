@@ -19,11 +19,20 @@
   <br />
 
   [% FOREACH infi IN simple_search_form_info %]
-  <input type="submit"
-	 class="button"
-	 name="document_category"
-	 value="[% infi.id %]">
+  <input type="radio"
+	 name="golr_class"
+  [%    IF golr_class == infi.id %]
+	 value="[% infi.id %]" checked="yes" />
+  [%    ELSE %]
+	 value="[% infi.id %]" />
+  [%    END %]
+  [% infi.display_name %]
+  &nbsp;&nbsp;
   [% END %]
+  <br />
+  <input type="submit"
+	 class="button" 
+	 value="Search" />
 </form>
 
 <!-- End: simple_search_form.tmpl -->

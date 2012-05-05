@@ -87,8 +87,14 @@ sub mode_landing {
   $self->set_template_parameter('content_title', 'AmiGO 2');
 
   ## Grab the config info for the simple search form construction.
-  my $ss_info = $self->{CORE}->golr_class_info_by_weight(25);
+  my $ss_info = $self->{CORE}->golr_class_info_list_by_weight(25);
   $self->set_template_parameter('simple_search_form_info', $ss_info);
+
+  ## Pick the first to be the default.
+  my $gc = $$ss_info[0]->{id};
+  my $dc = $self->{CORE}->golr_class_document_category($gc);
+  $self->set_template_parameter('golr_class', $gc);
+  $self->set_template_parameter('document_category', $dc);
 
   ## Our AmiGO services CSS.
   my $prep =
@@ -159,14 +165,14 @@ sub mode_simple_search {
     $insufficient_info_p--;
   }
 
-  ## Pull our document_category parameter.
-  my $dc = $params->{document_category};
-  if( ! defined $dc || $dc eq '' ){
+  ## Pull our golr_class parameter.
+  my $gc = $params->{golr_class};
+  if( ! defined $gc || $gc eq '' ){
     $self->add_mq('warning',
 		  'No search category was defined--please try again.');
   }else{
-    $self->set_template_parameter('document_category', $dc);
-    $self->{CORE}->kvetch('document_category: ' . $dc);
+    $self->set_template_parameter('golr_class', $gc);
+    $self->{CORE}->kvetch('golr_class: ' . $gc);
     $insufficient_info_p--;
   }
 
@@ -190,7 +196,7 @@ sub mode_simple_search {
 
     my $gs = AmiGO::External::JSON::Solr::GOlr::Search->new();
     #$self->{CORE}->kvetch("target: " . $gs->{AEJS_BASE_URL});
-    my $results_ok_p = $gs->smart_query($q, $dc, $page);
+    my $results_ok_p = $gs->smart_query($q, $gc, $page);
 
     $results = $gs->docs();
     my $results_total = $gs->total();
@@ -207,25 +213,29 @@ sub mode_simple_search {
 
     ## Take care of paging.
     my $next_page_url =
-      $self->{CORE}->get_interlink({mode=>'simple_search',
+      $self->{CORE}->get_interlink({mode => 'simple_search',
 				    arg => {'query' => $q,
-					    'document_category'=> $dc,
-					    'page' => $page + 1}});
+					    'golr_class'=> $gc,
+					    'page' => $page + 1},
+				    optional => {'frag' => 'nav_anchor'}});
     my $prev_page_url =
-      $self->{CORE}->get_interlink({mode=>'simple_search',
+      $self->{CORE}->get_interlink({mode => 'simple_search',
 				    arg => {'query' => $q,
-					    'document_category'=> $dc,
-					    'page' => $page - 1}});
+					    'golr_class'=> $gc,
+					    'page' => $page - 1},
+				    optional => {'frag' => 'nav_anchor'}});
     my $first_page_url =
-      $self->{CORE}->get_interlink({mode=>'simple_search',
+      $self->{CORE}->get_interlink({mode => 'simple_search',
 				    arg => {'query' => $q,
-					    'document_category'=> $dc,
-					    'page' => 1}});
+					    'golr_class'=> $gc,
+					    'page' => 1},
+				    optional => {'frag' => 'nav_anchor'}});
     my $last_page_url =
-      $self->{CORE}->get_interlink({mode=>'simple_search',
+      $self->{CORE}->get_interlink({mode => 'simple_search',
 				    arg => {'query' => $q,
-					    'document_category'=> $dc,
-					    'page' => $gs->last_page()}});
+					    'golr_class'=> $gc,
+					    'page' => $gs->last_page()},
+				    optional => {'frag' => 'nav_anchor'}});
     $self->set_template_parameter('first_page_url', $first_page_url);
     $self->set_template_parameter('last_page_url', $last_page_url);
     $self->set_template_parameter('next_page_url', $next_page_url);
@@ -234,6 +244,21 @@ sub mode_simple_search {
     $self->set_template_parameter('range_high', $gs->range_high($page));
     $self->set_template_parameter('range_low', $gs->range_low($page));
     $self->set_template_parameter('range', $gs->count());
+
+    ## Nice to know the category that we searched in.
+    my $dc = $self->{CORE}->golr_class_document_category($gc);
+    $self->set_template_parameter('document_category', $dc);
+
+    ## Okay, the main search stuff is done, now let's sort out all of
+    ## the information needed for the headers.
+    $self->set_template_parameter('golr_class_info',
+    				  $self->{CORE}->golr_class_info($gc));
+    my $result_weights_hash = $self->{CORE}->golr_class_weights($gc, 'result');
+    my @results_order = sort {
+      $result_weights_hash->{$b} <=> $result_weights_hash->{$a}
+    } (keys %{$result_weights_hash});
+    $self->set_template_parameter('results_order', \@results_order);
+    $self->{CORE}->kvetch('results_order: ' . Dumper(\@results_order));
   }
 
   ## Page settings.
@@ -242,7 +267,7 @@ sub mode_simple_search {
   $self->set_template_parameter('content_title', 'Simple Search');
 
   ## Grab the config info for the simple search form construction.
-  my $ss_info = $self->{CORE}->golr_class_info_by_weight(25);
+  my $ss_info = $self->{CORE}->golr_class_info_list_by_weight(25);
   $self->set_template_parameter('simple_search_form_info', $ss_info);
 
   ## The rest of our environment.

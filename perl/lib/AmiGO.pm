@@ -1411,17 +1411,41 @@ sub golr_configuration {
 }
 
 
-=item golr_class_info_by_weight
+=item golr_class_info_list_by_weight
 
-Return aref of necessary info for conduction simple searches.
+Arguments: golr class id
+Return href of info.
 
 TODO
 
 =cut
-sub golr_class_info_by_weight {
+sub golr_class_info {
 
   my $self = shift;
-  my $cutoff = shift || 25;
+  my $gcid = shift || "need a golr class id";
+
+  ## Gather golr info.
+  my $ret = undef;
+  my $gconf = $self->golr_configuration();
+  if( defined $gconf->{$gcid} ){
+    $ret = $gconf->{$gcid};
+  }
+  return $ret;
+}
+
+
+=item golr_class_info_list_by_weight
+
+Return aref of necessary info for conduction simple searches.
+Default cutoff is 0.
+
+TODO
+
+=cut
+sub golr_class_info_list_by_weight {
+
+  my $self = shift;
+  my $cutoff = shift || 0;
 
   ## Gather golr info.
   my $gconf = $self->golr_configuration();
@@ -1431,14 +1455,7 @@ sub golr_class_info_by_weight {
   foreach my $id (keys(%{$gconf})){
     if( defined $gconf->{$id}{weight} &&
     	$gconf->{$id}{weight} >= $cutoff ){
-      push @$rets,
-    	{
-    	 id => $id,
-    	 display_name => $gconf->{$id}{display_name},
-    	 description => $gconf->{$id}{description},
-    	 document_category => $gconf->{$id}{document_category},
-    	 weight => $gconf->{$id}{weight}
-    	};
+      push @$rets, $gconf->{$id};
     }
   }
 
@@ -1532,6 +1549,51 @@ sub golr_class_field_searchable_p {
     if !defined $ret;
 
   return $ret;
+}
+
+
+=item golr_class_weights
+
+Arguments: string identifying the golr class and the weights desired
+('boost', 'result', or 'filter').
+
+Return: href of {field => weight, ...}
+
+=cut
+sub golr_class_weights {
+
+  my $self = shift;
+  my $gc_id = shift || die "which golr class?";
+  my $weights_id = shift || die "which golr class weights category?";
+
+  ## Only the defined few.
+  if( $weights_id ne 'boost' &&
+      $weights_id ne 'result' &&
+      $weights_id ne 'filter' ){
+    die "not a known weights_id: $weights_id";
+  }else{
+    $weights_id = $weights_id . '_weights';
+  }
+
+  ## Gather golr info.
+  my $gconf = $self->golr_configuration();
+
+  ## Collect the good bits.
+  my $rethash = {};
+  if( !defined $gconf->{$gc_id} ||
+      ! defined $gconf->{$gc_id}{$weights_id} ){
+    $self->kvetch('failed to find: ' . $gc_id . ', '. $weights_id);
+  }else{
+    my $dfab = $gconf->{$gc_id}{$weights_id};
+    my @fields = split /\s+/, $dfab;
+    foreach my $p (@fields){
+      my($field, $value) = split /\^/, $p;
+      $rethash->{$field} = $value + 0.0; # convert?
+    }
+  }
+
+  $self->kvetch(Dumper($rethash));
+  return $rethash;
 }
 
 

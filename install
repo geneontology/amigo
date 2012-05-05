@@ -409,7 +409,9 @@ sub golr_config_to_js {
 		    searchable_extension => "_searchable",
 		    weight => 0,
 		    document_category => "",
-		    default_fields_and_boosts => ""
+		    boost_weights => "",
+		    result_weights => "",
+		    filter_weights => ""
 		   }, $conf_hash);
 
     ## Also make sure that the default fields are there properly for
@@ -420,7 +422,6 @@ sub golr_config_to_js {
       my $new_bit = $core->merge({
 				  required => 'false',
 				  cardinality => 'single',
-				  weight => 0,
 				  searchable => 'false',
 				  transform => []
 				 }, $field);

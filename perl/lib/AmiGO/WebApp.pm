@@ -658,7 +658,7 @@ sub set_template_parameter {
   my $value = shift; # we love zeros too
   if( defined $name && defined $value ){
     $self->{WEBAPP_TEMPLATE_PARAMS}{$name} = $value;
-    $self->{CORE}->kvetch($self->{WEBAPP_TEMPLATE_PARAMS}{$name});
+    $self->{CORE}->kvetch($name .': '. $self->{WEBAPP_TEMPLATE_PARAMS}{$name});
   }
 }
 

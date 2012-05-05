@@ -12,7 +12,7 @@
 
 [% IF search_performed_p %]
 
-<div class="block">
+<div class="block" id="nav_anchor">
   <h2>Search Results</h2>
   
   [% IF results_p == 0 %]
@@ -27,7 +27,7 @@
   <p>
   <p>
     [% results_total %] results were found for "[% HTML.escape(query) %]"
-    in "[% HTML.escape(document_category) %]".
+    in [% HTML.escape(golr_class) %]'s [% document_category %].
     <br />
     Currently viewing [% range %]
     results on page [% HTML.escape(page_number) %]
