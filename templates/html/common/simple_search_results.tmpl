@@ -23,7 +23,7 @@
 	  
       [% FOREACH field_name = results_order %]
       <th style="">
-	[% field_name %]
+	[% golr_class_info.fields_hash.$field_name.display_name %]
       </th>
       [% END%]
       

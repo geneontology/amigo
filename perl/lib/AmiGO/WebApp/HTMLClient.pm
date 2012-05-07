@@ -251,8 +251,9 @@ sub mode_simple_search {
 
     ## Okay, the main search stuff is done, now let's sort out all of
     ## the information needed for the headers.
-    $self->set_template_parameter('golr_class_info',
-    				  $self->{CORE}->golr_class_info($gc));
+    my $gci = $self->{CORE}->golr_class_info($gc);
+    $self->set_template_parameter('golr_class_info', $gci);
+    #$self->{CORE}->kvetch('golr_class_info: ' . Dumper($gci));
     my $result_weights_hash = $self->{CORE}->golr_class_weights($gc, 'result');
     my @results_order = sort {
       $result_weights_hash->{$b} <=> $result_weights_hash->{$a}
