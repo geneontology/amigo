@@ -1592,7 +1592,7 @@ sub golr_class_weights {
     }
   }
 
-  $self->kvetch(Dumper($rethash));
+  #$self->kvetch(Dumper($rethash));
   return $rethash;
 }
 

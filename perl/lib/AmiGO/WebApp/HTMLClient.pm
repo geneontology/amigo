@@ -182,7 +182,7 @@ sub mode_simple_search {
 
   ## See if there are any results.
   my $results_p = 0;
-  my $results = undef;
+  my $results_docs = undef;
 
   ## Only attempt a search if there is not insufficient
   ## information. Otherwise, we'll let the warnings speak for
@@ -198,18 +198,44 @@ sub mode_simple_search {
     #$self->{CORE}->kvetch("target: " . $gs->{AEJS_BASE_URL});
     my $results_ok_p = $gs->smart_query($q, $gc, $page);
 
-    $results = $gs->docs();
+    $results_docs = $gs->docs();
     my $results_total = $gs->total();
     my $results_count = $gs->count();
-    if( $results_ok_p && $results && $gs->count() > 0 ){
+    if( $results_ok_p && $results_docs && $gs->count() > 0 ){
       $results_p = 1;
     }
 
     ## Set with our findings.
     $self->set_template_parameter('results_p', $results_p);
-    $self->set_template_parameter('results', $results);
+    $self->set_template_parameter('results', $results_docs);
     $self->set_template_parameter('results_total', $results_total);
     $self->set_template_parameter('results_count', $results_count);
+
+    ## See if we can get links.
+    ## BUG: Right now, we only understand internal links.
+    my $results_links = {};
+    foreach my $doc (@{$results_docs}) {
+      #my $rdoc = $results_docs->{$rid};
+      if( $doc->{id} ){
+	my $did = $doc->{id};
+	if( $self->{CORE}->is_term_acc_p($did) ){
+	  $results_links->{$did} = 
+	    $self->{CORE}->get_interlink({mode => 'term_details',
+					  arg => {acc => $did}});
+	}else{
+	  $results_links->{$did} = 
+	    $self->{CORE}->get_interlink({mode => 'gp_details',
+					  arg => {acc => $did}});
+	}
+      }
+    }
+    #$self->{CORE}->kvetch('results_links: ' . Dumper($results_links));
+    $self->set_template_parameter('results_links', $results_links);
+
+    ## And highlighting.
+    my $hlite = $gs->highlighting();
+    #$self->{CORE}->kvetch('highlighting: ' . Dumper($hlite));
+    $self->set_template_parameter('highlighting', $hlite);
 
     ## Take care of paging.
     my $next_page_url =
@@ -259,7 +285,7 @@ sub mode_simple_search {
       $result_weights_hash->{$b} <=> $result_weights_hash->{$a}
     } (keys %{$result_weights_hash});
     $self->set_template_parameter('results_order', \@results_order);
-    $self->{CORE}->kvetch('results_order: ' . Dumper(\@results_order));
+    #$self->{CORE}->kvetch('results_order: ' . Dumper(\@results_order));
   }
 
   ## Page settings.

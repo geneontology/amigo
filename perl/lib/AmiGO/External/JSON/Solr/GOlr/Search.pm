@@ -46,6 +46,8 @@ sub smart_query {
   my $gc_id = shift || die "smart_query requires a golr conf class id";
   my $page = shift || 1;
 
+
+  $self->{AEJSGS_GOLR_CLASS_ID} = $gc_id;
   # ## Paging will be part of our world, so get ready.
   # $self->_ready_paging();
 
@@ -92,7 +94,7 @@ sub smart_query {
     $self->{AEJS_BASE_HASH}{hl} = 'true';
     $self->{AEJS_BASE_HASH}{'hl.simple.pre'} = '<em class="hilite">';
     #$self->{AEJS_BASE_HASH}{'hl.simple.post'} = '</em>';
-    #$self->{AEJS_BASE_HASH}{hl.fl} = '*';
+    #$self->{AEJS_BASE_HASH}{'hl.fl'} = '*';
     $self->{AEJS_BASE_HASH}{q} = $qstr;
 
     ## Calculate any necessary paging.
@@ -182,6 +184,69 @@ sub range_low {
   }
 
   return $retval;
+}
+
+=item highlighting
+
+Return: "highlighting" data structure as a hash ref or empty, keyed by id
+
+The highlighting found during last query.
+TODO: I'm only taking the first highlight here.
+
+=cut
+sub highlighting {
+
+  my $self = shift;
+  my $worked_highlighting = {};
+
+  ## Make sure we got something.
+  my $raw_highlighting = {};
+  if( $self->{AEJS_RESPONSE} &&
+      $self->{AEJS_RESPONSE}{highlighting} ){
+    $raw_highlighting = $self->{AEJS_RESPONSE}{highlighting};
+    #$self->kvetch('got raw highlighting: ' . Dumper($raw_highlighting));
+  }
+
+  ## And take care of highlighting; maybe this should be a worker?
+  my $ext =
+    $self->golr_class_searchable_extension($self->{AEJSGS_GOLR_CLASS_ID});
+  #$self->kvetch('ext: ' . $ext);
+  foreach my $hid (keys %{$raw_highlighting}){
+
+    ## Ensure that is in our worked hash.
+    if( ! defined $worked_highlighting->{$hid} ){
+      $worked_highlighting->{$hid} = {};
+    }
+
+    ## Cycle through the fields under the id.
+    foreach my $raw_fid (keys %{$raw_highlighting->{$hid}} ){
+
+      ## Instead of cycling through the available highlights and
+      ## merging/do something with them, just take the first for now.
+      my $hrows = $raw_highlighting->{$hid}{$raw_fid};
+      if( defined $hrows && length(@{$hrows}) ){
+
+	#$self->kvetch('l@: ' . $raw_fid);
+
+	## Try and remove the searchable extension from the results.
+	my $fid = $raw_fid;
+	if( $raw_fid =~ /(.*)$ext$/ ){
+	  $fid = $1;
+	}
+
+	# ## Ensure that is in our worked hash.
+	# if( ! defined $worked_highlighting->{$hid}{$fid} ){
+	#   $worked_highlighting->{$hid}{$fid} = {};
+	# }
+	#$worked_highlighting->{$hid}{$fid} = $$hrows->[0];
+
+	## Since we're only taking one for now:
+	$worked_highlighting->{$hid}{$fid} = $hrows->[0];
+      }
+    }
+  }
+
+  return $worked_highlighting;
 }
 
 

@@ -34,6 +34,7 @@
     
     [% eo = 0 %]
     [% FOREACH row = results %]
+    [%    local_id = row.id %]
     [%    IF eo % 2 == 0 %]
     <tr class="even_row">
       [%  ELSE %]
@@ -42,7 +43,17 @@
 
       [% FOREACH field_name = results_order %]
       <td rowspan="1">
-	[% row.$field_name %]
+	[% IF field_name == "id" AND results_links.$local_id %]
+	<a href=[% results_links.$local_id %]>
+	[% END %]
+	[% IF highlighting.$local_id.$field_name %]
+	[%    highlighting.$local_id.$field_name %]
+	[% ELSE %]
+	[%    row.$field_name %]
+	[% END %]
+	[% IF $field_name == 'id' && results_links.$local_id %]
+	</a>
+	[% END %]
       </td>
       [% END%]      
     </tr>
