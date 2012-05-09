@@ -69,7 +69,7 @@ function GOlrUIBeta(in_args){
     var filter_accordion = null;
 
     // Initialize with reseting data.
-    this.make_controls_frame = function(json_data){
+    this.make_search_controls_frame = function(json_data){
     
 	ll('UIB: Initial build of UI from reset response: ' + ui_div_hook);
 
@@ -93,7 +93,15 @@ function GOlrUIBeta(in_args){
 
 	// Add event for q input.
 	jQuery('#' + q_input_hook).keyup(gui_anchor._run_action_callbacks);
+	
+	// Continue with the rest of the display (filter, results,
+	// etc.) controls.
+	gui_anchor.make_filter_controls_frame(json_data);
+    };
 
+    // Initialize with reseting data.
+    this.make_filter_controls_frame = function(json_data){
+    
 	///
 	/// Create a frame to hang the query and filters on.
 	///
@@ -270,7 +278,12 @@ function GOlrUIBeta(in_args){
 	ll('UIB: Scanning for q input: ' + q_input_hook);
 
 	var q_logic = new bbop.logic();
-	var q_val = jQuery('#' + q_input_hook)[0].value;
+	var q_val = "";
+	if( jQuery('#' + q_input_hook) &&
+	    jQuery('#' + q_input_hook)[0] &&
+	    jQuery('#' + q_input_hook)[0].value ){
+		q_val = jQuery('#' + q_input_hook)[0].value;		
+	    }
 	ll('UIB: squirrel away q: ' + q_val);
 	//q_logic.add('q:' + q_val);
 	q_logic.add(q_val);

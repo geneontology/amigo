@@ -428,27 +428,30 @@ function TermDetailsInit(){
     var solr_server = gm.golr_base();
     var gm_ann = new GOlrManager({url: solr_server,
     				  filters: {'document_category':
-					    'annotation'},
+					    'annotation', 
+					    'isa_partof_closure' :
+					    global_acc},
     				  facets: ['type', 'taxon', 'source',
     					   'evidence_type',
 					   'annotation_extension_class',
 					   'isa_partof_label_closure']});
     var ui_ann = new GOlrUIBeta({interface_id: 'display-associations'});
 
-    // ...
-    function _peg_q(){
-	jQuery("#" + "display-associations_ui_element_q").val("\"" +
-							      global_label +
-							      "\"");
-	jQuery("#" + "display-associations_ui_element_q").keyup();
-    }
+    // // ...
+    // function _peg_q(){
+    // 	jQuery("#" + "display-associations_ui_element_q").val("\"" +
+    // 							      global_label +
+    // 							      "\"");
+    // 	jQuery("#" + "display-associations_ui_element_q").keyup();
+    // }
 
     // Class/term init.
-    gm_ann.register('reset', 'control_init_q', ui_ann.make_controls_frame, 0);
+    gm_ann.register('reset', 'control_init_q',
+    		    ui_ann.make_filter_controls_frame, 0);
     gm_ann.register('reset', 'control_init_fq', ui_ann.draw_filters, -1);
     gm_ann.register('reset', 'results_init', ui_ann.make_results_frame, -2);
     gm_ann.register('reset', 'results_first', ui_ann.draw_results, -3);
-    gm_ann.register('reset', 'results_init_after', _peg_q, -4);
+    // gm_ann.register('reset', 'results_init_after', _peg_q, -4);
 
     gm_ann.register('search', 'controls_usual', ui_ann.draw_filters);
     gm_ann.register('search', 'results_usual', ui_ann.draw_results);

@@ -114,7 +114,8 @@ function LiveSearchGOlrInit(){
     var ui_agg = new GOlrUIBeta({interface_id: 'interface-agg'});
 
     // Bioentity init.
-    gm_bio.register('reset', 'control_init_q', ui_bio.make_controls_frame, 0);
+    gm_bio.register('reset', 'control_init_q',
+		    ui_bio.make_search_controls_frame, 0);
     gm_bio.register('reset', 'control_init_fq', ui_bio.draw_filters, -1);
     gm_bio.register('reset', 'results_init', ui_bio.make_results_frame, -2);
     gm_bio.register('reset', 'results_first', ui_bio.draw_results, -3);
@@ -122,21 +123,24 @@ function LiveSearchGOlrInit(){
     gm_bio.register('search', 'results_usual', ui_bio.draw_results);
     // gm_bio.register('search', 'ui_color', ui_bio.color_controls, -1);
     // Class/term init.
-    gm_cls.register('reset', 'control_init_q', ui_cls.make_controls_frame, 0);
+    gm_cls.register('reset', 'control_init_q',
+		    ui_cls.make_search_controls_frame, 0);
     gm_cls.register('reset', 'control_init_fq', ui_cls.draw_filters, -1);
     gm_cls.register('reset', 'results_init', ui_cls.make_results_frame, -2);
     gm_cls.register('reset', 'results_first', ui_cls.draw_results, -3);
     gm_cls.register('search', 'controls_usual', ui_cls.draw_filters);
     gm_cls.register('search', 'results_usual', ui_cls.draw_results);
     // Annotation.
-    gm_ann.register('reset', 'control_init_q', ui_ann.make_controls_frame, 0);
+    gm_ann.register('reset', 'control_init_q',
+		    ui_ann.make_search_controls_frame, 0);
     gm_ann.register('reset', 'control_init_fq', ui_ann.draw_filters, -1);
     gm_ann.register('reset', 'results_init', ui_ann.make_results_frame, -2);
     gm_ann.register('reset', 'results_first', ui_ann.draw_results, -3);
     gm_ann.register('search', 'controls_usual', ui_ann.draw_filters);
     gm_ann.register('search', 'results_usual', ui_ann.draw_results);
     // Aggregate.
-    gm_agg.register('reset', 'control_init_q', ui_agg.make_controls_frame, 0);
+    gm_agg.register('reset', 'control_init_q',
+		    ui_agg.make_search_controls_frame, 0);
     gm_agg.register('reset', 'control_init_fq', ui_agg.draw_filters, -1);
     gm_agg.register('reset', 'results_init', ui_agg.make_results_frame, -2);
     gm_agg.register('reset', 'results_first', ui_agg.draw_results, -3);

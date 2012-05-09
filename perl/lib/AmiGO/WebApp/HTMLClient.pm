@@ -63,7 +63,7 @@ sub setup {
 		   'visualize'           => 'mode_visualize',
 		   'subset_summary'      => 'mode_subset_summary',
 		   'search'              => 'mode_live_search',
-		   'live_search_gold'    => 'mode_live_search_gold',
+		   'live_search_golr'    => 'mode_live_search_golr',
 		   'golr_term_details'   =>  'mode_golr_term_details',
 		   'golr_gene_product_details' =>
 		   'mode_golr_gene_product_details',
@@ -467,98 +467,98 @@ sub mode_dynamic_style {
 }
 
 
-## A committed client based on the jQuery libraries and GOlr. It loads
-## the owl YAML config files to automatically generate the interface.
-sub mode_live_search {
+# ## A committed client based on the jQuery libraries and GOlr. It loads
+# ## the owl YAML config files to automatically generate the interface.
+# sub mode_live_search {
 
-  my $self = shift;
+#   my $self = shift;
 
-  ## TODO/BUG: This needs to be dynamic, but for now we're just gunna
-  ## write them in for debugging fun.
-  my $yaml_path =
-    "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/";
-  # my $yaml_confs =
-  #   [$yaml_path . "amigo-config.yaml", $yaml_path . "gaf-config.yaml"];
-  my $yaml_conf = $yaml_path . "ont-config.yaml";
+#   ## TODO/BUG: This needs to be dynamic, but for now we're just gunna
+#   ## write them in for debugging fun.
+#   my $yaml_path =
+#     "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/";
+#   # my $yaml_confs =
+#   #   [$yaml_path . "amigo-config.yaml", $yaml_path . "gaf-config.yaml"];
+#   my $yaml_conf = $yaml_path . "ont-config.yaml";
 
-  $self->{CORE}->kvetch("pre");
-  my $foo = $self->{CORE}->read_config_resource($yaml_conf);
-  $self->{CORE}->kvetch(Dumper($foo));
+#   $self->{CORE}->kvetch("pre");
+#   my $foo = $self->{CORE}->read_config_resource($yaml_conf);
+#   $self->{CORE}->kvetch(Dumper($foo));
 
-  my $json_foo = $self->{JS}->make_js($foo);
-  $self->{CORE}->kvetch(Dumper($json_foo));
+#   my $json_foo = $self->{JS}->make_js($foo);
+#   $self->{CORE}->kvetch(Dumper($json_foo));
 
-  ## 0 > weight: invisible
-  ## 100 > weight >= 0: visible and in order; minor
-  ## weight >= 100: visible and in order; major
+#   ## 0 > weight: invisible
+#   ## 100 > weight >= 0: visible and in order; minor
+#   ## weight >= 100: visible and in order; major
 
-  # ## Page settings.
-  # $self->set_template_parameter('STANDARD_CSS', 'no');
-  # $self->set_template_parameter('page_title', 'AmiGO: Search');
-  # $self->set_template_parameter('content_title', 'Search');
+#   # ## Page settings.
+#   # $self->set_template_parameter('STANDARD_CSS', 'no');
+#   # $self->set_template_parameter('page_title', 'AmiGO: Search');
+#   # $self->set_template_parameter('content_title', 'Search');
 
-  # ## Grab resources we want.
-  # $self->set_template_parameter('STAR_IMAGE',
-  # 				$self->{CORE}->get_image_resource('star'));
+#   # ## Grab resources we want.
+#   # $self->set_template_parameter('STAR_IMAGE',
+#   # 				$self->{CORE}->get_image_resource('star'));
 
-  # ## Our AmiGO services CSS.
-  # my $prep =
-  #   {
-  #    css_library =>
-  #    [
-  #     'standard',
-  #     #'com.jquery.redmond.custom',
-  #     'com.jquery.jqamigo.custom',
-  #     'bbop.amigo.ui.widgets'
-  #     #'bbop.amigo.ui.interactive'
-  #    ],
-  #    javascript_library =>
-  #    [
-  #     'com.jquery',
-  #     'com.jquery-ui',
-  #     'bbop.core',
-  #     'bbop.logger',
-  #     'bbop.logic',
-  #     'bbop.registry',
-  #     'bbop.html',
-  #     'bbop.amigo',
-  #     'bbop.amigo.go_meta',
-  #     #'bbop.amigo.live_search',
-  #     'bbop.amigo.ui.widgets',
-  #     'bbop.amigo.ui.interactive'
-  #    ],
-  #    javascript =>
-  #    [
-  #     $self->{JS}->get_lib('GOlrTemplate.js'),
-  #     $self->{JS}->get_lib('GOlrManager.js'),
-  #     $self->{JS}->get_lib('GOlrUIBeta.js'),
-  #     $self->{JS}->get_lib('LiveSearchGOlr.js')
-  #    ],
-  #    javascript_init =>
-  #    [
-  #     'LiveSearchGOlrInit();'
-  #    ],
-  #    content =>
-  #    [
-  #     'pages/live_search_gold.tmpl'
-  #    ]
-  #   };
-  # $self->add_template_bulk($prep);
+#   # ## Our AmiGO services CSS.
+#   # my $prep =
+#   #   {
+#   #    css_library =>
+#   #    [
+#   #     'standard',
+#   #     #'com.jquery.redmond.custom',
+#   #     'com.jquery.jqamigo.custom',
+#   #     'bbop.amigo.ui.widgets'
+#   #     #'bbop.amigo.ui.interactive'
+#   #    ],
+#   #    javascript_library =>
+#   #    [
+#   #     'com.jquery',
+#   #     'com.jquery-ui',
+#   #     'bbop.core',
+#   #     'bbop.logger',
+#   #     'bbop.logic',
+#   #     'bbop.registry',
+#   #     'bbop.html',
+#   #     'bbop.amigo',
+#   #     'bbop.amigo.go_meta',
+#   #     #'bbop.amigo.live_search',
+#   #     'bbop.amigo.ui.widgets',
+#   #     'bbop.amigo.ui.interactive'
+#   #    ],
+#   #    javascript =>
+#   #    [
+#   #     $self->{JS}->get_lib('GOlrTemplate.js'),
+#   #     $self->{JS}->get_lib('GOlrManager.js'),
+#   #     $self->{JS}->get_lib('GOlrUIBeta.js'),
+#   #     $self->{JS}->get_lib('LiveSearchGOlr.js')
+#   #    ],
+#   #    javascript_init =>
+#   #    [
+#   #     'LiveSearchGOlrInit();'
+#   #    ],
+#   #    content =>
+#   #    [
+#   #     'pages/live_search_golr.tmpl'
+#   #    ]
+#   #   };
+#   # $self->add_template_bulk($prep);
 
-  return $self->generate_template_page();
-}
+#   return $self->generate_template_page();
+# }
 
 
 ## A committed client based on the jQuery libraries and GOlr. The
 ## future.
-sub mode_live_search_gold {
+sub mode_live_search_golr {
 
   my $self = shift;
 
   ## Page settings.
   $self->set_template_parameter('STANDARD_CSS', 'no');
   $self->set_template_parameter('page_title', 'AmiGO: Search');
-  $self->set_template_parameter('page_name', 'live_search_gold');
+  $self->set_template_parameter('page_name', 'live_search_golr');
   $self->set_template_parameter('content_title', 'Search');
 
   ## Grab resources we want.
@@ -604,7 +604,7 @@ sub mode_live_search_gold {
      ],
      content =>
      [
-      'pages/live_search_gold.tmpl'
+      'pages/live_search_golr.tmpl'
      ]
     };
   $self->add_template_bulk($prep);
