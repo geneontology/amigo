@@ -225,7 +225,7 @@ sub mode_simple_search {
 	}else{
 	  $results_links->{$did} = 
 	    $self->{CORE}->get_interlink({mode => 'gp_details',
-					  arg => {acc => $did}});
+					  arg => {gp => $did}});
 	}
       }
     }
