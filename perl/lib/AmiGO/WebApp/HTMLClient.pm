@@ -118,6 +118,9 @@ sub mode_landing {
       'bbop.html',
       'bbop.amigo',
       'bbop.amigo.go_meta',
+      'bbop.golr_meta',
+      'bbop.golr_conf',
+      'bbop.golr_manager',
       #'bbop.amigo.live_search',
       'bbop.amigo.ui.widgets',
       'bbop.amigo.ui.interactive'
@@ -587,6 +590,9 @@ sub mode_live_search_golr {
       'bbop.html',
       'bbop.amigo',
       'bbop.amigo.go_meta',
+      'bbop.golr_meta',
+      'bbop.golr_conf',
+      'bbop.golr_manager',
       #'bbop.amigo.live_search',
       'bbop.amigo.ui.widgets',
       'bbop.amigo.ui.interactive'
@@ -868,6 +874,9 @@ sub mode_golr_term_details {
       'bbop.html',
       'bbop.amigo',
       'bbop.amigo.go_meta',
+      'bbop.golr_meta',
+      'bbop.golr_conf',
+      'bbop.golr_manager',
       'bbop.amigo.ui.widgets',
       'bbop.amigo.ui.interactive'
      ],
@@ -973,6 +982,9 @@ sub mode_golr_gene_product_details {
       'bbop.logger',
       'bbop.amigo',
       'bbop.amigo.go_meta',
+      'bbop.golr_meta',
+      'bbop.golr_conf',
+      'bbop.golr_manager',
       'bbop.amigo.ui.widgets'
      ],
      javascript =>

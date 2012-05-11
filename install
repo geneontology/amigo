@@ -293,7 +293,7 @@ my $yaml_confs = [
 		  $yaml_path . "ann_ev_agg-config.yaml"
 		 ];
 
-golr_config_to_js($yaml_confs);
+golr_config_to_meta_js($yaml_confs);
 
 # print STDOUT "Ready to process GOlr YAML conf files...(1)\n";
 # #$core->kvetch("Ready to process GOlr YAML conf files...(2)");
@@ -374,9 +374,9 @@ EOC
 }
 
 
-## file: /srv/www/htdocs/amigo/js/bbop/amigo/golr_configuration.js
-## file: /srv/www/htdocs/amigo/js/bbop/amigo/golr_configuration.json
-sub golr_config_to_js {
+## file: /srv/www/htdocs/amigo/js/bbop/amigo/golr_meta.js
+## file: /srv/www/htdocs/amigo/js/bbop/amigo/golr_meta.json
+sub golr_config_to_meta_js {
 
   ## 
   use lib getcwd() . '/perl/lib';
@@ -443,33 +443,35 @@ sub golr_config_to_js {
 
   ## If the file is already there, blow it away.
   my $js_file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
-    '/javascript/bbop/amigo/golr_configuration.js';
+    '/javascript/bbop/amigo/golr_meta.js';
   unlink $js_file_str if -f $js_file_str;
   open(FILE, ">$js_file_str") or die "cannot open $js_file_str: $!";
 
   ##
   print FILE <<EOJS;
-////////////
-////
-//// bbop.golr.conf_data
-////
-//// Purpose: Useful information about GOlr for AmiGO.
-////
-//// TODO: Requirements: amigo.js for bbop.golr namespace.
-////
-//// NOTE: This file is generated dynamically at installation time.
-////       Hard to work with unit tests--hope it's not too bad.
-////       Want to keep this real simple.
-////
-//// NOTE: This file has a slightly different latout from the YAML
-////       configurations files--in addition instead of the fields
-////       being in lists (fields), they are in hashes keyed by the
-////       field id (fields_hash).
-////
-//////////
+/* 
+ * Package: golr_meta.js
+ * Namespace: bbop.golr.golr_meta
+ * 
+ * Useful information about GOlr for JS. See package golr.js
+ * for API to interact with this data file.
+ *
+ * NOTE: Requirements: core.js for namespace controls.
+ *
+ * NOTE: This file is generated dynamically at installation time.
+ * Hard to work with unit tests--hope it's not too bad.
+ * Want to keep this real simple.
+ *
+ * NOTE: This file has a slightly different latout from the YAML
+ * configurations files--in addition instead of the fields
+ * being in lists (fields), they are in hashes keyed by the
+ * field id (fields_hash).
+ */
 
 // All of the server/instance-specific meta-data.
-bbop.golr.configuration = $js_str;
+bbop.core.require('bbop', 'core');
+bbop.core.namespace('bbop', 'golr');
+bbop.golr.golr_meta = $js_str;
 EOJS
 
   ## Close file.
@@ -488,7 +490,7 @@ EOJS
 
   ## If the file is already there, blow it away.
   my $json_file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
-    '/javascript/bbop/amigo/golr_configuration.json';
+    '/javascript/bbop/amigo/golr_meta.json';
   unlink $json_file_str if -f $json_file_str;
   open(FILE, ">$json_file_str") or die "cannot open $json_file_str: $!";
 
