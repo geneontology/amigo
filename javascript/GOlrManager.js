@@ -19,7 +19,7 @@ function GOlrManager(in_args){
     // Per-manager logger.
     var logger = new bbop.logger();
     logger.DEBUG = true;
-    function ll(str){ logger.kvetch(str); }
+    function ll(str){ logger.kvetch('GM: ' + str); }
 
     // AmiGO helper.
     var amigo = new bbop.amigo();
@@ -31,28 +31,28 @@ function GOlrManager(in_args){
 
     // Check incoming arguments.
     if( ! in_args ){
-	ll('GM: ERROR: no argument');
+	ll('ERROR: no argument');
     }
     // There should be a string url argument.
     if( in_args && ! in_args['url'] ){
-	ll('GM: ERROR: no url argument');
+	ll('ERROR: no url argument');
 	if( typeof in_args['url'] != 'string' ){
-	    ll('GM: ERROR: no url string argument');
+	    ll('ERROR: no url string argument');
 	}
     }
     // There could be a hash of pinned filters argument.
     if( in_args && in_args['filters'] ){
 	if( typeof in_args['facets'] != 'object' ){
-	    ll('GM: ERROR: no sane filters argument');	    
+	    ll('ERROR: no sane filters argument');	    
 	}
     }
     // There should be an array facets argument.
     if( in_args && ! in_args['facets'] ){
-	ll('GM: ERROR: no facets argument');
+	ll('ERROR: no facets argument');
 	if( typeof in_args['facets'] != 'object' || 
 	    typeof in_args['facets'].length == 'undefined' ||
 	    typeof in_args['facets'].length == 0 ){
-		ll('GM: ERROR: no facets sanely specified');
+		ll('ERROR: no facets sanely specified');
 	    }
     }
     
@@ -100,7 +100,7 @@ function GOlrManager(in_args){
     // intialization/reset cal. First it runs some template code, then it
     // does all of the callbacks.
     this._run_reset_callbacks = function(json_data){
-	ll('GM: run reset callbacks...');
+	ll('run reset callbacks...');
 	anchor.apply_callbacks('reset', [json_data]);
     };
 
@@ -108,7 +108,7 @@ function GOlrManager(in_args){
     // the update function. First it runs some template code, then it does
     // all of the callbacks.
     this._run_search_callbacks = function(json_data){
-	ll('GM: run search callbacks...');
+	ll('run search callbacks...');
 	anchor.apply_callbacks('search', [json_data]);
     };
 
@@ -117,14 +117,14 @@ function GOlrManager(in_args){
     // does all of the callbacks.
     this._run_error_callbacks = function(result, status, error) {
 
-	ll('GM: Failed server request: '+ result +', '+ status +', '+ error);
+	ll('Failed server request: '+ result +', '+ status +', '+ error);
 		
 	// Get the error out if possible.
 	var jreq = result.responseText;
 	var req = jQuery.parseJSON(jreq);
 	if( req && req['errors'] && req['errors'].length > 0 ){
 	    var in_error = req['errors'][0];
-	    ll('GM: ERROR:' + in_error);
+	    ll('ERROR:' + in_error);
 	    // Split on newline if possible to get
 	    // at the nice part before the perl
 	    // error.
@@ -135,21 +135,21 @@ function GOlrManager(in_args){
 	}
 	
 	// Run all against registered functions.
-	ll('GM: run error callbacks...');
+	ll('run error callbacks...');
 	anchor.apply_callbacks('error', [clean_error]);
     };
     var _run_error_callbacks = this._run_error_callbacks;
 
     // Try and decide between a reset callback and a search callback.
     function _callback_type_decider(json_data){
-    	ll('GM: in callback type decider...');
+    	ll('in callback type decider...');
 
     	// 
     	if( ! golr.success(json_data) ){
     	    throw new Error("Unsuccessful response from golr server!");
     	}else{
     	    var cb_type = golr.callback_type(json_data);
-    	    ll('GM: okay response from server, will probe type...: ' + cb_type);
+    	    ll('okay response from server, will probe type...: ' + cb_type);
     	    if( cb_type == 'reset' ){
     		anchor._run_reset_callbacks(json_data);
     	    }else if( cb_type == 'search' ){
@@ -183,7 +183,7 @@ function GOlrManager(in_args){
 
 	    // Reset and do completely open query.
 	    var variant_qs = bbop.core.get_assemble(query_variants);
-	    ll('GM: varient_qs: ' + variant_qs);
+	    ll('varient_qs: ' + variant_qs);
 	    qurl = qurl + '&' + variant_qs + '&q=*:*';
 
 	}else if( update_type == 'search' ){
@@ -219,14 +219,14 @@ function GOlrManager(in_args){
 
 	    // Finalize it.
 	    var variant_qs = bbop.core.get_assemble(query_variants);
-	    //ll('GM: varient_qs: ' + variant_qs);
+	    //ll('varient_qs: ' + variant_qs);
 	    qurl = qurl + '&' + variant_qs + filter_qs + '&q=' + query_string;
 
 	}else{
-	    throw new Error("GM: Unknown update_type: " + update_type);
+	    throw new Error("Unknown update_type: " + update_type);
 	}
 
-	ll('GM: try: ' + qurl);
+	ll('try: ' + qurl);
 	//widgets.start_wait('Updating...');
 
 	// TODO/BUG: JSONP for solr looks like?

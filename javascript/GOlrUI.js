@@ -1,6 +1,8 @@
 ////
 //// An all-encompassing UI object.
 ////
+//// NOTE: Dev not in GOlrUIBeta (although we share the namespace)
+////
 
 // // NOTE: the first item in the hash is the default op.
 // // TODO: need a special object for adding and translations
@@ -8,34 +10,26 @@
 // // TODO: Callbacks.
 
 // An experimental dynamic UI builder.
+// TODO: will also probably need to take go_meta at some point.
 function GOlrUIBeta(in_args){
     bbop.registry.call(this, ['action']);
 
-    var ui_anchor = this;
+    var gui_anchor = this;
     
-    // Per-UI logger.
+    // Per-manager logger.
     var logger = new bbop.logger();
     logger.DEBUG = true;
-    function ll(str){ logger.kvetch('UI: ' + str); }
+    function ll(str){ logger.kvetch(str); }
 
     // There should be a string interface_id argument.
     if( in_args && ! in_args['interface_id'] ){
-	ll('ERROR: no interface_id argument');
+	ll('UIB: ERROR: no interface_id argument');
 	if( typeof in_args['interface_id'] != 'string' ){
-	    ll('ERROR: no interface_id string argument');
+	    ll('UIB: ERROR: no interface_id string argument');
 	}
     }
     // The location where we'll build and manage the interface.
     this.interface_id = in_args['interface_id'];
-    if( ! this.interface_id ){
-	throw new Error("interface id not defined");
-    }
-
-    // The class configuration we'll be using to hint and build.
-    this.class_conf = in_args['class_conf'];
-    if( ! this.class_conf ){
-	throw new Error("class configuration not defined");
-    }
    
     // AmiGO helper.
     var amigo = new bbop.amigo();
@@ -76,72 +70,10 @@ function GOlrUIBeta(in_args){
     // This structure is used in multiple functions
     var filter_accordion = null;
 
-    /*
-     * Function: setup_filters
-     *
-     * TODO
-     * setup filters under contructed tags for later population by results
-     * 
-     * Parameters: None
-     *
-     * Returns: Nothing
-     */
-    this.setup_filters = function(){
-    
-	ll('Build filter UI for class configuration: ' + this.class_conf.id());
-
-	///
-	/// Create a frame to hang the filters on.
-	///
-	var filter_input = new bbop.html.tag('div', {'id': hook_filters_div});
-	jQuery('#' + ui_controls_div_hook).append(filter_input.to_string());
-
-	///
-	/// Start building the accordion here. Not an updatable part.
-	///
-
-	var filter_accordion_attrs = {
-	    id: accordion_div_hook,
-	    style: 'width: 25em;'
-	};
-	filter_accordion =
-	    new bbop.html.accordion([], filter_accordion_attrs, true);
-
-	// Add the sections with no contents as a skeleton to be
-	// filled by draw filters.
-	//var field_list = golr.facet_field_list(json_data);
-	var field_list = this.class_conf.field_order_by_weight('filter');
-	function _process_in_fields_as_sections(in_field){
-	    ll('saw field: ' + in_field);
-	    // ll('saw field: ' +
-	    //    ui_anchor.class_conf.get_field(in_field).display_name());
-	    //    ui_anchor.class_conf.get_field(in_field).display_name());
-	    var in_attrs = {
-		id: in_field,
-		label: ui_anchor.class_conf.get_field(in_field).display_name(),
-		description: ui_anchor.class_conf.get_field(in_field).description()
-	    };
-	    // filter_accordion.add_to(in_field, '', true);
-	    filter_accordion.add_to(in_attrs, '', true);
-	}
-	bbop.core.each(field_list, _process_in_fields_as_sections);
-
-	// Add the output from the accordion to the page.
-	//jQuery('#' + ui_div_hook).html(filter_accordion.to_string());
-	jQuery('#' + hook_filters_div).append(filter_accordion.to_string());
-
-	// Add the jQuery accordioning.
-	jQuery("#" + accordion_div_hook).accordion({ clearStyle: true,
-						     collapsible: true,
-						     active: false });
-
-    };
-
     // Initialize with reseting data.
-    // Also see make_filter_controls_frame.
     this.make_search_controls_frame = function(json_data){
     
-	ll('Initial build of UI from reset response: ' + ui_div_hook);
+	ll('UIB: Initial build of UI from reset response: ' + ui_div_hook);
 
 	///
 	/// Start building free text input here.
@@ -162,11 +94,11 @@ function GOlrUIBeta(in_args){
 	jQuery('#' + ui_controls_div_hook).append(free_input.to_string());
 
 	// Add event for q input.
-	jQuery('#' + q_input_hook).keyup(ui_anchor._run_action_callbacks);
+	jQuery('#' + q_input_hook).keyup(gui_anchor._run_action_callbacks);
 	
 	// Continue with the rest of the display (filter, results,
 	// etc.) controls.
-	ui_anchor.make_filter_controls_frame(json_data);
+	gui_anchor.make_filter_controls_frame(json_data);
     };
 
     // Initialize with reseting data.
@@ -193,7 +125,7 @@ function GOlrUIBeta(in_args){
 	// filled by draw filters.
 	var field_list = golr.facet_field_list(json_data);
 	function _process_in_fields_as_sections(in_field){
-	    ll('saw field: ' + in_field);
+	    ll('UIB: saw field: ' + in_field);
 	    filter_accordion.add_to(in_field, '', true);
 	}
 	bbop.core.each(field_list, _process_in_fields_as_sections);
@@ -211,7 +143,7 @@ function GOlrUIBeta(in_args){
     // ...
     this.draw_filters = function(json_data){
     
-	ll('Draw current filters: ' + ui_div_hook);
+	ll('UIB: Draw current filters: ' + ui_div_hook);
 
 	// Make sure that accordion has already been inited.
 	if( typeof(filter_accordion) == 'undefined'){
@@ -221,7 +153,7 @@ function GOlrUIBeta(in_args){
 	//var field_attr_hash = {};
 	var field_list = golr.facet_field_list(json_data);
 	function _process_in_fields(in_field, in_i){
-	    //ll('saw field: ' + in_field);
+	    //ll('UIB: saw field: ' + in_field);
 
 	    // // If a list was already there, clear it out.
 	    // // if( jQuery("#" + ul_id) ){ jQuery("#" + ul_id).remove(); }
@@ -239,13 +171,13 @@ function GOlrUIBeta(in_args){
 			   function(item){
 			       var name = item[0];
 			       //var count = item[1];
-			       //ll('saw facet item: ' + name);
+			       //ll('UIB: saw facet item: ' + name);
 			       facet_list_ul.add_to(name);
 			   });
 
 	    // Add the ul list to the accordion.
 	    var sect_id = filter_accordion.get_section_id(in_field);
-	    // ll('add to accordion: ' + sect_id + ' ' +
+	    // ll('UIB: add to accordion: ' + sect_id + ' ' +
 	    //    facet_list_ul.to_string());
 	    jQuery('#' + sect_id).empty();
 	    var final_ul_str = facet_list_ul.to_string();
@@ -271,9 +203,9 @@ function GOlrUIBeta(in_args){
 			       // 	       result.append(" " + item + " " +
 			       // 			     ( index + 1));
 			       // 	   });
-			       ui_anchor._run_action_callbacks();
+			       gui_anchor._run_action_callbacks();
 			   }};
-		       ll('examining for callback: ' + item);
+		       ll('UIB: examining for callback: ' + item);
 		       jQuery("#" + mangle +
 			      "filter-list-" + item).selectable(_select_arg);
 		   }
@@ -291,7 +223,7 @@ function GOlrUIBeta(in_args){
     // 	var matches = r.exec(q);
     // 	if( matches && matches[1] && matches[1] != '*:*' ){
     // 	    var m = matches[1];
-    // 	    ll('for color, m: ' + m);
+    // 	    ll('UIB: for color, m: ' + m);
     // 	}
 
     // 	// var qf = golr.query_filters(json_data);
@@ -301,12 +233,12 @@ function GOlrUIBeta(in_args){
     // 	// // // info we have on them.
     // 	// // var field_list = golr.facet_field_list(json_data);
     // 	// // function _process_in_fields(in_field){
-    // 	// //     ll('for color, field: ' + in_field);
+    // 	// //     ll('UIB: for color, field: ' + in_field);
     // 	// //     //filter_accordion.add_to(in_field, '', true);
     // 	// //     var filtered_fields_hash = qf[in_field];
     // 	// //     if( filtered_fields_hash ){
     // 	// // 	var filtered_fields = bbop.core.get_keys(filtered_fields_hash);
-    // 	// // 	ll('for field, fqs: ' + filtered_fields);
+    // 	// // 	ll('UIB: for field, fqs: ' + filtered_fields);
     // 	// // 	// TODO: find in DOM
     // 	// // 	// TODO: color in DOM
     // 	// //     }
@@ -328,7 +260,7 @@ function GOlrUIBeta(in_args){
 
     // 	// 	// Compare
     // 	// 	if( qf[filter_set] && qf[filter_set][filter_item] ){
-    // 	// 	    ll('for fqs, found ' + filter_set + ' ' + filter_item);
+    // 	// 	    ll('UIB: for fqs, found ' + filter_set + ' ' + filter_item);
     // 	// 	    jQuery(this).addClass('ui-selected');
     // 	// 	}
     // 	//     });
@@ -339,13 +271,13 @@ function GOlrUIBeta(in_args){
     // (e.g. q, fq, etc.).
     this.state = function(){
     
-	ll('find current status of user display: ' + ui_controls_div_hook);
+	ll('UIB: find current status of user display: ' + ui_controls_div_hook);
 	
 	///
 	/// Get the logic contained in the free query string.
 	///
 
-	ll('Scanning for q input: ' + q_input_hook);
+	ll('UIB: Scanning for q input: ' + q_input_hook);
 
 	var q_logic = new bbop.logic();
 	var q_val = "";
@@ -354,7 +286,7 @@ function GOlrUIBeta(in_args){
 	    jQuery('#' + q_input_hook)[0].value ){
 		q_val = jQuery('#' + q_input_hook)[0].value;		
 	    }
-	ll('squirrel away q: ' + q_val);
+	ll('UIB: squirrel away q: ' + q_val);
 	//q_logic.add('q:' + q_val);
 	q_logic.add(q_val);
 
@@ -366,7 +298,7 @@ function GOlrUIBeta(in_args){
 	var fq_logic = new bbop.logic();
 
 	// Figure out where our filters are and what they contain.
-	ll('Scanning filter accordion: ' + accordion_div_hook);
+	ll('UIB: Scanning filter accordion: ' + accordion_div_hook);
 	//jQuery(".golr-filter-selectable .ui-selected").each(
 	jQuery('#' + accordion_div_hook + ' > * > * > .ui-selected').each(
 	    function(){
@@ -398,17 +330,17 @@ function GOlrUIBeta(in_args){
 
     // Run registered action callbacks against.
     this._run_action_callbacks = function(json_data){
-	ll('in action callbacks with state argument...');
+	ll('UIB: in action callbacks with state argument...');
 
-	var current_state = ui_anchor.state();
+	var current_state = gui_anchor.state();
 
-	ui_anchor.apply_callbacks('action', [current_state]);
+	gui_anchor.apply_callbacks('action', [current_state]);
     };
 
     //  No arguments necessary as this is just a scaffold.. For
     //  actual initial results rendering, see .draw_results.
     this.make_results_frame = function(){
-	ll('Initialize results div...');
+	ll('UIB: Initialize results div...');
 	
 	// <div id="results_block" class="block">
 	// <h2>Found entities</h2>
@@ -434,7 +366,7 @@ function GOlrUIBeta(in_args){
 	// TODO: Get back the type of callback.
 
 	// TODO: Draw meta--the same for every type of return.
-	ll('Draw meta div...');
+	ll('UIB: Draw meta div...');
 	var total_c = golr.total_documents(json_data);
 	var first_d = golr.start_document(json_data);
 	var last_d = golr.end_document(json_data);
@@ -443,7 +375,7 @@ function GOlrUIBeta(in_args){
 	jQuery('#' + hook_meta_div).append(dmeta.to_string());
 
 	// TODO: Draw returns, different for every type.
-	ll('Draw results div...');
+	ll('UIB: Draw results div...');
 
 	// Scrape out what type of template we should use.
 	var qfilters = golr.query_filters(json_data);

@@ -51,6 +51,7 @@ div.result { font-size: 90%; border-bottom: 1px solid #3875D7; }
 div.result p { font-size: 90%; }
 
 a, a:link, a:visited { padding: 0 2px; text-decoration: none; color: #006; border-bottom: 1px dotted #006; }
+/* a, a:link, a:visited { padding: 0 2px; text-decoration: none; color: #006; border-bottom: 1px dotted #006; } */
 
 a:visited { border-bottom: 1px dotted #99F;}
 

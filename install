@@ -374,8 +374,8 @@ EOC
 }
 
 
-## file: /srv/www/htdocs/amigo/js/bbop/amigo/golr_meta.js
-## file: /srv/www/htdocs/amigo/js/bbop/amigo/golr_meta.json
+## file: /srv/www/htdocs/amigo/js/bbop/golr_meta.js
+## file: /srv/www/htdocs/amigo/js/bbop/golr_meta.json
 sub golr_config_to_meta_js {
 
   ## 
@@ -443,7 +443,7 @@ sub golr_config_to_meta_js {
 
   ## If the file is already there, blow it away.
   my $js_file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
-    '/javascript/bbop/amigo/golr_meta.js';
+    '/javascript/bbop/golr_meta.js';
   unlink $js_file_str if -f $js_file_str;
   open(FILE, ">$js_file_str") or die "cannot open $js_file_str: $!";
 
@@ -490,7 +490,7 @@ EOJS
 
   ## If the file is already there, blow it away.
   my $json_file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
-    '/javascript/bbop/amigo/golr_meta.json';
+    '/javascript/bbop/golr_meta.json';
   unlink $json_file_str if -f $json_file_str;
   open(FILE, ">$json_file_str") or die "cannot open $json_file_str: $!";
 

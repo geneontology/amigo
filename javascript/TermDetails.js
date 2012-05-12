@@ -36,6 +36,12 @@ function TermDetailsInit(){
 	jQuery("#display-tabs").tabs('select', 0);
     }
 
+    ///
+    /// Ready the configuration that we'll use.
+    ///
+
+    // var gconf = new bbop.golr.conf(bbop.golr.golr_meta);
+    
     // ///
     // /// Add everything for inferred line graphics.
     // ///
@@ -228,9 +234,9 @@ function TermDetailsInit(){
 	    for( var i = 0; i < source_array.length; i++ ){
 		source_hash[source_array[i]] = true;
 	    }
-	    for( var i = 0; i < species_array.length; i++ ){
-		species_hash[species_array[i]] = true;
-		//ll('_s_ ' + species_array[i]);
+	    for( var j = 0; j < species_array.length; j++ ){
+		species_hash[species_array[j]] = true;
+		//ll('_s_ ' + species_array[j]);
 	    }
 
 	    // Do we have some kind of filter? We'll do to source
