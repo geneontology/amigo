@@ -109,32 +109,25 @@ function GOlrUIBeta(in_args){
 
 	// Add the sections with no contents as a skeleton to be
 	// filled by draw filters.
-	//var field_list = golr.facet_field_list(json_data);
 	var field_list = this.class_conf.field_order_by_weight('filter');
 	function _process_in_fields_as_sections(in_field){
 	    ll('saw field: ' + in_field);
-	    // ll('saw field: ' +
-	    //    ui_anchor.class_conf.get_field(in_field).display_name());
-	    //    ui_anchor.class_conf.get_field(in_field).display_name());
 	    var in_attrs = {
 		id: in_field,
 		label: ui_anchor.class_conf.get_field(in_field).display_name(),
 		description: ui_anchor.class_conf.get_field(in_field).description()
 	    };
-	    // filter_accordion.add_to(in_field, '', true);
 	    filter_accordion.add_to(in_attrs, '', true);
 	}
 	bbop.core.each(field_list, _process_in_fields_as_sections);
 
 	// Add the output from the accordion to the page.
-	//jQuery('#' + ui_div_hook).html(filter_accordion.to_string());
 	jQuery('#' + hook_filters_div).append(filter_accordion.to_string());
 
 	// Add the jQuery accordioning.
 	jQuery("#" + accordion_div_hook).accordion({ clearStyle: true,
 						     collapsible: true,
 						     active: false });
-
     };
 
     // Initialize with reseting data.
