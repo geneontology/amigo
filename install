@@ -423,6 +423,7 @@ sub golr_config_to_meta_js {
 				  required => 'false',
 				  cardinality => 'single',
 				  searchable => 'false',
+				  indexed => 'true',
 				  transform => []
 				 }, $field);
       $new_fields_hash->{$field->{'id'}} = $new_bit; # id better be defined...

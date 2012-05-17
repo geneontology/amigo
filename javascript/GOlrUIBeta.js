@@ -79,8 +79,8 @@ function GOlrUIBeta(in_args){
     /*
      * Function: setup_filters
      *
-     * TODO
-     * setup filters under contructed tags for later population by results
+     * Setup filters under contructed tags for later population by results.
+     * The seeding information is coming in throughthe GOlr conf class.
      * 
      * Parameters: None
      *
