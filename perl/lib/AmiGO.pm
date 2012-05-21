@@ -1403,7 +1403,7 @@ sub golr_configuration {
 
   my $self = shift;
   my $json_file = $self->amigo_env('AMIGO_HTDOCS_ROOT_DIR') .
-    '/javascript/bbop/amigo/golr_meta.json';
+    '/javascript/bbop/golr_meta.json';
 
   #$self->kvetch("looking up conf: " . $json_file);
 
