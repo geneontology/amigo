@@ -874,6 +874,7 @@ sub mode_golr_term_details {
       'bbop.html',
       'bbop.amigo',
       'bbop.amigo.go_meta',
+      'bbop.amigo.linker',
       'bbop.golr_meta',
       'bbop.golr_conf',
       'bbop.golr_manager',

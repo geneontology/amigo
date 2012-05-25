@@ -57,10 +57,11 @@ function TermDetailsInit(){
 					    'annotation', 
 					    'isa_partof_closure' :
 					    global_acc},
-    				  facets: ['type', 'taxon', 'source',
-    					   'evidence_type',
-					   'annotation_extension_class',
-					   'isa_partof_label_closure']});
+    				  facets: filter_order});
+    				  // facets: ['type', 'taxon_label', 'source',
+    				  // 	   'evidence_type',
+				  // 	   'annotation_extension_class_closure_label',
+				  // 	   'isa_partof_closure_label']});
     var ui_ann = new GOlrUIBeta({'interface_id': 'display-associations',
 				 'class_conf': cclass});
 

@@ -66,6 +66,118 @@ GOlrTemplate.meta_results.prototype = new bbop.html.tag;
 // };
 // GOlrTemplate.results_table_bio.prototype = new bbop.html.tag;
 
+/*
+ * Function: results_table_by_class_conf
+ *
+ * TODO
+ *  
+ * Parameters:
+ *  class_conf - a bbop.golr.conf_class
+ *  docs_array - the docs array from the solr return
+ *  linker_function - see bbop.amigo.linker for more details
+ *
+ * Returns: bbop.html.table filled with results
+ */
+GOlrTemplate.results_table_by_class = function (cclass, docs, linker_function){
+    //bbop.html.tag.call(this, 'div');
+    //var amigo = new bbop.amigo();
+
+    // // Temp logger.
+    // var logger = new bbop.logger();
+    // logger.DEBUG = true;
+    // function ll(str){ logger.kvetch('TT: ' + str); }
+
+    var each = bbop.core.each; // conveience
+
+    // Start with score, and add the others by order of the class
+    // results_weights field.
+    var headers = ['score'];
+    var headers_display = ['Score'];
+    var results_order = cclass.field_order_by_weight('result');
+    each(results_order,
+	 function(fid){
+	     // Store the raw headers/fid for future use.
+	     headers.push(fid);
+	     // Get the headers into a presentable state.
+	     var field = cclass.get_field(fid);
+	     if( ! field ){ throw new Error('conf error: not found:' + fid); }
+	     headers_display.push(field.display_name());
+	 });
+
+    // // For each doc, deal with it as best we can using a little
+    // // probing. Score is a special case as it is not an explicit
+    // // field.
+    // function _process_doc(doc){
+    // 	var entry_buff = [];
+	
+    // }
+    function _process_entry(fid, iid, doc){
+
+	var retval = '';
+
+	// Probe.
+	//var iid = doc[fid];
+	var ilabel = doc[fid + '_label'];
+	var link = linker_function(fid, {id: iid, label: ilabel}, 'link');
+
+	// See what we got.
+	if( link ){
+	    retval = link;
+	}else if( ilabel ){
+	    retval = ilabel;
+	}else{
+	    retval = iid;
+	}
+
+	return retval;
+    }
+
+    var table_buff = [];
+    each(docs,
+	 function(doc){
+	     
+	     // Well, they had better be in here, so we're
+	     // just gunna cycle through all the headers/fids.
+	     var entry_buff = [];
+	     each(headers,
+		  function(fid){
+		      // Remember: score is a special--non-explicit--case.
+		      if( fid == 'score' ){
+			  var score = doc['score'] || 0.0;
+			  score = bbop.core.to_string(100.0 * score);
+			  entry_buff.push(bbop.core.crop(score, 4) + '%');
+		      }else{
+			  // Not "score", so let's figure out what we
+			  // can automatically.
+			  var field = cclass.get_field(fid);
+
+			  // Make sure we can iterate over whatever it
+			  // is.
+			  var bits = [];
+			  if( field.is_multi() ){
+			      bits = doc[fid];
+			  }else{
+			      bits = [doc[fid]];
+			  }
+
+			  // Render each of the bits.
+			  var tmp_buff = [];
+			  each(bits,
+			       function(bit){
+				   var out = _process_entry(fid, bit, doc);
+				   //ll('out: ' + out);
+				   tmp_buff.push(out);
+			       });
+			  entry_buff.push(tmp_buff.join(' '));
+		      }
+		  });
+	     table_buff.push(entry_buff);
+	 });
+    
+    return new bbop.html.table(headers_display, table_buff);
+};
+GOlrTemplate.results_table_by_class.prototype = new bbop.html.tag;
+
 // ...
 GOlrTemplate.results_term_table = function (docs){
     //bbop.html.tag.call(this, 'div');

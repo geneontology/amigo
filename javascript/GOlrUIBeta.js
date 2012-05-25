@@ -11,7 +11,7 @@
 function GOlrUIBeta(in_args){
     bbop.registry.call(this, ['action']);
 
-    var ui_anchor = this;
+    var anchor = this;
     
     // Per-UI logger.
     var logger = new bbop.logger();
@@ -114,8 +114,8 @@ function GOlrUIBeta(in_args){
 	    ll('saw field: ' + in_field);
 	    var in_attrs = {
 		id: in_field,
-		label: ui_anchor.class_conf.get_field(in_field).display_name(),
-		description: ui_anchor.class_conf.get_field(in_field).description()
+		label: anchor.class_conf.get_field(in_field).display_name(),
+		description: anchor.class_conf.get_field(in_field).description()
 	    };
 	    filter_accordion.add_to(in_attrs, '', true);
 	}
@@ -204,11 +204,11 @@ function GOlrUIBeta(in_args){
     // 	jQuery('#' + ui_controls_div_hook).append(free_input.to_string());
 
     // 	// Add event for q input.
-    // 	jQuery('#' + q_input_hook).keyup(ui_anchor._run_action_callbacks);
+    // 	jQuery('#' + q_input_hook).keyup(anchor._run_action_callbacks);
 	
     // 	// Continue with the rest of the display (filter, results,
     // 	// etc.) controls.
-    // 	ui_anchor.make_filter_controls_frame(json_data);
+    // 	anchor.make_filter_controls_frame(json_data);
     // };
 
     // // Initialize with reseting data.
@@ -369,9 +369,9 @@ function GOlrUIBeta(in_args){
     this._run_action_callbacks = function(json_data){
 	ll('in action callbacks with state argument...');
 
-	var current_state = ui_anchor.state();
+	var current_state = anchor.state();
 
-	ui_anchor.apply_callbacks('action', [current_state]);
+	anchor.apply_callbacks('action', [current_state]);
     };
 
     /*
@@ -470,7 +470,7 @@ function GOlrUIBeta(in_args){
 			       // 	       result.append(" " + item + " " +
 			       // 			     ( index + 1));
 			       // 	   });
-			       ui_anchor._run_action_callbacks();
+			       anchor._run_action_callbacks();
 			   }};
 		       ll('examining for callback: ' + item);
 		       jQuery("#" + mangle +
@@ -483,8 +483,7 @@ function GOlrUIBeta(in_args){
     /*
      * Function: draw_results
      *
-     * TODO: Draw results from template depending on the return type
-     * picked up from the results ball.
+     * Draw results using hints from the golr class configuration.
      * 
      * Parameters: json_data
      *
@@ -492,38 +491,17 @@ function GOlrUIBeta(in_args){
      */
     this.draw_results = function(json_data){
 	
-	// TODO: Get back the type of callback.
-
-	// TODO: Draw returns, different for every type.
 	ll('Draw results div...');
 
-	// Scrape out what type of template we should use.
-	var qfilters = golr_resp.query_filters(json_data);
-	var found_doc_cat = 'unreadable or ambiguous';
-	if( qfilters && qfilters['document_category'] ){
-	    var doc_cats = bbop.core.get_keys(qfilters['document_category']);
-	    if( doc_cats.length == 1 ){
-		found_doc_cat = doc_cats[0];
-		// }else{
-		// 	found_doc_cat = 'ambiguous';
-	    }
-	}
-
-	// TODO: scrape the docs into headers and data.
 	var docs = golr_resp.documents(json_data);
 
-	// Select and run template.
-	var final_table = "Unknown document category type!";
-	if( found_doc_cat == 'ontology_class' ){
-	    final_table = new GOlrTemplate.results_term_table(docs);
-	}else if( found_doc_cat == 'bioentity' ){	    
-	    final_table = new GOlrTemplate.results_gp_table(docs);
-	}else if( found_doc_cat == 'annotation' ){
-	    final_table = new GOlrTemplate.results_annotation_table(docs);
-	}else if( found_doc_cat == 'annotation_aggregate' ){
-	    final_table =
-		new GOlrTemplate.results_annotation_aggregate_table(docs);
-	}
+	var final_table =
+	    new GOlrTemplate.results_table_by_class(anchor.class_conf, docs,
+						    bbop.amigo.linker);
+
+	//ll('final_table a: ' + final_table._is_a);
+	//ll('final_table b: ' + final_table.to_string);
+	//ll('final_table c: ' + final_table.to_string());
 
 	// Display product.
 	jQuery('#' + hook_results_div).empty();
