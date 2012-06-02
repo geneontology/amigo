@@ -156,9 +156,11 @@ function _doc_to_tree_node(doc, parent_id){
     graph.load_json(jQuery.parseJSON(doc['graph']));
     var kids = graph.get_child_nodes(doc['id']);
 
+    //ll('getting kids of: ' + doc['id']);
+
     // Add state and kid_query.
     if( ! kids || kids.length == 0 ){
-	// ...
+	//ll('no kids');
     }else{
 	// No kids, make sure the node is closed.
     	retnode['state'] = 'closed';
@@ -168,6 +170,7 @@ function _doc_to_tree_node(doc, parent_id){
 	bbop.core.each(kids,
 		       function(kid){
 			   qbuff.push('id:"' + kid.id() + '"');
+			   //ll('kid: ' + kid.id());
 		       });
 	retnode['attr']['kid_query'] = qbuff.join(' OR ');
     }
@@ -176,20 +179,27 @@ function _doc_to_tree_node(doc, parent_id){
     // out of the graph and get a more appropriate icon.
     if( parent_id ){
 
-	// Try and dig out the rel.
-	var isa_edge = graph.get_edge(raw_id, parent_id, 'is_a');
-	var partof_edge = graph.get_edge(raw_id, parent_id, 'part_of');
+	// Try and dig out the rel to display.
+	var edges = graph.get_edges(raw_id, parent_id);
+	if( edges && edges.length ){
+	    var weight = {
+		'is_a': 3,
+		'part_of': 2
+	    };
+	    var unknown_rel_weight = 1;
+	    edges.sort(
+		function(a, b){
+		    var aw = weight[a.predicate_id()];
+		    if( ! aw ){ aw = unknown_rel_weight; }
+		    var bw = weight[b.predicate_id()];
+		    if( ! bw ){ bw = unknown_rel_weight; }
+		    return bw - aw;
+		});
 
-	// Add icon property if there is a rel.
-	if( isa_edge ){
+	    // Add it in a brittle way.
+	    var prime_rel = edges[0].predicate_id();
 	    retnode['data']['icon'] = 
-	    	go_meta.image_base() + '/is_a.gif';
-	}else if( partof_edge ){
-	    retnode['data']['icon'] = 
-	    	go_meta.image_base() + '/part_of.gif';
-	}else{
-	    retnode['data']['icon'] = 
-	    	go_meta.image_base() + '/warning.png';
+	    	go_meta.image_base() + '/' + prime_rel + '.gif';
 	}
     }
 
