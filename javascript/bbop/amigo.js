@@ -157,8 +157,15 @@ bbop.amigo = function(){
 	return retval;
     };
 
-    // fq can be irritating single value or irritating array.
-    // Return a hash of ???
+    /*
+     * Function: query_filters
+     *
+     * fq can be irritating single value or irritating array.
+     * 
+     * Parameters: json_data
+     *
+     * Returns: a hash of {field:{val:(true|false)}}; TODO: true|false
+     */
     this.golr_response.query_filters = function(robj){
 
 	//sayer('fq 1a: ' + robj + "\n");

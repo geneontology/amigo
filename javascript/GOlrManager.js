@@ -66,7 +66,7 @@ function GOlrManager(in_args){
 	    qt: 'standard',
 	    indent: 'on',
 	    wt: 'json',
-	    version: '2.2',
+	    //version: '2.2',
 	    rows: 10,
 	    //start: 1,
 	    start: 0, // Solr is offset indexing
@@ -85,17 +85,20 @@ function GOlrManager(in_args){
 
 	    // For restricting ourselves to a certain part if the
 	    // index as an initial condition.
-	    fq: in_args['filters']
+	    fq: in_args['filters'],
 
 	    // // Fixed UI location.
 	    // NOTE: punted to UI object.
 	    // interface_id: this.interface_id
 
 	    // Query-type stuff is variant--see update and
-	    // query_variants.
-	    //q: '*:*', // start by going after everything
+	    // update_variants.
+	    q: '*:*' // start by going after everything
 	};
     
+    // A little extra thing that we might need sometimes.
+    this.query_extra = null;
+
     // The callback function called after a successful AJAX
     // intialization/reset cal. First it runs some template code, then it
     // does all of the callbacks.
@@ -164,44 +167,41 @@ function GOlrManager(in_args){
     // of callbacks to be called on data return).
     this.update = function(update_type, logic_hash){
 
+	// Structure of the necessary invariant parts.	
+	var qurl = anchor.get_query_url();
+
 	// Our bookkeeping--increment packet.
 	anchor.last_sent_packet = anchor.last_sent_packet + 1;
 	
 	// Necessary variants.
-	var query_variants = {
+	var update_variants = {
 	    packet: anchor.last_sent_packet,
 	    callback_type: update_type
 	};
-
-	// Structure of the necessary invariant parts.	
-	var qs_head = anchor.solr_url + 'select?';
-	var invariant_qs = bbop.core.get_assemble(anchor.query_invariants);
-	var qurl = qs_head + invariant_qs;
 
 	// Conditional merging of the remaining variant parts.
 	if( update_type == 'reset' ){
 
 	    // Reset and do completely open query.
-	    var variant_qs = bbop.core.get_assemble(query_variants);
-	    ll('varient_qs: ' + variant_qs);
-	    qurl = qurl + '&' + variant_qs + '&q=*:*';
+	    ll('reset variant assembly');
+	    var update_qs = bbop.core.get_assemble(update_variants);
+	    ll('varient_qs: ' + update_qs);
+	    //qurl = qurl + '&' + update_qs + '&q=*:*';
+	    qurl = qurl + '&' + update_qs;
 
 	}else if( update_type == 'search' ){
 
 	    // NOTE/TODO: a lot of previous wacky q handling was done
 	    // in perl on the server, some of that will probably have
 	    // to be ported over to JS around here.
-
-	    // NOTE/TODO: Make this work well enough until we get
-	    // dismax working properly.
 	    var query_string = '*:*';
 	    if( logic_hash && logic_hash['q'] ){
 		var q_logic = logic_hash['q'];
 		var str_rep = q_logic.to_string();
-
 		if( str_rep.length > 0 ){
-		    query_string = 'label:' + str_rep +
-			' OR annotation_class_label:' + str_rep;
+		    // query_string = 'label:' + str_rep +
+		    // 	' OR annotation_class_label:' + str_rep;
+		    query_string = str_rep;
 		}
 	    }
 
@@ -218,9 +218,10 @@ function GOlrManager(in_args){
 	    }
 
 	    // Finalize it.
-	    var variant_qs = bbop.core.get_assemble(query_variants);
-	    //ll('varient_qs: ' + variant_qs);
-	    qurl = qurl + '&' + variant_qs + filter_qs + '&q=' + query_string;
+	    ll('final variant assembly');
+	    var update_qs = bbop.core.get_assemble(update_variants);
+	    //ll('varient_qs: ' + update_qs);
+	    qurl = qurl + '&' + update_qs + filter_qs + '&q=' + query_string;
 
 	}else{
 	    throw new Error("Unknown update_type: " + update_type);
@@ -248,8 +249,89 @@ function GOlrManager(in_args){
 
     // Trigger the "search" chain of events.
     // Takes a field-keyed hash of bbop.logics as an argument.
-    this.search = function(logics){
-	anchor.update('search', logics);
+    this.search = function(logic_hash){
+	anchor.update('search', logic_hash);
+    };
+
+    /*
+     * Function: set_filters
+     *
+     * Set the internal fq hash from what it currently is.
+     *
+     * Parameters: 
+     *  new_fq_hash - ""
+     *
+     * Returns: n/a
+     */
+    this.set_filters = function(new_fq_hash){
+	anchor.query_invariants['fq'] = new_fq_hash;
+    };
+
+    /*
+     * Function: set_extra
+     *
+     * Set the internal string variable to be appended to the end.
+     * For special use cases only.
+     *
+     * Parameters: 
+     *  new_extra - ""
+     *
+     * Returns: n/a
+     */
+    this.set_extra = function(new_extra){
+	anchor.query_extra = new_extra;
+    };
+
+    /*
+     * Function: set
+     *
+     * Set an internal variable for the query.
+     *
+     * Parameters: 
+     *  key - the name of the parameter to change
+     *  new_val - what you want the new value to be
+     *
+     * Returns: n/a
+     */
+    this.set = function(key, new_val){
+	anchor.query_invariants[key] = new_val;
+    };
+
+    /*
+     * Function: get
+     *
+     * Get an internal variable for the query.
+     *
+     * Parameters: 
+     *  key - the name of the parameter to get
+     *
+     * Returns: n/a
+     */
+    this.get = function(key){
+	return anchor.query_invariants[key];
+    };
+
+    /*
+     * Function: get_query_url
+     *
+     * Get the current invariant state of the manager returned as a
+     * URL string.
+     *
+     * Returns: string
+     */
+    this.get_query_url = function(){
+
+	// Structure of the necessary invariant parts.	
+	var qs_head = anchor.solr_url + 'select?';
+	var invariant_qs = bbop.core.get_assemble(anchor.query_invariants);
+	var qurl = qs_head + invariant_qs;
+
+	// Add anything extra at the end.
+	if( anchor.query_extra && anchor.query_extra != "" ){
+	    qurl = qurl + anchor.query_extra;
+	}
+
+    	return qurl;
     };
 }
 GOlrManager.prototype = new bbop.registry;

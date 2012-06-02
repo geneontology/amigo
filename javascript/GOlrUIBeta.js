@@ -12,6 +12,7 @@ function GOlrUIBeta(in_args){
     bbop.registry.call(this, ['action']);
 
     var anchor = this;
+    var each = bbop.core.each;
     
     // Per-UI logger.
     var logger = new bbop.logger();
@@ -63,6 +64,7 @@ function GOlrUIBeta(in_args){
     var hook_meta_div = mangle + 'meta';
     var hook_results_div = mangle + 'results';
     var hook_filters_div = mangle + 'filters';
+    var hook_fqs_div = mangle + 'fqs';
 
     // Add the sections to a two column layout and add that into the
     // main ui div.
@@ -73,8 +75,9 @@ function GOlrUIBeta(in_args){
     var accordion_div_hook = mangle + 'filter-accordion';
     var q_input_hook = mangle + 'q';
     
-    // This structure is used in multiple functions
+    // These structures are used in multiple functions.
     var filter_accordion = null;
+    var filter_fqs = null;
 
     /*
      * Function: setup_filters
@@ -97,6 +100,16 @@ function GOlrUIBeta(in_args){
 	jQuery('#' + ui_controls_div_hook).append(filter_input.to_string());
 
 	///
+	/// TODO: Add in the filter state up here.
+	///
+
+	filter_fqs = new bbop.html.tag('div', {'id': hook_fqs_div},
+				       "No applied filters...");
+
+	// Add the output to the page.
+	jQuery('#' + hook_filters_div).append(filter_fqs.to_string());
+
+	///
 	/// Start building the accordion here. Not an updatable part.
 	///
 
@@ -110,17 +123,18 @@ function GOlrUIBeta(in_args){
 	// Add the sections with no contents as a skeleton to be
 	// filled by draw filters.
 	var field_list = this.class_conf.field_order_by_weight('filter');
-	function _process_in_fields_as_sections(in_field){
-	    ll('saw field: ' + in_field);
-	    var in_attrs = {
-		id: in_field,
-		label: anchor.class_conf.get_field(in_field).display_name(),
-		description: anchor.class_conf.get_field(in_field).description()
-	    };
-	    filter_accordion.add_to(in_attrs, '', true);
-	}
-	bbop.core.each(field_list, _process_in_fields_as_sections);
-
+	each(field_list,
+	     function (in_field){
+		 ll('saw field: ' + in_field);
+		 var ifield = anchor.class_conf.get_field(in_field);
+		 var in_attrs = {
+		     id: in_field,
+		     label: ifield.display_name(),
+		     description: ifield.description()
+		 };
+		 filter_accordion.add_to(in_attrs, '', true);
+	     });
+	
 	// Add the output from the accordion to the page.
 	jQuery('#' + hook_filters_div).append(filter_accordion.to_string());
 
@@ -238,7 +252,7 @@ function GOlrUIBeta(in_args){
     // 	    ll('saw field: ' + in_field);
     // 	    filter_accordion.add_to(in_field, '', true);
     // 	}
-    // 	bbop.core.each(field_list, _process_in_fields_as_sections);
+    // 	each(field_list, _process_in_fields_as_sections);
 
     // 	// Add the output from the accordion to the page.
     // 	//jQuery('#' + ui_div_hook).html(filter_accordion.to_string());
@@ -280,7 +294,7 @@ function GOlrUIBeta(in_args){
     // 	// // 	// TODO: color in DOM
     // 	// //     }
     // 	// // }
-    // 	// // bbop.core.each(field_list, _process_in_fields);
+    // 	// // each(field_list, _process_in_fields);
 
     // 	// jQuery('#' + accordion_div_hook + ' > * > * > .ui-selectee').each(
     // 	//     function(){
@@ -375,6 +389,22 @@ function GOlrUIBeta(in_args){
     };
 
     /*
+     * Function: set_static_filters
+     *
+     * TODO: Takes a JSON payload and notes the "fq" settings; the fqs
+     * seen will be ignored in the future. This is essentially for
+     * pages where you want some filters locked-in and not available
+     * to the user.
+     * 
+     * Parameters: json_data
+     *
+     * Returns: Nothing
+     */
+    this.set_static_filters = function(json_data){
+	// TODO:
+    };
+
+    /*
      * Function: draw_meta
      *
      * Draw meta results.
@@ -410,7 +440,42 @@ function GOlrUIBeta(in_args){
      */
     this.draw_filters = function(json_data){
     
-	ll('Draw current filters: ' + ui_div_hook);
+	ll('Draw current filters for: ' + ui_div_hook);
+
+	///
+	/// TODO:  Work on the filter breadcrumbs.
+	///
+
+	var qfilters = golr_resp.query_filters(json_data);
+	//ll('filters: ' + bbop.core.dump(qfilters));
+	var fq_list_ul = new bbop.html.list([]);
+	var has_fq_p = false;
+	each(qfilters,
+	    function(field, field_vals){
+		each(field_vals,
+		     function(field_val, polarity){
+			 ll(field + ':' + field_val + ':' + polarity);
+			 has_fq_p = true;
+			 if( polarity ){
+			     fq_list_ul.add_to('+' + field + ':'
+					       + field_val + ' [X]');
+			 }else{
+			     fq_list_ul.add_to('-' + field + ':'
+					       + field_val + ' [X]');
+			 }
+		     });
+	    });
+
+	jQuery('#' + hook_fqs_div).empty();
+	if( has_fq_p ){
+	    jQuery('#' + hook_fqs_div).append(fq_list_ul.to_string());
+	}else{
+	    jQuery('#' + hook_fqs_div).append("No current filters...");
+	}
+
+	///
+	/// Work on the accordion.
+	///
 
 	// Make sure that accordion has already been inited.
 	if( typeof(filter_accordion) == 'undefined'){
@@ -434,13 +499,13 @@ function GOlrUIBeta(in_args){
 	    };
 	    var facet_list_ul = new bbop.html.list([], facet_list_ul_attrs);
 	    var facet_contents_list = golr_resp.facet_field(json_data,in_field);
-	    bbop.core.each(facet_contents_list,
-			   function(item){
-			       var name = item[0];
-			       //var count = item[1];
-			       //ll('saw facet item: ' + name);
-			       facet_list_ul.add_to(name);
-			   });
+	    each(facet_contents_list,
+		 function(item){
+		     var name = item[0];
+		     //var count = item[1];
+		     //ll('saw facet item: ' + name);
+		     facet_list_ul.add_to(name);
+		 });
 
 	    // Add the ul list to the accordion.
 	    var sect_id = filter_accordion.get_section_id(in_field);
@@ -450,7 +515,7 @@ function GOlrUIBeta(in_args){
 	    var final_ul_str = facet_list_ul.to_string();
 	    jQuery('#' + sect_id).append(final_ul_str);
 	}
-	bbop.core.each(field_list, _process_in_fields);
+	each(field_list, _process_in_fields);
 
 	// Make the accordion controls live.
 	jQuery(function() {
@@ -476,7 +541,7 @@ function GOlrUIBeta(in_args){
 		       jQuery("#" + mangle +
 			      "filter-list-" + item).selectable(_select_arg);
 		   }
-		   bbop.core.each(field_list, _init_lambda);
+		   each(field_list, _init_lambda);
 	       });
     };
 

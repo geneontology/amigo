@@ -88,9 +88,10 @@ function TermDetailsInit(){
 
     // Things to do on every reset event.
     //gm_ann.register('reset', 'results_init', ui_ann.make_results_frame, -2);
-    gm_ann.register('reset', 'filters_first', ui_ann.draw_filters);
-    gm_ann.register('reset', 'meta_first', ui_ann.draw_meta);
-    gm_ann.register('reset', 'results_first', ui_ann.draw_results);
+    //gm_ann.register('reset', 'filters_set', ui_ann.set_static_filters);
+    gm_ann.register('reset', 'filters_first', ui_ann.draw_filters, -1);
+    gm_ann.register('reset', 'meta_first', ui_ann.draw_meta, -1);
+    gm_ann.register('reset', 'results_first', ui_ann.draw_results, -1);
     // gm_ann.register('reset', 'results_init_after', _peg_q, -4);
 
     // Things to do on every search event.

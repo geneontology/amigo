@@ -70,15 +70,13 @@ sub setup {
 		   'ntree'               => 'mode_ntree',
 		   'ptree'               => 'mode_ptree',
 		   'scratch'             => 'mode_scratch',
-		   'workspace_client'    => 'mode_workspace_client',
 
-		   'exhibit'             => 'mode_exhibit_exp',
+		   # 'workspace_client'    => 'mode_workspace_client',
+		   # 'exhibit'             => 'mode_exhibit_exp',
+		   # ## Service apps.
+		   # 'workspace'           => 'mode_workspace',
 
-		   ## Replacements.
-		   'front_page'          => 'mode_front_page',
-
-		   ## Service apps.
-		   'workspace'           => 'mode_workspace',
+		   'drill'               => 'mode_drilldown_browser',
 
 		   ## System apps.
 		   'kick_to_main'        => 'mode_kick_to_main',
@@ -254,6 +252,64 @@ sub mode_ptree {
 }
 
 
+## A naive AJAX drilldown browser based off of the GOlr backend for
+## data.
+sub mode_drilldown_browser {
+
+  my $self = shift;
+
+  ## Incoming template.
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile();
+  $self->_common_params_settings($params);
+
+  ###
+  ### Page settings.
+  ###
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      'standard', # basic GO-styles
+      'com.jquery.jqamigo.custom',
+      'bbop.amigo.ui.widgets',
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.jquery-ui',
+      'com.jquery.jstree',
+      'bbop.core',
+      'bbop.logger',
+      'bbop.logic',
+      'bbop.registry',
+      'bbop.html',
+      'bbop.amigo',
+      'bbop.amigo.go_meta',
+      'bbop.golr_meta',
+      'bbop.golr_conf',
+      'bbop.model'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GOlrManager.js'),
+      $self->{JS}->get_lib('DrillExp.js')
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  ## Initialize javascript app.
+  $self->add_template_javascript($self->{JS}->initializer_jquery('DDInit();'));
+
+  ##
+  $self->set_template_parameter('filler_n', 10);
+  $self->add_template_content('pages/scratch.tmpl');
+  return $self->generate_template_page();
+}
+
+
 ##
 sub mode_scratch {
 
@@ -286,8 +342,8 @@ sub mode_scratch {
       'bbop.logger',
       'bbop.amigo',
       'bbop.amigo.go_meta',
-      'bbop.amigo.workspace',
-      'bbop.amigo.ui.workspace',
+      # 'bbop.amigo.workspace',
+      # 'bbop.amigo.ui.workspace',
       'bbop.amigo.ui.widgets',
       'bbop.amigo.ui.cart',
       'bbop.amigo.ui.shield',
@@ -317,280 +373,280 @@ sub mode_scratch {
 }
 
 
-##
-sub mode_workspace_client {
+# ##
+# sub mode_workspace_client {
 
-  my $self = shift;
+#   my $self = shift;
 
-  ## Our AmiGO services CSS.
-  my $prep =
-    {
-     css_library =>
-     [
-      'standard', # basic GO-styles
-      #'bbop.amigo.ui.autocomplete',
-      'bbop.amigo.ui.widgets',
-      'com.jquery.redmond.custom'
-     ],
-     ## Our AmiGO services JSS.
-     javascript_library =>
-     [
-      'com.jquery',
-      'com.jquery-ui',
-      'com.jquery-layout',
-      'bbop.core',
-      'bbop.logger',
-      'bbop.amigo',
-      'bbop.amigo.go_meta',
-      #'bbop.amigo.opensearch',
-      #'bbop.amigo.ui.autocomplete',
-      'bbop.amigo.workspace',
-      'bbop.amigo.ui.widgets'
-     ],
-     content =>
-     [
-      '<div class="ui-layout-north">',
-      'common/header.tmpl',
-      '</div>',
-      '<div class="ui-layout-center">',
-      'pages/workspace_client.tmpl',
-      '</div>',
-      '<div class="ui-layout-south">',
-      'common/footer.tmpl',
-      '</div>'
-     ],
-    };
-  $self->add_template_bulk($prep);
+#   ## Our AmiGO services CSS.
+#   my $prep =
+#     {
+#      css_library =>
+#      [
+#       'standard', # basic GO-styles
+#       #'bbop.amigo.ui.autocomplete',
+#       'bbop.amigo.ui.widgets',
+#       'com.jquery.redmond.custom'
+#      ],
+#      ## Our AmiGO services JSS.
+#      javascript_library =>
+#      [
+#       'com.jquery',
+#       'com.jquery-ui',
+#       'com.jquery-layout',
+#       'bbop.core',
+#       'bbop.logger',
+#       'bbop.amigo',
+#       'bbop.amigo.go_meta',
+#       #'bbop.amigo.opensearch',
+#       #'bbop.amigo.ui.autocomplete',
+#       'bbop.amigo.workspace',
+#       'bbop.amigo.ui.widgets'
+#      ],
+#      content =>
+#      [
+#       '<div class="ui-layout-north">',
+#       'common/header.tmpl',
+#       '</div>',
+#       '<div class="ui-layout-center">',
+#       'pages/workspace_client.tmpl',
+#       '</div>',
+#       '<div class="ui-layout-south">',
+#       'common/footer.tmpl',
+#       '</div>'
+#      ],
+#     };
+#   $self->add_template_bulk($prep);
 
-  ## Our client JS, and init.
-  $self->add_template_javascript($self->{JS}->get_lib('WorkspaceClient.js'));
+#   ## Our client JS, and init.
+#   $self->add_template_javascript($self->{JS}->get_lib('WorkspaceClient.js'));
 
-  ## Initialize javascript app.
-  $self->add_template_javascript($self->{JS}->initializer_jquery('WorkspaceClientInit();'));
+#   ## Initialize javascript app.
+#   $self->add_template_javascript($self->{JS}->initializer_jquery('WorkspaceClientInit();'));
 
-  ##
-  return $self->generate_template_page();
-}
-
-
-##
-sub mode_exhibit_exp {
-
-  my $self = shift;
-
-  ###
-  ### Page settings.
-  ###
-
-  ## Non-standard settings.
-  $self->set_template_parameter('STANDARD_CSS', 'no');
-
-  ## Our AmiGO services CSS.
-  my $prep =
-    {
-     css_library =>
-     [
-      'standard', # basic GO-styles
-      #'bbop.amigo.ui.standard',
-      #'bbop.amigo.ui.widgets',
-      'com.jquery.redmond.custom'
-     ],
-     javascript_library =>
-     [
-      'com.jquery',
-      'com.jquery-ui',
-      'bbop.core',
-      'bbop.logger',
-      'bbop.amigo',
-      'bbop.amigo.go_meta',
-      'as.core.core',
-      'as.core.abstractmanager',
-      'as.managers.jquery',
-      'as.core.parameter',
-      'as.core.parameterstore',
-      'as.core.abstractwidget',
-      'as.helpers.jquery.ajaxsolr.theme',
-      'as.widgets.jquery.pagerwidget',
-      'as.core.abstractfacetwidget'
-      #'bbop.amigo.workspace',
-      #'bbop.amigo.ui.workspace',
-      #'bbop.amigo.ui.widgets',
-      #'bbop.amigo.ui.cart',
-      #'bbop.amigo.ui.shield',
-      #'bbop.amigo.ui.wait',
-      #'bbop.amigo.ui.shopping'
-     ],
-     javascript =>
-     [
-      $self->{JS}->get_lib('LiveSearchAS.js')
-     ],
-     javascript_init =>
-     [
-      'LiveSearchASInit();'
-     ],
-     content =>
-     [
-      'pages/exhibit_exp.tmpl'
-     ]
-    };
-  $self->add_template_bulk($prep);
-
-  return $self->generate_template_page();
-}
+#   ##
+#   return $self->generate_template_page();
+# }
 
 
-##
-sub mode_front_page {
+# ##
+# sub mode_exhibit_exp {
 
-  my $self = shift;
+#   my $self = shift;
 
-  ## Our AmiGO services CSS.
-  my $prep =
-    {
-     css_library =>
-     [
-      'standard', # basic GO-styles
-      'bbop.amigo.ui.autocomplete'
-     ],
-     javascript_library =>
-     [
-      'com.jquery',
-      'bbop.core',
-      'bbop.logger',
-      'bbop.amigo',
-      'bbop.amigo.go_meta',
-      'bbop.amigo.opensearch',
-      'bbop.amigo.ui.autocomplete'
-     ]
-    };
-  $self->add_template_bulk($prep);
+#   ###
+#   ### Page settings.
+#   ###
 
-  ## Initialize javascript app.
-  $self->add_template_javascript($self->{JS}->initializer_jquery('new bbop.amigo.ui.autocomplete({id:"query", search_type:"general", completion_type:"acc", jump: true});'));
+#   ## Non-standard settings.
+#   $self->set_template_parameter('STANDARD_CSS', 'no');
 
-  ##
-  $self->add_template_content('pages/front_page.tmpl');
-  return $self->generate_template_page();
-}
+#   ## Our AmiGO services CSS.
+#   my $prep =
+#     {
+#      css_library =>
+#      [
+#       'standard', # basic GO-styles
+#       #'bbop.amigo.ui.standard',
+#       #'bbop.amigo.ui.widgets',
+#       'com.jquery.redmond.custom'
+#      ],
+#      javascript_library =>
+#      [
+#       'com.jquery',
+#       'com.jquery-ui',
+#       'bbop.core',
+#       'bbop.logger',
+#       'bbop.amigo',
+#       'bbop.amigo.go_meta',
+#       'as.core.core',
+#       'as.core.abstractmanager',
+#       'as.managers.jquery',
+#       'as.core.parameter',
+#       'as.core.parameterstore',
+#       'as.core.abstractwidget',
+#       'as.helpers.jquery.ajaxsolr.theme',
+#       'as.widgets.jquery.pagerwidget',
+#       'as.core.abstractfacetwidget'
+#       #'bbop.amigo.workspace',
+#       #'bbop.amigo.ui.workspace',
+#       #'bbop.amigo.ui.widgets',
+#       #'bbop.amigo.ui.cart',
+#       #'bbop.amigo.ui.shield',
+#       #'bbop.amigo.ui.wait',
+#       #'bbop.amigo.ui.shopping'
+#      ],
+#      javascript =>
+#      [
+#       $self->{JS}->get_lib('LiveSearchAS.js')
+#      ],
+#      javascript_init =>
+#      [
+#       'LiveSearchASInit();'
+#      ],
+#      content =>
+#      [
+#       'pages/exhibit_exp.tmpl'
+#      ]
+#     };
+#   $self->add_template_bulk($prep);
+
+#   return $self->generate_template_page();
+# }
 
 
-## While this is really a service and should may exist with aserve, it
-## does do sessioning, so needs the STATELESS = 0, so I'll keep it
-## here until fully tested and then spin it out into a stateful
-## session service or something.
-## TODO: This will actually evolve into the session and piping module.
-sub mode_workspace {
+# ##
+# sub mode_front_page {
 
-  my $self = shift;
-  my $json_resp = AmiGO::JSON->new('workspace');
+#   my $self = shift;
 
-  my $i = AmiGO::WebApp::Input->new();
-  my $params = $i->input_profile('workspace');
+#   ## Our AmiGO services CSS.
+#   my $prep =
+#     {
+#      css_library =>
+#      [
+#       'standard', # basic GO-styles
+#       'bbop.amigo.ui.autocomplete'
+#      ],
+#      javascript_library =>
+#      [
+#       'com.jquery',
+#       'bbop.core',
+#       'bbop.logger',
+#       'bbop.amigo',
+#       'bbop.amigo.go_meta',
+#       'bbop.amigo.opensearch',
+#       'bbop.amigo.ui.autocomplete'
+#      ]
+#     };
+#   $self->add_template_bulk($prep);
 
-  my $retstruct = {};
+#   ## Initialize javascript app.
+#   $self->add_template_javascript($self->{JS}->initializer_jquery('new bbop.amigo.ui.autocomplete({id:"query", search_type:"general", completion_type:"acc", jump: true});'));
 
-  ## Attempt all operations and save failure messages for later use.
-  my $ws = $params->{workspace};
-  my $action = $params->{action};
-  if( $action eq 'add_workspace' ){
+#   ##
+#   $self->add_template_content('pages/front_page.tmpl');
+#   return $self->generate_template_page();
+# }
 
-    $ws =~ s/\ /\_/g; # spaces to underscore
-    $self->session_db_add_workspace($ws)
-      || $json_resp->add_error('could not add workspace');
 
-  }elsif( $action eq 'copy_workspace' ){
+# ## While this is really a service and should may exist with aserve, it
+# ## does do sessioning, so needs the STATELESS = 0, so I'll keep it
+# ## here until fully tested and then spin it out into a stateful
+# ## session service or something.
+# ## TODO: This will actually evolve into the session and piping module.
+# sub mode_workspace {
 
-    ## Non-trivial operation. Only perform if everything is defined.
-    my $ws_from = $params->{workspace} || undef;
-    my $ws_to = $params->{copy_to_workspace} || undef;
-    if( ! defined $ws_from ){
-      $json_resp->add_error('using an undefined source workspace');
-    }elsif( ! defined $ws_to ){
-      $json_resp->add_error('using an undefined destination workspace');
-    }else{
-      $self->session_db_copy_workspace($ws_from, $ws_to)
-	|| $json_resp->add_error('could not copy workspace');
-    }
+#   my $self = shift;
+#   my $json_resp = AmiGO::JSON->new('workspace');
 
-  }elsif( $action eq 'clear_workspace' ){
+#   my $i = AmiGO::WebApp::Input->new();
+#   my $params = $i->input_profile('workspace');
 
-    $self->session_db_clear_workspace($ws)
-      || $json_resp->add_error('could not clear workspace');
+#   my $retstruct = {};
 
-  }elsif( $action eq 'remove_workspace' ){
+#   ## Attempt all operations and save failure messages for later use.
+#   my $ws = $params->{workspace};
+#   my $action = $params->{action};
+#   if( $action eq 'add_workspace' ){
 
-    $self->session_db_remove_workspace($ws)
-      || $json_resp->add_error('could not remove workspace');
+#     $ws =~ s/\ /\_/g; # spaces to underscore
+#     $self->session_db_add_workspace($ws)
+#       || $json_resp->add_error('could not add workspace');
 
-  }elsif( $action eq 'add_item' ){
+#   }elsif( $action eq 'copy_workspace' ){
 
-    ## Non-trivial operation. Only perform if everything is defined.
-    my $key = $params->{key};
-#     my $type = $params->{type};
-    my $name = $params->{name} || '';
-    if( ! defined $key || ! $key ){
-      $json_resp->add_error('key not defined');
-    }elsif( ! defined $ws || ! $ws ){
-      $json_resp->add_error('type not defined');
-#     }elsif( ! defined $type || ! $type ){
-#       $json_resp->add_error('undefined type');
-    }else{
-      $self->session_db_add_item({
-				  key => $key,
-# 				  type => $type,
-				  name => $name,
-				 },
-				 $ws)
-	|| $json_resp->add_error('could not add item');
-    }
+#     ## Non-trivial operation. Only perform if everything is defined.
+#     my $ws_from = $params->{workspace} || undef;
+#     my $ws_to = $params->{copy_to_workspace} || undef;
+#     if( ! defined $ws_from ){
+#       $json_resp->add_error('using an undefined source workspace');
+#     }elsif( ! defined $ws_to ){
+#       $json_resp->add_error('using an undefined destination workspace');
+#     }else{
+#       $self->session_db_copy_workspace($ws_from, $ws_to)
+# 	|| $json_resp->add_error('could not copy workspace');
+#     }
 
-  }elsif( $action eq 'remove_item' ){
+#   }elsif( $action eq 'clear_workspace' ){
 
-    ## Non-trivial operation. Only perform if everything is defined.
-    my $key = $params->{key};
-    if( ! defined $key || ! $key ){
-      $json_resp->add_error('undefined key');
-    }elsif( ! defined $ws || ! $ws ){
-      $json_resp->add_error('undefined workspace');
-    }else{
-      $self->session_db_remove_item($key, $ws)
-	|| $json_resp->add_error('could not remove item');
-    }
+#     $self->session_db_clear_workspace($ws)
+#       || $json_resp->add_error('could not clear workspace');
 
-  }elsif( $action eq 'list_workspaces' ){
+#   }elsif( $action eq 'remove_workspace' ){
 
-    ##
-    foreach my $ws_name (@{$self->session_db_list_workspaces()}){
-      $retstruct->{$ws_name} = [];
-    }
+#     $self->session_db_remove_workspace($ws)
+#       || $json_resp->add_error('could not remove workspace');
 
-  }elsif( $action eq 'list_items' ){
+#   }elsif( $action eq 'add_item' ){
 
-    ##
-    $retstruct->{$ws} = [];
-    foreach my $item (@{$self->session_db_list_workspace_items($ws)}){
-      push @{$retstruct->{$ws}}, $item;
-    }
+#     ## Non-trivial operation. Only perform if everything is defined.
+#     my $key = $params->{key};
+# #     my $type = $params->{type};
+#     my $name = $params->{name} || '';
+#     if( ! defined $key || ! $key ){
+#       $json_resp->add_error('key not defined');
+#     }elsif( ! defined $ws || ! $ws ){
+#       $json_resp->add_error('type not defined');
+# #     }elsif( ! defined $type || ! $type ){
+# #       $json_resp->add_error('undefined type');
+#     }else{
+#       $self->session_db_add_item({
+# 				  key => $key,
+# # 				  type => $type,
+# 				  name => $name,
+# 				 },
+# 				 $ws)
+# 	|| $json_resp->add_error('could not add item');
+#     }
 
-  }else{
+#   }elsif( $action eq 'remove_item' ){
 
-    ## Our action is probably list/status then...
-    foreach my $ws_name (@{$self->session_db_list_workspaces()}){
-      $retstruct->{$ws_name} = [];
-      foreach my $item (@{$self->session_db_list_workspace_items($ws_name)}){
-	push @{$retstruct->{$ws_name}}, $item;
-      }
-    }
+#     ## Non-trivial operation. Only perform if everything is defined.
+#     my $key = $params->{key};
+#     if( ! defined $key || ! $key ){
+#       $json_resp->add_error('undefined key');
+#     }elsif( ! defined $ws || ! $ws ){
+#       $json_resp->add_error('undefined workspace');
+#     }else{
+#       $self->session_db_remove_item($key, $ws)
+# 	|| $json_resp->add_error('could not remove item');
+#     }
 
-  }
+#   }elsif( $action eq 'list_workspaces' ){
 
-  ##
-  $json_resp->set_results($retstruct);
+#     ##
+#     foreach my $ws_name (@{$self->session_db_list_workspaces()}){
+#       $retstruct->{$ws_name} = [];
+#     }
 
-  ##
-  $self->header_add( -type => 'application/json' );
-  return $json_resp->make_js();
-}
+#   }elsif( $action eq 'list_items' ){
+
+#     ##
+#     $retstruct->{$ws} = [];
+#     foreach my $item (@{$self->session_db_list_workspace_items($ws)}){
+#       push @{$retstruct->{$ws}}, $item;
+#     }
+
+#   }else{
+
+#     ## Our action is probably list/status then...
+#     foreach my $ws_name (@{$self->session_db_list_workspaces()}){
+#       $retstruct->{$ws_name} = [];
+#       foreach my $item (@{$self->session_db_list_workspace_items($ws_name)}){
+# 	push @{$retstruct->{$ws_name}}, $item;
+#       }
+#     }
+
+#   }
+
+#   ##
+#   $json_resp->set_results($retstruct);
+
+#   ##
+#   $self->header_add( -type => 'application/json' );
+#   return $json_resp->make_js();
+# }
 
 
 ## Go to main.

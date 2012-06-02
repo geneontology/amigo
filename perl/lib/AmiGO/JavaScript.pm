@@ -61,11 +61,8 @@ my $sig2path =
    #'com/jquery-1.3.2.min.js',
 
    ## UI plugin; we'll likely be using this a bit.
-   'com.jquery-ui' =>
-   #'com/jquery-ui-1.7.1.custom.min.js',
-   'com/jquery-ui-1.8.13.custom.min.js',
-   'com.jquery-layout' =>
-   'com/jquery.layout.min.js',
+   'com.jquery.jstree' =>
+   'com/jquery.jstree.js',
 
    ## More plugins.
    'com.jquery.treeview'          => 'com/jquery.treeview.js',
