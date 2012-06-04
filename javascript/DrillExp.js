@@ -123,10 +123,20 @@ function DDInit(){
 	            }
 	        }
 	    },
-	    "plugins" : ["json_data", "themeroller"]
+	    "plugins" : ["json_data", "themeroller", "ui"]
 	}).bind("select_node.jstree",
+		// TODO: Probably want a callback to the server here
+		// to get more detailed information; just a
+		// placeholder for now.
 		function(e, data){
-		    alert(data.rslt.obj.data("id"));
+		    var attr_id = data.rslt.obj[0].id;
+		    var dia = '<div>' +
+			amigo.html.term_link(attr_id,
+					     'Link to ' + attr_id + '.') +
+			'</div>';
+		    jQuery(dia).dialog({closeOnEscape: true,
+					modal: true,
+					title: 'Quick info about: ' + attr_id});
 		});
 
     ll('DDInit done.');
