@@ -2,12 +2,20 @@
 //// A simple try at a more modern naive drill-down ontology browser.
 ////
 
+// Just double check we have the right libraries coming in.
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'logger');
+bbop.core.require('bbop', 'amigo');
+bbop.core.require('bbop', 'amigo', 'go_meta');
+bbop.core.require('bbop', 'model');
+bbop.core.require('GOlrManager');
+
 // Logger for all functions.
 var logger = new bbop.logger();
 logger.DEBUG = true;
 function ll(str){ logger.kvetch('DD: ' + str); }    
 
-// AmiGO helpers.
+// Global AmiGO helpers.
 var amigo = new bbop.amigo();
 var go_meta = new bbop.amigo.go_meta();
 var solr_server = go_meta.golr_base();
@@ -29,7 +37,8 @@ function DDInit(){
     // Let's limit ourselves to 100 rows returned.
     gm.set('rows', 100);
 
-    // Let's capture an initial url, then reset.
+    // Let's capture an initial url (one that gets the roots as
+    // defined by having an empty isa_partof closure), then reset.
     gm.set_extra("&fq=-isa_partof_closure:[*%20TO%20*]");
     var reset_url = gm.get_query_url();
     gm.set_extra("");
@@ -60,7 +69,6 @@ function DDInit(){
 			    }else{
 				retval = null;
 			    }
-			    //ll('kids: ' + n.attr('kids').length);
 			}
 			ll('try url: ' + retval);
 	                return retval;
@@ -123,21 +131,27 @@ function DDInit(){
 	            }
 	        }
 	    },
-	    "plugins" : ["json_data", "themeroller", "ui"]
-	}).bind("select_node.jstree",
-		// TODO: Probably want a callback to the server here
-		// to get more detailed information; just a
-		// placeholder for now.
-		function(e, data){
-		    var attr_id = data.rslt.obj[0].id;
-		    var dia = '<div>' +
-			amigo.html.term_link(attr_id,
-					     'Link to ' + attr_id + '.') +
-			'</div>';
-		    jQuery(dia).dialog({closeOnEscape: true,
-					modal: true,
-					title: 'Quick info about: ' + attr_id});
-		});
+	    "plugins" : ["json_data", "themeroller"]});
+    // Revoved the bits that override the normal HTML click
+    // functionality. Nice to know it's there though.
+    //     "plugins" : ["json_data", "themeroller", "ui"]
+    // }).bind("select_node.jstree",
+    // 	// TODO: Probably want a callback to the server here
+    // 	// to get more detailed information; just a
+    // 	// placeholder linker for now.
+    // 	function(e, data){
+    // 	    var attr_id = data.rslt.obj[0].id;
+    // 	    var linky = amigo.link.term({acc: attr_id});
+    // 	    window.location.href = linky;
+    // 	    // Or perhaps a pop-up info window?
+    // 	    // var dia = '<div>' +
+    // 	    // 	amigo.html.term_link(attr_id,
+    // 	    // 			     'Link to ' + attr_id + '.') +
+    // 	    // 	'</div>';
+    // 	    // jQuery(dia).dialog({closeOnEscape: true,
+    // 	    // 			modal: true,
+    // 	    // 			title: 'Quick info about: ' + attr_id});
+    // 	});
 
     ll('DDInit done.');
 }
@@ -159,18 +173,20 @@ function _doc_to_tree_node(doc, parent_id){
     }else{
 	label = label + ' (' + raw_id + ')';
     }
-    retnode['data'] = {"title" : label};
+
+    // Set anchor title and href.
+    var detlink = amigo.link.term({acc: raw_id});
+    retnode['data'] = {"title" : label,
+		       "attr": {"href": detlink}};
 
     // Turn to graph, get kids.
     var graph = new bbop.model.graph();
     graph.load_json(jQuery.parseJSON(doc['graph']));
     var kids = graph.get_child_nodes(doc['id']);
 
-    //ll('getting kids of: ' + doc['id']);
-
     // Add state and kid_query.
     if( ! kids || kids.length == 0 ){
-	//ll('no kids');
+	// No kids...
     }else{
 	// No kids, make sure the node is closed.
     	retnode['state'] = 'closed';
@@ -180,7 +196,6 @@ function _doc_to_tree_node(doc, parent_id){
 	bbop.core.each(kids,
 		       function(kid){
 			   qbuff.push('id:"' + kid.id() + '"');
-			   //ll('kid: ' + kid.id());
 		       });
 	retnode['attr']['kid_query'] = qbuff.join(' OR ');
     }

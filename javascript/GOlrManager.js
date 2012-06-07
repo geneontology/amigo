@@ -2,6 +2,8 @@
 //// Keep in mind that this is a "subclass" of bbop.registry.
 ////
 
+bbop.core.require('bbop', 'registry');
+
 // Thinking about lessons learned from solr ajax.
 // Updatable model that connects to the Solr server.
 // Makes no attempt to join to a form--entirely held as an internal model.
