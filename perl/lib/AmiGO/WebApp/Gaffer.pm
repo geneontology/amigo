@@ -36,7 +36,7 @@ sub setup {
   $self->error_mode('mode_fatal');
   $self->run_modes(
 		   'nil'             => 'mode_nil',
-		   'solr_proxy'           => 'mode_solr_proxy',
+		   'solr_proxy'      => 'mode_solr_proxy',
 		   'solr_to_id_list' => 'mode_solr_to_id_list',
 		   'solr_to_gaf'     => 'mode_solr_to_gaf',
 		   'AUTOLOAD'        => 'mode_exception'

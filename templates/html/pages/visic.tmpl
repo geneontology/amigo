@@ -1,0 +1,33 @@
+<!-- START template: visic.tmpl -->
+<!-- SEARCH_P = [% SEARCHED_P %] -->
+
+  <div class="block">
+
+    <h2>Vizualize IC</h2>
+    
+    <p> This is a simple interface, similar to the visualization tool,
+      to view the infomation content (IC) of GO terms relative to
+      their annotations. Type in your GO IDs with the form GO:xxxxxxx.
+    </p>
+
+    <p>
+      <b>Caution</b>: The static image may be very large and
+      inappropriate for viewing within a web browser.
+    </p>
+
+    <form action="amigo_exp" id="term_input_form" method="GET">
+      <input type="hidden" name="mode" value="[% amigo_mode %]" />
+      <p>
+	<label for="terms">GO IDs:</label>
+	<br />
+	<textarea cols="50"
+		  rows="10"
+		  name="terms"
+		  id="terms"></textarea>
+	<br />
+	<input type="submit" class="button" value="Visualize IC" />
+      </p>
+    </form>
+  </div>
+  
+<!-- END template: visic.tmpl -->

@@ -52,26 +52,15 @@ function TermDetailsInit(){
     ///
 
     var solr_server = gm.golr_base();
-    var gm_ann = new GOlrManager({url: solr_server,
-    				  filters: {'document_category':
-					    'annotation', 
-					    'isa_partof_closure' :
-					    global_acc},
-    				  facets: filter_order});
-    				  // facets: ['type', 'taxon_label', 'source',
-    				  // 	   'evidence_type',
-				  // 	   'annotation_extension_class_closure_label',
-				  // 	   'isa_partof_closure_label']});
+
+    // TODO: new to replace the below.
+    var gm_ann = new bbop.golr.manager(solr_server, gconf);
+    gm_ann.set_personality('bbop_ann'); // profile in gconf
+    gm_ann.sticky_filters('document_category', 'annotation');
+    gm_ann.sticky_filters('isa_partof_closure', global_acc);
+
     var ui_ann = new GOlrUIBeta({'interface_id': 'display-associations',
 				 'class_conf': cclass});
-
-    // // ...
-    // function _peg_q(){
-    // 	jQuery("#" + "display-associations_ui_element_q").val("\"" +
-    // 							      global_label +
-    // 							      "\"");
-    // 	jQuery("#" + "display-associations_ui_element_q").keyup();
-    // }
 
     ///
     /// Setup and bind them together.

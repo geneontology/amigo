@@ -69,7 +69,7 @@ sub _query_url {
   my $self = shift;
   my $qstr = shift || undef;
 
-  $self->kvetch("base hash: " . Dumper($self->{AEJS_BASE_HASH}));
+  #$self->kvetch("base hash: " . Dumper($self->{AEJS_BASE_HASH}));
 
   ## Create URL.
   my $url = $self->{AEJS_BASE_URL} .
@@ -213,7 +213,7 @@ sub set_variable {
 
   my $self = shift;
   my $qkey = shift || undef;
-  my $qval = shift || undef;
+  my $qval = shift;
   my $retval = $qval;
 
   if( defined $qkey ){

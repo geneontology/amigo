@@ -7,9 +7,13 @@ package AmiGO::WebApp::HTMLClientExp;
 use base 'AmiGO::WebApp';
 
 ##
+use Data::Dumper;
+
+##
 use AmiGO::External::XML::GONUTS;
 use AmiGO::External::Raw;
 use AmiGO::External::QuickGO::Term;
+use AmiGO::External::JSON::AmiGO; # let's see if AmiGO can eat itself!
 #use AmiGO::External::LEAD::Query;
 
 # ## Take SuGR for a test drive.
@@ -24,12 +28,14 @@ use File::Basename;
 #use CGI::Application::Plugin::DBH (qw/dbh_config dbh/);
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
+use CGI::Application::Plugin::Redirect;
 
 use AmiGO::WebApp::Input;
 
 ## Real external workers.
 use AmiGO::Worker::GOlr::Term;
 use AmiGO::Worker::GOlr::GeneProduct;
+use AmiGO::Worker::ColorRange;
 
 # use Cache::Memcached; # TODO: can't go bigger than 1MB (still,
 #                       # probably best to explore);
@@ -77,6 +83,7 @@ sub setup {
 		   # 'workspace'           => 'mode_workspace',
 
 		   'drill'               => 'mode_drilldown_browser',
+		   'visic'               => 'mode_visic',
 
 		   ## System apps.
 		   'kick_to_main'        => 'mode_kick_to_main',
@@ -370,6 +377,111 @@ sub mode_scratch {
   ##
   $self->add_template_content('pages/scratch.tmpl');
   return $self->generate_template_page();
+}
+
+
+## Wrap visualize for IC.
+sub mode_visic {
+
+  my $self = shift;
+  my $output = '';
+
+  ##
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile('term_info');
+  my $input_term_list =
+    $self->{CORE}->clean_term_list($params->{terms}) ||
+      $self->{CORE}->clean_term_list($params->{term});
+  ## NOTE: Full not used.
+  my $use_full_p = 0;
+  $use_full_p = 1 if $params->{full} eq 'true';
+
+  ## If there is no incoming data, display the "client" page.
+  ## Otherwise, forward to render app.
+  if( ! defined $input_term_list || scalar(@$input_term_list) == 0 ){
+
+    ##
+    $self->set_template_parameter('amigo_mode', 'visic');
+    $self->set_template_parameter('page_title', 'AmiGO: Visualize IC');
+    $self->set_template_parameter('content_title', 'Visualize IC');
+    $self->add_template_content('pages/visic.tmpl');
+    $output = $self->generate_template_page();
+
+  }else{
+
+    ## Eat AmiGO dog food and get closures with values.
+    my $ic_closure = {};
+    my $aic = AmiGO::External::JSON::AmiGO->new();
+    $aic->set_variable('mode', 'term_ic_closure');
+    $aic->set_variable('terms', join(' ', @$input_term_list));
+    if( $aic->query() ){
+      $self->{CORE}->kvetch('results: ' . Dumper($aic->results()));
+      $ic_closure = $aic->results();
+    }else{
+      $self->{CORE}->kvetch('results: FAIL');
+    }
+    #$self->{CORE}->kvetch('$aic: ' . $aic->last_url());
+
+    ## Get term information and assemble new blob.
+    my @terms_to_check = keys %$ic_closure;
+    my $term_infoer = AmiGO::Worker::GOlr::Term->new(\@terms_to_check);
+    my $term_info = $term_infoer->get_info();
+
+    ## Calc the highs and lows for the coloring.
+    my $lo = undef;
+    my $hi = undef;
+    for my $iterm (keys %$ic_closure){
+      my $n = $ic_closure->{$iterm};
+      $lo = $n if ! defined $lo || $n < $lo;
+      $hi = $n if ! defined $hi || $n > $hi;
+    }
+    $self->{CORE}->kvetch("lo: " . $lo);
+    $self->{CORE}->kvetch("hi: " . $hi);
+    my $colorer = AmiGO::Worker::ColorRange->new($lo, $hi);
+
+    ## Finally, assemble new input blob from IC closure and term info.
+    my $input_blob = {};
+    for my $iterm (keys %$term_info){
+
+      ## Choose font and fill colors (badly).
+      my $use_num = 0.0;
+      if( defined $ic_closure->{$iterm} ){
+	$use_num = $ic_closure->{$iterm};
+      }
+      my $cset = $colorer->color_set_for($use_num);
+      my $font = $cset->[0];
+      my $fill = $cset->[1];
+      #$self->{CORE}->kvetch("font: $font, fill: $fill");
+      my $display_num = sprintf("%.2f", $use_num);
+      $input_blob->{$iterm} =
+	{
+	 'title' => $term_info->{$iterm}{acc},
+	 'body' =>  $term_info->{$iterm}{name} .' (' . $display_num . ')',
+	 'fill' =>  $fill,
+	 'font' =>  $font
+	};
+    }
+
+    ## Convert and clean hash.
+    my $str_dump = $self->{CORE}{JSON}->encode($input_blob);
+    #$self->{CORE}->kvetch("str_dump: " . $str_dump);
+    my $jump = $self->{CORE}->get_interlink({mode=>'visualize',
+				       #optional => {url_safe=>1, html_safe=>0},
+				       #optional => {html_safe=>0},
+				       arg => {
+					       format => 'png',
+					       data_type => 'json',
+					       data => $str_dump,
+					      }});
+
+    ## TODO/BUG: Yes: I don't have visualize on A2 yet...
+    $jump = 'http://amigo.berkeleybop.org/cgi-bin/amigo/' . $jump;
+
+    $self->{CORE}->kvetch("Jumping to: " . $jump);
+    return $self->redirect($jump, '302 Found');
+  }
+
+  return $output;
 }
 
 

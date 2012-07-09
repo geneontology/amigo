@@ -15,7 +15,7 @@ use Data::Dumper;
 
 =item new
 
-Args: term acc string # or arrayref of term acc strings.
+Args: term acc string or arrayref of term acc strings.
 
 =cut
 sub new {
