@@ -20,6 +20,9 @@ use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::Redirect;
 
+## Internal workers.
+use AmiGO::ChewableGraph;
+
 ## Real external workers.
 use AmiGO::Worker::GOlr::Term;
 use AmiGO::Worker::GOlr::GeneProduct;
@@ -648,8 +651,15 @@ sub mode_golr_term_details {
     return $self->mode_die_with_message("Term acc could not be found" .
 					" in the index!");
   }
-
   $self->{CORE}->kvetch('solr docs: ' . Dumper($term_info_hash));
+
+  # ## Pull out some of the graph stuff for operation.
+  # my $json_graph = $term_info_hash->{$input_term_id}{'graph'};
+  # if( ! defined $json_graph || ! $json_graph ){
+  #   $self->{CORE}->kvetch('could find no grpha information!');
+  # }else{
+  #   my $cgraph = AmiGO::ChewableGraph->new($json_graph);
+  # }
 
   ## Should just be one now, yeah?
   #my $foo = (keys %$term_info_hash)[0];

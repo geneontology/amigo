@@ -9,6 +9,9 @@ and "Ancestors and Children" working again with as little fuss as
 possible, but we can maybe use this to resurrect GraphViz components
 as well.
 
+WARNING: we make a closed-world assumption since we are assuming that
+we get properly closed graphs coming in from our loadedd GOlr.
+
 =cut
 
 package AmiGO::ChewableGraph;
@@ -16,59 +19,89 @@ package AmiGO::ChewableGraph;
 use base 'AmiGO';
 use utf8;
 use strict;
+use AmiGO::JavaScript;
 use Graph::Directed;
 use Graph::TransitiveClosure;
 use Data::Dumper;
 
 
+## Internal helper function for creating a commonly used hashref
+## pattern for my graphs.
+sub _cram_hash {
+  my $hashref = shift || die 'necessary arg 1';
+  my $lvl1 = shift || die 'necessary arg 2';
+  my $lvl2 = shift || die 'necessary arg 3';
+  my $last = shift || die 'necessary arg 4';
+
+  if( ! defined $hashref->{$lvl1} ){
+    $hashref->{$lvl1} = {};
+  }
+  if( ! defined $hashref->{$lvl1}{$lvl2} ){
+    $hashref->{$lvl1}{$lvl2} = {};
+  }
+  $hashref->{$lvl1}{$lvl2}{$last} = 1;
+
+  return $hashref;
+}
+
 =item new
+
+TODO
+
+Take a JSON blob and turn it into a usable graphy thing.
 
 =cut
 sub new {
 
   ##
   my $class = shift;
-  my $args = shift || {};
-  my $self  = $class->SUPER::new($args);
+  my $self  = $class->SUPER::new();
+  my $jstr = shift || die "need an incoming argument";
 
-  ## Defined in super now...
-  #   $self->{SCHEMA} =
-  #     GO::Schema->connect($self->{CONNECT_INFO});
-  #$args->{type} = 'term2term_over_graph_path';
-  #$self->{GRAPH_Q} = GO::Query->new($args);
+  ## Get the perl object.
+  $self->{ACG_RAW_OBJ} = $self->_read_json_string($jstr);
 
-  ## TODO: Let's start trying life without t2t:
-  #$args->{type} = 'graph_path';
-  #$self->{GRAPH_PATH} = GO::Query->new($args);
 
-  ## We'll borrow SUCCESS and ERROR_MESSAGE from GO.
+  ## Unwind our perl object into a couple of lookups and the actual
+  ## engine graph.
+  $self->{ACG_NODES} = {};
+  $self->{ACG_EDGE_SOP} = {};
+  $self->{ACG_EDGE_OSP} = {};
+  $self->{ACG_EDGE_PSO} = {};
+  $self->{ACG_EDGE_POS} = {};
+  $self->{ACG_GRAPH} = Graph::Directed->new();
+  foreach my $node (@{$self->{ACG_RAW_OBJ}{'nodes'}}){
+    my $acc = $node->{'id'};
+    $self->{ACG_NODES}{$acc} = $node;
+    $self->{ACG_GRAPH}->add_vertex($acc);
+  }
+  foreach my $edge (@{$self->{ACG_RAW_OBJ}{'edges'}}){
+    my $sid = $edge->{'subject_id'};
+    my $oid = $edge->{'object_id'};
+    my $pid = $edge->{'predicate_id'};
 
-  ### Nodes are defined as terms (keyed by acc) and edges are defined
-  ### as two terms, a relationship, and a completeness (keyed
-  ### accordingly).
-  #$self->{NODES} = {};
-  #$self->{EDGES} = {};
+    ## Add simple graph edge.
+    $self->{ACG_GRAPH}->add_edge($sid, $oid);
 
-  ## TODO/BUG: the below would be preferable if the GO wasn't borked.
-  #my $rrs = $schema->resultset('Term')->search({is_root => 1});
+    ## Add the usual lookup triplets.
+    $self->{ACG_EDGE_SOP} = _cram_hash($self->{ACG_EDGE_SOP}, $sid, $oid, $pid);
+    $self->{ACG_EDGE_OSP} = _cram_hash($self->{ACG_EDGE_SOP}, $oid, $sid, $pid);
+    $self->{ACG_EDGE_PSO} = _cram_hash($self->{ACG_EDGE_SOP}, $pid, $sid, $oid);
+    $self->{ACG_EDGE_POS} = _cram_hash($self->{ACG_EDGE_SOP}, $pid, $oid, $sid);
+  }
 
-  # ## Try and guess which term id the "bad" root.
-  # my $all_db_id = 1;
-  # my $tmp_rs = $self->{SCHEMA}->resultset('Term')->search({ is_root => 1 });
-  # my $possible_root_term = $tmp_rs->next;
-  # if( $possible_root_term && $possible_root_term->acc eq 'all' ){
-  #   $all_db_id = $possible_root_term->id;
-  # }
-
+  ## A little lite calculation on what we got out of the graph.
+  #$self->kvetch('sinks: ' . join(', ', $self->{ACG_GRAPH}->sink_vertices()));
+  #$self->kvetch('sources: ' .
+  #		join(', ', $self->{ACG_GRAPH}->source_vertices()));
   $self->{ACG_ROOTS} = {};
-  # my $rrs =
-  # $self->{SCHEMA}->resultset('Term2Term')->search({ term1_id => $all_db_id });
-  # while( my $possible_root_rel = $rrs->next ){
-  #   my $term = $possible_root_rel->subject;
-  #   if( ! $term->is_obsolete && $term->name ne 'all' ){
-  #     $self->{ACG_ROOTS}{$term->acc} = $term;
-  #   }
-  # }
+  $self->{ACG_LEAVES} = {};
+  foreach my $root ($self->{ACG_GRAPH}->sink_vertices()){
+    $self->{ACG_ROOTS}{$root} = 1;
+  }
+  foreach my $leaf ($self->{ACG_GRAPH}->source_vertices()){
+    $self->{ACG_LEAVES}{$leaf} = 1;
+  }
 
   bless $self, $class;
   return $self;
@@ -77,7 +110,7 @@ sub new {
 
 ## Internal convenience function.
 ## From Chris: "{-,+} reg < reg < {part_of,has_part} < is_a"
-sub relation_weight {
+sub _relation_weight {
 
   my $self = shift;
   my $rel = shift || '';
@@ -105,48 +138,9 @@ sub relation_weight {
 }
 
 
-## Internal convenience function.
-sub _convert_term_or_acc_to_acc {
-
-  my $self = shift;
-  my $term = shift || '';
-
-  ## Convert string or obj to acc string.
-  my $term_acc = $term; # assume as string
-  if( $term && (ref $term eq 'GO::Schema::Term' ) ){
-    $term_acc = $term->acc;
-  }
-
-  return $term_acc;
-}
-
-
-## Internal convenience function. Convert pretty much anything into
-## acc string array ref.
-sub _convert_whatever_to_acc_aref {
-
-  my $self = shift;
-  my $term = shift || '';
-  my $ret_thing = [];
-
-  if( ref($term) eq "ARRAY" ){
-    #$self->kvetch('what: term (many): ' . Dumper($term));
-    for my $t (@$term){
-      push @$ret_thing, $self->_convert_term_or_acc_to_acc($t);
-    }
-  }else{
-    #$self->kvetch('what: term (single): ' .  Dumper($term));
-    push @$ret_thing, $self->_convert_term_or_acc_to_acc($term);
-  }
-
-  #$self->kvetch('what: ret_thing: ' . Dumper($ret_thing));
-  return $ret_thing;
-}
-
-
 =item get_roots
 
-Returns the root nodes.
+Returns the root nodes as string href.
 
 =cut
 sub get_roots {
@@ -164,16 +158,15 @@ sub get_roots {
 
 =item is_root_p
 
-Boolean on acc string or DBIx::Class Term.
+Boolean on acc string.
 
 =cut
 sub is_root_p {
   my $self = shift;
-  my $thing = shift || '';
+  my $acc = shift || die 'need arg';
 
   ##
   my $retval = 0;
-  my $acc = $self->_convert_term_or_acc_to_acc($thing);
   #$self->kvetch('_root_p_acc_: ' . $acc);
   if( defined $self->{ACG_ROOTS}{$acc} ){
     $retval = 1;
@@ -185,279 +178,204 @@ sub is_root_p {
 
 =item is_leaf_p
 
-Boolean on acc string or DBIx::Class Term.
+Boolean on acc string.
 
 =cut
 sub is_leaf_p {
   my $self = shift;
   my $thing = shift || '';
-  # $self->kvetch('>>><<<');
 
-  ## Assume leafiness until proven otherwise.
-  my $retval = 1;
-  my $res = $self->get_child_relationships($thing);
-  if( $res && scalar(@$res) ){
-    $retval = 0;
+  ##
+  my $retval = 0;
+  my $acc = $thing;
+  if( defined $self->{ACG_LEAVES}{$acc} ){
+    $retval = 1;
   }
   return $retval;
 }
 
 
-=item get_term
-
-TODO?: accept arrayrefs as well. That should help the speedups.
-
-Gets a term from an acc string or DBIx::Class Term.
-A Term just gets passed through (little overhead).
-
-=cut
-sub get_term {
-
-  my $self = shift;
-  my $reterm = shift || undef;
-
-  #$self->kvetch('AmiGO::ChewableGraph::get_term in: '.$reterm);
-  #$self->kvetch('AmiGO::ChewableGraph::get_term ref: '.ref($reterm));
-
-  ## Convert to Term object if it looks like a (acc) string.
-  if( defined $reterm && ref $reterm ne 'GO::Schema::Term' ){
-    my $term_rs = $self->{SCHEMA}->resultset('Term')->search({acc => $reterm});
-    $reterm = $term_rs->first || undef;
-  }
-
-  return $reterm;
-}
-
-
 =item get_children
 
-In: acc string, Term, or aref of either.
-Out: Children term (object) list ref.
+In: acc string or aref of acc strings.
+Out: Children term list ref.
 
 =cut
 sub get_children {
 
   my $self = shift;
-  #my $term = shift || undef;
-  my $thing = shift || '';
-  #my $acc = $self->_convert_term_or_acc_to_acc($thing);
-  my $accs = $self->_convert_whatever_to_acc_aref($thing);
+  my $things = shift || [];
+  if( ref($things) ne 'ARRAY' ){
+    $things = [$things];
+  }
 
-  # my $all = $self->{GRAPH_Q}->get_all_results({'graph_object.acc' => $acc,
-  # 					       'graph_path.distance' => 1});
-  my $all = $self->{GRAPH_PATH}->get_all_results({'object.acc' => $accs,
-						  'me.distance' => 1});
-
-  my $ret = [];
-  foreach my $gp (@$all){
-    if( ! $gp->subject->is_obsolete ){
-      push @$ret, $gp->subject;
-      # $self->kvetch("AmiGO::ChewableGraph::get_children: kid: " .
-      # 		    $t2t->subject->acc);
+  ## Get the children for each incoming acc.
+  ## Dedupe using a hash in the process.
+  my $ret_hash = {};
+  foreach my $thing (@$things){
+    my @children = $self->{ACG_GRAPH}->predecessors($thing);
+    foreach my $kid (@children){
+      $ret_hash->{$kid} = 1;
     }
   }
-  return $ret;
-}
 
-
-=item get_relationship
-
-In: term, term; take string or object.
-Out: String.
-
-=cut
-sub get_relationship {
-
-  my $self = shift;
-  my $obj_thing = shift || '';
-  my $sub_thing= shift || '';
-  my $obj_acc = $self->_convert_term_or_acc_to_acc($obj_thing);
-  my $sub_acc = $self->_convert_term_or_acc_to_acc($sub_thing);
-
-  ## 
-  my $all = $self->{GRAPH_PATH}->get_all_results({'object.acc' => $obj_acc,
-  						  'subject.acc' => $sub_acc});
-
-  ## Should be just one.
-  my $ret = undef;
-  foreach my $gp (@$all){
-    $ret = $gp->relationship->name;
-    last;
+  ## Unfold the dedupe hash into an aref.
+  my $ret = [];
+  foreach my $deduped_acc (keys %$ret_hash){
+    push @$ret, $deduped_acc;
   }
 
   return $ret;
 }
+
+
+=item get_parents
+
+In: acc string or aref of acc strings.
+Out: Parent term acc list ref.
+
+=cut
+sub get_parents {
+
+  my $self = shift;
+  my $things = shift || [];
+  if( ref($things) ne 'ARRAY' ){
+    $things = [$things];
+  }
+
+  ## Get the parents for each incoming acc.
+  ## Dedupe using a hash in the process.
+  my $ret_hash = {};
+  foreach my $thing (@$things){
+    my @parents = $self->{ACG_GRAPH}->successors($thing);
+    foreach my $par (@parents){
+      $ret_hash->{$par} = 1;
+    }
+  }
+
+  ## Unfold the dedupe hash into an aref.
+  my $ret = [];
+  foreach my $deduped_acc (keys %$ret_hash){
+    push @$ret, $deduped_acc;
+  }
+
+  return $ret;
+}
+
+
+# =item get_relationship
+
+# In: term acc, term acc.
+# Out: String.
+
+# =cut
+# sub get_relationship {
+
+#   my $self = shift;
+#   my $obj_thing = shift || '';
+#   my $sub_thing= shift || '';
+#   my $obj_acc = $obj_thing;
+#   my $sub_acc = $sub_thing;
+
+#   ## 
+#   my $all = $self->{GRAPH_PATH}->get_all_results({'object.acc' => $obj_acc,
+#   						  'subject.acc' => $sub_acc});
+
+#   ## Should be just one.
+#   my $ret = undef;
+#   foreach my $gp (@$all){
+#     $ret = $gp->relationship->name;
+#     last;
+#   }
+
+#   return $ret;
+# }
 
 
 =item get_child_relationships
 
-Takes DBIx::Class Term or acc string, or aref of either.
-Gets the term2term links from a term.
-
-# TODO/BUG: track down functions that use this to switch over to running
-# through returned graph_paths. Seems to appear many times.
+Takes a term acc string.
+Gets something like:
+ [{'relationship'=>{'acc'=>'X'},'subject'=>{'acc'=>'Y','name'=>'Z'}}]
 
 =cut
 sub get_child_relationships {
 
   my $self = shift;
-  my $term = shift || undef;
-  #my $term_acc = $self->_convert_term_or_acc_to_acc($term);
-  my $term_accs = $self->_convert_whatever_to_acc_aref($term);
+  my $oid = shift || die 'gotta define what relationship';
 
-  return $self->{GRAPH_Q}->get_all_results({'graph_object.acc' => $term_accs,
-  					    'graph_path.distance' => 1});
+  my $ret = [];
+  foreach my $kid (@{$self->get_children($oid)}){
+
+    # BUG/TODO; need unit test for this graph stuff--will no insane otherwise
+
+    push @$ret,
+      {
+       'relationship' => {'acc'=>'X'},
+       'subject' => {'acc'=>'Y','name'=>'Z'},
+      };
+  }
+
+  return $ret;
 }
 
 
-=item get_parent_relationships
+# =item get_parent_relationships
 
-Takes DBIx::Class Term or acc string, or aref of either.
-Gets the term2term links from a term.
+# Takes a term or acc string.
+# Gets the term2term links from a term.
 
-TODO/BUG: track down functions that use this to switch over to running
-through returned graph_paths. It seems to just appear once.
+# =cut
+# sub get_parent_relationships {
 
-=cut
-sub get_parent_relationships {
+#   my $self = shift;
+#   my $term = shift || undef;
+#   my $term_accs = $term;
 
-  my $self = shift;
-  my $term = shift || undef;
-  #my $term_acc = $self->_convert_term_or_acc_to_acc($term);
-  my $term_accs = $self->_convert_whatever_to_acc_aref($term);
-
-  return
-    $self->{GRAPH_Q}->get_all_results({'graph_subject.acc' => $term_accs,
-				       'graph_path.distance' => 1});
-}
+#   return
+#     $self->{GRAPH_Q}->get_all_results({'graph_subject.acc' => $term_accs,
+# 				       'graph_path.distance' => 1});
+# }
 
 
-=item climb
+=item collect
 
-With an array ref of terms, will climb to the top of the ontology
-(with an added 'all' stopper for GO).
+Collect various bits of graph information to help with rendering.
 
 This returns an array of five things:
    (\%nodes, \%edges, \%tc_desc, \%tc_anc, \%tc_depth);
-   *) a link list
-   *) a term (node)
+   *) a hashref of term accs to term info hashes
+   *) an empty href
    *) a hashref of of nodes in terms of in-graph descendants
+   *) a hashref of of nodes in terms of in-graph ancestors
+   *) a hashref of of nodes in terms of in-graph "depth"
 
 =cut
-sub climb {
+sub collect {
 
   my $self = shift;
-  my $in_thing = shift || [];
+  my $in_things = shift || [];
 
-  ## TODO: could probably use _convert_whatever_to_acc_aref here...
   ## Whatever it is, arrayify it.
-  if( ref $in_thing ne 'ARRAY' ){
-    $in_thing = [$in_thing];
+  if( ref $in_things ne 'ARRAY' ){
+    $in_things = [$in_things];
   }
-
-  ## Whatever is in there, make sure that they're all Terms. Use
-  ## Graph::get_term pass-through.
-  my @seed_terms = map {
-    $self->get_term($_);
-  } @$in_thing;
-
-  ## For doing transitive closure on the graph to help with
-  ## association transfer.
-  my $booking_graph = Graph::Directed->new();
-
-  # $self->kvetch("Climb: IN");
-
-  ## Pre-seed the nodes list.
-  my %edges = ();
-  my %nodes = ();
-  foreach my $seed ( @seed_terms ){
-    $nodes{$seed->acc} = $seed;
-    # $self->kvetch("Climb: added seed: " . $seed->acc);
-  }
-
-  ##
-  my %in_graph_by_acc = ();
-  while( @seed_terms ){
-
-    my $current_term = pop @seed_terms;
-
-    ## BUG: Prevent super root (not really our bug though).
-    my $current_acc = $current_term->acc;
-    if( $current_acc ne 'all' ){
-
-      ## Add node to hash if not already there.
-      if( ! $nodes{$current_acc} ){
-	$nodes{$current_acc} = $current_term;
-	# $self->kvetch("Climb: adding node: " . $current_acc);
-	$booking_graph->add_vertex($current_acc);
-      }
-
-      ## Find parent relations each time.
-      #my $parent_rs = $current_term->parent_relations;
-      #my @all_parents = $parent_rs->all;
-      #foreach my $parent_rel (@all_parents){
-      #$self->kvetch('new code', 1);
-      my $all_parents = $self->get_parent_relationships($current_term);
-      foreach my $parent_rel (@$all_parents){
-
-	my $id = $parent_rel->id;
-
-	my $obj = $parent_rel->object;
-	my $obj_acc = $obj->acc;
-
-	## BUG: Prevent links to super root (not really our bug though).
-	if( $obj_acc ne 'all' ){
-
-	  my $sub = $parent_rel->subject;
-	  my $sub_acc = $sub->acc;
-	  #my $rel_id = $parent_rel->relationship_type_id;
-	  my $rel_id = $parent_rel->relationship->name;
-
-	  ## Add edge to hash if not already there.
-	  if( ! defined $edges{$id} ){
-	    $edges{$id} = $parent_rel;
-	    # $self->kvetch("Climb adding edge: $sub_acc $rel_id $obj_acc");
-	    $booking_graph->add_edge($sub_acc, $obj_acc);
-	  }
-
-	  ## Make sure that there is a space in the indirect hash
-	  ## if it is not already there.
-	  if( ! defined $in_graph_by_acc{$obj_acc} ){
-	    $in_graph_by_acc{$obj_acc} = {};
-	  }
-
-	  ## TODO: double check the correctness of this...
-	  ## If we haven't seen it, mark it and climb.
-	  if( ! defined $in_graph_by_acc{$obj_acc}{$sub_acc} ){
-
-	    $in_graph_by_acc{$obj_acc}{$sub_acc} = 1;
-	    push @seed_terms, $obj;
-	  }
-	}
-      }
-    }
-  }
-
-  ###
-  ### From here on is just reworking everything using the Graph module
-  ### to pull out useful information.
-  ###
 
   ## Calculate the transitive closure to help with figuring out the
   ## association transitivity in other components.
-  my $tc_graph = Graph::TransitiveClosure->new($booking_graph,
+  my $tc_graph = Graph::TransitiveClosure->new($self->{ACG_GRAPH},
 					       reflexive => 0,
 					       path_length => 1);
   my %tc_desc = ();
   my %tc_anc = ();
 
   ## Iterate through the combinations making the anc and desc hashes.
-  foreach my $obj (keys %nodes){
+  foreach my $obj (keys %{$self->{ACG_NODES}}){
 
     $tc_desc{$obj} = {} if ! defined $tc_desc{$obj};
     $tc_anc{$obj} = {} if ! defined $tc_anc{$obj};
 
-    foreach my $sub (keys %nodes){
+    foreach my $sub (keys %{$self->{ACG_NODES}}){
 
       if( $tc_graph->is_reachable($obj, $sub) ){
 	$tc_anc{$obj}{$sub} = 1;
@@ -470,27 +388,24 @@ sub climb {
 
   ## Down here, we're doing something separate--we're going to get
   ## the depth of the node.
-  #TODO
   my %tc_depth = ();
-  foreach my $sub (keys %nodes){
+  foreach my $sub (keys %{$self->{ACG_NODES}}){
     foreach my $root (keys %{$self->{ACG_ROOTS}}){
       my $len = $tc_graph->path_length($sub, $root);
       if( defined $len ){
 	$tc_depth{$sub} = $len;
-	# $self->kvetch('Depth of ' . $sub . ' is ' . $len);
+	# $self->kvetch('depth of ' . $sub . ' is ' . $len);
       }
     }
   }
 
-  #return (\%nodes, \%edges, \%in_graph_by_acc);
-  #return (\%nodes, \%edges, \%tc_desc);
-  return (\%nodes, \%edges, \%tc_desc, \%tc_anc, \%tc_depth);
+  return ($self->{ACG_NODES}, {}, \%tc_desc, \%tc_anc, \%tc_depth);
 }
 
 
 =item lineage
 
-BUG/TODO: clearly differentiate climb and lineage.
+BUG/TODO: clearly differentiate collect and lineage.
 
 Not quite get ancestors, as we're getting depth and inference info as well.
 
@@ -514,31 +429,18 @@ sub lineage {
   my $sub_thing = shift || '';
   #my $opt_arg = shift || {};
 
-  #my $sub_acc = $self->_convert_term_or_acc_to_acc($sub_thing);
-  #$self->kvetch('sub_thing: ' . $sub_thing);
-  my $sub_accs = $self->_convert_whatever_to_acc_aref($sub_thing);
+  my $sub_accs = $sub_thing;
   #$self->kvetch('sub_accs: ' . Dumper($sub_accs));
 
+  ## Items to return.
   my $nodes = {};
   my $node_depth = {};
   my $node_rel = {};
   my $node_rel_inf = {};
-
-  # ## Thinks that we can logically tease out, but only if we care about
-  # ## reflexive relationships.
-  # if( $opt_arg && $opt_arg->{reflexive} ){
-  #   foreach my $acc (@$sub_accs){
-  #     ## Reflexive relations are direct.
-  #     $node_rel_inf->{$acc} = 0;
-  #     $node_rel->{$acc} = 'is_a'; # BUG: technically, this is a go-ism
-  #     $node_depth->{$acc} = 0;
-  #     $nodes->{$acc} = $self->get_term;
-  #   }
-  # }
+  my $max_depth = 0;
 
   ## Things that we need to ask the database about.
   my $all = $self->{GRAPH_PATH}->get_all_results({'subject.acc' => $sub_accs});
-  my $max_depth = 0;
   foreach my $gp (@$all){
 
     if( ! $gp->object->is_obsolete &&
@@ -569,9 +471,9 @@ sub lineage {
 	## Take the dominating relation.
 	## NOTE/WARNING: this may be GO specific.
 	my $curr_scale =
-	  $self->relation_weight($node_rel->{$gp->object->acc}, 1000);
+	  $self->_relation_weight($node_rel->{$gp->object->acc}, 1000);
 	my $test_scale =
-	  $self->relation_weight($gp->relationship_type->acc, 1000);
+	  $self->_relation_weight($gp->relationship_type->acc, 1000);
 	if( $curr_scale < $test_scale ){ # less specific
 	#if( $curr_scale > $test_scale ){ # more specific
 	  $node_rel->{$gp->object->acc} = $gp->relationship_type->acc;
@@ -604,24 +506,6 @@ sub lineage {
   # $self->kvetch('nodes: ' . Dumper(\@foo));
   return ($nodes, $node_rel, $node_rel_inf, $node_depth, $max_depth);
 }
-
-
-# =item ancestors
-
-# Takes a model term, returns an array ref of model term ancestors
-
-# =cut
-# sub ancestors {
-
-#   my $self = shift;
-#   my $term = shift;
-#   my $ancestors = [];
-
-#   ##
-  
-
-#   return $ancestors;
-# }
 
 
 

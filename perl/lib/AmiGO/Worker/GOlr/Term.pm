@@ -11,6 +11,7 @@ This is not a search tool, but an efficient data retrieval tool.
 package AmiGO::Worker::GOlr::Term;
 use base ("AmiGO::Worker::GOlr");
 use Data::Dumper;
+use AmiGO::ChewableGraph;
 
 
 =item new
@@ -60,11 +61,15 @@ sub new {
 	 alternate_ids => $found_doc->{alternate_id} || [],
 	 synonyms => $found_doc->{synonym} || [],
 	 #dbxrefs => [],
-	 term_dbxrefs => => $found_doc->{definition_xref} || [],
+	 term_dbxrefs => $found_doc->{definition_xref} || [],
+	 graph => $found_doc->{graph},
 	};
     }
     $self->{AWGT_INFO}{$arg} = $intermediate;
   }
+
+  ## Places to put the graphs I'll possibly create.
+  $self->{AWGT_GRAPH} = {};
 
   bless $self, $class;
   return $self;
@@ -74,7 +79,7 @@ sub new {
 =item get_info
 
 Args: n/a
-Returns: hash ref containing various term information, keyed by acc
+Returns: hash ref containing various bits of term information, keyed by acc.
 
 =cut
 sub get_info {
@@ -84,93 +89,99 @@ sub get_info {
 }
 
 
-# =item get_child_info
+=item get_child_info_for
 
-# Args: term acc string or arrayref of term acc strings.
-# Returns: hash containing various term infomation, keyed by (int) order
+Args: term acc string of term we already info about
+Returns: hash containing various term infomation, keyed by (int) order
 
-# =cut
-# sub get_child_info {
+=cut
+sub get_child_info_for {
 
-#   my $self = shift;
-#   my $arg = shift || die "need an argument";
+  my $self = shift;
+  my $arg = shift || die "need an argument";
 
-#   ## Only array refs.
-#   if( ref $arg ne 'ARRAY' ){ $arg = [$arg]; }
+  ## Check input.
+  die "not a defined argument" if ! defined $self->{AWGT_INFO}{$arg};
 
-#   ###
-#   ### Get neighborhood below term(s).
-#   ###
+  ## Pull out some of the graph stuff for operation. Try and only do
+  ## it once.
+  my $cgraph = undef;
+  my $json_graph_str = $self->{AWGT_INFO}{$arg}{'graph'};
+  if( ! defined $json_graph_str || ! $json_graph_str ){
+    $self->{CORE}->kvetch('could find no graph information!');
+  }else if( ! defined $self->{AWGT_GRAPH}{$arg} ){
+    ## Store, and make it easier to get to next time.
+    $self->{AWGT_GRAPH}{$arg} = AmiGO::ChewableGraph->new($json_graph_str);
+    $cgraph = $self->{AWGT_GRAPH}{$arg};
+  }
 
-#   ## We're capable of getting multiple child relations from the
-#   ## graph_path table, so we are going to filter for the "strongest"
-#   ## one and use that as the single representative child.
-#   my $the_single_child = {};
-#   my $child_rels = $self->{AW_TG}->get_child_relationships($arg);
-#   #$self->kvetch('_a_: ' . $child_rels);
-#   #$self->kvetch('_b_: ' . scalar(@$child_rels));
-#   foreach my $child_rel (@$child_rels){
+  ###
+  ### Get neighborhood below term.
+  ###
 
-#     my $rel = $child_rel->relationship; #->name;
-#     my $sub = $child_rel->subject;
+  ## We're capable of getting multiple child relations from the
+  ## graph_path table, so we are going to filter for the "strongest"
+  ## one and use that as the single representative child.
+  my $the_single_child = {};
+  my $child_rels = $self->{AW_TG}->get_child_relationships($arg);
+  #$self->kvetch('_a_: ' . $child_rels);
+  #$self->kvetch('_b_: ' . scalar(@$child_rels));
+  foreach my $child_rel (@$child_rels){
 
-#     #my $rel_name = $rel->name;
-#     my $rel_acc = $rel->acc;
-#     my $sub_acc = $sub->acc;
-#     my $sub_name = $sub->name;
+    my $rel = $child_rel->relationship; #->name;
+    my $sub = $child_rel->subject;
 
-#     # $self->kvetch('_c.r_: ' . $rel_acc);
-#     # $self->kvetch('_c.s_: ' . $sub_acc);
-#     # $self->kvetch('_c.n_: ' . $sub_name);
+    #my $rel_name = $rel->name;
+    my $rel_acc = $rel->acc;
+    my $sub_acc = $sub->acc;
+    my $sub_name = $sub->name;
 
-#     my $add_it_p = 1;
+    # $self->kvetch('_c.r_: ' . $rel_acc);
+    # $self->kvetch('_c.s_: ' . $sub_acc);
+    # $self->kvetch('_c.n_: ' . $sub_name);
 
-#     ## If the item is already in, check weight.
-#     if( defined $the_single_child->{$sub_acc} ){
-#       if( $self->{AW_TG}->relation_weight($rel_acc, 1000) <
-# 	  $self->{AW_TG}->relation_weight($the_single_child->{$sub_acc}{rel},
-# 					  1000) ){
-# 	$add_it_p = 0;
-#       }
-#     }
+    my $add_it_p = 1;
 
-#     ## If the item acc smells obsolete, prevent it from being
-#     ## displayed/getting into the mix.
-#     if( $sub_acc =~ /^obsolete_/ ){
-#       $add_it_p = 0;
-#     }
+    ## If the item is already in, check weight.
+    if( defined $the_single_child->{$sub_acc} ){
+      if( $self->{AW_TG}->relation_weight($rel_acc, 1000) <
+	  $self->{AW_TG}->relation_weight($the_single_child->{$sub_acc}{rel},
+					  1000) ){
+	$add_it_p = 0;
+      }
+    }
 
-#     ## If it passed that above tests, add it.
-#     if( $add_it_p ){
+    ## If it passed that above tests, add it.
+    if( $add_it_p ){
 
-#       $the_single_child->{$sub_acc} =
-# 	{
-# 	 acc => $sub_acc,
-# 	 name => $sub_name,
-# 	 rel => $rel_acc,
-# 	 link => $self->get_interlink({mode => 'term_details',
-# 				       arg => {acc => $sub_acc},
-# 				      }),
-# 	 #optional => {frag => 'lineage'}}),
-# 	};
-#     }
-#   }
+      $the_single_child->{$sub_acc} =
+	{
+	 acc => $sub_acc,
+	 name => $sub_name,
+	 rel => $rel_acc,
+	 link => $self->get_interlink({mode => 'term_details',
+				       arg => {acc => $sub_acc},
+				      }),
+	 #optional => {frag => 'lineage'}}),
+	};
+    }
+  }
 
-#   ## Unwind hash key for gpc info list and child chunks.
-#   my $child_chunks = [];
-#   foreach my $sub_acc (keys %$the_single_child){
-#     #push @$acc_list_for_gpc_info, $sub_acc;
-#     push @$child_chunks, $the_single_child->{$sub_acc};
-#   }
+  ## Unwind hash key for gpc info list and child chunks.
+  my $child_chunks = [];
+  foreach my $sub_acc (keys %$the_single_child){
+    #push @$acc_list_for_gpc_info, $sub_acc;
+    push @$child_chunks, $the_single_child->{$sub_acc};
+  }
 
-#   ## Name ordering.
-#   my @sorted_child_chunks = sort {
-#     lc($a->{name}) cmp lc($b->{name})
-#   } @$child_chunks;
+  ## Name ordering.
+  my @sorted_child_chunks = sort {
+    lc($a->{name}) cmp lc($b->{name})
+  } @$child_chunks;
 
 
-#   return \@sorted_child_chunks;
-# }
+  return \@sorted_child_chunks;
+}
 
 
 # =item get_ancestor_info

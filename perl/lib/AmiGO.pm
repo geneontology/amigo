@@ -1362,17 +1362,11 @@ sub get_interlink {
 }
 
 
-## TODO
-sub _read_json_file {
+## Parse a JSON string to perl object.
+sub _read_json_string {
 
   my $self = shift;
-  my $file = shift || die 'yes, but what file do you want read?';
-
-  ## Try and get it.
-  die "No hash file found ($file): $!" if ! -f $file;
-  open(FILE, '<', $file) or die "Cannot open $file: $!";
-  my $json_str = <FILE>;
-  close FILE;
+  my $json_str = shift || die 'yes, but what string do you want read?';
 
   #$self->kvetch("JSON contents: " . $json_str);
 
@@ -1391,6 +1385,23 @@ sub _read_json_file {
   # $self->kvetch("passed: " . Dumper($rethash));
 
   return $rethash;
+}
+
+
+## Parse a JSON file to perl object.
+sub _read_json_file {
+
+  my $self = shift;
+  my $file = shift || die 'yes, but what file do you want read?';
+
+  ## Try and get it.
+  die "No hash file found ($file): $!" if ! -f $file;
+  open(FILE, '<', $file) or die "Cannot open $file: $!";
+  my $json_str = <FILE>;
+  close FILE;
+
+  ## Punt to string reader.
+  return $self->_read_json_string($json_str);
 }
 
 
