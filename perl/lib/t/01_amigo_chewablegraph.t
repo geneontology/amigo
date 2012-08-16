@@ -87,8 +87,68 @@ foreach my $ps3s (@$ps3){
 }
 
 ## Check child relationships.
-##TODO
-# ok( ! $cgraph->is_leaf_p($rkey), "definitely is not a leaf (1)");
+my $cr1 = $cgraph->get_child_relationships('GO:0030154');
+#_ll("DUMP: ", Dumper($cr1));
+is( scalar(@$cr1), 3, "three child rels");
+foreach my $cri1 (@$cr1){
+  if( $cri1->{subject_id} eq 'GO:0048468' ){
+    pass('the right child in rel (a)');
+    if( $cri1->{predicate_id} eq 'part_of' ){
+      pass('the right child rel in rel (a)');
+    }else{
+      fail('the wrong child rel in rel (a): ' . $cri1->{predicate_id});
+    }
+  }elsif( $cri1->{subject_id} eq 'GO:0030855' ){
+    pass('the right child in rel (b)');
+    if( $cri1->{predicate_id} eq 'is_a' ){
+      pass('the right child rel in rel (b)');
+    }else{
+      fail('the wrong child rel in rel (b): ' . $cri1->{predicate_id});
+    }
+  }elsif( $cri1->{subject_id} eq 'GO:0009913' ){
+    pass('the right child in rel (c)');
+    if( $cri1->{predicate_id} eq 'is_a' ){
+      pass('the right child rel in rel (c)');
+    }else{
+      fail('the wrong child rel in rel (c): ' . $cri1->{predicate_id});
+    }
+  }else{
+    fail('what child rel is that?: ' . $cri1->{subject_id});
+  }
+}
+
+## Check parent relationships.
+my $pr1 = $cgraph->get_parent_relationships('GO:0048468');
+#_ll("DUMP: ", Dumper($pr1));
+is( scalar(@$pr1), 3, "three parent rels");
+foreach my $pri1 (@$pr1){
+  if( $pri1->{object_id} eq 'GO:0030154' ){
+    pass('the right parent in rel (a)');
+    if( $pri1->{predicate_id} eq 'part_of' ){
+      pass('the right parent rel in rel (a)');
+    }else{
+      fail('the wrong parent rel in rel (a): ' . $pri1->{predicate_id});
+    }
+  }elsif( $pri1->{object_id} eq 'GO:0048869' ){
+    pass('the right parent in rel (b)');
+    if( $pri1->{predicate_id} eq 'is_a' ){
+      pass('the right parent rel in rel (b)');
+    }else{
+      fail('the wrong parent rel in rel (b): ' . $pri1->{predicate_id});
+    }
+  }elsif( $pri1->{object_id} eq 'GO:0048856' ){
+    pass('the right parent in rel (c)');
+    if( $pri1->{predicate_id} eq 'is_a' ){
+      pass('the right parent rel in rel (c)');
+    }else{
+      fail('the wrong parent rel in rel (c): ' . $pri1->{predicate_id});
+    }
+  }else{
+    fail('what parent rel is that?: ' . $pri1->{object_id});
+  }
+}
+
+
 # ok( ! $cgraph->is_leaf_p('GO:0003334'), "definitely is not a leaf (2)");
 # ok( $cgraph->is_leaf_p('GO:0003335'), "definitely is a leaf");
 # pass('the right parent (d)');

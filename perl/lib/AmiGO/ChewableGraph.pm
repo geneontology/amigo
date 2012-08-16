@@ -313,8 +313,8 @@ sub get_child_relationships {
   ## First, get children, right?
   foreach my $kid (@{$self->get_children($oid)}){
 
-    # BUG/TODO; need unit test for this graph stuff--will be insane otherwise
-    ## Now that we have subject and object, we can pull the relationships.
+    ## Now that we have subject and object, we can pull the
+    ## relationships.
     if( defined $self->{ACG_EDGE_SOP} &&
 	defined $self->{ACG_EDGE_SOP}{$kid} &&
 	defined $self->{ACG_EDGE_SOP}{$kid}{$oid} ){
@@ -335,192 +335,214 @@ sub get_child_relationships {
 }
 
 
-# =item get_parent_relationships
+=item get_parent_relationships
 
-# Takes a term or acc string.
-# Gets the term2term links from a term.
+Takes a term acc string.
+Essentially, get parent edges.
+Gets something like:
+ [{'subject_id' => 'X', 'object_id' => 'Y', 'predicate_id' => 'Z'}, ...]
+
+=cut
+sub get_parent_relationships {
+
+  my $self = shift;
+  my $sid = shift || die 'gotta define whose relationship';
+
+  my $ret = [];
+
+  ## First, get parents, right?
+  foreach my $par (@{$self->get_parents($sid)}){
+
+    ## Now that we have subject and object, we can pull the
+    ## relationships.
+    if( defined $self->{ACG_EDGE_OSP} &&
+	defined $self->{ACG_EDGE_OSP}{$par} &&
+	defined $self->{ACG_EDGE_OSP}{$par}{$sid} ){
+
+      foreach my $rel (keys %{$self->{ACG_EDGE_OSP}{$par}{$sid}}){
+	my $ob_name = $self->{ACG_NODES}{$par}{label} || $par;
+	push @$ret,
+	  {
+	   'object_id' => $par,
+	   'subject_id' => $sid,
+	   'predicate_id' => $rel,
+	  };
+      }
+    }
+  }
+
+  return $ret;
+}
+
+
+# =item lineage
+
+# Get information concerning the transitive position of this node in the
+# graph (as opposed to the immediate relations of all ancestors that is
+# provided by climb).
+
+# Not quite get ancestors, as we're getting depth and inference info as well.
+
+# With an array ref of terms, will climb to the top of the ontology
+# (with an added 'all' stopper for GO). This should be an easy and
+# lightweight alternative to climb for some use cases.
+
+# This returns an array of five things:
+
+# #TODO
 
 # =cut
-# sub get_parent_relationships {
+# sub lineage {
 
 #   my $self = shift;
-#   my $term = shift || undef;
-#   my $term_accs = $term;
+#   my $sub_acc = shift || die 'need an arg';
 
-#   return
-#     $self->{GRAPH_Q}->get_all_results({'graph_subject.acc' => $term_accs,
-# 				       'graph_path.distance' => 1});
+#   ## Keep an eye on these: they are the items we return.
+#   my $nodes = {};
+#   my $node_depth = {};
+#   my $node_rel = {};
+#   my $node_rel_inf_p = {};
+#   my $max_depth = 0;
+
+#   ## Get all of the upstream nodes (all reachable nodes from here).
+#   my $tc_graph = Graph::TransitiveClosure->new($self->{ACG_GRAPH},
+# 					       reflexive => 0,
+# 					       path_length => 1);
+#   my @all_ancestors = $self->{ACG_GRAPH}->all_successors(sub_acc);
+
+#   ## Things that we need to ask the database about.
+#   my $all = $self->{GRAPH_PATH}->get_all_results({'subject.acc' => $sub_accs});
+#   foreach my $gp (@$all){
+
+#     if( ! $gp->object->is_obsolete &&
+# 	$gp->object->acc ne 'all' ){ # GO-specific control
+
+#       #$self->kvetch('accs if: ' . $gp->object->acc);
+
+#       ## Increment maximum depth if necessary.
+#       if( $gp->distance > $max_depth ){ $max_depth = $gp->distance; }
+
+#       ## We'll start by assuming that relations aren't direct unless
+#       ## proven otherwise.
+#       if( ! defined $node_rel_inf_p->{$gp->object->acc} ){
+# 	$node_rel_inf_p->{$gp->object->acc} = 1;
+#       }
+
+#       ## Check existance, if it's not there yet, make it. If it's
+#       ## already there, modify the entry accordingly.
+#       if( ! defined $node_rel->{$gp->object->acc} ){
+# 	# $self->kvetch('distance: ' . $gp->object->acc .
+# 	# 	      ' : ' . $gp->distance .
+# 	# 	      ' : ' . $gp->subject->acc);
+# 	$node_rel->{$gp->object->acc} = $gp->relationship_type->acc;
+# 	$node_depth->{$gp->object->acc} = $gp->distance;
+# 	$nodes->{$gp->object->acc} = $gp->object;
+#       }else{
+
+# 	## Take the dominating relation.
+# 	## NOTE/WARNING: this may be GO specific.
+# 	my $curr_scale =
+# 	  $self->_relation_weight($node_rel->{$gp->object->acc}, 1000);
+# 	my $test_scale =
+# 	  $self->_relation_weight($gp->relationship_type->acc, 1000);
+# 	if( $curr_scale < $test_scale ){ # less specific
+# 	#if( $curr_scale > $test_scale ){ # more specific
+# 	  $node_rel->{$gp->object->acc} = $gp->relationship_type->acc;
+# 	  #print STDERR "  :in>: $curr_scale $test_scale\n";
+# 	}
+
+# 	## Take the greater distance.
+# 	if( $node_depth->{$gp->object->acc} < $gp->distance ){
+# 	  $node_depth->{$gp->object->acc} = $gp->distance;
+# 	}
+#       }
+
+#       ## Update if it looks like a direct relationship.
+#       if( $gp->distance == 1 ){
+# 	$node_rel_inf_p->{$gp->object->acc} = 0;
+#       }
+#     }
+#   }
+
+#   ## Now go through and correct distance to depth.
+#   foreach my $acc (keys %$node_depth){
+#     #$self->kvetch('final acc: ' . $acc);
+#     my $d = $node_depth->{$acc};
+#     $d = $d - $max_depth;
+#     $d = abs($d);
+#     $node_depth->{$acc} = $d;
+#   }
+
+#   # my @foo = keys(%$nodes);
+#   # $self->kvetch('nodes: ' . Dumper(\@foo));
+#   return ($nodes, $node_rel, $node_rel_inf_p, $node_depth, $max_depth);
 # }
 
 
-=item collect
+# =item collect
 
-Collect various bits of graph information to help with rendering.
+# Collect various bits of graph information to help with rendering.
+# Also see "lineage".
 
-This returns an array of five things:
-   (\%nodes, \%edges, \%tc_desc, \%tc_anc, \%tc_depth);
-   *) a hashref of term accs to term info hashes
-   *) an empty href
-   *) a hashref of of nodes in terms of in-graph descendants
-   *) a hashref of of nodes in terms of in-graph ancestors
-   *) a hashref of of nodes in terms of in-graph "depth"
+# This returns an array of five things:
+#    (\%nodes, \%edges, \%tc_desc, \%tc_anc, \%tc_depth);
+#    *) a hashref of term accs to term info hashes
+#    *) an empty href
+#    *) a hashref of of nodes in terms of in-graph descendants
+#    *) a hashref of of nodes in terms of in-graph ancestors
+#    *) a hashref of of nodes in terms of in-graph "depth"
 
-=cut
-sub collect {
+# =cut
+# sub collect {
 
-  my $self = shift;
-  my $in_things = shift || [];
+#   my $self = shift;
+#   my $in_things = shift || [];
 
-  ## Whatever it is, arrayify it.
-  if( ref $in_things ne 'ARRAY' ){
-    $in_things = [$in_things];
-  }
+#   ## Whatever it is, arrayify it.
+#   if( ref $in_things ne 'ARRAY' ){
+#     $in_things = [$in_things];
+#   }
 
-  ## Calculate the transitive closure to help with figuring out the
-  ## association transitivity in other components.
-  my $tc_graph = Graph::TransitiveClosure->new($self->{ACG_GRAPH},
-					       reflexive => 0,
-					       path_length => 1);
-  my %tc_desc = ();
-  my %tc_anc = ();
+#   ## Calculate the transitive closure to help with figuring out the
+#   ## association transitivity in other components.
+#   my $tc_graph = Graph::TransitiveClosure->new($self->{ACG_GRAPH},
+# 					       reflexive => 0,
+# 					       path_length => 1);
+#   my %tc_desc = ();
+#   my %tc_anc = ();
 
-  ## Iterate through the combinations making the anc and desc hashes.
-  foreach my $obj (keys %{$self->{ACG_NODES}}){
+#   ## Iterate through the combinations making the anc and desc hashes.
+#   foreach my $obj (keys %{$self->{ACG_NODES}}){
 
-    $tc_desc{$obj} = {} if ! defined $tc_desc{$obj};
-    $tc_anc{$obj} = {} if ! defined $tc_anc{$obj};
+#     $tc_desc{$obj} = {} if ! defined $tc_desc{$obj};
+#     $tc_anc{$obj} = {} if ! defined $tc_anc{$obj};
 
-    foreach my $sub (keys %{$self->{ACG_NODES}}){
+#     foreach my $sub (keys %{$self->{ACG_NODES}}){
 
-      if( $tc_graph->is_reachable($obj, $sub) ){
-	$tc_anc{$obj}{$sub} = 1;
-      }
-      if( $tc_graph->is_reachable($sub, $obj) ){
-	$tc_desc{$obj}{$sub} = 1;
-      }
-    }
-  }
+#       if( $tc_graph->is_reachable($obj, $sub) ){
+# 	$tc_anc{$obj}{$sub} = 1;
+#       }
+#       if( $tc_graph->is_reachable($sub, $obj) ){
+# 	$tc_desc{$obj}{$sub} = 1;
+#       }
+#     }
+#   }
 
-  ## Down here, we're doing something separate--we're going to get
-  ## the depth of the node.
-  my %tc_depth = ();
-  foreach my $sub (keys %{$self->{ACG_NODES}}){
-    foreach my $root (keys %{$self->{ACG_ROOTS}}){
-      my $len = $tc_graph->path_length($sub, $root);
-      if( defined $len ){
-	$tc_depth{$sub} = $len;
-	# $self->kvetch('depth of ' . $sub . ' is ' . $len);
-      }
-    }
-  }
+#   ## Down here, we're doing something separate--we're going to get
+#   ## the depth of the node.
+#   my %tc_depth = ();
+#   foreach my $sub (keys %{$self->{ACG_NODES}}){
+#     foreach my $root (keys %{$self->{ACG_ROOTS}}){
+#       my $len = $tc_graph->path_length($sub, $root);
+#       if( defined $len ){
+# 	$tc_depth{$sub} = $len;
+# 	# $self->kvetch('depth of ' . $sub . ' is ' . $len);
+#       }
+#     }
+#   }
 
-  return ($self->{ACG_NODES}, {}, \%tc_desc, \%tc_anc, \%tc_depth);
-}
-
-
-=item lineage
-
-BUG/TODO: clearly differentiate collect and lineage.
-
-Not quite get ancestors, as we're getting depth and inference info as well.
-
-With an array ref of terms, will climb to the top of the ontology
-(with an added 'all' stopper for GO). This should be an easy and
-lightweight alternative to climb for some use cases.
-
-# Takes optional arg {reflexive => (0|1)}. If not set to one, will
-# ignore distance 0 reflexive relationsships.
-
-This returns an array of five things:
-   (\%nodes, \%edges, \%tc_desc, \%tc_anc, \%tc_depth);
-   *) a link list
-   *) a term (node)
-   *) a hashref of of nodes in terms of in-graph descendants
-
-=cut
-sub lineage {
-
-  my $self = shift;
-  my $sub_thing = shift || '';
-  #my $opt_arg = shift || {};
-
-  my $sub_accs = $sub_thing;
-  #$self->kvetch('sub_accs: ' . Dumper($sub_accs));
-
-  ## Items to return.
-  my $nodes = {};
-  my $node_depth = {};
-  my $node_rel = {};
-  my $node_rel_inf = {};
-  my $max_depth = 0;
-
-  ## Things that we need to ask the database about.
-  my $all = $self->{GRAPH_PATH}->get_all_results({'subject.acc' => $sub_accs});
-  foreach my $gp (@$all){
-
-    if( ! $gp->object->is_obsolete &&
-	$gp->object->acc ne 'all' ){ # GO-specific control
-
-      #$self->kvetch('accs if: ' . $gp->object->acc);
-
-      ## Increment maximum depth if necessary.
-      if( $gp->distance > $max_depth ){ $max_depth = $gp->distance; }
-
-      ## We'll start by assuming that relations aren't direct unless
-      ## proven otherwise.
-      if( ! defined $node_rel_inf->{$gp->object->acc} ){
-	$node_rel_inf->{$gp->object->acc} = 1;
-      }
-
-      ## Check existance, if it's not there yet, make it. If it's
-      ## already there, modify the entry accordingly.
-      if( ! defined $node_rel->{$gp->object->acc} ){
-	# $self->kvetch('distance: ' . $gp->object->acc .
-	# 	      ' : ' . $gp->distance .
-	# 	      ' : ' . $gp->subject->acc);
-	$node_rel->{$gp->object->acc} = $gp->relationship_type->acc;
-	$node_depth->{$gp->object->acc} = $gp->distance;
-	$nodes->{$gp->object->acc} = $gp->object;
-      }else{
-
-	## Take the dominating relation.
-	## NOTE/WARNING: this may be GO specific.
-	my $curr_scale =
-	  $self->_relation_weight($node_rel->{$gp->object->acc}, 1000);
-	my $test_scale =
-	  $self->_relation_weight($gp->relationship_type->acc, 1000);
-	if( $curr_scale < $test_scale ){ # less specific
-	#if( $curr_scale > $test_scale ){ # more specific
-	  $node_rel->{$gp->object->acc} = $gp->relationship_type->acc;
-	  #print STDERR "  :in>: $curr_scale $test_scale\n";
-	}
-
-	## Take the greater distance.
-	if( $node_depth->{$gp->object->acc} < $gp->distance ){
-	  $node_depth->{$gp->object->acc} = $gp->distance;
-	}
-      }
-
-      ## Update if it looks like a direct relationship.
-      if( $gp->distance == 1 ){
-	$node_rel_inf->{$gp->object->acc} = 0;
-      }
-    }
-  }
-
-  ## Now go through and correct distance to depth.
-  foreach my $acc (keys %$node_depth){
-    #$self->kvetch('final acc: ' . $acc);
-    my $d = $node_depth->{$acc};
-    $d = $d - $max_depth;
-    $d = abs($d);
-    $node_depth->{$acc} = $d;
-  }
-
-  # my @foo = keys(%$nodes);
-  # $self->kvetch('nodes: ' . Dumper(\@foo));
-  return ($nodes, $node_rel, $node_rel_inf, $node_depth, $max_depth);
-}
+#   return ($self->{ACG_NODES}, {}, \%tc_desc, \%tc_anc, \%tc_depth);
+# }
 
 
 
