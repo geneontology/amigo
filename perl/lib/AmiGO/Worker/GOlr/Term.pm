@@ -109,7 +109,7 @@ sub get_child_info_for {
   my $json_graph_str = $self->{AWGT_INFO}{$arg}{'graph'};
   if( ! defined $json_graph_str || ! $json_graph_str ){
     $self->{CORE}->kvetch('could find no graph information!');
-  }else if( ! defined $self->{AWGT_GRAPH}{$arg} ){
+  }elsif( ! defined $self->{AWGT_GRAPH}{$arg} ){
     ## Store, and make it easier to get to next time.
     $self->{AWGT_GRAPH}{$arg} = AmiGO::ChewableGraph->new($json_graph_str);
     $cgraph = $self->{AWGT_GRAPH}{$arg};

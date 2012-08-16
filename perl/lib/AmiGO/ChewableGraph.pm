@@ -84,23 +84,25 @@ sub new {
     $self->{ACG_GRAPH}->add_edge($sid, $oid);
 
     ## Add the usual lookup triplets.
+    ## SO
     $self->{ACG_EDGE_SOP} = _cram_hash($self->{ACG_EDGE_SOP}, $sid, $oid, $pid);
-    $self->{ACG_EDGE_OSP} = _cram_hash($self->{ACG_EDGE_SOP}, $oid, $sid, $pid);
-    $self->{ACG_EDGE_PSO} = _cram_hash($self->{ACG_EDGE_SOP}, $pid, $sid, $oid);
-    $self->{ACG_EDGE_POS} = _cram_hash($self->{ACG_EDGE_SOP}, $pid, $oid, $sid);
+    $self->{ACG_EDGE_PSO} = _cram_hash($self->{ACG_EDGE_PSO}, $pid, $sid, $oid);
+    ## OS
+    $self->{ACG_EDGE_OSP} = _cram_hash($self->{ACG_EDGE_OSP}, $oid, $sid, $pid);
+    $self->{ACG_EDGE_POS} = _cram_hash($self->{ACG_EDGE_POS}, $pid, $oid, $sid);
   }
 
   ## A little lite calculation on what we got out of the graph.
-  #$self->kvetch('sinks: ' . join(', ', $self->{ACG_GRAPH}->sink_vertices()));
-  #$self->kvetch('sources: ' .
-  #		join(', ', $self->{ACG_GRAPH}->source_vertices()));
+  # $self->kvetch('sinks: ' . join(', ', $self->{ACG_GRAPH}->sink_vertices()));
+  # $self->kvetch('sources: ' .
+  # 		join(', ', $self->{ACG_GRAPH}->source_vertices()));
   $self->{ACG_ROOTS} = {};
   $self->{ACG_LEAVES} = {};
   foreach my $root ($self->{ACG_GRAPH}->sink_vertices()){
-    $self->{ACG_ROOTS}{$root} = 1;
+    $self->{ACG_ROOTS}{$root} = $root;
   }
   foreach my $leaf ($self->{ACG_GRAPH}->source_vertices()){
-    $self->{ACG_LEAVES}{$leaf} = 1;
+    $self->{ACG_LEAVES}{$leaf} = $leaf;
   }
 
   bless $self, $class;
@@ -168,6 +170,7 @@ sub is_root_p {
   ##
   my $retval = 0;
   #$self->kvetch('_root_p_acc_: ' . $acc);
+  #print('IN: ' . $acc . "\n");
   if( defined $self->{ACG_ROOTS}{$acc} ){
     $retval = 1;
   }
@@ -295,25 +298,37 @@ sub get_parents {
 =item get_child_relationships
 
 Takes a term acc string.
+Essentially, get child edges.
 Gets something like:
- [{'relationship'=>{'acc'=>'X'},'subject'=>{'acc'=>'Y','name'=>'Z'}}]
+ [{'subject_id' => 'X', 'object_id' => 'Y', 'predicate_id' => 'Z'}, ...]
 
 =cut
 sub get_child_relationships {
 
   my $self = shift;
-  my $oid = shift || die 'gotta define what relationship';
+  my $oid = shift || die 'gotta define whose relationship';
 
   my $ret = [];
+
+  ## First, get children, right?
   foreach my $kid (@{$self->get_children($oid)}){
 
-    # BUG/TODO; need unit test for this graph stuff--will no insane otherwise
+    # BUG/TODO; need unit test for this graph stuff--will be insane otherwise
+    ## Now that we have subject and object, we can pull the relationships.
+    if( defined $self->{ACG_EDGE_SOP} &&
+	defined $self->{ACG_EDGE_SOP}{$kid} &&
+	defined $self->{ACG_EDGE_SOP}{$kid}{$oid} ){
 
-    push @$ret,
-      {
-       'relationship' => {'acc'=>'X'},
-       'subject' => {'acc'=>'Y','name'=>'Z'},
-      };
+      foreach my $rel (keys %{$self->{ACG_EDGE_SOP}{$kid}{$oid}}){
+	my $sub_name = $self->{ACG_NODES}{$kid}{label} || $kid;
+	push @$ret,
+	  {
+	   'subject_id' => $kid,
+	   'object_id' => $oid,
+	   'predicate_id' => $rel,
+	  };
+      }
+    }
   }
 
   return $ret;
