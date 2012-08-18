@@ -63,6 +63,7 @@ sub new {
 	 #dbxrefs => [],
 	 term_dbxrefs => $found_doc->{definition_xref} || [],
 	 graph => $found_doc->{graph},
+	 lineage_graph => $found_doc->{lineage_graph},
 	};
     }
     $self->{AWGT_INFO}{$arg} = $intermediate;
@@ -107,11 +108,14 @@ sub get_child_info_for {
   ## it once.
   my $cgraph = undef;
   my $json_graph_str = $self->{AWGT_INFO}{$arg}{'graph'};
-  if( ! defined $json_graph_str || ! $json_graph_str ){
-    $self->{CORE}->kvetch('could find no graph information!');
+  my $json_lineage_graph_str = $self->{AWGT_INFO}{$arg}{'lineage_graph'};
+  if( ! defined $json_graph_str || ! $json_graph_str ||
+      ! defined $json_lineage_graph_str || ! $json_lineage_graph_str ){
+    $self->{CORE}->kvetch('could find no complete graph information!');
   }elsif( ! defined $self->{AWGT_GRAPH}{$arg} ){
     ## Store, and make it easier to get to next time.
-    $self->{AWGT_GRAPH}{$arg} = AmiGO::ChewableGraph->new($json_graph_str);
+    $self->{AWGT_GRAPH}{$arg} =
+      AmiGO::ChewableGraph->new($arg, $json_graph_str, $json_lineage_graph_str);
     $cgraph = $self->{AWGT_GRAPH}{$arg};
   }
 
