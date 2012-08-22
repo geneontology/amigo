@@ -25,9 +25,20 @@ use Graph::TransitiveClosure;
 use Data::Dumper;
 
 
+## A helper function for when we're debugging...
+sub _ll {
+  foreach my $arg (@_){
+    if( ref($arg) eq 'ARRAY'){
+      print("" . join(', ', @$arg) . "\n");
+    }else{
+      print("" . $arg . "\n");
+    }
+  }
+}
+
 ## Internal helper function for creating a commonly used hashref
 ## pattern for my graphs.
-sub _cram_hash {
+sub __deep_hash_placement {
   my $hashref = shift || die 'necessary arg 1';
   my $lvl1 = shift || die 'necessary arg 2';
   my $lvl2 = shift || die 'necessary arg 3';
@@ -46,98 +57,54 @@ sub _cram_hash {
 
 ## Internal helper function for creating Graph objects out of the
 ## hashes that we work with (owltools ShuntGraph JSON output).
-sub _create_graph {
-  my $hashref = shift || die 'necessary arg';
+sub __create_graph_structures {
 
-  my $graph = Graph::Directed->new();
-  foreach my $node (@{$hashref->{'nodes'}}){
+  ## WARNING: I have to do this little dance with Graph::Directed here
+  ## since it looks like the scalar context is overridden in their
+  ## code to produce the graph for printing. However this deeply
+  ## screws things up when you are argument testing and have passed an
+  ## empty graph--the thing seems to be defined, but has zero content
+  ## (and maybe it's getting treated as an empty string).
+  my $inhashref = shift || die 'necessary arg (in hash)';
+  my $mod_graph = shift;
+  die 'necessary arg (self graph)' if ! defined $mod_graph;
+  my $mod_hash = shift || die 'necessary arg (self hash)';
+
+  ## Add the proper caching data structures.
+  $mod_hash->{NODES} = {};
+  $mod_hash->{EDGE_SOP} = {};
+  $mod_hash->{EDGE_OSP} = {};
+  $mod_hash->{EDGE_PSO} = {};
+  $mod_hash->{EDGE_POS} = {};
+
+  ## Cache nodes.
+  foreach my $node (@{$inhashref->{'nodes'}}){
     my $acc = $node->{'id'};
-    $graph->add_vertex($acc);
+    $mod_hash->{NODES}{$acc} = $node;
+    $mod_graph->add_vertex($acc);
   }
-  foreach my $edge (@{$hashref->{'edges'}}){
-    my $sid = $edge->{'subject_id'};
-    my $oid = $edge->{'object_id'};
-    $graph->add_edge($sid, $oid);
-  }
-
-  return $graph;
-}
-
-=item new
-
-TODO
-
-Args: acc, JSON graph, JSON lineage graph
-
-Take blobs and turn them into a usable graphy thing.
-
-=cut
-sub new {
-
-  ##
-  my $class = shift;
-  my $self = $class->SUPER::new();
-  my $acc_str = shift || die "need an incoming acc argument";
-  my $jstr_graph = shift || die "need an incoming graph argument";
-  my $jstr_lineage_graph =
-    shift || die "need an incoming lineage graph argument";
-
-  ## Unwind our perl object into a couple of lookups and the actual
-  ## engine graph.
-  $self->{ACG_ACC} = $acc_str;
-  $self->{ACG_NODES} = {};
-  $self->{ACG_EDGE_SOP} = {};
-  $self->{ACG_EDGE_OSP} = {};
-  $self->{ACG_EDGE_PSO} = {};
-  $self->{ACG_EDGE_POS} = {};
-
-  ## Opportunistically create these when necessary in functions that
-  ## need them--see the helper function: _ensure_max_depth_info
-  $self->{ACG_MAX_NODE_DEPTH_FROM_ROOT} = undef;
-
   ## Get out edges and the like squared away.
-  ## Get the perl object.
-  my $stepwise_graph_hash = $self->_read_json_string($jstr_graph);
-  foreach my $node (@{$stepwise_graph_hash->{'nodes'}}){
-    my $acc = $node->{'id'};
-    $self->{ACG_NODES}{$acc} = $node;
-  }
-  foreach my $edge (@{$stepwise_graph_hash->{'edges'}}){
+  foreach my $edge (@{$inhashref->{'edges'}}){
     my $sid = $edge->{'subject_id'};
     my $oid = $edge->{'object_id'};
     my $pid = $edge->{'predicate_id'};
+
     ## Add the usual lookup triplets.
     ## SO
-    $self->{ACG_EDGE_SOP} = _cram_hash($self->{ACG_EDGE_SOP}, $sid, $oid, $pid);
-    $self->{ACG_EDGE_PSO} = _cram_hash($self->{ACG_EDGE_PSO}, $pid, $sid, $oid);
+    $mod_hash->{EDGE_SOP} =
+      __deep_hash_placement($mod_hash->{EDGE_SOP}, $sid, $oid, $pid);
+    $mod_hash->{EDGE_PSO} =
+      __deep_hash_placement($mod_hash->{EDGE_PSO}, $pid, $sid, $oid);
     ## OS
-    $self->{ACG_EDGE_OSP} = _cram_hash($self->{ACG_EDGE_OSP}, $oid, $sid, $pid);
-    $self->{ACG_EDGE_POS} = _cram_hash($self->{ACG_EDGE_POS}, $pid, $oid, $sid);
-  }
+    $mod_hash->{EDGE_OSP} =
+      __deep_hash_placement($mod_hash->{EDGE_OSP}, $oid, $sid, $pid);
+    $mod_hash->{EDGE_POS} =
+      __deep_hash_placement($mod_hash->{EDGE_POS}, $pid, $oid, $sid);
 
-  ## Create Graph objects for easy operations.
-  $self->{ACG_GRAPH} =
-    _create_graph($stepwise_graph_hash);
-  $self->{ACG_LINEAGE_GRAPH} =
-    _create_graph($self->_read_json_string($jstr_lineage_graph));
-
-  ## A little lite calculation on what we got out of the graph.
-  # $self->kvetch('sinks: ' . join(', ', $self->{ACG_GRAPH}->sink_vertices()));
-  # $self->kvetch('sources: ' .
-  # 		join(', ', $self->{ACG_GRAPH}->source_vertices()));
-  $self->{ACG_ROOTS} = {};
-  $self->{ACG_LEAVES} = {};
-  foreach my $root ($self->{ACG_GRAPH}->sink_vertices()){
-    $self->{ACG_ROOTS}{$root} = $root;
+    ## Add to the fast graph.
+    $mod_graph->add_edge($sid, $oid);
   }
-  foreach my $leaf ($self->{ACG_GRAPH}->source_vertices()){
-    $self->{ACG_LEAVES}{$leaf} = $leaf;
-  }
-
-  bless $self, $class;
-  return $self;
 }
-
 
 ## Internal convenience function.
 ## From Chris: "{-,+} reg < reg < {part_of,has_part} < is_a"
@@ -169,6 +136,78 @@ sub _relation_weight {
 }
 
 
+=item new
+
+TODO
+
+Args: acc, JSON graph, JSON lineage graph
+
+Take blobs and turn them into a usable graphy thing.
+
+=cut
+sub new {
+
+  ##
+  my $class = shift;
+  my $self = $class->SUPER::new();
+  my $acc_str = shift || die "need an incoming acc argument";
+  my $jstr_stepwise_graph =
+    shift || die "need an incoming graph argument";
+  my $jstr_lineage_graph =
+    shift || die "need an incoming lineage graph argument";
+
+  ## Unwind our perl object into a couple of lookups and the actual
+  ## engine graph.
+  $self->{ACG_ACC} = $acc_str;
+
+  ## Opportunistically create these when necessary in functions that
+  ## need them--see the helper function: _ensure_max_depth_info
+  $self->{ACG_MAX_NODE_DEPTH_FROM_ROOT} = undef;
+
+  _ll('passed 1');
+
+  ## Produce the stepwise graph and cache for easy operations.
+  my $stepwise_graph_hash = $self->_read_json_string($jstr_stepwise_graph);
+  $self->{ACG_STEPWISE_GRAPH} = Graph::Directed->new();
+  $self->{ACG_STEPWISE} = {};
+
+  # _ll('0: ' . $jstr_stepwise_graph);
+  # _ll('1: ' . $stepwise_graph_hash);
+  # print('1.5: ' .  $self->{ACG_STEPWISE_GRAPH} . "\n");
+  # print('1.75: ' .  defined($self->{ACG_STEPWISE_GRAPH}) . "\n");
+  # _ll('2: ' . $self->{ACG_STEPWISE_GRAPH});
+  # _ll('3: ' . $self->{ACG_STEPWISE});
+
+  __create_graph_structures($stepwise_graph_hash,
+			    $self->{ACG_STEPWISE_GRAPH},
+			    $self->{ACG_STEPWISE});
+
+  ## Produce the stepwise graph and cache for easy operations.
+  my $stepwise_graph_hash = $self->_read_json_string($jstr_lineage_graph);
+  $self->{ACG_LINEAGE_GRAPH} = Graph::Directed->new();
+  $self->{ACG_LINEAGE} = {};
+  __create_graph_structures($stepwise_graph_hash,
+			    $self->{ACG_LINEAGE_GRAPH},
+			    $self->{ACG_LINEAGE});
+
+  # ## A little extra lite calculation on what we got out of the graph.
+  # # $self->kvetch('sinks: ' . join(', ',
+  # #     $self->{ACG_STEPWISE_GRAPH}->sink_vertices()));
+  # # $self->kvetch('sources: ' .
+  # # 		join(', ', $self->{ACG_STEPWISE_GRAPH}->source_vertices()));
+  # $self->{ACG_STEPWISE_ROOTS} = {};
+  # $self->{ACG_STEPWISE_LEAVES} = {};
+  # foreach my $root ($self->{ACG_STEPWISE_GRAPH}->sink_vertices()){
+  #   $self->{ACG_STEPWISE_ROOTS}{$root} = $root;
+  # }
+  # foreach my $leaf ($self->{ACG_STEPWISE_GRAPH}->source_vertices()){
+  #   $self->{ACG_STEPWISE_LEAVES}{$leaf} = $leaf;
+  # }
+
+  bless $self, $class;
+  return $self;
+}
+
 =item get_roots
 
 Returns the root nodes as string href.
@@ -180,9 +219,29 @@ sub get_roots {
   ## We don't want to actually pass this thing...makes Continuity.pm
   ## cry.
   my $copy = {};
-  foreach my $key (keys %{$self->{ACG_ROOTS}}){
-    $copy->{$key} = $self->{ACG_ROOTS}{$key};
+  foreach my $root ($self->{ACG_STEPWISE_GRAPH}->sink_vertices()){
+    $copy->{$root} = $root;
   }
+
+  return $copy;
+}
+
+
+=item get_leaves
+
+Returns the leaf nodes as string href.
+
+=cut
+sub get_leaves {
+  my $self = shift;
+
+  ## We don't want to actually pass this thing...makes Continuity.pm
+  ## cry.
+  my $copy = {};
+  foreach my $leaf ($self->{ACG_STEPWISE_GRAPH}->source_vertices()){
+    $copy->{$leaf} = $leaf;
+  }
+
   return $copy;
 }
 
@@ -200,7 +259,8 @@ sub is_root_p {
   my $retval = 0;
   #$self->kvetch('_root_p_acc_: ' . $acc);
   #print('IN: ' . $acc . "\n");
-  if( defined $self->{ACG_ROOTS}{$acc} ){
+  my $roots = $self->get_roots();
+  if( defined $roots->{$acc} ){
     $retval = 1;
   }
   #$self->kvetch('_root_p_ret_: ' . $retval);
@@ -215,14 +275,17 @@ Boolean on acc string.
 =cut
 sub is_leaf_p {
   my $self = shift;
-  my $thing = shift || '';
+  my $acc = shift || die 'need arg';
 
   ##
   my $retval = 0;
-  my $acc = $thing;
-  if( defined $self->{ACG_LEAVES}{$acc} ){
+  #$self->kvetch('_leaf_p_acc_: ' . $acc);
+  #print('IN: ' . $acc . "\n");
+  my $leaves = $self->get_leaves();
+  if( defined $leaves->{$acc} ){
     $retval = 1;
   }
+  #$self->kvetch('_leaf_p_ret_: ' . $retval);
   return $retval;
 }
 
@@ -245,7 +308,7 @@ sub get_children {
   ## Dedupe using a hash in the process.
   my $ret_hash = {};
   foreach my $thing (@$things){
-    my @children = $self->{ACG_GRAPH}->predecessors($thing);
+    my @children = $self->{ACG_STEPWISE_GRAPH}->predecessors($thing);
     foreach my $kid (@children){
       $ret_hash->{$kid} = 1;
     }
@@ -279,7 +342,7 @@ sub get_parents {
   ## Dedupe using a hash in the process.
   my $ret_hash = {};
   foreach my $thing (@$things){
-    my @parents = $self->{ACG_GRAPH}->successors($thing);
+    my @parents = $self->{ACG_STEPWISE_GRAPH}->successors($thing);
     foreach my $par (@parents){
       $ret_hash->{$par} = 1;
     }
@@ -295,22 +358,43 @@ sub get_parents {
 }
 
 
-=item get_relationship_relationship_with
+=item get_transitive_relationship
 
 Get the /dominant/ calculated relationship between the central/target
 node and another node in the graph (if extant).
 
-In: term acc.
+If only one argument is given, it is considered to be relative to th
+This is relative to the 
+
+In (1): term object acc.
+In (2): term subject acc, term object acc. (WARNING: not yet implemented)
 Out: String or undef
 
 =cut
-sub get_transitive_relationship_with {
+sub get_transitive_relationship {
 
   my $self = shift;
-  my $obj_acc = shift || die 'get obj acc';
+  my $first_arg = shift || die 'need at least one arg';
+  my $second_arg = shift || undef;
+
+  my $sub_acc = $self->{ACG_ACC};
+  my $obj_acc = undef;
+
+  ## Choose between the first and second forms.
+  if( ! defined $second_arg ){
+    ## One arg setup.
+    $obj_acc = $first_arg;
+  }else{
+    ## Two arg setup.
+    $sub_acc = $first_arg;
+    $obj_acc = $second_arg;
+    die 'not yet implemented (in the data backend)'
+  }
+
   my $ret = undef;
 
   ## TODO:
+  
 
   return $ret;
 }
@@ -336,12 +420,12 @@ sub get_child_relationships {
 
     ## Now that we have subject and object, we can pull the
     ## relationships.
-    if( defined $self->{ACG_EDGE_SOP} &&
-	defined $self->{ACG_EDGE_SOP}{$kid} &&
-	defined $self->{ACG_EDGE_SOP}{$kid}{$oid} ){
+    if( defined $self->{ACG_STEPWISE}{EDGE_SOP} &&
+	defined $self->{ACG_STEPWISE}{EDGE_SOP}{$kid} &&
+	defined $self->{ACG_STEPWISE}{EDGE_SOP}{$kid}{$oid} ){
 
       ## Allow the capture of multiple predicates along this edge.
-      foreach my $rel (keys %{$self->{ACG_EDGE_SOP}{$kid}{$oid}}){
+      foreach my $rel (keys %{$self->{ACG_STEPWISE}{EDGE_SOP}{$kid}{$oid}}){
 	push @$ret,
 	  {
 	   'subject_id' => $kid,
@@ -376,12 +460,12 @@ sub get_parent_relationships {
 
     ## Now that we have subject and object, we can pull the
     ## relationships.
-    if( defined $self->{ACG_EDGE_OSP} &&
-	defined $self->{ACG_EDGE_OSP}{$par} &&
-	defined $self->{ACG_EDGE_OSP}{$par}{$sid} ){
+    if( defined $self->{ACG_STEPWISE}{EDGE_OSP} &&
+	defined $self->{ACG_STEPWISE}{EDGE_OSP}{$par} &&
+	defined $self->{ACG_STEPWISE}{EDGE_OSP}{$par}{$sid} ){
 
       ## Allow the capture of multiple predicates along this edge.
-      foreach my $rel (keys %{$self->{ACG_EDGE_OSP}{$par}{$sid}}){
+      foreach my $rel (keys %{$self->{ACG_STEPWISE}{EDGE_OSP}{$par}{$sid}}){
 	push @$ret,
 	  {
 	   'object_id' => $par,
@@ -525,14 +609,14 @@ sub max_depth {
 #   my $max_depth = 0;
 
 #   ## Get all of the upstream nodes (all reachable nodes from here).
-#   my $tc_graph = Graph::TransitiveClosure->new($self->{ACG_GRAPH},
+#   my $tc_graph = Graph::TransitiveClosure->new($self->{ACG_STEPWISE_GRAPH},
 # 					       reflexive => 0,
 # 					       path_length => 1);
-#   my @all_ancestors = $self->{ACG_GRAPH}->all_successors(sub_acc);
+#   my @all_ancestors = $self->{ACG_STEPWISE_GRAPH}->all_successors(sub_acc);
 
-#   ## Things that we need to ask the database about.
-#   my $all = $self->{GRAPH_PATH}->get_all_results({'subject.acc' => $sub_accs});
-#   foreach my $gp (@$all){
+#  ## Things that we need to ask the database about.
+#  my $all = $self->{GRAPH_PATH}->get_all_results({'subject.acc' => $sub_accs});
+#  foreach my $gp (@$all){
 
 #     if( ! $gp->object->is_obsolete &&
 # 	$gp->object->acc ne 'all' ){ # GO-specific control
@@ -625,19 +709,19 @@ sub max_depth {
 
 #   ## Calculate the transitive closure to help with figuring out the
 #   ## association transitivity in other components.
-#   my $tc_graph = Graph::TransitiveClosure->new($self->{ACG_GRAPH},
+#   my $tc_graph = Graph::TransitiveClosure->new($self->{ACG_STEPWISE_GRAPH},
 # 					       reflexive => 0,
 # 					       path_length => 1);
 #   my %tc_desc = ();
 #   my %tc_anc = ();
 
 #   ## Iterate through the combinations making the anc and desc hashes.
-#   foreach my $obj (keys %{$self->{ACG_NODES}}){
+#   foreach my $obj (keys %{$self->{ACG_STEPWISE_NODES}}){
 
 #     $tc_desc{$obj} = {} if ! defined $tc_desc{$obj};
 #     $tc_anc{$obj} = {} if ! defined $tc_anc{$obj};
 
-#     foreach my $sub (keys %{$self->{ACG_NODES}}){
+#     foreach my $sub (keys %{$self->{ACG_STEPWISE_NODES}}){
 
 #       if( $tc_graph->is_reachable($obj, $sub) ){
 # 	$tc_anc{$obj}{$sub} = 1;
@@ -651,8 +735,8 @@ sub max_depth {
 #   ## Down here, we're doing something separate--we're going to get
 #   ## the depth of the node.
 #   my %tc_depth = ();
-#   foreach my $sub (keys %{$self->{ACG_NODES}}){
-#     foreach my $root (keys %{$self->{ACG_ROOTS}}){
+#   foreach my $sub (keys %{$self->{ACG_STEPWISE_NODES}}){
+#     foreach my $root (keys %{$self->{ACG_STEPWISE_ROOTS}}){
 #       my $len = $tc_graph->path_length($sub, $root);
 #       if( defined $len ){
 # 	$tc_depth{$sub} = $len;
@@ -661,7 +745,7 @@ sub max_depth {
 #     }
 #   }
 
-#   return ($self->{ACG_NODES}, {}, \%tc_desc, \%tc_anc, \%tc_depth);
+#   return ($self->{ACG_STEPWISE_NODES}, {}, \%tc_desc, \%tc_anc, \%tc_depth);
 # }
 
 

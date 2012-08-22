@@ -161,7 +161,8 @@ _ll(Dumper($cgraph->_ensure_max_depth_info()));
 is($cgraph->max_depth('GO:0008150'), 0, "root depth 0");
 is($cgraph->max_depth('GO:0003334'), 8, "target node is deep");
 
-## TODO: test the rest
+## TODO: test the rest of cgraph and depth
+## TODO: test get_leaves
 
 #is($cgraph->max_depth('GO:0008150'), 0, "root depth 0");
 # ok( $cgraph->is_leaf_p('GO:0003335'), "definitely is a leaf");
