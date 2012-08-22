@@ -40,10 +40,14 @@ ok( $cgraph->is_root_p($rkey), "definitely is a root");
 ok( ! $cgraph->is_root_p('GO:0022008'), "definitely not a root");
 
 ## Check leaves.
+my $leaves = $cgraph->get_leaves();
+is( scalar(keys %$leaves), 1, "got the leaf root");
+my @lkeys = keys %$leaves;
+my $lkey = $lkeys[0];
+ok( $cgraph->is_leaf_p($lkey), "definitely is a leaf");
 ok( ! $cgraph->is_leaf_p($rkey), "definitely is not a leaf (1)");
 ok( ! $cgraph->is_leaf_p('GO:0003334'), "definitely is not a leaf (2)");
 ok( $cgraph->is_leaf_p('GO:0003335'), "definitely is a leaf");
-
 
 ## Check children.
 my $ks1 = $cgraph->get_children('GO:0003335');
@@ -156,15 +160,57 @@ foreach my $pri1 (@$pr1){
   }
 }
 
-## Check the depth information.
-_ll(Dumper($cgraph->_ensure_max_depth_info()));
-is($cgraph->max_depth('GO:0008150'), 0, "root depth 0");
-is($cgraph->max_depth('GO:0003334'), 8, "target node is deep");
+## Check the distance information.
+_ll(Dumper($cgraph->_ensure_max_distance_info()));
+is($cgraph->max_distance('GO:0008150'), 0, "root distance 0");
+is($cgraph->max_distance('GO:0003334'), 8, "target node is deep");
+is($cgraph->max_distance('GO:0009987'), 3, "layer 1 (a)");
+is($cgraph->max_distance('GO:0032502'), 1, "layer 1 (b)");
+is($cgraph->max_distance('GO:0032501'), 1, "layer 1 (c)");
+is($cgraph->max_distance('GO:0002064'), 7, "layer 7 (a)");
+is($cgraph->max_distance('GO:0030216'), 7, "layer 7 (b)");
 
-## TODO: test the rest of cgraph and depth
-## TODO: test get_leaves
+## Check relationship dominance.
+is($cgraph->dominant_relationship('is_a', 'part_of'), 'part_of',
+   "part_of trumps (a)");
+is($cgraph->dominant_relationship('is_a', ['part_of']), 'part_of',
+   "part_of trumps (b)");
+is($cgraph->dominant_relationship(['is_a', 'part_of']), 'part_of',
+   "part_of trumps (c)");
+is($cgraph->dominant_relationship('is_a', 'part_of', 'regulates'), 'regulates',
+   "regulates trumps");
+is($cgraph->dominant_relationship(), undef, "nothing is nothing (a)");
+is($cgraph->dominant_relationship([]), undef, "nothing is nothing (b)");
 
-#is($cgraph->max_depth('GO:0008150'), 0, "root depth 0");
+## Check the direct relationships.
+is($cgraph->get_direct_relationship('GO:0003334', 'GO:0030216'), 'part_of',
+   "GO:0003334 part_of GO:0030216 (a)");
+is($cgraph->get_direct_relationship('GO:0030216'), 'part_of',
+   "GO:0003334 part_of GO:0030216 (b)");
+is($cgraph->get_direct_relationship('GO:0003334', 'GO:0002064'), 'is_a',
+   "GO:0003334 is_a GO:0002064 (a)");
+is($cgraph->get_direct_relationship('GO:0002064'), 'is_a',
+   "GO:0003334 is_a GO:0002064 (b)");
+is($cgraph->get_direct_relationship('GO:0002064', 'GO:0003334'), undef,
+   "not GO:0002064 is_a GO:0003334");
+is($cgraph->get_direct_relationship('GO:0003334', 'GO:0048468'), undef,
+   "not GO:0003334 is_a GO:0048468 (a)");
+is($cgraph->get_direct_relationship('GO:0048468'), undef,
+   "not GO:0003334 is_a GO:0048468 (b)");
+
+## Check the completed part of transitive relationships.
+is($cgraph->get_transitive_relationship('GO:0030216'), 'part_of',
+   "trans: GO:0003334 part_of GO:0030216");
+is($cgraph->get_transitive_relationship('GO:0002064'), 'is_a',
+   "trans: GO:0003334 is_a GO:0002064");
+is($cgraph->get_transitive_relationship('GO:0008150'), 'part_of',
+   "trans: GO:0003334 part_of GO:0008150");
+is($cgraph->get_transitive_relationship('GO:0048468'), 'is_a',
+   "trans: GO:0003334 is_a GO:0048468");
+is($cgraph->get_transitive_relationship('GO:1234567'), undef,
+   "trans: not there");
+
+#is($cgraph->max_distance('GO:0008150'), 0, "root distance 0");
 # ok( $cgraph->is_leaf_p('GO:0003335'), "definitely is a leaf");
 # pass('the right parent (d)');
 # fail('what parent is that? (b): ' . $ps3s);

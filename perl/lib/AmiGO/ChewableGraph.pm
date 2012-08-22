@@ -161,8 +161,8 @@ sub new {
   $self->{ACG_ACC} = $acc_str;
 
   ## Opportunistically create these when necessary in functions that
-  ## need them--see the helper function: _ensure_max_depth_info
-  $self->{ACG_MAX_NODE_DEPTH_FROM_ROOT} = undef;
+  ## need them--see the helper function: _ensure_max_distance_info
+  $self->{ACG_MAX_NODE_DISTANCE_FROM_ROOT} = undef;
 
   _ll('passed 1');
 
@@ -358,13 +358,112 @@ sub get_parents {
 }
 
 
+=item dominant_relationship
+
+Given a bunch of relationships, return the one that is more
+"dominant".
+
+In: lists, whatever, of relationship ids
+Out: relationship id or undef
+
+=cut
+sub dominant_relationship {
+
+  my $self = shift;
+
+  ## Collect all of the relations, unwinding as necessary.
+  my $all_rels = [];
+  foreach my $arg (@_){
+    if( ref($arg) eq 'ARRAY' ){
+      push @$all_rels, $self->dominant_relationship(@$arg);
+    }else{
+      push @$all_rels, $arg;
+    }
+  }
+
+  my $ret = undef;
+
+  ## Sort them according to _relation_weight.
+  my @all_rels_sorted =
+    sort { $self->_relation_weight($b) <=> $self->_relation_weight($a) }
+      @$all_rels;
+
+  ## Choose the top if it's there.
+  if( scalar(@all_rels_sorted) ){
+    $ret = $all_rels_sorted[0];
+  }
+
+  return $ret;
+}
+
+
+=item get_direct_relationship
+
+Get the dominant /direct/ relationship between the central/target node
+and another node in the graph (if extant).
+
+If only one argument is given, it is considered to be relative to the
+initial argument acc (i.e. the initial target acc is the subject
+node). Case 1.
+
+For case 2, the first argument is the subject and the second argument
+is the object.
+
+Remember that relationships are directed, so A->B does not imply that
+B->A (see test cases).
+
+In (1): term object acc.
+In (2): term subject acc, term object acc. (WARNING: not yet implemented)
+Out: String or undef
+
+=cut
+sub get_direct_relationship {
+
+  my $self = shift;
+  my $first_arg = shift || die 'need at least one arg';
+  my $second_arg = shift || undef;
+
+  my $sub_acc = $self->{ACG_ACC};
+  my $obj_acc = undef;
+
+  ## Choose between the first and second forms.
+  if( ! defined $second_arg ){
+    ## One arg setup.
+    $obj_acc = $first_arg;
+  }else{
+    ## Two arg setup.
+    $sub_acc = $first_arg;
+    $obj_acc = $second_arg;
+  }
+
+  ## Gather the relationships, then get the dominant one.
+  my $all_preds = [];
+  if( defined $self->{ACG_STEPWISE}{EDGE_SOP} &&
+      defined $self->{ACG_STEPWISE}{EDGE_SOP}{$sub_acc} &&
+      defined $self->{ACG_STEPWISE}{EDGE_SOP}{$sub_acc}{$obj_acc} ){
+
+    ## Allow the capture of multiple predicates along this edge.
+    my $preds_href = $self->{ACG_STEPWISE}{EDGE_SOP}{$sub_acc}{$obj_acc};
+    foreach my $rel (keys %$preds_href){
+      push @$all_preds, $rel;
+    }
+  }
+
+  return $self->dominant_relationship($all_preds);
+}
+
+
 =item get_transitive_relationship
 
 Get the /dominant/ calculated relationship between the central/target
 node and another node in the graph (if extant).
 
-If only one argument is given, it is considered to be relative to th
-This is relative to the 
+If only one argument is given, it is considered to be relative to the
+initial argument acc (i.e. the initial target acc is the subject
+node). Case 1.
+
+Case 2 has not yet been implemented, but would be trivial with added
+information to the GOlr transitive closure graph data (lineage_graph).
 
 In (1): term object acc.
 In (2): term subject acc, term object acc. (WARNING: not yet implemented)
@@ -393,10 +492,20 @@ sub get_transitive_relationship {
 
   my $ret = undef;
 
-  ## TODO:
-  
+  ## Gather the relationships, then get the dominant one.
+  my $all_preds = [];
+  if( defined $self->{ACG_LINEAGE}{EDGE_SOP} &&
+      defined $self->{ACG_LINEAGE}{EDGE_SOP}{$sub_acc} &&
+      defined $self->{ACG_LINEAGE}{EDGE_SOP}{$sub_acc}{$obj_acc} ){
 
-  return $ret;
+    ## Allow the capture of multiple predicates along this edge.
+    my $preds_href = $self->{ACG_LINEAGE}{EDGE_SOP}{$sub_acc}{$obj_acc};
+    foreach my $rel (keys %$preds_href){
+      push @$all_preds, $rel;
+    }
+  }
+
+  return $self->dominant_relationship($all_preds);
 }
 
 
@@ -481,13 +590,13 @@ sub get_parent_relationships {
 
 
 ## A helper function to fill out:
-##  $self->{ACG_MAX_NODE_DEPTH_FROM_ROOT} = undef;
+##  $self->{ACG_MAX_NODE_DISTANCE_FROM_ROOT} = undef;
 ## Since is caches results, it can be called whenever without penalty.
-sub _ensure_max_depth_info {
+sub _ensure_max_distance_info {
   my $self = shift;
 
   ## Memoize.
-  if( ! $self->{ACG_MAX_NODE_DEPTH_FROM_ROOT} ){
+  if( ! $self->{ACG_MAX_NODE_DISTANCE_FROM_ROOT} ){
 
     ## Run the actual climber with starting parameters.
     my $climb_counts = $self->_max_info_climber($self->{ACG_ACC});
@@ -501,46 +610,46 @@ sub _ensure_max_depth_info {
     ## Now that we have the absolute max, adjust the values for
     ## storage.
     foreach my $n (keys %$climb_counts){
-      $self->{ACG_MAX_NODE_DEPTH_FROM_ROOT}{$n} =
+      $self->{ACG_MAX_NODE_DISTANCE_FROM_ROOT}{$n} =
 	$abs_max - $climb_counts->{$n};
     }
   }
 
   ## (Unecessary, but using for debugging; TODO: remove.)
-  return $self->{ACG_MAX_NODE_DEPTH_FROM_ROOT};
+  return $self->{ACG_MAX_NODE_DISTANCE_FROM_ROOT};
 }
 
-## Another helper function, this time for _ensure_max_depth_info.
+## Another helper function, this time for _ensure_max_distance_info.
 ## This is the actual path climbing agent.
 sub _max_info_climber {
   my $self = shift;
   my $curr = shift || die 'need an incoming argument';
 
   ## We either initialize there (first run) or pull them in.
-  my $curr_depth = shift || 0;
+  my $curr_distance = shift || 0;
   my $max_hist = shift || {};
   my $encounter_hist = shift || {};
 
   ## Only recur if our encounter history sez that either this node
-  ## is new or if we have a higher depth count (in which case we add
+  ## is new or if we have a higher distance count (in which case we add
   ## it and continue on our merry way).
   if( ! defined $encounter_hist->{$curr} ){
 
     ## Note that we have encountered this node before.
     $encounter_hist->{$curr} = 1;
 
-    ## Our first depth is the current one!
-    $max_hist->{$curr} = $curr_depth;
+    ## Our first distance is the current one!
+    $max_hist->{$curr} = $curr_distance;
 
-    ## Increment our depth.
-    $curr_depth++;
+    ## Increment our distance.
+    $curr_distance++;
 
     ## 
     foreach my $p (@{$self->get_parents($curr)}){
 
       ## Since this is a new node encounter, let's see what else is
       ## out there to discover.
-      $self->_max_info_climber($p, $curr_depth, $max_hist, $encounter_hist);
+      $self->_max_info_climber($p, $curr_distance, $max_hist, $encounter_hist);
     }
 
   }elsif( $encounter_hist->{$curr} ){
@@ -548,8 +657,8 @@ sub _max_info_climber {
     ## If we're seeing this node again, but with a separate history,
     ## we'll add the length or our history to the current, but will
     ## not recur in any case (we've been here before).
-    if( $max_hist->{$curr} < $curr_depth ){
-      $max_hist->{$curr} = $curr_depth;
+    if( $max_hist->{$curr} < $curr_distance ){
+      $max_hist->{$curr} = $curr_distance;
     }
   }
 
@@ -558,22 +667,26 @@ sub _max_info_climber {
 }
 
 
-=item max_depth
+=item max_distance
 
-Calculate the maximum depth of a node from the roots.
+Calculate the maximum distance of a node from the roots minus the
+global maximum. This is /not/ depth, but rather a node specific
+property that is mostly used for a certain type of graphical
+layout. If you're not sure, this is likely not the function that you
+want.
 
 Arg: acc string
 Return: int (if defined)
 
 =cut
-sub max_depth {
+sub max_distance {
   my $self = shift;
   my $acc = shift || die 'need an arg';
   my $ret = undef;
 
-  $self->_ensure_max_depth_info();
-  if( defined $self->{ACG_MAX_NODE_DEPTH_FROM_ROOT}{$acc} ){
-    $ret = $self->{ACG_MAX_NODE_DEPTH_FROM_ROOT}{$acc};
+  $self->_ensure_max_distance_info();
+  if( defined $self->{ACG_MAX_NODE_DISTANCE_FROM_ROOT}{$acc} ){
+    $ret = $self->{ACG_MAX_NODE_DISTANCE_FROM_ROOT}{$acc};
   }
 
   return $ret;
@@ -585,7 +698,8 @@ sub max_depth {
 # graph (as opposed to the immediate relations of all ancestors that is
 # provided by climb).
 
-# Not quite get ancestors, as we're getting depth and inference info as well.
+# Not quite get ancestors, as we're getting distance and inference
+# info as well.
 
 # With an array ref of terms, will climb to the top of the ontology
 # (with an added 'all' stopper for GO). This should be an easy and
@@ -603,10 +717,10 @@ sub max_depth {
 
 #   ## Keep an eye on these: they are the items we return.
 #   my $nodes = {};
-#   my $node_depth = {};
+#   my $node_distance = {};
 #   my $node_rel = {};
 #   my $node_rel_inf_p = {};
-#   my $max_depth = 0;
+#   my $max_distance = 0;
 
 #   ## Get all of the upstream nodes (all reachable nodes from here).
 #   my $tc_graph = Graph::TransitiveClosure->new($self->{ACG_STEPWISE_GRAPH},
@@ -623,8 +737,8 @@ sub max_depth {
 
 #       #$self->kvetch('accs if: ' . $gp->object->acc);
 
-#       ## Increment maximum depth if necessary.
-#       if( $gp->distance > $max_depth ){ $max_depth = $gp->distance; }
+#       ## Increment maximum distance if necessary.
+#       if( $gp->distance > $max_distance ){ $max_distance = $gp->distance; }
 
 #       ## We'll start by assuming that relations aren't direct unless
 #       ## proven otherwise.
@@ -639,7 +753,7 @@ sub max_depth {
 # 	# 	      ' : ' . $gp->distance .
 # 	# 	      ' : ' . $gp->subject->acc);
 # 	$node_rel->{$gp->object->acc} = $gp->relationship_type->acc;
-# 	$node_depth->{$gp->object->acc} = $gp->distance;
+# 	$node_distance->{$gp->object->acc} = $gp->distance;
 # 	$nodes->{$gp->object->acc} = $gp->object;
 #       }else{
 
@@ -656,8 +770,8 @@ sub max_depth {
 # 	}
 
 # 	## Take the greater distance.
-# 	if( $node_depth->{$gp->object->acc} < $gp->distance ){
-# 	  $node_depth->{$gp->object->acc} = $gp->distance;
+# 	if( $node_distance->{$gp->object->acc} < $gp->distance ){
+# 	  $node_distance->{$gp->object->acc} = $gp->distance;
 # 	}
 #       }
 
@@ -668,18 +782,18 @@ sub max_depth {
 #     }
 #   }
 
-#   ## Now go through and correct distance to depth.
-#   foreach my $acc (keys %$node_depth){
+#   ## Now go through and correct distance to distance.
+#   foreach my $acc (keys %$node_distance){
 #     #$self->kvetch('final acc: ' . $acc);
-#     my $d = $node_depth->{$acc};
-#     $d = $d - $max_depth;
+#     my $d = $node_distance->{$acc};
+#     $d = $d - $max_distance;
 #     $d = abs($d);
-#     $node_depth->{$acc} = $d;
+#     $node_distance->{$acc} = $d;
 #   }
 
 #   # my @foo = keys(%$nodes);
 #   # $self->kvetch('nodes: ' . Dumper(\@foo));
-#   return ($nodes, $node_rel, $node_rel_inf_p, $node_depth, $max_depth);
+#   return ($nodes, $node_rel, $node_rel_inf_p, $node_distance, $max_distance);
 # }
 
 
@@ -689,12 +803,12 @@ sub max_depth {
 # Also see "lineage".
 
 # This returns an array of five things:
-#    (\%nodes, \%edges, \%tc_desc, \%tc_anc, \%tc_depth);
+#    (\%nodes, \%edges, \%tc_desc, \%tc_anc, \%tc_distance);
 #    *) a hashref of term accs to term info hashes
 #    *) an empty href
 #    *) a hashref of of nodes in terms of in-graph descendants
 #    *) a hashref of of nodes in terms of in-graph ancestors
-#    *) a hashref of of nodes in terms of in-graph "depth"
+#    *) a hashref of of nodes in terms of in-graph "distance"
 
 # =cut
 # sub collect {
@@ -733,19 +847,19 @@ sub max_depth {
 #   }
 
 #   ## Down here, we're doing something separate--we're going to get
-#   ## the depth of the node.
-#   my %tc_depth = ();
+#   ## the distance of the node.
+#   my %tc_distance = ();
 #   foreach my $sub (keys %{$self->{ACG_STEPWISE_NODES}}){
 #     foreach my $root (keys %{$self->{ACG_STEPWISE_ROOTS}}){
 #       my $len = $tc_graph->path_length($sub, $root);
 #       if( defined $len ){
-# 	$tc_depth{$sub} = $len;
-# 	# $self->kvetch('depth of ' . $sub . ' is ' . $len);
+# 	$tc_distance{$sub} = $len;
+# 	# $self->kvetch('distance of ' . $sub . ' is ' . $len);
 #       }
 #     }
 #   }
 
-#   return ($self->{ACG_STEPWISE_NODES}, {}, \%tc_desc, \%tc_anc, \%tc_depth);
+#  return ($self->{ACG_STEPWISE_NODES}, {}, \%tc_desc, \%tc_anc, \%tc_distance);
 # }
 
 
