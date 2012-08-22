@@ -397,6 +397,48 @@ sub dominant_relationship {
 }
 
 
+## A helper generic version of get_transitive_relationship and
+## get_direct_relationship since they are just one hash differnt.
+sub _get_generic_relationship {
+
+  my $self = shift;
+  my $hash_name = shift || die 'need to work against an engine hash!';
+  my $first_arg = shift || die 'need at least one arg';
+  my $second_arg = shift || undef;
+
+  my $sub_acc = $self->{ACG_ACC};
+  my $obj_acc = undef;
+
+  ## Choose between the first and second forms.
+  if( ! defined $second_arg ){
+    ## One arg setup.
+    $obj_acc = $first_arg;
+  }else{
+    ## Two arg setup.
+    $sub_acc = $first_arg;
+    $obj_acc = $second_arg;
+    #die 'not yet implemented (in the data backend)'
+  }
+
+  my $ret = undef;
+
+  ## Gather the relationships, then get the dominant one.
+  my $all_preds = [];
+  if( defined $self->{$hash_name}{EDGE_SOP} &&
+      defined $self->{$hash_name}{EDGE_SOP}{$sub_acc} &&
+      defined $self->{$hash_name}{EDGE_SOP}{$sub_acc}{$obj_acc} ){
+
+    ## Allow the capture of multiple predicates along this edge.
+    my $preds_href = $self->{$hash_name}{EDGE_SOP}{$sub_acc}{$obj_acc};
+    foreach my $rel (keys %$preds_href){
+      push @$all_preds, $rel;
+    }
+  }
+
+  return $self->dominant_relationship($all_preds);
+}
+
+
 =item get_direct_relationship
 
 Get the dominant /direct/ relationship between the central/target node
@@ -418,38 +460,8 @@ Out: String or undef
 
 =cut
 sub get_direct_relationship {
-
   my $self = shift;
-  my $first_arg = shift || die 'need at least one arg';
-  my $second_arg = shift || undef;
-
-  my $sub_acc = $self->{ACG_ACC};
-  my $obj_acc = undef;
-
-  ## Choose between the first and second forms.
-  if( ! defined $second_arg ){
-    ## One arg setup.
-    $obj_acc = $first_arg;
-  }else{
-    ## Two arg setup.
-    $sub_acc = $first_arg;
-    $obj_acc = $second_arg;
-  }
-
-  ## Gather the relationships, then get the dominant one.
-  my $all_preds = [];
-  if( defined $self->{ACG_STEPWISE}{EDGE_SOP} &&
-      defined $self->{ACG_STEPWISE}{EDGE_SOP}{$sub_acc} &&
-      defined $self->{ACG_STEPWISE}{EDGE_SOP}{$sub_acc}{$obj_acc} ){
-
-    ## Allow the capture of multiple predicates along this edge.
-    my $preds_href = $self->{ACG_STEPWISE}{EDGE_SOP}{$sub_acc}{$obj_acc};
-    foreach my $rel (keys %$preds_href){
-      push @$all_preds, $rel;
-    }
-  }
-
-  return $self->dominant_relationship($all_preds);
+  return $self->_get_generic_relationship('ACG_STEPWISE', @_);
 }
 
 
@@ -471,41 +483,8 @@ Out: String or undef
 
 =cut
 sub get_transitive_relationship {
-
   my $self = shift;
-  my $first_arg = shift || die 'need at least one arg';
-  my $second_arg = shift || undef;
-
-  my $sub_acc = $self->{ACG_ACC};
-  my $obj_acc = undef;
-
-  ## Choose between the first and second forms.
-  if( ! defined $second_arg ){
-    ## One arg setup.
-    $obj_acc = $first_arg;
-  }else{
-    ## Two arg setup.
-    $sub_acc = $first_arg;
-    $obj_acc = $second_arg;
-    die 'not yet implemented (in the data backend)'
-  }
-
-  my $ret = undef;
-
-  ## Gather the relationships, then get the dominant one.
-  my $all_preds = [];
-  if( defined $self->{ACG_LINEAGE}{EDGE_SOP} &&
-      defined $self->{ACG_LINEAGE}{EDGE_SOP}{$sub_acc} &&
-      defined $self->{ACG_LINEAGE}{EDGE_SOP}{$sub_acc}{$obj_acc} ){
-
-    ## Allow the capture of multiple predicates along this edge.
-    my $preds_href = $self->{ACG_LINEAGE}{EDGE_SOP}{$sub_acc}{$obj_acc};
-    foreach my $rel (keys %$preds_href){
-      push @$all_preds, $rel;
-    }
-  }
-
-  return $self->dominant_relationship($all_preds);
+  return $self->_get_generic_relationship('ACG_LINEAGE', @_);
 }
 
 
