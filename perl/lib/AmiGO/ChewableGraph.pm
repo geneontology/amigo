@@ -186,10 +186,10 @@ sub new {
 			    $self->{ACG_STEPWISE});
 
   ## Produce the stepwise graph and cache for easy operations.
-  my $stepwise_graph_hash = $self->_read_json_string($jstr_lineage_graph);
+  my $lineage_graph_hash = $self->_read_json_string($jstr_lineage_graph);
   $self->{ACG_LINEAGE_GRAPH} = Graph::Directed->new();
   $self->{ACG_LINEAGE} = {};
-  __create_graph_structures($stepwise_graph_hash,
+  __create_graph_structures($lineage_graph_hash,
 			    $self->{ACG_LINEAGE_GRAPH},
 			    $self->{ACG_LINEAGE});
 
@@ -759,7 +759,7 @@ sub lineage_info {
   }
 
   ## 5) Process $max_distance.
-  my $max_distance = $self->max_distance($sub_acc); # already done!
+  $max_distance = $self->max_distance($sub_acc); # already done!
 
   return ($nodes, $node_rel, $node_rel_inf_p, $node_distance, $max_distance);
 }
