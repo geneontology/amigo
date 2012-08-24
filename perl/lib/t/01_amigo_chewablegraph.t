@@ -210,7 +210,19 @@ is($cgraph->get_transitive_relationship('GO:0048468'), 'is_a',
 is($cgraph->get_transitive_relationship('GO:1234567'), undef,
    "trans: not there");
 
-#is($cgraph->max_distance('GO:0008150'), 0, "root distance 0");
-# ok( $cgraph->is_leaf_p('GO:0003335'), "definitely is a leaf");
-# pass('the right parent (d)');
-# fail('what parent is that? (b): ' . $ps3s);
+## Check lineage_info. The only real novel one is the inferred
+## relationship, so lets check that...
+#_ll(Dumper($nodes));
+#_ll(Dumper($node_rel));
+#_ll(Dumper($node_rel_inf_p));
+#_ll(Dumper($node_distance));
+#_ll(Dumper($max_distance));
+my ($nodes, $node_rel, $node_rel_inf_p, $node_distance, $max_distance) =
+  $cgraph->lineage_info();
+is($node_rel_inf_p->{'GO:0008150'}, 1, "inferred (a)");
+is($node_rel_inf_p->{'GO:0030855'}, 1, "inferred (b)");
+is($node_rel_inf_p->{'GO:0009987'}, 1, "inferred (c)");
+is($node_rel_inf_p->{'GO:0009913'}, 1, "inferred (d)");
+is($node_rel_inf_p->{'GO:0048468'}, 1, "inferred (e)");
+is($node_rel_inf_p->{'GO:0002064'}, 0, "not inferred (a)");
+is($node_rel_inf_p->{'GO:0030216'}, 0, "not inferred (b)");

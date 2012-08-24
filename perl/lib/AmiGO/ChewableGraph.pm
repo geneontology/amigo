@@ -36,6 +36,7 @@ sub _ll {
   }
 }
 
+
 ## Internal helper function for creating a commonly used hashref
 ## pattern for my graphs.
 sub __deep_hash_placement {
@@ -54,6 +55,7 @@ sub __deep_hash_placement {
 
   return $hashref;
 }
+
 
 ## Internal helper function for creating Graph objects out of the
 ## hashes that we work with (owltools ShuntGraph JSON output).
@@ -105,6 +107,7 @@ sub __create_graph_structures {
     $mod_graph->add_edge($sid, $oid);
   }
 }
+
 
 ## Internal convenience function.
 ## From Chris: "{-,+} reg < reg < {part_of,has_part} < is_a"
@@ -207,6 +210,7 @@ sub new {
   bless $self, $class;
   return $self;
 }
+
 
 =item get_roots
 
@@ -598,6 +602,7 @@ sub _ensure_max_distance_info {
   return $self->{ACG_MAX_NODE_DISTANCE_FROM_ROOT};
 }
 
+
 ## Another helper function, this time for _ensure_max_distance_info.
 ## This is the actual path climbing agent.
 sub _max_info_climber {
@@ -671,109 +676,93 @@ sub max_distance {
   return $ret;
 }
 
-# =item lineage
 
-# Get information concerning the transitive position of this node in the
-# graph (as opposed to the immediate relations of all ancestors that is
-# provided by climb).
+=item lineage_info
 
-# Not quite get ancestors, as we're getting distance and inference
-# info as well.
+Get information concerning the transitive position of this node in the
+graph (as opposed to the immediate relations of all ancestors that is
+provided by climb).
 
-# With an array ref of terms, will climb to the top of the ontology
-# (with an added 'all' stopper for GO). This should be an easy and
-# lightweight alternative to climb for some use cases.
+Not quite get ancestors, as we're getting distance and inference
+info as well.
 
-# This returns an array of five things:
+This function assumes that the initial target node is the subject.
+Potentially, this could trivially be extended to any node that had the
+transitive relations calculated in lineage_graph.
 
-# #TODO
+This returns an array of five things:
+ *) a hashref of node/object ids to light data structures about those nodes
+ *) a hashref of node/object ids to their dominant relation
+ *) a hashref of node/object ids to whether or not their dominant relation is
+    inferred
+ *) a hashref of node/object ids to the calculated layout distance from root(s)
+ *) a scalar of the max layout distance found
 
-# =cut
-# sub lineage {
+Yes, an odd an inefficient bunch, but supported for the time being for
+historical reasons of driving as much of the AmiGO 1.x code as
+possible.
 
-#   my $self = shift;
-#   my $sub_acc = shift || die 'need an arg';
+Given how thin this wrapper is, it may just be easier to do away with
+this function all together at some point...
 
-#   ## Keep an eye on these: they are the items we return.
-#   my $nodes = {};
-#   my $node_distance = {};
-#   my $node_rel = {};
-#   my $node_rel_inf_p = {};
-#   my $max_distance = 0;
+=cut
+sub lineage_info {
 
-#   ## Get all of the upstream nodes (all reachable nodes from here).
-#   my $tc_graph = Graph::TransitiveClosure->new($self->{ACG_STEPWISE_GRAPH},
-# 					       reflexive => 0,
-# 					       path_length => 1);
-#   my @all_ancestors = $self->{ACG_STEPWISE_GRAPH}->all_successors(sub_acc);
+  my $self = shift;
 
-#  ## Things that we need to ask the database about.
-#  my $all = $self->{GRAPH_PATH}->get_all_results({'subject.acc' => $sub_accs});
-#  foreach my $gp (@$all){
+  ## See the doc above; but for now we'll just use our internal target.
+  #my $sub_acc = shift || die 'need an arg';
+  my $sub_acc = $self->{ACG_ACC};
 
-#     if( ! $gp->object->is_obsolete &&
-# 	$gp->object->acc ne 'all' ){ # GO-specific control
+  ## Keep an eye on these: they are the items we return.
+  my $nodes = {};
+  my $node_rel = {};
+  my $node_rel_inf_p = {};
+  my $node_distance = {};
+  my $max_distance = 0;
 
-#       #$self->kvetch('accs if: ' . $gp->object->acc);
+  ## 1) Process $nodes.
+  ## Copy them out.
+  foreach my $obj_acc (keys %{$self->{ACG_STEPWISE}{NODES}}){
 
-#       ## Increment maximum distance if necessary.
-#       if( $gp->distance > $max_distance ){ $max_distance = $gp->distance; }
+    ## Let's skip talking about ourselves and our children.
+    my $ignorables = {};
+    $ignorables->{$sub_acc} = 1;
+    my $iks = $self->get_children('GO:0003334');
+    foreach my $ks (@$iks){
+      $ignorables->{$ks} = 1;
+    }
+    if( ! defined $ignorables->{$obj_acc} ){
 
-#       ## We'll start by assuming that relations aren't direct unless
-#       ## proven otherwise.
-#       if( ! defined $node_rel_inf_p->{$gp->object->acc} ){
-# 	$node_rel_inf_p->{$gp->object->acc} = 1;
-#       }
+      ## 1) Process $nodes.
+      $nodes->{$obj_acc} =
+	{
+	 id => $self->{ACG_STEPWISE}{NODES}{$obj_acc}{id},
+	 label => $self->{ACG_STEPWISE}{NODES}{$obj_acc}{label},
+	 link => 'http://localhost#TODO',
+	};
 
-#       ## Check existance, if it's not there yet, make it. If it's
-#       ## already there, modify the entry accordingly.
-#       if( ! defined $node_rel->{$gp->object->acc} ){
-# 	# $self->kvetch('distance: ' . $gp->object->acc .
-# 	# 	      ' : ' . $gp->distance .
-# 	# 	      ' : ' . $gp->subject->acc);
-# 	$node_rel->{$gp->object->acc} = $gp->relationship_type->acc;
-# 	$node_distance->{$gp->object->acc} = $gp->distance;
-# 	$nodes->{$gp->object->acc} = $gp->object;
-#       }else{
+      ## 2) Process $node_rel.
+      $node_rel->{$obj_acc} = $self->get_transitive_relationship($obj_acc);
 
-# 	## Take the dominating relation.
-# 	## NOTE/WARNING: this may be GO specific.
-# 	my $curr_scale =
-# 	  $self->_relation_weight($node_rel->{$gp->object->acc}, 1000);
-# 	my $test_scale =
-# 	  $self->_relation_weight($gp->relationship_type->acc, 1000);
-# 	if( $curr_scale < $test_scale ){ # less specific
-# 	#if( $curr_scale > $test_scale ){ # more specific
-# 	  $node_rel->{$gp->object->acc} = $gp->relationship_type->acc;
-# 	  #print STDERR "  :in>: $curr_scale $test_scale\n";
-# 	}
+      ## 3) Process $node_rel_inf_p.
+      $node_rel_inf_p->{$obj_acc} = 1;
+      if( defined $self->get_direct_relationship($obj_acc) &&
+	  ($self->get_direct_relationship($obj_acc) eq
+	   $self->get_transitive_relationship($obj_acc) ) ){
+	$node_rel_inf_p->{$obj_acc} = 0;
+      }
 
-# 	## Take the greater distance.
-# 	if( $node_distance->{$gp->object->acc} < $gp->distance ){
-# 	  $node_distance->{$gp->object->acc} = $gp->distance;
-# 	}
-#       }
+      ## 4) Process $node_distance.
+      $node_distance->{$obj_acc} = $self->max_distance($obj_acc);
+    }
+  }
 
-#       ## Update if it looks like a direct relationship.
-#       if( $gp->distance == 1 ){
-# 	$node_rel_inf_p->{$gp->object->acc} = 0;
-#       }
-#     }
-#   }
+  ## 5) Process $max_distance.
+  my $max_distance = $self->max_distance($sub_acc); # already done!
 
-#   ## Now go through and correct distance to distance.
-#   foreach my $acc (keys %$node_distance){
-#     #$self->kvetch('final acc: ' . $acc);
-#     my $d = $node_distance->{$acc};
-#     $d = $d - $max_distance;
-#     $d = abs($d);
-#     $node_distance->{$acc} = $d;
-#   }
-
-#   # my @foo = keys(%$nodes);
-#   # $self->kvetch('nodes: ' . Dumper(\@foo));
-#   return ($nodes, $node_rel, $node_rel_inf_p, $node_distance, $max_distance);
-# }
+  return ($nodes, $node_rel, $node_rel_inf_p, $node_distance, $max_distance);
+}
 
 
 # =item collect
