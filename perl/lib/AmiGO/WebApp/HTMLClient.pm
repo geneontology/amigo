@@ -653,14 +653,6 @@ sub mode_golr_term_details {
   }
   $self->{CORE}->kvetch('solr docs: ' . Dumper($term_info_hash));
 
-  # ## Pull out some of the graph stuff for operation.
-  # my $json_graph = $term_info_hash->{$input_term_id}{'graph'};
-  # if( ! defined $json_graph || ! $json_graph ){
-  #   $self->{CORE}->kvetch('could find no grpha information!');
-  # }else{
-  #   my $cgraph = AmiGO::ChewableGraph->new($json_graph);
-  # }
-
   ## Should just be one now, yeah?
   #my $foo = (keys %$term_info_hash)[0];
   #$self->{CORE}->kvetch('$term_info: ' . Dumper($term_info->{$foo}));

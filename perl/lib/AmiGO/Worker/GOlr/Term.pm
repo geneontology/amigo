@@ -62,14 +62,14 @@ sub new {
 	 synonyms => $found_doc->{synonym} || [],
 	 #dbxrefs => [],
 	 term_dbxrefs => $found_doc->{definition_xref} || [],
-	 graph => $found_doc->{graph},
-	 lineage_graph => $found_doc->{lineage_graph},
+	 topology_graph => $found_doc->{topology_graph},
+	 transitivity_graph => $found_doc->{transitivity_graph},
 
 	 ## A secondary data structure.
 	 chewable_graph =>
 	 AmiGO::ChewableGraph->new($found_doc->{id},
-				   $found_doc->{graph},
-				   $found_doc->{lineage_graph}),
+				   $found_doc->{topology_graph},
+				   $found_doc->{transitivity_graph}),
 	};
     }
     $self->{AWGT_INFO}{$arg} = $intermediate;

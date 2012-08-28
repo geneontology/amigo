@@ -154,9 +154,9 @@ sub new {
   my $class = shift;
   my $self = $class->SUPER::new();
   my $acc_str = shift || die "need an incoming acc argument";
-  my $jstr_stepwise_graph =
+  my $jstr_topology_graph =
     shift || die "need an incoming graph argument";
-  my $jstr_lineage_graph =
+  my $jstr_transitivity_graph =
     shift || die "need an incoming lineage graph argument";
 
   ## Unwind our perl object into a couple of lookups and the actual
@@ -169,42 +169,43 @@ sub new {
 
   _ll('passed 1');
 
-  ## Produce the stepwise graph and cache for easy operations.
-  my $stepwise_graph_hash = $self->_read_json_string($jstr_stepwise_graph);
-  $self->{ACG_STEPWISE_GRAPH} = Graph::Directed->new();
-  $self->{ACG_STEPWISE} = {};
+  ## Produce the topology graph and cache for easy operations.
+  my $topology_graph_hash = $self->_read_json_string($jstr_topology_graph);
+  $self->{ACG_TOPOLOGY_GRAPH} = Graph::Directed->new();
+  $self->{ACG_TOPOLOGY} = {};
 
-  # _ll('0: ' . $jstr_stepwise_graph);
-  # _ll('1: ' . $stepwise_graph_hash);
-  # print('1.5: ' .  $self->{ACG_STEPWISE_GRAPH} . "\n");
-  # print('1.75: ' .  defined($self->{ACG_STEPWISE_GRAPH}) . "\n");
-  # _ll('2: ' . $self->{ACG_STEPWISE_GRAPH});
-  # _ll('3: ' . $self->{ACG_STEPWISE});
+  # _ll('0: ' . $jstr_topology_graph);
+  # _ll('1: ' . $topology_graph_hash);
+  # print('1.5: ' .  $self->{ACG_TOPOLOGY_GRAPH} . "\n");
+  # print('1.75: ' .  defined($self->{ACG_TOPOLOGY_GRAPH}) . "\n");
+  # _ll('2: ' . $self->{ACG_TOPOLOGY_GRAPH});
+  # _ll('3: ' . $self->{ACG_TOPOLOGY});
 
-  __create_graph_structures($stepwise_graph_hash,
-			    $self->{ACG_STEPWISE_GRAPH},
-			    $self->{ACG_STEPWISE});
+  __create_graph_structures($topology_graph_hash,
+			    $self->{ACG_TOPOLOGY_GRAPH},
+			    $self->{ACG_TOPOLOGY});
 
-  ## Produce the stepwise graph and cache for easy operations.
-  my $lineage_graph_hash = $self->_read_json_string($jstr_lineage_graph);
-  $self->{ACG_LINEAGE_GRAPH} = Graph::Directed->new();
+  ## Produce the topology graph and cache for easy operations.
+  my $transitivity_graph_hash =
+    $self->_read_json_string($jstr_transitivity_graph);
+  $self->{ACG_TRANSITIVITY_GRAPH} = Graph::Directed->new();
   $self->{ACG_LINEAGE} = {};
-  __create_graph_structures($lineage_graph_hash,
-			    $self->{ACG_LINEAGE_GRAPH},
+  __create_graph_structures($transitivity_graph_hash,
+			    $self->{ACG_TRANSITIVITY_GRAPH},
 			    $self->{ACG_LINEAGE});
 
   # ## A little extra lite calculation on what we got out of the graph.
   # # $self->kvetch('sinks: ' . join(', ',
-  # #     $self->{ACG_STEPWISE_GRAPH}->sink_vertices()));
+  # #     $self->{ACG_TOPOLOGY_GRAPH}->sink_vertices()));
   # # $self->kvetch('sources: ' .
-  # # 		join(', ', $self->{ACG_STEPWISE_GRAPH}->source_vertices()));
-  # $self->{ACG_STEPWISE_ROOTS} = {};
-  # $self->{ACG_STEPWISE_LEAVES} = {};
-  # foreach my $root ($self->{ACG_STEPWISE_GRAPH}->sink_vertices()){
-  #   $self->{ACG_STEPWISE_ROOTS}{$root} = $root;
+  # # 		join(', ', $self->{ACG_TOPOLOGY_GRAPH}->source_vertices()));
+  # $self->{ACG_TOPOLOGY_ROOTS} = {};
+  # $self->{ACG_TOPOLOGY_LEAVES} = {};
+  # foreach my $root ($self->{ACG_TOPOLOGY_GRAPH}->sink_vertices()){
+  #   $self->{ACG_TOPOLOGY_ROOTS}{$root} = $root;
   # }
-  # foreach my $leaf ($self->{ACG_STEPWISE_GRAPH}->source_vertices()){
-  #   $self->{ACG_STEPWISE_LEAVES}{$leaf} = $leaf;
+  # foreach my $leaf ($self->{ACG_TOPOLOGY_GRAPH}->source_vertices()){
+  #   $self->{ACG_TOPOLOGY_LEAVES}{$leaf} = $leaf;
   # }
 
   bless $self, $class;
@@ -223,7 +224,7 @@ sub get_roots {
   ## We don't want to actually pass this thing...makes Continuity.pm
   ## cry.
   my $copy = {};
-  foreach my $root ($self->{ACG_STEPWISE_GRAPH}->sink_vertices()){
+  foreach my $root ($self->{ACG_TOPOLOGY_GRAPH}->sink_vertices()){
     $copy->{$root} = $root;
   }
 
@@ -242,7 +243,7 @@ sub get_leaves {
   ## We don't want to actually pass this thing...makes Continuity.pm
   ## cry.
   my $copy = {};
-  foreach my $leaf ($self->{ACG_STEPWISE_GRAPH}->source_vertices()){
+  foreach my $leaf ($self->{ACG_TOPOLOGY_GRAPH}->source_vertices()){
     $copy->{$leaf} = $leaf;
   }
 
@@ -312,7 +313,7 @@ sub get_children {
   ## Dedupe using a hash in the process.
   my $ret_hash = {};
   foreach my $thing (@$things){
-    my @children = $self->{ACG_STEPWISE_GRAPH}->predecessors($thing);
+    my @children = $self->{ACG_TOPOLOGY_GRAPH}->predecessors($thing);
     foreach my $kid (@children){
       $ret_hash->{$kid} = 1;
     }
@@ -346,7 +347,7 @@ sub get_parents {
   ## Dedupe using a hash in the process.
   my $ret_hash = {};
   foreach my $thing (@$things){
-    my @parents = $self->{ACG_STEPWISE_GRAPH}->successors($thing);
+    my @parents = $self->{ACG_TOPOLOGY_GRAPH}->successors($thing);
     foreach my $par (@parents){
       $ret_hash->{$par} = 1;
     }
@@ -465,7 +466,7 @@ Out: String or undef
 =cut
 sub get_direct_relationship {
   my $self = shift;
-  return $self->_get_generic_relationship('ACG_STEPWISE', @_);
+  return $self->_get_generic_relationship('ACG_TOPOLOGY', @_);
 }
 
 
@@ -479,7 +480,7 @@ initial argument acc (i.e. the initial target acc is the subject
 node). Case 1.
 
 Case 2 has not yet been implemented, but would be trivial with added
-information to the GOlr transitive closure graph data (lineage_graph).
+information to the GOlr transitive closure graph data (transitivity_graph).
 
 In (1): term object acc.
 In (2): term subject acc, term object acc. (WARNING: not yet implemented)
@@ -512,12 +513,12 @@ sub get_child_relationships {
 
     ## Now that we have subject and object, we can pull the
     ## relationships.
-    if( defined $self->{ACG_STEPWISE}{EDGE_SOP} &&
-	defined $self->{ACG_STEPWISE}{EDGE_SOP}{$kid} &&
-	defined $self->{ACG_STEPWISE}{EDGE_SOP}{$kid}{$oid} ){
+    if( defined $self->{ACG_TOPOLOGY}{EDGE_SOP} &&
+	defined $self->{ACG_TOPOLOGY}{EDGE_SOP}{$kid} &&
+	defined $self->{ACG_TOPOLOGY}{EDGE_SOP}{$kid}{$oid} ){
 
       ## Allow the capture of multiple predicates along this edge.
-      foreach my $rel (keys %{$self->{ACG_STEPWISE}{EDGE_SOP}{$kid}{$oid}}){
+      foreach my $rel (keys %{$self->{ACG_TOPOLOGY}{EDGE_SOP}{$kid}{$oid}}){
 	push @$ret,
 	  {
 	   'subject_id' => $kid,
@@ -552,12 +553,12 @@ sub get_parent_relationships {
 
     ## Now that we have subject and object, we can pull the
     ## relationships.
-    if( defined $self->{ACG_STEPWISE}{EDGE_OSP} &&
-	defined $self->{ACG_STEPWISE}{EDGE_OSP}{$par} &&
-	defined $self->{ACG_STEPWISE}{EDGE_OSP}{$par}{$sid} ){
+    if( defined $self->{ACG_TOPOLOGY}{EDGE_OSP} &&
+	defined $self->{ACG_TOPOLOGY}{EDGE_OSP}{$par} &&
+	defined $self->{ACG_TOPOLOGY}{EDGE_OSP}{$par}{$sid} ){
 
       ## Allow the capture of multiple predicates along this edge.
-      foreach my $rel (keys %{$self->{ACG_STEPWISE}{EDGE_OSP}{$par}{$sid}}){
+      foreach my $rel (keys %{$self->{ACG_TOPOLOGY}{EDGE_OSP}{$par}{$sid}}){
 	push @$ret,
 	  {
 	   'object_id' => $par,
@@ -687,9 +688,9 @@ sub node_label {
   my $acc = shift || die 'need an arg';
   my $ret = undef;
 
-  if( defined $self->{ACG_STEPWISE}{NODES}{$acc} &&
-      defined $self->{ACG_STEPWISE}{NODES}{$acc}{label} ){
-    $ret = $self->{ACG_STEPWISE}{NODES}{$acc}{label};
+  if( defined $self->{ACG_TOPOLOGY}{NODES}{$acc} &&
+      defined $self->{ACG_TOPOLOGY}{NODES}{$acc}{label} ){
+    $ret = $self->{ACG_TOPOLOGY}{NODES}{$acc}{label};
   }
 
   return $ret;
@@ -706,7 +707,7 @@ info as well.
 
 This function assumes that the initial target node is the subject.
 Potentially, this could trivially be extended to any node that had the
-transitive relations calculated in lineage_graph.
+transitive relations calculated in transitivity_graph.
 
 This returns an array of five things:
  *) a hashref of node/object ids to light data structures about those nodes
@@ -741,7 +742,7 @@ sub lineage_info {
 
   ## 1) Process $nodes.
   ## Copy them out.
-  foreach my $obj_acc (keys %{$self->{ACG_STEPWISE}{NODES}}){
+  foreach my $obj_acc (keys %{$self->{ACG_TOPOLOGY}{NODES}}){
 
     ## Let's skip talking about ourselves and our children.
     my $ignorables = {};
@@ -755,7 +756,7 @@ sub lineage_info {
       ## 1) Process $nodes.
       $nodes->{$obj_acc} =
 	{
-	 id => $self->{ACG_STEPWISE}{NODES}{$obj_acc}{id},
+	 id => $self->{ACG_TOPOLOGY}{NODES}{$obj_acc}{id},
 	 label => $self->node_label($obj_acc),
 	 #link => 'http://localhost#TODO',
 	};
@@ -809,19 +810,19 @@ sub lineage_info {
 
 #   ## Calculate the transitive closure to help with figuring out the
 #   ## association transitivity in other components.
-#   my $tc_graph = Graph::TransitiveClosure->new($self->{ACG_STEPWISE_GRAPH},
+#   my $tc_graph = Graph::TransitiveClosure->new($self->{ACG_TOPOLOGY_GRAPH},
 # 					       reflexive => 0,
 # 					       path_length => 1);
 #   my %tc_desc = ();
 #   my %tc_anc = ();
 
 #   ## Iterate through the combinations making the anc and desc hashes.
-#   foreach my $obj (keys %{$self->{ACG_STEPWISE_NODES}}){
+#   foreach my $obj (keys %{$self->{ACG_TOPOLOGY_NODES}}){
 
 #     $tc_desc{$obj} = {} if ! defined $tc_desc{$obj};
 #     $tc_anc{$obj} = {} if ! defined $tc_anc{$obj};
 
-#     foreach my $sub (keys %{$self->{ACG_STEPWISE_NODES}}){
+#     foreach my $sub (keys %{$self->{ACG_TOPOLOGY_NODES}}){
 
 #       if( $tc_graph->is_reachable($obj, $sub) ){
 # 	$tc_anc{$obj}{$sub} = 1;
@@ -835,8 +836,8 @@ sub lineage_info {
 #   ## Down here, we're doing something separate--we're going to get
 #   ## the distance of the node.
 #   my %tc_distance = ();
-#   foreach my $sub (keys %{$self->{ACG_STEPWISE_NODES}}){
-#     foreach my $root (keys %{$self->{ACG_STEPWISE_ROOTS}}){
+#   foreach my $sub (keys %{$self->{ACG_TOPOLOGY_NODES}}){
+#     foreach my $root (keys %{$self->{ACG_TOPOLOGY_ROOTS}}){
 #       my $len = $tc_graph->path_length($sub, $root);
 #       if( defined $len ){
 # 	$tc_distance{$sub} = $len;
@@ -845,7 +846,7 @@ sub lineage_info {
 #     }
 #   }
 
-#  return ($self->{ACG_STEPWISE_NODES}, {}, \%tc_desc, \%tc_anc, \%tc_distance);
+#  return ($self->{ACG_TOPOLOGY_NODES}, {}, \%tc_desc, \%tc_anc, \%tc_distance);
 # }
 
 
