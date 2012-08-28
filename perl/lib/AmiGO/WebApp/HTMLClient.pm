@@ -693,20 +693,21 @@ sub mode_golr_term_details {
     #   }
   }
 
-  # ###
-  # ### Get neighborhood below term.
-  # ###
+  ###
+  ### Get neighborhood below term.
+  ### TODO: 
 
-  # ## Note: won't be included in subset case (too messy), so don't
-  # ## push.
-  # if( $is_term_acc_p ){
-  #   my $sorted_child_chunks = $term_q->get_child_info($input_term_id_list);
-  #   #$self->{CORE}->kvetch('scc: ' . Dumper($sorted_child_chunks));
-  #   foreach my $cinfo (@$sorted_child_chunks){ 
-  #     push @$acc_list_for_gpc_info, $cinfo->{acc};
-  #   }
-  #   $self->set_template_parameter('CHILD_CHUNKS', $sorted_child_chunks);
-  # }
+  ## Note: won't be included in subset case (too messy), so don't
+  ## push.
+  if( $is_term_acc_p ){
+    my $sorted_child_chunks =
+      $term_worker->get_child_info_for($input_term_id);
+    #$self->{CORE}->kvetch('scc: ' . Dumper($sorted_child_chunks));
+    foreach my $cinfo (@$sorted_child_chunks){ 
+      push @$acc_list_for_gpc_info, $cinfo->{acc};
+    }
+    $self->set_template_parameter('CHILD_CHUNKS', $sorted_child_chunks);
+  }
 
   ###
   ### Get term ancestor information.

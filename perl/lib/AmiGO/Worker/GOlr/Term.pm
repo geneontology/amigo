@@ -93,102 +93,88 @@ sub get_info {
 }
 
 
-# =item get_child_info_for
+=item get_child_info_for
 
-# Args: term acc string of term we already info about
-# Returns: hash containing various term infomation, keyed by (int) order
+Args: term acc string of term we already info about
+Returns: hash containing various term infomation, keyed by (int) order
 
-# =cut
-# sub get_child_info_for {
+=cut
+sub get_child_info_for {
 
-#   my $self = shift;
-#   my $arg = shift || die "need an argument";
+  my $self = shift;
+  my $arg = shift || die "need an argument";
 
-#   ## Check input.
-#   die "not a defined argument" if ! defined $self->{AWGT_INFO}{$arg};
+  ## First see if this is one that we can actually use.
+  my $cgraph = $self->{AWGT_INFO}{$arg}{chewable_graph}
+    || die 'not searched for document';
 
-#   ## Pull out some of the graph stuff for operation. Try and only do
-#   ## it once.
-#   my $cgraph = undef;
-#   my $json_graph_str = $self->{AWGT_INFO}{$arg}{'graph'};
-#   my $json_lineage_graph_str = $self->{AWGT_INFO}{$arg}{'lineage_graph'};
-#   if( ! defined $json_graph_str || ! $json_graph_str ||
-#       ! defined $json_lineage_graph_str || ! $json_lineage_graph_str ){
-#     $self->{CORE}->kvetch('could find no complete graph information!');
-#   }elsif( ! defined $self->{AWGT_GRAPH}{$arg} ){
-#     ## Store, and make it easier to get to next time.
-#     $self->{AWGT_GRAPH}{$arg} =
-#       AmiGO::ChewableGraph->new($arg, $json_graph_str, $json_lineage_graph_str);
-#     $cgraph = $self->{AWGT_GRAPH}{$arg};
-#   }
+  ###
+  ### Get neighborhood below term.
+  ###
 
-#   ###
-#   ### Get neighborhood below term.
-#   ###
+  ## Go through the relationships and find the most representative.
+  my $the_single_representative_child = {};
+  my $child_rels = $cgraph->get_child_relationships($arg);
+  #$self->kvetch('_a_: ' . $child_rels);
+  #$self->kvetch('_b_: ' . scalar(@$child_rels));
+  foreach my $child_rel (@$child_rels){
 
-#   ## We're capable of getting multiple child relations from the
-#   ## graph_path table, so we are going to filter for the "strongest"
-#   ## one and use that as the single representative child.
-#   my $the_single_child = {};
-#   my $child_rels = $self->{AW_TG}->get_child_relationships($arg);
-#   #$self->kvetch('_a_: ' . $child_rels);
-#   #$self->kvetch('_b_: ' . scalar(@$child_rels));
-#   foreach my $child_rel (@$child_rels){
+    my $rel_acc = $child_rel->{predicate_id};
+    my $sub_acc = $child_rel->{subject_id};
 
-#     my $rel = $child_rel->relationship; #->name;
-#     my $sub = $child_rel->subject;
+    ## A little wiggle to get the label.
+    my $sub_label = $cgraph->node_label($sub_acc);
 
-#     #my $rel_name = $rel->name;
-#     my $rel_acc = $rel->acc;
-#     my $sub_acc = $sub->acc;
-#     my $sub_name = $sub->name;
+    #     #my $rel_name = $rel->name;
+    #     my $rel_acc = $rel->acc;
+    #     my $sub_acc = $sub->acc;
+    #     my $sub_name = $sub->name;
 
-#     # $self->kvetch('_c.r_: ' . $rel_acc);
-#     # $self->kvetch('_c.s_: ' . $sub_acc);
-#     # $self->kvetch('_c.n_: ' . $sub_name);
+    #     # $self->kvetch('_c.r_: ' . $rel_acc);
+    #     # $self->kvetch('_c.s_: ' . $sub_acc);
+    #     # $self->kvetch('_c.n_: ' . $sub_name);
 
-#     my $add_it_p = 1;
+    #     my $add_it_p = 1;
 
-#     ## If the item is already in, check weight.
-#     if( defined $the_single_child->{$sub_acc} ){
-#       if( $self->{AW_TG}->relation_weight($rel_acc, 1000) <
-# 	  $self->{AW_TG}->relation_weight($the_single_child->{$sub_acc}{rel},
-# 					  1000) ){
-# 	$add_it_p = 0;
-#       }
-#     }
+    #     ## If the item is already in, check weight.
+    #     if( defined $the_single_representative_child->{$sub_acc} ){
+    #       if( $self->{AW_TG}->relation_weight($rel_acc, 1000) <
+    # 	  $self->{AW_TG}->relation_weight($the_single_representative_child->{$sub_acc}{rel},
+    # 					  1000) ){
+    # 	$add_it_p = 0;
+    #       }
+    #     }
 
-#     ## If it passed that above tests, add it.
-#     if( $add_it_p ){
+    #     ## If it passed that above tests, add it.
+    #     if( $add_it_p ){
 
-#       $the_single_child->{$sub_acc} =
-# 	{
-# 	 acc => $sub_acc,
-# 	 name => $sub_name,
-# 	 rel => $rel_acc,
-# 	 link => $self->get_interlink({mode => 'term_details',
-# 				       arg => {acc => $sub_acc},
-# 				      }),
-# 	 #optional => {frag => 'lineage'}}),
-# 	};
-#     }
-#   }
+    $the_single_representative_child->{$sub_acc} =
+      {
+       acc => $sub_acc,
+       name => $sub_label,
+       rel => $rel_acc,
+       link => $self->get_interlink({mode => 'term_details',
+				     arg => {acc => $sub_acc},
+				    }),
+       #optional => {frag => 'lineage'}}),
+      };
+    #     }
+  }
 
-#   ## Unwind hash key for gpc info list and child chunks.
-#   my $child_chunks = [];
-#   foreach my $sub_acc (keys %$the_single_child){
-#     #push @$acc_list_for_gpc_info, $sub_acc;
-#     push @$child_chunks, $the_single_child->{$sub_acc};
-#   }
+  ## Unwind hash key for gpc info list and child chunks.
+  my $child_chunks = [];
+  foreach my $sub_acc (keys %$the_single_representative_child){
+    #push @$acc_list_for_gpc_info, $sub_acc;
+    push @$child_chunks, $the_single_representative_child->{$sub_acc};
+  }
 
-#   ## Name ordering.
-#   my @sorted_child_chunks = sort {
-#     lc($a->{name}) cmp lc($b->{name})
-#   } @$child_chunks;
+  ## Name ordering.
+  my @sorted_child_chunks = sort {
+    lc($a->{name}) cmp lc($b->{name})
+  } @$child_chunks;
 
-
-#   return \@sorted_child_chunks;
-# }
+  return \@sorted_child_chunks;
+}
 
 
 =item get_ancestor_info

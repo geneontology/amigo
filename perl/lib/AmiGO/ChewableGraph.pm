@@ -676,6 +676,24 @@ sub max_distance {
   return $ret;
 }
 
+=item node_label
+
+Arg: acc string
+Return: string (if defined)
+
+=cut
+sub node_label {
+  my $self = shift;
+  my $acc = shift || die 'need an arg';
+  my $ret = undef;
+
+  if( defined $self->{ACG_STEPWISE}{NODES}{$acc} &&
+      defined $self->{ACG_STEPWISE}{NODES}{$acc}{label} ){
+    $ret = $self->{ACG_STEPWISE}{NODES}{$acc}{label};
+  }
+
+  return $ret;
+}
 
 =item lineage_info
 
@@ -738,7 +756,7 @@ sub lineage_info {
       $nodes->{$obj_acc} =
 	{
 	 id => $self->{ACG_STEPWISE}{NODES}{$obj_acc}{id},
-	 label => $self->{ACG_STEPWISE}{NODES}{$obj_acc}{label},
+	 label => $self->node_label($obj_acc),
 	 #link => 'http://localhost#TODO',
 	};
 
