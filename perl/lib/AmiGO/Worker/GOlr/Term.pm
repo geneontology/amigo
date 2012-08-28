@@ -124,30 +124,6 @@ sub get_child_info_for {
 
     ## A little wiggle to get the label.
     my $sub_label = $cgraph->node_label($sub_acc);
-
-    #     #my $rel_name = $rel->name;
-    #     my $rel_acc = $rel->acc;
-    #     my $sub_acc = $sub->acc;
-    #     my $sub_name = $sub->name;
-
-    #     # $self->kvetch('_c.r_: ' . $rel_acc);
-    #     # $self->kvetch('_c.s_: ' . $sub_acc);
-    #     # $self->kvetch('_c.n_: ' . $sub_name);
-
-    #     my $add_it_p = 1;
-
-    #     ## If the item is already in, check weight.
-    #     if( defined $the_single_representative_child->{$sub_acc} ){
-    #       if( $self->{AW_TG}->relation_weight($rel_acc, 1000) <
-    # 	  $self->{AW_TG}->relation_weight($the_single_representative_child->{$sub_acc}{rel},
-    # 					  1000) ){
-    # 	$add_it_p = 0;
-    #       }
-    #     }
-
-    #     ## If it passed that above tests, add it.
-    #     if( $add_it_p ){
-
     $the_single_representative_child->{$sub_acc} =
       {
        acc => $sub_acc,
@@ -156,9 +132,7 @@ sub get_child_info_for {
        link => $self->get_interlink({mode => 'term_details',
 				     arg => {acc => $sub_acc},
 				    }),
-       #optional => {frag => 'lineage'}}),
       };
-    #     }
   }
 
   ## Unwind hash key for gpc info list and child chunks.
