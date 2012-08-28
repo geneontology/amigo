@@ -708,26 +708,27 @@ sub mode_golr_term_details {
   #   $self->set_template_parameter('CHILD_CHUNKS', $sorted_child_chunks);
   # }
 
-  # ###
-  # ### Get term ancestor information.
-  # ###
+  ###
+  ### Get term ancestor information.
+  ###
 
   # #$self->{CORE}->kvetch("input_term_id_list" . Dumper($input_term_id_list));
 
-  # ##
-  # my $anc_info = undef;
-  # if( $is_term_acc_p ){
-  #   $anc_info = $term_q->get_ancestor_info($input_term_id_list);
-  # }else{
-  #   ## We want to include self in ancestors in this case.
-  #   $anc_info = $term_q->get_ancestor_info($input_term_id_list, {reflexive=>1});
-  # }
-  # $self->set_template_parameter('MAX_DEPTH', $anc_info->{max_depth});
-  # $self->set_template_parameter('MAX_DISPLACEMENT',
-  # 				$anc_info->{max_displacement});
-  # $self->set_template_parameter('PARENT_CHUNKS_BY_DEPTH',
-  # 				$anc_info->{parent_chunks_by_depth});
-  # push @$acc_list_for_gpc_info, @{$anc_info->{seen_acc_list}};
+  ##
+  my $anc_info = undef;
+  if( $is_term_acc_p ){
+    $anc_info = $term_worker->get_ancestor_info($input_term_id);
+  }else{
+    ## We want to include self in ancestors in this case.
+    $anc_info =
+      $term_worker->get_ancestor_info($input_term_id, {reflexive=>1});
+  }
+  $self->set_template_parameter('MAX_DEPTH', $anc_info->{max_depth});
+  $self->set_template_parameter('MAX_DISPLACEMENT',
+  				$anc_info->{max_displacement});
+  $self->set_template_parameter('PARENT_CHUNKS_BY_DEPTH',
+  				$anc_info->{parent_chunks_by_depth});
+  push @$acc_list_for_gpc_info, @{$anc_info->{seen_acc_list}};
 
   # ## Now that we have all accs that we want counts for, create a
   # ## mapping between terms and a random address.

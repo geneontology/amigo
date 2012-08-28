@@ -27,13 +27,13 @@ use Data::Dumper;
 
 ## A helper function for when we're debugging...
 sub _ll {
-  foreach my $arg (@_){
-    if( ref($arg) eq 'ARRAY'){
-      print("" . join(', ', @$arg) . "\n");
-    }else{
-      print("" . $arg . "\n");
-    }
-  }
+  # foreach my $arg (@_){
+  #   if( ref($arg) eq 'ARRAY'){
+  #     print("" . join(', ', @$arg) . "\n");
+  #   }else{
+  #     print("" . $arg . "\n");
+  #   }
+  # }
 }
 
 
@@ -739,7 +739,7 @@ sub lineage_info {
 	{
 	 id => $self->{ACG_STEPWISE}{NODES}{$obj_acc}{id},
 	 label => $self->{ACG_STEPWISE}{NODES}{$obj_acc}{label},
-	 link => 'http://localhost#TODO',
+	 #link => 'http://localhost#TODO',
 	};
 
       ## 2) Process $node_rel.
