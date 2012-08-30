@@ -873,7 +873,7 @@ sub mode_golr_term_details {
       'com.jquery.tablesorter',
       'bbop.core',
       'bbop.logger',
-      'bbop.logic',
+      'bbop.logic', # used in GOlrUIBeta.js
       'bbop.registry',
       'bbop.html',
       'bbop.amigo',
@@ -881,6 +881,7 @@ sub mode_golr_term_details {
       'bbop.amigo.linker',
       'bbop.golr_meta',
       'bbop.golr_conf',
+      'bbop.golr_response',
       'bbop.golr_manager',
       'bbop.amigo.ui.widgets',
       'bbop.amigo.ui.interactive'
@@ -888,7 +889,7 @@ sub mode_golr_term_details {
      javascript =>
      [
       $self->{JS}->get_lib('GOlrTemplate.js'),
-      $self->{JS}->get_lib('GOlrManager.js'),
+      #$self->{JS}->get_lib('GOlrManager.js'),
       $self->{JS}->get_lib('GOlrUIBeta.js'),
       # $self->{JS}->make_var('global_count_data', $gpc_info),
       # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
