@@ -56,8 +56,9 @@ function TermDetailsInit(){
     // TODO: new to replace the below.
     var gm_ann = new bbop.golr.manager(solr_server, gconf);
     gm_ann.set_personality('bbop_ann'); // profile in gconf
-    gm_ann.sticky_filters('document_category', 'annotation');
-    gm_ann.sticky_filters('isa_partof_closure', global_acc);
+    // Make these two base filters sticky in this case.
+    gm_ann.add_query_filter('document_category', 'annotation', ['*']);
+    gm_ann.add_query_filter('isa_partof_closure', global_acc, ['*']);
 
     var ui_ann = new GOlrUIBeta({'interface_id': 'display-associations',
 				 'class_conf': cclass});
