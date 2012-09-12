@@ -43,81 +43,96 @@ function GOlrUIBeta(in_args){
     var golr_resp = amigo.golr_response;
 
     // Get the user interface hook and remove anything that was there.
-    var ui_div_hook = this.interface_id;
-    jQuery('#' + ui_div_hook).empty();
+    var ui_div_id = this.interface_id;
+    jQuery('#' + ui_div_id).empty();
 
     // Mangle everything around this unique id so we don't collide
     // with other instances on the same page.
-    var mangle = ui_div_hook + '_ui_element_';
+    var mangle = ui_div_id + '_ui_element_';
 
-    // Render a control section into HTML.
-    var ui_controls_div_hook = mangle + 'ui-controls-wrapper';
-    var controls_div = new bbop.html.tag('div', {'id': ui_controls_div_hook});
-    //jQuery('#' + ui_div_hook).append(controls_div.to_string());
+    // Render a control section into HTML. This includes the accordion
+    // and current filter sections.
+    var ui_controls_section_id = mangle + 'ui-controls-wrapper';
+    var controls_div = new bbop.html.tag('div', {'id': ui_controls_section_id});
+    //jQuery('#' + ui_div_id).append(controls_div.to_string());
 
-    // Render a results section into HTML.
-    var ui_results_div_hook = mangle + 'ui-results-wrapper';
-    var results_div = new bbop.html.tag('div', {'id': ui_results_div_hook});
-    //jQuery('#' + ui_div_hook).append(results_div.to_string());
-
-    // Main hooks to the changable areas of the display.
-    var hook_meta_div = mangle + 'meta';
-    var hook_results_div = mangle + 'results';
-    var hook_filters_div = mangle + 'filters';
-    var hook_fqs_div = mangle + 'fqs';
+    // Render a results section into HTML. The includes the results
+    // table and the results meta-info sections.
+    var ui_results_section_id = mangle + 'ui-results-wrapper';
+    var results_div = new bbop.html.tag('div', {'id': ui_results_section_id});
+    //jQuery('#' + ui_div_id).append(results_div.to_string());
 
     // Add the sections to a two column layout and add that into the
     // main ui div.
-    var two_col = new GOlrTemplate.two_column_layout(controls_div, results_div);
-    jQuery('#' + ui_div_hook).append(two_col.to_string());
+    var two_col_div =
+	new GOlrTemplate.two_column_layout(controls_div, results_div);
+    jQuery('#' + ui_div_id).append(two_col_div.to_string());
 
-    // Additional id hooks for easy callbacks.
-    var accordion_div_hook = mangle + 'filter-accordion';
-    var q_input_hook = mangle + 'q';
+    // Main div id hooks to the easily changable areas of the two
+    // column display.
+    var ui_meta_div_id = mangle + 'meta-id';
+    var ui_results_table_div_id = mangle + 'results-table-id';
+    var ui_current_filters_div_id = mangle + 'current_filters-id';
+
+    // Additional id hooks for easy callbacks. While these are not as
+    // easily changable as the above, we use them often enough and
+    // across functions to have a hook.
+    var accordion_div_id = mangle + 'filter-accordion-id';
+    var q_input_id = mangle + 'q-id';
     
-    // These structures are used in multiple functions.
-    var filter_accordion = null;
-    var filter_fqs = null;
+    // These pointers are used in multiple functions (e.g. both
+    // *_setup and *_draw).
+    var filter_accordion_widget = null;
+    //var current_filters_div = null;
 
     /*
-     * Function: setup_filters
+     * Function: setup_current_filters
      *
-     * Setup filters under contructed tags for later population by results.
-     * The seeding information is coming in throughthe GOlr conf class.
+     * Setup current filters display under contructed tags for later
+     * population. The seeding information is coming in through the
+     * GOlr conf class.
+     * Add in the filter state up here.
      * 
      * Parameters: None
      *
      * Returns: Nothing
      */
-    this.setup_filters = function(){
+    this.setup_current_filters = function(){
     
-	ll('Build filter UI for class configuration: ' + this.class_conf.id());
+	ll('Build current filter UI for class configuration: ' +
+	   this.class_conf.id());
 
-	///
-	/// Create a frame to hang the filters on.
-	///
-	var filter_input = new bbop.html.tag('div', {'id': hook_filters_div});
-	jQuery('#' + ui_controls_div_hook).append(filter_input.to_string());
-
-	///
-	/// TODO: Add in the filter state up here.
-	///
-
-	filter_fqs = new bbop.html.tag('div', {'id': hook_fqs_div},
-				       "No applied filters...");
+	var current_filters_div =
+	    new bbop.html.tag('div', {'id': ui_current_filters_div_id},
+			      "No applied filters.");
 
 	// Add the output to the page.
-	jQuery('#' + hook_filters_div).append(filter_fqs.to_string());
+	var curr_filters_str = current_filters_div.to_string();
+	jQuery('#' + ui_controls_section_id).append(curr_filters_str);
+    };
 
-	///
-	/// Start building the accordion here. Not an updatable part.
-	///
+    /*
+     * Function: setup_accordion
+     *
+     * Setup the accordion skeleton under contructed tags for later
+     * population. The seeding information is coming in through the
+     * GOlr conf class.
+     * Start building the accordion here. Not an updatable part.
+     * 
+     * Parameters: None
+     *
+     * Returns: Nothing
+     */
+    this.setup_accordion = function(){
+    
+	ll('Build accordion UI for class configuration: ' +
+	   this.class_conf.id());
 
 	var filter_accordion_attrs = {
-	    id: accordion_div_hook,
+	    id: accordion_div_id,
 	    style: 'width: 25em;'
 	};
-	filter_accordion =
+	filter_accordion_widget =
 	    new bbop.html.accordion([], filter_accordion_attrs, true);
 
 	// Add the sections with no contents as a skeleton to be
@@ -132,14 +147,15 @@ function GOlrUIBeta(in_args){
 		     label: ifield.display_name(),
 		     description: ifield.description()
 		 };
-		 filter_accordion.add_to(in_attrs, '', true);
+		 filter_accordion_widget.add_to(in_attrs, '', true);
 	     });
 	
 	// Add the output from the accordion to the page.
-	jQuery('#' + hook_filters_div).append(filter_accordion.to_string());
+	var accordion_str = filter_accordion_widget.to_string();
+	jQuery('#' + ui_controls_section_id).append(accordion_str);
 
 	// Add the jQuery accordioning.
-	jQuery("#" + accordion_div_hook).accordion({ clearStyle: true,
+	jQuery("#" + accordion_div_id).accordion({ clearStyle: true,
 						     collapsible: true,
 						     active: false });
     };
@@ -147,57 +163,60 @@ function GOlrUIBeta(in_args){
     /*
      * Function: setup_results
      *
-     * Setup basic results table using the class conf.
-     * For actual results rendering, see .draw_results.
+     * Setup basic results table using the class conf. For actual
+     * results rendering, see .draw_results. While there is a meta
+     * block supplied, its use is optional.
      * 
-     * Parameters: None
+     * Parameters: hash; the only option is {'meta': true}.
      *
      * Returns: Nothing
      */
-    this.setup_results = function(){
+    this.setup_results = function(args){
 
 	ll('Build results UI for class configuration: ' + this.class_conf.id());
 	
+	// Decide whether or not to add the meta div.
+	var add_meta_p = false;
+	if( args && args['meta'] && args['meta'] == true ){
+	    add_meta_p = true;
+	}
+
 	// <div id="results_block" class="block">
 	// <h2>Found entities</h2>
 	// <div id="load_float"></div>
 	// <div id="meta_results">
 	// <div id="results_div">
-	var results = new bbop.html.tag('div', {'id': hook_results_div});
-	var meta = new bbop.html.tag('div', {'id': hook_meta_div});
-	var header = new bbop.html.tag('h2', {}, 'Found entities');
 	var block = new bbop.html.tag('div', {'class': 'block'});
+
+	// Add header section.
+	var header = new bbop.html.tag('h2', {}, 'Found entities');
 	block.add_to(header);
-	block.add_to(meta);
+
+	// If wanted, add meta to display queue.
+	if( add_meta_p ){	    
+	    var meta = new bbop.html.tag('div', {'id': ui_meta_div_id});
+	    block.add_to(meta);
+	}
+
+	// Add results section.
+	var results = new bbop.html.tag('div', {'id': ui_results_table_div_id});
 	block.add_to(results);
 
-	jQuery('#' + ui_results_div_hook).append(block.to_string());
+	jQuery('#' + ui_results_section_id).append(block.to_string());
 
-    };
-
-    /*
-     * Function: setup_meta
-     *
-     * Setup basic meta results.
-     * For actual meta results rendering, see .draw_meta.
-     * 
-     * Parameters: None
-     *
-     * Returns: Nothing
-     */
-    this.setup_meta = function(){
-
-	ll('Build meta UI');
-
-	jQuery('#' + hook_meta_div).empty();
-	jQuery('#' + hook_meta_div).append('No search yet performed...');
+	// If wanted, add initial render of meta.
+	if( add_meta_p ){	    
+	    ll('Add meta UI div');
+	    jQuery('#' + ui_meta_div_id).empty();
+	    jQuery('#' + ui_meta_div_id).append('No search yet performed...');
+	}
     };
 
     // // Initialize with reseting data.
     // // Also see make_filter_controls_frame.
     // this.make_search_controls_frame = function(json_data){
     
-    // 	ll('Initial build of UI from reset response: ' + ui_div_hook);
+    // 	ll('Initial build of UI from reset response: ' + ui_div_id);
 
     // 	///
     // 	/// Start building free text input here.
@@ -205,9 +224,9 @@ function GOlrUIBeta(in_args){
 
     // 	var free_input_label =
     // 	    new bbop.html.tag('label', {'for': 'q'}, 'Search: ');
-    // 	jQuery('#' + ui_controls_div_hook).append(free_input_label.to_string());
+    // 	jQuery('#' + ui_controls_section_id).append(free_input_label.to_string());
     // 	var free_input_attrs = {
-    // 	    'id': q_input_hook,
+    // 	    'id': q_input_id,
     // 	    'name': 'q',
     // 	    'class': "golr-q textBox textBoxLighten",
     // 	    'value': "",
@@ -215,10 +234,10 @@ function GOlrUIBeta(in_args){
     // 	    'type': 'text'
     // 	};
     // 	var free_input = new bbop.html.input(free_input_attrs);	
-    // 	jQuery('#' + ui_controls_div_hook).append(free_input.to_string());
+    // 	jQuery('#' + ui_controls_section_id).append(free_input.to_string());
 
     // 	// Add event for q input.
-    // 	jQuery('#' + q_input_hook).keyup(anchor._run_action_callbacks);
+    // 	jQuery('#' + q_input_id).keyup(anchor._run_action_callbacks);
 	
     // 	// Continue with the rest of the display (filter, results,
     // 	// etc.) controls.
@@ -231,18 +250,18 @@ function GOlrUIBeta(in_args){
     // 	///
     // 	/// Create a frame to hang the query and filters on.
     // 	///
-    // 	var filter_input = new bbop.html.tag('div', {'id': hook_filters_div});
-    // 	jQuery('#' + ui_controls_div_hook).append(filter_input.to_string());
+    // 	var filter_frame = new bbop.html.tag('div', {'id': ui_filters_frame_div_id});
+    // 	jQuery('#' + ui_controls_section_id).append(filter_frame.to_string());
 
     // 	///
     // 	/// Start building the accordion here. Not updatable parts.
     // 	///
 
     // 	var filter_accordion_attrs = {
-    // 	    id: accordion_div_hook,
+    // 	    id: accordion_div_id,
     // 	    style: 'width: 25em;'
     // 	};
-    // 	filter_accordion =
+    // 	filter_accordion_widget =
     // 	    new bbop.html.accordion([], filter_accordion_attrs, true);
 
     // 	// Add the sections with no contents as a skeleton to be
@@ -250,16 +269,16 @@ function GOlrUIBeta(in_args){
     // 	var field_list = golr_resp.facet_field_list(json_data);
     // 	function _process_in_fields_as_sections(in_field){
     // 	    ll('saw field: ' + in_field);
-    // 	    filter_accordion.add_to(in_field, '', true);
+    // 	    filter_accordion_widget.add_to(in_field, '', true);
     // 	}
     // 	each(field_list, _process_in_fields_as_sections);
 
     // 	// Add the output from the accordion to the page.
-    // 	//jQuery('#' + ui_div_hook).html(filter_accordion.to_string());
-    // 	jQuery('#' + hook_filters_div).append(filter_accordion.to_string());
+    // 	//jQuery('#' + ui_div_id).html(filter_accordion_widget.to_string());
+    // 	jQuery('#' + ui_filters_frame_div_id).append(filter_accordion_widget.to_string());
 
     // 	// Add the jQuery accordioning.
-    // 	jQuery("#" + accordion_div_hook).accordion({ clearStyle: true,
+    // 	jQuery("#" + accordion_div_id).accordion({ clearStyle: true,
     // 						     collapsible: true,
     // 						     active: false });
     // };
@@ -285,18 +304,18 @@ function GOlrUIBeta(in_args){
     // 	// // var field_list = golr_resp.facet_field_list(json_data);
     // 	// // function _process_in_fields(in_field){
     // 	// //     ll('for color, field: ' + in_field);
-    // 	// //     //filter_accordion.add_to(in_field, '', true);
+    // 	// //     //filter_accordion_widget.add_to(in_field, '', true);
     // 	// //     var filtered_fields_hash = qf[in_field];
     // 	// //     if( filtered_fields_hash ){
     // 	// // 	var filtered_fields = bbop.core.get_keys(filtered_fields_hash);
-    // 	// // 	ll('for field, fqs: ' + filtered_fields);
+    // 	// // 	ll('for field, current_filters_div: ' + filtered_fields);
     // 	// // 	// TODO: find in DOM
     // 	// // 	// TODO: color in DOM
     // 	// //     }
     // 	// // }
     // 	// // each(field_list, _process_in_fields);
 
-    // 	// jQuery('#' + accordion_div_hook + ' > * > * > .ui-selectee').each(
+    // 	// jQuery('#' + accordion_div_id + ' > * > * > .ui-selectee').each(
     // 	//     function(){
     // 	// 	// Filter set in question. Subtract the head from the
     // 	// 	// id to get the original mangled filter set.
@@ -311,7 +330,7 @@ function GOlrUIBeta(in_args){
 
     // 	// 	// Compare
     // 	// 	if( qf[filter_set] && qf[filter_set][filter_item] ){
-    // 	// 	    ll('for fqs, found ' + filter_set + ' ' + filter_item);
+    // 	// 	    ll('for current_filters_div, found ' + filter_set + ' ' + filter_item);
     // 	// 	    jQuery(this).addClass('ui-selected');
     // 	// 	}
     // 	//     });
@@ -322,20 +341,20 @@ function GOlrUIBeta(in_args){
     // (e.g. q, fq, etc.).
     this.state = function(){
     
-	ll('find current status of user display: ' + ui_controls_div_hook);
+	ll('find current status of user display: ' + ui_controls_section_id);
 	
 	///
 	/// Get the logic contained in the free query string.
 	///
 
-	ll('Scanning for q input: ' + q_input_hook);
+	ll('Scanning for q input: ' + q_input_id);
 
 	var q_logic = new bbop.logic();
 	var q_val = "";
-	if( jQuery('#' + q_input_hook) &&
-	    jQuery('#' + q_input_hook)[0] &&
-	    jQuery('#' + q_input_hook)[0].value ){
-		q_val = jQuery('#' + q_input_hook)[0].value;		
+	if( jQuery('#' + q_input_id) &&
+	    jQuery('#' + q_input_id)[0] &&
+	    jQuery('#' + q_input_id)[0].value ){
+		q_val = jQuery('#' + q_input_id)[0].value;		
 	    }
 	ll('squirrel away q: ' + q_val);
 	//q_logic.add('q:' + q_val);
@@ -349,9 +368,9 @@ function GOlrUIBeta(in_args){
 	var fq_logic = new bbop.logic();
 
 	// Figure out where our filters are and what they contain.
-	ll('Scanning filter accordion: ' + accordion_div_hook);
+	ll('Scanning filter accordion: ' + accordion_div_id);
 	//jQuery(".golr-filter-selectable .ui-selected").each(
-	jQuery('#' + accordion_div_hook + ' > * > * > .ui-selected').each(
+	jQuery('#' + accordion_div_id + ' > * > * > .ui-selected').each(
 	    function(){
 		// Filter set in question. Subtract the head from the
 		// id to get the original mangled filter set.
@@ -391,10 +410,10 @@ function GOlrUIBeta(in_args){
     /*
      * Function: set_static_filters
      *
-     * TODO: Takes a JSON payload and notes the "fq" settings; the fqs
-     * seen will be ignored in the future. This is essentially for
-     * pages where you want some filters locked-in and not available
-     * to the user.
+     * TODO: Takes a JSON payload and notes the "fq" settings; the
+     * current_filters_div seen will be ignored in the future. This is
+     * essentially for pages where you want some filters locked-in and
+     * not available to the user.
      * 
      * Parameters: json_data
      *
@@ -424,61 +443,71 @@ function GOlrUIBeta(in_args){
 	var first_d = golr_resp.start_document(json_data);
 	var last_d = golr_resp.end_document(json_data);
 	var dmeta = new GOlrTemplate.meta_results(total_c, first_d, last_d);
-	jQuery('#' + hook_meta_div).empty();
-	jQuery('#' + hook_meta_div).append(dmeta.to_string());
+	jQuery('#' + ui_meta_div_id).empty();
+	jQuery('#' + ui_meta_div_id).append(dmeta.to_string());
     };
 
     /*
-     * Function: draw_filters
+     * Function: draw_current_filters
      *
-     * (Re)draw the information in the accordion filters.
+     * (Re)draw the information in the current filter set.
      * This function makes them active as well.
      * 
      * Parameters: json_data
      *
      * Returns: Nothing
      */
-    this.draw_filters = function(json_data){
+    this.draw_current_filters = function(json_data){
     
-	ll('Draw current filters for: ' + ui_div_hook);
+	ll('Draw current filters for: ' + ui_div_id);
 
-	///
-	/// TODO:  Work on the filter breadcrumbs.
-	///
-
+	// TODO: Work on the filter breadcrumbs.
 	var qfilters = golr_resp.query_filters(json_data);
-	//ll('filters: ' + bbop.core.dump(qfilters));
+	ll('filters: ' + bbop.core.dump(qfilters));
 	var fq_list_ul = new bbop.html.list([]);
 	var has_fq_p = false;
 	each(qfilters,
-	    function(field, field_vals){
-		each(field_vals,
-		     function(field_val, polarity){
-			 ll(field + ':' + field_val + ':' + polarity);
-			 has_fq_p = true;
-			 if( polarity ){
-			     fq_list_ul.add_to('+' + field + ':'
-					       + field_val + ' [X]');
-			 }else{
-			     fq_list_ul.add_to('-' + field + ':'
-					       + field_val + ' [X]');
-			 }
-		     });
-	    });
+	     function(field, field_vals){
+		 each(field_vals,
+		      function(field_val, polarity){
+			  ll(field + ':' + field_val + ':' + polarity);
+			  has_fq_p = true;
+			  if( polarity ){
+			      fq_list_ul.add_to('+' + field + ':'
+						+ field_val + ' [X]');
+			  }else{
+			      fq_list_ul.add_to('-' + field + ':'
+						+ field_val + ' [X]');
+			  }
+		      });
+	     });
 
-	jQuery('#' + hook_fqs_div).empty();
+	// Either add to the display, or display the "empty" message.
+	var cfid = '#' + ui_current_filters_div_id;
+	jQuery(cfid).empty();
 	if( has_fq_p ){
-	    jQuery('#' + hook_fqs_div).append(fq_list_ul.to_string());
+	    jQuery(cfid).append(fq_list_ul.to_string());
 	}else{
-	    jQuery('#' + hook_fqs_div).append("No current filters...");
+	    jQuery(cfid).append("No current filters.");
 	}
+    };
 
-	///
-	/// Work on the accordion.
-	///
+    /*
+     * Function: draw_accordion
+     *
+     * (Re)draw the information in the accordion controls/filters.
+     * This function makes them active as well.
+     * 
+     * Parameters: json_data
+     *
+     * Returns: Nothing
+     */
+    this.draw_accordion = function(json_data){
+    
+	ll('Draw current accordion for: ' + ui_div_id);
 
 	// Make sure that accordion has already been inited.
-	if( typeof(filter_accordion) == 'undefined'){
+	if( typeof(filter_accordion_widget) == 'undefined'){
 	    throw new Error('Need to init accordion ().');
 	}
 
@@ -508,7 +537,7 @@ function GOlrUIBeta(in_args){
 		 });
 
 	    // Add the ul list to the accordion.
-	    var sect_id = filter_accordion.get_section_id(in_field);
+	    var sect_id = filter_accordion_widget.get_section_id(in_field);
 	    // ll('add to accordion: ' + sect_id + ' ' +
 	    //    facet_list_ul.to_string());
 	    jQuery('#' + sect_id).empty();
@@ -569,8 +598,9 @@ function GOlrUIBeta(in_args){
 	//ll('final_table c: ' + final_table.to_string());
 
 	// Display product.
-	jQuery('#' + hook_results_div).empty();
-	jQuery('#' + hook_results_div).append(bbop.core.to_string(final_table));
+	var urtdi = ui_results_table_div_id;
+	jQuery('#' + urtdi).empty();
+	jQuery('#' + urtdi).append(bbop.core.to_string(final_table));
     };
 
 }
