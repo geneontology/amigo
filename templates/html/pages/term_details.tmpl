@@ -61,7 +61,7 @@
       [%    FOREACH synh IN sl %]
       <!-- BUG/TODO: Like this when we have scope available. -->
       <!-- <dd class="syn">[% IF synh.scope %]<span class="type">[% synh.scope %]</span>: [% END %][% synh.acc %]</dd> -->
-      <dd class="syn"><b>scopeless label</b>: [% synh %]</dd>
+      <dd class="syn"><b>(scopeless) label</b>: [% synh %]</dd>
       [%    END %]
       [% END %]
 
@@ -97,24 +97,21 @@
      [% IF TERM_INFO.comment %]
      <dd class="comment">[% TERM_INFO.comment %]</dd>
      [% ELSE %]
-     <!-- <dd>None</dd> -->
-     <dd>TODO</dd>
+     <dd class="comment">None</dd>
      [% END %]
-     [%	IF TERM_INFO.is_obsolete == 'true' %]
-     [%    IF TERM_INFO.replaced_by_list %]
-      <dd>Replaced by
-	[%    FOREACH t = TERM_INFO.replaced_by_list %]
-	<a href="term_details?term=[% t.acc %]&amp;session_id=[% session_id %]">[% t.acc %] : [% t.name %]</a>
-       [%     END %]
-      </dd>
-      [%   END %]
-      [%   IF TERM_INFO.consider_list %]
-      <dd>Consider
-	[%    FOREACH t = TERM_INFO.consider_list %]
-	<a href="term_details?term=[% t.acc %]&amp;session_id=[% session_id %]">[% t.acc %] : [% t.name %]</a>
-       [%     END %]
-      </dd>
-      [%   END %]
+     [% FOREACH rbi IN TERM_INFO.replaced_by_info %]
+     <dd class="replaced_by">
+       <b>replaced by</b>:
+       <a href="[% rbi.link %]">[% rbi.acc %]</a>
+       <!-- <a href="[% rbi.link %]">[% rbi.acc %]; [% rbi.name %]</a> -->
+     </dd>
+     [% END %]
+     [% FOREACH cni IN TERM_INFO.consider_info %]
+     <dd class="consider">
+       <b>consider</b>:
+       <a href="[% cni.link %]">[% cni.acc %]</a>
+       <!-- <a href="[% cni.link %]">[% cni.acc %]; [% cni.name %]</a> -->
+     </dd>
      [% END %]
 
      <!-- Subsets -->

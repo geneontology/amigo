@@ -59,6 +59,10 @@ sub new {
 	 is_obsolete => $found_doc->{is_obsolete} || 'false',
 	 subsets => $found_doc->{subset} || [],
 	 alternate_ids => $found_doc->{alternate_id} || [],
+	 consider_info =>
+	 $self->_term_accs_to_info($found_doc->{consider}),
+	 replaced_by_info =>
+	 $self->_term_accs_to_info($found_doc->{replaced_by}),
 	 synonyms => $found_doc->{synonym} || [],
 	 #dbxrefs => [],
 	 term_dbxrefs => $found_doc->{definition_xref} || [],
@@ -77,6 +81,24 @@ sub new {
 
   bless $self, $class;
   return $self;
+}
+
+
+## Helper to convert term ACCs to links.
+sub _term_accs_to_info {
+  my $self = shift;
+  my $accs = shift || [];
+  my $retlist = [];
+
+  foreach my $acc (@$accs){
+    push @$retlist,
+      {
+       acc => $acc,
+       link => $self->get_interlink({mode=>'term_details', arg=>{acc=>$acc}})
+      };
+  }
+
+  return $retlist;
 }
 
 
