@@ -407,21 +407,21 @@ function GOlrUIBeta(in_args){
 	anchor.apply_callbacks('action', [current_state]);
     };
 
-    /*
-     * Function: set_static_filters
-     *
-     * TODO: Takes a JSON payload and notes the "fq" settings; the
-     * current_filters_div seen will be ignored in the future. This is
-     * essentially for pages where you want some filters locked-in and
-     * not available to the user.
-     * 
-     * Parameters: json_data
-     *
-     * Returns: Nothing
-     */
-    this.set_static_filters = function(json_data){
-	// TODO:
-    };
+    // /*
+    //  * Function: set_static_filters
+    //  *
+    //  * TODO: Takes a JSON payload and notes the "fq" settings; the
+    //  * current_filters_div seen will be ignored in the future. This is
+    //  * essentially for pages where you want some filters locked-in and
+    //  * not available to the user.
+    //  * 
+    //  * Parameters: json_data
+    //  *
+    //  * Returns: Nothing
+    //  */
+    // this.set_static_filters = function(json_data, manager){
+    // 	// TODO:
+    // };
 
     /*
      * Function: draw_meta
@@ -433,7 +433,7 @@ function GOlrUIBeta(in_args){
      *
      * Returns: Nothing
      */
-    this.draw_meta = function(json_data){
+    this.draw_meta = function(json_data, manager){
 	
 	// TODO: Get back the type of callback.
 
@@ -457,38 +457,88 @@ function GOlrUIBeta(in_args){
      *
      * Returns: Nothing
      */
-    this.draw_current_filters = function(json_data){
+    this.draw_current_filters = function(json_data, manager){
     
 	ll('Draw current filters for: ' + ui_div_id);
 
-	// TODO: Work on the filter breadcrumbs.
+	// Add in the actual HTML for the filters and buttons. While
+	// doing so, tie a unique id to the filter--we'll use that
+	// later on to add buttons and events to them.
 	var qfilters = golr_resp.query_filters(json_data);
 	ll('filters: ' + bbop.core.dump(qfilters));
 	var fq_list_ul = new bbop.html.list([]);
-	var has_fq_p = false;
+	var has_fq_p = false; // see if there are any filters
+	var button_hash = {};
 	each(qfilters,
 	     function(field, field_vals){
 		 each(field_vals,
 		      function(field_val, polarity){
-			  ll(field + ':' + field_val + ':' + polarity);
+
+			  // Note the fact that we actually for a
+			  // filter to note.
 			  has_fq_p = true;
-			  if( polarity ){
-			      fq_list_ul.add_to('+' + field + ':'
-						+ field_val + ' [X]');
-			  }else{
-			      fq_list_ul.add_to('-' + field + ':'
-						+ field_val + ' [X]');
-			  }
+
+			  // Boolean value to a character.
+			  var polstr = '-';
+			  if( polarity ){ polstr = '+'; }
+
+			  // Generate a button with a unique id.
+			  var label_str = polstr +' '+ field +':'+ field_val;
+			  var b =
+			      new bbop.html.button('remove filter',
+						   {'generate_id': true});
+
+			  // Tie the button it to the filter for
+			  // jQuery and events attachment later on.
+			  var bid = b.get_id();
+			  button_hash[bid] = [polstr, field, field_val];
+
+			  ll(label_str +' '+ bid);
+			  fq_list_ul.add_to(label_str +' '+ b.to_string());
 		      });
 	     });
 
 	// Either add to the display, or display the "empty" message.
 	var cfid = '#' + ui_current_filters_div_id;
 	jQuery(cfid).empty();
-	if( has_fq_p ){
-	    jQuery(cfid).append(fq_list_ul.to_string());
-	}else{
+	if( ! has_fq_p ){
 	    jQuery(cfid).append("No current filters.");
+	}else{
+
+	    // The buttons have now been attached to the DOM...
+	    jQuery(cfid).append(fq_list_ul.to_string());
+
+	    // TODO ...now let's go back and add the buttons, styles,
+	    // events, etc.
+	    each(button_hash,
+		 function(button_id){
+		     var bid = button_id;
+
+		     // Get the button.
+		     var bprops = {
+			 icons: { primary: "ui-icon-closethick"},
+			 text: false
+		     };
+		     // Create the button and immediately add the event.
+		     jQuery('#' + bid).button(bprops).click(
+			 function(){
+			     var tid = jQuery(this).attr('id');
+			     var button_props = button_hash[tid];
+			     var polstr = button_props[0];
+			     var field = button_props[1];
+			     var value = button_props[2];
+
+			     // // TODO: filter out things that are
+			     // // sticky.
+			     // // Change manager TODO: and fire.
+			     // manager.remove_query_filter(field,value,
+			     // 				 [polstr, '*']);
+			     // manager.update('search');
+			     
+			     var lstr = polstr +' '+ field +' '+ value;
+			     alert(lstr);
+			 });
+		 });
 	}
     };
 
@@ -502,7 +552,7 @@ function GOlrUIBeta(in_args){
      *
      * Returns: Nothing
      */
-    this.draw_accordion = function(json_data){
+    this.draw_accordion = function(json_data, manager){
     
 	ll('Draw current accordion for: ' + ui_div_id);
 
@@ -583,7 +633,7 @@ function GOlrUIBeta(in_args){
      *
      * Returns: Nothing
      */
-    this.draw_results = function(json_data){
+    this.draw_results = function(json_data, manager){
 	
 	ll('Draw results div...');
 
