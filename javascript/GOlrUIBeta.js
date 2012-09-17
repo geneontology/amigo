@@ -40,7 +40,10 @@ function GOlrUIBeta(in_args){
    
     // AmiGO helper.
     var amigo = new bbop.amigo();
-    var golr_resp = amigo.golr_response;
+    //var golr_resp = amigo.golr_response;
+
+    // BBOP helper.
+    var golr_resp = bbop.golr.response;
 
     // Get the user interface hook and remove anything that was there.
     var ui_div_id = this.interface_id;
@@ -435,16 +438,112 @@ function GOlrUIBeta(in_args){
      */
     this.draw_meta = function(json_data, manager){
 	
-	// TODO: Get back the type of callback.
-
-	// TODO: Draw meta--the same for every type of return.
 	ll('Draw meta div...');
+
+	// Collect numbers.
 	var total_c = golr_resp.total_documents(json_data);
-	var first_d = golr_resp.start_document(json_data);
+	var step_c = golr_resp.row_step(json_data);
+	var first_d = golr_resp.start_document(json_data) + 1;
 	var last_d = golr_resp.end_document(json_data);
+
+	// Draw meta; the current nuymbers and page--the same for
+	// every type of return.
 	var dmeta = new GOlrTemplate.meta_results(total_c, first_d, last_d);
 	jQuery('#' + ui_meta_div_id).empty();
 	jQuery('#' + ui_meta_div_id).append(dmeta.to_string());
+
+	// Now add the raw buttons to the interface, and after this,
+	// activation and adding events.
+	var b_first = new bbop.html.button('First', {'generate_id': true});
+	jQuery('#' + ui_meta_div_id).append(b_first.to_string());
+	var b_back = new bbop.html.button('Prev', {'generate_id': true});
+	jQuery('#' + ui_meta_div_id).append(b_back.to_string());
+	var b_forward = new bbop.html.button('Next', {'generate_id': true});
+	jQuery('#' + ui_meta_div_id).append(b_forward.to_string());
+	var b_last = new bbop.html.button('Last', {'generate_id': true});
+	jQuery('#' + ui_meta_div_id).append(b_last.to_string());
+
+	// Do the math about what buttons to activate.
+	var b_first_disabled_p = false;
+	var b_back_disabled_p = false;
+	var b_forward_disabled_p = false;
+	var b_last_disabled_p = false;
+
+	// Only activate paging if it is necessary to the returns.
+	if( total_c <= step_c ){
+	    b_first_disabled_p = true;
+	    b_back_disabled_p = true;
+	    b_forward_disabled_p = true;
+	    b_last_disabled_p = true;
+	}
+	    
+	// Don't activate back on the first page.
+	if( first_d <= 1 ){ // we'll take this as a proxy for a step
+	    b_first_disabled_p = true;
+	    b_back_disabled_p = true;
+	}
+	    
+	// Don't activate next on the last page.
+	if( last_d >= total_c ){
+	    b_forward_disabled_p = true;
+	    b_last_disabled_p = true;
+	}
+	
+	// First page button.
+	var b_first_props = {
+	    icons: { primary: "ui-icon-seek-first"},
+	    disabled: b_first_disabled_p,
+	    text: false
+	};
+	jQuery('#' + b_first.get_id()).button(b_first_props).click(
+	    function(){
+		//alert("first: " + total_c + " " + first_d + " " + last_d);
+		// TODO/BUG: this should work!
+		manager.search(); // cheat and trust reset
+	    });
+	
+	// Previous page button.
+	var b_back_props = {
+	    icons: { primary: "ui-icon-seek-prev"},
+	    disabled: b_back_disabled_p,
+	    text: false
+	};
+	jQuery('#' + b_back.get_id()).button(b_back_props).click(
+	    function(){
+		var do_rows = manager.get_page_rows();
+		var do_offset = manager.get_page_start() - do_rows;
+		manager.page(do_rows, do_offset);
+	    });
+	
+	// Next page button.
+	var b_forward_props = {
+	    icons: { primary: "ui-icon-seek-next"},
+	    disabled: b_forward_disabled_p,
+	    text: false
+	};
+	jQuery('#' + b_forward.get_id()).button(b_forward_props).click(
+	    function(){
+		var do_rows = manager.get_page_rows();
+		var do_offset = do_rows + manager.get_page_start();
+		manager.page(do_rows, do_offset);
+	    });
+	
+	// Last page button.
+	var b_last_props = {
+	    icons: { primary: "ui-icon-seek-end"},
+	    disabled: b_last_disabled_p,
+	    text: false
+	};
+	jQuery('#' + b_last.get_id()).button(b_last_props).click(
+	    function(){
+		// A little trickier.
+		var do_rows = manager.get_page_rows();
+		var mod = total_c % do_rows;
+		var do_offset = total_c - mod;
+		// alert("last: " + total_c + ", " + first_d + ", " + last_d + 
+		//      ", " + do_rows + ", " + do_offset);
+		manager.page(do_rows, do_offset);
+	    });
     };
 
     /*

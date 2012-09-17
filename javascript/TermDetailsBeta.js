@@ -92,7 +92,7 @@ function TermDetailsInit(){
     gm_ann.register('search', 'meta_usual', ui_ann.draw_meta);
     gm_ann.register('search', 'results_usual', ui_ann.draw_results);
 
-    // Whenever there is a user interface actions, trigger a model
+    // Whenever there is a user interface action, trigger a model
     // search.
     ui_ann.register('action', 'ui_action', gm_ann.search);
 

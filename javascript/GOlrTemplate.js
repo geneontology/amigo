@@ -41,11 +41,14 @@ GOlrTemplate.two_column_layout.prototype = new bbop.html.tag;
 GOlrTemplate.meta_results = function (total, first, last){
     bbop.html.tag.call(this, 'div');
 
+    // Add number slots.
     this.add_to('Total: ' + total + '&nbsp;&nbsp;&nbsp;');
     this.add_to('First: ' + first + '&nbsp;&nbsp;&nbsp;');
     this.add_to('Last: ' + last + '<br />');
-    this.add_to('TODO: paging');
-    // <a id="for_paging_id_f0ccpl4zp0" href="#results_block">forward -&gt;</a>
+
+    // // Add button slots.
+    // this.add_to('<button />');
+    // // <a id="for_paging_id_f0ccpl4zp0" href="#results_block">forward -&gt;</a>
 };
 GOlrTemplate.meta_results.prototype = new bbop.html.tag;
 
