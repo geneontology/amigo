@@ -563,37 +563,45 @@ function GOlrUIBeta(in_args){
 	// Add in the actual HTML for the filters and buttons. While
 	// doing so, tie a unique id to the filter--we'll use that
 	// later on to add buttons and events to them.
-	var qfilters = golr_resp.query_filters(json_data);
-	ll('filters: ' + bbop.core.dump(qfilters));
+	var in_query_filters = golr_resp.query_filters(json_data);
+	var sticky_query_filters = manager.get_sticky_query_filters();
+	ll('filters: ' + bbop.core.dump(in_query_filters));
 	var fq_list_ul = new bbop.html.list([]);
-	var has_fq_p = false; // see if there are any filters
+	var has_fq_p = false; // assume there are no filters to begin with
 	var button_hash = {};
-	each(qfilters,
+	each(in_query_filters,
 	     function(field, field_vals){
 		 each(field_vals,
 		      function(field_val, polarity){
 
-			  // Note the fact that we actually for a
-			  // filter to note.
-			  has_fq_p = true;
+			  // Make note of stickiness, skip adding if sticky.
+			  var qfp =
+			      manager.get_query_filter_properties(field,
+								  field_val);
+			  if( ! qfp || qfp['sticky_p'] == false ){
+			  
+			      // Note the fact that we actually have a
+			      // query filter to work with and display.
+			      has_fq_p = true;
 
-			  // Boolean value to a character.
-			  var polstr = '-';
-			  if( polarity ){ polstr = '+'; }
+			      // Boolean value to a character.
+			      var polstr = '-';
+			      if( polarity ){ polstr = '+'; }
 
-			  // Generate a button with a unique id.
-			  var label_str = polstr +' '+ field +':'+ field_val;
-			  var b =
-			      new bbop.html.button('remove filter',
-						   {'generate_id': true});
-
-			  // Tie the button it to the filter for
-			  // jQuery and events attachment later on.
-			  var bid = b.get_id();
-			  button_hash[bid] = [polstr, field, field_val];
-
-			  ll(label_str +' '+ bid);
-			  fq_list_ul.add_to(label_str +' '+ b.to_string());
+			      // Generate a button with a unique id.
+			      var label_str = polstr+' '+ field +':'+field_val;
+			      var b =
+				  new bbop.html.button('remove filter',
+						       {'generate_id': true});
+			      
+			      // Tie the button it to the filter for
+			      // jQuery and events attachment later on.
+			      var bid = b.get_id();
+			      button_hash[bid] = [polstr, field, field_val];
+			  
+			      ll(label_str +' '+ bid);
+			      fq_list_ul.add_to(label_str +' '+ b.to_string());
+			  }
 		      });
 	     });
 
@@ -627,15 +635,13 @@ function GOlrUIBeta(in_args){
 			     var field = button_props[1];
 			     var value = button_props[2];
 
-			     // // TODO: filter out things that are
-			     // // sticky.
-			     // // Change manager TODO: and fire.
+			     // Change manager and fire.
+			     // var lstr = polstr +' '+ field +' '+ value;
+			     // alert(lstr);
 			     // manager.remove_query_filter(field,value,
 			     // 				 [polstr, '*']);
-			     // manager.update('search');
-			     
-			     var lstr = polstr +' '+ field +' '+ value;
-			     alert(lstr);
+			     manager.remove_query_filter(field, value);
+			     manager.search();
 			 });
 		 });
 	}
