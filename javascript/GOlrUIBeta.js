@@ -443,7 +443,7 @@ function GOlrUIBeta(in_args){
 	// Collect numbers.
 	var total_c = golr_resp.total_documents(json_data);
 	var step_c = golr_resp.row_step(json_data);
-	var first_d = golr_resp.start_document(json_data) + 1;
+	var first_d = golr_resp.start_document(json_data);
 	var last_d = golr_resp.end_document(json_data);
 
 	// Draw meta; the current nuymbers and page--the same for
