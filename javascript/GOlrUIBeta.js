@@ -9,7 +9,7 @@
 
 // An experimental dynamic UI builder.
 function GOlrUIBeta(in_args){
-    bbop.registry.call(this, ['action']);
+    //bbop.registry.call(this, ['action']);
 
     var anchor = this;
     var each = bbop.core.each;
@@ -96,9 +96,11 @@ function GOlrUIBeta(in_args){
      * GOlr conf class.
      * Add in the filter state up here.
      * 
-     * Parameters: None
+     * Parameters:
+     *  n/a
      *
-     * Returns: Nothing
+     * Returns:
+     *  n/a
      */
     this.setup_current_filters = function(){
     
@@ -122,9 +124,11 @@ function GOlrUIBeta(in_args){
      * GOlr conf class.
      * Start building the accordion here. Not an updatable part.
      * 
-     * Parameters: None
+     * Parameters:
+     *  n/a 
      *
-     * Returns: Nothing
+     * Returns: 
+     *  n/a
      */
     this.setup_accordion = function(){
     
@@ -170,9 +174,11 @@ function GOlrUIBeta(in_args){
      * results rendering, see .draw_results. While there is a meta
      * block supplied, its use is optional.
      * 
-     * Parameters: hash; the only option is {'meta': true}.
+     * Parameters:
+     *  hash; the only option is {'meta': true}.
      *
-     * Returns: Nothing
+     * Returns:
+     *  n/a
      */
     this.setup_results = function(args){
 
@@ -339,76 +345,76 @@ function GOlrUIBeta(in_args){
     // 	//     });
     // };
 
-    // Get the current state of the HTML GUI layer.
-    // Returns hash of logic objects keyed by solr filter type
-    // (e.g. q, fq, etc.).
-    this.state = function(){
+    // // Get the current state of the HTML GUI layer.
+    // // Returns hash of logic objects keyed by solr filter type
+    // // (e.g. q, fq, etc.).
+    // this.state = function(){
     
-	ll('find current status of user display: ' + ui_controls_section_id);
+    // 	ll('find current status of user display: ' + ui_controls_section_id);
 	
-	///
-	/// Get the logic contained in the free query string.
-	///
+    // 	///
+    // 	/// Get the logic contained in the free query string.
+    // 	///
 
-	ll('Scanning for q input: ' + q_input_id);
+    // 	ll('Scanning for q input: ' + q_input_id);
 
-	var q_logic = new bbop.logic();
-	var q_val = "";
-	if( jQuery('#' + q_input_id) &&
-	    jQuery('#' + q_input_id)[0] &&
-	    jQuery('#' + q_input_id)[0].value ){
-		q_val = jQuery('#' + q_input_id)[0].value;		
-	    }
-	ll('squirrel away q: ' + q_val);
-	//q_logic.add('q:' + q_val);
-	q_logic.add(q_val);
+    // 	var q_logic = new bbop.logic();
+    // 	var q_val = "";
+    // 	if( jQuery('#' + q_input_id) &&
+    // 	    jQuery('#' + q_input_id)[0] &&
+    // 	    jQuery('#' + q_input_id)[0].value ){
+    // 		q_val = jQuery('#' + q_input_id)[0].value;		
+    // 	    }
+    // 	ll('squirrel away q: ' + q_val);
+    // 	//q_logic.add('q:' + q_val);
+    // 	q_logic.add(q_val);
 
-	///
-	/// Get the logic contained in the accordion filters (a little
-	/// trickier).
-	///
+    // 	///
+    // 	/// Get the logic contained in the accordion filters (a little
+    // 	/// trickier).
+    // 	///
 
-	var fq_logic = new bbop.logic();
+    // 	var fq_logic = new bbop.logic();
 
-	// Figure out where our filters are and what they contain.
-	ll('Scanning filter accordion: ' + accordion_div_id);
-	//jQuery(".golr-filter-selectable .ui-selected").each(
-	jQuery('#' + accordion_div_id + ' > * > * > .ui-selected').each(
-	    function(){
-		// Filter set in question. Subtract the head from the
-		// id to get the original mangled filter set.
-		var filter_set_id_head = mangle + "filter-list-";
-		var filter_set_id = jQuery(this).parent().attr('id');
-		var filter_set =
-		    filter_set_id.substring(filter_set_id_head.length,
-					    filter_set_id.length);
+    // 	// Figure out where our filters are and what they contain.
+    // 	ll('Scanning filter accordion: ' + accordion_div_id);
+    // 	//jQuery(".golr-filter-selectable .ui-selected").each(
+    // 	jQuery('#' + accordion_div_id + ' > * > * > .ui-selected').each(
+    // 	    function(){
+    // 		// Filter set in question. Subtract the head from the
+    // 		// id to get the original mangled filter set.
+    // 		var filter_set_id_head = mangle + "filter-list-";
+    // 		var filter_set_id = jQuery(this).parent().attr('id');
+    // 		var filter_set =
+    // 		    filter_set_id.substring(filter_set_id_head.length,
+    // 					    filter_set_id.length);
 		
-		// Actual item.
-		var filter_item = jQuery(this).html();
+    // 		// Actual item.
+    // 		var filter_item = jQuery(this).html();
 		
-		// Debug.
-		//fq_logic.add(filter_set + ':' + filter_item);
-		fq_logic.add(filter_set + ':"' + filter_item + '"');
-	    });
+    // 		// Debug.
+    // 		//fq_logic.add(filter_set + ':' + filter_item);
+    // 		fq_logic.add(filter_set + ':"' + filter_item + '"');
+    // 	    });
 	
-	// DEBUG
-	var result = jQuery("#DEBUG").empty();
-	result.append("str: "+ q_logic.to_string() +" "+ fq_logic.to_string());
+    // 	// DEBUG
+    // 	var result = jQuery("#DEBUG").empty();
+    // 	result.append("str: "+ q_logic.to_string() +" "+ fq_logic.to_string());
 
-	return {
-	    'q' : q_logic,
-	    'fq' : fq_logic
-	};
-    };
+    // 	return {
+    // 	    'q' : q_logic,
+    // 	    'fq' : fq_logic
+    // 	};
+    // };
 
-    // Run registered action callbacks against.
-    this._run_action_callbacks = function(json_data){
-	ll('in action callbacks with state argument...');
+    // // Run registered action callbacks against.
+    // this._run_action_callbacks = function(json_data){
+    // 	ll('in action callbacks with state argument...');
 
-	var current_state = anchor.state();
+    // 	// var current_state = anchor.state();
 
-	anchor.apply_callbacks('action', [current_state]);
-    };
+    // 	anchor.apply_callbacks('action', [current_state]);
+    // };
 
     // /*
     //  * Function: set_static_filters
@@ -432,21 +438,23 @@ function GOlrUIBeta(in_args){
      * Draw meta results.
      * TODO: paging, etc.
      * 
-     * Parameters: json_data
+     * Parameters:
+     *  json_data - the raw returned JSON response from the server
+     *  manager - <bbop.golr.manager> that we initially registered with
      *
-     * Returns: Nothing
+     * Returns:
+     *  n/a
      */
     this.draw_meta = function(json_data, manager){
 	
 	ll('Draw meta div...');
 
-	// Collect numbers.
+	// Collect numbers for display.
 	var total_c = golr_resp.total_documents(json_data);
-	var step_c = golr_resp.row_step(json_data);
 	var first_d = golr_resp.start_document(json_data);
 	var last_d = golr_resp.end_document(json_data);
 
-	// Draw meta; the current nuymbers and page--the same for
+	// Draw meta; the current numbers and page--the same for
 	// every type of return.
 	var dmeta = new GOlrTemplate.meta_results(total_c, first_d, last_d);
 	jQuery('#' + ui_meta_div_id).empty();
@@ -470,7 +478,7 @@ function GOlrUIBeta(in_args){
 	var b_last_disabled_p = false;
 
 	// Only activate paging if it is necessary to the returns.
-	if( total_c <= step_c ){
+	if( ! golr_resp.paging_p(json_data) ){
 	    b_first_disabled_p = true;
 	    b_back_disabled_p = true;
 	    b_forward_disabled_p = true;
@@ -478,13 +486,13 @@ function GOlrUIBeta(in_args){
 	}
 	    
 	// Don't activate back on the first page.
-	if( first_d <= 1 ){ // we'll take this as a proxy for a step
+	if( ! golr_resp.paging_previous_p(json_data) ){
 	    b_first_disabled_p = true;
 	    b_back_disabled_p = true;
 	}
 	    
 	// Don't activate next on the last page.
-	if( last_d >= total_c ){
+	if( ! golr_resp.paging_next_p(json_data) ){
 	    b_forward_disabled_p = true;
 	    b_last_disabled_p = true;
 	}
@@ -497,9 +505,8 @@ function GOlrUIBeta(in_args){
 	};
 	jQuery('#' + b_first.get_id()).button(b_first_props).click(
 	    function(){
-		//alert("first: " + total_c + " " + first_d + " " + last_d);
-		// TODO/BUG: this should work!
-		manager.search(); // cheat and trust reset
+		// Cheat and trust reset by proxy to work.
+		manager.page_first(); 
 	    });
 	
 	// Previous page button.
@@ -510,9 +517,7 @@ function GOlrUIBeta(in_args){
 	};
 	jQuery('#' + b_back.get_id()).button(b_back_props).click(
 	    function(){
-		var do_rows = manager.get_page_rows();
-		var do_offset = manager.get_page_start() - do_rows;
-		manager.page(do_rows, do_offset);
+		manager.page_previous();
 	    });
 	
 	// Next page button.
@@ -523,9 +528,7 @@ function GOlrUIBeta(in_args){
 	};
 	jQuery('#' + b_forward.get_id()).button(b_forward_props).click(
 	    function(){
-		var do_rows = manager.get_page_rows();
-		var do_offset = do_rows + manager.get_page_start();
-		manager.page(do_rows, do_offset);
+		manager.page_next();
 	    });
 	
 	// Last page button.
@@ -537,12 +540,7 @@ function GOlrUIBeta(in_args){
 	jQuery('#' + b_last.get_id()).button(b_last_props).click(
 	    function(){
 		// A little trickier.
-		var do_rows = manager.get_page_rows();
-		var mod = total_c % do_rows;
-		var do_offset = total_c - mod;
-		// alert("last: " + total_c + ", " + first_d + ", " + last_d + 
-		//      ", " + do_rows + ", " + do_offset);
-		manager.page(do_rows, do_offset);
+		manager.page_last(total_c);
 	    });
     };
 
@@ -552,9 +550,12 @@ function GOlrUIBeta(in_args){
      * (Re)draw the information in the current filter set.
      * This function makes them active as well.
      * 
-     * Parameters: json_data
+     * Parameters:
+     *  json_data - the raw returned JSON response from the server
+     *  manager - <bbop.golr.manager> that we initially registered with
      *
-     * Returns: Nothing
+     * Returns:
+     *  n/a
      */
     this.draw_current_filters = function(json_data, manager){
     
@@ -653,9 +654,12 @@ function GOlrUIBeta(in_args){
      * (Re)draw the information in the accordion controls/filters.
      * This function makes them active as well.
      * 
-     * Parameters: json_data
+     * Parameters:
+     *  json_data - the raw returned JSON response from the server
+     *  manager - <bbop.golr.manager> that we initially registered with
      *
-     * Returns: Nothing
+     * Returns:
+     *  n/a
      */
     this.draw_accordion = function(json_data, manager){
     
@@ -768,9 +772,12 @@ function GOlrUIBeta(in_args){
      *
      * Draw results using hints from the golr class configuration.
      * 
-     * Parameters: json_data
+     * Parameters:
+     *  json_data - the raw returned JSON response from the server
+     *  manager - <bbop.golr.manager> that we initially registered with
      *
-     * Returns: Nothing
+     * Returns:
+     *  n/a
      */
     this.draw_results = function(json_data, manager){
 	
@@ -790,6 +797,23 @@ function GOlrUIBeta(in_args){
 	var urtdi = ui_results_table_div_id;
 	jQuery('#' + urtdi).empty();
 	jQuery('#' + urtdi).append(bbop.core.to_string(final_table));
+    };
+
+    /*
+     * Function: draw_error
+     *
+     * Somehow report an error to the user.
+     * 
+     * Parameters:
+     *  error_message - a string(?) describing the error
+     *  manager - <bbop.golr.manager> that we initially registered with
+     *
+     * Returns:
+     *  n/a
+     */
+    this.draw_error = function(error_message, manager){
+	ll("ERROR: " + error_message);
+	alert("ERROR: " + error_message);
     };
 
 }
