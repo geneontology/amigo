@@ -567,7 +567,7 @@ function GOlrUIBeta(in_args){
 	var in_query_filters = golr_resp.query_filters(json_data);
 	var sticky_query_filters = manager.get_sticky_query_filters();
 	ll('filters: ' + bbop.core.dump(in_query_filters));
-	var fq_list_ul = new bbop.html.list([]);
+	var fq_list_tbl = new bbop.html.table(['', 'Filters', ''], []);
 	var has_fq_p = false; // assume there are no filters to begin with
 	var button_hash = {};
 	each(in_query_filters,
@@ -591,17 +591,24 @@ function GOlrUIBeta(in_args){
 
 			      // Generate a button with a unique id.
 			      var label_str = polstr+' '+ field +':'+field_val;
+			      // var b =
+			      // 	  new bbop.html.button('remove filter',
+			      // 			       {'generate_id': true});
 			      var b =
-				  new bbop.html.button('remove filter',
-						       {'generate_id': true});
+				  new bbop.html.span('<b>[&nbsp;X&nbsp;]</b>',
+						     {'generate_id': true});
 			      
 			      // Tie the button it to the filter for
 			      // jQuery and events attachment later on.
 			      var bid = b.get_id();
 			      button_hash[bid] = [polstr, field, field_val];
 			  
-			      ll(label_str +' '+ bid);
-			      fq_list_ul.add_to(label_str +' '+ b.to_string());
+			      //ll(label_str +' '+ bid);
+			      //fq_list_tbl.add_to(label_str +' '+ b.to_string());
+			      fq_list_tbl.add_to(['<b>'+ polstr +'</b>',
+						  field + ': ' + field_val,
+						  b.to_string()]);
+			      //label_str +' '+ b.to_string());
 			  }
 		      });
 	     });
@@ -614,7 +621,7 @@ function GOlrUIBeta(in_args){
 	}else{
 
 	    // The buttons have now been attached to the DOM...
-	    jQuery(cfid).append(fq_list_ul.to_string());
+	    jQuery(cfid).append(fq_list_tbl.to_string());
 
 	    // Now let's go back and add the buttons, styles,
 	    // events, etc.
@@ -622,13 +629,14 @@ function GOlrUIBeta(in_args){
 		 function(button_id){
 		     var bid = button_id;
 
-		     // Get the button.
-		     var bprops = {
-			 icons: { primary: "ui-icon-close"},
-			 text: false
-		     };
+		     // // Get the button.
+		     // var bprops = {
+		     // 	 icons: { primary: "ui-icon-close"},
+		     // 	 text: false
+		     // };
 		     // Create the button and immediately add the event.
-		     jQuery('#' + bid).button(bprops).click(
+		     //jQuery('#' + bid).button(bprops).click(
+		     jQuery('#' + bid).click(
 			 function(){
 			     var tid = jQuery(this).attr('id');
 			     var button_props = button_hash[tid];
