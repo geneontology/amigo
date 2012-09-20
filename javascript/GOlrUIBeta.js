@@ -681,13 +681,14 @@ function GOlrUIBeta(in_args){
 	     function(in_field){
 
 		 // Create ul lists of the facet contents.
-		 var ul_id = mangle + 'filter-list-' + in_field;
-		 var facet_list_ul_attrs = {
-		     id: ul_id,
-		     //'class': 'golr-filter-selectable',
-		     style: 'height: 30em;'
+		 var tbl_id = mangle + 'filter-list-' + in_field;
+		 var facet_list_tbl_attrs = {
+		     id: tbl_id
+		     //style: 'height: 30em;'
 		 };
-		 var facet_list_ul = new bbop.html.list([],facet_list_ul_attrs);
+		 //var facet_list_ul=new bbop.html.list([],facet_list_ul_attrs);
+		 var facet_list_tbl =
+		     new bbop.html.table([], [], facet_list_tbl_attrs);
 		 
 		 // Now go through and get filters and counts.
 		 each(golr_resp.facet_field(json_data, in_field),
@@ -696,35 +697,45 @@ function GOlrUIBeta(in_args){
 			  // Pull out info.
 			  var f_name = ff_field[0];
 			  var f_count = ff_field[1];
-			  var fstr = f_name +" ("+ f_count +")";
+			  //var fstr = f_name +" ("+ f_count +")";
 			  //ll("COLLECT: " + fstr);
 			  //ll("COLLECTb: " + bbop.core.dump(ff_item));
 
 			  // Create buttons and store them for later
 			  // activation with callbacks to the manager.
+			  // var b_plus =
+			  //     new bbop.html.button('+filter',
+			  // 			   {'generate_id': true});
+			  // var b_minus =
+			  //     new bbop.html.button('-filter',
+			  // 			   {'generate_id': true});
 			  var b_plus =
-			      new bbop.html.button('+filter',
-						   {'generate_id': true});
+			      new bbop.html.span('<b>[&nbsp;+&nbsp;]</b>',
+						 {'generate_id': true});
 			  var b_minus =
-			      new bbop.html.button('-filter',
-						   {'generate_id': true});
+			      new bbop.html.span('<b>[&nbsp;-&nbsp;]</b>',
+						 {'generate_id': true});
 			  button_hash[b_plus.get_id()] =
 			      [in_field, f_name, f_count, '+'];
 			  button_hash[b_minus.get_id()] =
 			      [in_field, f_name, f_count, '-'];
 
-			  // Add the label and buttons to the
-			  // appropriate ul list.
-			  facet_list_ul.add_to(fstr, b_plus.to_string(),
-					       b_minus.to_string());
+			  // // Add the label and buttons to the
+			  // // appropriate ul list.
+			  // facet_list_ul.add_to(fstr, b_plus.to_string(),
+			  // 		       b_minus.to_string());
+			  // Add the label and buttons to the table.
+			  facet_list_tbl.add_to([f_name, '('+ f_count +')',
+						 b_plus.to_string(),
+						 b_minus.to_string()]);
 		      });
 
 		 // Now add the ul to the appropriate section of the
 		 // accordion in the DOM.
 		 var sect_id = filter_accordion_widget.get_section_id(in_field);
 		 jQuery('#' + sect_id).empty();
-		 var final_ul_str = facet_list_ul.to_string();
-		 jQuery('#' + sect_id).append(final_ul_str);
+		 var final_tbl_str = facet_list_tbl.to_string();
+		 jQuery('#' + sect_id).append(final_tbl_str);
 	     });
 
 	// Now let's go back and add the buttons, styles,
@@ -748,7 +759,8 @@ function GOlrUIBeta(in_args){
 		 };
 
 		 // Create the button and immediately add the event.
-		 jQuery('#' + button_id).button(b_ui_props).click(
+		 //jQuery('#' + button_id).button(b_ui_props).click(
+		 jQuery('#' + button_id).click(
 		     function(){
 			 var tid = jQuery(this).attr('id');
 			 var call_time_button_props = button_hash[tid];
@@ -765,6 +777,8 @@ function GOlrUIBeta(in_args){
 			 manager.search();
 		     });
 	     });
+
+	ll('Done current accordion for: ' + ui_div_id);
     };
 
     /*
