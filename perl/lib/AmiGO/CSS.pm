@@ -29,7 +29,8 @@ my $uicss2path =
    'com/jquery/css/redmond/jquery-ui-1.7.1.custom.css',
    'com.jquery.jqamigo.custom' =>
    #'com/jquery/css/jqamigo/jquery-ui-1.8rc3.custom.css',
-   'com/jquery/css/jqamigo-1.8.13/jquery-ui-1.8.13.custom.css',
+   #'com/jquery/css/jqamigo-1.8.13/jquery-ui-1.8.13.custom.css',
+   'com/jquery/css/jqamigo-1.8.23/jquery-ui-1.8.23.custom.css',
    'com.jquery.tablesorter' =>
    'com/jquery/css/tablesorter/style.css',
 

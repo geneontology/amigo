@@ -812,8 +812,8 @@ function GOlrUIBeta(in_args){
      *  n/a
      */
     this.draw_error = function(error_message, manager){
-	ll("ERROR: " + error_message);
-	alert("ERROR: " + error_message);
+	ll("Runtime error: " + error_message);
+	alert("Runtime error: " + error_message);
     };
 
 }
