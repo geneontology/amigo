@@ -1,15 +1,31 @@
-////
-//// An all-encompassing UI object.
-////
+/*
+ * Package: golr_ui.js
+ * 
+ * Namespace: bbop.amigo.golr_ui
+ * 
+ * BBOP object to draw various UI elements.
+ * 
+ * TODO: Will also hopefully grow to cover things like autocomplete, etc.
+ */
 
-// // NOTE: the first item in the hash is the default op.
-// // TODO: need a special object for adding and translations
-// //       would be easy for testing!
-// // TODO: Callbacks.
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'logger');
+bbop.core.require('bbop', 'amigo', 'golr_template');
+bbop.core.namespace('bbop', 'amigo', 'golr_ui');
 
-// An experimental dynamic UI builder.
-function GOlrUIBeta(in_args){
-    //bbop.registry.call(this, ['action']);
+/*
+ * Constructor: golr_ui
+ * 
+ * Contructor for the bbop.amigo.golr_ui object.
+ * 
+ * Arguments:
+ *  interface_id - string id of the div to build on
+ *  conf_class - <bbop.golr.conf_class> for hints and other settings
+ * 
+ * Returns:
+ *  BBOP GOlr UI object
+ */
+bbop.amigo.golr_ui = function (interface_id, conf_class){
 
     var anchor = this;
     var each = bbop.core.each;
@@ -20,30 +36,16 @@ function GOlrUIBeta(in_args){
     function ll(str){ logger.kvetch('UI: ' + str); }
 
     // There should be a string interface_id argument.
-    if( in_args && ! in_args['interface_id'] ){
-	ll('ERROR: no interface_id argument');
-	if( typeof in_args['interface_id'] != 'string' ){
-	    ll('ERROR: no interface_id string argument');
-	}
-    }
-    // The location where we'll build and manage the interface.
-    this.interface_id = in_args['interface_id'];
-    if( ! this.interface_id ){
-	throw new Error("interface id not defined");
-    }
-
     // The class configuration we'll be using to hint and build.
-    this.class_conf = in_args['class_conf'];
-    if( ! this.class_conf ){
-	throw new Error("class configuration not defined");
-    }
+    this.interface_id = interface_id;
+    this.class_conf = conf_class;
    
-    // AmiGO helper.
+    // AmiGO helper (we want the linker?).
     var amigo = new bbop.amigo();
-    //var golr_resp = amigo.golr_response;
 
-    // BBOP helper.
+    // BBOP helpers.
     var golr_resp = bbop.golr.response;
+    var tt = bbop.amigo.golr_template;
 
     // Get the user interface hook and remove anything that was there.
     var ui_div_id = this.interface_id;
@@ -67,8 +69,7 @@ function GOlrUIBeta(in_args){
 
     // Add the sections to a two column layout and add that into the
     // main ui div.
-    var two_col_div =
-	new GOlrTemplate.two_column_layout(controls_div, results_div);
+    var two_col_div = new tt.two_column_layout(controls_div, results_div);
     jQuery('#' + ui_div_id).append(two_col_div.to_string());
 
     // Main div id hooks to the easily changable areas of the two
@@ -94,6 +95,7 @@ function GOlrUIBeta(in_args){
      * Setup current filters display under contructed tags for later
      * population. The seeding information is coming in through the
      * GOlr conf class.
+     * 
      * Add in the filter state up here.
      * 
      * Parameters:
@@ -456,7 +458,7 @@ function GOlrUIBeta(in_args){
 
 	// Draw meta; the current numbers and page--the same for
 	// every type of return.
-	var dmeta = new GOlrTemplate.meta_results(total_c, first_d, last_d);
+	var dmeta = new tt.meta_results(total_c, first_d, last_d);
 	jQuery('#' + ui_meta_div_id).empty();
 	jQuery('#' + ui_meta_div_id).append(dmeta.to_string());
 
@@ -807,9 +809,8 @@ function GOlrUIBeta(in_args){
 
 	var docs = golr_resp.documents(json_data);
 
-	var final_table =
-	    new GOlrTemplate.results_table_by_class(anchor.class_conf, docs,
-						    bbop.amigo.linker);
+	var final_table = new tt.results_table_by_class(anchor.class_conf, docs,
+							bbop.amigo.linker);
 
 	//ll('final_table a: ' + final_table._is_a);
 	//ll('final_table b: ' + final_table.to_string);
@@ -838,5 +839,5 @@ function GOlrUIBeta(in_args){
 	alert("Runtime error: " + error_message);
     };
 
-}
-GOlrUIBeta.prototype = new bbop.registry;
+};
+bbop.amigo.golr_ui.prototype = new bbop.registry;

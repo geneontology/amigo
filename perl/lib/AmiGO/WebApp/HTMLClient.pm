@@ -879,6 +879,8 @@ sub mode_golr_term_details {
       'bbop.amigo',
       'bbop.amigo.go_meta',
       'bbop.amigo.linker',
+      'bbop.amigo.golr_template',
+      'bbop.amigo.golr_ui',
       'bbop.golr_meta',
       'bbop.golr_conf',
       'bbop.golr_response',
@@ -888,9 +890,6 @@ sub mode_golr_term_details {
      ],
      javascript =>
      [
-      $self->{JS}->get_lib('GOlrTemplate.js'),
-      #$self->{JS}->get_lib('GOlrManager.js'),
-      $self->{JS}->get_lib('GOlrUIBeta.js'),
       # $self->{JS}->make_var('global_count_data', $gpc_info),
       # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
       # $self->{JS}->make_var('global_acc_to_rand', $acc_to_rand),
@@ -908,7 +907,7 @@ sub mode_golr_term_details {
 				$term_info_hash->{$input_term_id}{'name'});
 
   ## Initialize javascript app.
-  $self->add_template_javascript($self->{JS}->get_lib('TermDetailsBeta.js'));
+  $self->add_template_javascript($self->{JS}->get_lib('TermDetails.js'));
   $self->add_template_javascript($self->{JS}->initializer_jquery('TermDetailsInit();'));
 
   ##

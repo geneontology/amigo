@@ -6,7 +6,8 @@
 ####
 
 TESTS = $(wildcard *.js.tests) \
- $(wildcard bbop/*.js.tests)
+ $(wildcard bbop/*.js.tests) \
+ $(wildcard bbop/amigo/*.js.tests)
 #BENCHMARKS = $(wildcard _benchmark/*.js)
 JS = smjs # or smjs, rhino
 JSFLAGS = # Some require things like "-opt -1" in some cases (big GO tests)

@@ -2,15 +2,15 @@
 //// Some unit testing for amigo.js
 ////
 //// Usage:
-////    Command line: "smjs -f amigo.tests.js"
-////    Interactive: "smjs -f amigo.tests.js -f -"
+////    Command line: "smjs -f amigo.js.tests"
+////    Interactive: "smjs -f amigo.js.tests -f -"
 ////
 
 
 // Load testing.
-load('../../../../javascript/bbop/core.js');
-load('../../../../javascript/bbop/json.js');
-load('../../../../javascript/bbop/test.js');
+load('../../../../javascript/trunk/lib/bbop/core.js');
+load('../../../../javascript/trunk/lib/bbop/json.js');
+load('../../../../javascript/trunk/lib/bbop/test.js');
 var mr_t = new bbop.test();
 
 // Correct environment.

@@ -46,11 +46,15 @@ Format: 1.51
 # --------------------------------------------------------------------------
 
 
-File: GOlrManager.js  (GOlrManager.js)
-File: GOlrUIBeta.js  (GOlrUIBeta.js)
-File: linker.js  (bbop/amigo/linker.js)
-File: results_table_by_class_conf  (GOlrTemplate.js)
-File: type,  (bbop/amigo.js)
+Group: Bbop  {
+
+   File: amigo.js  (bbop/amigo.js)
+   File: golr_template.js  (bbop/amigo/golr_template.js)
+   File: golr_ui.js  (bbop/amigo/golr_ui.js)
+   File: linker.js  (bbop/amigo/linker.js)
+   }  # Group: Bbop
+
+File: jquery-1.8.0.js  (com/jquery-1.8.0.js)
 
 Group: Index  {
 
@@ -58,6 +62,6 @@ Group: Index  {
    Class Index: Classes
    Function Index: Functions
    File Index: Files
-   Type Index: Types
+   Variable Index: Variables
    }  # Group: Index
 
