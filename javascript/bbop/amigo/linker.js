@@ -8,11 +8,11 @@
  * TODO: maybe this should actually be under bbop.html so we could
  * make use of the anchor tag stuff?
  * 
- * NOTE: A lot fo this is lifted from the amigo.js package. However,
+ * NOTE: A lot of this is lifted from the amigo.js package. However,
  * the future should be here.
  * 
  * NOTE: This may have to be folded into the amigo.js package again to
- * get information from the amigo json conf files to orient thr URLs.
+ * get information from the amigo json conf files to orient the URLs.
  */
 
 // Setup the internal requirements.
@@ -82,13 +82,13 @@ bbop.amigo.linker = function (xid, args, type){
     /// The Great Muxer.
     ///
 
-    if( xid == 'term' || xid == 'annotation_class' ||xid == 'ontology_class' ){
+    if( xid == 'term' || xid == 'annotation_class' || xid == 'ontology_class' ){
 	if( type == 'url' ){
 	    retval = _term_url(id, label, args);
 	}else{
 	    retval = _term_link(id, label, args);
 	}
-    }else if( xid == 'gp' || xid == 'gene_product' ||xid == 'bioentity' ){
+    }else if( xid == 'gp' || xid == 'gene_product' || xid == 'bioentity' ){
 	if( type == 'url' ){
 	    retval = _gene_product_url(id, label, args);
 	}else{
