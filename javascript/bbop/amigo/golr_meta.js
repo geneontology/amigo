@@ -33,8 +33,8 @@ bbop.core.namespace('bbop', 'amigo', 'golr_meta');
 bbop.amigo.golr_meta = {
    "bbop_ann_ev_agg" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "",
-      "filter_weights" : "",
+      "result_weights" : "bioentity_label^4.0 annotation_class_label^3.0",
+      "filter_weights" : "evidence_closure^4.0 evidence_with^3.0",
       "_infile" : "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/ann_ev_agg-config.yaml",
       "display_name" : "Evidence Aggregate",
       "description" : "A description of annotation evidence aggregate for GOlr and AmiGO.",
@@ -669,8 +669,8 @@ bbop.amigo.golr_meta = {
    },
    "bbop_bio" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "label^2.0 id^1.0",
-      "filter_weights" : "",
+      "result_weights" : "label^4.0 id^3.0 type^2.0 db^1.0",
+      "filter_weights" : "db^4.0 type^3.0 taxon_label^2.0 isa_partof_closure_label^1.0",
       "_infile" : "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/bio-config.yaml",
       "display_name" : "Bioentities",
       "description" : "A description of bioentities file for GOlr.",
@@ -880,7 +880,7 @@ bbop.amigo.golr_meta = {
    "bbop_ont" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "label^10.0 id^8.0 description^6.0 source^4.0 synonym^3.0 alternate_id^2.0 comment^1.0",
-      "filter_weights" : "",
+      "filter_weights" : "source^4.0 subset^2.0 isa_partof_closure_label^1.0 is_obsolete^0.0",
       "_infile" : "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/ont-config.yaml",
       "display_name" : "Ontology",
       "description" : "Test mapping of ontology class for GO.",

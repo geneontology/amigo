@@ -887,26 +887,28 @@ sub mode_golr_gene_product_details {
     {
      css_library =>
      [
-      # 'standard', # basic GO-styles
-      # 'bbop.amigo.ui.autocomplete'
       'standard', # basic GO-styles
       'com.jquery.jqamigo.custom',
-      #'com.jquery.tablesorter',
-      'bbop.amigo.ui.widgets'
      ],
      javascript_library =>
      [
       'com.jquery',
       'com.jquery-ui',
-      'com.jquery.tablesorter',
+      #'com.jquery.tablesorter',
       'bbop.core',
       'bbop.logger',
+      #'bbop.logic',
+      'bbop.registry',
+      'bbop.html',
       'bbop.amigo',
       'bbop.amigo.amigo_meta',
+      'bbop.amigo.linker',
+      'bbop.amigo.golr_template',
+      'bbop.amigo.golr_ui',
       'bbop.amigo.golr_meta',
       'bbop.golr_conf',
+      'bbop.golr_response',
       'bbop.golr_manager',
-      'bbop.amigo.ui.widgets'
      ],
      javascript =>
      [
@@ -925,9 +927,9 @@ sub mode_golr_gene_product_details {
   $self->set_template_parameter('content_title',
 				$gp_info_hash->{$input_gp_id}{'name'});
 
-  # ## Initialize javascript app.
-  # $self->add_template_javascript($self->{JS}->get_lib('GPDetails.js'));
-  # $self->add_template_javascript($self->{JS}->initializer_jquery('GPDetailsInit();'));
+  ## Initialize javascript app.
+  $self->add_template_javascript($self->{JS}->get_lib('GPDetails.js'));
+  $self->add_template_javascript($self->{JS}->initializer_jquery('GPDetailsInit();'));
 
   $self->add_template_content('pages/gene_product_details.tmpl');
 
