@@ -35,14 +35,11 @@ function TermDetailsInit(){
     ///
 
     var gconf = new bbop.golr.conf(bbop.amigo.golr_meta);
-    var cclass = gconf.get_class('bbop_ann');    
-    var filter_order = cclass.field_order_by_weight('filter');
+    var solr_server = gm.golr_base();
 
     ///
     /// Manager and callbacks.
     ///
-
-    var solr_server = gm.golr_base();
 
     // Setup the annotation profile and make the annotation document
     // category and the current acc sticky in the filters.
@@ -53,8 +50,9 @@ function TermDetailsInit(){
 
     // Create a two column layout and a lot of hidden switches and
     // variables.
-    var ui_ann = new bbop.amigo.golr_ui('display-associations', cclass);
-
+    var ui_ann = new bbop.amigo.golr_ui('display-associations',
+					gconf.get_class('bbop_ann'));   
+    
     ///
     /// Setup and bind them together.
     ///

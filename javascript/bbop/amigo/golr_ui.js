@@ -78,6 +78,7 @@ bbop.amigo.golr_ui = function (interface_id, conf_class){
     var ui_results_table_div_id = mangle + 'results-table-id';
     var ui_current_filters_div_id = mangle + 'current_filters-id';
     var ui_query_input_id = mangle + 'query-id';
+    var ui_reset_span_id = mangle + 'reset-id';
 
     // Additional id hooks for easy callbacks. While these are not as
     // easily changable as the above, we use them often enough and
@@ -95,21 +96,46 @@ bbop.amigo.golr_ui = function (interface_id, conf_class){
      * Setup the free text query display under contructed tags for
      * later population.
      * 
+     * Also, as a lark for now, it does the reset button.
+     * 
+     * Parameters:
+     *  label_str - *[optional]* string or bbop.html for input label
+     *
+     * Returns:
+     *  n/a
+     */
+    this.setup_query = function(label_str){
+    
+	ll('Build query UI for: ' + ui_query_input_id);
+
+	// Tags and output to the page.
+	if( ! label_str ){ label_str = 'Search:&nbsp;'; }
+	var query_label = new bbop.html.tag('label', {'for': ui_query_input_id},
+					    label_str);
+	var query_div = new bbop.html.input({'id': ui_query_input_id,
+					     'class': 'golr-ui-input'});	
+	jQuery('#' + ui_controls_section_id).append(query_label.to_string());
+	jQuery('#' + ui_controls_section_id).append(query_div.to_string());
+    };
+
+    /*
+     * Function: setup_reset_button
+     *
+     * Also, as a lark for now, add a bit of a place for the reset
+     * button.
+     * 
      * Parameters:
      *  n/a
      *
      * Returns:
      *  n/a
      */
-    this.setup_query = function(){
+    this.setup_reset_button = function(json_data, manager){
     
-	ll('Build query UI');
-
-	var query_div = new bbop.html.input({'id': ui_query_input_id});
-
-	// Add the output to the page.
-	var query_str = query_div.to_string();
-	jQuery('#' + ui_controls_section_id).append(query_str);
+	// Tags and output to the page.
+	var reset_span = new bbop.html.span('&nbsp;<b>[reset]</b>',
+					    {'id': ui_reset_span_id});
+	jQuery('#' + ui_controls_section_id).append(reset_span.to_string());
     };
 
     /*
@@ -367,8 +393,10 @@ bbop.amigo.golr_ui = function (interface_id, conf_class){
     /*
      * Function: reset_query
      *
-     * (Re)draw the query widget. This function makes it active as
-     * well.
+     * Setup and draw the query widget. This function makes it active
+     * as well.
+     * 
+     * Due to the nature of this, it is only reset when called.
      * 
      * Parameters:
      *  json_data - the raw returned JSON response from the server
@@ -378,8 +406,14 @@ bbop.amigo.golr_ui = function (interface_id, conf_class){
      *  n/a
      */
     this.reset_query = function(json_data, manager){
+
     	ll('Reset query for: ' + ui_query_input_id);
 
+	// Reset manager and ui.
+	jQuery('#' + ui_query_input_id).val('');
+	manager.reset_query();
+
+	// Add a smartish listener.
 	jQuery('#' + ui_query_input_id).keyup(
 	    function(event){
 
@@ -406,17 +440,43 @@ bbop.amigo.golr_ui = function (interface_id, conf_class){
 		// If we're left with a legitimate event, handle it.
 		if( ! ignorable_event_p ){
 
-		    // Can't completely ignore it, so it goes into the
-		    // manager.
+		    // Can't ignore it anymore, so it goes into the
+		    // manager for testing.
+		    var tmp_q = manager.get_query();
 		    var input_text = jQuery(this).val();
-		    ll('setting query: ' + input_text);		    
 		    manager.set_query(input_text);
 
 		    // If the manager feels like it's right, trigger.
 		    if( manager.sensible_query_p() ){
+			ll('keeping set query: ' + input_text);		    
 			manager.search();
+		    }else{
+			ll('rolling back query: ' + tmp_q);		    
+			manager.set_query(tmp_q);
 		    }
 		}
+	    });
+    };
+
+    /*
+     * Function: reset_reset_button
+     *
+     * Add events and redraw to the reset button section.
+     * 
+     * Parameters:
+     *  n/a
+     *
+     * Returns:
+     *  n/a
+     */
+    this.reset_reset_button = function(json_data, manager){
+    
+	ll('Reset reset button');
+	//jQuery('#' + ui_reset_span_id).empty();
+	// Immediately set the event.
+	jQuery('#' + ui_reset_span_id).click(
+	    function(){
+		manager.reset();
 	    });
     };
 

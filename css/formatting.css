@@ -531,6 +531,12 @@ class. */
  * Some stuff for GOlr
  */
 
+/* Actually make the input box visible given all of the stuff above. */
+.golr-ui-input {
+    border: 1px;
+    border-style: solid;
+}
+
 /* Filter box issues. */
 .golr-embiggen {
     height: 40em;

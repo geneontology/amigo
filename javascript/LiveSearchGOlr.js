@@ -39,14 +39,11 @@ function LiveSearchGOlrInit(){
     ///
 
     var gconf = new bbop.golr.conf(bbop.amigo.golr_meta);
-    var cclass = gconf.get_class('bbop_ann');    
-    var filter_order = cclass.field_order_by_weight('filter');
+    var solr_server = gm.golr_base();
 
     ///
     /// Manager and callbacks.
     ///
-
-    var solr_server = gm.golr_base();
 
     // Setup the annotation profile and make the annotation document
     // category and the current acc sticky in the filters.
@@ -59,7 +56,8 @@ function LiveSearchGOlrInit(){
 
     // Create a two column layout and a lot of hidden switches and
     // variables.
-    var ui_gen = new bbop.amigo.golr_ui('display-general-search', cclass);
+    var ui_gen = new bbop.amigo.golr_ui('display-general-search',
+					gconf.get_class('bbop_ann'));
 
     ///
     /// Setup and bind them together.
@@ -67,13 +65,15 @@ function LiveSearchGOlrInit(){
 
     // Setup the gross frames for the filters and results.
     ui_gen.setup_query();
+    ui_gen.setup_reset_button();
     ui_gen.setup_current_filters();
     ui_gen.setup_accordion();
     ui_gen.setup_results({'meta': true});
 
     // Things to do on every reset event. Essentially re-draw
     // everything.
-    gm_gen.register('reset', 'no_query', ui_gen.reset_query, -1);
+    gm_gen.register('reset', 'reset_query', ui_gen.reset_query, -1);
+    gm_gen.register('reset', 'rereset_button', ui_gen.reset_reset_button, -1);
     gm_gen.register('reset', 'curr_first', ui_gen.draw_current_filters, -1);
     gm_gen.register('reset', 'accordion_first', ui_gen.draw_accordion, -1);
     gm_gen.register('reset', 'meta_first', ui_gen.draw_meta, -1);

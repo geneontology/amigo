@@ -10,17 +10,12 @@
 google.load("visualization", "1.0", {packages:["corechart"]});
 google.setOnLoadCallback(GooglesLoaderIsAJerk);
 function GooglesLoaderIsAJerk(){
-
-    var gm = new bbop.amigo.amigo_meta();
-    var solr_server = gm.golr_base();
-    
-    var gconf = new bbop.golr.conf(bbop.amigo.golr_meta);
-    var cclass = gconf.get_class('bbop_ann');    
-    var filter_order = cclass.field_order_by_weight('filter');    
     
     // Setup the annotation profile and make the annotation document
     // category and the current acc sticky in the filters.
-    var gm_ann = new bbop.golr.manager(solr_server, gconf);
+    var gm = new bbop.amigo.amigo_meta();
+    var gconf = new bbop.golr.conf(bbop.amigo.golr_meta);
+    var gm_ann = new bbop.golr.manager(gm.golr_base(), gconf);
     gm_ann.set_personality('bbop_ann'); // profile in gconf
     gm_ann.add_query_filter('document_category', 'annotation', ['*']);
 
@@ -36,8 +31,7 @@ function GooglesLoaderIsAJerk(){
 	var count = resp.total_documents(json_data);
 	var facet_list = resp.facet_field_list(json_data);
 
-	// source
-	// Data setup.
+	// source data setup.
 	var raw_data_01 = resp.facet_field(json_data, 'source');
 	var data_01 = google.visualization.arrayToDataTable(raw_data_01);
 	var options_01 = { 'title': 'Sources', 'width': 400, 'height': 300 };	
@@ -46,8 +40,7 @@ function GooglesLoaderIsAJerk(){
 	var chart_01 = new google.visualization.PieChart(elt_01);
 	chart_01.draw(data_01, options_01);	
 
-	// source
-	// Data setup.
+	// evidence_type data setup.
 	var raw_data_02 = resp.facet_field(json_data, 'evidence_type');
 	var data_02 = google.visualization.arrayToDataTable(raw_data_02);
 	var options_02 = { 'title': 'Evidence', 'width': 400, 'height': 300 };	
