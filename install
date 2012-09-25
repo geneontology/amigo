@@ -374,8 +374,9 @@ EOC
 }
 
 
-## file: /srv/www/htdocs/amigo/js/bbop/golr_meta.js
-## file: /srv/www/htdocs/amigo/js/bbop/golr_meta.json
+## file: <local tree>/bbop/amigo/golr_meta.js
+## file: /srv/www/htdocs/amigo/js/bbop/amigo/golr_meta.js
+## file: /srv/www/htdocs/amigo/js/bbop/amigo/golr_meta.json
 sub golr_config_to_meta_js {
 
   ## 
@@ -391,11 +392,12 @@ sub golr_config_to_meta_js {
   my $yaml_confs = shift || die "need a file string or something";
   my $rethash = {};
 
-  ## Make array ref.
+  ## Force array ref.
   if( ref $yaml_confs ne 'ARRAY' ){
     $yaml_confs = [$yaml_confs];
   }
 
+  ## Get all of the YAML files into a single data structure.
   foreach my $yaml_conf (@$yaml_confs){
 
     ## Read the config and pull the id.
@@ -444,24 +446,27 @@ sub golr_config_to_meta_js {
 
   ## If the file is already there, blow it away.
   my $js_file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
-    '/javascript/bbop/golr_meta.js';
+    '/javascript/bbop/amigo/golr_meta.js';
   unlink $js_file_str if -f $js_file_str;
   open(FILE, ">$js_file_str") or die "cannot open $js_file_str: $!";
 
-  ##
+  ## 
   print FILE <<EOJS;
 /* 
  * Package: golr_meta.js
+ * 
  * Namespace: bbop.golr.golr_meta
  * 
- * Useful information about GOlr for JS. See package golr.js
- * for API to interact with this data file.
+ * This package was automatically created during an AmiGO 2 installation.
  *
- * NOTE: Requirements: core.js for namespace controls.
+ * Useful information about GOlr for JS. See the package <golr_conf.js>
+ * for the API to interact with this data file.
+ *
+ * Requirements: core.js for namespace controls.
  *
  * NOTE: This file is generated dynamically at installation time.
- * Hard to work with unit tests--hope it's not too bad.
- * Want to keep this real simple.
+ * Hard to work with unit tests--hope it's not too bad. You have to
+ * occasionally copy back to keep the unit tests sane.
  *
  * NOTE: This file has a slightly different latout from the YAML
  * configurations files--in addition instead of the fields
@@ -471,12 +476,24 @@ sub golr_config_to_meta_js {
 
 // All of the server/instance-specific meta-data.
 bbop.core.require('bbop', 'core');
-bbop.core.namespace('bbop', 'golr');
-bbop.golr.golr_meta = $js_str;
+bbop.core.namespace('bbop', 'amigo', 'golr_meta');
+
+/*
+ * Variable: golr_meta
+ * 
+ * The configuration for the data.
+ * Essentially a JSONification of the OWLTools YAML files.
+ */
+bbop.amigo.golr_meta = $js_str;
 EOJS
 
   ## Close file.
   close(FILE);
+  make_readable($js_file_str);
+  ll("Created GOlr JavaScript meta file: \"$js_file_str\".");
+
+  ## Copy back into our JS tree for archiving and docs.
+  force_copy($js_file_str, Cwd::cwd() . '/javascript/bbop/amigo/');
   make_readable($js_file_str);
   ll("Created GOlr JavaScript meta file: \"$js_file_str\".");
 
@@ -491,7 +508,7 @@ EOJS
 
   ## If the file is already there, blow it away.
   my $json_file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
-    '/javascript/bbop/golr_meta.json';
+    '/javascript/bbop/amigo/golr_meta.json';
   unlink $json_file_str if -f $json_file_str;
   open(FILE, ">$json_file_str") or die "cannot open $json_file_str: $!";
 
@@ -504,11 +521,11 @@ EOJS
   close(FILE);
   make_readable($json_file_str);
   ll("Created GOlr JSON meta file: \"$json_file_str\".");
-
 }
 
 
-## file: /srv/www/htdocs/amigo/js/bbop/amigo/go_meta.js
+## file: <local tree>/bbop/amigo/amigo_meta.js
+## file: /srv/www/htdocs/amigo/js/bbop/amigo/amigo_meta.js
 sub amigo_env_to_js {
 
   ## 
@@ -524,7 +541,7 @@ sub amigo_env_to_js {
 
   ## If the file is already there, blow it away.
   my $file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
-    '/javascript/bbop/amigo/go_meta.js';
+    '/javascript/bbop/amigo/amigo_meta.js';
   unlink $file_str if -f $file_str;
   open(FILE, ">$file_str") or die "cannot open $file_str: $!";
 
@@ -615,24 +632,35 @@ sub amigo_env_to_js {
 
   ##
   print FILE <<EOJS;
-////////////
-////
-//// bbop.amigo.go_meta
-////
-//// Purpose: Useful information about the GO and AmiGO.
-////          Also serves as a repository and getter for web
-////          resources such as images.
-////
-//// Requirements: amigo.js for bbop.amigo namespace.
-////
-//// NOTE: This file is generated dynamically at installation time.
-////       Hard to work with unit tests--hope it's not too bad.
-////       Want to keep this real simple.
-////
-//////////
+/*
+ * Package: amigo_meta.js
+ *
+ * Namespace: bbop.amigo.amigo_meta
+ *
+ * This package was automatically created during an AmiGO 2 installation.
+ *
+ * Purpose: Useful information about the GO and AmiGO.
+ *          Also serves as a repository and getter for web
+ *          resources such as images.
+ *
+ * Requirements: amigo.js for bbop.amigo namespace.
+ *
+ * NOTE: This file is generated dynamically at installation time.
+ *       Hard to work with unit tests--hope it's not too bad.
+ *       Want to keep this real simple.
+ *
+ */
 
-//
-bbop.amigo.go_meta = function(){
+/*
+ * Constructor: amigo_meta
+ * 
+ * The configuration for the server settings.
+ * Essentially a JSONification of the config.pl AmiGO 2 file.
+ * 
+ * Arguments:
+ *  n/a
+ */
+bbop.amigo.amigo_meta = function(){
 
     // All of the server/instance-specific meta-data.
     var meta_data = $json_str;
@@ -669,6 +697,11 @@ EOJS
   close(FILE);
   make_readable($file_str);
   ll("Created js meta file: \"$file_str\".");
+
+  ## Copy back into our JS tree for archiving and docs.
+  force_copy($file_str, Cwd::cwd() . '/javascript/bbop/amigo/');
+  make_readable($file_str);
+  ll("Created AmiGO JavaScript meta file: \"$file_str\".");
 }
 
 

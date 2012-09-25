@@ -13,7 +13,7 @@ logger.DEBUG = true;
 function ll(str){ logger.kvetch('LS: ' + str); }    
 // AmiGO helper.
 var amigo = new bbop.amigo();
-var gm = new bbop.amigo.go_meta();
+var gm = new bbop.amigo.amigo_meta();
 
 //
 function LiveSearchGOlrInit(){
@@ -38,7 +38,7 @@ function LiveSearchGOlrInit(){
     /// Ready the configuration that we'll use.
     ///
 
-    var gconf = new bbop.golr.conf(bbop.golr.golr_meta);
+    var gconf = new bbop.golr.conf(bbop.amigo.golr_meta);
     var cclass = gconf.get_class('bbop_ann');    
     var filter_order = cclass.field_order_by_weight('filter');
 
@@ -66,12 +66,14 @@ function LiveSearchGOlrInit(){
     ///
 
     // Setup the gross frames for the filters and results.
+    ui_gen.setup_query();
     ui_gen.setup_current_filters();
     ui_gen.setup_accordion();
     ui_gen.setup_results({'meta': true});
 
     // Things to do on every reset event. Essentially re-draw
     // everything.
+    gm_gen.register('reset', 'no_query', ui_gen.reset_query, -1);
     gm_gen.register('reset', 'curr_first', ui_gen.draw_current_filters, -1);
     gm_gen.register('reset', 'accordion_first', ui_gen.draw_accordion, -1);
     gm_gen.register('reset', 'meta_first', ui_gen.draw_meta, -1);

@@ -9,7 +9,7 @@ logger.DEBUG = true;
 function ll(str){ logger.kvetch('TD: ' + str); }    
 // AmiGO helper.
 var amigo = new bbop.amigo();
-var gm = new bbop.amigo.go_meta();
+var gm = new bbop.amigo.amigo_meta();
 
 //
 function TermDetailsInit(){
@@ -34,7 +34,7 @@ function TermDetailsInit(){
     /// Ready the configuration that we'll use.
     ///
 
-    var gconf = new bbop.golr.conf(bbop.golr.golr_meta);
+    var gconf = new bbop.golr.conf(bbop.amigo.golr_meta);
     var cclass = gconf.get_class('bbop_ann');    
     var filter_order = cclass.field_order_by_weight('filter');
 

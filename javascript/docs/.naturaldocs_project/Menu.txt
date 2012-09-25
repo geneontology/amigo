@@ -49,6 +49,8 @@ Format: 1.51
 Group: Bbop  {
 
    File: amigo.js  (bbop/amigo.js)
+   File: amigo_meta.js  (bbop/amigo/amigo_meta.js)
+   File: golr_meta.js  (bbop/amigo/golr_meta.js)
    File: golr_template.js  (bbop/amigo/golr_template.js)
    File: golr_ui.js  (bbop/amigo/golr_ui.js)
    File: linker.js  (bbop/amigo/linker.js)

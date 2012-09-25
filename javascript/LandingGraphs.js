@@ -11,10 +11,10 @@ google.load("visualization", "1.0", {packages:["corechart"]});
 google.setOnLoadCallback(GooglesLoaderIsAJerk);
 function GooglesLoaderIsAJerk(){
 
-    var gm = new bbop.amigo.go_meta();
+    var gm = new bbop.amigo.amigo_meta();
     var solr_server = gm.golr_base();
     
-    var gconf = new bbop.golr.conf(bbop.golr.golr_meta);
+    var gconf = new bbop.golr.conf(bbop.amigo.golr_meta);
     var cclass = gconf.get_class('bbop_ann');    
     var filter_order = cclass.field_order_by_weight('filter');    
     

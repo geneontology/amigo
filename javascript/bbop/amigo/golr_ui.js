@@ -77,17 +77,40 @@ bbop.amigo.golr_ui = function (interface_id, conf_class){
     var ui_meta_div_id = mangle + 'meta-id';
     var ui_results_table_div_id = mangle + 'results-table-id';
     var ui_current_filters_div_id = mangle + 'current_filters-id';
+    var ui_query_input_id = mangle + 'query-id';
 
     // Additional id hooks for easy callbacks. While these are not as
     // easily changable as the above, we use them often enough and
     // across functions to have a hook.
     var accordion_div_id = mangle + 'filter-accordion-id';
-    var q_input_id = mangle + 'q-id';
     
     // These pointers are used in multiple functions (e.g. both
     // *_setup and *_draw).
     var filter_accordion_widget = null;
     //var current_filters_div = null;
+
+    /*
+     * Function: setup_query
+     *
+     * Setup the free text query display under contructed tags for
+     * later population.
+     * 
+     * Parameters:
+     *  n/a
+     *
+     * Returns:
+     *  n/a
+     */
+    this.setup_query = function(){
+    
+	ll('Build query UI');
+
+	var query_div = new bbop.html.input({'id': ui_query_input_id});
+
+	// Add the output to the page.
+	var query_str = query_div.to_string();
+	jQuery('#' + ui_controls_section_id).append(query_str);
+    };
 
     /*
      * Function: setup_current_filters
@@ -223,217 +246,6 @@ bbop.amigo.golr_ui = function (interface_id, conf_class){
 	}
     };
 
-    // // Initialize with reseting data.
-    // // Also see make_filter_controls_frame.
-    // this.make_search_controls_frame = function(json_data){
-    
-    // 	ll('Initial build of UI from reset response: ' + ui_div_id);
-
-    // 	///
-    // 	/// Start building free text input here.
-    // 	///
-
-    // 	var free_input_label =
-    // 	    new bbop.html.tag('label', {'for': 'q'}, 'Search: ');
-    // 	jQuery('#' + ui_controls_section_id).append(free_input_label.to_string());
-    // 	var free_input_attrs = {
-    // 	    'id': q_input_id,
-    // 	    'name': 'q',
-    // 	    'class': "golr-q textBox textBoxLighten",
-    // 	    'value': "",
-    // 	    'size': "30",
-    // 	    'type': 'text'
-    // 	};
-    // 	var free_input = new bbop.html.input(free_input_attrs);	
-    // 	jQuery('#' + ui_controls_section_id).append(free_input.to_string());
-
-    // 	// Add event for q input.
-    // 	jQuery('#' + q_input_id).keyup(anchor._run_action_callbacks);
-	
-    // 	// Continue with the rest of the display (filter, results,
-    // 	// etc.) controls.
-    // 	anchor.make_filter_controls_frame(json_data);
-    // };
-
-    // // Initialize with reseting data.
-    // this.make_filter_controls_frame = function(json_data){
-    
-    // 	///
-    // 	/// Create a frame to hang the query and filters on.
-    // 	///
-    // 	var filter_frame = new bbop.html.tag('div', {'id': ui_filters_frame_div_id});
-    // 	jQuery('#' + ui_controls_section_id).append(filter_frame.to_string());
-
-    // 	///
-    // 	/// Start building the accordion here. Not updatable parts.
-    // 	///
-
-    // 	var filter_accordion_attrs = {
-    // 	    id: accordion_div_id,
-    // 	    style: 'width: 25em;'
-    // 	};
-    // 	filter_accordion_widget =
-    // 	    new bbop.html.accordion([], filter_accordion_attrs, true);
-
-    // 	// Add the sections with no contents as a skeleton to be
-    // 	// filled by draw filters.
-    // 	var field_list = golr_resp.facet_field_list(json_data);
-    // 	function _process_in_fields_as_sections(in_field){
-    // 	    ll('saw field: ' + in_field);
-    // 	    filter_accordion_widget.add_to(in_field, '', true);
-    // 	}
-    // 	each(field_list, _process_in_fields_as_sections);
-
-    // 	// Add the output from the accordion to the page.
-    // 	//jQuery('#' + ui_div_id).html(filter_accordion_widget.to_string());
-    // 	jQuery('#' + ui_filters_frame_div_id).append(filter_accordion_widget.to_string());
-
-    // 	// Add the jQuery accordioning.
-    // 	jQuery("#" + accordion_div_id).accordion({ clearStyle: true,
-    // 						     collapsible: true,
-    // 						     active: false });
-    // };
-
-    // // BUG/TODO: the accordion search is highly wasteful and brittle.
-    // // Color the filters according to what we find in the results that
-    // // are coming back; similarly, fill the q.
-    // this.color_controls = function(json_data){
-
-    // 	var q = golr_resp.query(json_data);
-    // 	var r = /.*annotation_class_label\:(.*)$/;
-    // 	var matches = r.exec(q);
-    // 	if( matches && matches[1] && matches[1] != '*:*' ){
-    // 	    var m = matches[1];
-    // 	    ll('for color, m: ' + m);
-    // 	}
-
-    // 	// var qf = golr.query_filters(json_data);
-
-    // 	// // // TODO
-    // 	// // // Find all of the fields we look at, get out all of the fq
-    // 	// // // info we have on them.
-    // 	// // var field_list = golr_resp.facet_field_list(json_data);
-    // 	// // function _process_in_fields(in_field){
-    // 	// //     ll('for color, field: ' + in_field);
-    // 	// //     //filter_accordion_widget.add_to(in_field, '', true);
-    // 	// //     var filtered_fields_hash = qf[in_field];
-    // 	// //     if( filtered_fields_hash ){
-    // 	// // 	var filtered_fields = bbop.core.get_keys(filtered_fields_hash);
-    // 	// // 	ll('for field, current_filters_div: ' + filtered_fields);
-    // 	// // 	// TODO: find in DOM
-    // 	// // 	// TODO: color in DOM
-    // 	// //     }
-    // 	// // }
-    // 	// // each(field_list, _process_in_fields);
-
-    // 	// jQuery('#' + accordion_div_id + ' > * > * > .ui-selectee').each(
-    // 	//     function(){
-    // 	// 	// Filter set in question. Subtract the head from the
-    // 	// 	// id to get the original mangled filter set.
-    // 	// 	var filter_set_id_head = mangle + "filter-list-";
-    // 	// 	var filter_set_id = jQuery(this).parent().attr('id');
-    // 	// 	var filter_set =
-    // 	// 	    filter_set_id.substring(filter_set_id_head.length,
-    // 	// 				    filter_set_id.length);
-		
-    // 	// 	// Actual item.
-    // 	// 	var filter_item = jQuery(this).html();
-
-    // 	// 	// Compare
-    // 	// 	if( qf[filter_set] && qf[filter_set][filter_item] ){
-    // 	// 	    ll('for current_filters_div, found ' + filter_set + ' ' + filter_item);
-    // 	// 	    jQuery(this).addClass('ui-selected');
-    // 	// 	}
-    // 	//     });
-    // };
-
-    // // Get the current state of the HTML GUI layer.
-    // // Returns hash of logic objects keyed by solr filter type
-    // // (e.g. q, fq, etc.).
-    // this.state = function(){
-    
-    // 	ll('find current status of user display: ' + ui_controls_section_id);
-	
-    // 	///
-    // 	/// Get the logic contained in the free query string.
-    // 	///
-
-    // 	ll('Scanning for q input: ' + q_input_id);
-
-    // 	var q_logic = new bbop.logic();
-    // 	var q_val = "";
-    // 	if( jQuery('#' + q_input_id) &&
-    // 	    jQuery('#' + q_input_id)[0] &&
-    // 	    jQuery('#' + q_input_id)[0].value ){
-    // 		q_val = jQuery('#' + q_input_id)[0].value;		
-    // 	    }
-    // 	ll('squirrel away q: ' + q_val);
-    // 	//q_logic.add('q:' + q_val);
-    // 	q_logic.add(q_val);
-
-    // 	///
-    // 	/// Get the logic contained in the accordion filters (a little
-    // 	/// trickier).
-    // 	///
-
-    // 	var fq_logic = new bbop.logic();
-
-    // 	// Figure out where our filters are and what they contain.
-    // 	ll('Scanning filter accordion: ' + accordion_div_id);
-    // 	//jQuery(".golr-filter-selectable .ui-selected").each(
-    // 	jQuery('#' + accordion_div_id + ' > * > * > .ui-selected').each(
-    // 	    function(){
-    // 		// Filter set in question. Subtract the head from the
-    // 		// id to get the original mangled filter set.
-    // 		var filter_set_id_head = mangle + "filter-list-";
-    // 		var filter_set_id = jQuery(this).parent().attr('id');
-    // 		var filter_set =
-    // 		    filter_set_id.substring(filter_set_id_head.length,
-    // 					    filter_set_id.length);
-		
-    // 		// Actual item.
-    // 		var filter_item = jQuery(this).html();
-		
-    // 		// Debug.
-    // 		//fq_logic.add(filter_set + ':' + filter_item);
-    // 		fq_logic.add(filter_set + ':"' + filter_item + '"');
-    // 	    });
-	
-    // 	// DEBUG
-    // 	var result = jQuery("#DEBUG").empty();
-    // 	result.append("str: "+ q_logic.to_string() +" "+ fq_logic.to_string());
-
-    // 	return {
-    // 	    'q' : q_logic,
-    // 	    'fq' : fq_logic
-    // 	};
-    // };
-
-    // // Run registered action callbacks against.
-    // this._run_action_callbacks = function(json_data){
-    // 	ll('in action callbacks with state argument...');
-
-    // 	// var current_state = anchor.state();
-
-    // 	anchor.apply_callbacks('action', [current_state]);
-    // };
-
-    // /*
-    //  * Function: set_static_filters
-    //  *
-    //  * TODO: Takes a JSON payload and notes the "fq" settings; the
-    //  * current_filters_div seen will be ignored in the future. This is
-    //  * essentially for pages where you want some filters locked-in and
-    //  * not available to the user.
-    //  * 
-    //  * Parameters: json_data
-    //  *
-    //  * Returns: Nothing
-    //  */
-    // this.set_static_filters = function(json_data, manager){
-    // 	// TODO:
-    // };
-
     /*
      * Function: draw_meta
      *
@@ -458,7 +270,13 @@ bbop.amigo.golr_ui = function (interface_id, conf_class){
 
 	// Draw meta; the current numbers and page--the same for
 	// every type of return.
-	var dmeta = new tt.meta_results(total_c, first_d, last_d);
+	var dmeta = null;
+	if( total_c == 0 ){
+	    // Adjust since we're off by one.
+	    dmeta = new tt.meta_results(0, 0, 0);
+	}else{
+	    dmeta = new tt.meta_results(total_c, first_d, last_d);
+	}
 	jQuery('#' + ui_meta_div_id).empty();
 	jQuery('#' + ui_meta_div_id).append(dmeta.to_string());
 
@@ -543,6 +361,62 @@ bbop.amigo.golr_ui = function (interface_id, conf_class){
 	    function(){
 		// A little trickier.
 		manager.page_last(total_c);
+	    });
+    };
+
+    /*
+     * Function: reset_query
+     *
+     * (Re)draw the query widget. This function makes it active as
+     * well.
+     * 
+     * Parameters:
+     *  json_data - the raw returned JSON response from the server
+     *  manager - <bbop.golr.manager> that we initially registered with
+     *
+     * Returns:
+     *  n/a
+     */
+    this.reset_query = function(json_data, manager){
+    	ll('Reset query for: ' + ui_query_input_id);
+
+	jQuery('#' + ui_query_input_id).keyup(
+	    function(event){
+
+		// First, extract the exact event, we might want to
+		// filter it...
+		var ignorable_event_p = false;
+		if( event ){
+		    var kc = event.keyCode;
+		    if( kc ){
+			if( kc == 39 || // right
+                            kc == 37 || // left
+                            kc == 32 || // space
+                            kc == 20 || // ctl?
+                            kc == 17 || // ctl?
+                            kc == 16 || // shift
+                            kc ==  8 || // delete
+                            kc ==  0 ){ // super
+				ll('ignorable key event: ' + kc);
+				ignorable_event_p = true;
+			    }
+                    }
+		}
+
+		// If we're left with a legitimate event, handle it.
+		if( ! ignorable_event_p ){
+
+		    // Can't completely ignore it, so it goes into the
+		    // manager.
+		    var input_text = jQuery(this).val();
+		    ll('setting query: ' + input_text);		    
+		    manager.set_query(input_text);
+
+		    // If the manager feels like it's right, trigger.
+		    if( manager.sensible_query_p() ){
+			manager.search();
+		    }
+		}
 	    });
     };
 
