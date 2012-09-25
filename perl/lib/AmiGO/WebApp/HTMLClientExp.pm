@@ -290,18 +290,22 @@ sub mode_drilldown_browser {
       'com.jquery.jstree',
       'bbop.core',
       'bbop.logger',
-      'bbop.logic',
+      #'bbop.logic',
       'bbop.registry',
       'bbop.html',
       'bbop.amigo',
-      'bbop.amigo.go_meta',
-      'bbop.golr_meta',
+      'bbop.amigo.amigo_meta',
+      'bbop.amigo.linker',
+      'bbop.amigo.golr_template',
+      'bbop.amigo.golr_ui',
+      'bbop.amigo.golr_meta',
       'bbop.golr_conf',
-      'bbop.model'
+      'bbop.golr_response',
+      'bbop.golr_manager',
+      'bbop.model',
      ],
      javascript =>
      [
-      $self->{JS}->get_lib('GOlrManager.js'),
       $self->{JS}->get_lib('DrillExp.js')
      ]
     };

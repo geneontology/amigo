@@ -3,22 +3,23 @@
 ////
 
 // Just double check we have the right libraries coming in.
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'amigo');
-bbop.core.require('bbop', 'amigo', 'go_meta');
-bbop.core.require('bbop', 'model');
-bbop.core.require('GOlrManager');
+//bbop.core.require('bbop', 'core');
+//bbop.core.require('bbop', 'logger');
+//bbop.core.require('bbop', 'amigo');
+//bbop.core.require('bbop', 'amigo', 'golr_meta');
+//bbop.core.require('bbop', 'model');
+//bbop.core.require('bbop', 'golr', 'manager');
 
 // Logger for all functions.
 var logger = new bbop.logger();
 logger.DEBUG = true;
 function ll(str){ logger.kvetch('DD: ' + str); }    
 
-// Global AmiGO helpers.
+// // Global AmiGO helpers.
 var amigo = new bbop.amigo();
-var go_meta = new bbop.amigo.go_meta();
-var solr_server = go_meta.golr_base();
+var amigo_meta = new bbop.amigo.amigo_meta();
+// var golr_meta = new bbop.amigo.golr_meta();
+// var solr_server = golr_meta.golr_base();
 
 // Go and get the initial results for building our tree.
 function DDInit(){
@@ -27,21 +28,20 @@ function DDInit(){
     ll('DrillExp.js');
     ll('DDInit start...');
 
-    // Define the manager.
-    var filters = {
-	'document_category': 'ontology_class',
-	'is_obsolete': 'false'
-    };
-    var gm = new GOlrManager({url: solr_server, filters: filters});
+    var gconf = new bbop.golr.conf(bbop.amigo.golr_meta);
+    var gm = new bbop.golr.manager(amigo_meta.golr_base(), gconf);
+    //gm.set_personality('bbop_ont'); // profile in gconf
+    gm.add_query_filter('document_category', 'ontology_class', ['*']);
     
-    // Let's limit ourselves to 100 rows returned.
+    // Let's limit ourselves to 100 rows returned so we don't overload
+    // while (dumb) browsing.
     gm.set('rows', 100);
 
-    // Let's capture an initial url (one that gets the roots as
-    // defined by having an empty isa_partof closure), then reset.
-    gm.set_extra("&fq=-isa_partof_closure:[*%20TO%20*]");
+    // Let's capture an initial url (one that gets the roots), then
+    // reset.
+    gm.set_query('id:"GO:0008150" or id:"GO:0005575" or id:"GO:0003674"');
     var reset_url = gm.get_query_url();
-    gm.set_extra("");
+    gm.reset_query();
 
     // Ready tree with response.
     var did = '#drilldown';
@@ -50,7 +50,7 @@ function DDInit(){
 	    "json_data" : {
 	        "ajax" : {
 		    "type": 'GET',
-		    "dataType": 'json',
+		    "dataType": 'jsonp',
 		    "jsonp": 'json.wrf',
 	            "url" : function (n) {
 			var retval = reset_url;
@@ -79,6 +79,8 @@ function DDInit(){
 		    },
 	            "success" : function(jdata) {
 
+			//ll('SUCCESS on data');
+
 			// Figure out if there was a parent and
 			// capture the id if there was.
 			var parent_id = null;
@@ -90,7 +92,7 @@ function DDInit(){
 			}
 
 			// Gather the documents found.
-			var docs = amigo.golr_response.documents(jdata);
+			var docs = bbop.golr.response.documents(jdata);
 			var json_nodes = [];
 			var each = bbop.core.each;
 			each(docs,
@@ -181,7 +183,7 @@ function _doc_to_tree_node(doc, parent_id){
 
     // Turn to graph, get kids.
     var graph = new bbop.model.graph();
-    graph.load_json(jQuery.parseJSON(doc['graph']));
+    graph.load_json(jQuery.parseJSON(doc['topology_graph']));
     var kids = graph.get_child_nodes(doc['id']);
 
     // Add state and kid_query.
@@ -224,7 +226,7 @@ function _doc_to_tree_node(doc, parent_id){
 	    // Add it in a brittle way.
 	    var prime_rel = edges[0].predicate_id();
 	    retnode['data']['icon'] = 
-	    	go_meta.image_base() + '/' + prime_rel + '.gif';
+	    	amigo_meta.image_base() + '/' + prime_rel + '.gif';
 	}
     }
 
