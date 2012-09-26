@@ -56,8 +56,8 @@ function LiveSearchGOlrInit(){
 
     // Create a two column layout and a lot of hidden switches and
     // variables.
-    var ui_gen = new bbop.amigo.golr_ui('display-general-search',
-					gconf.get_class('bbop_ann'));
+    var ui_gen = new bbop.amigo.golr_ui.search('display-general-search',
+					       gconf.get_class('bbop_ann'));
 
     ///
     /// Setup and bind them together.

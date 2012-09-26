@@ -50,8 +50,8 @@ function TermDetailsInit(){
 
     // Create a two column layout and a lot of hidden switches and
     // variables.
-    var ui_ann = new bbop.amigo.golr_ui('display-associations',
-					gconf.get_class('bbop_ann'));   
+    var ui_ann = new bbop.amigo.golr_ui.search('display-associations',
+					       gconf.get_class('bbop_ann'));   
     
     ///
     /// Setup and bind them together.

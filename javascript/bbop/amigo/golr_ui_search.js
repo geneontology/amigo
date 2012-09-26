@@ -25,7 +25,7 @@ bbop.core.namespace('bbop', 'amigo', 'golr_ui', 'search');
  * Returns:
  *  BBOP GOlr UI object
  */
-bbop.amigo.golr_ui = function (interface_id, conf_class){
+bbop.amigo.golr_ui.search = function (interface_id, conf_class){
 
     var anchor = this;
     var each = bbop.core.each;
