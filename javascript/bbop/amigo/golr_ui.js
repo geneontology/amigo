@@ -1,7 +1,7 @@
 /*
- * Package: golr_ui.js
+ * Package: golr_ui_search.js
  * 
- * Namespace: bbop.amigo.golr_ui
+ * Namespace: bbop.amigo.golr_ui.search
  * 
  * BBOP object to draw various UI elements.
  * 
@@ -11,12 +11,12 @@
 bbop.core.require('bbop', 'core');
 bbop.core.require('bbop', 'logger');
 bbop.core.require('bbop', 'amigo', 'golr_template');
-bbop.core.namespace('bbop', 'amigo', 'golr_ui');
+bbop.core.namespace('bbop', 'amigo', 'golr_ui', 'search');
 
 /*
- * Constructor: golr_ui
+ * Constructor: search
  * 
- * Contructor for the bbop.amigo.golr_ui object.
+ * Contructor for the bbop.amigo.golr_ui.search object.
  * 
  * Arguments:
  *  interface_id - string id of the div to build on
