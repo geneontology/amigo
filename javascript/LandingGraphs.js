@@ -73,9 +73,6 @@ function GooglesLoaderIsAJerk(){
 	    jQuery('input[value="bbop_ont"]').attr('checked', true);
     	});
 
-    // Set the ball rolling (attach jQuery autocomplete to doc).
-    auto.make_active();
-
     ///
     /// This next section is dedicated to drawing the pie charts.
     /// It uses its own trigger (reset) to pull the information.
