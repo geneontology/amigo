@@ -5,9 +5,9 @@
  *
  * This package was automatically created during an AmiGO 2 installation.
  *
- * Purpose: Useful information about the GO and AmiGO.
- *          Also serves as a repository and getter for web
- *          resources such as images.
+ * Purpose: Useful information about the GO and AmiGO. Also serves as
+ *          a repository and getter for web resources and locations
+ *          such as images.
  *
  * Requirements: amigo.js for bbop.amigo namespace.
  *

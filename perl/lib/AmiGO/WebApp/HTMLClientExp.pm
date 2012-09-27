@@ -297,7 +297,7 @@ sub mode_drilldown_browser {
       'bbop.amigo.amigo_meta',
       'bbop.amigo.linker',
       'bbop.amigo.golr_template',
-      'bbop.amigo.golr_ui',
+      'bbop.amigo.golr_ui_search',
       'bbop.amigo.golr_meta',
       'bbop.golr_conf',
       'bbop.golr_response',

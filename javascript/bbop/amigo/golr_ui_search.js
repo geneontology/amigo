@@ -3,9 +3,8 @@
  * 
  * Namespace: bbop.amigo.golr_ui.search
  * 
- * BBOP object to draw various UI elements.
- * 
- * TODO: Will also hopefully grow to cover things like autocomplete, etc.
+ * BBOP object to draw various UI elements that have to do with things
+ * dealing with a fully faceted searcher/browser.
  */
 
 bbop.core.require('bbop', 'core');
@@ -33,7 +32,7 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
     // Per-UI logger.
     var logger = new bbop.logger();
     logger.DEBUG = true;
-    function ll(str){ logger.kvetch('UI: ' + str); }
+    function ll(str){ logger.kvetch('UI (search): ' + str); }
 
     // There should be a string interface_id argument.
     // The class configuration we'll be using to hint and build.
@@ -774,4 +773,3 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
     };
 
 };
-bbop.amigo.golr_ui.prototype = new bbop.registry;
