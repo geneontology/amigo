@@ -29,7 +29,7 @@ function DDInit(){
     ll('DDInit start...');
 
     var gconf = new bbop.golr.conf(bbop.amigo.golr_meta);
-    var gm = new bbop.golr.manager(amigo_meta.golr_base(), gconf);
+    var gm = new bbop.golr.manager.jquery(amigo_meta.golr_base(), gconf);
     //gm.set_personality('bbop_ont'); // profile in gconf
     gm.add_query_filter('document_category', 'ontology_class', ['*']);
     

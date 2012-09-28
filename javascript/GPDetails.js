@@ -43,7 +43,7 @@ function GPDetailsInit(){
 
     // Setup the annotation profile and make the annotation document
     // category and the current acc sticky in the filters.
-    var gm_ann = new bbop.golr.manager(solr_server, gconf);
+    var gm_ann = new bbop.golr.manager.jquery(solr_server, gconf);
     gm_ann.set_personality('bbop_ann'); // profile in gconf
     gm_ann.add_query_filter('document_category', 'annotation', ['*']);
     gm_ann.add_query_filter('bioentity', global_acc, ['*']);

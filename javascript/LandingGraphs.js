@@ -39,6 +39,10 @@ function GooglesLoaderIsAJerk(){
     auto.set_personality('bbop_ont'); // profile in gconf
     auto.add_query_filter('document_category', 'ontology_class'); // non-stick
 
+    //
+    jQuery('input[value="bbop_ont"]').attr('checked', true);
+
+
     // Make it responsive to what clas we've selected.
     jQuery('input[name="golr_class"]').each(
 	function(){
@@ -63,15 +67,15 @@ function GooglesLoaderIsAJerk(){
 		});
 	});
 
-    // Reset back to first option when we leave the page. Otherwise,
-    // the radio button fall out of sync wit hthe search and we search
-    // for ont when on bio.
-    jQuery(window).unload(
-	function(){
-	    auto.set_personality('bbop_ont');
-	    auto.add_query_filter('document_category', 'ontology_class');
-	    jQuery('input[value="bbop_ont"]').attr('checked', true);
-    	});
+    // // Reset back to first option when we leave the page. Otherwise,
+    // // the radio button fall out of sync wit hthe search and we search
+    // // for ont when on bio.
+    // jQuery(window).unload(
+    // 	function(){
+    // 	    auto.set_personality('bbop_ont');
+    // 	    auto.add_query_filter('document_category', 'ontology_class');
+    // 	    //alert('unloading');
+    // 	});
 
     ///
     /// This next section is dedicated to drawing the pie charts.
@@ -79,7 +83,7 @@ function GooglesLoaderIsAJerk(){
     ///
 
     // We get our own manager.
-    var gm_ann = new bbop.golr.manager(am.golr_base(), gconf);
+    var gm_ann = new bbop.golr.manager.jquery(am.golr_base(), gconf);
     gm_ann.set_personality('bbop_ann'); // profile in gconf
     gm_ann.add_query_filter('document_category', 'annotation', ['*']);
     

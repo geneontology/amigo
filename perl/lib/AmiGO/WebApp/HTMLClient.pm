@@ -127,6 +127,7 @@ sub mode_landing {
       'bbop.golr_conf',
       'bbop.golr_response',
       'bbop.golr_manager',
+      'bbop.golr_manager_jquery',
       'bbop.golr_widget_autocomplete',
      ],
      javascript =>
@@ -519,6 +520,7 @@ sub mode_live_search {
       'bbop.golr_conf',
       'bbop.golr_response',
       'bbop.golr_manager',
+      'bbop.golr_manager_jquery',
      ],
      javascript =>
      [
@@ -802,6 +804,7 @@ sub mode_golr_term_details {
       'bbop.golr_conf',
       'bbop.golr_response',
       'bbop.golr_manager',
+      'bbop.golr_manager_jquery',
       #'bbop.amigo.ui.widgets',
       #'bbop.amigo.ui.interactive'
      ],
@@ -910,6 +913,7 @@ sub mode_golr_gene_product_details {
       'bbop.golr_conf',
       'bbop.golr_response',
       'bbop.golr_manager',
+      'bbop.golr_manager_jquery',
      ],
      javascript =>
      [

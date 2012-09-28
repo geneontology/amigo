@@ -47,7 +47,7 @@ function LiveSearchGOlrInit(){
 
     // Setup the annotation profile and make the annotation document
     // category and the current acc sticky in the filters.
-    var gm_gen = new bbop.golr.manager(solr_server, gconf);
+    var gm_gen = new bbop.golr.manager.jquery(solr_server, gconf);
     gm_gen.set_personality('bbop_ann'); // profile in gconf
 
     // We still need this, because without, we end up with a lot of

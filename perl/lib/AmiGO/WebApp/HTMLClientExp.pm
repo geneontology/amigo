@@ -302,6 +302,7 @@ sub mode_drilldown_browser {
       'bbop.golr_conf',
       'bbop.golr_response',
       'bbop.golr_manager',
+      'bbop.golr_manager_jquery',
       'bbop.model',
      ],
      javascript =>
