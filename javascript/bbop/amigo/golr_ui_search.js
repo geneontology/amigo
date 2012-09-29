@@ -297,96 +297,99 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
 	// every type of return.
 	var dmeta = null;
 	if( total_c == 0 ){
-	    // Adjust since we're off by one.
-	    dmeta = new tt.meta_results(0, 0, 0);
+	    //// Adjust since we're off by one.
+	    //dmeta = new tt.meta_results(0, 0, 0);
+	    jQuery('#' + ui_meta_div_id).empty();
+	    jQuery('#' + ui_meta_div_id).append('No results found.');
 	}else{
 	    dmeta = new tt.meta_results(total_c, first_d, last_d);
-	}
-	jQuery('#' + ui_meta_div_id).empty();
-	jQuery('#' + ui_meta_div_id).append(dmeta.to_string());
 
-	// Now add the raw buttons to the interface, and after this,
-	// activation and adding events.
-	var b_first = new bbop.html.button('First', {'generate_id': true});
-	jQuery('#' + ui_meta_div_id).append(b_first.to_string());
-	var b_back = new bbop.html.button('Prev', {'generate_id': true});
-	jQuery('#' + ui_meta_div_id).append(b_back.to_string());
-	var b_forward = new bbop.html.button('Next', {'generate_id': true});
-	jQuery('#' + ui_meta_div_id).append(b_forward.to_string());
-	var b_last = new bbop.html.button('Last', {'generate_id': true});
-	jQuery('#' + ui_meta_div_id).append(b_last.to_string());
+	    jQuery('#' + ui_meta_div_id).empty();
+	    jQuery('#' + ui_meta_div_id).append(dmeta.to_string());
 
-	// Do the math about what buttons to activate.
-	var b_first_disabled_p = false;
-	var b_back_disabled_p = false;
-	var b_forward_disabled_p = false;
-	var b_last_disabled_p = false;
+	    // Now add the raw buttons to the interface, and after this,
+	    // activation and adding events.
+	    var b_first = new bbop.html.button('First', {'generate_id': true});
+	    jQuery('#' + ui_meta_div_id).append(b_first.to_string());
+	    var b_back = new bbop.html.button('Prev', {'generate_id': true});
+	    jQuery('#' + ui_meta_div_id).append(b_back.to_string());
+	    var b_forward = new bbop.html.button('Next', {'generate_id': true});
+	    jQuery('#' + ui_meta_div_id).append(b_forward.to_string());
+	    var b_last = new bbop.html.button('Last', {'generate_id': true});
+	    jQuery('#' + ui_meta_div_id).append(b_last.to_string());
 
-	// Only activate paging if it is necessary to the returns.
-	if( ! golr_resp.paging_p(json_data) ){
-	    b_first_disabled_p = true;
-	    b_back_disabled_p = true;
-	    b_forward_disabled_p = true;
-	    b_last_disabled_p = true;
-	}
+	    // Do the math about what buttons to activate.
+	    var b_first_disabled_p = false;
+	    var b_back_disabled_p = false;
+	    var b_forward_disabled_p = false;
+	    var b_last_disabled_p = false;
 	    
-	// Don't activate back on the first page.
-	if( ! golr_resp.paging_previous_p(json_data) ){
-	    b_first_disabled_p = true;
-	    b_back_disabled_p = true;
-	}
+	    // Only activate paging if it is necessary to the returns.
+	    if( ! golr_resp.paging_p(json_data) ){
+		b_first_disabled_p = true;
+		b_back_disabled_p = true;
+		b_forward_disabled_p = true;
+		b_last_disabled_p = true;
+	    }
 	    
-	// Don't activate next on the last page.
-	if( ! golr_resp.paging_next_p(json_data) ){
-	    b_forward_disabled_p = true;
-	    b_last_disabled_p = true;
+	    // Don't activate back on the first page.
+	    if( ! golr_resp.paging_previous_p(json_data) ){
+		b_first_disabled_p = true;
+		b_back_disabled_p = true;
+	    }
+	    
+	    // Don't activate next on the last page.
+	    if( ! golr_resp.paging_next_p(json_data) ){
+		b_forward_disabled_p = true;
+		b_last_disabled_p = true;
+	    }
+	    
+	    // First page button.
+	    var b_first_props = {
+		icons: { primary: "ui-icon-seek-first"},
+		disabled: b_first_disabled_p,
+		text: false
+	    };
+	    jQuery('#' + b_first.get_id()).button(b_first_props).click(
+		function(){
+		    // Cheat and trust reset by proxy to work.
+		    manager.page_first(); 
+		});
+	    
+	    // Previous page button.
+	    var b_back_props = {
+		icons: { primary: "ui-icon-seek-prev"},
+		disabled: b_back_disabled_p,
+		text: false
+	    };
+	    jQuery('#' + b_back.get_id()).button(b_back_props).click(
+		function(){
+		    manager.page_previous();
+		});
+	    
+	    // Next page button.
+	    var b_forward_props = {
+		icons: { primary: "ui-icon-seek-next"},
+		disabled: b_forward_disabled_p,
+		text: false
+	    };
+	    jQuery('#' + b_forward.get_id()).button(b_forward_props).click(
+		function(){
+		    manager.page_next();
+		});
+	    
+	    // Last page button.
+	    var b_last_props = {
+		icons: { primary: "ui-icon-seek-end"},
+		disabled: b_last_disabled_p,
+		text: false
+	    };
+	    jQuery('#' + b_last.get_id()).button(b_last_props).click(
+		function(){
+		    // A little trickier.
+		    manager.page_last(total_c);
+		});
 	}
-	
-	// First page button.
-	var b_first_props = {
-	    icons: { primary: "ui-icon-seek-first"},
-	    disabled: b_first_disabled_p,
-	    text: false
-	};
-	jQuery('#' + b_first.get_id()).button(b_first_props).click(
-	    function(){
-		// Cheat and trust reset by proxy to work.
-		manager.page_first(); 
-	    });
-	
-	// Previous page button.
-	var b_back_props = {
-	    icons: { primary: "ui-icon-seek-prev"},
-	    disabled: b_back_disabled_p,
-	    text: false
-	};
-	jQuery('#' + b_back.get_id()).button(b_back_props).click(
-	    function(){
-		manager.page_previous();
-	    });
-	
-	// Next page button.
-	var b_forward_props = {
-	    icons: { primary: "ui-icon-seek-next"},
-	    disabled: b_forward_disabled_p,
-	    text: false
-	};
-	jQuery('#' + b_forward.get_id()).button(b_forward_props).click(
-	    function(){
-		manager.page_next();
-	    });
-	
-	// Last page button.
-	var b_last_props = {
-	    icons: { primary: "ui-icon-seek-end"},
-	    disabled: b_last_disabled_p,
-	    text: false
-	};
-	jQuery('#' + b_last.get_id()).button(b_last_props).click(
-	    function(){
-		// A little trickier.
-		manager.page_last(total_c);
-	    });
     };
 
     /*
@@ -623,62 +626,75 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
 	each(golr_resp.facet_field_list(json_data),
 	     function(in_field){
 
-		 // Create ul lists of the facet contents.
-		 var tbl_id = mangle + 'filter-list-' + in_field;
-		 var facet_list_tbl_attrs = {
-		     id: tbl_id
-		     //style: 'height: 30em;'
-		 };
-		 //var facet_list_ul=new bbop.html.list([],facet_list_ul_attrs);
-		 var facet_list_tbl =
-		     new bbop.html.table([], [], facet_list_tbl_attrs);
-		 
-		 // Now go through and get filters and counts.
-		 each(golr_resp.facet_field(json_data, in_field),
-		      function(ff_field, ff_item){
+		 var facet_bd = golr_resp.facet_field(json_data, in_field);
+		 if( bbop.core.is_empty(facet_bd) ){
+		     
+		     // No filters means nothing in the box.
+		     var sect_id =
+			 filter_accordion_widget.get_section_id(in_field);
+		     jQuery('#' + sect_id).empty();
+		     jQuery('#' + sect_id).append('Nothing to filter.');
 
-			  // Pull out info.
-			  var f_name = ff_field[0];
-			  var f_count = ff_field[1];
-			  //var fstr = f_name +" ("+ f_count +")";
-			  //ll("COLLECT: " + fstr);
-			  //ll("COLLECTb: " + bbop.core.dump(ff_item));
+		 }else{
+		     
+		     // Create ul lists of the facet contents.
+		     var tbl_id = mangle + 'filter-list-' + in_field;
+		     var facet_list_tbl_attrs = {
+			 id: tbl_id
+			 //style: 'height: 30em;'
+		     };
+		     //var facet_list_ul=new bbop.html.list([],facet_list_ul_attrs);
+		     var facet_list_tbl =
+			 new bbop.html.table([], [], facet_list_tbl_attrs);
+		     
+		     // Now go through and get filters and counts.
+		     each(golr_resp.facet_field(json_data, in_field),
+			  function(ff_field, ff_item){
 
-			  // Create buttons and store them for later
-			  // activation with callbacks to the manager.
-			  // var b_plus =
-			  //     new bbop.html.button('+filter',
-			  // 			   {'generate_id': true});
-			  // var b_minus =
-			  //     new bbop.html.button('-filter',
-			  // 			   {'generate_id': true});
-			  var b_plus =
-			      new bbop.html.span('<b>[&nbsp;+&nbsp;]</b>',
-						 {'generate_id': true});
-			  var b_minus =
-			      new bbop.html.span('<b>[&nbsp;-&nbsp;]</b>',
-						 {'generate_id': true});
-			  button_hash[b_plus.get_id()] =
-			      [in_field, f_name, f_count, '+'];
-			  button_hash[b_minus.get_id()] =
-			      [in_field, f_name, f_count, '-'];
+			      // Pull out info.
+			      var f_name = ff_field[0];
+			      var f_count = ff_field[1];
+			      //var fstr = f_name +" ("+ f_count +")";
+			      //ll("COLLECT: " + fstr);
+			      //ll("COLLECTb: " + bbop.core.dump(ff_item));
+			      
+			      // Create buttons and store them for later
+			      // activation with callbacks to the manager.
+			      // var b_plus =
+			      //     new bbop.html.button('+filter',
+			      // 			   {'generate_id': true});
+			      // var b_minus =
+			      //     new bbop.html.button('-filter',
+			      // 			   {'generate_id': true});
+			      var b_plus =
+				  new bbop.html.span('<b>[&nbsp;+&nbsp;]</b>',
+						     {'generate_id': true});
+			      var b_minus =
+				  new bbop.html.span('<b>[&nbsp;-&nbsp;]</b>',
+						     {'generate_id': true});
+			      button_hash[b_plus.get_id()] =
+				  [in_field, f_name, f_count, '+'];
+			      button_hash[b_minus.get_id()] =
+				  [in_field, f_name, f_count, '-'];
+			      
+			      // // Add the label and buttons to the
+			      // // appropriate ul list.
+			      // facet_list_ul.add_to(fstr, b_plus.to_string(),
+			      // 		       b_minus.to_string());
+			      // Add the label and buttons to the table.
+			      facet_list_tbl.add_to([f_name, '('+ f_count +')',
+						     b_plus.to_string(),
+						     b_minus.to_string()]);
+			  });
 
-			  // // Add the label and buttons to the
-			  // // appropriate ul list.
-			  // facet_list_ul.add_to(fstr, b_plus.to_string(),
-			  // 		       b_minus.to_string());
-			  // Add the label and buttons to the table.
-			  facet_list_tbl.add_to([f_name, '('+ f_count +')',
-						 b_plus.to_string(),
-						 b_minus.to_string()]);
-		      });
-
-		 // Now add the ul to the appropriate section of the
-		 // accordion in the DOM.
-		 var sect_id = filter_accordion_widget.get_section_id(in_field);
-		 jQuery('#' + sect_id).empty();
-		 var final_tbl_str = facet_list_tbl.to_string();
-		 jQuery('#' + sect_id).append(final_tbl_str);
+		     // Now add the ul to the appropriate section of the
+		     // accordion in the DOM.
+		     var sect_id =
+			 filter_accordion_widget.get_section_id(in_field);
+		     jQuery('#' + sect_id).empty();
+		     var final_tbl_str = facet_list_tbl.to_string();
+		     jQuery('#' + sect_id).append(final_tbl_str);
+		 }
 	     });
 
 	// Now let's go back and add the buttons, styles,
@@ -749,10 +765,12 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
 	//ll('final_table b: ' + final_table.to_string);
 	//ll('final_table c: ' + final_table.to_string());
 
-	// Display product.
+	// Display product when not empty.
 	var urtdi = ui_results_table_div_id;
 	jQuery('#' + urtdi).empty();
-	jQuery('#' + urtdi).append(bbop.core.to_string(final_table));
+	if( ! bbop.core.is_empty(docs) ){
+	    jQuery('#' + urtdi).append(bbop.core.to_string(final_table));
+	}
     };
 
     /*
