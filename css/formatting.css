@@ -576,3 +576,10 @@ div .mq_message {
 .mq_error { background: #ffcfcf; border: 1px solid #ff0000; }
 .mq_warning { background: #ffffab; border: 1px solid #ffa000; }
 .mq_notice { background: #acffac; border: 1px solid #007000; }
+
+/*
+ * Make the autocomplete a little more pleasant if available.
+ */
+.ui-autocomplete-loading {
+    background: white url('../images/waiting_ac.gif') right center no-repeat;
+}
