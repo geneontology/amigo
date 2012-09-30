@@ -575,7 +575,7 @@ sub get_parent_relationships {
 
 ## A helper function to fill out:
 ##  $self->{ACG_MAX_NODE_DISTANCE_FROM_ROOT} = undef;
-## Since is caches results, it can be called whenever without penalty.
+## Since it caches results, it can be called whenever without penalty.
 sub _ensure_max_distance_info {
   my $self = shift;
 
@@ -747,7 +747,7 @@ sub lineage_info {
     ## Let's skip talking about ourselves and our children.
     my $ignorables = {};
     $ignorables->{$sub_acc} = 1;
-    my $iks = $self->get_children('GO:0003334');
+    my $iks = $self->get_children($sub_acc);
     foreach my $ks (@$iks){
       $ignorables->{$ks} = 1;
     }
