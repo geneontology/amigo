@@ -40,6 +40,14 @@
     </li>
     [% END %] 
 
+    [% IF page_name == 'browse' %] 
+    <li class="here">Browse</li>
+    [% ELSE %] 
+    <li>
+      <a href="[% base %]/amigo?mode=browse" title="Browse GO terms.">Browse</a>
+    </li>
+    [% END %] 
+
     [%# Link out to the stuff in the newer framework. %]
     [% IF page_name == "software_list" %]
     <li class="here">

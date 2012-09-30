@@ -61,6 +61,7 @@ sub setup {
   $self->error_mode('mode_fatal');
   $self->run_modes(
 		   'landing'             => 'mode_landing',
+		   'browse'             => 'mode_browse',
 		   'simple_search'       => 'mode_simple_search',
 		   'software_list'       => 'mode_software_list',
 		   'visualize'           => 'mode_visualize',
@@ -143,6 +144,71 @@ sub mode_landing {
      content =>
      [
       'pages/landing.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page();
+}
+
+
+##
+sub mode_browse {
+
+  my $self = shift;
+
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile();
+
+  ## Page settings.
+  $self->set_template_parameter('page_name', 'browse');
+  $self->set_template_parameter('page_title', 'AmiGO: Browse');
+  $self->set_template_parameter('content_title', 'Browse');
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      'standard',
+      #'com.jquery.redmond.custom',
+      'com.jquery.jqamigo.custom',
+      #'bbop.amigo.ui.widgets'
+      #'bbop.amigo.ui.interactive'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.jquery-ui',
+      'bbop.core',
+      'bbop.logger',
+      #'bbop.logic',
+      'bbop.registry',
+      'bbop.html',
+      'bbop.amigo',
+      'bbop.amigo.amigo_meta',
+      #'bbop.amigo.linker',
+      #'bbop.amigo.golr_template',
+      #'bbop.amigo.golr_ui_search',
+      'bbop.amigo.golr_meta',
+      'bbop.golr_conf',
+      'bbop.golr_response',
+      'bbop.golr_manager',
+      'bbop.golr_manager_jquery',
+      'bbop.golr_widget_autocomplete',
+      'bbop.golr_widget_browse',
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('Browse.js')
+     ],
+     javascript_init =>
+     [
+      'BrowseInit();'
+     ],
+     content =>
+     [
+      'pages/browse.tmpl'
      ]
     };
   $self->add_template_bulk($prep);
