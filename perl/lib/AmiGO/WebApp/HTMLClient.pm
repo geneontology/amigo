@@ -185,6 +185,8 @@ sub mode_browse {
       #'bbop.logic',
       'bbop.registry',
       'bbop.html',
+      'bbop.model',
+      'bbop.model.bracket',
       'bbop.amigo',
       'bbop.amigo.amigo_meta',
       #'bbop.amigo.linker',
