@@ -1171,7 +1171,7 @@ sub get_interlink {
        $ilink = 'amigo?mode=golr_term_details&term=' . $acc;
      },
 
-     ## SLightly different than the others.
+     ## Slightly different than the others.
      'gaffer' =>
      sub {
        my $gmode = $args->{mode} || die 'need mode';
@@ -1265,6 +1265,7 @@ sub get_interlink {
 
        $ilink = $self->_fuse_hash($ihash);
      },
+
      'simple_search' =>
      sub {
        if( ! $self->empty_hash_p($args) ){
@@ -1277,6 +1278,7 @@ sub get_interlink {
      	 $ilink = 'amigo?mode=simple_search';
        }
      },
+
      'id_request' =>
      sub {
        my $data = $args->{data} || '';
@@ -1296,6 +1298,13 @@ sub get_interlink {
        my $sheet = $args->{sheet} || '';
        #$ilink = 'amigo?mode=css' . $sheet . '.css';
        $ilink = 'amigo?mode=css';
+     },
+
+     'olsvis_go' =>
+     sub {
+       die "interlink mode 'gp_details' requires args" if ! defined $args;
+       my $tacc = $args->{term} || '';
+       $ilink = 'http://ols.wordvis.com/q=' . $tacc;
      },
 
      ## I don't *think* this would be Seth approved. -Sven

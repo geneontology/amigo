@@ -406,13 +406,18 @@
       <div id="display-out">
 	<p>
 	  <ul>
-	    <li><b>Additional viewing options</b></li>
+	    <li><b>Additional external viewing options</b></li>
+	    <li><a href="[% OLSVIS_GO_LINK %]"
+		   title="View the graph in the OLSVis viewer">OLSVis (interactive)</a></li>
+	  </ul>
+	  <ul>
+	    <li><b>Additional internal viewing options</b></li>
 	    <!-- TODO: do this with breadcrumbsy string (taken from REST URL) --> 
 	    <!-- <li>Last action: [% last_action || 'unknown' %]</li> -->
 	    <li><a href="[% VIZ_STATIC_LINK %]"
-		   title="View the tree in graph form as a static PNG image">Graphical view (PNG)</a></li>
+		   title="View the graph as a static PNG image">Graphical view (PNG)</a></li>
 	    <li><a href="[% VIZ_DYNAMIC_LINK %]"
-		   title="View the tree in graph form as an interactive SVG+JS document">Graphical view (SVG)</a></li>
+		   title="View the graph as an interactive SVG+JS document">Graphical view (SVG)</a></li>
 	    <!-- One day this will be out of experimental. -->
 	    <!-- <li><a href="[% NAVIGATION_LINK %]" -->
 		 <!-- 	      title="Navigate the GO, using the current term as a seed">GO Navigation</a></li> -->
