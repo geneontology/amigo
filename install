@@ -310,6 +310,68 @@ golr_config_to_meta_js($yaml_confs);
 ## weight >= 100: visible and in order; major
 
 ###
+### Now we're going to try grabbing all of the /important/ JS and CSS
+### and tossing them into single files.
+###
+
+## This is experimental.
+if( $opt_e ){
+
+  ## Final target filename.
+  my $out_fname = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
+    '/javascript/bbop-amigo-full.js';
+  open(OUTFILE, ">$out_fname") or die "cannot open $out_fname: $!";
+
+  my $export_js_files =
+    [
+     ## BBOP
+     'bbop/core.js',
+     'bbop/logger.js',
+     'bbop/registry.js',
+     'bbop/html.js',
+     'bbop/model.js',
+     'bbop/model/bracket.js',
+     'bbop/golr_conf.js',
+     'bbop/golr_response.js',
+     'bbop/golr_manager.js',
+     'bbop/golr_manager_jquery.js',
+     'bbop/golr_widget_autocomplete.js',
+     'bbop/golr_widget_browse.js',
+     ## AmiGO
+     'bbop/amigo.js',
+     'bbop/amigo/amigo_meta.js',
+     'bbop/amigo/golr_meta.js',
+     'bbop/amigo/linker.js',
+     'bbop/amigo/golr_template.js',
+     'bbop/amigo/golr_ui_search.js',
+    ];
+
+  ## Drop them all into the target file.
+  foreach my $jsf (@$export_js_files){
+
+    my $ex_fname = $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/'. $jsf;
+    open(EXFILE, "<$ex_fname") or die "cannot open $ex_fname: $!";
+
+    while(<EXFILE>){
+      #print $tmp_in_fh $_;
+      print OUTFILE $_;
+    }
+  }
+  close(EXFILE);
+
+  ## Just dump for now.
+  close(OUTFILE);
+
+  ## TODO: just convert this by the command line--no reading tricks
+  ## TODO: check that we have the yui-compressor utility.
+  ## Run the converter on the tmp output
+  #make_compressed_js($tmp_in_fname, $out_fname);
+  #die;
+
+  ll("Created JS lib file: " . $out_fname);
+}
+
+###
 ### Finish.
 ###
 
@@ -767,6 +829,18 @@ sub make_readable {
   system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
 }
 
+# ## TODO: ALPHA EXP
+# sub make_compressed_js {
+
+#   my $in_file = shift || die "no first arg";
+#   my $out_file = shift || die "no second arg";
+
+#   #my @args = ("shrinksafe", $in_file, ">", $out_file);
+#   my @args = ("yui-compressor", "--nomunge", "--type", "js",
+# 	      $in_file, ">", $out_file);
+#   ll("System: \"@args\"");
+#   system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
+# }
 
 ## Make all of the old .cgi filenames accessible through no-cgi names,
 ## if applicable.
