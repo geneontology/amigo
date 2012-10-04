@@ -1,8 +1,8 @@
-<!-- START: goose.tmpl -->
-  <form action="goose"
+<!-- START: gannet.tmpl -->
+  <form action="gannet"
 	method="GET"
-	name="goose_form"
-	id="goose_form">
+	name="gannet_form"
+	id="gannet_form">
     
     <div class="block">
 
@@ -16,17 +16,9 @@
       
       <div id="information">
 
-	<h4>General SQL</h4>
+	<h4>GO Solr (GOlr)</h4>
 	<p>
-	  If your query takes a long time or returns a blank screen,
-	  you may want to try the download option. If your query is
-	  long-running or fails, you may also want to try a "lite"
-	  database from the mirror selection.
-	</p>
-	
-	<h4>LEAD SQL</h4>
-	<p>
-	  See some LEAD SQL <a href="http://wiki.geneontology.org/index.php/Example_LEAD_Queries">examples</a> and learn more about the LEAD <a href="http://www.geneontology.org/GO.database.shtml" title="LEAD database schema documentation">schema</a>.
+	  See some GOlr  <a href="http://wiki.geneontology.org/index.php/Example_Solr_Queries">examples</a> and preliminary <a href="http://geneontology.svn.sourceforge.net/viewvc/geneontology/java/gold/solr/conf/schema.xml?content-type=text%2Fplain">schema</a> information.
 	</p>
 
 	<h4>Mirrors</h4>
@@ -35,19 +27,14 @@
 	</p>
 
       </div>
-      
-      <!-- <h4>GOLD SQL</h4> -->
-      <!-- <p> -->
-      <!--   See some GOLD SQL <a href="http://wiki.geneontology.org/index.php/Example_GOLD_Queries">examples</a> and learn more about the experimental GOLD <a href="http://www.geneontology.org/GO.gold.schema.shtml" title="GOLD database schema documentation">schema</a>.<br /> -->
-      <!-- </p> -->
-      
+       
       <h3 id="mirrors_click" class="first"><a href="#">Available mirrors</a></h3>
       
       <div id="mirrors">
 	
 	<ul>
 	  [% FOREACH mirror = all_mirrors %]
-	  
+
 	  <li>
 	    <input type="radio" 
 		   name="mirror" 
@@ -60,13 +47,13 @@
 	    </b>:
 	    Use the [% IF mirror_info.$mirror.type.search('solr') %]Solr[% ELSIF mirror_info.$mirror.type.search('lead') %]LEAD[% ELSIF mirror_info.$mirror.type.search('gold') %]GOLD[% ELSE %]???[% END %] [% IF mirror_info.$mirror.type.search('full') %]full[% ELSIF mirror_info.$mirror.type.search('lite') %]lite[% END %] [% IF mirror_info.$mirror.class.search('main') %]main[% ELSIF mirror_info.$mirror.class.search('aux') %]auxiliary[% ELSIF mirror_info.$mirror.class.search('exp') %]experimental[% END %] mirror [% mirror_info.$mirror.location %].
 	  </li>
-	  
+
 	  [% END %]	  
 	</ul>	      
       </div>
-      
+
       <h3 class="first">Enter your query (currently a <em>[% IF database_type.search('solr') %]Solr[% ELSIF database_type.search('lead') %]LEAD[% ELSIF database_type.search('gold') %]GOLD[% ELSE %]???[% END %]</em> database):</h3>
-      
+
       <div>
 	<textarea id="query"
 		  name="query"
@@ -74,70 +61,30 @@
 		  rows="5">[% query %]</textarea>
       </div>
 
-      <h3 id="sql_options_click" class="first"><a href="#">SQL options</h3></a>
+      <!-- <h3 id="solr_options_click" class="first"><a href="#">Solr options (GOlr)</h3></a> -->
       
-      <div id="sql_options">
+      <!-- <div id="solr_options"> -->
 	
-	<p>
-	  Options only for use when making queries against an SQL database.
-	</p>
+      <!-- </div> -->
 
-	Limit the number of results returned:
-	<select name="limit" size="1">
-	  <option
-	     title="10" 
-	     value="10" 
-	     [% IF limit == 10 %]selected[% END %]
-	     class="" >10</option>
-	  <option
-	     title="100" 
-	     value="100" 
-	     [% IF limit == 100 %]selected[% END %]
-	     class="">100</option>
-	  <option
-	     title="1000" 
-	     value="1000" 
-	     [% IF limit == 1000 %]selected[% END %]
-	     class="">1000</option>
-	  <option
-	     title="10000" 
-	     value="10000" 
-	     [% IF limit == 10000 %]selected[% END %]
-	     class="">10000</option>
-	  <option
-	     title="unlimited" 
-	     value="0" 
-	     [% IF limit == 0 %]selected[% END %]
-	     class="">unlimited</option>
-	</select>
-
-	<br />
-
-	<div>
-          Download results directly in a text format
-	  <input class="cbox" type="checkbox" name="format" value="text" />
-	</div>
-	
-      </div>
-
-	<div style="" id="goose_lead_example_list">
-	  [% IF lead_examples_list %]
+	<!-- Solr -->
+	<div style="" id="gannet_golr_example_list">
+	  [% IF golr_examples_list %]
 	  <!-- Assemble the examples table. -->
-	  <!-- LEAD -->
-	  <select id="goose_lead_example_selection"
+	  <select id="gannet_golr_example_selection"
 		  class=""
 		  style=""
 		  size="1">
-	    [%    FOREACH ex = lead_examples_list %]
-	    [%       value = ex.sql %]
+	    [%    FOREACH ex = golr_examples_list %]
+	    [%       value = ex.solr %]
 	    [%       title = ex.title %]
-	    <option title="[% value %]" 
-		    value="[% value %]">[% title %]</option>
+	    <option title='[% value %]' 
+		    value='[% value %]'>[% title %]</option>
 	    [%    END %]
 	  </select>
 	  [% ELSE %]
 	  <!-- Unable to assemble the examples table. -->
-	  (The GO LEAD SQL wiki page could not be contacted so LEAD SQL examples
+	  (The GO Solr wiki page could not be contacted so GOlr examples
 	  are not available.)
 	  [% END %]
 	</div>
@@ -233,10 +180,10 @@
       [%   END %]
       
       <form style="display: inline;"
-	    action="goose"
+	    action="gannet"
 	    method="GET"
-	    name="goose_form"
-	    id="goose_form">
+	    name="gannet_form"
+	    id="gannet_form">
 	[% IF galaxy_url %]
 	<input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
 	[% END %]
@@ -293,4 +240,4 @@
   </div>
   
   [% END %]
-<!-- END: goose.tmpl -->
+<!-- END: gannet.tmpl -->

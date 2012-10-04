@@ -57,20 +57,13 @@ bbop_lite:
   type: lead_lite
   port: 3306
 
-gold_exp:
-  label: Experimental GOLD
-  location: in Berkeley, CA
-  class: exp
-  login: gold_user
-  password: gold_pass
-  database: gold
-  host: ladle.lbl.gov
-  type: gold
-  port: 5432
-
-bbop_golr:
-  label: Experimental GO Solr
-  location: in Berkeley, CA
-  class: exp
-  database: http://golr.berkeleybop.org/
-  type: solr
+# gold_exp:
+#   label: Experimental GOLD
+#   location: in Berkeley, CA
+#   class: exp
+#   login: gold_user
+#   password: gold_pass
+#   database: gold
+#   host: ladle.lbl.gov
+#   type: gold
+#   port: 5432

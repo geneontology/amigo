@@ -43,7 +43,7 @@ if ( $opt_e ) {
   ll("Will also install experimental binaries and executables.)");
 }
 if ( $opt_g ) {
-  ll("Will also install GOOSE.");
+  ll("Will also install GOOSE and Gannet.");
 }
 
 ## First check that we are in the proper directory. Installation
@@ -240,6 +240,7 @@ if ( $opt_g ) {
   push @mods,
     qw(
 	goose
+	gannet
      );
 }
 
@@ -905,7 +906,7 @@ config.pl (same information, different format).
 
 =item -g
 
-Also install GOOSE.
+Also install GOOSE and Gannet.
 
 =back
 

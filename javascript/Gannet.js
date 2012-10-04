@@ -1,11 +1,11 @@
 ////
-//// For now, a simple hook into GOOSE once live. Just three lines, so
+//// For now, a simple hook into Gannet once live. Just three lines, so
 //// will probably leave DEBUG in.
 ////
 
 
 //
-function GOOSEInit(){
+function GannetInit(){
 
     // Per-manager logger.
     var logger = new bbop.logger();
@@ -13,24 +13,19 @@ function GOOSEInit(){
     function ll(str){ logger.kvetch(str); }
 
     //ll('');
-    ll('GOOSEInit start...');
+    ll('GannetInit start...');
 
-    // LEAD: Enter things from pulldown into textarea on change.
-    jQuery("#" + "goose_lead_example_selection").change(
+    // GOlr: Enter things from pulldown into textarea on change.
+    jQuery("#" + "gannet_golr_example_selection").change(
 	function(){
-	    var sql = jQuery(this).val();
-	    jQuery("#" + "query").val(sql);
+	    var semi_solr = jQuery(this).val();
+	    //ll('semi_solr: ' + semi_solr);
+	    jQuery("#" + "query").val(semi_solr);
 	});
 
-    // // GOLD: Enter things from pulldown into textarea on change.
-    // jQuery("#" + "goose_gold_example_selection").change(
-    // 	function(){
-    // 	    var sql = jQuery(this).val();
-    // 	    jQuery("#" + "query").val(sql);
-    // 	});
-
     // Make unnecessary things roll up.
-    bbop.core.each(["information", "mirrors", "sql_options"],
+    //bbop.core.each(["information", "mirrors", "solr_options"],
+    bbop.core.each(["information", "mirrors"],
 		   function(eltid){
 		       jQuery('#'+eltid).hide();
 		       var elt = jQuery('#' + eltid + '_click');
@@ -49,5 +44,5 @@ function GOOSEInit(){
 	ll('Looks like a starting page.');
     }
 
-    ll('GOOSEInit done.');
+    ll('GannetInit done.');
 }

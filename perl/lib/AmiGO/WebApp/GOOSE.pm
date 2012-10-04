@@ -18,14 +18,14 @@ use AmiGO::Sanitize;
 use AmiGO::WebApp::Input;
 
 use AmiGO::External::HTML::Wiki::LEAD;
-use AmiGO::External::HTML::Wiki::GOLD;
-use AmiGO::External::HTML::Wiki::GOlr;
+#use AmiGO::External::HTML::Wiki::GOLD;
+#use AmiGO::External::HTML::Wiki::GOlr;
 use AmiGO::External::LEAD::Status;
 use AmiGO::External::LEAD::Query;
-use AmiGO::External::GOLD::Status;
-use AmiGO::External::GOLD::Query;
-use AmiGO::External::JSON::Solr::GOlr::Status;
-use AmiGO::External::JSON::Solr::GOlr::SafeQuery;
+#use AmiGO::External::GOLD::Status;
+#use AmiGO::External::GOLD::Query;
+#use AmiGO::External::JSON::Solr::GOlr::Status;
+#use AmiGO::External::JSON::Solr::GOlr::SafeQuery;
 
 my $VISUALIZE_LIMIT = 50;
 
@@ -92,48 +92,26 @@ sub _goose_get_wiki_lead_examples {
 }
 
 
-## Get the GOLD SQL examples from the wiki.
-sub _goose_get_wiki_gold_examples {
+# ## Get the GOLD SQL examples from the wiki.
+# sub _goose_get_wiki_gold_examples {
 
-  my $self = shift;
+#   my $self = shift;
 
-  ##
-  my $x = AmiGO::External::HTML::Wiki::GOLD->new();
-  my $examples_list = $x->extract();
-  if( scalar(@$examples_list) ){
+#   ##
+#   my $x = AmiGO::External::HTML::Wiki::GOLD->new();
+#   my $examples_list = $x->extract();
+#   if( scalar(@$examples_list) ){
 
-    ## Push on default.
-    unshift @$examples_list,
-      {
-       title => '(Select example GOLD SQL query from the wiki)',
-       sql => '',
-      };
-  }
+#     ## Push on default.
+#     unshift @$examples_list,
+#       {
+#        title => '(Select example GOLD SQL query from the wiki)',
+#        sql => '',
+#       };
+#   }
 
-  return $examples_list;
-}
-
-
-## Get the LEAD SQL examples from the wiki.
-sub _goose_get_wiki_golr_examples {
-
-  my $self = shift;
-
-  ##
-  my $x = AmiGO::External::HTML::Wiki::GOlr->new();
-  my $examples_list = $x->extract();
-  if( scalar(@$examples_list) ){
-
-    ## Push on default.
-    unshift @$examples_list,
-      {
-       title => '(Select example GOlr Solr query from the wiki)',
-       solr => '',
-      };
-  }
-
-  return $examples_list;
-}
+#   return $examples_list;
+# }
 
 
 ## Return a properties hash usable for *::Status functions. Assume the
@@ -170,12 +148,12 @@ sub _goose_get_mirror_status {
   my $status = undef;
   if( $mirror_props->{type} =~ /lead/ ){
     $status = AmiGO::External::LEAD::Status->new($mirror_props);
-  }elsif( $mirror_props->{type} =~ /gold/ ){
-    $status = AmiGO::External::GOLD::Status->new($mirror_props);
-  }elsif( $mirror_props->{type} =~ /solr/ ){
-    ## Solr behaves a little differently.
-    $status =
-      AmiGO::External::JSON::Solr::GOlr::Status->new($mirror_props->{database});
+  # }elsif( $mirror_props->{type} =~ /gold/ ){
+  #   $status = AmiGO::External::GOLD::Status->new($mirror_props);
+  # }elsif( $mirror_props->{type} =~ /solr/ ){
+  #   ## Solr behaves a little differently.
+  #   $status =
+  #     AmiGO::External::JSON::Solr::GOlr::Status->new($mirror_props->{database});
   }else{
     $self->{CORE}->kvetch("_unknown database_");
     #$tmpl_args->{message} = "_unknown database_";
@@ -268,10 +246,10 @@ sub mode_goose {
   ## Get various examples from the wiki.
   $self->set_template_parameter('lead_examples_list',
 				$self->_goose_get_wiki_lead_examples());
-  $self->set_template_parameter('gold_examples_list',
-				$self->_goose_get_wiki_gold_examples());
-  $self->set_template_parameter('golr_examples_list',
-				$self->_goose_get_wiki_golr_examples());
+  # $self->set_template_parameter('gold_examples_list',
+  # 				$self->_goose_get_wiki_gold_examples());
+  # $self->set_template_parameter('golr_examples_list',
+  # 				$self->_goose_get_wiki_golr_examples());
 
   ###
   ### The idea is to make GOOSE more responsive by not checking all of
@@ -287,7 +265,7 @@ sub mode_goose {
 
   ## Read in known mirror information and check status.
   my $mirror_loc =
-    $self->{CORE}->amigo_env('AMIGO_ROOT') . '/conf/go_mirrors.yaml';
+    $self->{CORE}->amigo_env('AMIGO_ROOT') . '/conf/go_sql_mirrors.yaml';
   #my $mirror_conf_info = $self->{JS}->parse_json_file($mirror_loc);
   my $mirror_conf_info = LoadFile($mirror_loc);
   #$self->{CORE}->kvetch("_mirror_conf_info_dump_:".Dumper($mirror_conf_info));
@@ -436,125 +414,126 @@ sub mode_goose {
 
     $self->{CORE}->kvetch("trying query:" . $in_query);
 
-    ## Solr work, otherwise SQL.
-    if( $in_type =~ /solr/ ){
+    # ## Solr work, otherwise SQL.
+    # if( $in_type =~ /solr/ ){
 
-      ## Grab the solr worker.
-      my $q =
-	AmiGO::External::JSON::Solr::GOlr::SafeQuery->new($props->{database});
-      $q->safe_query($in_query);
-      $solr_results = $q->docs();
+    #   ## Grab the solr worker.
+    #   my $q =
+    # 	AmiGO::External::JSON::Solr::GOlr::SafeQuery->new($props->{database});
+    #   $q->safe_query($in_query);
+    #   $solr_results = $q->docs();
 
-      ## Let's check it again.
-      if( defined $solr_results ){
+    #   ## Let's check it again.
+    #   if( defined $solr_results ){
 
-	## Basic results.
-	$count = $q->total() || 0;
-	$in_limit = $q->count() || 0;
-	$self->{CORE}->kvetch("Got Solr results #: " . $count);
-	$direct_solr_url = $q->url();
-	$direct_solr_results = $q->raw();
+    # 	## Basic results.
+    # 	$count = $q->total() || 0;
+    # 	$in_limit = $q->count() || 0;
+    # 	$self->{CORE}->kvetch("Got Solr results #: " . $count);
+    # 	$direct_solr_url = $q->url();
+    # 	$direct_solr_results = $q->raw();
 
-	## Prepare to go through the gaffer.
-	my $full_id_url = $q->full_results_url('id');
-	my $tmp_id_gurl =
-	  $self->{CORE}->get_interlink({
-					mode => 'gaffer',
-					arg =>
-					{
-					 mode => 'solr_to_id_list',
-					 url => $full_id_url
-					},
-					optional =>
-					{
-					 full => 1
-					}});
-	#my $full_gaf_url = $q->full_results_url('id');
-	my $full_gaf_url = $q->full_results_url('*');
-	my $tmp_gaf_gurl =
-	  $self->{CORE}->get_interlink({
-					mode => 'gaffer',
-					arg =>
-					{
-					 mode => 'solr_to_gaf',
-					 url => $full_gaf_url
-					},
-					optional =>
-					{
-					 full => 1
-					}});
-	$self->{CORE}->kvetch('full id url: ' . $full_id_url);
-	$self->{CORE}->kvetch('full gaf url: ' . $full_gaf_url);
-	$self->{CORE}->kvetch('id gurl: ' . $tmp_id_gurl);
-	$self->{CORE}->kvetch('gaf gurl: ' . $tmp_gaf_gurl);
-	$self->set_template_parameter('direct_gaffer_id_url_safe',
-				      $self->{CORE}->html_safe($tmp_id_gurl));
-	$self->set_template_parameter('direct_gaffer_gaf_url_safe',
-				      $self->{CORE}->html_safe($tmp_gaf_gurl));
-      }else{
+    # 	## Prepare to go through the gaffer.
+    # 	my $full_id_url = $q->full_results_url('id');
+    # 	my $tmp_id_gurl =
+    # 	  $self->{CORE}->get_interlink({
+    # 					mode => 'gaffer',
+    # 					arg =>
+    # 					{
+    # 					 mode => 'solr_to_id_list',
+    # 					 url => $full_id_url
+    # 					},
+    # 					optional =>
+    # 					{
+    # 					 full => 1
+    # 					}});
+    # 	#my $full_gaf_url = $q->full_results_url('id');
+    # 	my $full_gaf_url = $q->full_results_url('*');
+    # 	my $tmp_gaf_gurl =
+    # 	  $self->{CORE}->get_interlink({
+    # 					mode => 'gaffer',
+    # 					arg =>
+    # 					{
+    # 					 mode => 'solr_to_gaf',
+    # 					 url => $full_gaf_url
+    # 					},
+    # 					optional =>
+    # 					{
+    # 					 full => 1
+    # 					}});
+    # 	$self->{CORE}->kvetch('full id url: ' . $full_id_url);
+    # 	$self->{CORE}->kvetch('full gaf url: ' . $full_gaf_url);
+    # 	$self->{CORE}->kvetch('id gurl: ' . $tmp_id_gurl);
+    # 	$self->{CORE}->kvetch('gaf gurl: ' . $tmp_gaf_gurl);
+    # 	$self->set_template_parameter('direct_gaffer_id_url_safe',
+    # 				      $self->{CORE}->html_safe($tmp_id_gurl));
+    # 	$self->set_template_parameter('direct_gaffer_gaf_url_safe',
+    # 				      $self->{CORE}->html_safe($tmp_gaf_gurl));
+    #   }else{
 
-	## Final run sanity check.
-	#$self->{CORE}->kvetch('$q: ' . Dumper($q));
-	if( $q->error_p() ){
-	  if( $q->raw() ){
-	    my $raw_out = $q->html_safe($q->raw());
-	    $tmpl_args->{message} = $q->error_message() . " " . $raw_out;
-	  }else{
-	    $tmpl_args->{message} = $q->error_message();
-	  }
-	}else{
-	  $tmpl_args->{message} =
-	    "Something failed in Solr query process. Bailing.";
-	}
-	return $self->mode_generic_message($tmpl_args);
-      }
+    # 	## Final run sanity check.
+    # 	#$self->{CORE}->kvetch('$q: ' . Dumper($q));
+    # 	if( $q->error_p() ){
+    # 	  if( $q->raw() ){
+    # 	    my $raw_out = $q->html_safe($q->raw());
+    # 	    $tmpl_args->{message} = $q->error_message() . " " . $raw_out;
+    # 	  }else{
+    # 	    $tmpl_args->{message} = $q->error_message();
+    # 	  }
+    # 	}else{
+    # 	  $tmpl_args->{message} =
+    # 	    "Something failed in Solr query process. Bailing.";
+    # 	}
+    # 	return $self->mode_generic_message($tmpl_args);
+    #   }
 
+    # }else{
+
+    ## Get the right query worker for SQL.
+    my $q = undef;
+    if( $in_type =~ /lead/ ){
+      $q = AmiGO::External::LEAD::Query->new($props, $in_limit);
+      # }elsif( $in_type =~ /gold/ ){
+      # 	$q = AmiGO::External::GOLD::Query->new($props, $in_limit);
     }else{
+      $self->{CORE}->kvetch("_unknown database_");
+      $tmpl_args->{message} = "_unknown database_";
+      return $self->mode_generic_message($tmpl_args);
+    }
 
-      ## Get the right query worker for SQL.
-      my $q = undef;
-      if( $in_type =~ /lead/ ){
-	$q = AmiGO::External::LEAD::Query->new($props, $in_limit);
-      }elsif( $in_type =~ /gold/ ){
-	$q = AmiGO::External::GOLD::Query->new($props, $in_limit);
-      }else{
-	$self->{CORE}->kvetch("_unknown database_");
-	$tmpl_args->{message} = "_unknown database_";
-	return $self->mode_generic_message($tmpl_args);
-      }
+    ## Try sql.
+    $self->{CORE}->kvetch("using limit: " . $in_limit);
+    $sql_results = $q->try($in_query);
+    #$self->{CORE}->kvetch("_res_: " . Dumper($sql_results));
 
-      ## Try sql.
-      $self->{CORE}->kvetch("using limit: " . $in_limit);
-      $sql_results = $q->try($in_query);
-      #$self->{CORE}->kvetch("_res_: " . Dumper($sql_results));
+    ## Check processing.
+    if( ! $q->ok() ){
+      $self->{CORE}->kvetch("_not ok_!");
+      $tmpl_args->{message} = $q->error_message();
+      return $self->mode_generic_message($tmpl_args);
+    }
 
-      ## Check processing.
-      if( ! $q->ok() ){
-	$self->{CORE}->kvetch("_not ok_!");
-	$tmpl_args->{message} = $q->error_message();
-	return $self->mode_generic_message($tmpl_args);
-      }
-
-      ## Let's check it again.
-      if( defined $sql_results ){
-	$count = $q->count() || 0;
-	$self->{CORE}->kvetch("Got SQL results #: " . $count);
-	$sql_headers = $q->headers();
-      }else{
-	## Final run sanity check.
-	$tmpl_args->{message} =
-	  "Something failed in the final SQL results check. Bailing";
-	return $self->mode_generic_message($tmpl_args);
-      }
+    ## Let's check it again.
+    if( defined $sql_results ){
+      $count = $q->count() || 0;
+      $self->{CORE}->kvetch("Got SQL results #: " . $count);
+      $sql_headers = $q->headers();
+    }else{
+      ## Final run sanity check.
+      $tmpl_args->{message} =
+	"Something failed in the final SQL results check. Bailing";
+      return $self->mode_generic_message($tmpl_args);
     }
   }
+  # }
 
   ###
   ### Four gross choices for output: text vs. html and SQL vs. Solr.
   ###
 
   my $output = '';
-  if( $in_format eq 'text' && ( $in_type =~ /lead/ || $in_type =~ /gold/ )){
+  ##if( $in_format eq 'text' && ( $in_type =~ /lead/ || $in_type =~ /gold/ )){
+  if( $in_format eq 'text' && $in_type =~ /lead/ ){
     $self->{CORE}->kvetch("text/sql combination");
 
     $self->header_add( -type => 'plain/text' );
@@ -581,7 +560,8 @@ sub mode_goose {
     my $found_terms = [];
     my $found_terms_i = 0;
 
-    if( $in_type =~ /lead/ || $in_type =~ /gold/ ){
+    #if( $in_type =~ /lead/ || $in_type =~ /gold/ ){
+    if( $in_type =~ /lead/ ){
       $self->{CORE}->kvetch("html/sql combination");
 
       ## Cycle through results and webify them. This may include
