@@ -382,17 +382,20 @@ if( $opt_e ){
   drop_js_files($out_fname, $export_js_files);
 
   ## Drop the head version in the staging dir.
-  $out_fname = $staging_dir . '/bbop-amigo.js';
-  drop_js_files($out_fname, $export_js_files);
+  my $head_out_fname = $staging_dir . '/bbop-amigo.js';
+  drop_js_files($head_out_fname, $export_js_files);
+  ## And compress it for CDN life.
+  make_compressed_js($head_out_fname, $staging_dir .'/bbop-amigo.min.js');
 
   ## Drop a versioned version in the staging dir.
-  $out_fname = $staging_dir . '/bbop-amigo_' . $release_version . '.js';
-  drop_js_files($out_fname, $export_js_files);
+  my $rel_out_fname = $staging_dir . '/bbop-amigo_' . $release_version . '.js';
+  drop_js_files($rel_out_fname, $export_js_files);
+  ## And compress it for CDN life.
+  make_compressed_js($rel_out_fname,
+		     $staging_dir .'/bbop-amigo_'. $release_version .'.min.js');
 
   ## TODO: just convert this by the command line--no reading tricks
   ## TODO: check that we have the yui-compressor utility.
-  ## Run the converter on the tmp output
-  #make_compressed_js($tmp_in_fname, $out_fname);
   #die;
 }
 
@@ -905,18 +908,18 @@ sub make_readable {
   system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
 }
 
-# ## TODO: ALPHA EXP
-# sub make_compressed_js {
+## TODO/BUG: ALPHAish experiment.
+sub make_compressed_js {
 
-#   my $in_file = shift || die "no first arg";
-#   my $out_file = shift || die "no second arg";
+  my $in_file = shift || die "no first arg";
+  my $out_file = shift || die "no second arg";
 
-#   #my @args = ("shrinksafe", $in_file, ">", $out_file);
-#   my @args = ("yui-compressor", "--nomunge", "--type", "js",
-# 	      $in_file, ">", $out_file);
-#   ll("System: \"@args\"");
-#   system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
-# }
+  #my @args = ("shrinksafe", $in_file, ">", $out_file);
+  my @args = ("yui-compressor", "--nomunge", "--type", "js",
+	      "-o", $out_file, $in_file);
+  ll("System: \"@args\"");
+  system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
+}
 
 ## Make all of the old .cgi filenames accessible through no-cgi names,
 ## if applicable.
