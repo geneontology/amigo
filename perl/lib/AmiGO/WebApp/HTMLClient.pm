@@ -114,23 +114,7 @@ sub mode_landing {
      [
       'com.jquery',
       'com.jquery-ui',
-      # 'bbop.core',
-      # 'bbop.logger',
-      # #'bbop.logic',
-      # 'bbop.registry',
-      # 'bbop.html',
-      # 'bbop.amigo',
-      # 'bbop.amigo.amigo_meta',
-      # #'bbop.amigo.linker',
-      # #'bbop.amigo.golr_template',
-      # #'bbop.amigo.golr_ui_search',
-      # 'bbop.amigo.golr_meta',
-      # 'bbop.golr_conf',
-      # 'bbop.golr_response',
-      # 'bbop.golr_manager',
-      # 'bbop.golr_manager_jquery',
-      # 'bbop.golr_widget_autocomplete',
-      'bbop-amigo-full',
+      'bbop-amigo',
      ],
      javascript =>
      [
@@ -181,25 +165,7 @@ sub mode_browse {
      [
       'com.jquery',
       'com.jquery-ui',
-      'bbop.core',
-      'bbop.logger',
-      #'bbop.logic',
-      'bbop.registry',
-      'bbop.html',
-      'bbop.model',
-      'bbop.model.bracket',
-      'bbop.amigo',
-      'bbop.amigo.amigo_meta',
-      #'bbop.amigo.linker',
-      #'bbop.amigo.golr_template',
-      #'bbop.amigo.golr_ui_search',
-      'bbop.amigo.golr_meta',
-      'bbop.golr_conf',
-      'bbop.golr_response',
-      'bbop.golr_manager',
-      'bbop.golr_manager_jquery',
-      'bbop.golr_widget_autocomplete',
-      'bbop.golr_widget_browse',
+      'bbop-amigo'
      ],
      javascript =>
      [
@@ -574,22 +540,7 @@ sub mode_live_search {
      [
       'com.jquery',
       'com.jquery-ui',
-      #'com.jquery.tablesorter',
-      'bbop.core',
-      'bbop.logger',
-      #'bbop.logic',
-      'bbop.registry',
-      'bbop.html',
-      'bbop.amigo',
-      'bbop.amigo.amigo_meta',
-      'bbop.amigo.linker',
-      'bbop.amigo.golr_template',
-      'bbop.amigo.golr_ui_search',
-      'bbop.amigo.golr_meta',
-      'bbop.golr_conf',
-      'bbop.golr_response',
-      'bbop.golr_manager',
-      'bbop.golr_manager_jquery',
+      'bbop-amigo'
      ],
      javascript =>
      [
@@ -864,24 +815,7 @@ sub mode_golr_term_details {
      [
       'com.jquery',
       'com.jquery-ui',
-      #'com.jquery.tablesorter',
-      'bbop.core',
-      'bbop.logger',
-      #'bbop.logic',
-      'bbop.registry',
-      'bbop.html',
-      'bbop.amigo',
-      'bbop.amigo.amigo_meta',
-      'bbop.amigo.linker',
-      'bbop.amigo.golr_template',
-      'bbop.amigo.golr_ui_search',
-      'bbop.amigo.golr_meta',
-      'bbop.golr_conf',
-      'bbop.golr_response',
-      'bbop.golr_manager',
-      'bbop.golr_manager_jquery',
-      #'bbop.amigo.ui.widgets',
-      #'bbop.amigo.ui.interactive'
+      'bbop-amigo'
      ],
      javascript =>
      [
@@ -973,22 +907,7 @@ sub mode_golr_gene_product_details {
      [
       'com.jquery',
       'com.jquery-ui',
-      #'com.jquery.tablesorter',
-      'bbop.core',
-      'bbop.logger',
-      #'bbop.logic',
-      'bbop.registry',
-      'bbop.html',
-      'bbop.amigo',
-      'bbop.amigo.amigo_meta',
-      'bbop.amigo.linker',
-      'bbop.amigo.golr_template',
-      'bbop.amigo.golr_ui_search',
-      'bbop.amigo.golr_meta',
-      'bbop.golr_conf',
-      'bbop.golr_response',
-      'bbop.golr_manager',
-      'bbop.golr_manager_jquery',
+      'bbop-amigo'
      ],
      javascript =>
      [

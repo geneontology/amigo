@@ -283,7 +283,7 @@ amigo_env_to_js();
 ### structure that we can use for it.
 ###
 
-## TODO/BUG: temporarily hard-coded--his needs to be dynamic, but for
+## TODO/BUG: temporarily hard-coded--this needs to be dynamic, but for
 ## now we're just gunna write them in for debugging fun.
 my $yaml_path =  $env_conf{GO_OWLTOOLS_ROOT} .
   '/OWLTools-Solr/src/main/resources/';
@@ -296,36 +296,27 @@ my $yaml_confs = [
 
 golr_config_to_meta_js($yaml_confs);
 
-# print STDOUT "Ready to process GOlr YAML conf files...(1)\n";
-# #$core->kvetch("Ready to process GOlr YAML conf files...(2)");
-# my $foo = $core->read_config_resource($yaml_confs);
-# #$core->kvetch(Dumper($foo));
-# print STDOUT "GOlr YAML conf files...(1)\n" . Dumper($foo);
-
-# my $json_foo = $core->make_js($foo);
-# print STDOUT "GOlr YAML conf files...(1)\n" . Dumper($json_foo);
-# #$core->kvetch(Dumper($json_foo));
-
-## 0 > weight: invisible
-## 100 > weight >= 0: visible and in order; minor
-## weight >= 100: visible and in order; major
+## And now, generate a version and make the release package.
+my ($rday, $rmonth, $ryear) = (localtime)[3,4,5];
+my $release_version = sprintf "%.4d%.2d%.2d", $ryear+1900, $rmonth+1, $rday;
+## TODO: eventually switch, but for now, stay in beta?
+#$release_version = $env_conf{AMIGO} . '.' . $release_version;
+$release_version = '0.9' . '.' . $release_version;
+version_to_meta_js($release_version);
 
 ###
 ### Now we're going to try grabbing all of the /important/ JS and CSS
 ### and tossing them into single files.
 ###
 
-## This is experimental.
+## Experimental. This comes last since we're depending on the
+## javascript version file being there.
 if( $opt_e ){
-
-  ## Final target filename.
-  my $out_fname = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
-    '/javascript/bbop-amigo-full.js';
-  open(OUTFILE, ">$out_fname") or die "cannot open $out_fname: $!";
 
   my $export_js_files =
     [
      ## BBOP
+     'bbop/version.js',
      'bbop/core.js',
      'bbop/logger.js',
      'bbop/registry.js',
@@ -338,6 +329,10 @@ if( $opt_e ){
      'bbop/golr_manager_jquery.js',
      'bbop/golr_widget_autocomplete.js',
      'bbop/golr_widget_browse.js',
+     ## Non web-able.
+     'bbop/golr_manager_preload.js',
+     'bbop/golr_manager_nodejs.js',
+     'bbop/golr_manager_rhino.js',
      ## AmiGO
      'bbop/amigo.js',
      'bbop/amigo/amigo_meta.js',
@@ -347,29 +342,58 @@ if( $opt_e ){
      'bbop/amigo/golr_ui_search.js',
     ];
 
-  ## Drop them all into the target file.
-  foreach my $jsf (@$export_js_files){
+  ## How we'll find (in the htdocs dir) and where we're drop the
+  ## bundle.
+  sub drop_js_files {
+    my $out_fname = shift || die;
+    my $export_files = shift || die;
 
-    my $ex_fname = $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/'. $jsf;
-    open(EXFILE, "<$ex_fname") or die "cannot open $ex_fname: $!";
+    ## Final target filename.
+    open(OUTFILE, ">$out_fname") or die "cannot open $out_fname: $!";
 
-    while(<EXFILE>){
-      #print $tmp_in_fh $_;
-      print OUTFILE $_;
+    ## Drop them all into the target file.
+    foreach my $esf (@$export_files){
+
+      my $ex_fname = $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/'. $esf;
+      open(EXFILE, "<$ex_fname") or die "cannot open $ex_fname: $!";
+      while(<EXFILE>){
+	#print $tmp_in_fh $_;
+	print OUTFILE $_;
+      }
     }
-  }
-  close(EXFILE);
+    close(EXFILE);
+    close(OUTFILE);
 
-  ## Just dump for now.
-  close(OUTFILE);
+    ll("Created JS lib file: ". $out_fname .
+       ' with '. scalar(@$export_files) .' files(s).');
+  }
+
+  ## Drop one bundle in the HTDOCS dir.
+  my $out_fname = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
+    '/javascript/bbop-amigo.js';
+
+  ## Create the staging directory.
+  my $staging_dir = Cwd::cwd() . '/staging';
+  safe_make_dir($staging_dir);
+
+  ## Drop one bundle in HTDOCS for ourselves.
+  my $out_fname = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
+    '/javascript/bbop-amigo.js';
+  drop_js_files($out_fname, $export_js_files);
+
+  ## Drop the head version in the staging dir.
+  $out_fname = $staging_dir . '/bbop-amigo.js';
+  drop_js_files($out_fname, $export_js_files);
+
+  ## Drop a versioned version in the staging dir.
+  $out_fname = $staging_dir . '/bbop-amigo_' . $release_version . '.js';
+  drop_js_files($out_fname, $export_js_files);
 
   ## TODO: just convert this by the command line--no reading tricks
   ## TODO: check that we have the yui-compressor utility.
   ## Run the converter on the tmp output
   #make_compressed_js($tmp_in_fname, $out_fname);
   #die;
-
-  ll("Created JS lib file: " . $out_fname);
 }
 
 ###
@@ -434,6 +458,57 @@ EOC
   close(FILE);
   make_readable( $pconf_name );
   ll("Created synthetic variables and configuration file \"config.pl\".");
+}
+
+
+## file: <local tree>/bbop/version.js
+## file: /srv/www/htdocs/amigo/js/bbop/version.js
+sub version_to_meta_js {
+
+  ## We are going to be able to reference our home directory--where we
+  ## currently are.
+  use lib getcwd() . '/perl/lib';
+
+  ## Incoming argument is the version.
+  my $version = shift || die 'wot? we need a version argument';
+
+  ## If the file is already there, blow it away.
+  my $js_file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
+    '/javascript/bbop/version.js';
+  unlink $js_file_str if -f $js_file_str;
+  open(FILE, ">$js_file_str") or die "cannot open $js_file_str: $!";
+
+  ## 
+  print FILE <<EOJS;
+/* 
+ * Package: version.js
+ * 
+ * Namespace: bbop.version
+ * 
+ * This package was automatically created during an AmiGO 2 installation.
+ *
+ * This is the release of the API that you have.
+ */
+
+// Use a pre-core mechanism--if nothing else, bbop.version should be there.
+if ( typeof bbop == "undefined" ){ bbop = {}; }
+
+/*
+ * Variable: version
+ * 
+ * The version of the library.
+ */
+bbop.version = "$version";
+EOJS
+
+  ## Close file.
+  close(FILE);
+  make_readable($js_file_str);
+  ll("Created release version meta file (bin): \"$js_file_str\".");
+
+  ## Copy back into our JS tree for archiving and docs.
+  force_copy($js_file_str, Cwd::cwd() . '/javascript/bbop/');
+  ll("Created release meta file (local): \"$js_file_str\".");
 }
 
 

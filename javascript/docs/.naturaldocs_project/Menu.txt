@@ -58,6 +58,7 @@ Group: Bbop  {
       }  # Group: Amigo
 
    File: amigo.js  (bbop/amigo.js)
+   File: version.js  (bbop/version.js)
    }  # Group: Bbop
 
 File: jquery-1.8.0.js  (com/jquery-1.8.0.js)
