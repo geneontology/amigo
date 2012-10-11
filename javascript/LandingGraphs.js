@@ -102,12 +102,12 @@ function GooglesLoaderIsAJerk(){
     function GraphDataCallback(json_data, manager){
     
 	// Collect the data to display.
-	var resp = bbop.golr.response;
-	var count = resp.total_documents(json_data);
-	var facet_list = resp.facet_field_list(json_data);
+	var resp = new bbop.golr.response(json_data);
+	var count = resp.total_documents();
+	var facet_list = resp.facet_field_list();
 
 	// source data setup.
-	var raw_data_01 = resp.facet_field(json_data, 'source');
+	var raw_data_01 = resp.facet_field('source');
 	var data_01 = google.visualization.arrayToDataTable(raw_data_01);
 	var options_01 = { 'title': 'Sources (' + count + ')',
 			   'width': 400, 'height': 300 };	
@@ -117,7 +117,7 @@ function GooglesLoaderIsAJerk(){
 	chart_01.draw(data_01, options_01);	
 
 	// evidence_type data setup.
-	var raw_data_02 = resp.facet_field(json_data, 'evidence_type');
+	var raw_data_02 = resp.facet_field('evidence_type');
 	var data_02 = google.visualization.arrayToDataTable(raw_data_02);
 	var options_02 = { 'title': 'Evidence (' + count + ')',
 			   'width': 400, 'height': 300 };	
@@ -151,14 +151,14 @@ function GooglesLoaderIsAJerk(){
 	// This will be run on every url collected above.
 	var our_accumulator = function(json_data, manager){
 
-	    var resp = bbop.golr.response;
+	    var resp = new bbop.golr.response(json_data);
 	    
 	    // The evidence facet.
-	    var facet_list = resp.facet_field_list(json_data);
-	    var ev_fasc_hash = resp.facet_counts(json_data)['evidence_type'];
+	    var facet_list = resp.facet_field_list();
+	    var ev_fasc_hash = resp.facet_counts()['evidence_type'];
 
 	    // Recover the current source from the response.
-	    var fqs = resp.query_filters(json_data);
+	    var fqs = resp.query_filters();
 	    var src = bbop.core.get_keys(fqs['source'])[0];
 
 	    // Data row assembly.

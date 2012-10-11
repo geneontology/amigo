@@ -43,7 +43,6 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
     var amigo = new bbop.amigo();
 
     // BBOP helpers.
-    var golr_resp = bbop.golr.response;
     var tt = bbop.amigo.golr_template;
 
     // Get the user interface hook and remove anything that was there.
@@ -287,11 +286,12 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
     this.draw_meta = function(json_data, manager){
 	
 	ll('Draw meta div...');
+	var golr_resp = new bbop.golr.response(json_data);
 
 	// Collect numbers for display.
-	var total_c = golr_resp.total_documents(json_data);
-	var first_d = golr_resp.start_document(json_data);
-	var last_d = golr_resp.end_document(json_data);
+	var total_c = golr_resp.total_documents();
+	var first_d = golr_resp.start_document();
+	var last_d = golr_resp.end_document();
 
 	// Draw meta; the current numbers and page--the same for
 	// every type of return.
@@ -325,7 +325,7 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
 	    var b_last_disabled_p = false;
 	    
 	    // Only activate paging if it is necessary to the returns.
-	    if( ! golr_resp.paging_p(json_data) ){
+	    if( ! golr_resp.paging_p() ){
 		b_first_disabled_p = true;
 		b_back_disabled_p = true;
 		b_forward_disabled_p = true;
@@ -333,13 +333,13 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
 	    }
 	    
 	    // Don't activate back on the first page.
-	    if( ! golr_resp.paging_previous_p(json_data) ){
+	    if( ! golr_resp.paging_previous_p() ){
 		b_first_disabled_p = true;
 		b_back_disabled_p = true;
 	    }
 	    
 	    // Don't activate next on the last page.
-	    if( ! golr_resp.paging_next_p(json_data) ){
+	    if( ! golr_resp.paging_next_p() ){
 		b_forward_disabled_p = true;
 		b_last_disabled_p = true;
 	    }
@@ -410,6 +410,7 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
     this.reset_query = function(json_data, manager){
 
     	ll('Reset query for: ' + ui_query_input_id);
+	//var golr_resp = new bbop.golr.response(json_data);
 
 	// Reset manager and ui.
 	jQuery('#' + ui_query_input_id).val('');
@@ -502,11 +503,12 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
     this.draw_current_filters = function(json_data, manager){
     
 	ll('Draw current filters for: ' + ui_div_id);
+	var golr_resp = new bbop.golr.response(json_data);
 
 	// Add in the actual HTML for the filters and buttons. While
 	// doing so, tie a unique id to the filter--we'll use that
 	// later on to add buttons and events to them.
-	var in_query_filters = golr_resp.query_filters(json_data);
+	var in_query_filters = golr_resp.query_filters();
 	var sticky_query_filters = manager.get_sticky_query_filters();
 	ll('filters: ' + bbop.core.dump(in_query_filters));
 	var fq_list_tbl = new bbop.html.table(['', 'Filters', ''], []);
@@ -614,6 +616,7 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
     this.draw_accordion = function(json_data, manager){
     
 	ll('Draw current accordion for: ' + ui_div_id);
+	var golr_resp = new bbop.golr.response(json_data);
 
 	// Make sure that accordion has already been inited.
 	if( typeof(filter_accordion_widget) == 'undefined' ){
@@ -627,10 +630,10 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
 	// Cycle through each facet field; all the items in each,
 	// create the lists and buttons (while collectong data useful
 	// in creating the callbacks) and put them into the accordion.
-	each(golr_resp.facet_field_list(json_data),
+	each(golr_resp.facet_field_list(),
 	     function(in_field){
 
-		 var facet_bd = golr_resp.facet_field(json_data, in_field);
+		 var facet_bd = golr_resp.facet_field(in_field);
 		 if( bbop.core.is_empty(facet_bd) ){
 		     
 		     // No filters means nothing in the box.
@@ -652,7 +655,7 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
 			 new bbop.html.table([], [], facet_list_tbl_attrs);
 		     
 		     // Now go through and get filters and counts.
-		     each(golr_resp.facet_field(json_data, in_field),
+		     each(golr_resp.facet_field(in_field),
 			  function(ff_field, ff_item){
 
 			      // Pull out info.
@@ -759,8 +762,8 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
     this.draw_results = function(json_data, manager){
 	
 	ll('Draw results div...');
-
-	var docs = golr_resp.documents(json_data);
+	var golr_resp = new bbop.golr.response(json_data);
+	var docs = golr_resp.documents();
 
 	var final_table = new tt.results_table_by_class(anchor.class_conf, docs,
 							bbop.amigo.linker);
