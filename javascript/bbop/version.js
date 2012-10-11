@@ -16,4 +16,4 @@ if ( typeof bbop == "undefined" ){ bbop = {}; }
  * 
  * The version of the library.
  */
-bbop.version = "0.9.20121005";
+bbop.version = "0.9.20121011";

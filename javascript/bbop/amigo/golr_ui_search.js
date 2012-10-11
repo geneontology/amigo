@@ -450,7 +450,11 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
 
 		    // If the manager feels like it's right, trigger.
 		    if( manager.sensible_query_p() ){
-			ll('keeping set query: ' + input_text);		    
+			ll('keeping set query: ' + input_text);
+			// Set the query to be more "usable" just
+			// before triggering (so the tests can't be
+			// confused by our switch).
+			manager.set_comfy_query(input_text);
 			manager.search();
 		    }else{
 			ll('rolling back query: ' + tmp_q);		    

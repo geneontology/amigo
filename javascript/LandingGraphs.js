@@ -11,6 +11,13 @@ google.load("visualization", "1.0", {packages:["corechart"]});
 google.setOnLoadCallback(GooglesLoaderIsAJerk);
 function GooglesLoaderIsAJerk(){
     
+    // For debugging.
+    var logger = new bbop.logger('LG: ');
+    logger.DEBUG = true;
+    function ll(str){
+	logger.kvetch(str);
+    }
+    
     // Setup the annotation profile and make the annotation document
     // category and the current acc sticky in the filters.
     var am = new bbop.amigo.amigo_meta(); // resource locations
@@ -118,6 +125,76 @@ function GooglesLoaderIsAJerk(){
 	var elt_02 = document.getElementById('graph_02');
 	var chart_02 = new google.visualization.PieChart(elt_02);
 	chart_02.draw(data_02, options_02);	
+
+	///
+	/// Okay, let's tran and mimic Mike's graphs from Caltech 2012.
+	/// http://wiki.geneontology.org/index.php/File:GO-annotations.201201008.pdf
+	///
+
+	// Setup what data we will want and a variable to catch it in
+	// a table-like form for graphing later.
+	var our_sources = ['MGI', 'ZFIN', 'PomBase', 'dictyBase'];
+	var our_ev = ['ND', 'IEA', 'IGC', 'IC', 'ISS', 'EXP'];
+	var our_ev_copy = bbop.core.clone(our_ev);
+	our_ev_copy.unshift('Source');
+	var agg_data_03 = [our_ev_copy];
+
+	// Gather the URLs for the data we want to look at.
+	bbop.core.each(our_sources,
+    		       function(isrc){
+    			   gm_ann.reset_query_filters();
+    			   gm_ann.add_query_filter('source', isrc);
+    			   gm_ann.add_to_batch();
+    		       });
+
+	// Create a function to collect the data to display.
+	// This will be run on every url collected above.
+	var our_accumulator = function(json_data, manager){
+
+	    var resp = bbop.golr.response;
+	    
+	    // The evidence facet.
+	    var facet_list = resp.facet_field_list(json_data);
+	    var ev_fasc_hash = resp.facet_counts(json_data)['evidence_type'];
+
+	    // Recover the current source from the response.
+	    var fqs = resp.query_filters(json_data);
+	    var src = bbop.core.get_keys(fqs['source'])[0];
+
+	    // Data row assembly.
+	    var row_cache = [src];
+	    bbop.core.each(our_ev,
+			   function(e){
+			       var ev_cnt = ev_fasc_hash[e] || 0;
+			       ll('  ' + e + ': ' + ev_cnt);
+			       row_cache.push(ev_cnt);
+			   });
+	    agg_data_03.push(row_cache);
+	};
+
+	// Our final (drawing) routine; to be run when all of the
+	// above data has been collected.
+	var our_final = function(){
+
+	    ll('Graphing collected data.');
+
+	    // source data setup.
+	    var data_03 = google.visualization.arrayToDataTable(agg_data_03);
+	    var options_03 =
+		{
+		    'title': 'Annotations',
+		    'width': 700, 'height': 500,
+		    'isStacked': true, 'legend': 'bottom',
+		    'vAxis': {'title': 'Number of annotations'}
+		};
+	    // Rendering.
+	    var elt_03 = document.getElementById('graph_03');
+	    var chart_03 = new google.visualization.ColumnChart(elt_03);
+	    chart_03.draw(data_03, options_03);	
+	};
+
+	// Trigger the batch events.
+	gm_ann.run_batch(our_accumulator, our_final);
     }
 
     // Trigger the data call and the draw (above).
