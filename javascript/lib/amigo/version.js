@@ -8,6 +8,7 @@
  * API that you have.
  */
 
+bbop.core.namespace('amigo', 'version');
 amigo.version = {};
 
 /*

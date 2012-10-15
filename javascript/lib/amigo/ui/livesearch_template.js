@@ -12,7 +12,6 @@
  */
 
 bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'amigo');
 bbop.core.require('bbop', 'html');
 bbop.core.namespace('amigo', 'ui', 'livesearch_template');
 

@@ -1,9 +1,9 @@
 ////
-//// Some unit testing for amigo.js
+//// Some unit testing for api.js
 ////
 //// Usage:
-////    Command line: "js -f amigo.js.tests"
-////    Interactive: "js -f amigo.js.tests -f -"
+////    Command line: "js -f api.js.tests"
+////    Interactive: "js -f api.js.tests -f -"
 ////
 
 
@@ -12,15 +12,15 @@ load('../../../../../javascript/trunk/staging/bbop.js');
 var mr_t = new bbop.test();
 
 // Correct environment.
-load('amigo.js');
+load('api.js');
 
 ///
 /// Start unit testing.
 ///
 
 // Constructors.
-var amigo = new amigo();
-mr_t.is_defined(amigo);
+var api = new amigo.api();
+mr_t.is_defined(api);
 
 // Test data. TODO: Split to separate file.
 (function(){
@@ -61,20 +61,20 @@ mr_t.is_defined(amigo);
     '{"success": 1, "errors": [], "results": {"default": [], "new": [], "foo": [{"date": "2009-05-21 01:39:07", "name": "", "type": "term", "key": "GO:123"},{"date":" 2009-05-21 01:39:24", "name": "", "type": "term", "key": "GO:456"} }}';
     
     // Response success.
-    mr_t.is_same_atom(true, amigo.response.success(d0) , '');
-    mr_t.is_same_atom(true, amigo.response.success(d1) , '');
-    mr_t.is_same_atom(false, amigo.response.success(d2) , '');
-    mr_t.is_same_atom(false, amigo.response.success(d3) , '');
+    mr_t.is_same_atom(true, api.response.success(d0) , '');
+    mr_t.is_same_atom(true, api.response.success(d1) , '');
+    mr_t.is_same_atom(false, api.response.success(d2) , '');
+    mr_t.is_same_atom(false, api.response.success(d3) , '');
 
     // Right type?
-    mr_t.is_same_atom('foo', amigo.response.type(d0) , '');
-    mr_t.is_same_atom('unknown', amigo.response.type(d1) , '');
+    mr_t.is_same_atom('foo', api.response.type(d0) , '');
+    mr_t.is_same_atom('unknown', api.response.type(d1) , '');
     
     // Find error messages?
-    mr_t.is_same_atom(0, amigo.response.errors(d0).length , '');
-    mr_t.is_same_atom(0, amigo.response.errors(d1).length , '');
-    mr_t.is_same_atom(2, amigo.response.errors(d2).length);
-    mr_t.is_same_atom(1, amigo.response.errors(d3).length);
+    mr_t.is_same_atom(0, api.response.errors(d0).length , '');
+    mr_t.is_same_atom(0, api.response.errors(d1).length , '');
+    mr_t.is_same_atom(2, api.response.errors(d2).length);
+    mr_t.is_same_atom(1, api.response.errors(d3).length);
 
     // // JSON parser...
     // var good = bbop.json.parse(s0);
@@ -108,24 +108,24 @@ mr_t.is_defined(amigo);
 // Check urls.
 (function(){
     // Do some link testing.
-    mr_t.is_same_url(amigo.api.completion({}),
+    mr_t.is_same_url(api.completion({}),
 		     "completion?narrow=false&ontology=&format=amigo&type=general&query=",
 		     "link compare testing 1");
     // Different order.
-    mr_t.is_same_url(amigo.api.completion({}),
+    mr_t.is_same_url(api.completion({}),
 		     "completion?narrow=false&ontology=&type=general&format=amigo&query=",
 		     "link compare testing 2");
     // Just different.
-    mr_t.is_different_url(amigo.api.completion({}),
+    mr_t.is_different_url(api.completion({}),
 			  "completion?type=general&format=opensearch&query=",
 			  "link compare testing 3");
     // Again just different.
-    mr_t.is_different_url(amigo.api.completion({}),
+    mr_t.is_different_url(api.completion({}),
 			  "completion?type=general&format=&query=",
 			  "link compare testing 4");
     
     // A little real link testing.
-    mr_t.is_same_url(amigo.api.completion({type:'term', format:'opensearch'}),
+    mr_t.is_same_url(api.completion({type:'term', format:'opensearch'}),
 		     "completion?narrow=false&ontology=&type=term&format=opensearch&query=",
 		     "completion api test 1");
 })();

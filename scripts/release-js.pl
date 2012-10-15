@@ -154,6 +154,14 @@ sub version_to_js {
 
   my $location = $dirs . '/version.js';
 
+  ## Make nice namespace call through BBOPJS.
+  my $ns_head = "bbop.core.namespace('";
+  my $ns_tail = "')";
+  my @nss = split('.', $namespace);
+  push @nss, $namespace if scalar(@nss) == 0; # use if no split
+  push @nss, 'version';
+  my $ns_call = $ns_head . join("', '", @nss) . $ns_tail;
+
   ## If the file is already there, blow it away.
   unlink $location if -f $location;
   open(FILE, ">$location") or die "cannot open $location: $!";
@@ -170,6 +178,7 @@ sub version_to_js {
  * API that you have.
  */
 
+$ns_call;
 $namespace.version = {};
 
 /*

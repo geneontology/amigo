@@ -12,7 +12,7 @@ load('../../../../../../javascript/trunk/staging/bbop.js');
 var mr_t = new bbop.test();
 
 // Correct environment.
-load('../amigo.js');
+//load('../amigo.js');
 load('livesearch_template.js');
 
 ///
@@ -24,7 +24,7 @@ load('livesearch_template.js');
 
 // js> c.to_string()
 // 
-var tt = bbop.amigo.golr_template;
+var tt = amigo.ui.livesearch_template;
 
 c = new tt.two_column_layout('foo', 'bar');
 mr_t.is_same_atom(c.to_string(),

@@ -1,9 +1,9 @@
 /*
  * Package: api.js
  * 
- * Namespace: amigo
+ * Namespace: amigo.api
  * 
- * Core for AmiGO 2 GOlr functionality.
+ * Core for AmiGO 2 remote functionality.
  * 
  * Provide methods for accessing AmiGO/GO-related web resources from
  * the host server. A loose analog to the perl AmiGO.pm top-level.
@@ -12,24 +12,18 @@
  * methods to access and make sense of resources provided by AmiGO and
  * its related services on the host.
  * 
- * Taken name spaces:
- *  amigo.response
- *  amigo.api (defunct?)
- *  amigo.html (defunct?)
- *  amigo.link (defunct?)
- * 
  * WARNING: This changes very quickly as parts get spun-out into more
  * stable packages.
  */
 
 // Module and namespace checking.
 bbop.core.require('bbop', 'core');
-bbop.core.namespace('amigo');
+bbop.core.namespace('amigo', 'api');
 
 /*
- * Constructor: amigo
+ * Constructor: api
  * 
- * Contructor for the amigo object.
+ * Contructor for the AmiGO API object.
  * Hooks to useful things back on AmiGO.
  * 
  * Arguments:
@@ -38,7 +32,7 @@ bbop.core.namespace('amigo');
  * Returns:
  *  AmiGO object
  */
-amigo = function(){
+amigo.api = function(){
 
     ///
     /// General AmiGO (perl server) AJAX response checking (after
@@ -263,34 +257,34 @@ amigo = function(){
     /// JSON? JS? API functions for workspaces.
     ///
 
-    this.api.workspace = {};
+    this.workspace = {};
 
-    this.api.workspace.remove = function(ws_name){
+    this.workspace.remove = function(ws_name){
 	return _ws_template({
 	    action: 'remove_workspace',
 	    workspace: ws_name
 	});
     };
-    this.api.workspace.add = function(ws_name){
+    this.workspace.add = function(ws_name){
 	return _ws_template({
 	    action: 'add_workspace',
 	    workspace: ws_name
 	});
     };
-    this.api.workspace.copy = function(ws_from_name, ws_to_name){
+    this.workspace.copy = function(ws_from_name, ws_to_name){
 	return _ws_template({
 	    action: 'copy_workspace',
 	    workspace: ws_from_name,
 	    copy_to_workspace: ws_to_name
 	});
     };
-    this.api.workspace.clear = function(ws_name){
+    this.workspace.clear = function(ws_name){
 	return _ws_template({
 	    action: 'clear_workspace',
 	    workspace: ws_name
 	});
     };
-    this.api.workspace.list = function(ws_name){
+    this.workspace.list = function(ws_name){
 	return _ws_template({
 	    action: 'list_workspaces',
 	    workspace: ws_name
@@ -298,8 +292,8 @@ amigo = function(){
     };
 
     // API functions for workspace items.
-    //     this.api.workspace.add_item = function(ws_name, key, type, name){
-    this.api.workspace.add_item = function(ws_name, key, name){
+    //     this.workspace.add_item = function(ws_name, key, type, name){
+    this.workspace.add_item = function(ws_name, key, name){
 	return _ws_template({
 	    action: 'add_item',
 	    workspace: ws_name,
@@ -308,14 +302,14 @@ amigo = function(){
 	    name: name
 	});
     };
-    this.api.workspace.remove_item = function(ws_name, key){
+    this.workspace.remove_item = function(ws_name, key){
 	return _ws_template({
 	    action: 'remove_item',
 	    workspace: ws_name,
 	    key: key
 	});
     };
-    this.api.workspace.list_items = function(ws_name){
+    this.workspace.list_items = function(ws_name){
 	return _ws_template({
 	    action: 'list_items',
 	    workspace: ws_name
@@ -324,7 +318,7 @@ amigo = function(){
 
     // Just the workspace and item status. Essentially do nothing and
     // link to the current session status.
-    this.api.workspace.status = function(){
+    this.workspace.status = function(){
 	return _ws_template({ action: '' });
     };
 
@@ -332,7 +326,7 @@ amigo = function(){
     /// API function for completion/search information.
     ///
 
-    this.api.completion = function(args){
+    this.completion = function(args){
 
 	var format = 'amigo';
 	var type = 'general';
@@ -357,13 +351,13 @@ amigo = function(){
     ///
     /// API functions for live search.
     ///
-    this.api.live_search = {};
+    this.live_search = {};
 
     // General search:
     // http://accordion.lbl.gov:8080/solr/select?indent=on&version=2.2&q=annotation_class_label%3Abinding&fq=&start=0&rows=10&fl=*%2Cscore&qt=standard&wt=json&explainOther=&hl.fl=
     // Facet on date:
     // http://accordion.lbl.gov:8080/solr/select?indent=on&version=2.2&q=annotation_class_label%3Abinding&fq=&start=0&rows=10&fl=*%2Cscore&qt=standard&wt=json&explainOther=&hl.fl=&facet=true&facet.field=date    
-    this.api.live_search.golr = function(in_args){
+    this.live_search.golr = function(in_args){
 
 	if( ! in_args ){ in_args = {}; }
 	var default_query_args =
@@ -422,8 +416,8 @@ amigo = function(){
     ///
     /// API functions for the ontology.
     ///
-    this.api.ontology = {};
-    this.api.ontology.roots = function(){
+    this.ontology = {};
+    this.ontology.roots = function(){
 	return _abstract_link_template('aserve_exp', {'mode': 'ontology'});
     };
 
@@ -431,7 +425,7 @@ amigo = function(){
     /// API functions for navi js data.
     ///
 
-    this.api.navi_js_data = function(args){
+    this.navi_js_data = function(args){
 
 	if( ! args ){ args = {}; }
 

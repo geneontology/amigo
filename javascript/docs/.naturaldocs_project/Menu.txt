@@ -46,8 +46,6 @@ Format: 1.51
 # --------------------------------------------------------------------------
 
 
-File: amigo.js  (amigo.js)
-
 Group: Data  {
 
    File: golr.js  (data/golr.js)
@@ -55,6 +53,7 @@ Group: Data  {
    File: xrefs.js  (data/xrefs.js)
    }  # Group: Data
 
+File: api.js  (api.js)
 File: linker.js  (linker.js)
 File: livesearch.js  (ui/livesearch.js)
 File: livesearch_template.js  (ui/livesearch_template.js)

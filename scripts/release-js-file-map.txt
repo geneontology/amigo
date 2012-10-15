@@ -1,4 +1,5 @@
 javascript/lib/amigo/version.js
+javascript/lib/amigo/api.js
 javascript/lib/amigo/linker.js
 javascript/lib/amigo/data/golr.js
 javascript/lib/amigo/data/server.js

@@ -327,6 +327,9 @@ force_copy($env_conf{GO_BBOPJS_LOCATION} . '/bbop.js',
 ## Our AmiGO bundle.
 force_copy(Cwd::cwd() . '/javascript/staging/amigo.js',
 	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
+## The AmiGO frontends.
+force_copy(Cwd::cwd() . '/javascript/web/',
+	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
 ## The jQuery and jQuery UI libraries.
 force_copy(Cwd::cwd() . '/javascript/lib/com',
 	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
