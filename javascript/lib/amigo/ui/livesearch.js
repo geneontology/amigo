@@ -1,21 +1,21 @@
 /*
- * Package: golr_ui_search.js
+ * Package: livesearch.js
  * 
- * Namespace: bbop.amigo.golr_ui.search
+ * Namespace: amigo.ui.livesearch
  * 
- * BBOP object to draw various UI elements that have to do with things
+ * AmiGO object to draw various UI elements that have to do with things
  * dealing with a fully faceted searcher/browser.
  */
 
 bbop.core.require('bbop', 'core');
 bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'amigo', 'golr_template');
-bbop.core.namespace('bbop', 'amigo', 'golr_ui', 'search');
+bbop.core.require('amigo', 'ui', 'livesearch_template');
+bbop.core.namespace('amigo', 'ui', 'livesearch');
 
 /*
- * Constructor: search
+ * Constructor: livesearch
  * 
- * Contructor for the bbop.amigo.golr_ui.search object.
+ * Contructor for the amigo.ui.livesearch object.
  * 
  * Arguments:
  *  interface_id - string id of the div to build on
@@ -24,7 +24,7 @@ bbop.core.namespace('bbop', 'amigo', 'golr_ui', 'search');
  * Returns:
  *  BBOP GOlr UI object
  */
-bbop.amigo.golr_ui.search = function (interface_id, conf_class){
+amigo.ui.livesearch = function (interface_id, conf_class){
 
     var anchor = this;
     var each = bbop.core.each;
@@ -43,7 +43,7 @@ bbop.amigo.golr_ui.search = function (interface_id, conf_class){
     var amigo = new bbop.amigo();
 
     // BBOP helpers.
-    var tt = bbop.amigo.golr_template;
+    var tt = amigo.ui.livesearch_template;
 
     // Get the user interface hook and remove anything that was there.
     var ui_div_id = this.interface_id;

@@ -1,19 +1,26 @@
 /* 
  * Package: version.js
  * 
- * Namespace: bbop.version
+ * Namespace: amigo.version
  * 
- * This package was automatically created during an AmiGO 2 installation.
- *
- * This is the release of the API that you have.
+ * This package was automatically created during the release process
+ * and contains its version information--this is the release of the 
+ * API that you have.
  */
 
-// Use a pre-core mechanism--if nothing else, bbop.version should be there.
-if ( typeof bbop == "undefined" ){ bbop = {}; }
+amigo.version = {};
 
 /*
- * Variable: version
- * 
- * The version of the library.
+ * Variable: revision
+ *
+ * Partial version for this library; revision (major/minor version numbers)
+ * information.
  */
-bbop.version = "0.9.20121011";
+amigo.version.revision = "0.9";
+
+/*
+ * Variable: release
+ *
+ * Partial version for this library: release (date-like) information.
+ */
+amigo.version.release = "20121015";

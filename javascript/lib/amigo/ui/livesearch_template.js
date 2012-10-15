@@ -1,7 +1,7 @@
 /*
- * Package: golr_template.js
+ * Package: livesearch_template.js
  * 
- * Namespace: bbop.amigo.golr_template
+ * Namespace: amigo.ui.livesearch_template
  * 
  * Templates for output built around bbop.html.
  * 
@@ -14,7 +14,7 @@
 bbop.core.require('bbop', 'core');
 bbop.core.require('bbop', 'amigo');
 bbop.core.require('bbop', 'html');
-bbop.core.namespace('bbop', 'amigo', 'golr_template');
+bbop.core.namespace('amigo', 'ui', 'livesearch_template');
 
 /*
  * Function: two_column_layout
@@ -32,7 +32,7 @@ bbop.core.namespace('bbop', 'amigo', 'golr_template');
  * Returns:
  *  <bbop.html.tag>
  */
-bbop.amigo.golr_template.two_column_layout = function (col1, col2){
+amigo.ui.livesearch_template.two_column_layout = function (col1, col2){
     bbop.html.tag.call(this, 'div', {'class': 'twocol-wrapper'});
 
     // Left (control) side.
@@ -51,7 +51,7 @@ bbop.amigo.golr_template.two_column_layout = function (col1, col2){
 			  col2);
     this.add_to(this._two_column_stack_right);
 };
-bbop.amigo.golr_template.two_column_layout.prototype = new bbop.html.tag;
+amigo.ui.livesearch_template.two_column_layout.prototype = new bbop.html.tag;
 
 /*
  * Function: meta_results
@@ -66,7 +66,7 @@ bbop.amigo.golr_template.two_column_layout.prototype = new bbop.html.tag;
  * Returns:
  *  <bbop.html.tag>
  */
-bbop.amigo.golr_template.meta_results = function (total, first, last){
+amigo.ui.livesearch_template.meta_results = function (total, first, last){
     bbop.html.tag.call(this, 'div');
 
     // Add number slots.
@@ -78,7 +78,7 @@ bbop.amigo.golr_template.meta_results = function (total, first, last){
     // this.add_to('<button />');
     ////<a id="for_paging_id_f0ccpl4zp0" href="#results_block">forward -&gt;</a>
 };
-bbop.amigo.golr_template.meta_results.prototype = new bbop.html.tag;
+amigo.ui.livesearch_template.meta_results.prototype = new bbop.html.tag;
 
 /*
  * Function: results_table_by_class_conf
@@ -94,7 +94,7 @@ bbop.amigo.golr_template.meta_results.prototype = new bbop.html.tag;
  * Returns:
  *  <bbop.html.table> filled with results
  */
-bbop.amigo.golr_template.results_table_by_class = function (cclass, docs,
+amigo.ui.livesearch_template.results_table_by_class = function (cclass, docs,
 							    linker_function){
     //bbop.html.tag.call(this, 'div');
     //var amigo = new bbop.amigo();
@@ -193,10 +193,10 @@ bbop.amigo.golr_template.results_table_by_class = function (cclass, docs,
     
     return new bbop.html.table(headers_display, table_buff);
 };
-bbop.amigo.golr_template.results_table_by_class.prototype = new bbop.html.tag;
+amigo.ui.livesearch_template.results_table_by_class.prototype = new bbop.html.tag;
 
 // // ...
-// bbop.amigo.golr_template.results_term_table = function (docs){
+// amigo.ui.livesearch_template.results_term_table = function (docs){
 //     //bbop.html.tag.call(this, 'div');
 
 //     var amigo = new bbop.amigo();
@@ -232,10 +232,10 @@ bbop.amigo.golr_template.results_table_by_class.prototype = new bbop.html.tag;
     
 //     return new bbop.html.table(headers,table_buff);
 // };
-// bbop.amigo.golr_template.results_term_table.prototype = new bbop.html.tag;
+// amigo.ui.livesearch_template.results_term_table.prototype = new bbop.html.tag;
 
 // // ...
-// bbop.amigo.golr_template.results_gp_table = function (docs){
+// amigo.ui.livesearch_template.results_gp_table = function (docs){
 //     // bbop.html.tag.call(this, 'div');
 
 //     // ...
@@ -278,10 +278,10 @@ bbop.amigo.golr_template.results_table_by_class.prototype = new bbop.html.tag;
 // 		   });
 //     return new bbop.html.table(headers,table_buff);
 // };
-// bbop.amigo.golr_template.results_gp_table.prototype = new bbop.html.tag;
+// amigo.ui.livesearch_template.results_gp_table.prototype = new bbop.html.tag;
 
 // // ...
-// bbop.amigo.golr_template.results_annotation_table = function (docs){
+// amigo.ui.livesearch_template.results_annotation_table = function (docs){
 //     // bbop.html.tag.call(this, 'div');
 
 //     var headers = ['score', 'term', 'evidence', 'gp symbol',
@@ -345,10 +345,10 @@ bbop.amigo.golr_template.results_table_by_class.prototype = new bbop.html.tag;
     
 //     return new bbop.html.table(headers,table_buff);
 // };
-// bbop.amigo.golr_template.results_annotation_table.prototype = new bbop.html.tag;
+// amigo.ui.livesearch_template.results_annotation_table.prototype = new bbop.html.tag;
 
 // // ...
-// bbop.amigo.golr_template.results_annotation_aggregate_table = function (docs){
+// amigo.ui.livesearch_template.results_annotation_aggregate_table = function (docs){
 //     // bbop.html.tag.call(this, 'div');
 
 //     var headers = ['score', 'term', 'evidence', 'symbol',
@@ -407,4 +407,4 @@ bbop.amigo.golr_template.results_table_by_class.prototype = new bbop.html.tag;
     
 //     return new bbop.html.table(headers,table_buff);
 // };
-// bbop.amigo.golr_template.results_annotation_aggregate_table.prototype = new bbop.html.tag;
+// amigo.ui.livesearch_template.results_annotation_aggregate_table.prototype = new bbop.html.tag;

@@ -46,16 +46,18 @@ Format: 1.51
 # --------------------------------------------------------------------------
 
 
-Group: Amigo  {
-
-   File: amigo_meta.js  (amigo/amigo_meta.js)
-   File: golr_meta.js  (amigo/golr_meta.js)
-   File: golr_template.js  (amigo/golr_template.js)
-   File: golr_ui_search.js  (amigo/golr_ui_search.js)
-   File: linker.js  (amigo/linker.js)
-   }  # Group: Amigo
-
 File: amigo.js  (amigo.js)
+File: amigo.ui.livesearch  (ui/livesearch.js)
+File: amigo.ui.livesearch_template  (ui/livesearch_template.js)
+
+Group: Data  {
+
+   File: golr.js  (data/golr.js)
+   File: server.js  (data/server.js)
+   File: xrefs.js  (data/xrefs.js)
+   }  # Group: Data
+
+File: linker.js  (linker.js)
 File: version.js  (version.js)
 
 Group: Index  {

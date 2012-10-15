@@ -170,7 +170,7 @@ sub version_to_js {
  * API that you have.
  */
 
-$namespace.version = {}
+$namespace.version = {};
 
 /*
  * Variable: revision

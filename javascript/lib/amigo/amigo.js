@@ -1,7 +1,7 @@
 /*
  * Package: amigo.js
  * 
- * Namespace: bbop.amigo
+ * Namespace: amigo
  * 
  * Core for AmiGO 2 GOlr functionality.
  * 
@@ -13,10 +13,10 @@
  * its related services on the host.
  * 
  * Taken name spaces:
- *  bbop.amigo.response
- *  bbop.amigo.api (defunct?)
- *  bbop.amigo.html (defunct?)
- *  bbop.amigo.link (defunct?)
+ *  amigo.response
+ *  amigo.api (defunct?)
+ *  amigo.html (defunct?)
+ *  amigo.link (defunct?)
  * 
  * WARNING: This changes very quickly as parts get spun-out into more
  * stable packages.
@@ -24,12 +24,12 @@
 
 // Module and namespace checking.
 bbop.core.require('bbop', 'core');
-bbop.core.namespace('bbop', 'amigo');
+bbop.core.namespace('amigo');
 
 /*
  * Constructor: amigo
  * 
- * Contructor for the bbop.amigo object.
+ * Contructor for the amigo object.
  * Hooks to useful things back on AmiGO.
  * 
  * Arguments:
@@ -38,7 +38,7 @@ bbop.core.namespace('bbop', 'amigo');
  * Returns:
  *  AmiGO object
  */
-bbop.amigo = function(){
+amigo = function(){
 
     ///
     /// General AmiGO (perl server) AJAX response checking (after

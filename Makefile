@@ -1,5 +1,5 @@
 ####
-#### Testing and benchmarking for AmiGO JS.
+#### Testing and release procedures for AmiGO JS.
 ####
 #### A report-mistakes-only testing run can be done as:
 ####   make test | grep -i fail
@@ -7,7 +7,8 @@
 
 TESTS = $(wildcard *.js.tests) \
  $(wildcard lib/amigo/*.js.tests) \
- $(wildcard lib/amigo/amigo/*.js.tests)
+ $(wildcard lib/amigo/data/*.js.tests) \
+ $(wildcard lib/amigo/ui/*.js.tests)
 #BENCHMARKS = $(wildcard _benchmark/*.js)
 JS = smjs # or smjs, rhino
 JSFLAGS = # Some require things like "-opt -1" in some cases (big GO tests)
@@ -37,4 +38,4 @@ $(TESTS):
 .PHONY: docs
 
 docs:
-	naturaldocs --rebuild-output --input ./lib/amigo --project docs/.naturaldocs_project/ --output html docs/
+	naturaldocs --rebuild-output --input ./javascript/lib/amigo --project javascript/docs/.naturaldocs_project/ --output html javascript/docs/

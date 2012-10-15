@@ -28,7 +28,7 @@ AMIGO_ROOT:
 GO_JS_ROOT:
   value: ''
   comment: >
-    Please enter the full path to the SVN geneontology/javascript directory.
+    Please enter the full path to the base of the BBOP JS directory.
   type: directory
 
 GO_OWLTOOLS_ROOT:
@@ -192,6 +192,11 @@ AMIGO_BETA:
 AMIGO_VERSION:
   value: 2.0
   comment: Displayed AmiGO version string.
+  type: string
+
+AMIGO_JS_VERSION:
+  value: 0.9
+  comment: Displayed AmiGO 2 JS bundle version string.
   type: string
 
 AMIGO_GOOGLE_ANALYTICS_ID:

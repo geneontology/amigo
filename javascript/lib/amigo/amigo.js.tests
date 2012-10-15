@@ -21,7 +21,7 @@ load('amigo.js');
 ///
 
 // Constructors.
-var amigo = new bbop.amigo();
+var amigo = new amigo();
 mr_t.is_defined(amigo);
 
 // Test data. TODO: Split to separate file.
@@ -144,101 +144,7 @@ mr_t.report();
 ///
 
 // amigo.kvetch("FAIL: You should *not* see this string (1)!");
-// bbop.amigo.DEBUG = true;
+// amigo.DEBUG = true;
 // //amigo.kvetch("[You should see this string--please ignore.]");
-// bbop.amigo.DEBUG = false;
+// amigo.DEBUG = false;
 // amigo.kvetch("FAIL: You should *not* see this string (2)!");
-
-///
-/// TODO: redo this stuff.
-/// Play with prototypes...
-///
-
-// function Foo(id){
-
-//     var internal_id = id;
-//     this.id = function(){
-// 	return internal_id;
-//     };
-
-//     // Private?
-//     var power_p = false;
-//     this.on = function(){
-// 	power_p = true;
-//     };
-//     this.off = function(){
-// 	power_p = false;
-//     };
-//     this.power_p = function(){
-// 	return power_p;
-//     };
-
-//     // Public?
-//     this.moving_p = false;
-//     this.go = function(){
-// 	this.moving_p = true;
-//     };
-// }
-
-// // NOTE: not attached during apply.
-// Foo.prototype.stopFoo = function(){
-//     this.moving_p = false;
-// };
-
-// function Bar(name){
-
-//     // Apply the Foo "constructor" to this (which is our Bar
-//     // instance). Mangle the if on the way.
-//     Foo.apply(this, [arguments[0] + "_blah"]);
-
-//     // Capture.
-//     this.status = function(){
-// 	return " (type, " + this.id() +
-// 	    ") (power, " + this.power_p() +
-// 	    ") (moving, " + this.moving_p + ")";
-//     };
-// }
-// Bar.prototype.stopBar = function(){
-//     this.moving_p = false;
-// };
-// // NOTE: although the the prototype is correct, cannot pass
-// // constructor arguments as above.
-// //Bar.prototype = new Foo;
-
-// var c = new Bar("123");
-// c.status();
-// c.on();
-// c.go();
-// //c.stopFoo(); // Nope.
-// c.stopBar(); // Okay.
-// c.status();
-
-
-// // Define A.
-// var Arg = function (prop){
-//     if(prop){
-// 	this.prop_a = prop;
-//     }
-//     var prop_b = prop + '...but not';
-// };
-// Arg.prototype = {
-//     prop_a: 'n/a',
-//     get_prop_a: function(){
-// 	return this.prop_a;
-//     }
-//     ,
-//     get_prop_b: function(){
-// 	return this.prop_b || 'n/b';
-//     }
-// };
-
-// // Define B.
-// Arg.Blah = function(prop_a, prop_c){
-//     Arg.call(this, prop_a);
-//     this.prop_c = prop_c || 'n/c';
-// };
-// extend(Arg.Blah, Arg);
-
-
-// var ab = new Arg.Blah('foo', 'bar');
-// ab.get_prop_b();

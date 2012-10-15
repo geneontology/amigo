@@ -1,24 +1,27 @@
 /*
- * Package: amigo_meta.js
- *
- * Namespace: bbop.amigo.amigo_meta
- *
+ * Package: server.js
+ * 
+ * Namespace: amigo.data.server
+ * 
  * This package was automatically created during an AmiGO 2 installation.
- *
- * Purpose: Useful information about the GO and AmiGO.
+ * 
+ * Purpose: Useful information about GO and the AmiGO installation.
  *          Also serves as a repository and getter for web
  *          resources such as images.
- *
+ * 
  * Requirements: amigo.js for bbop.amigo namespace.
- *
+ * 
  * NOTE: This file is generated dynamically at installation time.
  *       Hard to work with unit tests--hope it's not too bad.
  *       Want to keep this real simple.
- *
  */
 
+// Module and namespace checking.
+bbop.core.require('bbop', 'core');
+bbop.core.namespace('amigo', 'data', 'server');
+
 /*
- * Constructor: amigo_meta
+ * Constructor: server
  * 
  * The configuration for the server settings.
  * Essentially a JSONification of the config.pl AmiGO 2 file.
@@ -26,7 +29,7 @@
  * Arguments:
  *  n/a
  */
-bbop.amigo.amigo_meta = function(){
+amigo.data.server = function(){
 
     // All of the server/instance-specific meta-data.
     var meta_data = {"html_base":"http://localhost/amigo2","app_base":"http://localhost/cgi-bin/amigo2","term_regexp":"all|GO:[0-9]{7}","species":[],"ontologies":[],"gp_types":[],"sources":[],"species_map":{},"bbop_img_star":"http://localhost/amigo2/images/star.png","image_base":"http://localhost/amigo2/images","evidence_codes":{},"golr_base":"http://localhost:8080/solr/"};

@@ -1,14 +1,13 @@
 /* 
- * Package: golr_meta.js
+ * Package: golr.js
  * 
- * Namespace: bbop.golr.golr_meta
+ * Namespace: amigo.data.golr
  * 
- * This package was automatically created during an AmiGO 2 installation.
+ * This package was automatically created during an AmiGO 2 installation
+ * from the YAML configuration files that AmiGO pulls in.
  *
- * Useful information about GOlr for JS. See the package <golr_conf.js>
+ * Useful information about GOlr. See the package <golr_conf.js>
  * for the API to interact with this data file.
- *
- * Requirements: core.js for namespace controls.
  *
  * NOTE: This file is generated dynamically at installation time.
  * Hard to work with unit tests--hope it's not too bad. You have to
@@ -22,15 +21,15 @@
 
 // All of the server/instance-specific meta-data.
 bbop.core.require('bbop', 'core');
-bbop.core.namespace('bbop', 'amigo', 'golr_meta');
+bbop.core.namespace('amigo', 'data', 'golr');
 
 /*
- * Variable: golr_meta
+ * Variable: golr
  * 
  * The configuration for the data.
  * Essentially a JSONification of the OWLTools YAML files.
  */
-bbop.amigo.golr_meta = {
+amigo.data.golr = {
    "bbop_ann_ev_agg" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "bioentity_label^4.0 annotation_class_label^3.0",

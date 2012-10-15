@@ -40,7 +40,7 @@ if ( $opt_t ) {
   ll("Will do test run.");
 }
 if ( $opt_e ) {
-  ll("Will also install experimental binaries and executables.)");
+  ll("Will also install experimental binaries and executables.");
 }
 if ( $opt_g ) {
   ll("Will also install GOOSE and Gannet.");
@@ -98,7 +98,7 @@ if( int($yconf->{AMIGO_CONFIGURED}{value}) ){
 }
 
 ###
-###
+### Fold the YAML values into our local environment.
 ###
 
 my %env_conf;
@@ -130,8 +130,8 @@ if( $opt_e ){
 
 ###
 ### We now have as much information as we're going to get about the
-### wanted environment, so let's make new variables, directories, and
-### write everything out to the config.pl file.
+### wanted environment, so let's make new (synthetic) variables,
+### directories.
 ###
 
 ## Htdocs root directory for AmiGO on the filesystem.
@@ -204,16 +204,83 @@ $env_conf{AMIGO_SCRATCH_DIR} =
 safe_make_dir( $env_conf{AMIGO_SCRATCH_DIR} );
 make_permissive( $env_conf{AMIGO_SCRATCH_DIR} );
 
-ll("Finish setting the installation environment.");
-
-###
-### Roll out files to the appropriate directories.
-###
-
+ll("Finish setting up the installation environment.");
 ll("Starting installation...");
 
-## Move perl config over.
-create_synthetic_amigo_environmental_variables();
+###
+### Dump the synthetic environment into config.pl and move it over to
+### the cgi-bin.
+###
+
+my $synth_conf_fname = $env_conf{AMIGO_CGI_ROOT_DIR} . '/config.pl';
+create_synthetic_amigo_environmental_variables($synth_conf_fname, \%env_conf);
+ll("Created synthetic variables and configuration file \"config.pl\".");
+
+###
+### Pull in the GO_xref.abbs file and turn it into a form that the
+### linker can use (amigo.data.xrefs).
+###
+
+## 
+my $xrefs_data_fname = 'javascript/lib/amigo/data/xrefs.js';
+my $xrefs_url = 'http://www.geneontology.org/doc/GO.xrf_abbs';
+xref_abbs_to_meta_js($xrefs_data_fname, $xrefs_url);
+ll("Created GO XRefs JavaScript data file: \"$xrefs_data_fname\".");
+
+###
+### Dump the YAML GOlr config into a representation that we can use
+### (amigo.data.golr).
+###
+
+## TODO/BUG: temporarily hard-coded--this needs to be dynamic, but for
+## now we're just gunna write them in for debugging fun.
+my $yaml_path =  $env_conf{GO_OWLTOOLS_ROOT} .
+  '/OWLTools-Solr/src/main/resources/';
+my $yaml_confs = [
+		  $yaml_path . "ont-config.yaml",
+		  $yaml_path . "bio-config.yaml",
+		  $yaml_path . "ann-config.yaml",
+		  $yaml_path . "ann_ev_agg-config.yaml"
+		 ];
+my $golr_data_fname = 'javascript/lib/amigo/data/golr.js';
+golr_config_to_meta_js($golr_data_fname, $yaml_confs);
+ll("Created GOlr JavaScript data file: \"$golr_data_fname\".");
+
+###
+### Dump the synthetic environment (config.pl), plus some extras, into
+### a representation that we can use (amigo.data.server).
+###
+
+## Establish the environment.
+require $synth_conf_fname;
+my $amigo_env_fname = 'javascript/lib/amigo/data/server.js';
+amigo_env_to_js($amigo_env_fname);
+ll("Created AmiGO JavaScript meta file: \"$amigo_env_fname\".");
+
+###
+### TODO: Create the JS bundle that we'll use in our staging area.
+###
+
+## 
+my $release_args =
+  [
+   './scripts/release-js.pl', '-v',
+   '-i', 'scripts/release-js-file-map.txt',
+   '-o', 'javascript/staging/amigo.js',
+   '-n', 'amigo',
+   '-d', 'javascript/lib/amigo',
+   '-r', '0.9'
+  ];
+my $rcmd = join(' ', @$release_args);
+ll('System: ' . $rcmd . '"');
+system(@$release_args) == 0 || die "system $rcmd failed: $?" if ! $opt_t;
+
+die 'we did good!';
+
+###
+### Roll out the files in our repo to the appropriate directories on
+### the server.
+###
 
 ## Standard modules
 my @mods = ();
@@ -235,7 +302,7 @@ if ( $opt_e ) {
      );
 }
 
-## Copy new GOOSE over on -g or -G.
+## Copy GOOSE and Gannet over on -g or -G.
 if ( $opt_g ) {
   push @mods,
     qw(
@@ -244,7 +311,7 @@ if ( $opt_g ) {
      );
 }
 
-## Install desired modules.
+## Install the desired modules from just above.
 foreach( @mods ){
   ll("Install mod: $_.");
   force_copy(Cwd::cwd() . '/perl/bin/' . $_,
@@ -252,153 +319,30 @@ foreach( @mods ){
   make_executable( $env_conf{AMIGO_CGI_ROOT_DIR} . '/' . $_);
 }
 
-## Copy statics.
+## Copy statics: css, images, our JS bundle, and the jQuery files.
 ll("Install internal JS libraries.");
 force_copy(Cwd::cwd() . '/css', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
 force_copy(Cwd::cwd() . '/images', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
-force_copy(Cwd::cwd() . '/javascript', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
+force_copy(Cwd::cwd() . '/javascript/staging/amigo.js',
+	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
+force_copy(Cwd::cwd() . '/javascript/lib/com',
+	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
 
-# ## Things to copy only in an experimental environment.
-# if ( $opt_e ) {
-#   ## Copy JSON config over.
-#   force_copy(Cwd::cwd() . '/config.json',
-# 	       $env_conf{AMIGO_CGI_ROOT_DIR} . '/');
-#   make_readable( $env_conf{AMIGO_CGI_ROOT_DIR} . '/config.json' );
+# # force_copy($env_conf{GO_JS_ROOT},
+# # 	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
+# ll("Install GO JS libraries.");
+# foreach my $jslib ('bbop', 'external', 'graph', 'newick_tree'){
+#   force_copy($env_conf{GO_JS_ROOT} . '/lib/' . $jslib,
+# 	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
+# }
+# #}
 
-## Get the (new) graph/tree stuff over.
-## TODO/BUG: Redo this layout later.
-
-# force_copy($env_conf{GO_JS_ROOT},
-# 	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
-ll("Install GO JS libraries.");
-foreach my $jslib ('bbop', 'external', 'graph', 'newick_tree'){
-  force_copy($env_conf{GO_JS_ROOT} . '/lib/' . $jslib,
-	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
-}
-amigo_env_to_js();
+## TODO: Make a JS release a la BBOP JS.
+#if( $opt_e ){
+## TODO
+# make docs
+#die;
 #}
-
-###
-### Lets chew up the search/GOlr configurations and setup a data
-### structure that we can use for it.
-###
-
-## TODO/BUG: temporarily hard-coded--this needs to be dynamic, but for
-## now we're just gunna write them in for debugging fun.
-my $yaml_path =  $env_conf{GO_OWLTOOLS_ROOT} .
-  '/OWLTools-Solr/src/main/resources/';
-my $yaml_confs = [
-		  $yaml_path . "ont-config.yaml",
-		  $yaml_path . "bio-config.yaml",
-		  $yaml_path . "ann-config.yaml",
-		  $yaml_path . "ann_ev_agg-config.yaml"
-		 ];
-
-golr_config_to_meta_js($yaml_confs);
-
-## And now, generate a version and make the release package.
-my ($rday, $rmonth, $ryear) = (localtime)[3,4,5];
-my $release_version = sprintf "%.4d%.2d%.2d", $ryear+1900, $rmonth+1, $rday;
-## TODO: eventually switch, but for now, stay in beta?
-#$release_version = $env_conf{AMIGO} . '.' . $release_version;
-$release_version = '0.9' . '.' . $release_version;
-version_to_meta_js($release_version);
-
-###
-### Now we're going to try grabbing all of the /important/ JS and CSS
-### and tossing them into single files.
-###
-
-## Experimental. This comes last since we're depending on the
-## javascript version file being there.
-if( $opt_e ){
-
-  my $export_js_files =
-    [
-     ## BBOP (serverable)
-     'bbop/version.js',
-     'bbop/core.js',
-     'bbop/logger.js',
-     'bbop/registry.js',
-     'bbop/html.js',
-     'bbop/model.js',
-     'bbop/model/bracket.js',
-     'bbop/golr/conf.js',
-     'bbop/golr/response.js',
-     'bbop/golr/manager.js',
-     ## BBOP (web-able).
-     'bbop/golr/manager/jquery.js',
-     'bbop/widget/autocomplete.js',
-     'bbop/widget/browse.js',
-     ## BBOP (non web-able).
-     'bbop/golr/manager/preload.js',
-     'bbop/golr/manager/nodejs.js',
-     'bbop/golr/manager/rhino.js',
-     ## AmiGO
-     'bbop/amigo.js',
-     'bbop/amigo/amigo_meta.js',
-     'bbop/amigo/golr_meta.js',
-     'bbop/amigo/linker.js',
-     'bbop/amigo/golr_template.js',
-     'bbop/amigo/golr_ui_search.js',
-    ];
-
-  ## How we'll find (in the htdocs dir) and where we're drop the
-  ## bundle.
-  sub drop_js_files {
-    my $out_fname = shift || die;
-    my $export_files = shift || die;
-
-    ## Final target filename.
-    open(OUTFILE, ">$out_fname") or die "cannot open $out_fname: $!";
-
-    ## Drop them all into the target file.
-    foreach my $esf (@$export_files){
-
-      my $ex_fname = $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/'. $esf;
-      open(EXFILE, "<$ex_fname") or die "cannot open $ex_fname: $!";
-      while(<EXFILE>){
-	#print $tmp_in_fh $_;
-	print OUTFILE $_;
-      }
-    }
-    close(EXFILE);
-    close(OUTFILE);
-
-    ll("Created JS lib file: ". $out_fname .
-       ' with '. scalar(@$export_files) .' files(s).');
-  }
-
-  ## Drop one bundle in the HTDOCS dir.
-  my $out_fname = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
-    '/javascript/bbop-amigo.js';
-
-  ## Create the staging directory.
-  my $staging_dir = Cwd::cwd() . '/staging';
-  safe_make_dir($staging_dir);
-
-  ## Drop one bundle in HTDOCS for ourselves.
-  my $out_fname = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
-    '/javascript/bbop-amigo.js';
-  drop_js_files($out_fname, $export_js_files);
-
-  ## Drop the head version in the staging dir.
-  my $head_out_fname = $staging_dir . '/bbop-amigo.js';
-  drop_js_files($head_out_fname, $export_js_files);
-  ## And compress it for CDN life.
-  make_compressed_js($head_out_fname, $staging_dir .'/bbop-amigo.min.js');
-
-  ## Drop a versioned version in the staging dir.
-  my $rel_out_fname = $staging_dir . '/bbop-amigo_' . $release_version . '.js';
-  drop_js_files($rel_out_fname, $export_js_files);
-  ## And compress it for CDN life.
-  make_compressed_js($rel_out_fname,
-		     $staging_dir .'/bbop-amigo_'. $release_version .'.min.js');
-
-  ## TODO: just convert this by the command line--no reading tricks
-  ## TODO: check that we have the yui-compressor utility.
-  #die;
-}
 
 ###
 ### Finish.
@@ -408,7 +352,7 @@ if( $opt_e ){
 print <<EOC;
 Done.
 
-Your new installation is at: $env_conf{AMIGO_CGI_URL}/amigo
+Your new installation is at: $env_conf{AMIGO_CGI_URL}/$env_conf{AMIGO_PROJECT_NAME}
 
 You may use the refresh script (refresh.pl) with the "-r" flag to regularly
 purge unneeded and old files generated while AmiGO is running.
@@ -426,8 +370,11 @@ EOC
 ##
 sub create_synthetic_amigo_environmental_variables {
 
+  my $pconf_name = shift || die 'need file argument';
+  my $env_conf_ptr = shift || die 'need env conf argument';
+  my $env_conf = %$env_conf_ptr;
+
   ## Open file.
-  my $pconf_name = $env_conf{AMIGO_CGI_ROOT_DIR} . '/config.pl';
   open(FILE, ">$pconf_name");
 
   print FILE <<EOC;
@@ -461,65 +408,14 @@ EOC
   ## Close file.
   close(FILE);
   make_readable( $pconf_name );
-  ll("Created synthetic variables and configuration file \"config.pl\".");
 }
 
 
-## file: <local tree>/bbop/version.js
-## file: /srv/www/htdocs/amigo/js/bbop/version.js
-sub version_to_meta_js {
+## file: <local_js_tree>/lib/amigo/data/xrefs.js
+sub xref_abbs_to_meta_js {
 
-  ## We are going to be able to reference our home directory--where we
-  ## currently are.
-  use lib getcwd() . '/perl/lib';
-
-  ## Incoming argument is the version.
-  my $version = shift || die 'wot? we need a version argument';
-
-  ## If the file is already there, blow it away.
-  my $js_file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
-    '/javascript/bbop/version.js';
-  unlink $js_file_str if -f $js_file_str;
-  open(FILE, ">$js_file_str") or die "cannot open $js_file_str: $!";
-
-  ## 
-  print FILE <<EOJS;
-/* 
- * Package: version.js
- * 
- * Namespace: bbop.version
- * 
- * This package was automatically created during an AmiGO 2 installation.
- *
- * This is the release of the API that you have.
- */
-
-// Use a pre-core mechanism--if nothing else, bbop.version should be there.
-if ( typeof bbop == "undefined" ){ bbop = {}; }
-
-/*
- * Variable: version
- * 
- * The version of the library.
- */
-bbop.version = "$version";
-EOJS
-
-  ## Close file.
-  close(FILE);
-  make_readable($js_file_str);
-  ll("Created release version meta file (bin): \"$js_file_str\".");
-
-  ## Copy back into our JS tree for archiving and docs.
-  force_copy($js_file_str, Cwd::cwd() . '/javascript/bbop/');
-  ll("Created release meta file (local): \"$js_file_str\".");
-}
-
-
-## file: <local tree>/bbop/amigo/golr_meta.js
-## file: /srv/www/htdocs/amigo/js/bbop/amigo/golr_meta.js
-## file: /srv/www/htdocs/amigo/js/bbop/amigo/golr_meta.json
-sub golr_config_to_meta_js {
+  my $js_file_str = shift || die "need a js file string or something";
+  my $xrefs_url = shift || die "need a url for the GO.xrf_abbs file";
 
   ## 
   use lib getcwd() . '/perl/lib';
@@ -531,8 +427,74 @@ sub golr_config_to_meta_js {
 
   my $core = AmiGO::JavaScript->new();
 
-  my $yaml_confs = shift || die "need a file string or something";
+  ## TODO: Use external to get file.
+  my $outhash = {};
+  #foreach my $yaml_conf (@$yaml_confs){
+  # $rethash->{ $conf_id } =
+  #}
+
+  ###
+  ### Conf to JS.
+  ###
+
+  my $js = JSON::XS->new()->pretty(1);
+  #$js->allow_bignum(1); # if needed, go back to ::PP
+  my $js_str = $js->encode($outhash);
+  chomp $js_str;
+
+  ## If the file is already there, blow it away.
+  unlink $js_file_str if -f $js_file_str;
+  open(FILE, ">$js_file_str") or die "cannot open $js_file_str: $!";
+
+  ## 
+  print FILE <<EOJS;
+/* 
+ * Package: xrefs.js
+ * 
+ * Namespace: amigo.data.xrefs
+ * 
+ * This package was automatically created during an AmiGO 2 installation
+ * from the GO.xrf_abbs file at: "$xrefs_url".
+ *
+ * NOTE: This file is generated dynamically at installation time.
+ * Hard to work with unit tests--hope it's not too bad. You have to
+ * occasionally copy back to keep the unit tests sane.
+ */
+
+// All of the server/instance-specific meta-data.
+bbop.core.require('bbop', 'core');
+bbop.core.namespace('amigo', 'data', 'xrefs');
+
+/*
+ * Variable: xrefs
+ * 
+ * All the external references that we know about.
+ */
+amigo.data.xrefs = $js_str;
+EOJS
+
+  ## Close file.
+  close(FILE);
+  make_readable($js_file_str);
+}
+
+
+## file: <local_js_tree>/lib/amigo/data/golr.js
+sub golr_config_to_meta_js {
+
+  my $js_file_str = shift || die "need a js file string or something";
+  my $yaml_confs = shift || die "need a bunch of yaml confs";
   my $rethash = {};
+
+  ## 
+  use lib getcwd() . '/perl/lib';
+
+  ## Bring in necessaries.
+  use AmiGO::JavaScript;
+  #use JSON::PP;
+  use JSON::XS;
+
+  my $core = AmiGO::JavaScript->new();
 
   ## Force array ref.
   if( ref $yaml_confs ne 'ARRAY' ){
@@ -587,24 +549,21 @@ sub golr_config_to_meta_js {
   chomp $js_str;
 
   ## If the file is already there, blow it away.
-  my $js_file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
-    '/javascript/bbop/amigo/golr_meta.js';
   unlink $js_file_str if -f $js_file_str;
   open(FILE, ">$js_file_str") or die "cannot open $js_file_str: $!";
 
   ## 
   print FILE <<EOJS;
 /* 
- * Package: golr_meta.js
+ * Package: golr.js
  * 
- * Namespace: bbop.golr.golr_meta
+ * Namespace: amigo.data.golr
  * 
- * This package was automatically created during an AmiGO 2 installation.
+ * This package was automatically created during an AmiGO 2 installation
+ * from the YAML configuration files that AmiGO pulls in.
  *
- * Useful information about GOlr for JS. See the package <golr_conf.js>
+ * Useful information about GOlr. See the package <golr_conf.js>
  * for the API to interact with this data file.
- *
- * Requirements: core.js for namespace controls.
  *
  * NOTE: This file is generated dynamically at installation time.
  * Hard to work with unit tests--hope it's not too bad. You have to
@@ -618,57 +577,26 @@ sub golr_config_to_meta_js {
 
 // All of the server/instance-specific meta-data.
 bbop.core.require('bbop', 'core');
-bbop.core.namespace('bbop', 'amigo', 'golr_meta');
+bbop.core.namespace('amigo', 'data', 'golr');
 
 /*
- * Variable: golr_meta
+ * Variable: golr
  * 
  * The configuration for the data.
  * Essentially a JSONification of the OWLTools YAML files.
  */
-bbop.amigo.golr_meta = $js_str;
+amigo.data.golr = $js_str;
 EOJS
 
   ## Close file.
   close(FILE);
   make_readable($js_file_str);
-  ll("Created GOlr JavaScript meta file: \"$js_file_str\".");
-
-  ## Copy back into our JS tree for archiving and docs.
-  force_copy($js_file_str, Cwd::cwd() . '/javascript/bbop/amigo/');
-  make_readable($js_file_str);
-  ll("Created GOlr JavaScript meta file: \"$js_file_str\".");
-
-  ###
-  ### Conf to JSON.
-  ###
-
-  my $json = JSON::XS->new();
-  #$js->allow_bignum(1); # if needed, go back to ::PP
-  my $json_str = $json->encode($rethash);
-  chomp $json_str;
-
-  ## If the file is already there, blow it away.
-  my $json_file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
-    '/javascript/bbop/amigo/golr_meta.json';
-  unlink $json_file_str if -f $json_file_str;
-  open(FILE, ">$json_file_str") or die "cannot open $json_file_str: $!";
-
-  ##
-  print FILE <<EOJS;
-$json_str
-EOJS
-
-  ## Close file.
-  close(FILE);
-  make_readable($json_file_str);
-  ll("Created GOlr JSON meta file: \"$json_file_str\".");
 }
 
-
-## file: <local tree>/bbop/amigo/amigo_meta.js
-## file: /srv/www/htdocs/amigo/js/bbop/amigo/amigo_meta.js
+## file: <local_js_tree>/lib/amigo/data/server.js
 sub amigo_env_to_js {
+
+  my $file_str = shift || die 'need target file';
 
   ## 
   use lib getcwd() . '/perl/lib';
@@ -682,8 +610,6 @@ sub amigo_env_to_js {
   my $core = AmiGO::JavaScript->new();
 
   ## If the file is already there, blow it away.
-  my $file_str = $env_conf{AMIGO_HTDOCS_ROOT_DIR} .
-    '/javascript/bbop/amigo/amigo_meta.js';
   unlink $file_str if -f $file_str;
   open(FILE, ">$file_str") or die "cannot open $file_str: $!";
 
@@ -775,26 +701,29 @@ sub amigo_env_to_js {
   ##
   print FILE <<EOJS;
 /*
- * Package: amigo_meta.js
- *
- * Namespace: bbop.amigo.amigo_meta
- *
+ * Package: server.js
+ * 
+ * Namespace: amigo.data.server
+ * 
  * This package was automatically created during an AmiGO 2 installation.
- *
- * Purpose: Useful information about the GO and AmiGO.
+ * 
+ * Purpose: Useful information about GO and the AmiGO installation.
  *          Also serves as a repository and getter for web
  *          resources such as images.
- *
+ * 
  * Requirements: amigo.js for bbop.amigo namespace.
- *
+ * 
  * NOTE: This file is generated dynamically at installation time.
  *       Hard to work with unit tests--hope it's not too bad.
  *       Want to keep this real simple.
- *
  */
 
+// Module and namespace checking.
+bbop.core.require('bbop', 'core');
+bbop.core.namespace('amigo', 'data', 'server');
+
 /*
- * Constructor: amigo_meta
+ * Constructor: server
  * 
  * The configuration for the server settings.
  * Essentially a JSONification of the config.pl AmiGO 2 file.
@@ -802,7 +731,7 @@ sub amigo_env_to_js {
  * Arguments:
  *  n/a
  */
-bbop.amigo.amigo_meta = function(){
+amigo.data.server = function(){
 
     // All of the server/instance-specific meta-data.
     var meta_data = $json_str;
@@ -838,12 +767,6 @@ EOJS
   ## Close file.
   close(FILE);
   make_readable($file_str);
-  ll("Created js meta file: \"$file_str\".");
-
-  ## Copy back into our JS tree for archiving and docs.
-  force_copy($file_str, Cwd::cwd() . '/javascript/bbop/amigo/');
-  make_readable($file_str);
-  ll("Created AmiGO JavaScript meta file: \"$file_str\".");
 }
 
 
@@ -909,18 +832,6 @@ sub make_readable {
   system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
 }
 
-## TODO/BUG: ALPHAish experiment.
-sub make_compressed_js {
-
-  my $in_file = shift || die "no first arg";
-  my $out_file = shift || die "no second arg";
-
-  #my @args = ("shrinksafe", $in_file, ">", $out_file);
-  my @args = ("yui-compressor", "--nomunge", "--type", "js",
-	      "-o", $out_file, $in_file);
-  ll("System: \"@args\"");
-  system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
-}
 
 ## Make all of the old .cgi filenames accessible through no-cgi names,
 ## if applicable.
@@ -980,8 +891,7 @@ Do a test run. Only configure files will be read and written.
 
 =item -e
 
-Also install experimental CGIs, binaries, and config.json as well as
-config.pl (same information, different format).
+Also install experimental CGIs, binaries, and configs.
 
 =item -g
 
