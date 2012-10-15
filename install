@@ -315,7 +315,7 @@ if( $opt_e ){
 
   my $export_js_files =
     [
-     ## BBOP
+     ## BBOP (serverable)
      'bbop/version.js',
      'bbop/core.js',
      'bbop/logger.js',
@@ -323,16 +323,17 @@ if( $opt_e ){
      'bbop/html.js',
      'bbop/model.js',
      'bbop/model/bracket.js',
-     'bbop/golr_conf.js',
-     'bbop/golr_response.js',
-     'bbop/golr_manager.js',
-     'bbop/golr_manager_jquery.js',
-     'bbop/golr_widget_autocomplete.js',
-     'bbop/golr_widget_browse.js',
-     ## Non web-able.
-     'bbop/golr_manager_preload.js',
-     'bbop/golr_manager_nodejs.js',
-     'bbop/golr_manager_rhino.js',
+     'bbop/golr/conf.js',
+     'bbop/golr/response.js',
+     'bbop/golr/manager.js',
+     ## BBOP (web-able).
+     'bbop/golr/manager/jquery.js',
+     'bbop/widget/autocomplete.js',
+     'bbop/widget/browse.js',
+     ## BBOP (non web-able).
+     'bbop/golr/manager/preload.js',
+     'bbop/golr/manager/nodejs.js',
+     'bbop/golr/manager/rhino.js',
      ## AmiGO
      'bbop/amigo.js',
      'bbop/amigo/amigo_meta.js',

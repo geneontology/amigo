@@ -1,0 +1,16 @@
+javascript/lib/bbop/core.js
+javascript/lib/bbop/version.js
+javascript/lib/bbop/logger.js
+javascript/lib/bbop/registry.js
+javascript/lib/bbop/html.js
+javascript/lib/bbop/model.js
+javascript/lib/bbop/model/bracket.js
+javascript/lib/bbop/golr/conf.js
+javascript/lib/bbop/golr/response.js
+javascript/lib/bbop/golr/manager.js
+javascript/lib/bbop/golr/manager/jquery.js
+javascript/lib/bbop/widget/autocomplete.js
+javascript/lib/bbop/widget/browse.js
+javascript/lib/bbop/golr/manager/preload.js
+javascript/lib/bbop/golr/manager/nodejs.js
+javascript/lib/bbop/golr/manager/rhino.js
