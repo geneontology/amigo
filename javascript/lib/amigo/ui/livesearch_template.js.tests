@@ -1,22 +1,19 @@
 ////
-//// Some testing for GOlrTemplate sub-classes (GOlrTemplate.js).
+//// Some testing for the search templates.
 ////
 //// Usage:
-////    Command line: "js -f golr_template.js.tests"
-////    Interactive: "js -f golr_template.js.tests -f -"
+////    Command line: "js -f livesearch_template.js.tests"
+////    Interactive: "js -f livesearch_template.js.tests -f -"
 ////
 
 
 // Load testing.
-load('../../../../../javascript/trunk/lib/bbop/test.js');
+load('../../../../../../javascript/trunk/staging/bbop.js');
 var mr_t = new bbop.test();
 
 // Correct environment.
-load('../../../../../javascript/trunk/lib/bbop/core.js');
-load('..//amigo.js');
-load('../../../../../javascript/trunk/lib/bbop/logger.js');
-load('../../../../../javascript/trunk/lib/bbop/html.js');
-load('golr_template.js');
+load('../amigo.js');
+load('livesearch_template.js');
 
 ///
 /// Start testing.

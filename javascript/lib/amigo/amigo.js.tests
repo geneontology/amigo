@@ -2,15 +2,13 @@
 //// Some unit testing for amigo.js
 ////
 //// Usage:
-////    Command line: "smjs -f amigo.js.tests"
-////    Interactive: "smjs -f amigo.js.tests -f -"
+////    Command line: "js -f amigo.js.tests"
+////    Interactive: "js -f amigo.js.tests -f -"
 ////
 
 
 // Load testing.
-load('../../../../javascript/trunk/lib/bbop/core.js');
-load('../../../../javascript/trunk/lib/bbop/json.js');
-load('../../../../javascript/trunk/lib/bbop/test.js');
+load('../../../../../javascript/trunk/staging/bbop.js');
 var mr_t = new bbop.test();
 
 // Correct environment.
@@ -78,23 +76,23 @@ mr_t.is_defined(amigo);
     mr_t.is_same_atom(2, amigo.response.errors(d2).length);
     mr_t.is_same_atom(1, amigo.response.errors(d3).length);
 
-    // JSON parser...
-    var good = bbop.json.parse(s0);
-    mr_t.is_defined(good);
-    mr_t.is_same_atom('GO:456', good.results.foo[1].key,
-		  'parsed object has correct key');
+    // // JSON parser...
+    // var good = bbop.json.parse(s0);
+    // mr_t.is_defined(good);
+    // mr_t.is_same_atom('GO:456', good.results.foo[1].key,
+    // 		  'parsed object has correct key');
 
-    // Check a parse gone bad.
-    var bad = null;
-    try {
-	bad = bbop.json.parse(s1);
-    }catch(err){
-	mr_t.is_same_atom(1, 1, 'should be error on bad parse');    
-    }finally{
-	if( bad ){
-	    mr_t.is_same_atom(1, 2, 'bad parse should not generate object');    
-	}
-    }
+    // // Check a parse gone bad.
+    // var bad = null;
+    // try {
+    // 	bad = bbop.json.parse(s1);
+    // }catch(err){
+    // 	mr_t.is_same_atom(1, 1, 'should be error on bad parse');    
+    // }finally{
+    // 	if( bad ){
+    // 	    mr_t.is_same_atom(1, 2, 'bad parse should not generate object');    
+    // 	}
+    // }
 })();
 
 // Check randomness.

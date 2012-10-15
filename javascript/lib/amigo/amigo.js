@@ -1,5 +1,5 @@
 /*
- * Package: amigo.js
+ * Package: api.js
  * 
  * Namespace: amigo
  * 

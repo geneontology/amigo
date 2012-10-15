@@ -1,0 +1,33 @@
+////
+//// Some unit testing for version.js (even though it is generated).
+////
+//// Usage:
+////    Command line: "js -f version.tests.js"
+////    Interactive: "js -f version.tests.js -f -"
+////
+
+
+// Load testing and correct environment.
+load('../../../../../javascript/trunk/staging/bbop.js');
+var mr_t = new bbop.test();
+load('amigo.js');
+load('version.js');
+
+///
+/// Start unit testing.
+///
+
+
+(function(){
+     
+     mr_t.is_defined(amigo.version.revision, 'revision defined');
+     mr_t.is_defined(amigo.version.release, 'release defined');
+
+ })();
+
+///
+/// End unit testing.
+///
+
+// Final report.
+mr_t.report();
