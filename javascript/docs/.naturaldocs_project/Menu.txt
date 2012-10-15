@@ -47,8 +47,6 @@ Format: 1.51
 
 
 File: amigo.js  (amigo.js)
-File: amigo.ui.livesearch  (ui/livesearch.js)
-File: amigo.ui.livesearch_template  (ui/livesearch_template.js)
 
 Group: Data  {
 
@@ -58,6 +56,8 @@ Group: Data  {
    }  # Group: Data
 
 File: linker.js  (linker.js)
+File: livesearch.js  (ui/livesearch.js)
+File: livesearch_template.js  (ui/livesearch_template.js)
 File: version.js  (version.js)
 
 Group: Index  {

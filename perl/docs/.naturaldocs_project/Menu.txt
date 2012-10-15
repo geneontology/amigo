@@ -1,0 +1,158 @@
+Format: 1.51
+
+
+# You can add a title and sub-title to your menu like this:
+# Title: [project name]
+# SubTitle: [subtitle]
+
+# You can add a footer to your documentation like this:
+# Footer: [text]
+# If you want to add a copyright notice, this would be the place to do it.
+
+# You can add a timestamp to your documentation like one of these:
+# Timestamp: Generated on month day, year
+# Timestamp: Updated mm/dd/yyyy
+# Timestamp: Last updated mon day
+#
+#   m     - One or two digit month.  January is "1"
+#   mm    - Always two digit month.  January is "01"
+#   mon   - Short month word.  January is "Jan"
+#   month - Long month word.  January is "January"
+#   d     - One or two digit day.  1 is "1"
+#   dd    - Always two digit day.  1 is "01"
+#   day   - Day with letter extension.  1 is "1st"
+#   yy    - Two digit year.  2006 is "06"
+#   yyyy  - Four digit year.  2006 is "2006"
+#   year  - Four digit year.  2006 is "2006"
+
+
+# --------------------------------------------------------------------------
+# 
+# Cut and paste the lines below to change the order in which your files
+# appear on the menu.  Don't worry about adding or removing files, Natural
+# Docs will take care of that.
+# 
+# You can further organize the menu by grouping the entries.  Add a
+# "Group: [name] {" line to start a group, and add a "}" to end it.
+# 
+# You can add text and web links to the menu by adding "Text: [text]" and
+# "Link: [name] ([URL])" lines, respectively.
+# 
+# The formatting and comments are auto-generated, so don't worry about
+# neatness when editing the file.  Natural Docs will clean it up the next
+# time it is run.  When working with groups, just deal with the braces and
+# forget about the indentation and comments.
+# 
+# --------------------------------------------------------------------------
+
+
+Group: AmiGO  {
+
+   File: Aid.pm  (AmiGO/Aid.pm)
+   File: AmiGO::WebApp  (AmiGO/WebApp.pm)
+   File: ChewableGraph.pm  (AmiGO/ChewableGraph.pm)
+   File: CSS.pm  (AmiGO/CSS.pm)
+
+   Group: External  {
+
+      File: GOLD  (AmiGO/External/GOLD.pm)
+      File: GOLD/Query.pm  (AmiGO/External/GOLD/Query.pm)
+      File: GOLD::Status  (AmiGO/External/GOLD/Status.pm)
+      File: HTML  (AmiGO/External/HTML.pm)
+
+      Group: HTML  {
+
+         File: Wiki  (AmiGO/External/HTML/Wiki.pm)
+         File: Wiki::GOLD  (AmiGO/External/HTML/Wiki/GOLD.pm)
+         File: Wiki::GOlr  (AmiGO/External/HTML/Wiki/GOlr.pm)
+         File: Wiki::LEAD  (AmiGO/External/HTML/Wiki/LEAD.pm)
+         }  # Group: HTML
+
+      Group: JSON  {
+
+         File: AmiGO.pm  (AmiGO/External/JSON/AmiGO.pm)
+
+         Group: Solr  {
+
+            File: AmiGO...GOlr::Status  (AmiGO/External/JSON/Solr/GOlr/Status.pm)
+            File: GOlr/Document.pm  (AmiGO/External/JSON/Solr/GOlr/Document.pm)
+            File: GOlr/SafeQuery.pm  (AmiGO/External/JSON/Solr/GOlr/SafeQuery.pm)
+            File: GOlr/Search.pm  (AmiGO/External/JSON/Solr/GOlr/Search.pm)
+            File: new  (AmiGO/External/JSON/Solr/GOlr.pm)
+            }  # Group: Solr
+
+         File: Solr.pm  (AmiGO/External/JSON/Solr.pm)
+         }  # Group: JSON
+
+      File: JSON.pm  (AmiGO/External/JSON.pm)
+      File: LEAD  (AmiGO/External/LEAD.pm)
+      File: LEAD/Query.pm  (AmiGO/External/LEAD/Query.pm)
+      File: LEAD::Status  (AmiGO/External/LEAD/Status.pm)
+      File: QuickGO/OntGraphics.pm  (AmiGO/External/QuickGO/OntGraphics.pm)
+      File: QuickGO/Term.pm  (AmiGO/External/QuickGO/Term.pm)
+      File: Raw.pm  (AmiGO/External/Raw.pm)
+      File: XML  (AmiGO/External/XML.pm)
+      File: XML::GONUTS  (AmiGO/External/XML/GONUTS.pm)
+      }  # Group: External
+
+   File: External.pm  (AmiGO/External.pm)
+   File: GraphViz.pm  (AmiGO/GraphViz.pm)
+   File: JavaScript.pm  (AmiGO/JavaScript.pm)
+   File: JSON.pm  (AmiGO/JSON.pm)
+
+   Group: KVStore  {
+
+      File: Filesystem.pm  (AmiGO/KVStore/Filesystem.pm)
+      File: new  (AmiGO/KVStore/QuickGO.pm)
+      File: new  (AmiGO/KVStore/Filesystem/QuickGO.pm)
+      }  # Group: KVStore
+
+   File: KVStore.pm  (AmiGO/KVStore.pm)
+   File: new  (AmiGO/Worker.pm)
+   File: Sanitize.pm  (AmiGO/Sanitize.pm)
+
+   Group: WebApp  {
+
+      File: Gaffer.pm  (AmiGO/WebApp/Gaffer.pm)
+      File: Gannet.pm  (AmiGO/WebApp/Gannet.pm)
+      File: GOOSE.pm  (AmiGO/WebApp/GOOSE.pm)
+      File: HTMLClient  (AmiGO/WebApp/HTMLClient.pm)
+      File: HTMLClientExp  (AmiGO/WebApp/HTMLClientExp.pm)
+      File: Input  (AmiGO/WebApp/Input.pm)
+      File: PGraph  (AmiGO/WebApp/PGraph.pm)
+      File: Services  (AmiGO/WebApp/Services.pm)
+      }  # Group: WebApp
+
+   Group: Worker  {
+
+      File: ColorRange.pm  (AmiGO/Worker/ColorRange.pm)
+      File: Gaffer.pm  (AmiGO/Worker/Gaffer.pm)
+
+      Group: GOlr  {
+
+         File: Closure.pm  (AmiGO/Worker/GOlr/Closure.pm)
+         File: GeneProduct.pm  (AmiGO/Worker/GOlr/GeneProduct.pm)
+         File: IC.pm  (AmiGO/Worker/GOlr/IC.pm)
+         File: Term.pm  (AmiGO/Worker/GOlr/Term.pm)
+         }  # Group: GOlr
+
+      File: new  (AmiGO/Worker/GOlr.pm)
+      File: new  (AmiGO/Worker/PGraph.pm)
+      File: Visualize.pm  (AmiGO/Worker/Visualize.pm)
+      }  # Group: Worker
+
+   }  # Group: AmiGO
+
+File: AmiGO.pm  (AmiGO.pm)
+File: GO/SQLite3.pm  (GO/SQLite3.pm)
+File: GO/SQLite3/KVStore.pm  (GO/SQLite3/KVStore.pm)
+
+Group: Index  {
+
+   Index: Everything
+   Class Index: Classes
+   File Index: Files
+   Function Index: Functions
+   Variable Index: Variables
+   }  # Group: Index
+

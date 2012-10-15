@@ -25,16 +25,16 @@ AMIGO_ROOT:
 #     You may not need this if you already have the package loaded as a library.
 #   type: true
 
-GO_JS_ROOT:
+GO_BBOPJS_ROOT:
   value: ''
   comment: >
     Please enter the full path to the base of the BBOP JS directory.
   type: directory
 
-GO_OWLTOOLS_ROOT:
+GO_YAML_LOCATION:
   value: ''
   comment: >
-    Please enter the full path to the Google Code SVN owltools directory.
+    Please enter the full path to the Google Code SVN owltools(?) YAML directory.
   type: directory
 
 # - NAME: AMIGO_DOT_PATH

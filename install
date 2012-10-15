@@ -233,9 +233,9 @@ ll("Created GO XRefs JavaScript data file: \"$xrefs_data_fname\".");
 ###
 
 ## TODO/BUG: temporarily hard-coded--this needs to be dynamic, but for
-## now we're just gunna write them in for debugging fun.
-my $yaml_path =  $env_conf{GO_OWLTOOLS_ROOT} .
-  '/OWLTools-Solr/src/main/resources/';
+## now we're just gunna write them in for debugging fun. Could
+## probably just ignore everything but the schema conf.
+my $yaml_path =  $env_conf{GO_YAML_LOCATION};
 my $yaml_confs = [
 		  $yaml_path . "ont-config.yaml",
 		  $yaml_path . "bio-config.yaml",
@@ -269,13 +269,11 @@ my $release_args =
    '-o', 'javascript/staging/amigo.js',
    '-n', 'amigo',
    '-d', 'javascript/lib/amigo',
-   '-r', '0.9'
+   '-r', $env_conf{AMIGO_JS_VERSION}
   ];
 my $rcmd = join(' ', @$release_args);
 ll('System: ' . $rcmd . '"');
 system(@$release_args) == 0 || die "system $rcmd failed: $?" if ! $opt_t;
-
-die 'we did good!';
 
 ###
 ### Roll out the files in our repo to the appropriate directories on
@@ -323,26 +321,29 @@ foreach( @mods ){
 ll("Install internal JS libraries.");
 force_copy(Cwd::cwd() . '/css', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
 force_copy(Cwd::cwd() . '/images', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
+## The BBOPJS bundle.
+force_copy($env_conf{GO_BBOPJS_LOCATION} . '/bbop.js',
+	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
+## Our AmiGO bundle.
 force_copy(Cwd::cwd() . '/javascript/staging/amigo.js',
 	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
+## The jQuery and jQuery UI libraries.
 force_copy(Cwd::cwd() . '/javascript/lib/com',
 	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
 
-# # force_copy($env_conf{GO_JS_ROOT},
-# # 	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
 # ll("Install GO JS libraries.");
 # foreach my $jslib ('bbop', 'external', 'graph', 'newick_tree'){
 #   force_copy($env_conf{GO_JS_ROOT} . '/lib/' . $jslib,
 # 	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
 # }
-# #}
 
-## TODO: Make a JS release a la BBOP JS.
-#if( $opt_e ){
-## TODO
-# make docs
-#die;
-#}
+## I guess we could make docs while we're here.
+if( $opt_e ){
+  my $docs_args = ['make', 'docs'];
+  my $dcmd = join(' ', @$docs_args);
+  ll('System: ' . $dcmd . '"');
+  system(@$docs_args) == 0 || die "system $dcmd failed: $?" if ! $opt_t;
+}
 
 ###
 ### Finish.
@@ -352,7 +353,7 @@ force_copy(Cwd::cwd() . '/javascript/lib/com',
 print <<EOC;
 Done.
 
-Your new installation is at: $env_conf{AMIGO_CGI_URL}/$env_conf{AMIGO_PROJECT_NAME}
+Your new installation is at: $env_conf{AMIGO_CGI_URL}/amigo
 
 You may use the refresh script (refresh.pl) with the "-r" flag to regularly
 purge unneeded and old files generated while AmiGO is running.
@@ -864,11 +865,11 @@ sub ww {
 
 =head1 NAME
 
-install.pl
+install
 
 =head1 SYNOPSIS
 
-install.pl [-h] [-v] [-g] [-e] [-t]
+install [-h] [-v] [-g] [-e] [-t]
 
 =head1 DESCRIPTION
 
@@ -902,6 +903,5 @@ Also install GOOSE and Gannet.
 =head1 SEE ALSO
 
 http://wiki.geneontology.org/index.php/AmiGO_Manual:_Installation
-
 
 =cut
