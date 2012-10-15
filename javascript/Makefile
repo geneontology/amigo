@@ -53,4 +53,4 @@ $(TESTS):
 .PHONY: docs
 
 docs:
-	naturaldocs --rebuild-output --input ./ --project docs/.naturaldocs_project/ --output html docs/
+	naturaldocs --rebuild-output --input ./lib/amigo --project docs/.naturaldocs_project/ --output html docs/

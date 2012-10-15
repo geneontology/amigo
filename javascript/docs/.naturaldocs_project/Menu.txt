@@ -46,29 +46,23 @@ Format: 1.51
 # --------------------------------------------------------------------------
 
 
-Group: Bbop  {
+Group: Amigo  {
 
-   Group: Amigo  {
+   File: amigo_meta.js  (amigo/amigo_meta.js)
+   File: golr_meta.js  (amigo/golr_meta.js)
+   File: golr_template.js  (amigo/golr_template.js)
+   File: golr_ui_search.js  (amigo/golr_ui_search.js)
+   File: linker.js  (amigo/linker.js)
+   }  # Group: Amigo
 
-      File: amigo_meta.js  (bbop/amigo/amigo_meta.js)
-      File: golr_meta.js  (bbop/amigo/golr_meta.js)
-      File: golr_template.js  (bbop/amigo/golr_template.js)
-      File: golr_ui_search.js  (bbop/amigo/golr_ui_search.js)
-      File: linker.js  (bbop/amigo/linker.js)
-      }  # Group: Amigo
-
-   File: amigo.js  (bbop/amigo.js)
-   File: version.js  (bbop/version.js)
-   }  # Group: Bbop
-
-File: jquery-1.8.0.js  (com/jquery-1.8.0.js)
+File: amigo.js  (amigo.js)
+File: version.js  (version.js)
 
 Group: Index  {
 
    Index: Everything
    Class Index: Classes
    Function Index: Functions
-   File Index: Files
    Variable Index: Variables
    }  # Group: Index
 
