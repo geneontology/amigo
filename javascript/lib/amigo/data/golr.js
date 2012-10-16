@@ -28,6 +28,7 @@ bbop.core.namespace('amigo', 'data', 'golr');
  * 
  * The configuration for the data.
  * Essentially a JSONification of the OWLTools YAML files.
+ * This should be consumed directly by <bbop.golr.conf>.
  */
 amigo.data.golr = {
    "bbop_ann_ev_agg" : {

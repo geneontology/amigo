@@ -416,6 +416,7 @@ EOC
 
 
 ## file: <local_js_tree>/lib/amigo/data/xrefs.js
+## Taken from: ../../go-dev/trunk/amigo/scripts/make_dblinks.pl
 sub xref_abbs_to_meta_js {
 
   my $js_file_str = shift || die "need a js file string or something";
@@ -425,18 +426,56 @@ sub xref_abbs_to_meta_js {
   use lib getcwd() . '/perl/lib';
 
   ## Bring in necessaries.
+  use AmiGO::External::Raw;
   use AmiGO::JavaScript;
   #use JSON::PP;
   use JSON::XS;
 
   my $core = AmiGO::JavaScript->new();
 
-  ## TODO: Use external to get file.
-  my $outhash = {};
-  #foreach my $yaml_conf (@$yaml_confs){
-  # $rethash->{ $conf_id } =
-  #}
-  
+  ## Use external to get file.
+  my $ext = AmiGO::External::Raw->new();
+  my $abbs = $ext->get_external_data($xrefs_url);
+  if( ! $abbs ){ die "Could not load external GO.xref_abbs file: $!"; }
+
+  my $database_info = {};
+
+  ## Split on two or more newlines.
+  my @top_chunks = split /\n{2,}/s, $abbs;
+
+  ## Split on newline.
+  foreach my $middle_chunk_str (@top_chunks){
+    my @middle_chunks = split /\n/s, $middle_chunk_str;
+
+    ## Split on ':' and trim.
+    my $tmp_data =
+      {
+       id => undef,
+       abbreviation => undef,
+       name => undef,
+       fullname => undef,
+       datatype => undef,
+       generic_url => undef,
+       url_syntax => undef,
+       url_example => undef,
+       uri_prefix => undef,
+      };
+
+    foreach my $line (@middle_chunks){
+
+      $line =~ /(.*)\:\s+(.*)/;
+      my $tag = $1;
+      my $val = $2;
+
+      $tmp_data->{$tag} = $val;
+    }
+    ## If it looks like it has a key add it to the hash.
+    if( $tmp_data->{abbreviation} ){
+      my $key = lc($tmp_data->{abbreviation});
+      $database_info->{$key} = $tmp_data;
+      ll("Added: $key");
+    }
+  }
 
   ###
   ### Conf to JS.
@@ -444,7 +483,7 @@ sub xref_abbs_to_meta_js {
 
   my $js = JSON::XS->new()->pretty(1);
   #$js->allow_bignum(1); # if needed, go back to ::PP
-  my $js_str = $js->encode($outhash);
+  my $js_str = $js->encode($database_info);
   chomp $js_str;
 
   ## If the file is already there, blow it away.
