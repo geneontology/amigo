@@ -17,14 +17,14 @@ use vars qw(
 	     $opt_v
 	     $opt_g
 	     $opt_e
-	     $opt_t
 	     $opt_d
+	     $opt_b
 	  );
 use Getopt::Std;
 
 
 ## Since internal checks are done, get ready for user input.
-getopts('hvgetd');
+getopts('hvgedb');
 
 ## Embedded help through perldoc.
 if( $opt_h ){
@@ -37,9 +37,6 @@ my @args = ();
 
 ## Check our options.
 ll("Will print verbose messages.");
-if ( $opt_t ) {
-  ll("Will do test run.");
-}
 if ( $opt_e ) {
   ll("Will also install experimental binaries and executables.");
 }
@@ -48,6 +45,9 @@ if ( $opt_g ) {
 }
 if ( $opt_d ) {
   ll("Will also create documentation using Natural Docs.");
+}
+if ( $opt_b ) {
+  ll("Will do what is necessary to just produce a bundle.");
 }
 
 ## First check that we are in the proper directory. Installation
@@ -277,7 +277,7 @@ my $release_args =
   ];
 my $rcmd = join(' ', @$release_args);
 ll('System: ' . $rcmd . '"');
-system(@$release_args) == 0 || die "system $rcmd failed: $?" if ! $opt_t;
+system(@$release_args) == 0 || die "system $rcmd failed: $?";
 
 ###
 ### Roll out the files in our repo to the appropriate directories on
@@ -349,7 +349,7 @@ if( $opt_d ){
   my $docs_args = ['make', 'docs'];
   my $dcmd = join(' ', @$docs_args);
   ll('System: ' . $dcmd . '"');
-  system(@$docs_args) == 0 || die "system $dcmd failed: $?" if ! $opt_t;
+  system(@$docs_args) == 0 || die "system $dcmd failed: $?";
 }
 
 ###
@@ -357,7 +357,8 @@ if( $opt_d ){
 ###
 
 ## Done.
-print <<EOC;
+if( ! $opt_b ){
+  print <<EOC;
 Done.
 
 Your new installation is at: $env_conf{AMIGO_CGI_URL}/amigo
@@ -369,7 +370,7 @@ The refresh.pl script has many other uses, please see the
 documentation for flags that apply to you.
 
 EOC
-
+}
 
 ###
 ### Helper functions.
@@ -470,7 +471,9 @@ sub xref_abbs_to_meta_js {
       $line =~ /(.*)\:\s+(.*)/;
       my $tag = $1;
       my $val = $2;
-      $tmp_data->{$tag} = $val;
+      if( $tag ){
+	$tmp_data->{$tag} = $val;
+      }
     }
 
     # ## Try and create a function that produces the target url.
@@ -494,7 +497,7 @@ sub xref_abbs_to_meta_js {
     if( $tmp_data->{abbreviation} ){
       my $key = lc($tmp_data->{abbreviation});
       $database_info->{$key} = $tmp_data;
-      ll("Added: $key");
+      #ll("Added: $key");
     }
   }
 
@@ -881,8 +884,8 @@ sub safe_make_dir {
   ## Make the new session directory if necessary.
   if ( ! -e  $dir_to_make ) {
     my @args = ("mkdir", $dir_to_make);
-    ll("System: \"@args\"");
-    system(@args) == 0 || die "system @args failed: $?" if ! $opt_t;
+    ll("System: \"@args\"") if ! $opt_b;
+    system(@args) == 0 || die "system @args failed: $?" if ! $opt_b;
   }
 }
 
@@ -898,8 +901,8 @@ sub force_copy {
 	      "--exclude=.svn",
 	      "--exclude=.emacs.desktop",
 	      $from, $to);
-  ll("System: \"@args\"");
-  system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
+  ll("System: \"@args\"") if ! $opt_b;
+  system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_b;
 }
 
 
@@ -909,8 +912,8 @@ sub make_executable {
   my $file = shift || die "no first arg";
 
   my @args = ("chmod", "a+x", $file);
-  ll("System: \"@args\"");
-  system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
+  ll("System: \"@args\"") if ! $opt_b;
+  system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_b;
 }
 
 
@@ -920,8 +923,8 @@ sub make_permissive {
   my $file = shift || die "no first arg";
 
   my @args = ("chmod", "777", $file);
-  ll("System: \"@args\"");
-  system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
+  ll("System: \"@args\"") if ! $opt_b;
+  system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_b;
 }
 
 
@@ -931,8 +934,8 @@ sub make_readable {
   my $file = shift || die "no first arg";
 
   my @args = ("chmod", "644", $file);
-  ll("System: \"@args\"");
-  system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
+  ll("System: \"@args\"") if ! $opt_b;
+  system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_b;
 }
 
 
@@ -944,8 +947,8 @@ sub make_non_cgi_link {
 
   if ( $file =~ /(.*)\.cgi$/ ) {
     my @args = ("ln", "-f", "-s", $file, $1);
-    ll("Old CGI link: new link from $1 to $file");
-    system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_t;
+    ll("Old CGI link: new link from $1 to $file") if ! $opt_b;
+    system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_b;
   }
 }
 
@@ -988,9 +991,11 @@ Please see README.txt and INSTALL.txt for more details.
 
 Enable more verbose messages. This is useful for checking installation errors.
 
-=item -t
+=item -b
 
-Do a test run. Only configure files will be read and written.
+Do just enough to produce a JS bundle and documentation; will not make
+installation filesystem changes beyond the local configuration files
+and the staging area. Could maybe be used as a gross test run.
 
 =item -e
 
@@ -999,6 +1004,16 @@ Also install experimental CGIs, binaries, and configs.
 =item -g
 
 Also install GOOSE and Gannet.
+
+=item -d
+
+Also generate documentation.
+
+=item -b
+
+Ignore all other flags, no not install anything, just do what is
+necessary to create a JS bundle for this installation and put it into
+staging.
 
 =back
 
