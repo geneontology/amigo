@@ -436,6 +436,7 @@ sub xref_abbs_to_meta_js {
   #foreach my $yaml_conf (@$yaml_confs){
   # $rethash->{ $conf_id } =
   #}
+  
 
   ###
   ### Conf to JS.
@@ -588,6 +589,7 @@ bbop.core.namespace('amigo', 'data', 'golr');
  * 
  * The configuration for the data.
  * Essentially a JSONification of the OWLTools YAML files.
+ * This should be consumed directly by <bbop.golr.conf>.
  */
 amigo.data.golr = $js_str;
 EOJS
@@ -697,8 +699,20 @@ sub amigo_env_to_js {
   }
   my $acc_strings = ();
   foreach my $key (keys %$ret){
+    push @$acc_strings, '    /*';
+    push @$acc_strings, '     * Function: ' . $key;
+    push @$acc_strings, '     * ';
+    push @$acc_strings, '     * Access to AmiGO variable ' . $key . '.';
+    push @$acc_strings, '     * ';
+    push @$acc_strings, '     * Parameters:';
+    push @$acc_strings, '     *  n/a';
+    push @$acc_strings, '     * ';
+    push @$acc_strings, '     * Returns:';
+    push @$acc_strings, '     *  string';
+    push @$acc_strings, '     */';
     push @$acc_strings, var_gen($key);
     push @$acc_strings, getter_gen($key);
+    push @$acc_strings, '';
   }
   my $acc_string = join("\n", @$acc_strings);
 
@@ -740,12 +754,27 @@ amigo.data.server = function(){
     // All of the server/instance-specific meta-data.
     var meta_data = $json_str;
 
-    // Break out the data and various functions to access it...
+    ///
+    /// Break out the data and various functions to access them...
+    ///
+
 $acc_string
 
     // Does it look like a term?
     var tre_str = meta_data.term_regexp;
     var tre = new RegExp(tre_str);
+
+    /*
+     * Function: term_id_p
+     * 
+     * True or false on whether or not a string looks like a GO term id.
+     * 
+     * Parameters:
+     *  term_id - the string to test
+     * 
+     * Returns:
+     *  boolean
+     */
     this.term_id_p = function(term_id){
        var retval = false;
        if( tre.test(term_id) ){
@@ -754,7 +783,17 @@ $acc_string
        return retval;
     };
 
-    // Get a named resource from the meta_data hash if possible.
+    /*
+     * Function: get_image_resource
+     * 
+     * Get a named resource from the meta_data hash if possible.
+     * 
+     * Parameters:
+     *  resource - the string id of the resource
+     * 
+     * Returns:
+     * string (url) of resource
+     */
     this.get_image_resource = function(resource){
 
        var retval = null;
