@@ -65,4 +65,4 @@ bundle:
 .PHONY: release
 
 release: bundle docs
-	s3cmd put javascript/staging/amigo*.js s3://bbop/jsapi/
+	s3cmd -P put javascript/staging/amigo*.js s3://bbop/jsapi/
