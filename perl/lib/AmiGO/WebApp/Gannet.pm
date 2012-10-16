@@ -682,9 +682,8 @@ sub mode_gannet {
        [
 	'com.jquery',
 	'com.jquery-ui',
-	'bbop.core',
-	'bbop.logger',
-	'bbop.amigo',
+	'bbop',
+	#'amigo',
 	'Gannet'
        ]
       };

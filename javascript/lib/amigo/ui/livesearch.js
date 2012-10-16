@@ -39,10 +39,7 @@ amigo.ui.livesearch = function (interface_id, conf_class){
     this.interface_id = interface_id;
     this.class_conf = conf_class;
    
-    // AmiGO helper (we want the linker?).
-    var amigo = new bbop.amigo();
-
-    // BBOP helpers.
+    // AmiGO helper.
     var tt = amigo.ui.livesearch_template;
 
     // Get the user interface hook and remove anything that was there.
@@ -766,7 +763,7 @@ amigo.ui.livesearch = function (interface_id, conf_class){
 	var docs = golr_resp.documents();
 
 	var final_table = new tt.results_table_by_class(anchor.class_conf, docs,
-							bbop.amigo.linker);
+							amigo.linker);
 
 	//ll('final_table a: ' + final_table._is_a);
 	//ll('final_table b: ' + final_table.to_string);

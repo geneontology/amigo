@@ -18,12 +18,13 @@ use vars qw(
 	     $opt_g
 	     $opt_e
 	     $opt_t
+	     $opt_d
 	  );
 use Getopt::Std;
 
 
 ## Since internal checks are done, get ready for user input.
-getopts('hvget');
+getopts('hvgetd');
 
 ## Embedded help through perldoc.
 if( $opt_h ){
@@ -44,6 +45,9 @@ if ( $opt_e ) {
 }
 if ( $opt_g ) {
   ll("Will also install GOOSE and Gannet.");
+}
+if ( $opt_d ) {
+  ll("Will also create documentation using Natural Docs.");
 }
 
 ## First check that we are in the proper directory. Installation
@@ -341,7 +345,7 @@ force_copy(Cwd::cwd() . '/javascript/lib/com',
 # }
 
 ## I guess we could make docs while we're here.
-if( $opt_e ){
+if( $opt_d ){
   my $docs_args = ['make', 'docs'];
   my $dcmd = join(' ', @$docs_args);
   ll('System: ' . $dcmd . '"');
@@ -447,7 +451,8 @@ sub xref_abbs_to_meta_js {
   foreach my $middle_chunk_str (@top_chunks){
     my @middle_chunks = split /\n/s, $middle_chunk_str;
 
-    ## Split on ':' and trim.
+    ## Create an empty template for the kinds of things we might find
+    ## and try add fill them in.
     my $tmp_data =
       {
        id => undef,
@@ -460,15 +465,31 @@ sub xref_abbs_to_meta_js {
        url_example => undef,
        uri_prefix => undef,
       };
-
+    ## Split on ':' and trim; add it to the above template.
     foreach my $line (@middle_chunks){
-
       $line =~ /(.*)\:\s+(.*)/;
       my $tag = $1;
       my $val = $2;
-
       $tmp_data->{$tag} = $val;
     }
+
+    # ## Try and create a function that produces the target url.
+    # ## TODO: OR maybe not--better left to the linker code?
+    # $tmp_data->{'function'} = undef;
+    # if( $tmp_data->{url_syntax} ){
+    #   my $url_syn = $tmp_data->{url_syntax};
+    #   my ($shead, $stail) = split('[example_id]', $url_syn);
+    #   if( $shead && $stail ){
+    # 	$tmp_data->{'function'} =
+    # 	  "function(in_id){ return '$shead' + in_id + '$stail'; }";
+    #   }elsif( $shead ){
+    # 	$tmp_data->{'function'} =
+    # 	  "function(in_id){ return '$shead' + in_id; }";
+    #   }else{
+    # 	## Not enough information to produce a function.
+    #   }
+    # }
+
     ## If it looks like it has a key add it to the hash.
     if( $tmp_data->{abbreviation} ){
       my $key = lc($tmp_data->{abbreviation});

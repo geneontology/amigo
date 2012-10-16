@@ -1,24 +1,24 @@
 /* 
  * Package: linker.js
- * Namespace: bbop.amigo.linker*
+ * Namespace: amigo.linker*
  * 
- * Generic BBOP linking function. A real function mind you--not an
+ * Generic AmiGO linking function. A real function mind you--not an
  * object generator.
  * 
  * TODO: maybe this should actually be under bbop.html so we could
  * make use of the anchor tag stuff?
  * 
- * NOTE: A lot of this is lifted from the amigo.js package. However,
- * the future should be here.
+ * NOTE: A lot of this is lifted from the (defunct) amigo.js
+ * package. However, the future should be here.
  * 
- * NOTE: This may have to be folded into the amigo.js package again to
- * get information from the amigo json conf files to orient the URLs.
+ * NOTE: This should pull data from something like amigo.data.xrefs
+ * instead.
  */
 
 // Setup the internal requirements.
 bbop.core.require('bbop', 'core');
 //bbop.core.require('bbop', 'logger');
-bbop.core.namespace('bbop', 'amigo', 'linker');
+bbop.core.namespace('amigo', 'linker');
 
 /*
  * Function: linker
@@ -32,8 +32,8 @@ bbop.core.namespace('bbop', 'amigo', 'linker');
  * 
  * Returns: string (url or link); null if it couldn't find anything
  */
-bbop.amigo.linker = function (xid, args, type){
-    this._is_a = 'bbop.linker';
+amigo.linker = function (xid, args, type){
+    this._is_a = 'amigo.linker';
     
     var anchor = this;
     var retval = null;

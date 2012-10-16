@@ -114,7 +114,8 @@ sub mode_landing {
      [
       'com.jquery',
       'com.jquery-ui',
-      'bbop-amigo',
+      'bbop',
+      'amigo',
      ],
      javascript =>
      [
@@ -165,7 +166,8 @@ sub mode_browse {
      [
       'com.jquery',
       'com.jquery-ui',
-      'bbop-amigo'
+      'bbop',
+      'amigo'
      ],
      javascript =>
      [
@@ -347,7 +349,7 @@ sub mode_simple_search {
       'standard',
       #'com.jquery.redmond.custom',
       'com.jquery.jqamigo.custom',
-      'bbop.amigo.ui.widgets'
+      #'bbop.amigo.ui.widgets'
       #'bbop.amigo.ui.interactive'
      ],
      # javascript_library =>
@@ -540,7 +542,8 @@ sub mode_live_search {
      [
       'com.jquery',
       'com.jquery-ui',
-      'bbop-amigo'
+      'bbop',
+      'amigo'
      ],
      javascript =>
      [
@@ -815,7 +818,8 @@ sub mode_golr_term_details {
      [
       'com.jquery',
       'com.jquery-ui',
-      'bbop-amigo'
+      'bbop',
+      'amigo'
      ],
      javascript =>
      [
@@ -907,7 +911,8 @@ sub mode_golr_gene_product_details {
      [
       'com.jquery',
       'com.jquery-ui',
-      'bbop-amigo'
+      'bbop',
+      'amigo'
      ],
      javascript =>
      [

@@ -705,9 +705,8 @@ sub mode_goose {
        [
 	'com.jquery',
 	'com.jquery-ui',
-	'bbop.core',
-	'bbop.logger',
-	'bbop.amigo',
+	'bbop',
+	#'amigo',
 	'GOOSE'
        ]
       };

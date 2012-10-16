@@ -10,9 +10,9 @@ function BrowseInit(){
     /// Solr server, GOlr config, etc.
     ///
 
-    var amigo = new bbop.amigo();
-    var am = new bbop.amigo.amigo_meta();
-    var gconf = new bbop.golr.conf(bbop.amigo.golr_meta);
+    //var api = new amigo.api();
+    var sd = new amigo.data.server();
+    var gconf = new bbop.golr.conf(amigo.data.golr);
 
     ///
     /// The tree browser.
@@ -20,8 +20,8 @@ function BrowseInit(){
 
     // Setup the widget with the server info.
     // Launch at a root with a boring callback.
-    var b_widget = bbop.golr.manager.jquery.browse;
-    var b = new b_widget(am.golr_base(), gconf, 'browser_id',
+    var b_widget = bbop.widget.browse;
+    var b = new b_widget(sd.golr_base(), gconf, 'browser_id',
 			 function(term_acc){ alert('info: '+ term_acc); } );
     b.draw_browser('GO:0008150');
 
@@ -31,8 +31,8 @@ function BrowseInit(){
 
     jQuery('#' + 'jumper').click(function(){ jQuery(this).val(''); }); // clear
     function jumper(doc){ b.draw_browser(doc['id']); }
-    var a_widget = bbop.golr.manager.widget.autocomplete;
-    var auto = new a_widget(am.golr_base(), gconf, 'jumper', 'label', jumper);
+    var a_widget = bbop.widget.autocomplete;
+    var auto = new a_widget(sd.golr_base(), gconf, 'jumper', 'label', jumper);
     auto.set_personality('bbop_ont'); // profile in gconf
     auto.add_query_filter('document_category', 'ontology_class');
 }

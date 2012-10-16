@@ -12,8 +12,7 @@ var logger = new bbop.logger();
 logger.DEBUG = true;
 function ll(str){ logger.kvetch('LS: ' + str); }    
 // AmiGO helper.
-var amigo = new bbop.amigo();
-var gm = new bbop.amigo.amigo_meta();
+var sd = new amigo.data.server();
 
 //
 function LiveSearchGOlrInit(){
@@ -38,8 +37,8 @@ function LiveSearchGOlrInit(){
     /// Ready the configuration that we'll use.
     ///
 
-    var gconf = new bbop.golr.conf(bbop.amigo.golr_meta);
-    var solr_server = gm.golr_base();
+    var gconf = new bbop.golr.conf(amigo.data.golr);
+    var solr_server = sd.golr_base();
 
     ///
     /// Manager and callbacks.
@@ -56,8 +55,8 @@ function LiveSearchGOlrInit(){
 
     // Create a two column layout and a lot of hidden switches and
     // variables.
-    var ui_gen = new bbop.amigo.golr_ui.search('display-general-search',
-					       gconf.get_class('bbop_ann'));
+    var ui_gen = new amigo.ui.livesearch('display-general-search',
+					 gconf.get_class('bbop_ann'));
 
     ///
     /// Setup and bind them together.

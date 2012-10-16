@@ -20,10 +20,10 @@ function GooglesLoaderIsAJerk(){
     
     // Setup the annotation profile and make the annotation document
     // category and the current acc sticky in the filters.
-    var am = new bbop.amigo.amigo_meta(); // resource locations
-    var gconf = new bbop.golr.conf(bbop.amigo.golr_meta);
-    var a_widget = bbop.golr.manager.widget.autocomplete; // nick
-    var amigo = new bbop.amigo();
+    var sd = new amigo.data.server(); // resource locations
+    var gconf = new bbop.golr.conf(amigo.data.golr);
+    var a_widget = bbop.widget.autocomplete; // nick
+    var api = new amigo.api();
 
     ///
     /// This next section is dedicated getting the autocomplete (and
@@ -35,14 +35,14 @@ function GooglesLoaderIsAJerk(){
 	if( doc && doc['id'] && doc['document_category'] ){
 	    if( doc['document_category'] == 'ontology_class' ){
 		window.location.href =
-		    amigo.link.term({'acc': doc['id']});
+		    api.link.term({'acc': doc['id']});
 	    }else if( doc['document_category'] == 'bioentity' ){
 		window.location.href =
-		    amigo.link.gene_product({'acc': doc['id']});
+		    api.link.gene_product({'acc': doc['id']});
 	    }
 	}
     }
-    var auto = new a_widget(am.golr_base(), gconf, 'query', 'label', forward);
+    var auto = new a_widget(sd.golr_base(), gconf, 'query', 'label', forward);
     auto.set_personality('bbop_ont'); // profile in gconf
     auto.add_query_filter('document_category', 'ontology_class'); // non-stick
 
@@ -90,7 +90,7 @@ function GooglesLoaderIsAJerk(){
     ///
 
     // We get our own manager.
-    var gm_ann = new bbop.golr.manager.jquery(am.golr_base(), gconf);
+    var gm_ann = new bbop.golr.manager.jquery(sd.golr_base(), gconf);
     gm_ann.set_personality('bbop_ann'); // profile in gconf
     gm_ann.add_query_filter('document_category', 'annotation', ['*']);
     

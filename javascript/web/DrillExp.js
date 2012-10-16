@@ -16,8 +16,8 @@ logger.DEBUG = true;
 function ll(str){ logger.kvetch('DD: ' + str); }    
 
 // // Global AmiGO helpers.
-var amigo = new bbop.amigo();
-var amigo_meta = new bbop.amigo.amigo_meta();
+var api = new amigo.api();
+var server_meta = new amigo.data.server();
 // var golr_meta = new bbop.amigo.golr_meta();
 // var solr_server = golr_meta.golr_base();
 
@@ -29,7 +29,7 @@ function DDInit(){
     ll('DDInit start...');
 
     var gconf = new bbop.golr.conf(bbop.amigo.golr_meta);
-    var gm = new bbop.golr.manager.jquery(amigo_meta.golr_base(), gconf);
+    var gm = new bbop.golr.manager.jquery(server_meta.golr_base(), gconf);
     //gm.set_personality('bbop_ont'); // profile in gconf
     gm.add_query_filter('document_category', 'ontology_class', ['*']);
     
@@ -92,7 +92,8 @@ function DDInit(){
 			}
 
 			// Gather the documents found.
-			var docs = bbop.golr.response.documents(jdata);
+			var resp = new bbop.golr.response(jdata);
+			var docs = resp.documents();
 			var json_nodes = [];
 			var each = bbop.core.each;
 			each(docs,
@@ -143,11 +144,11 @@ function DDInit(){
     // 	// placeholder linker for now.
     // 	function(e, data){
     // 	    var attr_id = data.rslt.obj[0].id;
-    // 	    var linky = amigo.link.term({acc: attr_id});
+    // 	    var linky = api.link.term({acc: attr_id});
     // 	    window.location.href = linky;
     // 	    // Or perhaps a pop-up info window?
     // 	    // var dia = '<div>' +
-    // 	    // 	amigo.html.term_link(attr_id,
+    // 	    // 	api.html.term_link(attr_id,
     // 	    // 			     'Link to ' + attr_id + '.') +
     // 	    // 	'</div>';
     // 	    // jQuery(dia).dialog({closeOnEscape: true,
@@ -177,7 +178,7 @@ function _doc_to_tree_node(doc, parent_id){
     }
 
     // Set anchor title and href.
-    var detlink = amigo.link.term({acc: raw_id});
+    var detlink = api.link.term({acc: raw_id});
     retnode['data'] = {"title" : label,
 		       "attr": {"href": detlink}};
 
@@ -226,7 +227,7 @@ function _doc_to_tree_node(doc, parent_id){
 	    // Add it in a brittle way.
 	    var prime_rel = edges[0].predicate_id();
 	    retnode['data']['icon'] = 
-	    	amigo_meta.image_base() + '/' + prime_rel + '.gif';
+	    	server_meta.image_base() + '/' + prime_rel + '.gif';
 	}
     }
 
