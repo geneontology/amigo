@@ -760,9 +760,8 @@ amigo.ui.livesearch = function (interface_id, conf_class){
 	
 	ll('Draw results div...');
 	var golr_resp = new bbop.golr.response(json_data);
-	var docs = golr_resp.documents();
-
-	var final_table = new tt.results_table_by_class(anchor.class_conf, docs,
+	var final_table = new tt.results_table_by_class(anchor.class_conf,
+							golr_resp,
 							amigo.linker);
 
 	//ll('final_table a: ' + final_table._is_a);
@@ -771,6 +770,7 @@ amigo.ui.livesearch = function (interface_id, conf_class){
 
 	// Display product when not empty.
 	var urtdi = ui_results_table_div_id;
+	var docs = golr_resp.documents();
 	jQuery('#' + urtdi).empty();
 	if( ! bbop.core.is_empty(docs) ){
 	    jQuery('#' + urtdi).append(bbop.core.to_string(final_table));

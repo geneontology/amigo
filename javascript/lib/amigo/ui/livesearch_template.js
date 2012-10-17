@@ -87,13 +87,14 @@ amigo.ui.livesearch_template.meta_results.prototype = new bbop.html.tag;
  *  
  * Parameters:
  *  class_conf - a <bbop.golr.conf_class>
- *  docs_array - the docs array from the solr return
+ *  golr_resp - a <bbop.golr.response>
  *  linker_function - see <bbop.amigo.linker> for more details
  *
  * Returns:
  *  <bbop.html.table> filled with results
  */
-amigo.ui.livesearch_template.results_table_by_class = function (cclass, docs,
+amigo.ui.livesearch_template.results_table_by_class = function (cclass,
+								golr_resp,
 							    linker_function){
     //bbop.html.tag.call(this, 'div');
     //var amigo = new bbop.amigo();
@@ -120,20 +121,27 @@ amigo.ui.livesearch_template.results_table_by_class = function (cclass, docs,
 	     headers_display.push(field.display_name());
 	 });
 
-    // // For each doc, deal with it as best we can using a little
-    // // probing. Score is a special case as it is not an explicit
-    // // field.
-    // function _process_doc(doc){
-    // 	var entry_buff = [];
-	
-    // }
+    // Some of what we'll do for each field in each doc (see below).
+    var ext = cclass.searchable_extension();
     function _process_entry(fid, iid, doc){
 
 	var retval = '';
 
-	// Probe.
+	// Prefer label over IDs when possible.
 	//var iid = doc[fid];
-	var ilabel = doc[fid + '_label'];
+	//var ilabel = doc[fid + '_label'];
+	var did = doc['id'];
+	var ilabel = golr_resp.get_doc_field_hl(did, fid + '_label' + ext);
+	if( ! ilabel ){
+	    ilabel = golr_resp.get_doc_field_hl(did, fid + ext);
+	}
+	if( ! ilabel ){
+	    ilabel = golr_resp.get_doc_field_hl(did, fid);
+	}
+	if( ! ilabel ){
+	    ilabel = golr_resp.get_doc_field(did, fid + '_label');
+	}
+
 	var link = linker_function(fid, {id: iid, label: ilabel}, 'link');
 
 	// See what we got.
@@ -148,7 +156,12 @@ amigo.ui.livesearch_template.results_table_by_class = function (cclass, docs,
 	return retval;
     }
 
+    // Cycle through and render each document.
+    // For each doc, deal with it as best we can using a little
+    // probing. Score is a special case as it is not an explicit
+    // field.
     var table_buff = [];
+    var docs = golr_resp.documents();
     each(docs,
 	 function(doc){
 	     

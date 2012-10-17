@@ -65,7 +65,7 @@ amigo.linker = function (xid, args, type){
 	return 'amigo?mode=golr_term_details&term=' + id;
     }
     function _term_link(id, label, args){
-	return '<a title="Go to the term details page for ' + label +
+	return '<a title="Go to the term details page for ' + id +
 	    '." href="' + _term_url(id, label, args) + '">' + label +'</a>';
     }
 
@@ -73,7 +73,7 @@ amigo.linker = function (xid, args, type){
 	return 'amigo?mode=golr_gene_product_details&gp=' + id;
     }
     function _gene_product_link(id, label, args){
-	return '<a title="Go to the gene product details page for ' + label +
+	return '<a title="Go to the gene product details page for ' + id +
 	    '." href="' + _gene_product_url(id, label, args) + '">' + label +
 	    '</a>';
     }
@@ -95,7 +95,8 @@ amigo.linker = function (xid, args, type){
 	    retval = _gene_product_link(id, label, args);
 	}	
     }else{
-	// TODO: Since we couldn't find anything...
+	// TODO: Since we couldn't find anything...drop into the great
+	// abyss of the xrefs data.
     }
     
     return retval;

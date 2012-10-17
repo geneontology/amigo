@@ -48,6 +48,7 @@ function LiveSearchGOlrInit(){
     // category and the current acc sticky in the filters.
     var gm_gen = new bbop.golr.manager.jquery(solr_server, gconf);
     gm_gen.set_personality('bbop_ann'); // profile in gconf
+    gm_gen.include_highlighting(true); //
 
     // We still need this, because without, we end up with a lot of
     // stray fields where automatic controls fail.
