@@ -66,3 +66,14 @@ bundle:
 
 release: bundle docs
 	s3cmd -P put javascript/staging/amigo*.js s3://bbop/jsapi/
+
+###
+### Refresh the bundle in BBOP JS and install.
+### TODO/BUG: Sorry that it's hard-coded; it's secret for now...
+###
+
+.PHONY: refresh
+
+refresh:
+	cd ../../javascript/trunk/; make bundle; cd
+	./install -v -e -g
