@@ -28,6 +28,8 @@ function BrowseInit(){
 		     function(term_acc, term_doc){
 			 //alert('info: '+ term_acc);
 			 new bbop.widget.term_shield(term_doc, linker, cclass);
+			 // new bbop.widget.term_shield(term_acc, linker,
+			 // 			     cclass, sd.golr_base());
 		     } );
     b.draw_browser('GO:0008150');
 
