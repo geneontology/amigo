@@ -21,9 +21,32 @@ function BrowseInit(){
     // Setup the widget with the server info.
     // Launch at a root with a boring callback.
     var b_widget = bbop.widget.browse;
-    var b = new b_widget(sd.golr_base(), gconf, 'browser_id',
-			 function(term_acc){ alert('info: '+ term_acc); } );
+    var b =
+	new b_widget(sd.golr_base(), gconf, 'browser_id',
+		     function(term_acc, term_doc){
+			 alert('info: '+ term_acc);
+		     } );
     b.draw_browser('GO:0008150');
+
+    ///
+    /// Ontology selector.
+    ///
+
+    jQuery("#graph_radio").buttonset();
+    var loop = bbop.core.each;
+    loop(['bp', 'cc', 'mf'],
+	 function(ont){
+	     jQuery('#'+ont).click(function(){
+				       var o = jQuery(this).attr('id');
+				       if( o == 'bp' ){
+					   b.draw_browser('GO:0008150');
+				       }else if( o == 'cc' ){
+					   b.draw_browser('GO:0005575');
+				       }else{
+					   b.draw_browser('GO:0003674');
+				       }
+				   });
+	 });
 
     ///
     /// The autocomplete talking back to the tree browser.
