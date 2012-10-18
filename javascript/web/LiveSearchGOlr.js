@@ -27,10 +27,10 @@ function LiveSearchGOlrInit(){
 
     var dtabs = jQuery("#display-tabs");
     if( dtabs ){
-	ll('Apply tabs...');
-	jQuery("#display-tabs").tabs();
-	//dtabs.tabs();
-	jQuery("#display-tabs").tabs('select', 0);
+    	ll('Apply tabs...');
+    	jQuery("#display-tabs").tabs();
+    	//dtabs.tabs();
+    	jQuery("#display-tabs").tabs('select', 0);
     }
 
     ///
@@ -41,7 +41,7 @@ function LiveSearchGOlrInit(){
     var solr_server = sd.golr_base();
 
     ///
-    /// Manager and callbacks.
+    /// Ready starting manager.
     ///
 
     // Setup the annotation profile and make the annotation document
@@ -54,42 +54,86 @@ function LiveSearchGOlrInit(){
     // stray fields where automatic controls fail.
     gm_gen.add_query_filter('document_category', 'annotation', ['*']);
 
-    // Create a two column layout and a lot of hidden switches and
-    // variables.
-    var ui_gen = new amigo.ui.livesearch('display-general-search',
-					 gconf.get_class('bbop_ann'));
+    ///
+    /// Enable search class switching.
+    /// 
+
+    // Process to switch the search into a different type.
+    function _on_search_select(){
+	var cid = jQuery(this).attr('id');
+
+	// Make sure whatever sitcky whas there is gone.
+	gm_gen.remove_query_filter('document_category', 'annotation', ['*']);
+	gm_gen.remove_query_filter('document_category','ontology_class',['*']);
+	gm_gen.remove_query_filter('document_category', 'bioentity',['*']);
+
+	gm_gen.set_personality(cid);
+	if( cid == 'bbop_ann' ){
+	    gm_gen.add_query_filter('document_category', 'annotation', ['*']);
+	}else if( cid == 'bbop_ont' ){
+	    gm_gen.add_query_filter('document_category','ontology_class',['*']);
+	}else if( cid == 'bbop_bio' ){
+	    gm_gen.add_query_filter('document_category', 'bioentity',['*']);
+	}
+	_create_display(cid);
+    }
+
+    // Turn them into a jQuery button set and make them active.
+    jQuery("#search_radio").buttonset();
+    var loop = bbop.core.each;
+    loop(['bbop_ann', 'bbop_ont', 'bbop_bio'],
+	 function(cclass_id){
+	     var c = '#' + cclass_id;
+	     jQuery(c).click(_on_search_select);
+	 });
 
     ///
-    /// Setup and bind them together.
+    /// Ready the actuall drawing callbacks.
     ///
 
-    // Setup the gross frames for the filters and results.
-    ui_gen.setup_query();
-    ui_gen.setup_reset_button();
-    ui_gen.setup_current_filters();
-    ui_gen.setup_accordion();
-    ui_gen.setup_results({'meta': true});
+    function _create_display(cclass){
+	
+	var div_id = 'display-general-search';
+	jQuery('#' + div_id).empty();
 
-    // Things to do on every reset event. Essentially re-draw
-    // everything.
-    gm_gen.register('reset', 'reset_query', ui_gen.reset_query, -1);
-    gm_gen.register('reset', 'rereset_button', ui_gen.reset_reset_button, -1);
-    gm_gen.register('reset', 'curr_first', ui_gen.draw_current_filters, -1);
-    gm_gen.register('reset', 'accordion_first', ui_gen.draw_accordion, -1);
-    gm_gen.register('reset', 'meta_first', ui_gen.draw_meta, -1);
-    gm_gen.register('reset', 'results_first', ui_gen.draw_results, -1);
+	// Create a two column layout and a lot of hidden switches and
+	// variables.
+	var ui_gen = new amigo.ui.livesearch(div_id, gconf.get_class(cclass));
 
-    // Things to do on every search event.
-    gm_gen.register('search', 'curr_filters_std', ui_gen.draw_current_filters);
-    gm_gen.register('search', 'accordion_std', ui_gen.draw_accordion);
-    gm_gen.register('search', 'meta_usual', ui_gen.draw_meta);
-    gm_gen.register('search', 'results_usual', ui_gen.draw_results);
-
-    // Things to do on an error.
-    gm_gen.register('error', 'results_unusual', ui_gen.draw_error);
-
-    // Start the ball with a reset event.
-    gm_gen.reset();
+	///
+	/// Setup and bind them together.
+	///
+	
+	// Setup the gross frames for the filters and results.
+	ui_gen.setup_query();
+	ui_gen.setup_reset_button();
+	ui_gen.setup_current_filters();
+	ui_gen.setup_accordion();
+	ui_gen.setup_results({'meta': true});
+	
+	// Things to do on every reset event. Essentially re-draw
+	// everything.
+	gm_gen.register('reset', 'reset_query', ui_gen.reset_query, -1);
+	gm_gen.register('reset', 'rereset_button',ui_gen.reset_reset_button,-1);
+	gm_gen.register('reset', 'curr_first', ui_gen.draw_current_filters, -1);
+	gm_gen.register('reset', 'accordion_first', ui_gen.draw_accordion, -1);
+	gm_gen.register('reset', 'meta_first', ui_gen.draw_meta, -1);
+	gm_gen.register('reset', 'results_first', ui_gen.draw_results, -1);
+	
+	// Things to do on every search event.
+	gm_gen.register('search','curr_filters_std',
+			ui_gen.draw_current_filters);
+	gm_gen.register('search', 'accordion_std', ui_gen.draw_accordion);
+	gm_gen.register('search', 'meta_usual', ui_gen.draw_meta);
+	gm_gen.register('search', 'results_usual', ui_gen.draw_results);
+	
+	// Things to do on an error.
+	gm_gen.register('error', 'results_unusual', ui_gen.draw_error);
+	
+	// Start the ball with a reset event.
+	gm_gen.reset();
+    }
+    _create_display('bbop_ann');
 
     //
     ll('LiveSearchGOlrInit done.');

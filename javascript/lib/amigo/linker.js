@@ -106,14 +106,16 @@ amigo.linker.prototype.url = function (id, xid){
  * Returns:
  *  string (link); null if it couldn't create anything
  */
-amigo.linker.prototype.anchor = function (args, xid){
+amigo.linker.prototype.anchor = function(args, xid){
     
     var anchor = this;
     var retval = null;
 
     // Get what fundamental arguments we can.
     var id = args['id'];
-    if( ! id ){ throw new Error('"id" is a required argument'); }
+    if( ! id ){ 
+	throw new Error('"id" is a required argument');
+    }
 
     // Infer label from id if not present.
     var label = args['label'];

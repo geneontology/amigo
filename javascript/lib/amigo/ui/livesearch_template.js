@@ -182,13 +182,16 @@ amigo.ui.livesearch_template.results_table_by_class = function(cclass,
 			  // can automatically.
 			  var field = cclass.get_field(fid);
 
-			  // Make sure we can iterate over whatever it
+			  // Make sure that comething is there and
+			  // that we can iterate over whatever it
 			  // is.
 			  var bits = [];
-			  if( field.is_multi() ){
-			      bits = doc[fid];
-			  }else{
-			      bits = [doc[fid]];
+			  if( doc[fid] ){
+			      if( field.is_multi() ){
+				  bits = doc[fid];
+			      }else{
+				  bits = [doc[fid]];
+			      }
 			  }
 
 			  // Render each of the bits.
