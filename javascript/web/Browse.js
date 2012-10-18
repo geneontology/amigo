@@ -20,11 +20,14 @@ function BrowseInit(){
 
     // Setup the widget with the server info.
     // Launch at a root with a boring callback.
+    var linker = new amigo.linker();
+    var cclass = gconf.get_class('bbop_ont');
     var b_widget = bbop.widget.browse;
     var b =
 	new b_widget(sd.golr_base(), gconf, 'browser_id',
 		     function(term_acc, term_doc){
-			 alert('info: '+ term_acc);
+			 //alert('info: '+ term_acc);
+			 new bbop.widget.term_shield(term_doc, linker, cclass);
 		     } );
     b.draw_browser('GO:0008150');
 
