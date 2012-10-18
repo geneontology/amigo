@@ -758,11 +758,13 @@ amigo.ui.livesearch = function (interface_id, conf_class){
      */
     this.draw_results = function(json_data, manager){
 	
+	var linker = new amigo.linker();
+
 	ll('Draw results div...');
 	var golr_resp = new bbop.golr.response(json_data);
 	var final_table = new tt.results_table_by_class(anchor.class_conf,
 							golr_resp,
-							amigo.linker);
+							linker);
 
 	//ll('final_table a: ' + final_table._is_a);
 	//ll('final_table b: ' + final_table.to_string);

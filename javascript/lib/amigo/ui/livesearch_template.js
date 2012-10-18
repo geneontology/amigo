@@ -88,14 +88,14 @@ amigo.ui.livesearch_template.meta_results.prototype = new bbop.html.tag;
  * Parameters:
  *  class_conf - a <bbop.golr.conf_class>
  *  golr_resp - a <bbop.golr.response>
- *  linker_function - see <bbop.amigo.linker> for more details
+ *  linker - a linker object; see <amigo.linker> for more details
  *
  * Returns:
  *  <bbop.html.table> filled with results
  */
-amigo.ui.livesearch_template.results_table_by_class = function (cclass,
-								golr_resp,
-							    linker_function){
+amigo.ui.livesearch_template.results_table_by_class = function(cclass,
+							       golr_resp,
+							       linker){
     //bbop.html.tag.call(this, 'div');
     //var amigo = new bbop.amigo();
 
@@ -126,27 +126,29 @@ amigo.ui.livesearch_template.results_table_by_class = function (cclass,
     function _process_entry(fid, iid, doc){
 
 	var retval = '';
-
-	// Prefer label over IDs when possible.
-	//var iid = doc[fid];
-	//var ilabel = doc[fid + '_label'];
 	var did = doc['id'];
-	var ilabel = golr_resp.get_doc_field_hl(did, fid + '_label' + ext);
+
+	// Get a label instead if we can.
+	var ilabel = golr_resp.get_doc_field(did, fid + '_label');
 	if( ! ilabel ){
-	    ilabel = golr_resp.get_doc_field_hl(did, fid + ext);
-	}
-	if( ! ilabel ){
-	    ilabel = golr_resp.get_doc_field_hl(did, fid);
-	}
-	if( ! ilabel ){
-	    ilabel = golr_resp.get_doc_field(did, fid + '_label');
+	    ilabel = golr_resp.get_doc_field(did, fid);
 	}
 
-	var link = linker_function(fid, {id: iid, label: ilabel}, 'link');
+	// Extract highlighting if we can.
+	var hl = golr_resp.get_doc_field_hl(did, fid + '_label' + ext);
+	if( ! hl ){
+	    hl = golr_resp.get_doc_field_hl(did, fid + ext);
+	}
+	if( ! hl ){
+	    hl = golr_resp.get_doc_field_hl(did, fid);
+	}
 
-	// See what we got.
-	if( link ){
-	    retval = link;
+	// See what we can create from what we got.
+	var ilink = linker.anchor({id: iid, label: ilabel, hilite: hl}, fid);
+	
+	// See what we got, in order of how much we'd like to have it.
+	if( ilink ){
+	    retval = ilink;
 	}else if( ilabel ){
 	    retval = ilabel;
 	}else{

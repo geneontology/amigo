@@ -2,8 +2,8 @@
 //// Some unit testing for version.js (even though it is generated).
 ////
 //// Usage:
-////    Command line: "js -f version.tests.js"
-////    Interactive: "js -f version.tests.js -f -"
+////    Command line: "js -f version.js.tests"
+////    Interactive: "js -f version.js.tests -f -"
 ////
 
 
