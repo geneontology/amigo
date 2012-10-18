@@ -23,7 +23,7 @@ function GooglesLoaderIsAJerk(){
     var sd = new amigo.data.server(); // resource locations
     var gconf = new bbop.golr.conf(amigo.data.golr);
     var a_widget = bbop.widget.autocomplete; // nick
-    var api = new amigo.api();
+    var linker = new amigo.linker();
 
     ///
     /// This next section is dedicated getting the autocomplete (and
@@ -35,10 +35,10 @@ function GooglesLoaderIsAJerk(){
 	if( doc && doc['id'] && doc['document_category'] ){
 	    if( doc['document_category'] == 'ontology_class' ){
 		window.location.href =
-		    api.link.term({'acc': doc['id']});
+		    linker.url(doc['id'], 'term');
 	    }else if( doc['document_category'] == 'bioentity' ){
 		window.location.href =
-		    api.link.gene_product({'acc': doc['id']});
+		    linker.url(doc['id'], 'gp');
 	    }
 	}
     }

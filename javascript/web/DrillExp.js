@@ -15,11 +15,9 @@ var logger = new bbop.logger();
 logger.DEBUG = true;
 function ll(str){ logger.kvetch('DD: ' + str); }    
 
-// // Global AmiGO helpers.
-var api = new amigo.api();
+// Global AmiGO helpers.
 var server_meta = new amigo.data.server();
-// var golr_meta = new bbop.amigo.golr_meta();
-// var solr_server = golr_meta.golr_base();
+var linker = new amigo.linker();
 
 // Go and get the initial results for building our tree.
 function DDInit(){
@@ -28,7 +26,7 @@ function DDInit(){
     ll('DrillExp.js');
     ll('DDInit start...');
 
-    var gconf = new bbop.golr.conf(bbop.amigo.golr_meta);
+    var gconf = new bbop.golr.conf(amigo.data.golr);
     var gm = new bbop.golr.manager.jquery(server_meta.golr_base(), gconf);
     //gm.set_personality('bbop_ont'); // profile in gconf
     gm.add_query_filter('document_category', 'ontology_class', ['*']);
@@ -178,7 +176,7 @@ function _doc_to_tree_node(doc, parent_id){
     }
 
     // Set anchor title and href.
-    var detlink = api.link.term({acc: raw_id});
+    var detlink = linker.url(raw_id, 'term');
     retnode['data'] = {"title" : label,
 		       "attr": {"href": detlink}};
 

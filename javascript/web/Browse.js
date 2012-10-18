@@ -10,7 +10,6 @@ function BrowseInit(){
     /// Solr server, GOlr config, etc.
     ///
 
-    //var api = new amigo.api();
     var sd = new amigo.data.server();
     var gconf = new bbop.golr.conf(amigo.data.golr);
 
