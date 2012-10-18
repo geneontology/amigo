@@ -26,8 +26,9 @@ function BrowseInit(){
     var b =
 	new b_widget(sd.golr_base(), gconf, 'browser_id',
 		     function(term_acc, term_doc){
-			 //alert('info: '+ term_acc);
+			 // Local form.
 			 new bbop.widget.term_shield(term_doc, linker, cclass);
+			 // Remote form.
 			 // new bbop.widget.term_shield(term_acc, linker,
 			 // 			     cclass, sd.golr_base());
 		     } );
