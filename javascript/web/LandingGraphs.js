@@ -117,7 +117,7 @@ function GooglesLoaderIsAJerk(){
 	chart_01.draw(data_01, options_01);	
 
 	// evidence_type data setup.
-	var raw_data_02 = resp.facet_field('evidence_type');
+	var raw_data_02 = resp.facet_field('evidence_type_closure');
 	var data_02 = google.visualization.arrayToDataTable(raw_data_02);
 	var options_02 = { 'title': 'Evidence (' + count + ')',
 			   'width': 400, 'height': 300 };	
@@ -134,7 +134,16 @@ function GooglesLoaderIsAJerk(){
 	// Setup what data we will want and a variable to catch it in
 	// a table-like form for graphing later.
 	var our_sources = ['MGI', 'ZFIN', 'PomBase', 'dictyBase'];
-	var our_ev = ['ND', 'IEA', 'IGC', 'IC', 'ISS', 'EXP'];
+	var our_ev = [
+	    'author statement',
+	    'biological system reconstruction',
+	    'combinatorial evidence',
+	    'curator inference',
+	    'experimental evidence',
+	    'genomic context evidence',
+	    'imported information',
+	    'similarity evidence'
+	];
 	var our_ev_copy = bbop.core.clone(our_ev);
 	our_ev_copy.unshift('Source');
 	var agg_data_03 = [our_ev_copy];
@@ -155,7 +164,7 @@ function GooglesLoaderIsAJerk(){
 	    
 	    // The evidence facet.
 	    var facet_list = resp.facet_field_list();
-	    var ev_fasc_hash = resp.facet_counts()['evidence_type'];
+	    var ev_fasc_hash = resp.facet_counts()['evidence_type_closure'];
 
 	    // Recover the current source from the response.
 	    var fqs = resp.query_filters();
