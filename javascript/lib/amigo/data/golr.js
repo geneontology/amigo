@@ -33,8 +33,8 @@ bbop.core.namespace('amigo', 'data', 'golr');
 amigo.data.golr = {
    "bbop_ann_ev_agg" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "bioentity_label^4.0 annotation_class_label^3.0",
-      "filter_weights" : "evidence_closure^4.0 evidence_with^3.0",
+      "result_weights" : "bioentity^4.0 annotation_class^3.0 taxon^2.0",
+      "filter_weights" : "evidence_type_closure^4.0 evidence_with^3.0 taxon_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/ann_ev_agg-config.yaml",
       "display_name" : "Evidence Aggregate",
       "description" : "A description of annotation evidence aggregate for GOlr and AmiGO.",
@@ -102,19 +102,19 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "???",
+            "description" : "All evidence for this term/gene product pair",
             "display_name" : "Evidence closure",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
             "cardinality" : "multi",
             "type" : "string",
-            "id" : "evidence_closure",
+            "id" : "evidence_type_closure",
             "property" : []
          },
          {
             "transform" : [],
-            "description" : "???",
+            "description" : "All column 8s for this term/gene product pair",
             "display_name" : "Evidence with",
             "indexed" : "true",
             "searchable" : "false",
@@ -123,9 +123,105 @@ amigo.data.golr = {
             "type" : "string",
             "id" : "evidence_with",
             "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Column 13: taxon.",
+            "display_name" : "Taxon",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "taxon",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon label",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "taxon_label",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon closure",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "taxon_closure",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon label closure",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "taxon_closure_label",
+            "property" : []
          }
       ],
       "fields_hash" : {
+         "bioentity_label" : {
+            "transform" : [],
+            "description" : "Column 3.",
+            "display_name" : "Bioentity label",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "bioentity_label",
+            "property" : []
+         },
+         "taxon_closure_label" : {
+            "transform" : [],
+            "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon label closure",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "taxon_closure_label",
+            "property" : []
+         },
+         "annotation_class" : {
+            "transform" : [],
+            "description" : "Column 5.",
+            "display_name" : "Annotation class",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_class",
+            "property" : []
+         },
+         "taxon" : {
+            "transform" : [],
+            "description" : "Column 13: taxon.",
+            "display_name" : "Taxon",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "taxon",
+            "property" : []
+         },
          "bioentity" : {
             "transform" : [],
             "description" : "Column 1 + columns 2.",
@@ -150,40 +246,28 @@ amigo.data.golr = {
             "id" : "annotation_class_label",
             "property" : []
          },
-         "bioentity_label" : {
+         "taxon_label" : {
             "transform" : [],
-            "description" : "Column 3.",
-            "display_name" : "Bioentity label",
+            "description" : "Derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon label",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
             "cardinality" : "single",
             "type" : "string",
-            "id" : "bioentity_label",
+            "id" : "taxon_label",
             "property" : []
          },
-         "evidence_with" : {
+         "evidence_type_closure" : {
             "transform" : [],
-            "description" : "???",
-            "display_name" : "Evidence with",
+            "description" : "All evidence for this term/gene product pair",
+            "display_name" : "Evidence closure",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
             "cardinality" : "multi",
             "type" : "string",
-            "id" : "evidence_with",
-            "property" : []
-         },
-         "annotation_class" : {
-            "transform" : [],
-            "description" : "Column 5.",
-            "display_name" : "Annotation class",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "annotation_class",
+            "id" : "evidence_type_closure",
             "property" : []
          },
          "id" : {
@@ -198,16 +282,28 @@ amigo.data.golr = {
             "id" : "id",
             "property" : []
          },
-         "evidence_closure" : {
+         "evidence_with" : {
             "transform" : [],
-            "description" : "???",
-            "display_name" : "Evidence closure",
+            "description" : "All column 8s for this term/gene product pair",
+            "display_name" : "Evidence with",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
             "cardinality" : "multi",
             "type" : "string",
-            "id" : "evidence_closure",
+            "id" : "evidence_with",
+            "property" : []
+         },
+         "taxon_closure" : {
+            "transform" : [],
+            "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon closure",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "taxon_closure",
             "property" : []
          }
       },
@@ -219,8 +315,8 @@ amigo.data.golr = {
    },
    "bbop_ann" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "annotation_class^9.0 evidence_type^8.0 bioentity^7.0 source^4.0 taxon_label^3.0 evidence_with^2.0 annotation_extension_class^1.0",
-      "filter_weights" : "source^7.0 evidence_type^6.0 taxon_label^5.0 isa_partof_closure_label^4.0 annotation_extension_class_closure_label^3.0",
+      "result_weights" : "annotation_class^9.0 evidence_type^8.0 bioentity^7.0 source^4.0 taxon^3.0 evidence_with^2.0 annotation_extension_class^1.0",
+      "filter_weights" : "source^7.0 evidence_type_closure^6.0 taxon_closure_label^5.0 isa_partof_closure_label^4.0 annotation_extension_class_closure_label^3.0",
       "_infile" : "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/ann-config.yaml",
       "display_name" : "Annotations",
       "description" : "A description of annotations for GOlr and AmiGO.",
@@ -284,6 +380,30 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "taxon_label",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon closure",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "taxon_closure",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon label closure",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "taxon_closure_label",
             "property" : []
          },
          {
@@ -368,6 +488,18 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "evidence_type",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "All evidence (evidence closure) for this annotation",
+            "display_name" : "Evidence closure",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "evidence_type_closure",
             "property" : []
          },
          {
@@ -492,6 +624,18 @@ amigo.data.golr = {
             "id" : "bioentity_label",
             "property" : []
          },
+         "taxon_closure_label" : {
+            "transform" : [],
+            "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon label closure",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "taxon_closure_label",
+            "property" : []
+         },
          "date" : {
             "transform" : [],
             "description" : "Column 14: date of assignment.",
@@ -538,6 +682,18 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "id",
+            "property" : []
+         },
+         "taxon_closure" : {
+            "transform" : [],
+            "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon closure",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "taxon_closure",
             "property" : []
          },
          "annotation_extension_class_label" : {
@@ -588,18 +744,6 @@ amigo.data.golr = {
             "id" : "taxon",
             "property" : []
          },
-         "bioentity" : {
-            "transform" : [],
-            "description" : "Column 1 + columns 2.",
-            "display_name" : "Gene Product",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "bioentity",
-            "property" : []
-         },
          "isa_partof_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
@@ -610,6 +754,18 @@ amigo.data.golr = {
             "cardinality" : "multi",
             "type" : "string",
             "id" : "isa_partof_closure",
+            "property" : []
+         },
+         "bioentity" : {
+            "transform" : [],
+            "description" : "Column 1 + columns 2.",
+            "display_name" : "Gene Product",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "bioentity",
             "property" : []
          },
          "taxon_label" : {
@@ -634,6 +790,18 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "annotation_class_label",
+            "property" : []
+         },
+         "evidence_type_closure" : {
+            "transform" : [],
+            "description" : "All evidence (evidence closure) for this annotation",
+            "display_name" : "Evidence closure",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "evidence_type_closure",
             "property" : []
          },
          "evidence_with" : {
@@ -669,8 +837,8 @@ amigo.data.golr = {
    },
    "bbop_bio" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "label^4.0 id^3.0 type^2.0 db^1.0",
-      "filter_weights" : "db^4.0 type^3.0 taxon_label^2.0 isa_partof_closure_label^1.0",
+      "result_weights" : "label^5.0 id^4.0 taxon^3.0 type^2.0 db^1.0",
+      "filter_weights" : "db^4.0 type^3.0 taxon_closure_label^2.0 isa_partof_closure_label^1.0",
       "_infile" : "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/bio-config.yaml",
       "display_name" : "Bioentities",
       "description" : "A description of bioentities file for GOlr.",
@@ -722,6 +890,30 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "taxon_label",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon closure",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "taxon_closure",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon label closure",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "taxon_closure_label",
             "property" : []
          },
          {
@@ -798,6 +990,18 @@ amigo.data.golr = {
             "id" : "db",
             "property" : []
          },
+         "taxon_closure_label" : {
+            "transform" : [],
+            "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon label closure",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "taxon_closure_label",
+            "property" : []
+         },
          "taxon" : {
             "transform" : [],
             "description" : "Column 13: taxon.",
@@ -834,6 +1038,18 @@ amigo.data.golr = {
             "id" : "taxon_label",
             "property" : []
          },
+         "label" : {
+            "transform" : [],
+            "description" : "Symbol or name.",
+            "display_name" : "Label",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "label",
+            "property" : []
+         },
          "id" : {
             "transform" : [],
             "description" : "Bioentity ID.",
@@ -858,16 +1074,16 @@ amigo.data.golr = {
             "id" : "type",
             "property" : []
          },
-         "label" : {
+         "taxon_closure" : {
             "transform" : [],
-            "description" : "Symbol or name.",
-            "display_name" : "Label",
+            "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon closure",
             "indexed" : "true",
-            "searchable" : "true",
+            "searchable" : "false",
             "required" : "false",
-            "cardinality" : "single",
+            "cardinality" : "multi",
             "type" : "string",
-            "id" : "label",
+            "id" : "taxon_closure",
             "property" : []
          }
       },

@@ -2,9 +2,11 @@
 //// A full take on a production live search for GOlr--try and make it
 //// work directly off of the server for giggles/testing.
 //// 
-//// TODO/BUG: Right now, it's just working off of a filterless
-//// annotation personality, but we need to add a general search
-//// personality (with document_category free) at some point.
+//// TODO/BUG: Right now, all of the searches are hard coded with a
+//// shared agreement with the server. This needs to be changed to an
+//// automatically generated jQuery search selector with no server
+//// secret--it should be fairly easy to do, but later when I get a
+//// chance...
 ////
 
 // Logger.
@@ -66,6 +68,8 @@ function LiveSearchGOlrInit(){
 	gm_gen.remove_query_filter('document_category', 'annotation', ['*']);
 	gm_gen.remove_query_filter('document_category','ontology_class',['*']);
 	gm_gen.remove_query_filter('document_category', 'bioentity',['*']);
+	gm_gen.remove_query_filter('document_category',
+				   'annotation_evidence_aggregate', ['*']);
 
 	gm_gen.set_personality(cid);
 	if( cid == 'bbop_ann' ){
@@ -74,6 +78,9 @@ function LiveSearchGOlrInit(){
 	    gm_gen.add_query_filter('document_category','ontology_class',['*']);
 	}else if( cid == 'bbop_bio' ){
 	    gm_gen.add_query_filter('document_category', 'bioentity',['*']);
+	}else if( cid == 'bbop_ann_ev_agg' ){
+	    gm_gen.add_query_filter('document_category',
+				    'annotation_evidence_aggregate', ['*']);
 	}
 	_create_display(cid);
     }
@@ -81,7 +88,7 @@ function LiveSearchGOlrInit(){
     // Turn them into a jQuery button set and make them active.
     jQuery("#search_radio").buttonset();
     var loop = bbop.core.each;
-    loop(['bbop_ann', 'bbop_ont', 'bbop_bio'],
+    loop(['bbop_ann', 'bbop_ont', 'bbop_bio', 'bbop_ann_ev_agg'],
 	 function(cclass_id){
 	     var c = '#' + cclass_id;
 	     jQuery(c).click(_on_search_select);
