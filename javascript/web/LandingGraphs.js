@@ -107,14 +107,14 @@ function GooglesLoaderIsAJerk(){
 	    'PomBase',
 	    'dictyBase'];
 	var our_ev_of_interest = [
-	    'author statement',
-	    'biological system reconstruction',
-	    'combinatorial evidence',
-	    'curator inference',
+	    'similarity evidence',
 	    'experimental evidence',
+	    'curator inference',
+	    'author statement',
+	    'combinatorial evidence',
 	    'genomic context evidence',
-	    'imported information',
-	    'similarity evidence'
+	    'biological system reconstruction',
+	    'imported information'
 	];
 
 	// Collect the data to display.
