@@ -101,40 +101,12 @@ function GooglesLoaderIsAJerk(){
     // GOlr manager.
     function GraphDataCallback(json_data, manager){
     
-	// Collect the data to display.
-	var resp = new bbop.golr.response(json_data);
-	var count = resp.total_documents();
-	var facet_list = resp.facet_field_list();
-
-	// source data setup.
-	var raw_data_01 = resp.facet_field('source');
-	var data_01 = google.visualization.arrayToDataTable(raw_data_01);
-	var options_01 = { 'title': 'Sources (' + count + ')',
-			   'width': 400, 'height': 300 };	
-	// Rendering.
-	var elt_01 = document.getElementById('graph_01');
-	var chart_01 = new google.visualization.PieChart(elt_01);
-	chart_01.draw(data_01, options_01);	
-
-	// evidence_type data setup.
-	var raw_data_02 = resp.facet_field('evidence_type_closure');
-	var data_02 = google.visualization.arrayToDataTable(raw_data_02);
-	var options_02 = { 'title': 'Evidence (' + count + ')',
-			   'width': 400, 'height': 300 };	
-	// Rendering.
-	var elt_02 = document.getElementById('graph_02');
-	var chart_02 = new google.visualization.PieChart(elt_02);
-	chart_02.draw(data_02, options_02);	
-
-	///
-	/// Okay, let's tran and mimic Mike's graphs from Caltech 2012.
-	/// http://wiki.geneontology.org/index.php/File:GO-annotations.201201008.pdf
-	///
-
-	// Setup what data we will want and a variable to catch it in
-	// a table-like form for graphing later.
-	var our_sources = ['MGI', 'ZFIN', 'PomBase', 'dictyBase'];
-	var our_ev = [
+	var our_sources_of_interest = [
+	    'MGI',
+	    'ZFIN',
+	    'PomBase',
+	    'dictyBase'];
+	var our_ev_of_interest = [
 	    'author statement',
 	    'biological system reconstruction',
 	    'combinatorial evidence',
@@ -144,12 +116,55 @@ function GooglesLoaderIsAJerk(){
 	    'imported information',
 	    'similarity evidence'
 	];
-	var our_ev_copy = bbop.core.clone(our_ev);
-	our_ev_copy.unshift('Source');
-	var agg_data_03 = [our_ev_copy];
+
+	// Collect the data to display.
+	var resp = new bbop.golr.response(json_data);
+	var count = resp.total_documents();
+	var facet_list = resp.facet_field_list();
+
+	// source data setup.
+	var raw_data_01 = resp.facet_field('source');
+	var data_01 = google.visualization.arrayToDataTable(raw_data_01, true);
+	var options_01 = { 'title': 'Sources (' + count + ')',
+			   'width': 400, 'height': 300 };
+	// Rendering.
+	var elt_01 = document.getElementById('graph_01');
+	var chart_01 = new google.visualization.PieChart(elt_01);
+	chart_01.draw(data_01, options_01);	
+
+	// evidence_type data setup.
+	var raw_data_02 = resp.facet_field('evidence_type_closure');
+	var our_ev_hash = bbop.core.hashify(our_ev_of_interest);
+	var raw_data_02b =
+	    bbop.core.pare(raw_data_02,
+			   function(item, index){
+			       var ret = true;
+			       if( our_ev_hash[item[0]] ){
+				   ret = false;
+			       }
+			       return ret;
+			   });
+	var data_02 = google.visualization.arrayToDataTable(raw_data_02b, true);
+	var options_02 = { 'title': 'Evidence Overview (' + count + ')',
+			   'width': 400, 'height': 300 };
+	// Rendering.
+	var elt_02 = document.getElementById('graph_02');
+	var chart_02 = new google.visualization.PieChart(elt_02);
+	chart_02.draw(data_02, options_02);
+
+	///
+	/// Okay, let's tran and mimic Mike's graphs from Caltech 2012.
+	/// http://wiki.geneontology.org/index.php/File:GO-annotations.201201008.pdf
+	///
+
+	// Setup what data we will want and a variable to catch it in
+	// a table-like form for graphing later.
+	var our_ev_of_interest_copy = bbop.core.clone(our_ev_of_interest);
+	our_ev_of_interest_copy.unshift('Source');
+	var agg_data_03 = [our_ev_of_interest_copy];
 
 	// Gather the URLs for the data we want to look at.
-	bbop.core.each(our_sources,
+	bbop.core.each(our_sources_of_interest,
     		       function(isrc){
     			   gm_ann.reset_query_filters();
     			   gm_ann.add_query_filter('source', isrc);
@@ -170,12 +185,15 @@ function GooglesLoaderIsAJerk(){
 	    var fqs = resp.query_filters();
 	    var src = bbop.core.get_keys(fqs['source'])[0];
 
+	    // ll('src: ' + src);
+	    // ll('ev_fasc_hash: ' + bbop.core.dump(ev_fasc_hash));
+
 	    // Data row assembly.
 	    var row_cache = [src];
-	    bbop.core.each(our_ev,
+	    bbop.core.each(our_ev_of_interest,
 			   function(e){
 			       var ev_cnt = ev_fasc_hash[e] || 0;
-			       ll('  ' + e + ': ' + ev_cnt);
+			       //ll(' "' + e + '": ' + ev_cnt);
 			       row_cache.push(ev_cnt);
 			   });
 	    agg_data_03.push(row_cache);
