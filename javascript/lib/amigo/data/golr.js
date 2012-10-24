@@ -163,7 +163,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon label closure",
+            "display_name" : "Taxon closure (labels)",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -189,7 +189,7 @@ amigo.data.golr = {
          "taxon_closure_label" : {
             "transform" : [],
             "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon label closure",
+            "display_name" : "Taxon closure (labels)",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -373,7 +373,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon",
+            "display_name" : "Taxon label",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -397,7 +397,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon label closure",
+            "display_name" : "Taxon closure (labels)",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -409,7 +409,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
-            "display_name" : "isa/partof closure (ids)",
+            "display_name" : "Is-a/Part-of closure",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -627,7 +627,7 @@ amigo.data.golr = {
          "taxon_closure_label" : {
             "transform" : [],
             "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon label closure",
+            "display_name" : "Taxon closure (labels)",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -747,7 +747,7 @@ amigo.data.golr = {
          "isa_partof_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
-            "display_name" : "isa/partof closure (ids)",
+            "display_name" : "Is-a/Part-of closure",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -771,7 +771,7 @@ amigo.data.golr = {
          "taxon_label" : {
             "transform" : [],
             "description" : "Derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon",
+            "display_name" : "Taxon label",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -907,7 +907,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon label closure",
+            "display_name" : "Taxon closure (labels)",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -919,7 +919,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
-            "display_name" : "isa/partof closure",
+            "display_name" : "Is-a/Part-of closure",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -931,7 +931,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of labels over isa and partof.",
-            "display_name" : "isa/partof label closure",
+            "display_name" : "Is-a/Part-of closure (labels)",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -969,7 +969,7 @@ amigo.data.golr = {
          "isa_partof_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over isa and partof.",
-            "display_name" : "isa/partof label closure",
+            "display_name" : "Is-a/Part-of closure (labels)",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -993,7 +993,7 @@ amigo.data.golr = {
          "taxon_closure_label" : {
             "transform" : [],
             "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon label closure",
+            "display_name" : "Taxon closure (labels)",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1017,7 +1017,7 @@ amigo.data.golr = {
          "isa_partof_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
-            "display_name" : "isa/partof closure",
+            "display_name" : "Is-a/Part-of closure",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1276,7 +1276,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
-            "display_name" : "isa/partof closure (ids)",
+            "display_name" : "Is-a/Part-of closure",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1505,7 +1505,7 @@ amigo.data.golr = {
          "isa_partof_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
-            "display_name" : "isa/partof closure (ids)",
+            "display_name" : "Is-a/Part-of closure",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
