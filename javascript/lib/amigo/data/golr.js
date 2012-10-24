@@ -139,7 +139,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon label",
+            "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -249,7 +249,7 @@ amigo.data.golr = {
          "taxon_label" : {
             "transform" : [],
             "description" : "Derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon label",
+            "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -373,7 +373,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon label",
+            "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -771,7 +771,7 @@ amigo.data.golr = {
          "taxon_label" : {
             "transform" : [],
             "description" : "Derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon label",
+            "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -883,7 +883,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon label",
+            "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1029,7 +1029,7 @@ amigo.data.golr = {
          "taxon_label" : {
             "transform" : [],
             "description" : "Derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon label",
+            "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
