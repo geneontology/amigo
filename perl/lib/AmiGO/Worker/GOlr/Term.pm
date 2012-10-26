@@ -141,8 +141,8 @@ sub get_child_info_for {
   #$self->kvetch('_b_: ' . scalar(@$child_rels));
   foreach my $child_rel (@$child_rels){
 
-    my $rel_acc = $child_rel->{predicate_id};
-    my $sub_acc = $child_rel->{subject_id};
+    my $rel_acc = $child_rel->{pred};
+    my $sub_acc = $child_rel->{sub};
 
     ## A little wiggle to get the label.
     my $sub_label = $cgraph->node_label($sub_acc);

@@ -87,9 +87,9 @@ sub __create_graph_structures {
   }
   ## Get out edges and the like squared away.
   foreach my $edge (@{$inhashref->{'edges'}}){
-    my $sid = $edge->{'subject_id'};
-    my $oid = $edge->{'object_id'};
-    my $pid = $edge->{'predicate_id'};
+    my $sid = $edge->{'sub'};
+    my $oid = $edge->{'obj'};
+    my $pid = $edge->{'pred'};
 
     ## Add the usual lookup triplets.
     ## SO
@@ -498,7 +498,7 @@ sub get_transitive_relationship {
 Takes a term acc string.
 Essentially, get child edges.
 Gets something like:
- [{'subject_id' => 'X', 'object_id' => 'Y', 'predicate_id' => 'Z'}, ...]
+ [{'sub' => 'X', 'obj' => 'Y', 'pred' => 'Z'}, ...]
 
 =cut
 sub get_child_relationships {
@@ -521,9 +521,9 @@ sub get_child_relationships {
       foreach my $rel (keys %{$self->{ACG_TOPOLOGY}{EDGE_SOP}{$kid}{$oid}}){
 	push @$ret,
 	  {
-	   'subject_id' => $kid,
-	   'object_id' => $oid,
-	   'predicate_id' => $rel,
+	   'sub' => $kid,
+	   'obj' => $oid,
+	   'pred' => $rel,
 	  };
       }
     }
@@ -538,7 +538,7 @@ sub get_child_relationships {
 Takes a term acc string.
 Essentially, get parent edges.
 Gets something like:
- [{'subject_id' => 'X', 'object_id' => 'Y', 'predicate_id' => 'Z'}, ...]
+ [{'sub' => 'X', 'obj' => 'Y', 'pred' => 'Z'}, ...]
 
 =cut
 sub get_parent_relationships {
@@ -561,9 +561,9 @@ sub get_parent_relationships {
       foreach my $rel (keys %{$self->{ACG_TOPOLOGY}{EDGE_OSP}{$par}{$sid}}){
 	push @$ret,
 	  {
-	   'object_id' => $par,
-	   'subject_id' => $sid,
-	   'predicate_id' => $rel,
+	   'obj' => $par,
+	   'sub' => $sid,
+	   'pred' => $rel,
 	  };
       }
     }
@@ -689,8 +689,8 @@ sub node_label {
   my $ret = undef;
 
   if( defined $self->{ACG_TOPOLOGY}{NODES}{$acc} &&
-      defined $self->{ACG_TOPOLOGY}{NODES}{$acc}{label} ){
-    $ret = $self->{ACG_TOPOLOGY}{NODES}{$acc}{label};
+      defined $self->{ACG_TOPOLOGY}{NODES}{$acc}{lbl} ){
+    $ret = $self->{ACG_TOPOLOGY}{NODES}{$acc}{lbl};
   }
 
   return $ret;

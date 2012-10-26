@@ -607,7 +607,7 @@ sub mode_golr_term_details {
   my $input_term_id_list = [];
   if( $is_term_acc_p ){
 
-    $self->{CORE}->kvetch('Looks like a term acc...');
+    $self->{CORE}->kvetch('Looks like a term acc: ' . $input_term_id);
 
     #   ## Even if just a single acc, put it into list form--that's what
     #   ## we'll be using.
@@ -616,7 +616,7 @@ sub mode_golr_term_details {
 
   }else{
 
-    $self->{CORE}->kvetch('Looks like a subset acc...');
+    $self->{CORE}->kvetch('Looks like a subset acc: ' . $input_term_id);
 
     #   ## Convert input subset acc to term accs.
     #   my $sget = AmiGO::Worker::Subset->new();
@@ -629,7 +629,7 @@ sub mode_golr_term_details {
 
   ###
   ### Get neighborhood below term.
-  ### TODO: 
+  ###
 
   ## Note: won't be included in subset case (too messy), so don't
   ## push.
