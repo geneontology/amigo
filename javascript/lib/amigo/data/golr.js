@@ -171,9 +171,69 @@ amigo.data.golr = {
             "type" : "string",
             "id" : "taxon_closure_label",
             "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Families that this is associated with this entity.",
+            "display_name" : "Family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "family_tag",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "JSON blob form of the phylogenic tree.",
+            "display_name" : "This should not be displayed",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "phylo_graph",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "All ancestors of this entity.",
+            "display_name" : "Phylogenic ancestors",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "phylo_ancestor_closure",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "All descendants of this entity.",
+            "display_name" : "Phylogenic descendants",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "phylo_descendant_closure",
+            "property" : []
          }
       ],
       "fields_hash" : {
+         "family_tag" : {
+            "transform" : [],
+            "description" : "Families that this is associated with this entity.",
+            "display_name" : "Family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "family_tag",
+            "property" : []
+         },
          "bioentity_label" : {
             "transform" : [],
             "description" : "Column 3.",
@@ -222,6 +282,30 @@ amigo.data.golr = {
             "id" : "taxon",
             "property" : []
          },
+         "phylo_descendant_closure" : {
+            "transform" : [],
+            "description" : "All descendants of this entity.",
+            "display_name" : "Phylogenic descendants",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "phylo_descendant_closure",
+            "property" : []
+         },
+         "phylo_ancestor_closure" : {
+            "transform" : [],
+            "description" : "All ancestors of this entity.",
+            "display_name" : "Phylogenic ancestors",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "phylo_ancestor_closure",
+            "property" : []
+         },
          "bioentity" : {
             "transform" : [],
             "description" : "Column 1 + columns 2.",
@@ -232,6 +316,18 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "bioentity",
+            "property" : []
+         },
+         "phylo_graph" : {
+            "transform" : [],
+            "description" : "JSON blob form of the phylogenic tree.",
+            "display_name" : "This should not be displayed",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "phylo_graph",
             "property" : []
          },
          "annotation_class_label" : {
@@ -315,12 +411,12 @@ amigo.data.golr = {
    },
    "bbop_ann" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "annotation_class^9.0 evidence_type^8.0 bioentity^7.0 source^4.0 taxon^3.0 evidence_with^2.0 annotation_extension_class^1.0",
-      "filter_weights" : "source^7.0 evidence_type_closure^6.0 taxon_closure_label^5.0 isa_partof_closure_label^4.0 annotation_extension_class_closure_label^3.0",
+      "result_weights" : "annotation_class^9.0 evidence_type^8.0 bioentity^7.0 source^4.0 taxon^3.0 evidence_with^2.0 family_tag^1.5 annotation_extension_class^1.0",
+      "filter_weights" : "source^7.0 evidence_type_closure^6.0 family_tag^5.5 taxon_closure_label^5.0 isa_partof_closure_label^4.0 annotation_extension_class_closure_label^3.0",
       "_infile" : "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/ann-config.yaml",
       "display_name" : "Annotations",
       "description" : "A description of annotations for GOlr and AmiGO.",
-      "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0",
+      "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 family_tag^1.0",
       "fields" : [
          {
             "transform" : [],
@@ -573,6 +669,54 @@ amigo.data.golr = {
             "type" : "string",
             "id" : "annotation_extension_class_closure_label",
             "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Families that this is associated with this entity.",
+            "display_name" : "Family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "family_tag",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "JSON blob form of the phylogenic tree.",
+            "display_name" : "This should not be displayed",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "phylo_graph",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "All ancestors of this entity.",
+            "display_name" : "Phylogenic ancestors",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "phylo_ancestor_closure",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "All descendants of this entity.",
+            "display_name" : "Phylogenic descendants",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "phylo_descendant_closure",
+            "property" : []
          }
       ],
       "fields_hash" : {
@@ -648,6 +792,30 @@ amigo.data.golr = {
             "id" : "date",
             "property" : []
          },
+         "phylo_ancestor_closure" : {
+            "transform" : [],
+            "description" : "All ancestors of this entity.",
+            "display_name" : "Phylogenic ancestors",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "phylo_ancestor_closure",
+            "property" : []
+         },
+         "phylo_graph" : {
+            "transform" : [],
+            "description" : "JSON blob form of the phylogenic tree.",
+            "display_name" : "This should not be displayed",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "phylo_graph",
+            "property" : []
+         },
          "reference" : {
             "transform" : [],
             "description" : "???",
@@ -720,6 +888,18 @@ amigo.data.golr = {
             "id" : "isa_partof_closure_label",
             "property" : []
          },
+         "family_tag" : {
+            "transform" : [],
+            "description" : "Families that this is associated with this entity.",
+            "display_name" : "Family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "family_tag",
+            "property" : []
+         },
          "annotation_class" : {
             "transform" : [],
             "description" : "Column 5.",
@@ -742,6 +922,18 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "taxon",
+            "property" : []
+         },
+         "phylo_descendant_closure" : {
+            "transform" : [],
+            "description" : "All descendants of this entity.",
+            "display_name" : "Phylogenic descendants",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "phylo_descendant_closure",
             "property" : []
          },
          "isa_partof_closure" : {
@@ -837,12 +1029,12 @@ amigo.data.golr = {
    },
    "bbop_bio" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "label^5.0 id^4.0 taxon^3.0 type^2.0 db^1.0",
-      "filter_weights" : "db^4.0 type^3.0 taxon_closure_label^2.0 isa_partof_closure_label^1.0",
+      "result_weights" : "label^6.0 id^5.0 taxon^4.0 family_tag^3.0 type^2.0 db^1.0",
+      "filter_weights" : "db^5.0 type^4.0 family_tag^3.0 taxon_closure_label^2.0 isa_partof_closure_label^1.0",
       "_infile" : "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/bio-config.yaml",
       "display_name" : "Bioentities",
       "description" : "A description of bioentities file for GOlr.",
-      "boost_weights" : "id^2.0 label^2.0",
+      "boost_weights" : "id^2.0 label^2.0 family_tag^1.0",
       "fields" : [
          {
             "transform" : [],
@@ -963,6 +1155,54 @@ amigo.data.golr = {
             "type" : "string",
             "id" : "db",
             "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Families that this is associated with this entity.",
+            "display_name" : "Family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "family_tag",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "JSON blob form of the phylogenic tree.",
+            "display_name" : "This should not be displayed",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "phylo_graph",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "All ancestors of this entity.",
+            "display_name" : "Phylogenic ancestors",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "phylo_ancestor_closure",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "All descendants of this entity.",
+            "display_name" : "Phylogenic descendants",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "phylo_descendant_closure",
+            "property" : []
          }
       ],
       "fields_hash" : {
@@ -976,6 +1216,18 @@ amigo.data.golr = {
             "cardinality" : "multi",
             "type" : "string",
             "id" : "isa_partof_closure_label",
+            "property" : []
+         },
+         "family_tag" : {
+            "transform" : [],
+            "description" : "Families that this is associated with this entity.",
+            "display_name" : "Family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "family_tag",
             "property" : []
          },
          "db" : {
@@ -1014,6 +1266,30 @@ amigo.data.golr = {
             "id" : "taxon",
             "property" : []
          },
+         "phylo_descendant_closure" : {
+            "transform" : [],
+            "description" : "All descendants of this entity.",
+            "display_name" : "Phylogenic descendants",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "phylo_descendant_closure",
+            "property" : []
+         },
+         "phylo_ancestor_closure" : {
+            "transform" : [],
+            "description" : "All ancestors of this entity.",
+            "display_name" : "Phylogenic ancestors",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "phylo_ancestor_closure",
+            "property" : []
+         },
          "isa_partof_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
@@ -1024,6 +1300,18 @@ amigo.data.golr = {
             "cardinality" : "multi",
             "type" : "string",
             "id" : "isa_partof_closure",
+            "property" : []
+         },
+         "phylo_graph" : {
+            "transform" : [],
+            "description" : "JSON blob form of the phylogenic tree.",
+            "display_name" : "This should not be displayed",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "phylo_graph",
             "property" : []
          },
          "taxon_label" : {
