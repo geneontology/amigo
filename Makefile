@@ -16,7 +16,7 @@ JSENGINES = node smjs rhino
 all:
 	@echo "Default JS engine: $(JS)"
 	@echo "All JS engines: $(JSENGINES)"
-	@echo "Try make: 'test', 'docs', 'install', 'bundle', or 'release'"
+	@echo "Try make: 'test', 'docs', 'install', 'bundle', 'data', or 'release'"
 
 ###
 ### Tests.
@@ -41,12 +41,21 @@ docs:
 	naturaldocs --rebuild-output --input ./perl/lib/ --project perl/docs/.naturaldocs_project/ --output html perl/docs
 
 ###
+### Produce static statistics data files for landing page.
+###
+
+.PHONY: data
+
+data:
+	cd ./javascript/bin/; ./generate_static_data.js --ann-source >../../staging/ann-source.dat; ./generate_static_data.js --ann-evidence >../../staging/ann-evidence.dat; ./generate_static_data.js --ann-overview >../../staging/ann-overview.dat
+
+###
 ### Installation.
 ###
 
 .PHONY: install
 
-install:
+install: data
 	./install -v -e -g
 
 ###
@@ -55,7 +64,7 @@ install:
 
 .PHONY: bundle
 
-bundle:
+bundle: data
 	./install -b
 
 ###
@@ -75,5 +84,5 @@ release: bundle docs
 .PHONY: refresh
 
 refresh:
-	cd ../../javascript/trunk/; make bundle; cd
+	cd ../../javascript/trunk/; make bundle
 	./install -v -e -g

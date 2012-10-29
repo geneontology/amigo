@@ -50,6 +50,7 @@ Group: Data  {
 
    File: golr.js  (data/golr.js)
    File: server.js  (data/server.js)
+   File: statistics.js  (data/statistics.js)
    File: xrefs.js  (data/xrefs.js)
    }  # Group: Data
 

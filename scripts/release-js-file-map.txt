@@ -4,5 +4,6 @@ javascript/lib/amigo/linker.js
 javascript/lib/amigo/data/golr.js
 javascript/lib/amigo/data/server.js
 javascript/lib/amigo/data/xrefs.js
+javascript/lib/amigo/data/statistics.js
 javascript/lib/amigo/ui/livesearch_template.js
 javascript/lib/amigo/ui/livesearch.js

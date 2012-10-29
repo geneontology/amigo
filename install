@@ -255,11 +255,16 @@ ll("Created GOlr JavaScript data file: \"$golr_data_fname\".");
 ### a representation that we can use (amigo.data.server).
 ###
 
-## Establish the environment.
+## Re-establish the environment.
 require $synth_conf_fname;
 my $amigo_env_fname = 'javascript/lib/amigo/data/server.js';
 amigo_env_to_js($amigo_env_fname);
 ll("Created AmiGO JavaScript meta file: \"$amigo_env_fname\".");
+
+## Dump out the discoverable stats.
+my $amigo_stats_fname = 'javascript/lib/amigo/data/statistics.js';
+golr_stats_to_js($amigo_stats_fname);
+ll("Created AmiGO JavaScript meta file: \"$amigo_stats_fname\".");
 
 ###
 ### TODO: Create the JS bundle that we'll use in our staging area.
@@ -868,6 +873,85 @@ $acc_string
        return retval;
     };
 };
+EOJS
+
+  ## Close file.
+  close(FILE);
+  make_readable($file_str);
+}
+
+## TODO: This might be better served in the make file.
+## file: <local_js_tree>/lib/amigo/data/statistics.js
+sub golr_stats_to_js {
+
+  my $file_str = shift || die 'need target file';
+
+  ## Generate the static data.
+  print STDOUT 'pwd: ' . `pwd` . "\n";
+  my $ann_src_str = `cat ./staging/ann-source.dat`;
+  my $ann_ev_str = `cat ./staging/ann-evidence.dat`;
+  my $ann_overview_str = `cat ./staging/ann-overview.dat`;
+  chomp($ann_src_str);
+  chomp($ann_ev_str);
+  chomp($ann_overview_str);
+
+  # ## Make sure we can get our own libs.
+  # use lib getcwd() . '/perl/lib';
+  # ## Bring in necessaries.
+  # use AmiGO::JavaScript;
+  # #use JSON::PP;
+  # use JSON::XS;
+  # my $core = AmiGO::JavaScript->new();
+
+  ## If the file is already there, blow it away.
+  unlink $file_str if -f $file_str;
+  open(FILE, ">$file_str") or die "cannot open $file_str: $!";
+
+  # $core->kvetch('file_str: ' . $file_str);
+  # $core->kvetch('core: ' . $core);
+
+  ##
+  print FILE <<EOJS;
+/*
+ * Package: statistics.js
+ * 
+ * Namespace: amigo.data.statistics
+ * 
+ * This package was automatically created during an AmiGO 2 installation.
+ * 
+ * Purpose: Useful numbers about the current data in the store.
+ * 
+ * Requirements: amigo.js for bbop.amigo namespace.
+ * 
+ * NOTE: This file is generated dynamically at installation time.
+ *       Hard to work with unit tests--hope it's not too bad.
+ *       Want to keep this real simple.
+ */
+
+// Module and namespace checking.
+bbop.core.require('bbop', 'core');
+bbop.core.namespace('amigo', 'data', 'statistics');
+
+/*
+ * Variable: annotation_evidence
+ * 
+ * TBD
+ */
+amigo.data.statistics.annotation_source = $ann_src_str;
+
+/*
+ * Variable: annotation_source
+ * 
+ * TBD
+ */
+amigo.data.statistics.annotation_evidence = $ann_ev_str;
+
+/*
+ * Variable: annotation_overview
+ * 
+ * TBD
+ */
+amigo.data.statistics.annotation_overview = $ann_overview_str;
 EOJS
 
   ## Close file.

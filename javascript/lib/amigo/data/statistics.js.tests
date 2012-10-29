@@ -1,0 +1,37 @@
+////
+//// Some unit testing for statistics.js (even though it is generated).
+////
+//// Usage:
+////    Command line: "js -f statistics.js.tests"
+////    Interactive: "js -f statistics.js.tests -f -"
+////
+
+
+// Load testing and correct environment.
+load('../../../../../../javascript/trunk/staging/bbop.js');
+load('../../../staging/amigo.js');
+var mr_t = new bbop.test();
+load('statistics.js');
+
+///
+/// Start unit testing.
+///
+
+
+(function(){
+     
+     mr_t.is_defined(amigo.data.statistics.annotation_source,
+		     'source defined');
+     mr_t.is_defined(amigo.data.statistics.annotation_evidence,
+		     'evidence defined');
+     mr_t.is_defined(amigo.data.statistics.annotation_overview,
+		     'overview defined');
+
+ })();
+
+///
+/// End unit testing.
+///
+
+// Final report.
+mr_t.report();
