@@ -70,6 +70,7 @@ sub setup {
 		   'golr_term_details'   =>  'mode_golr_term_details',
 		   'golr_gene_product_details' =>
 		   'mode_golr_gene_product_details',
+		   'phylo_graph'         =>  'mode_phylo_graph',
 		   'css'                 => 'mode_dynamic_style',
 		   'AUTOLOAD'            => 'mode_exception'
 		  );
@@ -891,6 +892,17 @@ sub mode_golr_gene_product_details {
   $self->{CORE}->kvetch('solr docs: ' . Dumper($gp_info_hash));
   $self->set_template_parameter('GP_INFO', $gp_info_hash->{$input_gp_id});
 
+  ## PANTHER info if there.
+  my $pgraph = $gp_info_hash->{$input_gp_id}{'phylo_graph'};
+  if( $pgraph ){
+    $self->set_template_parameter('PHYLO_TREE_LINK',
+				  $self->{CORE}->get_interlink({mode=>
+								'phylo_graph',
+								'arg'=>
+								{'gp'=>
+								 $input_gp_id}}));
+  }
+
   ###
   ### TODO: pull in additional annotation, etc. info.
   ###
@@ -936,6 +948,91 @@ sub mode_golr_gene_product_details {
   $self->add_template_javascript($self->{JS}->initializer_jquery('GPDetailsInit();'));
 
   $self->add_template_content('pages/gene_product_details.tmpl');
+
+  return $self->generate_template_page();
+}
+
+
+## Very similar at this point to the gp details page, but instead
+## we're just trying to load the phylo tree.
+sub mode_phylo_graph {
+
+  my $self = shift;
+
+  ##
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile('gp');
+  my $input_gp_id = $params->{gp};
+
+  ## Input sanity check.
+  if( ! $input_gp_id ){
+    return $self->mode_die_with_message("GP acc could not be found! Is it".
+					" possible that what you're looking".
+					" for is not a GP acc?");
+  }
+
+  ###
+  ### Get full gp info.
+  ###
+
+  my $gp_worker = AmiGO::Worker::GOlr::GeneProduct->new($input_gp_id);
+  my $gp_info_hash = $gp_worker->get_info();
+  if( ! defined($gp_info_hash) || $self->{CORE}->empty_hash_p($gp_info_hash) ){
+    return $self->mode_die_with_message("GP acc could not be found" .
+					" in the index!");
+  }
+
+  $self->{CORE}->kvetch('solr docs: ' . Dumper($gp_info_hash));
+  $self->set_template_parameter('GP_INFO', $gp_info_hash->{$input_gp_id});
+  my $raw_pgraph = $gp_info_hash->{$input_gp_id}{'phylo_graph'};
+  my $pgraph = $self->{JS}->parse_json_data($raw_pgraph);
+
+  ###
+  ### Standard setup.
+  ###
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      'standard', # basic GO-styles
+      'com.jquery.jqamigo.custom',
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.jquery-ui',
+      'com.raphael',
+      'com.raphael.graffle',
+      'bbop',
+      'amigo',
+      'bbop.model',
+      'bbop.model.tree',
+      'bbop.graph.render.phylo',
+     ],
+     javascript =>
+     [
+      # $self->{JS}->make_var('global_count_data', $gpc_info),
+      # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
+      # $self->{JS}->make_var('global_acc_to_rand', $acc_to_rand),
+      $self->{JS}->make_var('global_graph', $pgraph)
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  ## Page seetings.
+  $self->set_template_parameter('page_title',
+				'AmiGO: PANTHER Tree for ' .
+				$input_gp_id);
+  $self->set_template_parameter('content_title',
+				$gp_info_hash->{$input_gp_id}{'name'});
+
+  ## Initialize javascript app.
+  $self->add_template_javascript($self->{JS}->get_lib('PANTHERTree.js'));
+  $self->add_template_javascript($self->{JS}->initializer_jquery('PT();'));
+
+  $self->add_template_content('pages/panther_tree.tmpl');
 
   return $self->generate_template_page();
 }

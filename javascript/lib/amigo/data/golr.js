@@ -186,18 +186,6 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "JSON blob form of the phylogenic tree.",
-            "display_name" : "This should not be displayed",
-            "indexed" : "false",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "phylo_graph",
-            "property" : []
-         },
-         {
-            "transform" : [],
             "description" : "All ancestors of this entity.",
             "display_name" : "Phylogenic ancestors",
             "indexed" : "true",
@@ -316,18 +304,6 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "bioentity",
-            "property" : []
-         },
-         "phylo_graph" : {
-            "transform" : [],
-            "description" : "JSON blob form of the phylogenic tree.",
-            "display_name" : "This should not be displayed",
-            "indexed" : "false",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "phylo_graph",
             "property" : []
          },
          "annotation_class_label" : {
@@ -684,18 +660,6 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "JSON blob form of the phylogenic tree.",
-            "display_name" : "This should not be displayed",
-            "indexed" : "false",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "phylo_graph",
-            "property" : []
-         },
-         {
-            "transform" : [],
             "description" : "All ancestors of this entity.",
             "display_name" : "Phylogenic ancestors",
             "indexed" : "true",
@@ -802,18 +766,6 @@ amigo.data.golr = {
             "cardinality" : "multi",
             "type" : "string",
             "id" : "phylo_ancestor_closure",
-            "property" : []
-         },
-         "phylo_graph" : {
-            "transform" : [],
-            "description" : "JSON blob form of the phylogenic tree.",
-            "display_name" : "This should not be displayed",
-            "indexed" : "false",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "phylo_graph",
             "property" : []
          },
          "reference" : {

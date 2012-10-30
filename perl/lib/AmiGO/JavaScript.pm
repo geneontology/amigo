@@ -405,7 +405,7 @@ sub make_js {
 
 =item make_var
 
-Args: a perl data scalar and name.
+Args: a perl data scalar, name #, and (optionally) as_is_p (no make_js call).
 Returns: a JSONified var string.
 
 TODO: Switch to more complete JSON backend once packages reach Ubuntu.
@@ -416,6 +416,7 @@ sub make_var {
   my $self = shift;
   my $variable_name = shift || 'unknown_var';
   my $perl_var = shift || undef;
+  #my $as_is_p = shift || 0;
 
   my @mbuf = ();
   push @mbuf, '<script type="text/javascript">';
@@ -426,7 +427,10 @@ sub make_var {
 
   ## It looks like we'll have to take out newlines as JS in HTML can
   ## interpret them badly.
+  # my $conv_var = "'" . $perl_var . "'";
+  # if( ! as_is_p ){
   my $conv_var = $self->make_js($perl_var);
+  # }
   $conv_var =~ s/\n+//g;
   push @mbuf, $conv_var;
 

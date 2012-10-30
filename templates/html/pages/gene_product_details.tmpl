@@ -77,6 +77,11 @@
 	<dt>Sequence</dt>				
 	<dd><a href="#sequence" title="View DDB_G0267178_RTE sequence" id="seqToggle">View sequence</a>; 
 	  <a class="blast-link" href="blast.cgi?action=blast&amp;seq_id=dictyBase:DDB_G0267178&amp;session_id=5582amigo1308272909" title="Use sequence as BLAST query">use as BLAST query sequence</a></dd>
+		
+	[% IF PHYLO_TREE_LINK %]
+	<dt>PANTHER Family</dt>				
+	<dd><a title="View PANTHER tree" href="[% PHYLO_TREE_LINK %]">View PANTHER tree</a> 
+	[% END %]
 	
 	<!-- DEV BREAK -->
 

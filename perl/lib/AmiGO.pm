@@ -1171,6 +1171,19 @@ sub get_interlink {
        $ilink = 'amigo?mode=golr_term_details&term=' . $acc;
      },
 
+     ##
+     'phylo_graph' =>
+     sub {
+       die "interlink mode 'phylo_graph' requires args" if ! defined $args;
+       my $gp = $args->{gp} || '';
+       my $acc = $args->{acc} || undef;
+       my $db = $args->{db} || undef;
+       if( defined($acc) && defined($db) ){
+	 $gp = $db . ':' . $acc;
+       }
+       $ilink = 'amigo?mode=phylo_graph&gp=' . $gp;
+     },
+
      ## Slightly different than the others.
      'gaffer' =>
      sub {
