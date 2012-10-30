@@ -888,9 +888,9 @@ sub golr_stats_to_js {
 
   ## Generate the static data.
   print STDOUT 'pwd: ' . `pwd` . "\n";
-  my $ann_src_str = `cat ./staging/ann-source.dat`;
-  my $ann_ev_str = `cat ./staging/ann-evidence.dat`;
-  my $ann_overview_str = `cat ./staging/ann-overview.dat`;
+  my $ann_src_str = `cat ./staging/ann-source.dat` || '""';
+  my $ann_ev_str = `cat ./staging/ann-evidence.dat` || '""';
+  my $ann_overview_str = `cat ./staging/ann-overview.dat` || '""';
   chomp($ann_src_str);
   chomp($ann_ev_str);
   chomp($ann_overview_str);
