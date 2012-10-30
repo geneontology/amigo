@@ -24,7 +24,8 @@ load('../staging/amigo.js');
 
 // We get our own manager.
 var gconf = new bbop.golr.conf(amigo.data.golr);
-var gm_ann = new bbop.golr.manager.rhino('http://golr.berkeleybop.org/', gconf);
+var gserv = new amigo.data.server();
+var gm_ann = new bbop.golr.manager.rhino(gserv.golr_base(), gconf);
 gm_ann.debug(false);
 gm_ann.set_personality('bbop_ann'); // profile in gconf
 var loop = bbop.core.each;
