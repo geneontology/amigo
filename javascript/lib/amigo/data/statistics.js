@@ -37,4 +37,4 @@ amigo.data.statistics.annotation_evidence = [["similarity evidence", 105129], ["
  * 
  * TBD
  */
-amigo.data.statistics.annotation_overview = [["Source", "similarity evidence", "experimental evidence", "curator inference", "author statement", "combinatorial evidence", "genomic context evidence", "biological system reconstruction", "imported information"], ["MGI", 51772, 53474, 33293, 0, 0, 0, 0, 0], ["ZFIN", 0, 10202, 11115, 0, 0, 0, 0, 0], ["PomBase", 10121, 14791, 3570, 0, 0, 0, 0, 0], ["dictyBase", 9293, 4312, 6478, 0, 0, 0, 0, 0]];
+amigo.data.statistics.annotation_overview = [["Source", "similarity evidence", "experimental evidence", "curator inference", "author statement", "combinatorial evidence", "genomic context evidence", "biological system reconstruction", "imported information"], ["MGI", 51772, 53474, 33293, 0, 0, 0, 0, 0], ["ZFIN", 0, 10202, 11115, 0, 0, 0, 0, 0], ["PomBase", 10121, 14791, 3570, 2665, 0, 0, 0, 0], ["dictyBase", 9293, 4312, 6478, 483, 0, 0, 0, 0]];
