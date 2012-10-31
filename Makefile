@@ -84,5 +84,5 @@ release: bundle docs
 .PHONY: refresh
 
 refresh:
-	cd ../../javascript/trunk/; make bundle
+	cd ../../../../git/bbop-js/; make bundle
 	./install -v -e -g
