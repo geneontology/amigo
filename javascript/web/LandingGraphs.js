@@ -104,7 +104,7 @@ function GooglesLoaderIsAJerk(){
     var options_03 =
 	{
 	    'title': 'Annotations',
-	    'width': 700, 'height': 500,
+	    'width': 800, 'height': 500,
 	    'isStacked': true, 'legend': 'bottom',
 	    'vAxis': {'title': 'Number of annotations'}
 	};

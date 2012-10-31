@@ -27,6 +27,7 @@ var gconf = new bbop.golr.conf(amigo.data.golr);
 var gserv = new amigo.data.server();
 var gm_ann = new bbop.golr.manager.rhino(gserv.golr_base(), gconf);
 gm_ann.debug(false);
+gm_ann.set_facet_limit(-1);
 gm_ann.set_personality('bbop_ann'); // profile in gconf
 var loop = bbop.core.each;
 
@@ -40,6 +41,7 @@ function ll(str){
 // Let's constrain things a bit for the sake of clarity.
 var our_sources_of_interest = [
     'dictyBase',
+    'EcoCyc',
     'FlyBase',
     'MGI',
     'PomBase',
@@ -50,9 +52,9 @@ var our_sources_of_interest = [
     'ZFIN'
 ];
 var our_ev_of_interest = [
-    'similarity evidence',
-    'experimental evidence',
-    'curator inference',
+    'similarity evidence', // okay
+    'experimental evidence', // okay
+    'curator inference', // okay
     'author statement',
     'combinatorial evidence',
     'genomic context evidence',
