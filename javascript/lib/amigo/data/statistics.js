@@ -23,14 +23,14 @@ bbop.core.namespace('amigo', 'data', 'statistics');
  * 
  * TBD
  */
-amigo.data.statistics.annotation_source = [["BHF-UCL", 14], ["GOC", 638], ["IntAct", 8], ["PomBase", 31869], ["Reactome", 1], ["RefGenome", 201], ["UniProtKB", 60]];
+amigo.data.statistics.annotation_source = [["PomBase", 31869], ["GOC", 638], ["RefGenome", 201], ["UniProtKB", 60], ["BHF-UCL", 14], ["IntAct", 8], ["Reactome", 1]];
 
 /*
  * Variable: annotation_source
  * 
  * TBD
  */
-amigo.data.statistics.annotation_evidence = [["author statement", 2736], ["combinatorial evidence", 722], ["curator inference", 3579], ["experimental evidence", 14955], ["similarity evidence", 10799]];
+amigo.data.statistics.annotation_evidence = [["experimental evidence", 14955], ["similarity evidence", 10799], ["curator inference", 3579], ["author statement", 2736], ["combinatorial evidence", 722]];
 
 /*
  * Variable: annotation_overview

@@ -113,6 +113,11 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 	// 	);
 	// }
 	// ddump(raw_data);
+	raw_data.sort(function(a, b){
+			  var val_a = a[1];
+			  var val_b = b[1];
+			  return val_b - val_a;
+		      });
 	print(bbop.core.dump(raw_data));
 
     }else if( arg == '--ann-overview' ){
