@@ -19,7 +19,7 @@
 
 // Loading the necessary files.
 // TODO/BUG: These should be pointing at the local web files.
-load('../../../../javascript/trunk/staging/bbop.js');
+load('../../../../../../git/bbop-js/staging/bbop.js');
 load('../staging/amigo.js');
 
 // We get our own manager.
