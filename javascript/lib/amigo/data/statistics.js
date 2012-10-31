@@ -23,18 +23,18 @@ bbop.core.namespace('amigo', 'data', 'statistics');
  * 
  * TBD
  */
-amigo.data.statistics.annotation_source = [["MGI", 141633], ["UniProtKB", 95782], ["ZFIN", 86095], ["PomBase", 31869], ["RGD", 23206], ["dictyBase", 20566], ["GOC", 6231], ["BHF-UCL", 4526], ["RefGenome", 2740], ["IntAct", 790], ["HGNC", 486], ["DFLAT", 304], ["PINC", 17], ["Roslin_Institute", 10], ["ENSEMBL", 2], ["Reactome", 1]];
+amigo.data.statistics.annotation_source = [["PomBase", 31869], ["GOC", 638], ["RefGenome", 201], ["UniProtKB", 60], ["BHF-UCL", 14], ["IntAct", 8], ["Reactome", 1]];
 
 /*
  * Variable: annotation_source
  * 
  * TBD
  */
-amigo.data.statistics.annotation_evidence = [["similarity evidence", 103360], ["experimental evidence", 100456], ["curator inference", 54530]];
+amigo.data.statistics.annotation_evidence = [["experimental evidence", 14955], ["similarity evidence", 10799], ["curator inference", 3579], ["author statement", 2736]];
 
 /*
  * Variable: annotation_overview
  * 
  * TBD
  */
-amigo.data.statistics.annotation_overview = [["Source", "similarity evidence", "experimental evidence", "curator inference", "author statement", "combinatorial evidence", "genomic context evidence", "biological system reconstruction", "imported information"], ["MGI", 52439, 53862, 33194, 0, 0, 0, 0, 0], ["ZFIN", 0, 10201, 11115, 0, 0, 0, 0, 0], ["PomBase", 10121, 14791, 3570, 2665, 0, 0, 0, 0], ["dictyBase", 9293, 4312, 6478, 483, 0, 0, 0, 0]];
+amigo.data.statistics.annotation_overview = [["Source", "similarity evidence", "experimental evidence", "curator inference", "author statement", "combinatorial evidence", "genomic context evidence", "biological system reconstruction", "imported information"], ["dictyBase", 0, 0, 0, 0, 0, 0, 0, 0], ["FlyBase", 0, 0, 0, 0, 0, 0, 0, 0], ["MGI", 0, 0, 0, 0, 0, 0, 0, 0], ["PomBase", 10121, 14791, 3570, 2665, 0, 0, 0, 0], ["RGD", 0, 0, 0, 0, 0, 0, 0, 0], ["SGD", 0, 0, 0, 0, 0, 0, 0, 0], ["TAIR", 0, 0, 0, 0, 0, 0, 0, 0], ["Wormbase", 0, 0, 0, 0, 0, 0, 0, 0], ["ZFIN", 0, 0, 0, 0, 0, 0, 0, 0]];
