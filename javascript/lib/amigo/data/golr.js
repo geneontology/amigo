@@ -982,7 +982,7 @@ amigo.data.golr = {
    "bbop_bio" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "label^6.0 id^5.0 taxon^4.0 family_tag^3.0 type^2.0 db^1.0",
-      "filter_weights" : "db^5.0 type^4.0 family_tag^3.0 taxon_closure_label^2.0 isa_partof_closure_label^1.0",
+      "filter_weights" : "db^7.0 type^6.0 family_tag^5.0 taxon_closure_label^4.0 isa_partof_closure_label^3.0 phylo_ancestor_closure^2.0 phylo_descendant_closure^1.0",
       "_infile" : "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/bio-config.yaml",
       "display_name" : "Bioentities",
       "description" : "A description of bioentities file for GOlr.",
@@ -1134,8 +1134,8 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "All ancestors of this entity.",
-            "display_name" : "Phylogenic ancestors",
+            "description" : "All phylogenic ancestor annotations to this entity.",
+            "display_name" : "Ancestor annotations",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1146,8 +1146,8 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "All descendants of this entity.",
-            "display_name" : "Phylogenic descendants",
+            "description" : "All phylogenic descendant annotations to this entity.",
+            "display_name" : "Descendant annotations",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1220,8 +1220,8 @@ amigo.data.golr = {
          },
          "phylo_descendant_closure" : {
             "transform" : [],
-            "description" : "All descendants of this entity.",
-            "display_name" : "Phylogenic descendants",
+            "description" : "All phylogenic descendant annotations to this entity.",
+            "display_name" : "Descendant annotations",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1232,8 +1232,8 @@ amigo.data.golr = {
          },
          "phylo_ancestor_closure" : {
             "transform" : [],
-            "description" : "All ancestors of this entity.",
-            "display_name" : "Phylogenic ancestors",
+            "description" : "All phylogenic ancestor annotations to this entity.",
+            "display_name" : "Ancestor annotations",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
