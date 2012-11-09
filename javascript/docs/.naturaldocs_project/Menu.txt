@@ -56,8 +56,6 @@ Group: Data  {
 
 File: api.js  (api.js)
 File: linker.js  (linker.js)
-File: livesearch.js  (ui/livesearch.js)
-File: livesearch_template.js  (ui/livesearch_template.js)
 File: version.js  (version.js)
 
 Group: Index  {
