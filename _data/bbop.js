@@ -1071,7 +1071,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20121108";
+bbop.version.release = "20121109";
 /*
  * Package: logger.js
  * 
@@ -1149,12 +1149,13 @@ bbop.logger = function(initial_context){
     // Generalizer console (or whatever) printing.
     this._console_sayer = function(){};
 
-    // Check for: Opera, FF, Safari, etc.
+    // Check for: Opera, FF, Safari, Chrome, console, etc.
     if( typeof(opera) != 'undefined' &&
-	typeof(opera.postError) != 'undefined' ){
+	typeof(opera.postError) == 'function' ){
+	// If opera is in there, probably opera.
 	this._console_sayer = function(msg){ opera.postError(msg + "\n"); };
     }else if( typeof(window) != 'undefined' &&
-	      typeof(window.dump) != 'undefined' ){
+	      typeof(window.dump) == 'function' ){
 	// From developer.mozilla.org: To see the dump output you have
 	// to enable it by setting the preference
 	// browser.dom.window.dump.enabled to true. You can set the
@@ -1165,7 +1166,7 @@ bbop.logger = function(initial_context){
 	this._console_sayer = function(msg){ dump( msg + "\n"); };
     }else if( typeof(window) != 'undefined' &&
 	      typeof(window.console) != 'undefined' &&
-	      typeof(window.console.log) != 'undefined' ){
+	      typeof(window.console.log) == 'function' ){
 	// From developer.apple.com: Safari's "Debug" menu allows you
 	// to turn on the logging of JavaScript errors. To display the
 	// debug menu in Mac OS X, open a Terminal window and type:
@@ -1174,8 +1175,9 @@ bbop.logger = function(initial_context){
 	// problems.
 	this._console_sayer = function(msg){ window.console.log(msg + "\n"); };
     }else if( typeof(console) != 'undefined' &&
-	      typeof(console.log) != 'undefined' ){
-	// This may be okay for Chrome...
+	      typeof(console.log) == 'function' ){
+	// This may be okay for Chrome and a subset of various console
+	// loggers.
 	this._console_sayer = function(msg){ console.log(msg + "\n"); };
     }else if( typeof(build) == 'function' &&
 	      typeof(getpda) == 'function' &&
