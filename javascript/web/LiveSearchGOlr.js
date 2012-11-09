@@ -105,7 +105,8 @@ function LiveSearchGOlrInit(){
 
 	// Create a two column layout and a lot of hidden switches and
 	// variables.
-	var ui_gen = new amigo.ui.livesearch(div_id, gconf.get_class(cclass));
+	var ui_gen =
+	    new bbop.widget.live_search(div_id, gconf.get_class(cclass));
 
 	///
 	/// Setup and bind them together.

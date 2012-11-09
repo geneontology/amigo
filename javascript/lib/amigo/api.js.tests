@@ -8,7 +8,7 @@
 
 
 // Load testing.
-load('../../../../../javascript/trunk/staging/bbop.js');
+load('../../../_data/bbop.js');
 var mr_t = new bbop.test();
 
 // Correct environment.

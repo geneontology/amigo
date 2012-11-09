@@ -22,7 +22,7 @@ function GooglesLoaderIsAJerk(){
     // category and the current acc sticky in the filters.
     var sd = new amigo.data.server(); // resource locations
     var gconf = new bbop.golr.conf(amigo.data.golr);
-    var a_widget = bbop.widget.autocomplete; // nick
+    var a_widget = bbop.widget.search_box; // nick
     var linker = new amigo.linker();
 
     ///

@@ -23,18 +23,18 @@ bbop.core.namespace('amigo', 'data', 'statistics');
  * 
  * TBD
  */
-amigo.data.statistics.annotation_source = [["dictyBase", 20566]];
+amigo.data.statistics.annotation_source = [["PomBase", 31878], ["GOC", 638], ["RefGenome", 201], ["UniProtKB", 60], ["BHF-UCL", 14], ["IntAct", 8], ["Reactome", 1]];
 
 /*
  * Variable: annotation_source
  * 
  * TBD
  */
-amigo.data.statistics.annotation_evidence = [["similarity evidence", 9293], ["curator inference", 6478], ["experimental evidence", 4312], ["author statement", 483]];
+amigo.data.statistics.annotation_evidence = [["experimental evidence", 14536], ["author statement", 2738], ["combinatorial evidence", 722]];
 
 /*
  * Variable: annotation_overview
  * 
  * TBD
  */
-amigo.data.statistics.annotation_overview = [["Source", "similarity evidence", "experimental evidence", "curator inference", "author statement", "combinatorial evidence", "genomic context evidence", "biological system reconstruction", "imported information"], ["dictyBase", 9293, 4312, 6478, 483, 0, 0, 0, 0], ["EcoCyc", 0, 0, 0, 0, 0, 0, 0, 0], ["FlyBase", 0, 0, 0, 0, 0, 0, 0, 0], ["MGI", 0, 0, 0, 0, 0, 0, 0, 0], ["PomBase", 0, 0, 0, 0, 0, 0, 0, 0], ["RGD", 0, 0, 0, 0, 0, 0, 0, 0], ["SGD", 0, 0, 0, 0, 0, 0, 0, 0], ["TAIR", 0, 0, 0, 0, 0, 0, 0, 0], ["WB", 0, 0, 0, 0, 0, 0, 0, 0], ["ZFIN", 0, 0, 0, 0, 0, 0, 0, 0]];
+amigo.data.statistics.annotation_overview = [["Source", "similarity evidence", "experimental evidence", "curator inference", "author statement", "combinatorial evidence", "genomic context evidence", "biological system reconstruction", "imported information"], ["dictyBase", 0, 0, 0, 0, 0, 0, 0, 0], ["EcoCyc", 0, 0, 0, 0, 0, 0, 0, 0], ["FlyBase", 0, 0, 0, 0, 0, 0, 0, 0], ["MGI", 0, 0, 0, 0, 0, 0, 0, 0], ["PomBase", 0, 14372, 0, 2667, 722, 0, 0, 0], ["RGD", 0, 0, 0, 0, 0, 0, 0, 0], ["SGD", 0, 0, 0, 0, 0, 0, 0, 0], ["TAIR", 0, 0, 0, 0, 0, 0, 0, 0], ["WB", 0, 0, 0, 0, 0, 0, 0, 0], ["ZFIN", 0, 0, 0, 0, 0, 0, 0, 0]];

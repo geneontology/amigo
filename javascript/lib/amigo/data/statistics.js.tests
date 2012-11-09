@@ -8,7 +8,7 @@
 
 
 // Load testing and correct environment.
-load('../../../../../../javascript/trunk/staging/bbop.js');
+load('../../../../_data/bbop.js');
 load('../../../staging/amigo.js');
 var mr_t = new bbop.test();
 load('statistics.js');
