@@ -954,6 +954,46 @@ bbop.core.uuid = function(){
 };
 
 /*
+ * Function: numeric_sort_ascending
+ *
+ * A sort function to put numbers in ascending order.
+ * 
+ * Useful as the argument to .sort().
+ * 
+ * See: https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/sort
+ * 
+ * Parameters:
+ *  a - the first number
+ *  b - the second number
+ *
+ * Returns:
+ *  number of their relative worth
+ */
+bbop.core.numeric_sort_ascending = function(a, b){
+    return a - b;
+};
+
+/*
+ * Function: numeric_sort_descending
+ *
+ * A sort function to put numbers in descending order.
+ * 
+ * Useful as the argument to .sort().
+ * 
+ * See: https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/sort
+ * 
+ * Parameters:
+ *  a - the first number
+ *  b - the second number
+ *
+ * Returns:
+ *  number of their relative worth
+ */
+bbop.core.numeric_sort_descending = function(a, b){
+    return b - a;
+};
+
+/*
  * Function: extend
  * 
  * What seems to be a typical idiom for subclassing in JavaScript.
@@ -1071,7 +1111,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20121109";
+bbop.version.release = "20121112";
 /*
  * Package: logger.js
  * 
@@ -4045,6 +4085,7 @@ bbop.model.bracket.graph = function(){
 
     var anchor = this;
     var loop = bbop.core.each;
+    anchor._logger.DEBUG = true;
     function ll(str){ anchor._logger.kvetch(str); }
 
     /*
@@ -4079,11 +4120,15 @@ bbop.model.bracket.graph = function(){
 	    var max_hist = in_max_hist || {};
 	    var encounter_hist = in_enc_hist || {};
 
+	    // ll('looking at: ' + curr_term + ' at ' + curr_term_distance);
+
 	    // Only recur if our encounter history sez that either
 	    // this node is new or if we have a higher distance count
 	    // (in which case we add it and continue on our merry
 	    // way).
 	    if( ! bbop.core.is_defined(encounter_hist[curr_term]) ){
+		// ll(curr_term + ' is a new encounter at distance ' +
+		//    curr_term_distance);
 
 		// Note that we have encountered this node before.
 		encounter_hist[curr_term] = 1;
@@ -4104,12 +4149,14 @@ bbop.model.bracket.graph = function(){
 		     });
 
 	    }else if( encounter_hist[curr_term] ){
+		// ll(curr_term + ' has been seen before');
 
 		// If we're seeing this node again, but with a
 		// separate history, we'll add the length or our
 		// history to the current, but will not recur in any
 		// case (we've been here before).
 		if( max_hist[curr_term] < curr_term_distance ){
+		    // ll(curr_term +' has a new max of '+ curr_term_distance);
 		    max_hist[curr_term] = curr_term_distance;
 		}
 	    }
@@ -4120,8 +4167,13 @@ bbop.model.bracket.graph = function(){
 	// A hash of the maximum distance from the node-in-question to
 	// the roots.
 	var max_node_dist_from_root = max_info_climber();
+	// ll('max_node_dist_from_root: ' +
+	//    bbop.core.dump(max_node_dist_from_root));
 
-	// Convert this into something like brackets.
+	///
+	/// Convert this into something like brackets.
+	///
+
 	// First, invert hash.
 	// E.g. from {x: 1, y: 1, z: 2} to {1: [x, y], 2: [z]} 
 	var lvl_lists = {};
@@ -4134,11 +4186,14 @@ bbop.model.bracket.graph = function(){
 
 		lvl_lists[lvl].push(node_id);
 	    });
+	// ll('lvl_lists: ' + bbop.core.dump(lvl_lists));
+
 	// Now convert the level-keyed hash into an array of arrays.
 	// E.g. from {1: [x, y], 2: [z]} to [[x, y], [z]]
 	var bracket_list = [];
 	var levels = bbop.core.get_keys(lvl_lists);
-	levels.sort();
+	levels.sort(bbop.core.numeric_sort_ascending);
+	// ll('levels: ' + bbop.core.dump(levels));
 	loop(levels,
 	    function(level){
 		var bracket = [];
@@ -4149,9 +4204,10 @@ bbop.model.bracket.graph = function(){
 		bracket_list.push(bracket);
 	    });
 	bracket_list.reverse(); // ...but I want the opposite
+	// ll('bracket_list: ' + bbop.core.dump(bracket_list));
 
 	// Well, that takes care of the parents, now lets do the
-	// trivial task of adding all of the kids (if any);
+	// trivial task of adding all of the kids (if any).
 	var c_nodes = anchor.get_child_nodes(term_acc);
 	// Only add another level when there are actually kids.
 	if( c_nodes && ! bbop.core.is_empty(c_nodes) ){ 
