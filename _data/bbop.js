@@ -368,7 +368,7 @@ bbop.core.what_is = function(in_thing){
 /*
  * Function: is_array
  *
- * Return the best guess (true/false) for whether ot not a given
+ * Return the best guess (true/false) for whether or not a given
  * object is being used as an array.
  *
  * Parameters: 
@@ -390,7 +390,7 @@ bbop.core.is_array = function(in_thing){
 /*
  * Function: is_hash
  *
- * Return the best guess (true/false) for whether ot not a given
+ * Return the best guess (true/false) for whether or not a given
  * object is being used as a hash.
  *
  * Parameters: 
@@ -712,22 +712,25 @@ bbop.core.dump = function(thing){
  * Mostly intended for use during unit testing.
  *
  * Parameters: 
- *  iobj - the object in question
- *  iface - the interface (as a string) that we're looking for
+ *  iobj - the object/constructor in question
+ *  interface_list - the list of interfaces (as a strings) we're looking for
  *
  * Returns: boolean
  *
  * TODO: Unit test this to make sure it catches both prototype (okay I
  * think) and uninstantiated objects (harder/impossible?).
  */
-bbop.core.has_interface = function(iobj, iface){
+bbop.core.has_interface = function(iobj, interface_list){
     var retval = true;
-    bbop.core.each(iobj,
-		   function(in_key, in_val){
-		       if( typeof(in_val[iface]) == 'undefined' &&
-			   typeof(in_val.prototype[iface]) == 'undefined'){
+    bbop.core.each(interface_list,
+		   function(iface){
+		       //print('|' + typeof(in_key) + ' || ' + typeof(in_val));
+		       //print('|' + in_key + ' || ' + in_val);
+		       if( typeof(iobj[iface]) == 'undefined' &&
+			   typeof(iobj.prototype[iface]) == 'undefined' ){
 			   retval = false;
-			   throw new Error(in_key + ' breaks interface ' + 
+			   throw new Error(bbop.core.what_is(iobj) +
+					   ' breaks interface ' + 
 					   iface);
                        }
 		   });
@@ -2088,6 +2091,7 @@ bbop.core.namespace('bbop', 'html', 'tag');
 bbop.core.namespace('bbop', 'html', 'accordion');
 bbop.core.namespace('bbop', 'html', 'list');
 bbop.core.namespace('bbop', 'html', 'input');
+bbop.core.namespace('bbop', 'html', 'img');
 
 /*
  * Namespace: bbop.html.tag
@@ -2673,6 +2677,84 @@ bbop.html.anchor.prototype.empty = function(){
  */
 bbop.html.anchor.prototype.get_id = function(){
     return this._anchor_stack.get_id();
+};
+
+/*
+ * Namespace: bbop.html.image
+ * 
+ * Constructor: image
+ * 
+ * Create an image (img) object. Note: alt, title, etc. go through
+ * in_attrs.
+ * 
+ * Parameters:
+ *  in_attrs - *[optional]* the typical attributes to add
+ * 
+ * Returns:
+ *  bbop.html.image object
+ */
+bbop.html.image = function(in_attrs){
+    this._is_a = 'bbop.html.image';
+    
+    // Arg check--attrs should be defined as something.
+    this._attrs = in_attrs || {};
+
+    // Internal stack always starts with a ul.
+    this._image_stack = new bbop.html.tag('img', this._attrs);
+};
+
+/*
+ * Function: to_string
+ * 
+ * Convert an image object into a html-ized string.
+ * 
+ * Parameters: n/a
+ * 
+ * Returns:
+ *  string
+ */
+bbop.html.image.prototype.to_string = function(){
+    return this._image_stack.to_string();
+};
+
+/*
+ * Function: add_to
+ * 
+ * Add content between the tags. Order of addition is order of output.
+ * 
+ * Parameters:
+ *  item - another tag object or a string (html or otherwise)
+ * 
+ * Returns: n/a
+ */
+bbop.html.image.prototype.add_to = function(item){
+    this._image_stack.add_to(item);
+};
+
+/*
+ * Function: empty
+ * 
+ * Remove all content between the tags.
+ * 
+ * Parameters: n/a
+ * 
+ * Returns: n/a
+ */
+bbop.html.image.prototype.empty = function(){
+    this._image_stack.empty();
+};
+
+/*
+ * Function: get_id
+ * 
+ * Return the id if extant, null otherwise.
+ * 
+ * Parameters: n/a
+ * 
+ * Returns: string or null
+ */
+bbop.html.image.prototype.get_id = function(){
+    return this._image_stack.get_id();
 };
 
 /*
@@ -7883,20 +7965,38 @@ bbop.core.namespace('bbop', 'widget', 'browse');
  * This is a specialized (and widgetized) subclass of
  * <bbop.golr.manager.jquery>.
  * 
- * The functions for the callbacks look like function(term_acc,
- * json_data){}. If no function is given, an empty function is used.
+ * While everything in the argument hash is technically optional,
+ * there are probably some fields that you'll want to fill out to make
+ * things work decently. The options for the argument hash are:
+ * 
+ *  topology_graph_field -  the field for the topology graph
+ *  transitivity_graph_field - the field for the transitivity graph
+ *  info_button_callback - functio to call when info clicked, gets doc
+ *  base_icon_url - the url base that the fragments will be added to
+ *  image_type - 'gif', 'png', etc.
+ *  current_icon - the icon fragment for the current term
+ *  info_icon - the icon fragment for the information icon
+ *  info_alt - the alt text and title for the information icon
+ * 
+ * The basic formula for the icons is: base_icon_url + '/' + icon +
+ * '.' + image_type; then all spaces are turned to underscores and all
+ * uppercase letters are converted into lowercase letters.
+ * 
+ * The functions for the callbacks look like function(<term acc>,
+ * <json data for the specific document>){}. If no function is given,
+ * an empty function is used.
  * 
  * Arguments:
  *  golr_loc - string url to GOlr server;
  *  golr_conf_obj - a <bbop.golr.conf> object
  *  interface_id - string id of the element to build on
- *  info_button_callback - *[serially optional]* callback for when button is clicked
+ *  in_argument_hash - *[optional]* optional hash of optional arguments
  * 
  * Returns:
  *  this object
  */
 bbop.widget.browse = function(golr_loc, golr_conf_obj,
-			      interface_id, info_button_callback){
+			      interface_id, in_argument_hash){
 
     // Per-UI logger.
     var logger = new bbop.logger();
@@ -7913,15 +8013,43 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj,
     var anchor = this;
     var loop = bbop.core.each;
     
+    // Our argument default hash.
+    var default_hash =
+	{
+	    'topology_graph_field' : 'topology_graph',
+	    'transitivity_graph_field' : 'transitivity_graph',
+	    'info_button_callback' : function(){},
+	    'base_icon_url' : null,
+	    'image_type' : 'gif',
+	    'current_icon' : 'this',
+	    'info_icon' : 'info',
+	    'info_alt' : 'Click for more information.'
+	};
+    var folding_hash = in_argument_hash || {};
+    var arg_hash = bbop.core.fold(default_hash, folding_hash);
+
     // There should be a string interface_id argument.
     this._interface_id = interface_id;
-    this._info_button_callback = info_button_callback || function(){};
+    this._info_button_callback = arg_hash['info_button_callback'];
+    var topo_graph_field = arg_hash['topology_graph_field'];
+    var trans_graph_field = arg_hash['transitivity_graph_field'];
+    var base_icon_url = arg_hash['base_icon_url'];
+    var image_type = arg_hash['image_type'];
+    var current_icon = arg_hash['current_icon'];
+    var info_icon = arg_hash['info_icon'];
+    var info_alt = arg_hash['info_alt'];
    
     // The current acc that we are interested in.
     this._current_acc = null;
 
     // Successful callbacks call draw_rich_layout.
     anchor.register('search', 'do', draw_rich_layout);
+
+    // Convert a string into something consistent for urls (getting
+    // icons, etc.).
+    function urlize(str){
+	return str.replace(" ", "_", "g").toLowerCase();
+    }
 
     // Recursively draw a rich layout using nested uls.
     function draw_rich_layout(json_data){
@@ -7934,10 +8062,10 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj,
 	var doc = resp.documents(json_data)[0];
 
 	var topo_graph = new bbop.model.bracket.graph();
-	topo_graph.load_json(JSON.parse(doc['topology_graph']));
+	topo_graph.load_json(JSON.parse(doc[topo_graph_field]));
 
 	var trans_graph = new bbop.model.graph();
-	trans_graph.load_json(JSON.parse(doc['transitivity_graph']));
+	trans_graph.load_json(JSON.parse(doc[trans_graph_field]));
 
 	//ll('to: ' + doc['topology_graph']);
 	//ll('tr: ' + doc['transitivity_graph']);
@@ -7964,47 +8092,82 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj,
 	// we go down another level.
 	var spacing = '&nbsp;&nbsp;&nbsp;&nbsp;';
 	var spaces = spacing;
-	loop(rich_layout,
+	loop(rich_layout, // for every level
 	     function(layout_level){
-		 loop(layout_level,
+		 loop(layout_level, // for every item at this level
 		      function(level_item){			  
 
 			  var nid = level_item[0];
 			  var rel = level_item[2];
+			  
+			  // For various sections, decide to run image
+			  // (img) or text code depending on whether
+			  // or not it looks like we have a real URL.
+			  var use_img_p = true;
+			  if( base_icon_url == null || base_icon_url == '' ){
+			      use_img_p = false;
+			  }
 
-			  //Clickable acc span.
+			  // Clickable acc span.
+			  // No images, so the same either way.
 			  var nav_b =
 			      new bbop.html.span('<a>[' + nid + ']</a>',
 						 {'generate_id': true});
 			  nav_button_hash[nav_b.get_id()] = nid;
 
-			  //Clickable info span.
-			  var info_b =
-			      new bbop.html.span('<b>[i]</b>',
-						 {'generate_id': true});
+			  // Clickable info span. A little difference
+			  // if we have images.
+			  var info_b = null;
+			  if( use_img_p ){
+			      // Do the icon version.
+			      var isrc = base_icon_url + '/' +
+				  info_icon + '.' + image_type;
+			      info_b =
+				  new bbop.html.image({'alt': info_alt,
+						       'title': info_alt,
+				  		       'src': urlize(isrc),
+				  		       'generate_id': true});
+			  }else{
+			      // Do a text-only version.
+			      info_b =
+				  new bbop.html.span('<b>[i]</b>',
+						     {'generate_id': true});
+			  }
 			  info_button_hash[info_b.get_id()] = nid;
 
-			  // "Icon"
-			  var icon = '[????]';
-			  if(anchor._current_acc == nid){
-			      icon = '[[[]]]';
+			  // "Icon". If base_icon_url is defined as
+			  // something try for images, otherwise fall
+			  // back to this text ick.
+			  var icon = null;
+			  if( use_img_p ){
+			      // Do the icon version.
+			      var ialt = '[' + rel + ']';
+			      var isrc = null;
+			      if(anchor._current_acc == nid){
+				  isrc = base_icon_url + '/' +
+			      	      current_icon + '.' + image_type;
+			      }else{
+				  isrc = base_icon_url + '/' +
+			      	      rel + '.' + image_type;
+			      }
+			      icon =
+				  new bbop.html.image({'alt': ialt,
+						       'title': rel,
+				  		       'src': urlize(isrc),
+				  		       'generate_id': true});
 			  }else{
-			      if( rel == 'is_a' ){
-				  icon = '[is a]';   
-			      }else if( rel == 'part_of' ){
-				  icon = '[part]';   
-			      }else if( rel == 'regulates' ){
-				  icon = '[ reg]';   
-			      }else if( rel == 'negatively_regulates' ){
-				  icon = '[-reg]';   
-			      }else if( rel == 'positively_regulates' ){
-				  icon = '[+reg]';   
-			      }else if( rel == 'develops_from' ){
-				  icon = '[devf]';   
+			      // Do a text-only version.
+			      if(anchor._current_acc == nid){
+				  icon = '[[->]]';
+			      }else if( rel && rel.length && rel.length > 0 ){
+				  icon = '[' + rel + ']';
+			      }else{
+				  icon = '[???]';
 			      }
 			  }
 
-			  // ...
+			  // Stack the info, with the additional
+			  // spaces, into the div.
 			  top_level.add_to(spaces,
 					   icon,
 					   nav_b.to_string(),

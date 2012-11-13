@@ -23,13 +23,24 @@ function BrowseInit(){
     var cclass = gconf.get_class('bbop_ont');
     var b_widget = bbop.widget.browse;
     var b =
-	new b_widget(sd.golr_base(), gconf, 'browser_id',
-		     function(term_acc, term_doc){
-			 // Local form.
-			 new bbop.widget.term_shield(term_doc, linker, cclass);
-			 // Remote form.
-			 // new bbop.widget.term_shield(term_acc, linker,
-			 // 			     cclass, sd.golr_base());
+	new b_widget(sd.golr_base(), 
+		     gconf, 
+		     'browser_id',
+		     {
+			 'base_icon_url': sd.image_base(),
+			 'info_icon': 'info',
+			 'current_icon': 'current_term',
+			 'image_type': 'gif',
+			 'info_button_callback':
+			 function(term_acc, term_doc){
+			     // Local form.
+			     new bbop.widget.term_shield(term_doc,
+							 linker, cclass);
+			     // Remote form.
+			     // new bbop.widget.term_shield(term_acc, linker,
+			     // 			    cclass,
+			     //                             sd.golr_base());
+			 }
 		     } );
     b.draw_browser('GO:0008150');
 
