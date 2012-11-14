@@ -42,13 +42,13 @@ function GooglesLoaderIsAJerk(){
 	    }
 	}
     }
-    var auto = new a_widget(sd.golr_base(), gconf, 'query', 'label', forward);
+    var auto = new a_widget(sd.golr_base(), gconf, 'query',
+			    'annotation_class_label', forward);
     auto.set_personality('bbop_ont'); // profile in gconf
     auto.add_query_filter('document_category', 'ontology_class'); // non-stick
 
     //
     jQuery('input[value="bbop_ont"]').attr('checked', true);
-
 
     // Make it responsive to what clas we've selected.
     jQuery('input[name="golr_class"]').each(

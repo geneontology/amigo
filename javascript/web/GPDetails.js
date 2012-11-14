@@ -50,8 +50,8 @@ function GPDetailsInit(){
 
     // Create a two column layout and a lot of hidden switches and
     // variables.
-    var ui_ann = new amigo.ui.livesearch('display-associations',
-					 gconf.get_class('bbop_ann'));
+    var ui_ann = new bbop.widget.live_search('display-associations',
+					     gconf.get_class('bbop_ann'));
     
     ///
     /// Setup and bind them together.

@@ -71,7 +71,8 @@ function BrowseInit(){
     jQuery('#' + 'jumper').click(function(){ jQuery(this).val(''); }); // clear
     function jumper(doc){ b.draw_browser(doc['id']); }
     var a_widget = bbop.widget.search_box;
-    var auto = new a_widget(sd.golr_base(), gconf, 'jumper', 'label', jumper);
+    var auto = new a_widget(sd.golr_base(), gconf, 'jumper',
+			    'annotation_class_label', jumper);
     auto.set_personality('bbop_ont'); // profile in gconf
     auto.add_query_filter('document_category', 'ontology_class');
 }

@@ -38,7 +38,7 @@ amigo.data.golr = {
       "_infile" : "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/ann_ev_agg-config.yaml",
       "display_name" : "Evidence Aggregate",
       "description" : "A description of annotation evidence aggregate for GOlr and AmiGO.",
-      "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0",
+      "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 family_tag^1.0 family_tag_label^1.0",
       "fields" : [
          {
             "transform" : [],
@@ -174,8 +174,8 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Families that this is associated with this entity.",
-            "display_name" : "Family",
+            "description" : "Family IDs that are associated with this entity.",
+            "display_name" : "Family ID",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -186,34 +186,22 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "All ancestors of this entity.",
-            "display_name" : "Phylogenic ancestors",
+            "description" : "Families that are associated with this entity.",
+            "display_name" : "Family",
             "indexed" : "true",
-            "searchable" : "false",
+            "searchable" : "true",
             "required" : "false",
             "cardinality" : "multi",
             "type" : "string",
-            "id" : "phylo_ancestor_closure",
-            "property" : []
-         },
-         {
-            "transform" : [],
-            "description" : "All descendants of this entity.",
-            "display_name" : "Phylogenic descendants",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "phylo_descendant_closure",
+            "id" : "family_tag_label",
             "property" : []
          }
       ],
       "fields_hash" : {
          "family_tag" : {
             "transform" : [],
-            "description" : "Families that this is associated with this entity.",
-            "display_name" : "Family",
+            "description" : "Family IDs that are associated with this entity.",
+            "display_name" : "Family ID",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -270,30 +258,6 @@ amigo.data.golr = {
             "id" : "taxon",
             "property" : []
          },
-         "phylo_descendant_closure" : {
-            "transform" : [],
-            "description" : "All descendants of this entity.",
-            "display_name" : "Phylogenic descendants",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "phylo_descendant_closure",
-            "property" : []
-         },
-         "phylo_ancestor_closure" : {
-            "transform" : [],
-            "description" : "All ancestors of this entity.",
-            "display_name" : "Phylogenic ancestors",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "phylo_ancestor_closure",
-            "property" : []
-         },
          "bioentity" : {
             "transform" : [],
             "description" : "Column 1 + columns 2.",
@@ -342,6 +306,18 @@ amigo.data.golr = {
             "id" : "evidence_type_closure",
             "property" : []
          },
+         "family_tag_label" : {
+            "transform" : [],
+            "description" : "Families that are associated with this entity.",
+            "display_name" : "Family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "family_tag_label",
+            "property" : []
+         },
          "id" : {
             "transform" : [],
             "description" : "Bioentity id.",
@@ -388,11 +364,11 @@ amigo.data.golr = {
    "bbop_ann" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "annotation_class^9.0 evidence_type^8.0 bioentity^7.0 source^4.0 taxon^3.0 evidence_with^2.0 family_tag^1.5 annotation_extension_class^1.0",
-      "filter_weights" : "source^7.0 evidence_type_closure^6.0 family_tag^5.5 taxon_closure_label^5.0 isa_partof_closure_label^4.0 annotation_extension_class_closure_label^3.0",
+      "filter_weights" : "source^7.0 evidence_type_closure^6.0 family_tag_label^5.5 taxon_closure_label^5.0 isa_partof_closure_label^4.0 annotation_extension_class_closure_label^3.0",
       "_infile" : "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/ann-config.yaml",
       "display_name" : "Annotations",
       "description" : "A description of annotations for GOlr and AmiGO.",
-      "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 family_tag^1.0",
+      "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 family_tag^1.0 family_tag_label^1.0",
       "fields" : [
          {
             "transform" : [],
@@ -648,8 +624,8 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Families that this is associated with this entity.",
-            "display_name" : "Family",
+            "description" : "Family IDs that are associated with this entity.",
+            "display_name" : "Family ID",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -660,26 +636,14 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "All ancestors of this entity.",
-            "display_name" : "Phylogenic ancestors",
+            "description" : "Families that are associated with this entity.",
+            "display_name" : "Family",
             "indexed" : "true",
-            "searchable" : "false",
+            "searchable" : "true",
             "required" : "false",
             "cardinality" : "multi",
             "type" : "string",
-            "id" : "phylo_ancestor_closure",
-            "property" : []
-         },
-         {
-            "transform" : [],
-            "description" : "All descendants of this entity.",
-            "display_name" : "Phylogenic descendants",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "phylo_descendant_closure",
+            "id" : "family_tag_label",
             "property" : []
          }
       ],
@@ -756,18 +720,6 @@ amigo.data.golr = {
             "id" : "date",
             "property" : []
          },
-         "phylo_ancestor_closure" : {
-            "transform" : [],
-            "description" : "All ancestors of this entity.",
-            "display_name" : "Phylogenic ancestors",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "phylo_ancestor_closure",
-            "property" : []
-         },
          "reference" : {
             "transform" : [],
             "description" : "???",
@@ -842,8 +794,8 @@ amigo.data.golr = {
          },
          "family_tag" : {
             "transform" : [],
-            "description" : "Families that this is associated with this entity.",
-            "display_name" : "Family",
+            "description" : "Family IDs that are associated with this entity.",
+            "display_name" : "Family ID",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -874,18 +826,6 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "taxon",
-            "property" : []
-         },
-         "phylo_descendant_closure" : {
-            "transform" : [],
-            "description" : "All descendants of this entity.",
-            "display_name" : "Phylogenic descendants",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "phylo_descendant_closure",
             "property" : []
          },
          "isa_partof_closure" : {
@@ -948,6 +888,18 @@ amigo.data.golr = {
             "id" : "evidence_type_closure",
             "property" : []
          },
+         "family_tag_label" : {
+            "transform" : [],
+            "description" : "Families that are associated with this entity.",
+            "display_name" : "Family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "family_tag_label",
+            "property" : []
+         },
          "evidence_with" : {
             "transform" : [],
             "description" : "Column 8: with/from.",
@@ -981,12 +933,12 @@ amigo.data.golr = {
    },
    "bbop_bio" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "label^6.0 id^5.0 taxon^4.0 family_tag^3.0 type^2.0 db^1.0",
-      "filter_weights" : "db^7.0 type^6.0 family_tag^5.0 taxon_closure_label^4.0 isa_partof_closure_label^3.0 phylo_ancestor_closure^2.0 phylo_descendant_closure^1.0",
+      "result_weights" : "bioentity^6.0 taxon^4.0 family_tag^3.0 type^2.0 db^1.0",
+      "filter_weights" : "db^7.0 type^6.0 family_tag_label^5.0 taxon_closure_label^4.0 isa_partof_closure_label^3.0",
       "_infile" : "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/bio-config.yaml",
       "display_name" : "Bioentities",
       "description" : "A description of bioentities file for GOlr.",
-      "boost_weights" : "id^2.0 label^2.0 family_tag^1.0",
+      "boost_weights" : "bioentity^2.0 bioentity_label^2.0  isa_partof_closure_label^1.0 family_tag^1.0 family_tag_label^1.0",
       "fields" : [
          {
             "transform" : [],
@@ -998,6 +950,30 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "id",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Bioentity ID.",
+            "display_name" : "Acc",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "bioentity",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Symbol or name.",
+            "display_name" : "Label",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "bioentity_label",
             "property" : []
          },
          {
@@ -1086,18 +1062,6 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Symbol or name.",
-            "display_name" : "Label",
-            "indexed" : "true",
-            "searchable" : "true",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "label",
-            "property" : []
-         },
-         {
-            "transform" : [],
             "description" : "Column 1: Identifier database.",
             "display_name" : "Database",
             "indexed" : "true",
@@ -1110,14 +1074,26 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Families that this is associated with this entity.",
-            "display_name" : "Family",
+            "description" : "Family IDs that are associated with this entity.",
+            "display_name" : "Family ID",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
             "cardinality" : "multi",
             "type" : "string",
             "id" : "family_tag",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Families that are associated with this entity.",
+            "display_name" : "Family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "family_tag_label",
             "property" : []
          },
          {
@@ -1130,30 +1106,6 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "phylo_graph",
-            "property" : []
-         },
-         {
-            "transform" : [],
-            "description" : "All phylogenic ancestor annotations to this entity.",
-            "display_name" : "Ancestor annotations",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "phylo_ancestor_closure",
-            "property" : []
-         },
-         {
-            "transform" : [],
-            "description" : "All phylogenic descendant annotations to this entity.",
-            "display_name" : "Descendant annotations",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "phylo_descendant_closure",
             "property" : []
          }
       ],
@@ -1172,8 +1124,8 @@ amigo.data.golr = {
          },
          "family_tag" : {
             "transform" : [],
-            "description" : "Families that this is associated with this entity.",
-            "display_name" : "Family",
+            "description" : "Family IDs that are associated with this entity.",
+            "display_name" : "Family ID",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1192,6 +1144,18 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "db",
+            "property" : []
+         },
+         "bioentity_label" : {
+            "transform" : [],
+            "description" : "Symbol or name.",
+            "display_name" : "Label",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "bioentity_label",
             "property" : []
          },
          "taxon_closure_label" : {
@@ -1218,28 +1182,16 @@ amigo.data.golr = {
             "id" : "taxon",
             "property" : []
          },
-         "phylo_descendant_closure" : {
+         "bioentity" : {
             "transform" : [],
-            "description" : "All phylogenic descendant annotations to this entity.",
-            "display_name" : "Descendant annotations",
+            "description" : "Bioentity ID.",
+            "display_name" : "Acc",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
-            "cardinality" : "multi",
+            "cardinality" : "single",
             "type" : "string",
-            "id" : "phylo_descendant_closure",
-            "property" : []
-         },
-         "phylo_ancestor_closure" : {
-            "transform" : [],
-            "description" : "All phylogenic ancestor annotations to this entity.",
-            "display_name" : "Ancestor annotations",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "phylo_ancestor_closure",
+            "id" : "bioentity",
             "property" : []
          },
          "isa_partof_closure" : {
@@ -1278,16 +1230,16 @@ amigo.data.golr = {
             "id" : "taxon_label",
             "property" : []
          },
-         "label" : {
+         "family_tag_label" : {
             "transform" : [],
-            "description" : "Symbol or name.",
-            "display_name" : "Label",
+            "description" : "Families that are associated with this entity.",
+            "display_name" : "Family",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
-            "cardinality" : "single",
+            "cardinality" : "multi",
             "type" : "string",
-            "id" : "label",
+            "id" : "family_tag_label",
             "property" : []
          },
          "id" : {
@@ -1335,12 +1287,12 @@ amigo.data.golr = {
    },
    "bbop_ont" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "label^10.0 id^8.0 description^6.0 source^4.0 synonym^3.0 alternate_id^2.0 comment^1.0",
+      "result_weights" : "annotation_class^8.0 description^6.0 source^4.0 synonym^3.0 alternate_id^2.0 comment^1.0",
       "filter_weights" : "source^4.0 subset^2.0 isa_partof_closure_label^1.0 is_obsolete^0.0",
       "_infile" : "/home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/ont-config.yaml",
       "display_name" : "Ontology",
       "description" : "Test mapping of ontology class for GO.",
-      "boost_weights" : "id^2.0 label^2.0 description^1.0 comment^0.5 synonym^1.0 alternate_id^1.0",
+      "boost_weights" : "annotation_class^2.0 annotation_class_label^2.0 description^1.0 comment^0.5 synonym^1.0 alternate_id^1.0",
       "fields" : [
          {
             "transform" : [],
@@ -1358,6 +1310,20 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
+            "description" : "Term acc/ID.",
+            "display_name" : "Term ID",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_class",
+            "property" : [
+               "getIdentifier"
+            ]
+         },
+         {
+            "transform" : [],
             "description" : "Common term name.",
             "display_name" : "Term",
             "indexed" : "true",
@@ -1365,7 +1331,7 @@ amigo.data.golr = {
             "required" : "false",
             "cardinality" : "single",
             "type" : "string",
-            "id" : "label",
+            "id" : "annotation_class_label",
             "property" : [
                "getLabel"
             ]
@@ -1714,6 +1680,20 @@ amigo.data.golr = {
                "replaced_by"
             ]
          },
+         "annotation_class" : {
+            "transform" : [],
+            "description" : "Term acc/ID.",
+            "display_name" : "Term ID",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_class",
+            "property" : [
+               "getIdentifier"
+            ]
+         },
          "description" : {
             "transform" : [],
             "description" : "Term definition.",
@@ -1784,7 +1764,7 @@ amigo.data.golr = {
                "getComment"
             ]
          },
-         "label" : {
+         "annotation_class_label" : {
             "transform" : [],
             "description" : "Common term name.",
             "display_name" : "Term",
@@ -1793,7 +1773,7 @@ amigo.data.golr = {
             "required" : "false",
             "cardinality" : "single",
             "type" : "string",
-            "id" : "label",
+            "id" : "annotation_class_label",
             "property" : [
                "getLabel"
             ]
