@@ -42,30 +42,55 @@ function GooglesLoaderIsAJerk(){
 	    }
 	}
     }
-    var auto = new a_widget(sd.golr_base(), gconf, 'query',
-			    'annotation_class_label', forward);
+
+    // Set for the initial search box autocompleter.
+    var ont_args = {
+	'label_template':
+	'{{annotation_class_label}} ({{id}})',
+	'value_template': '{{annotation_class}}',
+	'list_select_callback': forward
+    };
+    var bio_args = {
+	'label_template':
+	'{{bioentity_label}} ({{id}})',
+	'value_template': '{{bioentity}}',
+	'list_select_callback': forward
+    };
+    var auto = new a_widget(sd.golr_base(), gconf, 'query', ont_args);
     auto.set_personality('bbop_ont'); // profile in gconf
     auto.add_query_filter('document_category', 'ontology_class'); // non-stick
 
-    //
+    // Set bbop_ont as the default checked.
     jQuery('input[value="bbop_ont"]').attr('checked', true);
 
-    // Make it responsive to what clas we've selected.
+    // Make it responsive to what class we've selected by clicks.
     jQuery('input[name="golr_class"]').each(
 	function(){
+	    // Do the following when we click on a category.
 	    jQuery(this).click(
 		function(){
-		    // Empty query.
+		    // Empty query box.
 		    jQuery('#' + 'query').val('');
 
-		    // Set new personality and filter.
+		    // Figure out what the new personality will be.
 		    var flavor = jQuery(this).val();
-		    auto.set_personality(flavor);
-		    auto.reset_query_filters();
+
+		    // Destroy the old autocompleter and create a new
+		    // one with the correct properties.
+		    auto.destroy();
+
+		    // Set new personality and filter for the
+		    // search_box/manager.
 		    if( flavor == 'bbop_ont' ){
+			auto = new a_widget(sd.golr_base(), gconf, 'query',
+					    ont_args);
+			auto.set_personality(flavor);
 			auto.add_query_filter('document_category',
 					      'ontology_class');
 		    }else if( flavor == 'bbop_bio' ){
+			auto = new a_widget(sd.golr_base(), gconf, 'query',
+					    bio_args);
+			auto.set_personality(flavor);
 			auto.add_query_filter('document_category',
 					      'bioentity');
 		    }else{
