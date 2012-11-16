@@ -8201,6 +8201,7 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj,
 		      function(level_item){			  
 
 			  var nid = level_item[0];
+			  var lbl = level_item[1];
 			  var rel = level_item[2];
 			  
 			  // For various sections, decide to run image
@@ -8212,11 +8213,16 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj,
 			  }
 
 			  // Clickable acc span.
-			  // No images, so the same either way.
-			  var nav_b =
-			      new bbop.html.span('<a>[' + nid + ']</a>',
-						 {'generate_id': true});
-			  nav_button_hash[nav_b.get_id()] = nid;
+			  // No images, so the same either way. Ignore
+			  // it if we're current.
+			  var nav_b = null;
+			  if(anchor._current_acc == nid){
+			      nav_b = new bbop.html.span('[' + nid + ']');
+			  }else{
+			      nav_b = new bbop.html.span('<a>[' + nid + ']</a>',
+							 {'generate_id': true});
+			      nav_button_hash[nav_b.get_id()] = nid;
+			  }
 
 			  // Clickable info span. A little difference
 			  // if we have images.
@@ -8274,7 +8280,7 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj,
 			  top_level.add_to(spaces,
 					   icon,
 					   nav_b.to_string(),
-					   level_item[1],
+					   lbl,
 					   info_b.to_string());
 		      }); 
 		 spaces = spaces + spacing;
@@ -8309,9 +8315,9 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj,
 		     function(){
 			 var tid = jQuery(this).attr('id');
 			 var call_time_node_id = info_button_hash[tid];
+			 var call_time_doc = resp.get_doc(call_time_node_id);
 			 anchor._info_button_callback(call_time_node_id,
-						      //json_data);
-						      doc);
+						      call_time_doc);
 		     });
 	     });
     }
@@ -8366,49 +8372,62 @@ bbop.core.namespace('bbop', 'widget', 'term_shield');
  * This is (sometimes) a specialized (and widgetized) subclass of
  * <bbop.golr.manager.jquery>.
  * 
- * Arguments:
- *  item - string (term id) or solr-returned json response
+ * To actually do much useful, you should set the personality of the
+ * widget.
+ * 
+ * The optional hash arguments look like:
+ * 
  *  linker - a "linker" object
- *  golr_conf_class_obj - a <bbop.golr.conf_class> object
- *  golr_loc - *[optional]* string url to GOlr server; not needed if local
+ *  width = defaults to 700
+ * 
+ * Arguments:
+ *  golr_loc - string url to GOlr server; not needed if local
+ *  golr_conf_obj - a <bbop.golr.conf> object
+ *  in_argument_hash - *[optional]* optional hash of optional arguments
  * 
  * Returns:
  *  self
  */
-bbop.widget.term_shield = function(item, linker, golr_conf_class_obj, golr_loc){
+bbop.widget.term_shield = function(golr_loc, golr_conf_obj, in_argument_hash){
+    
+    bbop.golr.manager.jquery.call(this, golr_loc, golr_conf_obj);
+    this._is_a = 'bbop.widget.term_shield';
+
+    var anchor = this;
 
     // Per-UI logger.
     var logger = new bbop.logger();
     logger.DEBUG = true;
     function ll(str){ logger.kvetch('W (term_shield): ' + str); }
 
-    // TODO/BUG: Whoa, that's rotten.
-    //bbop.golr.manager.jquery.call(this, golr_loc, golr_conf_obj);
-    bbop.golr.manager.jquery.call(this, golr_loc, {_is_a : 'bbop.golr.conf'});
-    this._is_a = 'bbop.widget.term_shield';
+    // Our argument default hash.
+    var default_hash = {
+	'linker_function': function(){},
+	'width': 700
+    };
+    var folding_hash = in_argument_hash || {};
+    var arg_hash = bbop.core.fold(default_hash, folding_hash);
+    var width = arg_hash['width'];
+    var linker = arg_hash['linker_function'];
 
-    // 
-    //var anchor = this;
-    //var loop = bbop.core.each;
-    // Successful callbacks call draw_rich_layout.
-    // anchor.register('search', 'do', draw_rich_layout);
-
-    // ...
-    function draw_shield(doc){
+    // Draw a locally help Solr response doc.
+    function _draw_local_doc(doc){
 	
 	//ll(doc['id']);
 
+	var personality = anchor.get_personality();
+	var cclass = golr_conf_obj.get_class(personality);
+
 	var txt = 'Nothing here...';
-	if( doc ){
+	if( doc && cclass ){
 
 	    var tbl = new bbop.html.table();
-	    var results_order =
-		golr_conf_class_obj.field_order_by_weight('result');
+	    var results_order = cclass.field_order_by_weight('result');
 	    var each = bbop.core.each; // conveience
 	    each(results_order,
 		 function(fid){
 		     // 
-		     var field = golr_conf_class_obj.get_field(fid);
+		     var field = cclass.get_field(fid);
 		     var val = doc[fid];
 		     //var link = linker.anchor({id: val}, 'term');
 		     var link = null;
@@ -8438,7 +8457,7 @@ bbop.widget.term_shield = function(item, linker, golr_conf_class_obj, golr_loc){
 	var diargs = {
 	    modal: true,
 	    draggable: false,
-	    width: 700,
+	    width: width,
 	    close:
 	    function(){
 		// TODO: Could maybe use .dialog('destroy') instead?
@@ -8448,26 +8467,42 @@ bbop.widget.term_shield = function(item, linker, golr_conf_class_obj, golr_loc){
 	var dia = jQuery('#' + div_id).dialog(diargs);
     }
 
-    // Call the render directly if we already have a document,
-    // otherwise, if it seems like a string (potential id), do a
-    // callback on it and pull the doc out.
-    if( bbop.core.what_is(item) == 'string' ){
-	// Setup and do a callback for data.
+    // Get a doc by id from a remote server then display it when it
+    // gets local.
+    // TODO: spinner?
+    function _draw_remote_id(id_string){
 	function _process_resp(json_data){
 	    var resp = new bbop.golr.response(json_data);
 	    var doc = resp.get_doc(0);
-	    draw_shield(doc);
+	    _draw_local_doc(doc);
 	}
-	this.register('search', 'do', _process_resp);
-	this.set_id(item);
-	this.search();
-    }else{
-	// It looks like a json data blob.
-	// var resp = bbop.golr.response(item);
-	// var doc = resp.get_doc(0);
-	// draw_shield(doc);
-	draw_shield(item);
+	anchor.register('search', 'do', _process_resp);
+	anchor.set_id(id_string);
+	//ll('FOO: ' + id_string);
+	anchor.search();
     }
+
+    /*
+     * Function: draw
+     * 
+     * Render a temporary modal information shield. 
+     * 
+     * Arguments:
+     *  item - either a document id or a Solr-returned document
+     * 
+     * Returns:
+     *  n/a
+     */
+    this.draw = function(item){
+    // Call the render directly if we already have a document,
+    // otherwise, if it seems like a string (potential id), do a
+    // callback on it and pull the doc out.
+	if( bbop.core.what_is(item) == 'string' ){
+	    _draw_remote_id(item);
+	}else{
+	    _draw_local_doc(item);
+	}
+    };
     
 };
 bbop.core.extend(bbop.widget.term_shield, bbop.golr.manager.jquery);

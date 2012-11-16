@@ -14,13 +14,20 @@ function BrowseInit(){
     var gconf = new bbop.golr.conf(amigo.data.golr);
 
     ///
+    /// The info shield.
+    ///
+
+    var linker = new amigo.linker();
+    var shield = new bbop.widget.term_shield(sd.golr_base(), gconf,
+					     {'linker_function': linker });
+    shield.set_personality('bbop_ont');
+
+    ///
     /// The tree browser.
     ///
 
     // Setup the widget with the server info.
     // Launch at a root with a boring callback.
-    var linker = new amigo.linker();
-    var cclass = gconf.get_class('bbop_ont');
     var b_widget = bbop.widget.browse;
     var b =
 	new b_widget(sd.golr_base(), 
@@ -33,15 +40,12 @@ function BrowseInit(){
 			 'image_type': 'gif',
 			 'info_button_callback':
 			 function(term_acc, term_doc){
-			     // Local form.
-			     new bbop.widget.term_shield(term_doc,
-							 linker, cclass);
-			     // Remote form.
-			     // new bbop.widget.term_shield(term_acc, linker,
-			     // 			    cclass,
-			     //                             sd.golr_base());
+			     // // Local form.
+			     // shield.draw(term_doc);
+			     // Remote form (works).
+			     shield.draw(term_acc);
 			 }
-		     } );
+		     });
     b.draw_browser('GO:0008150');
 
     ///
