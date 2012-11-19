@@ -6,10 +6,6 @@
  * BBOP language extensions to JavaScript.
  * 
  * Purpose: Helpful basic utilities and operations to fix common needs in JS.
- * 
- * TODO: Think again on whether or not these should be folded in to
- * language defined object prototypes.
- * 
  */
 
 // Module and namespace checking.
@@ -1114,7 +1110,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20121115";
+bbop.version.release = "20121119";
 /*
  * Package: logger.js
  * 
@@ -7506,6 +7502,345 @@ bbop.golr.manager.prototype.update = function(callback_type, rows, start){
     return qurl;
 };
 /* 
+ * Package: preload.js
+ * 
+ * Namespace: bbop.golr.manager.preload
+ * 
+ * Preload BBOP manager for dealing with remote calls. Remember,
+ * this is actually a "subclass" of <bbop.golr.manager>.
+ * 
+ * This is synchronous.
+ * 
+ * This is mostly for testing purposes.
+ */
+
+// Setup the internal requirements.
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'registry');
+bbop.core.require('bbop', 'golr', 'conf');
+bbop.core.require('bbop', 'golr', 'response');
+bbop.core.require('bbop', 'golr', 'manager');
+bbop.core.namespace('bbop', 'golr', 'manager', 'preload');
+
+/*
+ * Constructor: preload
+ * 
+ * Contructor for the GOlr query manager.
+ * 
+ * Allows preloading of the returned document.
+ * 
+ * Arguments:
+ *  golr_loc - string url to GOlr server
+ *  golr_conf_obj - a <bbop.golr.conf> object
+ * 
+ * Returns:
+ *  golr manager object
+ * 
+ * See also:
+ *  <bbop.golr.manager>
+ */
+bbop.golr.manager.preload = function (golr_loc, golr_conf_obj){
+    bbop.golr.manager.call(this, golr_loc, golr_conf_obj);
+    this._is_a = 'bbop.golr.manager.preload';
+
+    // The only property to add.
+    this._bgm_load = null;
+};
+bbop.core.extend(bbop.golr.manager.preload, bbop.golr.manager);
+
+/*
+ * Function: load
+ *
+ * Parameters: 
+ *  thing - what to send to the callbacks
+ *
+ * Returns:
+ *  n/a
+ */
+bbop.golr.manager.preload.prototype.load = function(thing){
+    this._bgm_load = thing;    
+};
+
+/*
+ * Function: update
+ *
+ *  See the documentation in <golr_manager.js> on update to get more
+ *  of the story. This override function adds a trigger that can be
+ *  preloaded with results. Really only for testing.
+ *
+ * Parameters: 
+ *  callback_type - callback type string
+ *  rows - *[serially optional]* integer; the number of rows to return
+ *  start - *[serially optional]* integer; the offset of the returned rows
+ *
+ * Returns:
+ *  the query url
+ * 
+ * Also see:
+ *  <get_query_url>
+ */
+bbop.golr.manager.preload.prototype.update = function(callback_type,
+						      rows, start){
+    // Get "parents" url first.
+    var parent_update = bbop.golr.manager.prototype.update;
+    var qurl = parent_update.call(this, callback_type, rows, start);
+
+    // 
+    var logger = new bbop.logger(this._is_a);
+    //this._logger = new bbop.logger(this._is_a);
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch(str); }
+
+    // Grab the data from the server and pick the right callback group
+    // accordingly.
+    var data = this._bgm_load;
+    if( bbop.core.is_defined(data) ){
+	this.apply_callbacks(callback_type, [data, this]);
+    }else{
+	this.apply_callbacks('error', ['unparsable data', this]);
+    }
+
+    return qurl;
+};
+/* 
+ * Package: nodejs.js
+ * 
+ * Namespace: bbop.golr.manager.nodejs
+ * 
+ * NodeJS BBOP manager for dealing with remote calls. Remember,
+ * this is actually a "subclass" of <bbop.golr.manager>.
+ * 
+ * This may be madness.
+ */
+
+// Setup the internal requirements.
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'registry');
+bbop.core.require('bbop', 'golr', 'conf');
+bbop.core.require('bbop', 'golr', 'response');
+bbop.core.require('bbop', 'golr', 'manager');
+bbop.core.namespace('bbop', 'golr', 'manager', 'nodejs');
+
+/*
+ * Constructor: nodejs
+ * 
+ * Contructor for the GOlr query manager; NodeJS flavor. YMMV.
+ * 
+ * Arguments:
+ *  golr_loc - string url to GOlr server;
+ *  golr_conf_obj - a <bbop.golr.conf> object
+ * 
+ * Returns:
+ *  golr manager object
+ * 
+ * See also:
+ *  <bbop.golr.manager>
+ */
+bbop.golr.manager.nodejs = function (golr_loc, golr_conf_obj){
+//function GOlrManager(in_args){
+    // We are a registry like this:
+    bbop.golr.manager.call(this, golr_loc, golr_conf_obj);
+    this._is_a = 'bbop.golr.manager.nodejs';
+
+    // Get a good self-reference point.
+    //var anchor = this;
+
+    // Per-manager logger.
+    //this._ll = ll;
+
+    // //
+    // ll('Alive.');
+
+};
+bbop.core.extend(bbop.golr.manager.nodejs, bbop.golr.manager);
+
+/*
+ * Function: update
+ *
+ *  See the documentation in <golr_manager.js> on update to get more
+ *  of the story. This override function adds functionality to NodeJS.
+ *
+ * Parameters: 
+ *  callback_type - callback type string
+ *  rows - *[serially optional]* integer; the number of rows to return
+ *  start - *[serially optional]* integer; the offset of the returned rows
+ *
+ * Returns:
+ *  the query url (with any NodeJS specific paramteters)
+ * 
+ * Also see:
+ *  <get_query_url>
+ */
+bbop.golr.manager.nodejs.prototype.update = function(callback_type,
+						     rows, start){
+    // Get "parents" url first.
+    var parent_update = bbop.golr.manager.prototype.update;
+    var qurl = parent_update.call(this, callback_type, rows, start);
+
+    // 
+    var logger = new bbop.logger(this._is_a);
+    //this._logger = new bbop.logger(this._is_a);
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch(str); }
+
+    var anchor = this;
+    this.last = null;
+    
+    //
+    function on_error(e) {
+	console.log('problem with request: ' + e.message);
+    }
+    function on_connect(res){
+	//console.log('STATUS: ' + res.statusCode);
+	//console.log('HEADERS: ' + JSON.stringify(res.headers));
+	res.setEncoding('utf8');
+	var raw_data = '';
+	res.on('data', function (chunk) {
+		   //console.log('BODY: ' + chunk);
+		   raw_data = raw_data + chunk;
+	       });
+	// Parse JS and call callback_type callbacks.
+	res.on('end', function () {
+		   var json_data = JSON.parse(raw_data);
+		   anchor.last = json_data;
+		   anchor.apply_callbacks(callback_type, [json_data, anchor]);
+	       });
+    }
+    var http = require('http');
+    var req = http.request(qurl, on_connect);
+    req.on('error', on_error);
+    
+    // write data to request body
+    //req.write('data\n');
+    //req.write('data\n');
+    req.end();
+    
+    return qurl;
+};
+/* 
+ * Package: rhino.js
+ * 
+ * Namespace: bbop.golr.manager.rhino
+ * 
+ * Rhino BBOP manager for dealing with remote calls. Remember,
+ * this is actually a "subclass" of <bbop.golr.manager>.
+ * 
+ * This may be madness.
+ */
+
+// Setup the internal requirements.
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'registry');
+bbop.core.require('bbop', 'golr', 'conf');
+bbop.core.require('bbop', 'golr', 'response');
+bbop.core.require('bbop', 'golr', 'manager');
+bbop.core.namespace('bbop', 'golr', 'manager', 'rhino');
+
+/*
+ * Constructor: rhino
+ * 
+ * Contructor for the GOlr query manager; Rhino-style.
+ * 
+ * Beware that this version is a synchronous call.
+ * 
+ * Arguments:
+ *  golr_loc - string url to GOlr server
+ *  golr_conf_obj - a <bbop.golr.conf> object
+ * 
+ * Returns:
+ *  golr manager object
+ * 
+ * See also:
+ *  <bbop.golr.manager>
+ */
+bbop.golr.manager.rhino = function (golr_loc, golr_conf_obj){
+    bbop.golr.manager.call(this, golr_loc, golr_conf_obj);
+    this._is_a = 'bbop.golr.manager.rhino';
+};
+bbop.core.extend(bbop.golr.manager.rhino, bbop.golr.manager);
+
+/*
+ * Function: update
+ *
+ *  See the documentation in <golr_manager.js> on update to get more
+ *  of the story. This override function adds functionality to Rhino.
+ *
+ * Parameters: 
+ *  callback_type - callback type string
+ *  rows - *[serially optional]* integer; the number of rows to return
+ *  start - *[serially optional]* integer; the offset of the returned rows
+ *
+ * Returns:
+ *  the query url (with any Rhino specific paramteters)
+ * 
+ * Also see:
+ *  <get_query_url>
+ */
+bbop.golr.manager.rhino.prototype.update = function(callback_type,
+						    rows, start){
+    // Get "parents" url first.
+    var parent_update = bbop.golr.manager.prototype.update;
+    var qurl = parent_update.call(this, callback_type, rows, start);
+
+    // 
+    var logger = new bbop.logger(this._is_a);
+    //this._logger = new bbop.logger(this._is_a);
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch(str); }
+
+    // Grab the data from the server and pick the right callback group
+    // accordingly.
+    var raw = readUrl(qurl); // in Rhino
+    var json_data = null;
+    if( raw && raw != '' ){
+	json_data = JSON.parse(raw);
+	if( json_data ){
+	    this.apply_callbacks(callback_type, [json_data, this]);
+	}else{
+	    this.apply_callbacks('error', ['unparsable data', this]);
+	}
+    }else{
+	this.apply_callbacks('error', ['no data', this]);
+    }
+
+    return qurl;
+};
+
+/*
+ * Function: fetch
+ *
+ * This is the synchronous data getter for Rhino--probably your best
+ * bet right now for scripting.
+ * 
+ * Parameters:
+ *  n/a 
+ *
+ * Returns:
+ *  the JSON response as an object or null
+ * 
+ * Also see:
+ *  <update>
+ */
+bbop.golr.manager.rhino.prototype.fetch = function(){
+    
+    var qurl = this.get_query_url();
+
+    // Grab the data from the server and pick the right callback group
+    // accordingly.
+    var raw = readUrl(qurl); // in Rhino
+    var json_data = null;
+    var retval = null;
+    if( raw && raw != '' ){
+	json_data = JSON.parse(raw);
+	if( json_data ){
+	    retval = json_data;
+	}
+    }
+
+    return retval;
+};
+
+/* 
  * Package: jquery.js
  * 
  * Namespace: bbop.golr.manager.jquery
@@ -8042,631 +8377,18 @@ bbop.widget.display.two_column_layout = function (col1, col2){
 bbop.widget.display.two_column_layout.prototype = new bbop.html.tag;
 
 /*
- * Package: browse.js
- * 
- * Namespace: bbop.widget.browse
- * 
- * BBOP object to draw various UI elements that have to do with
- * autocompletion.
- * 
- * This is a completely self-contained UI and manager.
- */
-
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'model');
-bbop.core.require('bbop', 'model', 'bracket', 'graph');
-bbop.core.require('bbop', 'html');
-bbop.core.require('bbop', 'golr', 'manager', 'jquery');
-bbop.core.namespace('bbop', 'widget', 'browse');
-
-/*
- * Constructor: browse
- * 
- * Contructor for the bbop.widget.browse object.
- * 
- * This is a specialized (and widgetized) subclass of
- * <bbop.golr.manager.jquery>.
- * 
- * While everything in the argument hash is technically optional,
- * there are probably some fields that you'll want to fill out to make
- * things work decently. The options for the argument hash are:
- * 
- *  topology_graph_field -  the field for the topology graph
- *  transitivity_graph_field - the field for the transitivity graph
- *  info_button_callback - functio to call when info clicked, gets doc
- *  base_icon_url - the url base that the fragments will be added to
- *  image_type - 'gif', 'png', etc.
- *  current_icon - the icon fragment for the current term
- *  info_icon - the icon fragment for the information icon
- *  info_alt - the alt text and title for the information icon
- * 
- * The basic formula for the icons is: base_icon_url + '/' + icon +
- * '.' + image_type; then all spaces are turned to underscores and all
- * uppercase letters are converted into lowercase letters.
- * 
- * The functions for the callbacks look like function(<term acc>,
- * <json data for the specific document>){}. If no function is given,
- * an empty function is used.
- * 
- * Arguments:
- *  golr_loc - string url to GOlr server;
- *  golr_conf_obj - a <bbop.golr.conf> object
- *  interface_id - string id of the element to build on
- *  in_argument_hash - *[optional]* optional hash of optional arguments
- * 
- * Returns:
- *  this object
- */
-bbop.widget.browse = function(golr_loc, golr_conf_obj,
-			      interface_id, in_argument_hash){
-
-    // Per-UI logger.
-    var logger = new bbop.logger();
-    logger.DEBUG = true;
-    function ll(str){ logger.kvetch('W (browse): ' + str); }
-
-    //ll(bbop.core.what_is(this));
-    bbop.golr.manager.jquery.call(this, golr_loc, golr_conf_obj);
-    //ll(bbop.core.what_is(this));
-    this._is_a = 'bbop.widget.browse';
-    //ll(bbop.core.what_is(this));
-
-    // 
-    var anchor = this;
-    var loop = bbop.core.each;
-    
-    // Our argument default hash.
-    var default_hash =
-	{
-	    'topology_graph_field' : 'topology_graph',
-	    'transitivity_graph_field' : 'transitivity_graph',
-	    'info_button_callback' : function(){},
-	    'base_icon_url' : null,
-	    'image_type' : 'gif',
-	    'current_icon' : 'this',
-	    'info_icon' : 'info',
-	    'info_alt' : 'Click for more information.'
-	};
-    var folding_hash = in_argument_hash || {};
-    var arg_hash = bbop.core.fold(default_hash, folding_hash);
-
-    // There should be a string interface_id argument.
-    this._interface_id = interface_id;
-    this._info_button_callback = arg_hash['info_button_callback'];
-    var topo_graph_field = arg_hash['topology_graph_field'];
-    var trans_graph_field = arg_hash['transitivity_graph_field'];
-    var base_icon_url = arg_hash['base_icon_url'];
-    var image_type = arg_hash['image_type'];
-    var current_icon = arg_hash['current_icon'];
-    var info_icon = arg_hash['info_icon'];
-    var info_alt = arg_hash['info_alt'];
-   
-    // The current acc that we are interested in.
-    this._current_acc = null;
-
-    // Successful callbacks call draw_rich_layout.
-    anchor.register('search', 'do', draw_rich_layout);
-
-    // Convert a string into something consistent for urls (getting
-    // icons, etc.).
-    function urlize(str){
-	return str.replace(" ", "_", "g").toLowerCase();
-    }
-
-    // Recursively draw a rich layout using nested uls.
-    function draw_rich_layout(json_data){
-	
-	///
-	/// Get the rich layout from the returned document if
-	/// possible.
-	///
-	var resp = new bbop.golr.response(json_data);
-	var doc = resp.documents(json_data)[0];
-
-	var topo_graph = new bbop.model.bracket.graph();
-	topo_graph.load_json(JSON.parse(doc[topo_graph_field]));
-
-	var trans_graph = new bbop.model.graph();
-	trans_graph.load_json(JSON.parse(doc[trans_graph_field]));
-
-	//ll('to: ' + doc['topology_graph']);
-	//ll('tr: ' + doc['transitivity_graph']);
-	//ll('ro: ' + anchor._current_acc);
-	//ll('g: ' + topo_graph.get_parent_nodes(anchor._current_acc));
-	var rich_layout = topo_graph.rich_bracket_layout(anchor._current_acc,
-							 trans_graph);
-	//ll("rl: " + bbop.core.dump(rich_layout));
-
-	///
-	/// Next, produce the raw HTML skeleton.
-	/// TODO: Keep a cache of the interesting ids for adding
-	/// events later.
-	///
-
-	// I guess we'll just start by making the list.
-	var top_level = new bbop.html.list();
-
-	// Store the navigation anf info buttons.
-	var nav_button_hash = {};
-	var info_button_hash = {};
-
-	// Cycle down through the brackets, adding spaces every time
-	// we go down another level.
-	var spacing = '&nbsp;&nbsp;&nbsp;&nbsp;';
-	var spaces = spacing;
-	loop(rich_layout, // for every level
-	     function(layout_level){
-		 loop(layout_level, // for every item at this level
-		      function(level_item){			  
-
-			  var nid = level_item[0];
-			  var lbl = level_item[1];
-			  var rel = level_item[2];
-			  
-			  // For various sections, decide to run image
-			  // (img) or text code depending on whether
-			  // or not it looks like we have a real URL.
-			  var use_img_p = true;
-			  if( base_icon_url == null || base_icon_url == '' ){
-			      use_img_p = false;
-			  }
-
-			  // Clickable acc span.
-			  // No images, so the same either way. Ignore
-			  // it if we're current.
-			  var nav_b = null;
-			  if(anchor._current_acc == nid){
-			      nav_b = new bbop.html.span('[' + nid + ']');
-			  }else{
-			      nav_b = new bbop.html.span('<a>[' + nid + ']</a>',
-							 {'generate_id': true});
-			      nav_button_hash[nav_b.get_id()] = nid;
-			  }
-
-			  // Clickable info span. A little difference
-			  // if we have images.
-			  var info_b = null;
-			  if( use_img_p ){
-			      // Do the icon version.
-			      var isrc = base_icon_url + '/' +
-				  info_icon + '.' + image_type;
-			      info_b =
-				  new bbop.html.image({'alt': info_alt,
-						       'title': info_alt,
-				  		       'src': urlize(isrc),
-				  		       'generate_id': true});
-			  }else{
-			      // Do a text-only version.
-			      info_b =
-				  new bbop.html.span('<b>[i]</b>',
-						     {'generate_id': true});
-			  }
-			  info_button_hash[info_b.get_id()] = nid;
-
-			  // "Icon". If base_icon_url is defined as
-			  // something try for images, otherwise fall
-			  // back to this text ick.
-			  var icon = null;
-			  if( use_img_p ){
-			      // Do the icon version.
-			      var ialt = '[' + rel + ']';
-			      var isrc = null;
-			      if(anchor._current_acc == nid){
-				  isrc = base_icon_url + '/' +
-			      	      current_icon + '.' + image_type;
-			      }else{
-				  isrc = base_icon_url + '/' +
-			      	      rel + '.' + image_type;
-			      }
-			      icon =
-				  new bbop.html.image({'alt': ialt,
-						       'title': rel,
-				  		       'src': urlize(isrc),
-				  		       'generate_id': true});
-			  }else{
-			      // Do a text-only version.
-			      if(anchor._current_acc == nid){
-				  icon = '[[->]]';
-			      }else if( rel && rel.length && rel.length > 0 ){
-				  icon = '[' + rel + ']';
-			      }else{
-				  icon = '[???]';
-			      }
-			  }
-
-			  // Stack the info, with the additional
-			  // spaces, into the div.
-			  top_level.add_to(spaces,
-					   icon,
-					   nav_b.to_string(),
-					   lbl,
-					   info_b.to_string());
-		      }); 
-		 spaces = spaces + spacing;
-	     }); 
-
-	// Add the skeleton to the doc.
-	jQuery('#' + anchor._interface_id).empty();
-	jQuery('#' + anchor._interface_id).append(top_level.to_string());
-
-	///
-	/// Finally, attach any events to the browser HTML doc.
-	///
-
-	// Navigation.
-	loop(nav_button_hash,
-	     function(button_id, node_id){
-
-		 jQuery('#' + button_id).click(
-		     function(){
-			 var tid = jQuery(this).attr('id');
-			 var call_time_node_id = nav_button_hash[tid];
-			 //alert(call_time_node_id);
-			 anchor.draw_browser(call_time_node_id);
-		     });
-	     });
-
-	// Information.
-	loop(info_button_hash,
-	     function(button_id, node_id){
-
-		 jQuery('#' + button_id).click(
-		     function(){
-			 var tid = jQuery(this).attr('id');
-			 var call_time_node_id = info_button_hash[tid];
-			 var call_time_doc = resp.get_doc(call_time_node_id);
-			 anchor._info_button_callback(call_time_node_id,
-						      call_time_doc);
-		     });
-	     });
-    }
-	
-    /*
-     * Function: draw_browser
-     * 
-     * Bootstraps the process.
-     * 
-     * Parameters:
-     *  term_acc - acc of term we want to have as the term of interest
-     * 
-     * Returns
-     *  n/a
-     */
-    //bbop.widget.browse.prototype.draw_browser = function(term_acc){
-    // this._current_acc = term_acc;
-    // this.set_id(term_acc);
-    // this.update('search');
-    this.draw_browser = function(term_acc){
-	anchor._current_acc = term_acc;
-	anchor.set_id(term_acc);
-	anchor.update('search');
-    };
-    
-};
-bbop.core.extend(bbop.widget.browse, bbop.golr.manager.jquery);
-/*
- * Package: term_shield.js
- * 
- * Namespace: bbop.widget.term_shield
- * 
- * BBOP object to produce a self-constructing/self-destructing term
- * information shield.
- * 
- * This is a completely self-contained UI and manager.
- */
-
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-//bbop.core.require('bbop', 'model');
-//bbop.core.require('bbop', 'model', 'graph', 'bracket');
-bbop.core.require('bbop', 'html');
-bbop.core.require('bbop', 'golr', 'manager', 'jquery');
-bbop.core.namespace('bbop', 'widget', 'term_shield');
-
-/*
- * Constructor: term_shield
- * 
- * Contructor for the bbop.widget.term_shield object.
- * 
- * This is (sometimes) a specialized (and widgetized) subclass of
- * <bbop.golr.manager.jquery>.
- * 
- * To actually do much useful, you should set the personality of the
- * widget.
- * 
- * The optional hash arguments look like:
- * 
- *  linker - a "linker" object
- *  width = defaults to 700
- * 
- * Arguments:
- *  golr_loc - string url to GOlr server; not needed if local
- *  golr_conf_obj - a <bbop.golr.conf> object
- *  in_argument_hash - *[optional]* optional hash of optional arguments
- * 
- * Returns:
- *  self
- */
-bbop.widget.term_shield = function(golr_loc, golr_conf_obj, in_argument_hash){
-    
-    bbop.golr.manager.jquery.call(this, golr_loc, golr_conf_obj);
-    this._is_a = 'bbop.widget.term_shield';
-
-    var anchor = this;
-
-    // Per-UI logger.
-    var logger = new bbop.logger();
-    logger.DEBUG = true;
-    function ll(str){ logger.kvetch('W (term_shield): ' + str); }
-
-    // Our argument default hash.
-    var default_hash = {
-	'linker_function': function(){},
-	'width': 700
-    };
-    var folding_hash = in_argument_hash || {};
-    var arg_hash = bbop.core.fold(default_hash, folding_hash);
-    var width = arg_hash['width'];
-    var linker = arg_hash['linker_function'];
-
-    // Draw a locally help Solr response doc.
-    function _draw_local_doc(doc){
-	
-	//ll(doc['id']);
-
-	var personality = anchor.get_personality();
-	var cclass = golr_conf_obj.get_class(personality);
-
-	var txt = 'Nothing here...';
-	if( doc && cclass ){
-
-	    var tbl = new bbop.html.table();
-	    var results_order = cclass.field_order_by_weight('result');
-	    var each = bbop.core.each; // conveience
-	    each(results_order,
-		 function(fid){
-		     // 
-		     var field = cclass.get_field(fid);
-		     var val = doc[fid];
-		     //var link = linker.anchor({id: val}, 'term');
-		     var link = null;
-		     if( val ){
-			 link = linker.anchor({id: val});
-			 if( link ){ val = link; }
-		     }else{
-			 val = 'n/a';
-		     }
-		     tbl.add_to([field.display_name(), val]);
-		     //tbl.add_to(['link', linker.anchor({id: doc['id']})]);
-		 });
-	    txt = tbl.to_string();
-	}
-
-	// Create div.
-	var div = new bbop.html.tag('div', {'generate_id': true});
-	var div_id = div.get_id();
-
-	// Append div to body.
-	jQuery('body').append(div.to_string());
-
-	// Add text to div.
-	jQuery('#' + div_id).append(txt);
-
-	// Modal dialogify div; include self-destruct.
-	var diargs = {
-	    modal: true,
-	    draggable: false,
-	    width: width,
-	    close:
-	    function(){
-		// TODO: Could maybe use .dialog('destroy') instead?
-		jQuery('#' + div_id).remove();
-	    }	    
-	};
-	var dia = jQuery('#' + div_id).dialog(diargs);
-    }
-
-    // Get a doc by id from a remote server then display it when it
-    // gets local.
-    // TODO: spinner?
-    function _draw_remote_id(id_string){
-	function _process_resp(json_data){
-	    var resp = new bbop.golr.response(json_data);
-	    var doc = resp.get_doc(0);
-	    _draw_local_doc(doc);
-	}
-	anchor.register('search', 'do', _process_resp);
-	anchor.set_id(id_string);
-	//ll('FOO: ' + id_string);
-	anchor.search();
-    }
-
-    /*
-     * Function: draw
-     * 
-     * Render a temporary modal information shield. 
-     * 
-     * Arguments:
-     *  item - either a document id or a Solr-returned document
-     * 
-     * Returns:
-     *  n/a
-     */
-    this.draw = function(item){
-    // Call the render directly if we already have a document,
-    // otherwise, if it seems like a string (potential id), do a
-    // callback on it and pull the doc out.
-	if( bbop.core.what_is(item) == 'string' ){
-	    _draw_remote_id(item);
-	}else{
-	    _draw_local_doc(item);
-	}
-    };
-    
-};
-bbop.core.extend(bbop.widget.term_shield, bbop.golr.manager.jquery);
-/*
- * Package: search_box.js
- * 
- * Namespace: bbop.widget.search_box
- * 
- * BBOP object to draw various UI elements that have to do with
- * autocompletion.
- * 
- * This is a completely self-contained UI and manager.
- */
-
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'template');
-bbop.core.require('bbop', 'golr', 'manager', 'jquery');
-bbop.core.namespace('bbop', 'widget', 'search_box');
-
-/*
- * Constructor: search_box
- * 
- * Contructor for the bbop.widget.search_box object.
- * 
- * This is a specialized (and widgetized) subclass of
- * <bbop.golr.manager.jquery>.
- * 
- * The function for the callback argument should either accept a
- * JSONized solr document representing the selected item or null
- * (nothing found).
- * 
- * While everything in the argument hash is technically optional,
- * there are probably some fields that you'll want to fill out to make
- * things work decently. The options for the argument hash are:
- * 
- *  output_type - thing to put in the input box: 'id' or 'label'
- *  list_select_callback - function takes a json solr doc
- * 
- * Arguments:
- *  golr_loc - string url to GOlr server;
- *  golr_conf_obj - a <bbop.golr.conf> object
- *  interface_id - string id of the element to build on
- *  in_argument_hash - *[optional]* optional hash of optional arguments
- * 
- * Returns:
- *  this object
- */
-bbop.widget.search_box = function(golr_loc,
-				  golr_conf_obj,
-				  interface_id,
-				  in_argument_hash){
-    bbop.golr.manager.jquery.call(this, golr_loc, golr_conf_obj);
-    this._is_a = 'bbop.widget.search_box';
-
-    // Aliases.
-    var anchor = this;
-    var loop = bbop.core.each;
-    
-    // Per-UI logger.
-    var logger = new bbop.logger();
-    logger.DEBUG = true;
-    function ll(str){ logger.kvetch('W (auto): ' + str); }
-
-    // Our argument default hash.
-    var default_hash =
-	{
-	    'label_template': '{{id}}',
-	    'value_template': '{{id}}',
-	    'minimum_length': 3, // wait for three characters or more
-	    'list_select_callback': function(){}
-	};
-    var folding_hash = in_argument_hash || {};
-    var arg_hash = bbop.core.fold(default_hash, folding_hash);
-
-    // There should be a string interface_id argument.
-    this._interface_id = interface_id;
-    this._list_select_callback = arg_hash['list_select_callback'];
-    var label_tt = new bbop.template(arg_hash['label_template']);
-    var value_tt = new bbop.template(arg_hash['value_template']);
-    var minlen = arg_hash['minimum_length'];
-
-    // The all-important argument hash. See:
-    // http://jqueryui.com/demos/autocomplete/#method-widget
-    var auto_args = {
-	minLength: minlen,
-	// Function for a successful data hit.
-	// The data getter, which is making it all more complicated
-	// than it needs to be...we need to close around those
-	// callback hooks so we have to do it inplace here.
-	source: function(request_data, response_hook) {
-	    anchor.jq_vars['success'] = function(json_data){
-		var retlist = [];
-		var resp = new bbop.golr.response(json_data);
-		if( resp.success() ){
-		    loop(resp.documents(),
-			 function(doc){
-
-			     // First, try and pull what we can out of our
-			     var lbl = label_tt.fill(doc);
-
-			     // Now the same thing for the return/value.
-			     var val = value_tt.fill(doc);
-
-			     // Add the discovered items to the return
-			     // save.
-			     var item = {
-				 'label': lbl,
-				 'value': val,
-				 'document': doc
-			     };
-			     retlist.push(item);
-			 });
-		}
-		response_hook(retlist);
-	    };
-
-	    // Get the selected term into the manager and fire.
-	    //anchor.set_query(request_data.term);
-	    anchor.set_comfy_query(request_data.term);
-	    anchor.JQ.ajax(anchor.get_query_url(), anchor.jq_vars);
-	},
-	// What to do when an element is selected.
-	select: function(event, ui){
-	    var doc_to_apply = null;
-	    if( ui.item ){
-		doc_to_apply = ui.item.document;
-	    }
-
-	    // Only do the callback if it is defined.
-	    if( bbop.core.is_defined(anchor._list_select_callback) ){
-		anchor._list_select_callback(doc_to_apply);
-	    }
-	}
-    };
-
-    // Set the ball rolling (attach jQuery autocomplete to doc).
-    jQuery('#' + anchor._interface_id).autocomplete(auto_args);
-
-
-    /*
-     * Function: destroy
-     * 
-     * Remore the autocomplete and functionality from the DOM.
-     * 
-     * Arguments:
-     *  n/a
-     * 
-     * Returns:
-     *  n/a
-     */
-    this.destroy = function(){
-	jQuery('#' + anchor._interface_id).autocomplete('destroy');
-    };
-
-};
-bbop.core.extend(bbop.widget.search_box, bbop.golr.manager.jquery);
-/*
  * Package: live_search.js
  * 
- * Namespace: bbop.widget.live_search
+ * Namespace: bbop.widget.display.live_search
  * 
  * AmiGO object to draw various UI elements that have to do with things
  * dealing with a fully faceted searcher/browser.
+ * 
+ * It is probably not particularly useful directly, but rather used as
+ * the framework for more specialized interfaces.
+ * 
+ * See Also:
+ *  <search_pane.js>
  */
 
 bbop.core.require('bbop', 'core');
@@ -8679,7 +8401,7 @@ bbop.core.namespace('bbop', 'widget', 'live_search');
 /*
  * Constructor: live_search
  * 
- * Contructor for the bbop.widget.live_search object.
+ * Contructor for the bbop.widget.display.live_search object.
  * 
  * Arguments:
  *  interface_id - string id of the div to build on
@@ -8688,7 +8410,7 @@ bbop.core.namespace('bbop', 'widget', 'live_search');
  * Returns:
  *  BBOP GOlr UI object
  */
-bbop.widget.live_search = function (interface_id, conf_class){
+bbop.widget.display.live_search = function (interface_id, conf_class){
 
     var anchor = this;
     var each = bbop.core.each;
@@ -8787,7 +8509,7 @@ bbop.widget.live_search = function (interface_id, conf_class){
      * Returns:
      *  n/a
      */
-    this.setup_reset_button = function(json_data, manager){
+    this.setup_reset_button = function(){
     
 	// Tags and output to the page.
 	var reset_span = new bbop.html.span('&nbsp;<b>[reset]</b>',
@@ -9461,342 +9183,785 @@ bbop.widget.live_search = function (interface_id, conf_class){
     };
 
 };
-/* 
- * Package: preload.js
+/*
+ * Package: browse.js
  * 
- * Namespace: bbop.golr.manager.preload
+ * Namespace: bbop.widget.browse
  * 
- * Preload BBOP manager for dealing with remote calls. Remember,
- * this is actually a "subclass" of <bbop.golr.manager>.
+ * BBOP object to draw various UI elements that have to do with
+ * autocompletion.
  * 
- * This is synchronous.
- * 
- * This is mostly for testing purposes.
+ * This is a completely self-contained UI and manager.
  */
 
-// Setup the internal requirements.
 bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'registry');
-bbop.core.require('bbop', 'golr', 'conf');
-bbop.core.require('bbop', 'golr', 'response');
-bbop.core.require('bbop', 'golr', 'manager');
-bbop.core.namespace('bbop', 'golr', 'manager', 'preload');
+bbop.core.require('bbop', 'logger');
+bbop.core.require('bbop', 'model');
+bbop.core.require('bbop', 'model', 'bracket', 'graph');
+bbop.core.require('bbop', 'html');
+bbop.core.require('bbop', 'golr', 'manager', 'jquery');
+bbop.core.namespace('bbop', 'widget', 'browse');
 
 /*
- * Constructor: preload
+ * Constructor: browse
  * 
- * Contructor for the GOlr query manager.
+ * Contructor for the bbop.widget.browse object.
  * 
- * Allows preloading of the returned document.
+ * This is a specialized (and widgetized) subclass of
+ * <bbop.golr.manager.jquery>.
  * 
- * Arguments:
- *  golr_loc - string url to GOlr server
- *  golr_conf_obj - a <bbop.golr.conf> object
+ * While everything in the argument hash is technically optional,
+ * there are probably some fields that you'll want to fill out to make
+ * things work decently. The options for the argument hash are:
  * 
- * Returns:
- *  golr manager object
+ *  topology_graph_field -  the field for the topology graph
+ *  transitivity_graph_field - the field for the transitivity graph
+ *  info_button_callback - functio to call when info clicked, gets doc
+ *  base_icon_url - the url base that the fragments will be added to
+ *  image_type - 'gif', 'png', etc.
+ *  current_icon - the icon fragment for the current term
+ *  info_icon - the icon fragment for the information icon
+ *  info_alt - the alt text and title for the information icon
  * 
- * See also:
- *  <bbop.golr.manager>
- */
-bbop.golr.manager.preload = function (golr_loc, golr_conf_obj){
-    bbop.golr.manager.call(this, golr_loc, golr_conf_obj);
-    this._is_a = 'bbop.golr.manager.preload';
-
-    // The only property to add.
-    this._bgm_load = null;
-};
-bbop.core.extend(bbop.golr.manager.preload, bbop.golr.manager);
-
-/*
- * Function: load
- *
- * Parameters: 
- *  thing - what to send to the callbacks
- *
- * Returns:
- *  n/a
- */
-bbop.golr.manager.preload.prototype.load = function(thing){
-    this._bgm_load = thing;    
-};
-
-/*
- * Function: update
- *
- *  See the documentation in <golr_manager.js> on update to get more
- *  of the story. This override function adds a trigger that can be
- *  preloaded with results. Really only for testing.
- *
- * Parameters: 
- *  callback_type - callback type string
- *  rows - *[serially optional]* integer; the number of rows to return
- *  start - *[serially optional]* integer; the offset of the returned rows
- *
- * Returns:
- *  the query url
+ * The basic formula for the icons is: base_icon_url + '/' + icon +
+ * '.' + image_type; then all spaces are turned to underscores and all
+ * uppercase letters are converted into lowercase letters.
  * 
- * Also see:
- *  <get_query_url>
- */
-bbop.golr.manager.preload.prototype.update = function(callback_type,
-						      rows, start){
-    // Get "parents" url first.
-    var parent_update = bbop.golr.manager.prototype.update;
-    var qurl = parent_update.call(this, callback_type, rows, start);
-
-    // 
-    var logger = new bbop.logger(this._is_a);
-    //this._logger = new bbop.logger(this._is_a);
-    logger.DEBUG = true;
-    function ll(str){ logger.kvetch(str); }
-
-    // Grab the data from the server and pick the right callback group
-    // accordingly.
-    var data = this._bgm_load;
-    if( bbop.core.is_defined(data) ){
-	this.apply_callbacks(callback_type, [data, this]);
-    }else{
-	this.apply_callbacks('error', ['unparsable data', this]);
-    }
-
-    return qurl;
-};
-/* 
- * Package: nodejs.js
- * 
- * Namespace: bbop.golr.manager.nodejs
- * 
- * NodeJS BBOP manager for dealing with remote calls. Remember,
- * this is actually a "subclass" of <bbop.golr.manager>.
- * 
- * This may be madness.
- */
-
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'registry');
-bbop.core.require('bbop', 'golr', 'conf');
-bbop.core.require('bbop', 'golr', 'response');
-bbop.core.require('bbop', 'golr', 'manager');
-bbop.core.namespace('bbop', 'golr', 'manager', 'nodejs');
-
-/*
- * Constructor: nodejs
- * 
- * Contructor for the GOlr query manager; NodeJS flavor. YMMV.
+ * The functions for the callbacks look like function(<term acc>,
+ * <json data for the specific document>){}. If no function is given,
+ * an empty function is used.
  * 
  * Arguments:
  *  golr_loc - string url to GOlr server;
  *  golr_conf_obj - a <bbop.golr.conf> object
+ *  interface_id - string id of the element to build on
+ *  in_argument_hash - *[optional]* optional hash of optional arguments
  * 
  * Returns:
- *  golr manager object
- * 
- * See also:
- *  <bbop.golr.manager>
+ *  this object
  */
-bbop.golr.manager.nodejs = function (golr_loc, golr_conf_obj){
-//function GOlrManager(in_args){
-    // We are a registry like this:
-    bbop.golr.manager.call(this, golr_loc, golr_conf_obj);
-    this._is_a = 'bbop.golr.manager.nodejs';
+bbop.widget.browse = function(golr_loc, golr_conf_obj, interface_id,
+			      in_argument_hash){
 
-    // Get a good self-reference point.
-    //var anchor = this;
+    // Per-UI logger.
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch('B (widget): ' + str); }
 
-    // Per-manager logger.
-    //this._ll = ll;
-
-    // //
-    // ll('Alive.');
-
-};
-bbop.core.extend(bbop.golr.manager.nodejs, bbop.golr.manager);
-
-/*
- * Function: update
- *
- *  See the documentation in <golr_manager.js> on update to get more
- *  of the story. This override function adds functionality to NodeJS.
- *
- * Parameters: 
- *  callback_type - callback type string
- *  rows - *[serially optional]* integer; the number of rows to return
- *  start - *[serially optional]* integer; the offset of the returned rows
- *
- * Returns:
- *  the query url (with any NodeJS specific paramteters)
- * 
- * Also see:
- *  <get_query_url>
- */
-bbop.golr.manager.nodejs.prototype.update = function(callback_type,
-						     rows, start){
-    // Get "parents" url first.
-    var parent_update = bbop.golr.manager.prototype.update;
-    var qurl = parent_update.call(this, callback_type, rows, start);
+    bbop.golr.manager.jquery.call(this, golr_loc, golr_conf_obj);
+    this._is_a = 'bbop.widget.browse';
+    // ll("what_is (post: this.update): " + bbop.core.what_is(this.update));
 
     // 
-    var logger = new bbop.logger(this._is_a);
-    //this._logger = new bbop.logger(this._is_a);
-    logger.DEBUG = true;
-    function ll(str){ logger.kvetch(str); }
-
     var anchor = this;
-    this.last = null;
+    var loop = bbop.core.each;
     
-    //
-    function on_error(e) {
-	console.log('problem with request: ' + e.message);
+    // Our argument default hash.
+    var default_hash =
+	{
+	    'topology_graph_field' : 'topology_graph',
+	    'transitivity_graph_field' : 'transitivity_graph',
+	    'info_button_callback' : function(){},
+	    'base_icon_url' : null,
+	    'image_type' : 'gif',
+	    'current_icon' : 'this',
+	    'info_icon' : 'info',
+	    'info_alt' : 'Click for more information.'
+	};
+    var folding_hash = in_argument_hash || {};
+    var arg_hash = bbop.core.fold(default_hash, folding_hash);
+
+    // There should be a string interface_id argument.
+    this._interface_id = interface_id;
+    this._info_button_callback = arg_hash['info_button_callback'];
+    var topo_graph_field = arg_hash['topology_graph_field'];
+    var trans_graph_field = arg_hash['transitivity_graph_field'];
+    var base_icon_url = arg_hash['base_icon_url'];
+    var image_type = arg_hash['image_type'];
+    var current_icon = arg_hash['current_icon'];
+    var info_icon = arg_hash['info_icon'];
+    var info_alt = arg_hash['info_alt'];
+   
+    // The current acc that we are interested in.
+    this._current_acc = null;
+
+    // Successful callbacks call draw_rich_layout.
+    anchor.register('search', 'do', draw_rich_layout);
+
+    // Convert a string into something consistent for urls (getting
+    // icons, etc.).
+    function urlize(str){
+	return str.replace(" ", "_", "g").toLowerCase();
     }
-    function on_connect(res){
-	//console.log('STATUS: ' + res.statusCode);
-	//console.log('HEADERS: ' + JSON.stringify(res.headers));
-	res.setEncoding('utf8');
-	var raw_data = '';
-	res.on('data', function (chunk) {
-		   //console.log('BODY: ' + chunk);
-		   raw_data = raw_data + chunk;
-	       });
-	// Parse JS and call callback_type callbacks.
-	res.on('end', function () {
-		   var json_data = JSON.parse(raw_data);
-		   anchor.last = json_data;
-		   anchor.apply_callbacks(callback_type, [json_data, anchor]);
-	       });
+
+    // Recursively draw a rich layout using nested uls.
+    function draw_rich_layout(json_data){
+	
+	///
+	/// Get the rich layout from the returned document if
+	/// possible.
+	///
+	var resp = new bbop.golr.response(json_data);
+	var doc = resp.documents(json_data)[0];
+
+	var topo_graph = new bbop.model.bracket.graph();
+	topo_graph.load_json(JSON.parse(doc[topo_graph_field]));
+
+	var trans_graph = new bbop.model.graph();
+	trans_graph.load_json(JSON.parse(doc[trans_graph_field]));
+
+	//ll('to: ' + doc['topology_graph']);
+	//ll('tr: ' + doc['transitivity_graph']);
+	//ll('ro: ' + anchor._current_acc);
+	//ll('g: ' + topo_graph.get_parent_nodes(anchor._current_acc));
+	var rich_layout = topo_graph.rich_bracket_layout(anchor._current_acc,
+							 trans_graph);
+	//ll("rl: " + bbop.core.dump(rich_layout));
+
+	///
+	/// Next, produce the raw HTML skeleton.
+	/// TODO: Keep a cache of the interesting ids for adding
+	/// events later.
+	///
+
+	// I guess we'll just start by making the list.
+	var top_level = new bbop.html.list();
+
+	// Store the navigation anf info buttons.
+	var nav_button_hash = {};
+	var info_button_hash = {};
+
+	// Cycle down through the brackets, adding spaces every time
+	// we go down another level.
+	var spacing = '&nbsp;&nbsp;&nbsp;&nbsp;';
+	var spaces = spacing;
+	loop(rich_layout, // for every level
+	     function(layout_level){
+		 loop(layout_level, // for every item at this level
+		      function(level_item){			  
+
+			  var nid = level_item[0];
+			  var lbl = level_item[1];
+			  var rel = level_item[2];
+			  
+			  // For various sections, decide to run image
+			  // (img) or text code depending on whether
+			  // or not it looks like we have a real URL.
+			  var use_img_p = true;
+			  if( base_icon_url == null || base_icon_url == '' ){
+			      use_img_p = false;
+			  }
+
+			  // Clickable acc span.
+			  // No images, so the same either way. Ignore
+			  // it if we're current.
+			  var nav_b = null;
+			  if(anchor._current_acc == nid){
+			      nav_b = new bbop.html.span('[' + nid + ']');
+			  }else{
+			      nav_b = new bbop.html.span('<a>[' + nid + ']</a>',
+							 {'generate_id': true});
+			      nav_button_hash[nav_b.get_id()] = nid;
+			  }
+
+			  // Clickable info span. A little difference
+			  // if we have images.
+			  var info_b = null;
+			  if( use_img_p ){
+			      // Do the icon version.
+			      var isrc = base_icon_url + '/' +
+				  info_icon + '.' + image_type;
+			      info_b =
+				  new bbop.html.image({'alt': info_alt,
+						       'title': info_alt,
+				  		       'src': urlize(isrc),
+				  		       'generate_id': true});
+			  }else{
+			      // Do a text-only version.
+			      info_b =
+				  new bbop.html.span('<b>[i]</b>',
+						     {'generate_id': true});
+			  }
+			  info_button_hash[info_b.get_id()] = nid;
+
+			  // "Icon". If base_icon_url is defined as
+			  // something try for images, otherwise fall
+			  // back to this text ick.
+			  var icon = null;
+			  if( use_img_p ){
+			      // Do the icon version.
+			      var ialt = '[' + rel + ']';
+			      var isrc = null;
+			      if(anchor._current_acc == nid){
+				  isrc = base_icon_url + '/' +
+			      	      current_icon + '.' + image_type;
+			      }else{
+				  isrc = base_icon_url + '/' +
+			      	      rel + '.' + image_type;
+			      }
+			      icon =
+				  new bbop.html.image({'alt': ialt,
+						       'title': rel,
+				  		       'src': urlize(isrc),
+				  		       'generate_id': true});
+			  }else{
+			      // Do a text-only version.
+			      if(anchor._current_acc == nid){
+				  icon = '[[->]]';
+			      }else if( rel && rel.length && rel.length > 0 ){
+				  icon = '[' + rel + ']';
+			      }else{
+				  icon = '[???]';
+			      }
+			  }
+
+			  // Stack the info, with the additional
+			  // spaces, into the div.
+			  top_level.add_to(spaces,
+					   icon,
+					   nav_b.to_string(),
+					   lbl,
+					   info_b.to_string());
+		      }); 
+		 spaces = spaces + spacing;
+	     }); 
+
+	// Add the skeleton to the doc.
+	jQuery('#' + anchor._interface_id).empty();
+	jQuery('#' + anchor._interface_id).append(top_level.to_string());
+
+	///
+	/// Finally, attach any events to the browser HTML doc.
+	///
+
+	// Navigation.
+	loop(nav_button_hash,
+	     function(button_id, node_id){
+
+		 jQuery('#' + button_id).click(
+		     function(){
+			 var tid = jQuery(this).attr('id');
+			 var call_time_node_id = nav_button_hash[tid];
+			 //alert(call_time_node_id);
+			 anchor.draw_browser(call_time_node_id);
+		     });
+	     });
+
+	// Information.
+	loop(info_button_hash,
+	     function(button_id, node_id){
+
+		 jQuery('#' + button_id).click(
+		     function(){
+			 var tid = jQuery(this).attr('id');
+			 var call_time_node_id = info_button_hash[tid];
+			 var call_time_doc = resp.get_doc(call_time_node_id);
+			 anchor._info_button_callback(call_time_node_id,
+						      call_time_doc);
+		     });
+	     });
     }
-    var http = require('http');
-    var req = http.request(qurl, on_connect);
-    req.on('error', on_error);
+	
+    /*
+     * Function: draw_browser
+     * 
+     * Bootstraps the process.
+     * 
+     * Parameters:
+     *  term_acc - acc of term we want to have as the term of interest
+     * 
+     * Returns
+     *  n/a
+     */
+    //bbop.widget.browse.prototype.draw_browser = function(term_acc){
+    // this._current_acc = term_acc;
+    // this.set_id(term_acc);
+    // this.update('search');
+    this.draw_browser = function(term_acc){
+	anchor._current_acc = term_acc;
+	anchor.set_id(term_acc);
+	anchor.update('search');
+    };
     
-    // write data to request body
-    //req.write('data\n');
-    //req.write('data\n');
-    req.end();
-    
-    return qurl;
 };
-/* 
- * Package: rhino.js
+bbop.core.extend(bbop.widget.browse, bbop.golr.manager.jquery);
+/*
+ * Package: search_box.js
  * 
- * Namespace: bbop.golr.manager.rhino
+ * Namespace: bbop.widget.search_box
  * 
- * Rhino BBOP manager for dealing with remote calls. Remember,
- * this is actually a "subclass" of <bbop.golr.manager>.
+ * BBOP object to draw various UI elements that have to do with
+ * autocompletion.
  * 
- * This may be madness.
+ * This is a completely self-contained UI and manager.
  */
 
-// Setup the internal requirements.
 bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'registry');
-bbop.core.require('bbop', 'golr', 'conf');
-bbop.core.require('bbop', 'golr', 'response');
-bbop.core.require('bbop', 'golr', 'manager');
-bbop.core.namespace('bbop', 'golr', 'manager', 'rhino');
+bbop.core.require('bbop', 'logger');
+bbop.core.require('bbop', 'template');
+bbop.core.require('bbop', 'golr', 'manager', 'jquery');
+bbop.core.namespace('bbop', 'widget', 'search_box');
 
 /*
- * Constructor: rhino
+ * Constructor: search_box
  * 
- * Contructor for the GOlr query manager; Rhino-style.
+ * Contructor for the bbop.widget.search_box object.
  * 
- * Beware that this version is a synchronous call.
+ * This is a specialized (and widgetized) subclass of
+ * <bbop.golr.manager.jquery>.
+ * 
+ * The function for the callback argument should either accept a
+ * JSONized solr document representing the selected item or null
+ * (nothing found).
+ * 
+ * While everything in the argument hash is technically optional,
+ * there are probably some fields that you'll want to fill out to make
+ * things work decently. The options for the argument hash are:
+ * 
+ *  output_type - thing to put in the input box: 'id' or 'label'
+ *  list_select_callback - function takes a json solr doc
  * 
  * Arguments:
- *  golr_loc - string url to GOlr server
+ *  golr_loc - string url to GOlr server;
  *  golr_conf_obj - a <bbop.golr.conf> object
+ *  interface_id - string id of the element to build on
+ *  in_argument_hash - *[optional]* optional hash of optional arguments
  * 
  * Returns:
- *  golr manager object
- * 
- * See also:
- *  <bbop.golr.manager>
+ *  this object
  */
-bbop.golr.manager.rhino = function (golr_loc, golr_conf_obj){
-    bbop.golr.manager.call(this, golr_loc, golr_conf_obj);
-    this._is_a = 'bbop.golr.manager.rhino';
-};
-bbop.core.extend(bbop.golr.manager.rhino, bbop.golr.manager);
+bbop.widget.search_box = function(golr_loc,
+				  golr_conf_obj,
+				  interface_id,
+				  in_argument_hash){
+    bbop.golr.manager.jquery.call(this, golr_loc, golr_conf_obj);
+    this._is_a = 'bbop.widget.search_box';
 
-/*
- * Function: update
- *
- *  See the documentation in <golr_manager.js> on update to get more
- *  of the story. This override function adds functionality to Rhino.
- *
- * Parameters: 
- *  callback_type - callback type string
- *  rows - *[serially optional]* integer; the number of rows to return
- *  start - *[serially optional]* integer; the offset of the returned rows
- *
- * Returns:
- *  the query url (with any Rhino specific paramteters)
- * 
- * Also see:
- *  <get_query_url>
- */
-bbop.golr.manager.rhino.prototype.update = function(callback_type,
-						    rows, start){
-    // Get "parents" url first.
-    var parent_update = bbop.golr.manager.prototype.update;
-    var qurl = parent_update.call(this, callback_type, rows, start);
-
-    // 
-    var logger = new bbop.logger(this._is_a);
-    //this._logger = new bbop.logger(this._is_a);
-    logger.DEBUG = true;
-    function ll(str){ logger.kvetch(str); }
-
-    // Grab the data from the server and pick the right callback group
-    // accordingly.
-    var raw = readUrl(qurl); // in Rhino
-    var json_data = null;
-    if( raw && raw != '' ){
-	json_data = JSON.parse(raw);
-	if( json_data ){
-	    this.apply_callbacks(callback_type, [json_data, this]);
-	}else{
-	    this.apply_callbacks('error', ['unparsable data', this]);
-	}
-    }else{
-	this.apply_callbacks('error', ['no data', this]);
-    }
-
-    return qurl;
-};
-
-/*
- * Function: fetch
- *
- * This is the synchronous data getter for Rhino--probably your best
- * bet right now for scripting.
- * 
- * Parameters:
- *  n/a 
- *
- * Returns:
- *  the JSON response as an object or null
- * 
- * Also see:
- *  <update>
- */
-bbop.golr.manager.rhino.prototype.fetch = function(){
+    // Aliases.
+    var anchor = this;
+    var loop = bbop.core.each;
     
-    var qurl = this.get_query_url();
+    // Per-UI logger.
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch('W (auto): ' + str); }
 
-    // Grab the data from the server and pick the right callback group
-    // accordingly.
-    var raw = readUrl(qurl); // in Rhino
-    var json_data = null;
-    var retval = null;
-    if( raw && raw != '' ){
-	json_data = JSON.parse(raw);
-	if( json_data ){
-	    retval = json_data;
+    // Our argument default hash.
+    var default_hash =
+	{
+	    'label_template': '{{id}}',
+	    'value_template': '{{id}}',
+	    'minimum_length': 3, // wait for three characters or more
+	    'list_select_callback': function(){}
+	};
+    var folding_hash = in_argument_hash || {};
+    var arg_hash = bbop.core.fold(default_hash, folding_hash);
+
+    // There should be a string interface_id argument.
+    this._interface_id = interface_id;
+    this._list_select_callback = arg_hash['list_select_callback'];
+    var label_tt = new bbop.template(arg_hash['label_template']);
+    var value_tt = new bbop.template(arg_hash['value_template']);
+    var minlen = arg_hash['minimum_length'];
+
+    // The all-important argument hash. See:
+    // http://jqueryui.com/demos/autocomplete/#method-widget
+    var auto_args = {
+	minLength: minlen,
+	// Function for a successful data hit.
+	// The data getter, which is making it all more complicated
+	// than it needs to be...we need to close around those
+	// callback hooks so we have to do it inplace here.
+	source: function(request_data, response_hook) {
+	    anchor.jq_vars['success'] = function(json_data){
+		var retlist = [];
+		var resp = new bbop.golr.response(json_data);
+		if( resp.success() ){
+		    loop(resp.documents(),
+			 function(doc){
+
+			     // First, try and pull what we can out of our
+			     var lbl = label_tt.fill(doc);
+
+			     // Now the same thing for the return/value.
+			     var val = value_tt.fill(doc);
+
+			     // Add the discovered items to the return
+			     // save.
+			     var item = {
+				 'label': lbl,
+				 'value': val,
+				 'document': doc
+			     };
+			     retlist.push(item);
+			 });
+		}
+		response_hook(retlist);
+	    };
+
+	    // Get the selected term into the manager and fire.
+	    //anchor.set_query(request_data.term);
+	    anchor.set_comfy_query(request_data.term);
+	    anchor.JQ.ajax(anchor.get_query_url(), anchor.jq_vars);
+	},
+	// What to do when an element is selected.
+	select: function(event, ui){
+	    var doc_to_apply = null;
+	    if( ui.item ){
+		doc_to_apply = ui.item.document;
+	    }
+
+	    // Only do the callback if it is defined.
+	    if( bbop.core.is_defined(anchor._list_select_callback) ){
+		anchor._list_select_callback(doc_to_apply);
+	    }
 	}
+    };
+
+    // Set the ball rolling (attach jQuery autocomplete to doc).
+    jQuery('#' + anchor._interface_id).autocomplete(auto_args);
+
+
+    /*
+     * Function: destroy
+     * 
+     * Remore the autocomplete and functionality from the DOM.
+     * 
+     * Arguments:
+     *  n/a
+     * 
+     * Returns:
+     *  n/a
+     */
+    this.destroy = function(){
+	jQuery('#' + anchor._interface_id).autocomplete('destroy');
+    };
+
+};
+bbop.core.extend(bbop.widget.search_box, bbop.golr.manager.jquery);
+/*
+ * Package: term_shield.js
+ * 
+ * Namespace: bbop.widget.term_shield
+ * 
+ * BBOP object to produce a self-constructing/self-destructing term
+ * information shield.
+ * 
+ * This is a completely self-contained UI and manager.
+ */
+
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'logger');
+//bbop.core.require('bbop', 'model');
+//bbop.core.require('bbop', 'model', 'graph', 'bracket');
+bbop.core.require('bbop', 'html');
+bbop.core.require('bbop', 'golr', 'manager', 'jquery');
+bbop.core.namespace('bbop', 'widget', 'term_shield');
+
+/*
+ * Constructor: term_shield
+ * 
+ * Contructor for the bbop.widget.term_shield object.
+ * 
+ * This is (sometimes) a specialized (and widgetized) subclass of
+ * <bbop.golr.manager.jquery>.
+ * 
+ * To actually do much useful, you should set the personality of the
+ * widget.
+ * 
+ * The optional hash arguments look like:
+ * 
+ *  linker - a "linker" object
+ *  width - defaults to 700
+ * 
+ * Arguments:
+ *  golr_loc - string url to GOlr server; not needed if local
+ *  golr_conf_obj - a <bbop.golr.conf> object
+ *  in_argument_hash - *[optional]* optional hash of optional arguments
+ * 
+ * Returns:
+ *  self
+ */
+bbop.widget.term_shield = function(golr_loc, golr_conf_obj, in_argument_hash){
+    
+    bbop.golr.manager.jquery.call(this, golr_loc, golr_conf_obj);
+    this._is_a = 'bbop.widget.term_shield';
+
+    var anchor = this;
+
+    // Per-UI logger.
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch('W (term_shield): ' + str); }
+
+    // Our argument default hash.
+    var default_hash = {
+	'linker_function': function(){},
+	'width': 700
+    };
+    var folding_hash = in_argument_hash || {};
+    var arg_hash = bbop.core.fold(default_hash, folding_hash);
+    var width = arg_hash['width'];
+    var linker = arg_hash['linker_function'];
+
+    // Draw a locally help Solr response doc.
+    function _draw_local_doc(doc){
+	
+	//ll(doc['id']);
+
+	var personality = anchor.get_personality();
+	var cclass = golr_conf_obj.get_class(personality);
+
+	var txt = 'Nothing here...';
+	if( doc && cclass ){
+
+	    var tbl = new bbop.html.table();
+	    var results_order = cclass.field_order_by_weight('result');
+	    var each = bbop.core.each; // conveience
+	    each(results_order,
+		 function(fid){
+		     // 
+		     var field = cclass.get_field(fid);
+		     var val = doc[fid];
+		     //var link = linker.anchor({id: val}, 'term');
+		     var link = null;
+		     if( val ){
+			 link = linker.anchor({id: val});
+			 if( link ){ val = link; }
+		     }else{
+			 val = 'n/a';
+		     }
+		     tbl.add_to([field.display_name(), val]);
+		     //tbl.add_to(['link', linker.anchor({id: doc['id']})]);
+		 });
+	    txt = tbl.to_string();
+	}
+
+	// Create div.
+	var div = new bbop.html.tag('div', {'generate_id': true});
+	var div_id = div.get_id();
+
+	// Append div to body.
+	jQuery('body').append(div.to_string());
+
+	// Add text to div.
+	jQuery('#' + div_id).append(txt);
+
+	// Modal dialogify div; include self-destruct.
+	var diargs = {
+	    modal: true,
+	    draggable: false,
+	    width: width,
+	    close:
+	    function(){
+		// TODO: Could maybe use .dialog('destroy') instead?
+		jQuery('#' + div_id).remove();
+	    }	    
+	};
+	var dia = jQuery('#' + div_id).dialog(diargs);
     }
 
-    return retval;
-};
+    // Get a doc by id from a remote server then display it when it
+    // gets local.
+    // TODO: spinner?
+    function _draw_remote_id(id_string){
+	function _process_resp(json_data){
+	    var resp = new bbop.golr.response(json_data);
+	    var doc = resp.get_doc(0);
+	    _draw_local_doc(doc);
+	}
+	anchor.register('search', 'do', _process_resp);
+	anchor.set_id(id_string);
+	//ll('FOO: ' + id_string);
+	anchor.search();
+    }
 
+    /*
+     * Function: draw
+     * 
+     * Render a temporary modal information shield. 
+     * 
+     * Arguments:
+     *  item - either a document id or a Solr-returned document
+     * 
+     * Returns:
+     *  n/a
+     */
+    this.draw = function(item){
+    // Call the render directly if we already have a document,
+    // otherwise, if it seems like a string (potential id), do a
+    // callback on it and pull the doc out.
+	if( bbop.core.what_is(item) == 'string' ){
+	    _draw_remote_id(item);
+	}else{
+	    _draw_local_doc(item);
+	}
+    };
+    
+};
+bbop.core.extend(bbop.widget.term_shield, bbop.golr.manager.jquery);
+/*
+ * Package: search_pane.js
+ * 
+ * Namespace: bbop.widget.search_pane
+ * 
+ * BBOP object to produce a self-constructing/self-destructing term
+ * general filtering search tool for an index.
+ * 
+ * The function ".establish_display()" must be run *after* an initial
+ * personality is set.
+ * 
+ * This is a completely self-contained UI and manager.
+ */
+
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'logger');
+//bbop.core.require('bbop', 'model');
+//bbop.core.require('bbop', 'model', 'graph', 'bracket');
+bbop.core.require('bbop', 'html');
+bbop.core.require('bbop', 'golr', 'manager', 'jquery');
+bbop.core.namespace('bbop', 'widget', 'search_pane');
+
+/*
+ * Constructor: search_pane
+ * 
+ * Contructor for the bbop.widget.search_pane object.
+ * 
+ * This is a specialized (and widgetized) subclass of
+ * <bbop.golr.manager.jquery>.
+ * 
+ * To actually do much useful, you should set the personality of the
+ * widget.
+ * 
+ * Sticky filters (see manager documentation) are "hidden" from the
+ * user in all displays.
+ * 
+ * The optional hash arguments look like:
+ * 
+ *  ??? - ???
+ * 
+ * Arguments:
+ *  golr_loc - string url to GOlr server; not needed if local
+ *  golr_conf_obj - a <bbop.golr.conf> object
+ *  interface_id - string id of the element to build on
+ *  in_argument_hash - *[optional]* optional hash of optional arguments
+ * 
+ * Returns:
+ *  self
+ */
+bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
+				   in_argument_hash){
+
+    // Per-UI logger.
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch('SP (widget): ' + str); }    
+
+    bbop.golr.manager.jquery.call(this, golr_loc, golr_conf_obj);
+    this._is_a = 'bbop.widget.search_pane';
+    // ll("what_is (post: this.update): " + bbop.core.what_is(this.update));
+
+    // ...
+    var loop = bbop.core.loop;
+    var anchor = this;
+
+    // Our argument default hash.
+    var default_hash =
+    	{
+    	    'base_icon_url' : null,
+    	    'image_type' : 'gif',
+    	    'show_searchbox_p' : true,
+    	    'show_filterbox_p' : true,
+    	    'show_metadata_p' : true
+    	};
+    var folding_hash = in_argument_hash || {};
+    var arg_hash = bbop.core.fold(default_hash, folding_hash);
+
+    // Pull args into variables.
+    var base_icon_url = arg_hash['base_icon_url'];
+    var image_type = arg_hash['image_type'];
+    var show_searchbox_p = arg_hash['show_searchbox_p'];
+    var show_filterbox_p = arg_hash['show_filterbox_p'];
+    var show_metadata_p = arg_hash['show_metadata_p'];
+
+    /*
+     * Function: establish_display
+     * 
+     * Completely redraw the display. May be useful after a major
+     * change to the manager.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns
+     *  n/a
+     */
+    this.establish_display = function(){
+	
+    	// Blow away whatever was there completely.
+    	jQuery('#' + interface_id).empty();
+
+    	// Can only make a display if there is a set
+    	// personality--there is no general default and it is an
+    	// error.
+    	var personality = anchor.get_personality();
+    	var cclass = golr_conf_obj.get_class(personality);
+    	if( ! personality || ! cclass ){
+    	    ll('ERROR: no personality set');
+    	    throw new Error('ERROR: no personality set');
+    	}
+
+    	///
+    	/// Setup UI and bind it to events.
+    	///
+	
+    	// Create a new two column layout and a lot of hidden switches
+    	// and variables.
+    	var ui = new bbop.widget.display.live_search(interface_id, cclass);
+	
+    	// Things to do on every reset event. Essentially re-draw
+    	// everything.
+    	if( show_searchbox_p ){ // conditionally display search box stuff
+    	    anchor.register('reset', 'reset_query',
+    			    ui.reset_query, -1);
+    	    anchor.register('reset', 'rereset_button',
+    			    ui.reset_reset_button,-1);
+    	}
+    	if( show_filterbox_p ){ // conditionally display filter stuff
+    	    anchor.register('reset', 'curr_first',
+    			    ui.draw_current_filters, -1);
+    	    anchor.register('reset', 'accordion_first',
+    			    ui.draw_accordion, -1);
+    	}
+    	// We're always showing meta and results.
+    	anchor.register('reset', 'meta_first', ui.draw_meta, -1);
+    	anchor.register('reset', 'results_first', ui.draw_results, -1);
+	
+    	// Things to do on every search event.
+    	if( show_filterbox_p ){ // conditionally display filter stuff
+    	    anchor.register('search','curr_filters_std',
+    			    ui.draw_current_filters);
+    	    anchor.register('search', 'accordion_std', ui.draw_accordion);
+    	}
+    	// These will always be updated after a search.
+    	anchor.register('search', 'meta_usual', ui.draw_meta);
+    	anchor.register('search', 'results_usual', ui.draw_results);
+	
+    	// Things to do on an error.
+    	anchor.register('error', 'results_unusual', ui.draw_error);	
+	
+    	// Setup the gross frames for the filters and results.
+    	ui.setup_query();
+    	ui.setup_reset_button();
+    	ui.setup_current_filters();
+    	ui.setup_accordion();
+    	ui.setup_results({'meta': show_metadata_p});
+	
+    	// Start the ball with a reset event.
+    	anchor.reset();
+    };
+
+    // Now let's run the above function as the initializer.
+    // anchor.establish_display();
+};
+bbop.core.extend(bbop.widget.search_pane, bbop.golr.manager.jquery);

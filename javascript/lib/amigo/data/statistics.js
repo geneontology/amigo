@@ -23,18 +23,18 @@ bbop.core.namespace('amigo', 'data', 'statistics');
  * 
  * TBD
  */
-amigo.data.statistics.annotation_source = [["PomBase", 31878], ["GOC", 638], ["RefGenome", 201], ["UniProtKB", 60], ["BHF-UCL", 14], ["IntAct", 8], ["Reactome", 1]];
+amigo.data.statistics.annotation_source = [["PomBase", 31878], ["MGI", 23265], ["dictyBase", 20566], ["UniProtKB", 15978], ["RGD", 3467], ["GOC", 1293], ["BHF-UCL", 635], ["RefGenome", 512], ["IntAct", 127], ["HGNC", 87], ["DFLAT", 11], ["PINC", 4], ["Reactome", 1]];
 
 /*
  * Variable: annotation_source
  * 
  * TBD
  */
-amigo.data.statistics.annotation_evidence = [["experimental evidence", 14960], ["similarity evidence", 10800], ["curator inference", 3580], ["author statement", 2738], ["combinatorial evidence", 722]];
+amigo.data.statistics.annotation_evidence = [["similarity evidence", 32265], ["experimental evidence", 29019], ["curator inference", 17805], ["author statement", 3709], ["combinatorial evidence", 761]];
 
 /*
  * Variable: annotation_overview
  * 
  * TBD
  */
-amigo.data.statistics.annotation_overview = [["Source", "similarity evidence", "experimental evidence", "curator inference", "author statement", "combinatorial evidence", "genomic context evidence", "biological system reconstruction", "imported information"], ["dictyBase", 0, 0, 0, 0, 0, 0, 0, 0], ["EcoCyc", 0, 0, 0, 0, 0, 0, 0, 0], ["FlyBase", 0, 0, 0, 0, 0, 0, 0, 0], ["MGI", 0, 0, 0, 0, 0, 0, 0, 0], ["PomBase", 10122, 14796, 3571, 2667, 722, 0, 0, 0], ["RGD", 0, 0, 0, 0, 0, 0, 0, 0], ["SGD", 0, 0, 0, 0, 0, 0, 0, 0], ["TAIR", 0, 0, 0, 0, 0, 0, 0, 0], ["WB", 0, 0, 0, 0, 0, 0, 0, 0], ["ZFIN", 0, 0, 0, 0, 0, 0, 0, 0]];
+amigo.data.statistics.annotation_overview = [["Source", "similarity evidence", "experimental evidence", "curator inference", "author statement", "combinatorial evidence", "genomic context evidence", "biological system reconstruction", "imported information"], ["dictyBase", 9293, 4312, 6478, 483, 0, 0, 0, 0], ["EcoCyc", 0, 0, 0, 0, 0, 0, 0, 0], ["FlyBase", 0, 0, 0, 0, 0, 0, 0, 0], ["MGI", 8125, 7084, 7728, 290, 38, 0, 0, 0], ["PomBase", 10122, 14796, 3571, 2667, 722, 0, 0, 0], ["RGD", 3467, 0, 0, 0, 0, 0, 0, 0], ["SGD", 0, 0, 0, 0, 0, 0, 0, 0], ["TAIR", 0, 0, 0, 0, 0, 0, 0, 0], ["WB", 0, 0, 0, 0, 0, 0, 0, 0], ["ZFIN", 0, 0, 0, 0, 0, 0, 0, 0]];
