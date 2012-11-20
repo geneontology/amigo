@@ -126,9 +126,9 @@ bbop.core.crop = function(str, lim, suff){
 /*
  * Function: fold
  *
- * Fold a pair of hashes together, using the first one as a
- * template. Only the keys in the default hash will be defined in the
- * final hash.
+ * Fold a pair of hashes together, using the first one as an initial
+ * template--only the keys in the default hash will be defined in the
+ * final hash--and the second hash getting precedence.
  * 
  * The can be quite useful when defining functions--essentially
  * allowing a limited default value system for arguments.
@@ -148,7 +148,7 @@ bbop.core.fold = function(default_hash, arg_hash){
 
     var ret_hash = {};
     for( var key in default_hash ){
-	if( arg_hash[key] ){
+	if( bbop.core.is_defined(arg_hash[key]) ){
 	    ret_hash[key] = arg_hash[key];
 	}else{
 	    ret_hash[key] = default_hash[key];
@@ -927,6 +927,34 @@ bbop.core.url_parameters = function(url){
 		  });
     
     return retlist;
+};
+
+/*
+ * Function: resourcify
+ *
+ * Convert a string into something consistent for urls (getting icons,
+ * etc.). Return a munged/hashed-down version of the resource.
+ * Assembles, converts spaces to underscores, and all lowercases.
+ * 
+ * Parameters:
+ *  base - base url for the resource(s)
+ *  resource - the filename or whatever to be transformed
+ *  extension - *[optional]* the extension of the resource
+ *
+ * Returns:
+ *  string
+ */
+bbop.core.resourcify = function(base, resource, extension){
+
+    var retval = base + '/' + resource;
+
+    // Add the extension if it is there.
+    if( extension ){
+	retval += '.' + extension;	
+    }
+
+    // Spaces to underscores and all lowercase.
+    return retval.replace(" ", "_", "g").toLowerCase();
 };
 
 /*
@@ -8457,7 +8485,8 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
     var ui_results_table_div_id = mangle + 'results-table-id';
     var ui_current_filters_div_id = mangle + 'current_filters-id';
     var ui_query_input_id = mangle + 'query-id';
-    var ui_reset_span_id = mangle + 'reset-id';
+    var ui_clear_query_span_id = mangle + 'clear-query-id';
+    var ui_global_reset_span_id = mangle + 'global-reset-id';
 
     // Additional id hooks for easy callbacks. While these are not as
     // easily changable as the above, we use them often enough and
@@ -8475,8 +8504,6 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
      * Setup the free text query display under contructed tags for
      * later population.
      * 
-     * Also, as a lark for now, it does the reset button.
-     * 
      * Parameters:
      *  label_str - *[optional]* string or bbop.html for input label
      *
@@ -8493,15 +8520,17 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 					    label_str);
 	var query_div = new bbop.html.input({'id': ui_query_input_id,
 					     'class': 'golr-ui-input'});	
+	var clear_query_span =new bbop.html.span('&nbsp;<b>[clear]</b>',
+						 {'id':ui_clear_query_span_id});
 	jQuery('#' + ui_controls_section_id).append(query_label.to_string());
 	jQuery('#' + ui_controls_section_id).append(query_div.to_string());
+	jQuery('#'+ui_controls_section_id).append(clear_query_span.to_string());
     };
 
     /*
-     * Function: setup_reset_button
+     * Function: setup_global_reset_button
      *
-     * Also, as a lark for now, add a bit of a place for the reset
-     * button.
+     * Add a bit of a place for the global reset button.
      * 
      * Parameters:
      *  n/a
@@ -8509,12 +8538,13 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
      * Returns:
      *  n/a
      */
-    this.setup_reset_button = function(){
-    
-	// Tags and output to the page.
-	var reset_span = new bbop.html.span('&nbsp;<b>[reset]</b>',
-					    {'id': ui_reset_span_id});
-	jQuery('#' + ui_controls_section_id).append(reset_span.to_string());
+    this.setup_global_reset_button = function(){    
+    	// Tags and output to the page.
+    	var global_reset_span =
+	    new bbop.html.span('&nbsp;<b>[reset all]</b>',
+			       {'id': ui_global_reset_span_id});
+	var gstr = global_reset_span.to_string();
+    	jQuery('#' + ui_controls_section_id).append(gstr);
     };
 
     /*
@@ -8814,7 +8844,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
                             kc == 20 || // ctl?
                             kc == 17 || // ctl?
                             kc == 16 || // shift
-                            kc ==  8 || // delete
+                            //kc ==  8 || // delete
                             kc ==  0 ){ // super
 				ll('ignorable key event: ' + kc);
 				ignorable_event_p = true;
@@ -8845,12 +8875,20 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 		    }
 		}
 	    });
+
+	// Now reset the clear button and immediately set the event.
+	jQuery('#' + ui_clear_query_span_id).click(
+	    function(){
+		jQuery('#' + ui_query_input_id).val('');
+		manager.reset_query();
+		manager.search();
+	    });
     };
 
     /*
-     * Function: reset_reset_button
+     * Function: reset_global_reset_button
      *
-     * Add events and redraw to the reset button section.
+     * Add events and redraw to the global reset button section.
      * 
      * Parameters:
      *  n/a
@@ -8858,15 +8896,15 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
      * Returns:
      *  n/a
      */
-    this.reset_reset_button = function(json_data, manager){
+    this.reset_global_reset_button = function(json_data, manager){
     
-	ll('Reset reset button');
-	//jQuery('#' + ui_reset_span_id).empty();
-	// Immediately set the event.
-	jQuery('#' + ui_reset_span_id).click(
-	    function(){
-		manager.reset();
-	    });
+    	ll('Reset global reset button');
+    	//jQuery('#' + ui_reset_span_id).empty();
+    	// Immediately set the event.
+    	jQuery('#' + ui_global_reset_span_id).click(
+    	    function(){
+    		manager.reset();
+    	    });
     };
 
     /*
@@ -9288,12 +9326,6 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj, interface_id,
     // Successful callbacks call draw_rich_layout.
     anchor.register('search', 'do', draw_rich_layout);
 
-    // Convert a string into something consistent for urls (getting
-    // icons, etc.).
-    function urlize(str){
-	return str.replace(" ", "_", "g").toLowerCase();
-    }
-
     // Recursively draw a rich layout using nested uls.
     function draw_rich_layout(json_data){
 	
@@ -9369,12 +9401,13 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj, interface_id,
 			  var info_b = null;
 			  if( use_img_p ){
 			      // Do the icon version.
-			      var isrc = base_icon_url + '/' +
-				  info_icon + '.' + image_type;
+			      var isrc = bbop.core.resourcify(base_icon_url,
+							      info_icon,
+							      image_type);
 			      info_b =
 				  new bbop.html.image({'alt': info_alt,
 						       'title': info_alt,
-				  		       'src': urlize(isrc),
+				  		       'src': isrc,
 				  		       'generate_id': true});
 			  }else{
 			      // Do a text-only version.
@@ -9393,16 +9426,17 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj, interface_id,
 			      var ialt = '[' + rel + ']';
 			      var isrc = null;
 			      if(anchor._current_acc == nid){
-				  isrc = base_icon_url + '/' +
-			      	      current_icon + '.' + image_type;
+				  isrc = bbop.core.resourcify(base_icon_url,
+			      				      current_icon,
+							      image_type);
 			      }else{
-				  isrc = base_icon_url + '/' +
-			      	      rel + '.' + image_type;
+				  isrc = bbop.core.resourcify(base_icon_url,
+			      				      rel, image_type);
 			      }
 			      icon =
 				  new bbop.html.image({'alt': ialt,
 						       'title': rel,
-				  		       'src': urlize(isrc),
+				  		       'src': isrc,
 				  		       'generate_id': true});
 			  }else{
 			      // Do a text-only version.
@@ -9806,12 +9840,16 @@ bbop.core.extend(bbop.widget.term_shield, bbop.golr.manager.jquery);
  * Namespace: bbop.widget.search_pane
  * 
  * BBOP object to produce a self-constructing/self-destructing term
- * general filtering search tool for an index.
+ * general filtering search tool for an index. This is a completely
+ * self-contained UI and manager.
  * 
  * The function ".establish_display()" must be run *after* an initial
  * personality is set.
  * 
- * This is a completely self-contained UI and manager.
+ * Also, in many use cases, you'll want to have an line like the following 
+ * befire running ".establish_display()".
+ * : sp_widget.add_query_filter('document_category', 'annotation', ['*']);
+ * 
  */
 
 bbop.core.require('bbop', 'core');
@@ -9830,15 +9868,18 @@ bbop.core.namespace('bbop', 'widget', 'search_pane');
  * This is a specialized (and widgetized) subclass of
  * <bbop.golr.manager.jquery>.
  * 
- * To actually do much useful, you should set the personality of the
- * widget.
- * 
  * Sticky filters (see manager documentation) are "hidden" from the
  * user in all displays.
  * 
  * The optional hash arguments look like:
  * 
- *  ??? - ???
+ *  base_icon_url - base path to icons, see above (default null, use text)
+ *  image_type - icon image type (default 'gif')
+ *  layout_type - choose the layout type to use (default 'two-column')
+ *  show_global_reset_p - show the global reset button (default true)
+ *  show_searchbox_p - show the search query box (default true)
+ *  show_filterbox_p - show currents filters and accordion (default true)
+ *  show_pager_p - show the results pager (default true)
  * 
  * Arguments:
  *  golr_loc - string url to GOlr server; not needed if local
@@ -9870,9 +9911,11 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	{
     	    'base_icon_url' : null,
     	    'image_type' : 'gif',
+    	    'layout_type' : 'two-column',
+    	    'show_global_reset_p' : true,
     	    'show_searchbox_p' : true,
     	    'show_filterbox_p' : true,
-    	    'show_metadata_p' : true
+    	    'show_pager_p' : true
     	};
     var folding_hash = in_argument_hash || {};
     var arg_hash = bbop.core.fold(default_hash, folding_hash);
@@ -9880,15 +9923,20 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     // Pull args into variables.
     var base_icon_url = arg_hash['base_icon_url'];
     var image_type = arg_hash['image_type'];
+    var layout_type = arg_hash['layout_type'];
+    var show_global_reset_p = arg_hash['show_global_reset_p'];
     var show_searchbox_p = arg_hash['show_searchbox_p'];
     var show_filterbox_p = arg_hash['show_filterbox_p'];
-    var show_metadata_p = arg_hash['show_metadata_p'];
+    var show_pager_p = arg_hash['show_pager_p'];
 
     /*
      * Function: establish_display
      * 
-     * Completely redraw the display. May be useful after a major
-     * change to the manager.
+     * Completely redraw the display.
+     * 
+     * Required to display after setting up the manager.
+     * 
+     * Also may be useful after a major change to the manager.
      * 
      * Parameters:
      *  n/a
@@ -9917,15 +9965,21 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	
     	// Create a new two column layout and a lot of hidden switches
     	// and variables.
-    	var ui = new bbop.widget.display.live_search(interface_id, cclass);
+    	var ui = null;
+	if( layout_type == 'two-column' ){
+	    ui = new bbop.widget.display.live_search(interface_id, cclass);
+	}else{
+    	    throw new Error('ERROR: unsupported layout type: ' + layout_type);
+	}
 	
     	// Things to do on every reset event. Essentially re-draw
     	// everything.
     	if( show_searchbox_p ){ // conditionally display search box stuff
-    	    anchor.register('reset', 'reset_query',
-    			    ui.reset_query, -1);
-    	    anchor.register('reset', 'rereset_button',
-    			    ui.reset_reset_button,-1);
+    	    anchor.register('reset', 'reset_query', ui.reset_query, -1);
+	}
+    	if( show_global_reset_p ){ // conditionally show global reset button
+    	    anchor.register('reset', 'global_reset_button',
+    	    		    ui.reset_global_reset_button,-1);
     	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.register('reset', 'curr_first',
@@ -9951,11 +10005,18 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	anchor.register('error', 'results_unusual', ui.draw_error);	
 	
     	// Setup the gross frames for the filters and results.
-    	ui.setup_query();
-    	ui.setup_reset_button();
-    	ui.setup_current_filters();
-    	ui.setup_accordion();
-    	ui.setup_results({'meta': show_metadata_p});
+    	//ui.setup_reset_button();
+    	if( show_searchbox_p ){ // conditionally display search box stuff
+    	    ui.setup_query();
+	}
+    	if( show_global_reset_p ){ // conditionally show global reset button
+	    ui.setup_global_reset_button();
+	}
+    	if( show_filterbox_p ){ // conditionally display filter stuff
+    	    ui.setup_current_filters();
+    	    ui.setup_accordion();
+	}
+    	ui.setup_results({'meta': show_pager_p});
 	
     	// Start the ball with a reset event.
     	anchor.reset();

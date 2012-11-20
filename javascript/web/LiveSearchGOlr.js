@@ -1,13 +1,7 @@
 ////
-//// A full take on a production live search for GOlr--try and make it
-//// work directly off of the server for giggles/testing.
+//// A full take on a production live search for GOlr.
+//// It ends up being a light wrapping around the search_pane widget.
 //// 
-//// TODO/BUG: Right now, all of the searches are hard coded with a
-//// shared agreement with the server. This needs to be changed to an
-//// automatically generated jQuery search selector with no server
-//// secret--it should be fairly easy to do, but later when I get a
-//// chance...
-////
 
 // Logger.
 var logger = new bbop.logger();
@@ -50,12 +44,27 @@ function LiveSearchGOlrInit(){
     // Setup the annotation profile and make the annotation document
     // category and the current acc sticky in the filters.
     //var search = new bbop.golr.manager.jquery(solr_server, gconf);
-    var search = new bbop.widget.search_pane(solr_server, gconf, div_id);
-    search.set_personality('bbop_ann'); // profile in gconf
-    search.include_highlighting(true); // like highlights; automatic in widget
-    // We still need this, because without, we end up with a lot of
+    var hargs = {
+	'base_icon_url' : null,
+    	'image_type' : 'gif',
+    	'layout_type' : 'two-column',
+    	'show_global_reset_p' : true,
+    	'show_searchbox_p' : true,
+    	'show_filterbox_p' : true,
+    	'show_pager_p' : true
+    };
+    var search = new bbop.widget.search_pane(solr_server, gconf, div_id, hargs);
+    // Default profile we'll use in gconf.
+    search.set_personality('bbop_ann');
+    // We like highlights; they should be included automatically
+    // through the widget.
+    search.include_highlighting(true);
+    // We still need this--without it we end up with a lot of
     // stray fields where automatic controls fail.
     search.add_query_filter('document_category', 'annotation', ['*']);
+
+    // Initialze/establish the display.
+    search.establish_display();
 
     ///
     /// Enable search class switching.
@@ -88,7 +97,8 @@ function LiveSearchGOlrInit(){
     	search.establish_display();
     }
 
-    // Turn them into a jQuery button set and make them active.
+    // Turn the radio row into a jQuery button set and make them
+    // active.
     jQuery("#search_radio").buttonset();
     var loop = bbop.core.each;
     loop(['bbop_ann', 'bbop_ont', 'bbop_bio', 'bbop_ann_ev_agg'],
@@ -96,9 +106,6 @@ function LiveSearchGOlrInit(){
     	     var c = '#' + cclass_id;
     	     jQuery(c).click(_on_search_select);
     	 });
-
-    // Initialze/establish the display.
-    search.establish_display();
 
     // Done message.
     ll('LiveSearchGOlrInit done.');

@@ -186,8 +186,8 @@ p select { margin-left: 5px; }
 
 #graph li { padding-right: 5px; }
 
-.odd_row { }
-.even_row { background: #e9effa; }
+.odd_row { background: #e9effa; }
+.even_row { }
 .crossed_row { background: #d3dff5; }
 
 .select { display: block; }
