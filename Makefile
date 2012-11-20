@@ -66,8 +66,8 @@ tags:
 
 .PHONY: bundle
 
-#bundle: data
-bundle:
+#bundle:
+bundle: data
 	./install -b
 
 ###
