@@ -18,64 +18,22 @@ AMIGO_ROOT:
     Please enter the full path to the SVN geneontology/AmiGO[/trunk] directory.
   type: directory
     
-# GOBO_ROOT:
-#   value: ''
-#   comment: >
-#     Please enter the full path to the SVN geneontology/gobo-dbic directory.
-#     You may not need this if you already have the package loaded as a library.
-#   type: true
-
-GO_BBOPJS_ROOT:
-  value: ''
-  comment: >
-    Please enter the full path to the base of the BBOP JS directory.
-  type: directory
-
 GO_YAML_LOCATION:
   value: ''
   comment: >
-    Please enter the full path to the Google Code SVN owltools(?) YAML directory.
+    Please enter the full path to the YAML config files directory. In that directory, all files like *config.yaml will be scanned for use.
   type: directory
+
+GO_BBOPJS_LOCATION:
+  comment: >
+    If this is not redefined to a new location (e.g. the BBOP-JS staging/ directory, it will use the bbop.js bundle packaged with AmiGO 2 (the one used in the unit tests) in the _data/ directory.
+  type: directory
+  value: ./_data
 
 # - NAME: AMIGO_DOT_PATH
 #   value: /usr/bin/dot
 #   comment: "Please enter the full path for the \"dot\" command"
 #   type: executable
-
-###
-### Database variables (still need for GOOSE?).
-###
-  
-# GO_DBNAME:
-#   value: go_latest
-#   comment: Please enter the name of the GO database on the server.
-#   type: string
-
-# GO_DBHOST:
-#   value: localhost
-#   comment: Please enter the hostname of the GO database.
-#   type: url
-
-# GO_DBUSER:
-#   value: ''
-#   comment: Please enter the database user login.
-#   type: string
-
-# GO_DBAUTH:
-#   value: ''
-#   comment: Please enter the database user password.
-#   type: string
-
-# GO_DBSOCKET:
-#   value: ''
-#   comment: Please enter the database socket.
-#   type: string
-
-# GO_DBPORT:
-#   value: ''
-#   comment: >
-#     Please enter the database port (the default nothing is a sane default)
-#   type: string
 
 ###
 ### AmiGO mapping variables.
@@ -136,31 +94,6 @@ AMIGO_TERM_REGEXP:
   comment: The regular expressions to identify ontology ids.
   type: string
 
-AMIGO_MAX_SESSIONS:
-  value: 200
-  comment: The number of sessions AmiGO will not purge at a time.
-  type: integer
-
-AMIGO_SESSION_TIMEOUT:
-  value: 7200
-  comment: The amount of time before an AmiGO session expires.
-  type: integer
-
-AMIGO_OBSOLETE_BEHAVIOUR:
-  value: include_all
-  comment: >
-    AmiGO term searches may return obsolete terms.
-    Please choose how AmiGO should handle these terms:
-
-    "ignore": all obsolete terms will be excluded from the results
-
-    "include_commented": obsolete terms which have a GO id tucked away
-    in a nearby field will be included; non-GO sites should never use
-    this value as the GO id part is currently hard-coded
-
-    "include_all": no obsolete terms will be excluded from the results
-  type: string
-
 AMIGO_VERBOSE:
   value: 0
   comment: Log verbose AmiGO debugging messages.
@@ -196,7 +129,7 @@ AMIGO_VERSION:
 
 AMIGO_JS_VERSION:
   value: 0.9
-  comment: Displayed AmiGO 2 JS bundle version string.
+  comment: The version to apply to the JS bundle creation (should match BBOP-JS).
   type: string
 
 AMIGO_GOOGLE_ANALYTICS_ID:

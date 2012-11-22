@@ -9,9 +9,9 @@
  */
 
 // Module and namespace checking.
-if ( typeof bbop == "undefined" ){ bbop = {}; }
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
 if ( typeof bbop.core == "undefined" ){ bbop.core = {}; }
-if ( typeof amigo == "undefined" ){ amigo = {}; }
+if ( typeof amigo == "undefined" ){ var amigo = {}; }
 
 /*
  * Variable: global
@@ -760,11 +760,11 @@ bbop.core.get_assemble = function(qargs){
 
 	if( typeof qval == 'string' || typeof qval == 'number' ){
 	    // Is standard name/value pair.
-	    var nano_buff = [];
-	    nano_buff.push(qname);
-	    nano_buff.push('=');
-	    nano_buff.push(qval);
-	    mbuff.push(nano_buff.join(''));
+	    var nano_buffer = [];
+	    nano_buffer.push(qname);
+	    nano_buffer.push('=');
+	    nano_buffer.push(qval);
+	    mbuff.push(nano_buffer.join(''));
 	}else if( typeof qval == 'object' ){
 	    if( typeof qval.length != 'undefined' ){
 		// Is array (probably).
@@ -1138,7 +1138,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20121119";
+bbop.version.release = "20121121";
 /*
  * Package: logger.js
  * 
@@ -1165,6 +1165,8 @@ bbop.logger = function(initial_context){
      * between true and false to switch on and off the logging.
      */
     this.DEBUG = false;
+
+    var anchor = this;
 
     // Define an optional context to tag onto the front of messages.
     this._context = [];
@@ -1270,19 +1272,19 @@ bbop.logger = function(initial_context){
      */
     this.kvetch = function(string){
 	var ret_str = null;
-	if( this.DEBUG == true ){
+	if( anchor.DEBUG == true ){
 
 	    // Make sure there is something there no matter what.
 	    if( typeof(string) == 'undefined' ){ string = ''; }
 
 	    // Redefined the string a little if we have contexts.
-	    if( this._context.length > 0 ){
-		var cstr = this._context.join(':');
+	    if( anchor._context.length > 0 ){
+		var cstr = anchor._context.join(':');
 		string = cstr + ': '+ string;
 	    }
 
 	    // Actually log to the console.
-	    this._console_sayer(string);
+	    anchor._console_sayer(string);
 
 	    // Bind for output.
 	    ret_str = string;
@@ -1401,12 +1403,12 @@ bbop.template = function(template_string){
  * A trivial testing framework for JS. See test.tests.js for usage.
  * 
  *  Note: this cannot depend on core.js (it tests that), so some stuff
- *  may be dupped. On the other hand, we can test ourselves--see
+ *  may be duped. On the other hand, we can test ourselves--see
  *  test.js.tests.
  */
 
 // Module and namespace checking.
-if ( typeof bbop == "undefined" ){ bbop = {}; }
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
 
 /*
  * Constructor: test
@@ -1634,7 +1636,7 @@ bbop.test = function(){
      */
     function _is_simple_same(question, answer, msg){
 	_complete(question == answer, msg);
-    };
+    }
     this.is_same_atom = _is_simple_same;
 
     /*
@@ -2907,7 +2909,7 @@ bbop.html.table = function(in_headers, in_entries, in_attrs){
     // Arg check--attrs should be defined as something.
     var headers = in_headers || [];
     var entries = in_entries || [];
-    var attrs = in_attrs || {};
+    this._attrs = in_attrs || {};
 
     // Row class count.
     this._count = 0;
@@ -3863,10 +3865,11 @@ bbop.model.graph.prototype.edges_to_nodes = function(in_edges, target){
 	var in_e = in_edges[i];
 
 	// Switch between subject and object.
+	var target_id = null;
 	if( target == 'subject' ){
-	    var target_id = in_e.subject_id();
+	    target_id = in_e.subject_id();
 	}else{
-	    var target_id = in_e.object_id();
+	    target_id = in_e.object_id();
 	}
 	
 	//
@@ -4169,9 +4172,9 @@ bbop.model.graph.prototype.get_ancestor_subgraph = function(nb_id_or_list, pid){
 	    // Make sure that any found edges are in our
 	    // world.
 	    var obj_id = new_parent_edges[n].object_id();
-	    var tmp_node = anchor.get_node(obj_id);
-	    if( tmp_node ){
-		new_parents.push( tmp_node );
+	    var temp_node = anchor.get_node(obj_id);
+	    if( temp_node ){
+		new_parents.push( temp_node );
 	    }
 	}
 
@@ -4198,7 +4201,8 @@ bbop.model.graph.prototype.get_ancestor_subgraph = function(nb_id_or_list, pid){
     
     // Recursive call and collect data from search. Make multiple
     // ids possible.
-    if( nb_id_or_list.length && nb_id_or_list.index ){
+    //if( nb_id_or_list.length && nb_id_or_list.index ){
+    if( bbop.core.is_array(nb_id_or_list) ){ // verify listy-ness
 	for( var l = 0; l < nb_id_or_list.length; l++ ){	    
 	    rec_up(nb_id_or_list[l]);
 	}
@@ -4372,7 +4376,7 @@ bbop.model.bracket.graph = function(){
 
 	    // Return the collected histories.
 	    return max_hist;
-	};
+	}
 	// A hash of the maximum distance from the node-in-question to
 	// the roots.
 	var max_node_dist_from_root = max_info_climber();
@@ -4903,7 +4907,7 @@ bbop.golr.conf_class = function (class_conf_struct){
      *  <bbop.conf_field>
      */
     this.get_field = function(fid){
-	retval = null;
+	var retval = null;
 	if( this._class.fields_hash &&
 	    this._class.fields_hash[fid] ){
 		retval = new bbop.golr.conf_field(this._class.fields_hash[fid]);
@@ -4983,7 +4987,7 @@ bbop.golr.conf_class = function (class_conf_struct){
      */
     this.field_order_by_weight = function(weight_category, cutoff){
 
-    	retset = [];
+    	var retset = [];
 
 	var weights = this.get_weights(weight_category);
 
@@ -5065,7 +5069,7 @@ bbop.golr.conf = function (golr_conf_var){
      *  bbop.conf_class.
      */
     this.get_class = function(fid){
-	retval = null;
+	var retval = null;
 	if( this._classes &&
 	    this._classes[fid] ){
 		retval = this._classes[fid];
@@ -5082,7 +5086,7 @@ bbop.golr.conf = function (golr_conf_var){
      *  Array of <bbop.golr.conf_class> (unordered).
      */
     this.get_classes = function(){
-	ret = [];
+	var ret = [];
 	bbop.core.each(anchor._classes,
 		       function(key, val){
 			   ret.push(val);
@@ -6044,8 +6048,8 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	    bbop.core.what_is(arg1) == 'number' ){ // form one
 		
 		// Set
-		var limit = arg1;
-		anchor.current_facet_limit = limit;
+		var nlimit = arg1;
+		anchor.current_facet_limit = nlimit;
 		anchor.set('facet.limit', anchor.current_facet_limit);
 		
 		retval = true;
@@ -9057,10 +9061,10 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 		 if( bbop.core.is_empty(facet_bd) ){
 		     
 		     // No filters means nothing in the box.
-		     var sect_id =
+		     var section_id =
 			 filter_accordion_widget.get_section_id(in_field);
-		     jQuery('#' + sect_id).empty();
-		     jQuery('#' + sect_id).append('Nothing to filter.');
+		     jQuery('#' + section_id).empty();
+		     jQuery('#' + section_id).append('Nothing to filter.');
 
 		 }else{
 		     
@@ -9401,13 +9405,13 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj, interface_id,
 			  var info_b = null;
 			  if( use_img_p ){
 			      // Do the icon version.
-			      var isrc = bbop.core.resourcify(base_icon_url,
-							      info_icon,
-							      image_type);
+			      var imgsrc = bbop.core.resourcify(base_icon_url,
+								info_icon,
+								image_type);
 			      info_b =
 				  new bbop.html.image({'alt': info_alt,
 						       'title': info_alt,
-				  		       'src': isrc,
+				  		       'src': imgsrc,
 				  		       'generate_id': true});
 			  }else{
 			      // Do a text-only version.

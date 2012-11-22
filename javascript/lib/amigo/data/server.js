@@ -9,8 +9,6 @@
  *          Also serves as a repository and getter for web
  *          resources such as images.
  * 
- * Requirements: amigo.js for bbop.amigo namespace.
- * 
  * NOTE: This file is generated dynamically at installation time.
  *       Hard to work with unit tests--hope it's not too bad.
  *       Want to keep this real simple.

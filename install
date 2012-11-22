@@ -17,7 +17,6 @@ use vars qw(
 	     $opt_v
 	     $opt_g
 	     $opt_e
-	     $opt_d
 	     $opt_b
 	  );
 use Getopt::Std;
@@ -43,11 +42,8 @@ if ( $opt_e ) {
 if ( $opt_g ) {
   ll("Will also install GOOSE and Gannet.");
 }
-if ( $opt_d ) {
-  ll("Will also create documentation using Natural Docs.");
-}
 if ( $opt_b ) {
-  ll("Will do what is necessary to just produce a bundle.");
+  ll("Will do what is necessary to just produce the JS bundle.");
 }
 
 ## First check that we are in the proper directory. Installation
@@ -86,12 +82,12 @@ if( ! $yconf->{AMIGO_ROOT}{value} ){
   $yconf->{AMIGO_ROOT}{value} = $amigo_base;
 }
 
-## Always want the writeback as the values in amigo.yaml will always
+## Always want the writeback, as the values in amigo.yaml will always
 ## supersede the ones in the initial file.
 $yconf->write();
 
 ## Check that the configuration file has at least been minimally
-## altered.
+## altered by the user.
 #ll(Dumper($yconf));
 #ll("yc: " . $yconf->{AMIGO_CONFIGURED}{value});
 if( int($yconf->{AMIGO_CONFIGURED}{value}) ){
@@ -209,7 +205,6 @@ safe_make_dir( $env_conf{AMIGO_SCRATCH_DIR} );
 make_permissive( $env_conf{AMIGO_SCRATCH_DIR} );
 
 ll("Finish setting up the installation environment.");
-ll("Starting installation...");
 
 ###
 ### Dump the synthetic environment into config.pl and move it over to
@@ -217,42 +212,35 @@ ll("Starting installation...");
 ###
 
 my $synth_conf_fname = $env_conf{AMIGO_CGI_ROOT_DIR} . '/config.pl';
-create_synthetic_amigo_environmental_variables($synth_conf_fname, \%env_conf);
-ll("Created synthetic variables and configuration file \"config.pl\".");
-
-###
-### Pull in the GO_xref.abbs file and turn it into a form that the
-### linker can use (amigo.data.xrefs).
-###
-
-## 
-my $xrefs_data_fname = 'javascript/lib/amigo/data/xrefs.js';
-my $xrefs_url = 'http://www.geneontology.org/doc/GO.xrf_abbs';
-xref_abbs_to_meta_js($xrefs_data_fname, $xrefs_url);
-ll("Created GO XRefs JavaScript data file: \"$xrefs_data_fname\".");
+if( ! $opt_b ){
+  ll("Starting installation...");
+  create_synthetic_amigo_environmental_variables($synth_conf_fname, \%env_conf);
+  ll("Created synthetic variables and configuration file \"config.pl\".");
+}
 
 ###
 ### Dump the YAML GOlr config into a representation that we can use
 ### (amigo.data.golr).
 ###
 
-## TODO/BUG: temporarily hard-coded--this needs to be dynamic, but for
-## now we're just gunna write them in for debugging fun. Could
-## probably just ignore everything but the schema conf.
+## Slurp all *config.yaml files at this location.
 my $yaml_path =  $env_conf{GO_YAML_LOCATION};
-my $yaml_confs = [
-		  $yaml_path . "ont-config.yaml",
-		  $yaml_path . "bio-config.yaml",
-		  $yaml_path . "ann-config.yaml",
-		  $yaml_path . "ann_ev_agg-config.yaml"
-		 ];
+my @yaml_confs = <$yaml_path/*config.yaml>;
+# my $yaml_confs = [
+# 		  $yaml_path . "ont-config.yaml",
+# 		  $yaml_path . "bio-config.yaml",
+# 		  $yaml_path . "ann-config.yaml",
+# 		  $yaml_path . "ann_ev_agg-config.yaml"
+# 		 ];
+ll("YAML config files found: " . join(', ', @yaml_confs));
 my $golr_data_fname = 'javascript/lib/amigo/data/golr.js';
-golr_config_to_meta_js($golr_data_fname, $yaml_confs);
+golr_config_to_meta_js($golr_data_fname, \@yaml_confs);
 ll("Created GOlr JavaScript data file: \"$golr_data_fname\".");
+#die "HERE!";
 
 ###
-### Dump the synthetic environment (config.pl), plus some extras, into
-### a representation that we can use (amigo.data.server).
+### Dump the synthetic environment (a la config.pl), plus some extras,
+### into a representation that we can use (amigo.data.server).
 ###
 
 ## Re-establish the environment.
@@ -261,13 +249,25 @@ my $amigo_env_fname = 'javascript/lib/amigo/data/server.js';
 amigo_env_to_js($amigo_env_fname);
 ll("Created AmiGO JavaScript meta file: \"$amigo_env_fname\".");
 
-## Dump out the discoverable stats.
+###
+### Pull in the GO_xref.abbs file and turn it into a form that the
+### linker can use (amigo.data.xrefs).
+###
+
+my $xrefs_data_fname = 'javascript/lib/amigo/data/xrefs.js';
+my $xrefs_url = 'http://www.geneontology.org/doc/GO.xrf_abbs';
+xref_abbs_to_meta_js($xrefs_data_fname, $xrefs_url);
+ll("Created GO XRefs JavaScript data file: \"$xrefs_data_fname\".");
+
+## Dump out the discoverable stats, but only generate the statistics
+## package if there is already amigo.js files in the javascript
+## staging area.
 my $amigo_stats_fname = 'javascript/lib/amigo/data/statistics.js';
 golr_stats_to_js($amigo_stats_fname);
 ll("Created AmiGO JavaScript meta file: \"$amigo_stats_fname\".");
 
 ###
-### TODO: Create the JS bundle that we'll use in our staging area.
+### Create the JS bundle that we'll use in our staging area.
 ###
 
 ## 
@@ -289,72 +289,67 @@ system(@$release_args) == 0 || die "system $rcmd failed: $?";
 ### the server.
 ###
 
-## Standard modules
-my @mods = ();
-push @mods,
-  qw(
-      amigo
-      aserve
-      gaffer
-      visualize
-   );
+if( ! $opt_b ){
 
-## Copy bulk experimental things over to the new directory.
-if ( $opt_e ) {
+  ## Standard modules
+  my @mods = ();
   push @mods,
     qw(
-	amigo_exp
-	aserve_exp
-	pgraph
+	amigo
+	aserve
+	gaffer
+	visualize
      );
-}
 
-## Copy GOOSE and Gannet over on -g or -G.
-if ( $opt_g ) {
-  push @mods,
-    qw(
-	goose
-	gannet
-     );
-}
+  ## Copy bulk experimental things over to the new directory.
+  if ( $opt_e ) {
+    push @mods,
+      qw(
+	  amigo_exp
+	  aserve_exp
+	  pgraph
+       );
+  }
 
-## Install the desired modules from just above.
-foreach( @mods ){
-  ll("Install mod: $_.");
-  force_copy(Cwd::cwd() . '/perl/bin/' . $_,
-	     $env_conf{AMIGO_CGI_ROOT_DIR} . '/');
-  make_executable( $env_conf{AMIGO_CGI_ROOT_DIR} . '/' . $_);
-}
+  ## Copy GOOSE and Gannet over on -g or -G.
+  if ( $opt_g ) {
+    push @mods,
+      qw(
+	  goose
+	  gannet
+       );
+  }
 
-## Copy statics: css, images, our JS bundle, and the jQuery files.
-ll("Install internal JS libraries.");
-force_copy(Cwd::cwd() . '/css', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
-force_copy(Cwd::cwd() . '/images', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
-## The BBOPJS bundle.
-force_copy($env_conf{GO_BBOPJS_LOCATION} . '/bbop.js',
-	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
-## Our AmiGO bundle.
-force_copy(Cwd::cwd() . '/javascript/staging/amigo.js',
-	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
-## The AmiGO frontends.
-force_copy(Cwd::cwd() . '/javascript/web/',
-	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
-## The jQuery and jQuery UI libraries.
-force_copy(Cwd::cwd() . '/javascript/lib/com',
-	   $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
+  ## Install the desired modules from just above.
+  foreach( @mods ){
+    ll("Install mod: $_.");
+    force_copy(Cwd::cwd() . '/perl/bin/' . $_,
+	       $env_conf{AMIGO_CGI_ROOT_DIR} . '/');
+    make_executable( $env_conf{AMIGO_CGI_ROOT_DIR} . '/' . $_);
+  }
 
-# ll("Install GO JS libraries.");
-# foreach my $jslib ('bbop', 'external', 'graph', 'newick_tree'){
-#   force_copy($env_conf{GO_JS_ROOT} . '/lib/' . $jslib,
-# 	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
-# }
+  ## Copy statics: css, images, our JS bundle, and the jQuery files.
+  ll("Install internal JS libraries.");
+  force_copy(Cwd::cwd() . '/css', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
+  force_copy(Cwd::cwd() . '/images', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
+  ## The BBOPJS bundle.
+  force_copy($env_conf{GO_BBOPJS_LOCATION} . '/bbop.js',
+	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
+  ## Our AmiGO bundle.
+  force_copy(Cwd::cwd() . '/javascript/staging/amigo.js',
+	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
+  ## The AmiGO frontends.
+  force_copy(Cwd::cwd() . '/javascript/web/',
+	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
+  ## The jQuery and jQuery UI libraries.
+  force_copy(Cwd::cwd() . '/javascript/lib/com',
+	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
 
-## I guess we could make docs while we're here.
-if( $opt_d ){
-  my $docs_args = ['make', 'docs'];
-  my $dcmd = join(' ', @$docs_args);
-  ll('System: ' . $dcmd . '"');
-  system(@$docs_args) == 0 || die "system $dcmd failed: $?";
+  # ll("Install GO JS libraries.");
+  # foreach my $jslib ('bbop', 'external', 'graph', 'newick_tree'){
+  #   force_copy($env_conf{GO_JS_ROOT} . '/lib/' . $jslib,
+  # 	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
+  # }
 }
 
 ###
@@ -374,6 +369,14 @@ purge unneeded and old files generated while AmiGO is running.
 The refresh.pl script has many other uses, please see the
 documentation for flags that apply to you.
 
+Your JavaScript bundle should be available in: $env_conf{AMIGO_ROOT}/javascript/staging/.
+
+EOC
+}else{
+  print <<EOC;
+Done.
+
+Your JavaScript bundles should be available in: $env_conf{AMIGO_ROOT}/javascript/staging/.
 EOC
 }
 
@@ -797,8 +800,6 @@ sub amigo_env_to_js {
  *          Also serves as a repository and getter for web
  *          resources such as images.
  * 
- * Requirements: amigo.js for bbop.amigo namespace.
- * 
  * NOTE: This file is generated dynamically at installation time.
  *       Hard to work with unit tests--hope it's not too bad.
  *       Want to keep this real simple.
@@ -886,14 +887,17 @@ sub golr_stats_to_js {
 
   my $file_str = shift || die 'need target file';
 
-  ## Generate the static data.
-  print STDOUT 'pwd: ' . `pwd` . "\n";
-  my $ann_src_str = `cat ./staging/ann-source.dat` || '""';
-  my $ann_ev_str = `cat ./staging/ann-evidence.dat` || '""';
-  my $ann_overview_str = `cat ./staging/ann-overview.dat` || '""';
+  ## Get the static data. If it's not looking right or not there, use
+  ## some empty default values.
+  my $ann_src_str = `cat ./staging/ann-source.dat` || '[]';
+  my $ann_ev_str = `cat ./staging/ann-evidence.dat` || '[]';
+  my $ann_overview_str = `cat ./staging/ann-overview.dat` || '[[]]';
   chomp($ann_src_str);
   chomp($ann_ev_str);
   chomp($ann_overview_str);
+  $ann_src_str = '[]' if ! $ann_src_str;
+  $ann_ev_str = '[]' if ! $ann_ev_str;
+  $ann_overview_str = '[[]]' if ! $ann_overview_str;
 
   # ## Make sure we can get our own libs.
   # use lib getcwd() . '/perl/lib';

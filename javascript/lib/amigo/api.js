@@ -123,11 +123,11 @@ amigo.api = function(){
 		segval.length ){
 
 		for( var i = 0; i < segval.length; i++ ){
-		    var minibuf = new Array();
-		    minibuf.push(segkey);
-		    minibuf.push('=');
-		    minibuf.push(segval[i]);
-		    maxibuf.push(minibuf.join(''));
+		    var minibuffer = new Array();
+		    minibuffer.push(segkey);
+		    minibuffer.push('=');
+		    minibuffer.push(segval[i]);
+		    maxibuf.push(minibuffer.join(''));
 		}
 
 	    }else{
@@ -157,17 +157,17 @@ amigo.api = function(){
 		filter_val.length ){
 
 		    for( var i = 0; i < filter_val.length; i++ ){
-			var minibuf = new Array();
+			var minibuffer = new Array();
 			var try_val = filter_val[i];
 			if( typeof(try_val) != 'undefined' &&
 			try_val != '' ){
-			    minibuf.push('fq=');
-			    minibuf.push(filter_key);
-			    minibuf.push(':');
-			    minibuf.push('"');
-			    minibuf.push(filter_val[i]);
-			    minibuf.push('"');
-			    allbuf.push(minibuf.join(''));
+			    minibuffer.push('fq=');
+			    minibuffer.push(filter_key);
+			    minibuffer.push(':');
+			    minibuffer.push('"');
+			    minibuffer.push(filter_val[i]);
+			    minibuffer.push('"');
+			    allbuf.push(minibuffer.join(''));
 			}
 		    }		    
 		}else{
@@ -476,7 +476,7 @@ amigo.api = function(){
 	var acc = final_args['acc'];
 	//return 'term_details?term=' + acc;
 	return 'amigo?mode=golr_term_details&term=' + acc;
-    };
+    }
     this.link.term = _term_link;
 
     // BUG/TODO: should this actually be in widgets? How core is this
@@ -499,7 +499,7 @@ amigo.api = function(){
 	var acc = final_args['acc'];
 	//return 'gp-details.cgi?gp=' + acc;
 	return 'amigo?mode=golr_gene_product_details&gp=' + acc;
-    };
+    }
     this.link.gene_product = _gene_product_link;
 
     // BUG/TODO: should this actually be in widgets? How core is this

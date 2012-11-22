@@ -1,43 +1,44 @@
-#!/usr/bin/env my_rhino
+#!/usr/bin/rhino
 /* 
- * Package: gnuplot_annotation_overview.js
+ * Package: generate_static_data.js
  * 
  * This is a Rhino script.
  * 
- * Get the ids and labels of the parents of the specified term.
+ * Generate the static data necessary to run the AmiGO 2 graphs once
+ * up front (don't need it dynamic since it only changes on reload).
  * 
  * Usage like:
  *  : generate_static_data.js --ann-source
  *  : generate_static_data.js --ann-evidence
  *  : generate_static_data.js --ann-overview
- * 
  */
 
 ///
 /// First section for invariant bits that don't change across calls.
 ///
 
-// Loading the necessary files.
-// TODO/BUG: These should be pointing at the local web files.
-load('../../../../../../git/bbop-js/staging/bbop.js');
+// Load the base files.
+load('../../_data/bbop.js');
 load('../staging/amigo.js');
 
-// We get our own manager.
-var gconf = new bbop.golr.conf(amigo.data.golr);
-var gserv = new amigo.data.server();
-var gm_ann = new bbop.golr.manager.rhino(gserv.golr_base(), gconf);
-gm_ann.debug(false);
-gm_ann.set_facet_limit(-1);
-gm_ann.set_personality('bbop_ann'); // profile in gconf
-var loop = bbop.core.each;
-
 // For debugging.
-var logger = new bbop.logger('static: ');
+var logger = new bbop.logger('static data gen');
 logger.DEBUG = true;
 function ll(str){
     logger.kvetch(str);
 }
     
+// We get our own manager.
+var gserv = new amigo.data.server();
+var gconf = new bbop.golr.conf(amigo.data.golr);
+var gm_ann = new bbop.golr.manager.rhino(gserv.golr_base(), gconf);
+gm_ann.debug(false);
+gm_ann.set_facet_limit(-1);
+if( ! gm_ann.set_personality('bbop_ann') ){ // profile in gconf
+    ll('There seems to have been an ERROR in the YAML loader...');
+}
+var loop = bbop.core.each;
+
 // Let's constrain things a bit for the sake of clarity.
 var our_sources_of_interest = [
     'dictyBase',
@@ -63,8 +64,7 @@ var our_ev_of_interest = [
 ];
 
 // Get the flag for what we'll be doing.
-var flag = arguments[arguments.length -1];
-
+// var flag = arguments[arguments.length -1];
 for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
     var arg = arguments[flag_index];
     //ll('arg: ' + arg);
@@ -113,11 +113,13 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 	// 	);
 	// }
 	// ddump(raw_data);
-	raw_data.sort(function(a, b){
-			  var val_a = a[1];
-			  var val_b = b[1];
-			  return val_b - val_a;
-		      });
+	if( raw_data ){	    
+	    raw_data.sort(function(a, b){
+			      var val_a = a[1];
+			      var val_b = b[1];
+			      return val_b - val_a;
+			  });
+	}
 	print(bbop.core.dump(raw_data));
 
     }else if( arg == '--ann-overview' ){
