@@ -1431,16 +1431,42 @@ sub _read_json_file {
 
 Return href of the GOlr configuration from the installation.
 
+TODO/BUG: this could be made faster by caching the values instead of
+parsing them each time...
+
 =cut
 sub golr_configuration {
 
   my $self = shift;
-  my $json_file = $self->amigo_env('AMIGO_HTDOCS_ROOT_DIR') .
-    '/javascript/bbop/golr_meta.json';
+  my $json_file = $self->amigo_env('AMIGO_ROOT') .
+    '/javascript/lib/amigo/data/golr.js';
+
+  ## Try and get the string out.
+  ## Crop to just the parts that are interesting.
+  die "No hash file found ($json_file): $!" if ! -f $json_file;
+  open(FILE, '<', $json_file) or die "Cannot open $json_file: $!";
+  my $read_buffer = [];
+  my $read_p = 0;
+  while( <FILE> ){
+    if( /amigo.data.golr\ \=\ \{/ ){
+      $read_p = 1;
+      push @$read_buffer, '{';
+    }elsif( /^\}\;/ ){
+      $read_p = 0;
+      push @$read_buffer, '}';
+    }elsif( $read_p ){
+      push @$read_buffer, $_;
+    }
+  }
+  #my $json_str = <FILE>;
+  my $json_str = join '', @$read_buffer;
+  close FILE;
 
   #$self->kvetch("looking up conf: " . $json_file);
 
-  return $self->_read_json_file($json_file);
+  ## Punt to string reader.
+  return $self->_read_json_string($json_str);
+  #return $self->_read_json_file($json_file);
 }
 
 
