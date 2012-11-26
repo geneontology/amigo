@@ -682,7 +682,9 @@ sub amigo_env_to_js {
 
   ## 
   use lib getcwd() . '/perl/lib';
-  require $env_conf{AMIGO_CGI_ROOT_DIR} . '/config.pl';
+  ## WARNING: See the synth conf generation above.
+  require $synth_conf_fname;
+  #require $env_conf{AMIGO_CGI_ROOT_DIR} . '/config.pl';
 
   ## Bring in necessaries.
   use AmiGO::JavaScript;
