@@ -212,8 +212,12 @@ ll("Finish setting up the installation environment.");
 ###
 
 my $synth_conf_fname = $env_conf{AMIGO_CGI_ROOT_DIR} . '/config.pl';
+ll("Starting installation...");
 if( ! $opt_b ){
-  ll("Starting installation...");
+  create_synthetic_amigo_environmental_variables($synth_conf_fname, \%env_conf);
+  ll("Created synthetic variables and configuration file \"config.pl\".");
+}else{
+  $synth_conf_fname = $env_conf{AMIGO_ROOT} . '/conf/config.pl';
   create_synthetic_amigo_environmental_variables($synth_conf_fname, \%env_conf);
   ll("Created synthetic variables and configuration file \"config.pl\".");
 }
@@ -244,6 +248,7 @@ ll("Created GOlr JavaScript data file: \"$golr_data_fname\".");
 ###
 
 ## Re-establish the environment.
+## WARNING: See the synth conf generation above.
 require $synth_conf_fname;
 my $amigo_env_fname = 'javascript/lib/amigo/data/server.js';
 amigo_env_to_js($amigo_env_fname);
