@@ -1,0 +1,81 @@
+---
+AMIGO_BETA:
+  comment: "Mark the AmiGO site as BETA (triggers some changes in variables and installed features).\n"
+  type: boolean
+  value: 0
+AMIGO_CGI_PARTIAL_PATH:
+  comment: Please enter the full path to a usable CGI enabled directory.
+  type: directory
+  value: /srv/www/cgi-bin
+AMIGO_CGI_PARTIAL_URL:
+  comment: Please enter the URL that this path maps to.
+  type: url
+  value: http://localhost/cgi-bin
+AMIGO_CONFIGURED:
+  comment: "This variable must be edited (to 1) before installing AmiGO.\n"
+  type: boolean
+  value: 1
+AMIGO_GOOGLE_ANALYTICS_ID:
+  comment: Google analytics ID. Optional.
+  type: string
+  value: ''
+AMIGO_HTDOCS_PARTIAL_PATH:
+  comment: Please enter the full path to a usable static document directory.
+  type: directory
+  value: /srv/www/htdocs
+AMIGO_HTDOCS_PARTIAL_URL:
+  comment: Please enter the URL that this path maps to.
+  type: url
+  value: http://localhost
+AMIGO_JS_VERSION:
+  comment: The version to apply to the JS bundle creation (should match BBOP-JS).
+  type: string
+  value: 0.9
+AMIGO_PROJECT_NAME:
+  comment: Please enter the name of this AmiGO installation.
+  type: string
+  value: amigo2
+AMIGO_PUBLIC_CGI_PARTIAL_URL:
+  comment: Please enter the partial public URL.
+  type: true
+  value: http://amigo.geneontology.org/cgi-bin
+AMIGO_PUBLIC_GOLR_URL:
+  comment: Please enter the public URL of the GOlr server.
+  type: url
+  value: http://localhost:8080/solr/
+AMIGO_ROOT:
+  comment: "Please enter the full path to the SVN geneontology/AmiGO[/trunk] directory.\n"
+  type: directory
+  value: ./
+AMIGO_SHOW_GOOSE_LINKS:
+  comment: "Do you wish to show links to GOOSE, the GO Online SQL Environment? Note that this is only suitable for if you are installing the GO GOLD database. Use 1 for yes and 0 for no.\n"
+  type: boolean
+  value: 1
+AMIGO_TERM_REGEXP:
+  comment: The regular expressions to identify ontology ids.
+  type: string
+  value: 'all|GO:[0-9]{7}'
+AMIGO_TROUBLE_MESSAGE:
+  comment: Message to present when AmiGO\'s TROUBLE switch is true.
+  type: string
+  value: "<h2 style=\"text-align: center;\"> AmiGO is currently experiencing some difficulty.<br /> You may want to temporarily try <a href=\"http://amigo.berkeleybop.org/cgi-bin/amigo/go.cgi\" title=\"Go to AmiGO Labs\">AmiGO Labs</a> instead.</h2>\n"
+AMIGO_TROUBLE_SWITCH:
+  comment: Mark the AmiGO site as TROUBLED (triggers some changes).
+  type: boolean
+  value: 0
+AMIGO_VERBOSE:
+  comment: Log verbose AmiGO debugging messages.
+  type: boolean
+  value: 0
+AMIGO_VERSION:
+  comment: Displayed AmiGO version string.
+  type: string
+  value: 2.0
+GO_BBOPJS_LOCATION:
+  comment: "If this is not redefined to a new location (e.g. the BBOP-JS staging/ directory, it will use the bbop.js bundle packaged with AmiGO 2 (the one used in the unit tests) in the _data/ directory.\n"
+  type: directory
+  value: ./_data
+GO_YAML_LOCATION:
+  comment: "Please enter the full path to the YAML config files directory. In that directory, all files like *config.yaml will be scanned for use.\n"
+  type: directory
+  value: ./metadata

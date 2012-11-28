@@ -451,10 +451,22 @@ sub xref_abbs_to_meta_js {
 
   my $core = AmiGO::JavaScript->new();
 
-  ## Use external to get file.
+  ## Use external to get file, if it cannot be found, fall back to the
+  ## local emergency copy.
   my $ext = AmiGO::External::Raw->new();
   my $abbs = $ext->get_external_data($xrefs_url);
-  if( ! $abbs ){ die "Could not load external GO.xref_abbs file: $!"; }
+  if( ! $abbs ){
+    ll("Could not load external GO.xref_abbs file, trying old backup...");
+    my $abbs_fname = $ENV{AMIGO_ROOT} . '/_data/GO.xrf_abbs';
+    ll("Backup at: " . $abbs_fname . '?');
+    die "No emergency abbs file found ($abbs_fname): $!" if ! -f $abbs_fname;
+    open(ABBSFILE, '<', $abbs_fname) or die "Cannot even open $abbs_fname: $!";
+    while( <ABBSFILE> ){
+      $abbs .= $_;
+    }
+    close ABBSFILE;
+  }
+  die "Found no way to get a GO.xref_abbs file: $!" if ! $abbs;
 
   my $database_info = {};
 

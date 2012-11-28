@@ -35,7 +35,7 @@ amigo.data.golr = {
       "searchable_extension" : "_searchable",
       "result_weights" : "bioentity^6.0 taxon^4.0 family_tag^3.0 type^2.0 db^1.0",
       "filter_weights" : "db^7.0 type^6.0 family_tag_label^5.0 taxon_closure_label^4.0 isa_partof_closure_label^3.0",
-      "_infile" : "/home/sjcarbon/local/src/svn/geneontology/AmiGO/trunk/metadata//bio-config.yaml",
+      "_infile" : "./metadata/bio-config.yaml",
       "display_name" : "Bioentities",
       "description" : "A description of bioentities file for GOlr.",
       "boost_weights" : "bioentity^2.0 bioentity_label^2.0  isa_partof_closure_label^1.0 family_tag^1.0 family_tag_label^1.0",
@@ -383,13 +383,13 @@ amigo.data.golr = {
       "weight" : "30",
       "_strict" : 0,
       "id" : "bbop_bio",
-      "_outfile" : "/home/sjcarbon/local/src/svn/geneontology/AmiGO/trunk/metadata//bio-config.yaml"
+      "_outfile" : "./metadata/bio-config.yaml"
    },
    "bbop_ann_ev_agg" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "bioentity^4.0 annotation_class^3.0 taxon^2.0",
       "filter_weights" : "evidence_type_closure^4.0 evidence_with^3.0 taxon_closure_label^2.0",
-      "_infile" : "/home/sjcarbon/local/src/svn/geneontology/AmiGO/trunk/metadata//ann_ev_agg-config.yaml",
+      "_infile" : "./metadata/ann_ev_agg-config.yaml",
       "display_name" : "Evidence Aggregate",
       "description" : "A description of annotation evidence aggregate for GOlr and AmiGO.",
       "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 family_tag^1.0 family_tag_label^1.0",
@@ -713,13 +713,13 @@ amigo.data.golr = {
       "weight" : "10",
       "_strict" : 0,
       "id" : "bbop_ann_ev_agg",
-      "_outfile" : "/home/sjcarbon/local/src/svn/geneontology/AmiGO/trunk/metadata//ann_ev_agg-config.yaml"
+      "_outfile" : "./metadata/ann_ev_agg-config.yaml"
    },
    "bbop_ann" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "annotation_class^9.0 evidence_type^8.0 bioentity^7.0 source^4.0 taxon^3.0 evidence_with^2.0 family_tag^1.5 annotation_extension_class^1.0",
       "filter_weights" : "source^7.0 evidence_type_closure^6.0 family_tag_label^5.5 taxon_closure_label^5.0 isa_partof_closure_label^4.0 annotation_extension_class_closure_label^3.0",
-      "_infile" : "/home/sjcarbon/local/src/svn/geneontology/AmiGO/trunk/metadata//ann-config.yaml",
+      "_infile" : "./metadata/ann-config.yaml",
       "display_name" : "Annotations",
       "description" : "A description of annotations for GOlr and AmiGO.",
       "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 family_tag^1.0 family_tag_label^1.0",
@@ -1283,13 +1283,13 @@ amigo.data.golr = {
       "weight" : "20",
       "_strict" : 0,
       "id" : "bbop_ann",
-      "_outfile" : "/home/sjcarbon/local/src/svn/geneontology/AmiGO/trunk/metadata//ann-config.yaml"
+      "_outfile" : "./metadata/ann-config.yaml"
    },
    "bbop_ont" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "annotation_class^8.0 description^6.0 source^4.0 synonym^3.0 alternate_id^2.0 comment^1.0",
       "filter_weights" : "source^4.0 subset^2.0 isa_partof_closure_label^1.0 is_obsolete^0.0",
-      "_infile" : "/home/sjcarbon/local/src/svn/geneontology/AmiGO/trunk/metadata//ont-config.yaml",
+      "_infile" : "./metadata/ont-config.yaml",
       "display_name" : "Ontology",
       "description" : "Test mapping of ontology class for GO.",
       "boost_weights" : "annotation_class^2.0 annotation_class_label^2.0 description^1.0 comment^0.5 synonym^1.0 alternate_id^1.0",
@@ -1783,6 +1783,6 @@ amigo.data.golr = {
       "weight" : "40",
       "_strict" : 0,
       "id" : "bbop_ont",
-      "_outfile" : "/home/sjcarbon/local/src/svn/geneontology/AmiGO/trunk/metadata//ont-config.yaml"
+      "_outfile" : "./metadata/ont-config.yaml"
    }
 };

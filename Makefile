@@ -112,3 +112,12 @@ refresh: tags bundle
 	cd $(BBOP_JS); make bundle
 	cp $(BBOP_JS)/staging/bbop.js ./_data
 	./install -v -e -g
+
+###
+### Copy in some dummy values for use with testing.
+###
+
+.PHONY: dummy
+
+dummy:
+	cp conf/.dummy_values.yaml conf/amigo.yaml
