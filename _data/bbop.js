@@ -1138,7 +1138,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20121121";
+bbop.version.release = "20121128";
 /*
  * Package: logger.js
  * 
@@ -5747,9 +5747,14 @@ bbop.golr.response.prototype.query_filters = function(){
  * 
  * Namespace: bbop.golr.manager
  * 
- * Generic BBOP manager for dealing with gross GOlr configuration
- * and management. Remember, this is actually a "subclass" of
- * <bbop.registry>.
+ * Generic BBOP manager for dealing with gross GOlr configuration and
+ * management. Remember, this is actually a "subclass" of
+ * <bbop.registry>. The defined events for this registry are: "reset",
+ * "search", and "error".
+ * 
+ *  reset - functions for initializing and resetting
+ *  search - functions for receiving standard search results
+ *  error - functions to call when something goes very wrong
  * 
  * Both json_data (or clean error data) and the manager itself (this
  * as anchor) should be passed to the callbacks.
@@ -9556,8 +9561,14 @@ bbop.core.namespace('bbop', 'widget', 'search_box');
  * there are probably some fields that you'll want to fill out to make
  * things work decently. The options for the argument hash are:
  * 
- *  output_type - thing to put in the input box: 'id' or 'label'
- *  list_select_callback - function takes a json solr doc
+ *  label_template - string template for dropdown, can use any document field
+ *  value_template - string template for selected, can use any document field
+ *  minimum_length - wait for this many characters to start (default 3)
+ *  list_select_callback - function takes a json solr doc on dropdown selection
+ * 
+ * To get a better idea on how to use the templates, see the demo page
+ * at http://cdn.berkeleybop.org/jsapi/bbop-js/demo/index.html and
+ * read the documentation for <bbop.template>.
  * 
  * Arguments:
  *  golr_loc - string url to GOlr server;
