@@ -1138,7 +1138,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20121128";
+bbop.version.release = "20121129";
 /*
  * Package: logger.js
  * 
@@ -5852,12 +5852,12 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
     this.default_start = 0;
 
     // There is a reason for this...TODO: later (25+)
-    this.default_facet_limit = 26;
-    this.current_facet_limit = 26;
+    this.default_facet_limit = 25;
+    this.current_facet_limit = 25;
     // {facet_field_name: value, ...}
     this.current_facet_field_limits = {};
     // TODO: paging for facets;
-    this.current_facet_offset = 26;
+    this.current_facet_offset = 25;
     this.current_facet_field_offsets = {};
 
     // Our default query args, with facet fields plugged in.
@@ -6030,7 +6030,7 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
      * Function: set_facet_limit
      * 
      * Change the number of facet values returned per call.
-     * The default is likely 26.
+     * The default is likely 25.
      * 
      * Just as in Solr, a -1 argument is how to indicate unlimted
      * facet returns.
@@ -6077,7 +6077,7 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
     /*
      * Function: reset_facet_limit
      * 
-     * Either reset the global limit to the original (likely 26)
+     * Either reset the global limit to the original (likely 25)
      * and/or remove the specified filter.
      * 
      * Parameters: 
@@ -6091,7 +6091,8 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 
 	if( ! bbop.core.is_defined(field) ){
 	    // Eliminate all fields by blowing them away.
-	    anchor.current_facet_limit = anchor.default_facet_limit;
+	    //anchor.current_facet_limit = anchor.default_facet_limit;
+	    anchor.set('facet.limit', anchor.current_facet_limit);
 	    anchor.current_facet_field_limits = {};
 	    retval = true;
 	}else{ // eliminate just the one field
@@ -8414,6 +8415,112 @@ bbop.widget.display.two_column_layout = function (col1, col2){
 bbop.widget.display.two_column_layout.prototype = new bbop.html.tag;
 
 /*
+ * Package: filter_shield.js
+ * 
+ * Namespace: bbop.widget.display.filter_shield
+ * 
+ * BBOP object to produce a self-constructing/self-destructing shield
+ * to support very large filter selection in the live search/search
+ * pane genre.
+ */
+
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'logger');
+//bbop.core.require('bbop', 'model');
+//bbop.core.require('bbop', 'model', 'graph', 'bracket');
+bbop.core.require('bbop', 'html');
+bbop.core.require('bbop', 'golr', 'manager', 'jquery');
+bbop.core.namespace('bbop', 'widget', 'display', 'filter_shield');
+
+/*
+ * Constructor: filter_shield
+ * 
+ * Contructor for the bbop.widget.display.filter_shield object.
+ * 
+ * Support for <bbop.widget.search_pane> by way of
+ * <bbop.widget.display.live_search>
+ * 
+ * Arguments:
+ *  filter_list - a list of [[filter_id, filter_count], ...]
+ *  manager - the manager that we'll use for the callbacks
+ * 
+ * Returns:
+ *  self
+ */
+bbop.widget.display.filter_shield = function(filter_list, manager){
+    this._is_a = 'bbop.widget.display.filter_shield';
+
+    var anchor = this;
+
+    // Per-UI logger.
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch('W (filter_shield): ' + str); }
+
+    /*
+     * Function: draw
+     * 
+     * Render a temporary modal filter shield.
+     * 
+     * Arguments:
+     *  n/a
+     * 
+     * Returns:
+     *  n/a
+     */
+    this.draw = function(item){
+	//ll(doc['id']);
+	var txt = 'No filters...';
+	// if( doc && cclass ){
+	
+	//     var tbl = new bbop.html.table();
+	//     var results_order = cclass.field_order_by_weight('result');
+	//     var each = bbop.core.each; // conveience
+	//     each(results_order,
+	// 	 function(fid){
+	// 	     // 
+	// 	     var field = cclass.get_field(fid);
+	// 	     var val = doc[fid];
+	// 	     //var link = linker.anchor({id: val}, 'term');
+	// 	     var link = null;
+	// 	     if( val ){
+	// 		 link = linker.anchor({id: val});
+	// 		 if( link ){ val = link; }
+	// 	     }else{
+	// 		 val = 'n/a';
+	// 	     }
+	// 	     tbl.add_to([field.display_name(), val]);
+	// 	     //tbl.add_to(['link', linker.anchor({id: doc['id']})]);
+	// 	 });
+	// txt = tbl.to_string();
+	//}
+	
+	// Create div.
+	var div = new bbop.html.tag('div', {'generate_id': true});
+	var div_id = div.get_id();
+    
+	// Append div to body.
+	jQuery('body').append(div.to_string());
+    
+	// Add text to div.
+	jQuery('#' + div_id).append(txt);
+
+	var diargs = {
+	    modal: true,
+	    draggable: false,
+	    width: 800,
+	    height: 600,
+	    close:
+	    function(){
+		// TODO: Could maybe use .dialog('destroy') instead?
+		jQuery('#' + div_id).remove();
+	    }	    
+	};
+	var dia = jQuery('#' + div_id).dialog(diargs);
+    };
+
+};
+/*
  * Package: live_search.js
  * 
  * Namespace: bbop.widget.display.live_search
@@ -8993,7 +9100,8 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 	    jQuery(cfid).append("No current filters.");
 	}else{
 
-	    // The buttons have now been attached to the DOM...
+	    // With this, the buttons will be attached to the
+	    // DOM...
 	    jQuery(cfid).append(fq_list_tbl.to_string());
 
 	    // Now let's go back and add the buttons, styles,
@@ -9052,9 +9160,18 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 	    throw new Error('Need to init accordion to use it.');
 	}
 
+	// We'll need this in a little bit for calculating when to
+	// display the "more" option for the field filters.
+	var curr_facet_limit = manager.get_facet_limit();
+
 	// Hash where we collect our button information.
 	// button_id -> [source, filter, count, polarity];
 	var button_hash = {};
+
+	// And a hash to store information to be able to generate the
+	// complete filter shields.
+	// span_id -> filter_id
+	var overflow_hash = {};
 
 	// Cycle through each facet field; all the items in each,
 	// create the lists and buttons (while collectong data useful
@@ -9085,42 +9202,64 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 		     
 		     // Now go through and get filters and counts.
 		     each(golr_resp.facet_field(in_field),
-			  function(ff_field, ff_item){
+			  function(ff_field, ff_index){
 
-			      // Pull out info.
-			      var f_name = ff_field[0];
-			      var f_count = ff_field[1];
-			      //var fstr = f_name +" ("+ f_count +")";
-			      //ll("COLLECT: " + fstr);
-			      //ll("COLLECTb: " + bbop.core.dump(ff_item));
-			      
-			      // Create buttons and store them for later
-			      // activation with callbacks to the manager.
-			      // var b_plus =
-			      //     new bbop.html.button('+filter',
-			      // 			   {'generate_id': true});
-			      // var b_minus =
-			      //     new bbop.html.button('-filter',
-			      // 			   {'generate_id': true});
-			      var b_plus =
-				  new bbop.html.span('<b>[&nbsp;+&nbsp;]</b>',
-						     {'generate_id': true});
-			      var b_minus =
-				  new bbop.html.span('<b>[&nbsp;-&nbsp;]</b>',
-						     {'generate_id': true});
-			      button_hash[b_plus.get_id()] =
-				  [in_field, f_name, f_count, '+'];
-			      button_hash[b_minus.get_id()] =
-				  [in_field, f_name, f_count, '-'];
-			      
-			      // // Add the label and buttons to the
-			      // // appropriate ul list.
-			      // facet_list_ul.add_to(fstr, b_plus.to_string(),
-			      // 		       b_minus.to_string());
-			      // Add the label and buttons to the table.
-			      facet_list_tbl.add_to([f_name, '('+ f_count +')',
-						     b_plus.to_string(),
-						     b_minus.to_string()]);
+			      // Only go for it if we have still below
+			      // the limit by one; otherwise, we'll
+			      // want to display the larger selection
+			      // shield.
+			      if( ff_index < curr_facet_limit -1 ){ // offset
+				  
+				  // Pull out info.
+				  var f_name = ff_field[0];
+				  var f_count = ff_field[1];
+				  //var fstr = f_name +" ("+ f_count +")";
+				  //ll("COLLECT: " + fstr);
+				  
+				  // Create buttons and store them for later
+				  // activation with callbacks to the manager.
+				  // var b_plus =
+				  //     new bbop.html.button('+filter',
+				  // 		   {'generate_id': true});
+				  // var b_minus =
+				  //     new bbop.html.button('-filter',
+				  // 		   {'generate_id': true});
+				  var b_plus_txt = '<b>[&nbsp;+&nbsp;]</b>';
+				  var b_plus =
+				      new bbop.html.span(b_plus_txt,
+							 {'generate_id': true});
+				  var b_minus_txt = '<b>[&nbsp;-&nbsp;]</b>';
+				  var b_minus =
+				      new bbop.html.span(b_minus_txt,
+							 {'generate_id': true});
+				  button_hash[b_plus.get_id()] =
+				      [in_field, f_name, f_count, '+'];
+				  button_hash[b_minus.get_id()] =
+				      [in_field, f_name, f_count, '-'];
+				  
+				  // // Add the label and buttons to the
+				  // // appropriate ul list.
+				  //facet_list_ul.add_to(
+				  // fstr,b_plus.to_string(),
+				  // 		       b_minus.to_string());
+				  // Add the label and buttons to the table.
+				  facet_list_tbl.add_to([f_name,'('+f_count+')',
+							 b_plus.to_string(),
+							 b_minus.to_string()]);
+			      }else{
+
+				  // Since this is the overflow item,
+				  // add a span that can be clicked on
+				  // to get the full filter list.
+				  //ll("Overflow for " + in_field);
+				  var b_over_txt = '<b>[more...]</b>';
+				  var b_over =
+				      new bbop.html.span(b_over_txt,
+							 {'generate_id': true});
+				  facet_list_tbl.add_to([b_over.to_string(),
+				  			 '', '']);
+				  overflow_hash[b_over.get_id()] = in_field;
+			      }
 			  });
 
 		     // Now add the ul to the appropriate section of the
@@ -9172,6 +9311,46 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 			 manager.search();
 		     });
 	     });
+
+	// Next, tie the events to the "more" spans.
+	each(overflow_hash,
+	     function(button_id, filter_name){
+		 jQuery('#' + button_id).click(
+
+		     // On click, set that one field to limitless in
+		     // the manager, setup a shield, and wait for the
+		     // callback.
+		     function(){
+
+			 // Recover the field name.
+			 var tid = jQuery(this).attr('id');
+			 var call_time_field_name = overflow_hash[tid];
+			 //alert(call_time_field_name);
+
+			 // Set the manager to no limit on that field and
+			 // only rturn the information that we want.
+			 manager.set_facet_limit(0);
+			 manager.set_facet_limit(call_time_field_name, -1);
+			 var curr_row = manager.get('rows');
+			 manager.set('rows', 0);
+
+			 // Open the shield (to pevent further
+			 // interaction with the manager with this
+			 // possibly very large/slow setting).
+			 // TODO
+			 //ll('SHIELD: ' + manager.get_query_url());
+			 var filter_shield =
+			     new bbop.widget.display.filter_shield([], manager);
+			 filter_shield.draw();
+
+			 // Reset the manager to more sane settings.
+			 manager.reset_facet_limit();
+			 //manager.reset_facet_limit(call_time_field_name);
+			 manager.set('rows', curr_row);
+			 //ll('POST CHECK: ' + manager.get_query_url());
+		     });
+	     });
+
 
 	ll('Done current accordion for: ' + ui_div_id);
     };
@@ -9859,12 +10038,12 @@ bbop.core.extend(bbop.widget.term_shield, bbop.golr.manager.jquery);
  * self-contained UI and manager.
  * 
  * The function ".establish_display()" must be run *after* an initial
- * personality is set.
- * 
- * Also, in many use cases, you'll want to have an line like the following 
- * befire running ".establish_display()".
+ * personality is set. Also, in many use cases, you'll want to have an line like the following befire running ".establish_display()".
  * : sp_widget.add_query_filter('document_category', 'annotation', ['*']);
  * 
+ * The search pane will display one less filter row than is set with
+ * .set_facet_limit(), it will use this runover to decide whether or
+ * not to display the "more" option for the filters.
  */
 
 bbop.core.require('bbop', 'core');
