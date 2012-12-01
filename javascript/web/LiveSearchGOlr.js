@@ -62,8 +62,9 @@ function LiveSearchGOlrInit(){
     // We still need this--without it we end up with a lot of
     // stray fields where automatic controls fail.
     search.add_query_filter('document_category', 'annotation', ['*']);
-    // TODO: For testing, for now, I want to limit this to 10/11.
-    search.set_facet_limit(10 + 1);
+    // // DEBUG: For testing, for now, I want to limit this to 10/11.
+    // search.set_default_facet_limit(10 + 1);
+    // search.reset_facet_limit();
 
     // Initialze/establish the display.
     search.establish_display();

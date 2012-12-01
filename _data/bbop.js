@@ -1138,7 +1138,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20121129";
+bbop.version.release = "20121130";
 /*
  * Package: logger.js
  * 
@@ -5892,6 +5892,7 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	    // Control of facets.
 	    facet: 'true',
 	    'facet.mincount': 1,
+	    'facet.sort': 'count',
 	    'json.nl': 'arrarr', // only in facets right now
 	    'facet.limit': anchor.default_facet_limit,
 	    //'facet.limit': 25,
@@ -6035,6 +6036,8 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
      * Just as in Solr, a -1 argument is how to indicate unlimted
      * facet returns.
      * 
+     * This setting does not survive things like <resets_facet_limit>.
+     * 
      * Parameters: 
      *  arg1 - (integer) set the global limit
      *
@@ -6075,10 +6078,39 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
     };
 
     /*
+     * Function: set_default_facet_limit
+     * 
+     * Permanently change the default number of facet values returned
+     * per call. The default's default is likely 25.
+     * 
+     * Just as in Solr, a -1 argument is how to indicate unlimted
+     * facet returns.
+     * 
+     * Parameters: 
+     *  lim - (integer) set the global default limit
+     *
+     * Returns: 
+     *  old default
+     */
+    this.set_default_facet_limit = function(lim){
+
+	// Capture ret.
+	var retval = anchor.default_facet_limit;
+
+	// Set
+	anchor.default_facet_limit = lim;
+	//anchor.set('facet.limit', anchor.default_facet_limit);
+		
+	return retval;
+    };
+
+    /*
      * Function: reset_facet_limit
      * 
      * Either reset the global limit to the original (likely 25)
-     * and/or remove the specified filter.
+     * and/or remove the specified filter. Sets everything back to the
+     * original values or whatever was set by
+     * <set_default_facet_limit>.
      * 
      * Parameters: 
      *  field - *[optional]* remove limit for a field; otherwise all and global
@@ -6091,7 +6123,7 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 
 	if( ! bbop.core.is_defined(field) ){
 	    // Eliminate all fields by blowing them away.
-	    //anchor.current_facet_limit = anchor.default_facet_limit;
+	    anchor.current_facet_limit = anchor.default_facet_limit;
 	    anchor.set('facet.limit', anchor.current_facet_limit);
 	    anchor.current_facet_field_limits = {};
 	    retval = true;
@@ -8095,14 +8127,10 @@ bbop.golr.manager.jquery.prototype.update = function(callback_type,
  *
  * Parameters: 
  *  accumulator_func - the function that collects
- *  final_func - the function to on completion
+ *  final_func - the function to run on completion
  *
  * Returns:
- *  the number od batch items run
- * 
- * Also see:
- *  <add_to_batch>
- *  <clear_batch>
+ *  the number of batch items run
  */
 bbop.golr.manager.jquery.prototype.run_batch = function(accumulator_func,
 							final_func){
@@ -8114,7 +8142,7 @@ bbop.golr.manager.jquery.prototype.run_batch = function(accumulator_func,
     if( accumulator_func ){ this._batch_accumulator_func = accumulator_func; }
     if( final_func ){ this._batch_final_func = final_func; }
 
-    // Look at how many states are left
+    // Look at how many states are left.
     var qurl = anchor.next_batch_url();
     if( qurl ){
 	    
@@ -8132,6 +8160,33 @@ bbop.golr.manager.jquery.prototype.run_batch = function(accumulator_func,
     }else{
 	anchor._batch_final_func.apply(anchor);
     }
+};
+
+/*
+ * Function: fetch
+ *
+ * A cousin of <update>, but is made to avoid all of the usual
+ * callback functions (except error) and just run the single function
+ * from the argument.
+ * 
+ * Why would you want this? Sometimes you need just a little data
+ * without updating the whole interface or whatever.
+ *
+ * Parameters: 
+ *  run_func - the function to run on completion
+ *
+ * Returns:
+ *  n/a
+ */
+bbop.golr.manager.jquery.prototype.fetch = function(run_func){
+
+    // ...
+    var anchor = this;
+    var qurl = anchor.get_query_url();
+    anchor._run_func = run_func;
+    anchor.jq_vars['success'] = anchor._run_func;
+    anchor.jq_vars['error'] = anchor._run_error_callbacks;
+    anchor.JQ.ajax(qurl, anchor.jq_vars);
 };
 
 /*
@@ -8441,13 +8496,14 @@ bbop.core.namespace('bbop', 'widget', 'display', 'filter_shield');
  * <bbop.widget.display.live_search>
  * 
  * Arguments:
+ *  field_name - the name (id) of the filter field to display
  *  filter_list - a list of [[filter_id, filter_count], ...]
  *  manager - the manager that we'll use for the callbacks
  * 
  * Returns:
  *  self
  */
-bbop.widget.display.filter_shield = function(filter_list, manager){
+bbop.widget.display.filter_shield = function(field_name, filter_list, manager){
     this._is_a = 'bbop.widget.display.filter_shield';
 
     var anchor = this;
@@ -8468,42 +8524,85 @@ bbop.widget.display.filter_shield = function(filter_list, manager){
      * Returns:
      *  n/a
      */
-    this.draw = function(item){
+    this.draw = function(){
 	//ll(doc['id']);
 	var txt = 'No filters...';
-	// if( doc && cclass ){
-	
-	//     var tbl = new bbop.html.table();
-	//     var results_order = cclass.field_order_by_weight('result');
-	//     var each = bbop.core.each; // conveience
-	//     each(results_order,
-	// 	 function(fid){
-	// 	     // 
-	// 	     var field = cclass.get_field(fid);
-	// 	     var val = doc[fid];
-	// 	     //var link = linker.anchor({id: val}, 'term');
-	// 	     var link = null;
-	// 	     if( val ){
-	// 		 link = linker.anchor({id: val});
-	// 		 if( link ){ val = link; }
-	// 	     }else{
-	// 		 val = 'n/a';
-	// 	     }
-	// 	     tbl.add_to([field.display_name(), val]);
-	// 	     //tbl.add_to(['link', linker.anchor({id: doc['id']})]);
-	// 	 });
-	// txt = tbl.to_string();
-	//}
+	var tbl = new bbop.html.table();
+	var button_hash = {};
+	var each = bbop.core.each; // conveience
+	each(filter_list,
+ 	     function(field){
+		 var fname = field[0];
+		 var fcount = field[1];
+		 
+		 var b_plus_txt = '<b>[&nbsp;+&nbsp;]</b>';
+		 var b_plus =
+		     new bbop.html.span(b_plus_txt,
+					{'generate_id': true});
+		 var b_minus_txt = '<b>[&nbsp;-&nbsp;]</b>';
+		 var b_minus =
+		     new bbop.html.span(b_minus_txt,
+					{'generate_id': true});
+		 button_hash[b_plus.get_id()] =
+		     [field_name, fname, fcount, '+'];
+		 button_hash[b_minus.get_id()] =
+		     [field_name, fname, fcount, '-'];
+
+		 tbl.add_to([fname, '(' + fcount + ')',
+			     b_plus.to_string(),
+			     b_minus.to_string()]);
+	     });
+	txt = tbl.to_string();
 	
 	// Create div.
 	var div = new bbop.html.tag('div', {'generate_id': true});
 	var div_id = div.get_id();
-    
+	
 	// Append div to body.
 	jQuery('body').append(div.to_string());
-    
+	
 	// Add text to div.
 	jQuery('#' + div_id).append(txt);
+	
+	// Okay, now introducing a function that we'll be using a
+	// couple of times in our callbacks. Given a button id (from
+	// a button hash) and the [field, filter, count, polarity]
+	// values from the props, make a button-y thing an active
+	// filter.
+	function filter_select_live(button_id, create_time_button_props){
+	    var in_polarity = create_time_button_props[3];
+
+	    // Decide on the button graphical elements.
+	    var b_ui_icon = 'ui-icon-plus';
+	    if( in_polarity == '-' ){
+		b_ui_icon = 'ui-icon-minus';
+	    }
+	    var b_ui_props = {
+		icons: { primary: b_ui_icon},
+		text: false
+	    };
+
+	    // Create the button and immediately add the event.
+	    jQuery('#' + button_id).click(
+		function(){
+		    var tid = jQuery(this).attr('id');
+		    var call_time_button_props = button_hash[tid];
+		    var call_field = call_time_button_props[0];	 
+		    var call_filter = call_time_button_props[1];
+		    //var in_count = button_props[2];
+		    var call_polarity = call_time_button_props[3];
+		    
+		    // Change manager, fire, and close the dialog.
+		    manager.add_query_filter(call_field, call_filter,
+			  		     [call_polarity]);
+		    manager.search();
+		    jQuery('#' + div_id).remove();
+		});
+	}
+
+	// Now let's go back and add the buttons, styles,
+	// events, etc. in the main accordion section.
+	each(button_hash, filter_select_live);
 
 	var diargs = {
 	    modal: true,
@@ -9272,45 +9371,51 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 		 }
 	     });
 
+	// Okay, now introducing a function that we'll be using a
+	// couple of times in our callbacks. Given a button id (from
+	// a button hash) and the [field, filter, count, polarity]
+	// values from the props, make a button-y thing an active
+	// filter.
+	function filter_select_live(button_id, create_time_button_props){
+	    //var bid = button_id;
+	    //var in_field = create_time_button_props[0];	 
+	    //var in_filter = create_time_button_props[1];
+	    //var in_count = create_time_button_props[2];
+	    var in_polarity = create_time_button_props[3];
+
+	    // Decide on the button graphical elements.
+	    var b_ui_icon = 'ui-icon-plus';
+	    if( in_polarity == '-' ){
+		b_ui_icon = 'ui-icon-minus';
+	    }
+	    var b_ui_props = {
+		icons: { primary: b_ui_icon},
+		text: false
+	    };
+
+	    // Create the button and immediately add the event.
+	    //jQuery('#' + button_id).button(b_ui_props).click(
+	    jQuery('#' + button_id).click(
+		function(){
+		    var tid = jQuery(this).attr('id');
+		    var call_time_button_props = button_hash[tid];
+		    var call_field = call_time_button_props[0];	 
+		    var call_filter = call_time_button_props[1];
+		    //var in_count = button_props[2];
+		    var call_polarity = call_time_button_props[3];
+		    
+		    // Change manager and fire.
+		    // var bstr =call_field+' '+call_filter+' '+call_polarity;
+		    // alert(bstr);
+		    manager.add_query_filter(call_field, call_filter,
+			  		     [call_polarity]);
+		    manager.search();
+		});
+	}
+
 	// Now let's go back and add the buttons, styles,
-	// events, etc.
-	each(button_hash,
-	     function(button_id, create_time_button_props){
-		 //var bid = button_id;
-		 //var in_field = create_time_button_props[0];	 
-		 //var in_filter = create_time_button_props[1];
-		 //var in_count = create_time_button_props[2];
-		 var in_polarity = create_time_button_props[3];
-
-		 // Decide on the button graphical elements.
-		 var b_ui_icon = 'ui-icon-plus';
-		 if( in_polarity == '-' ){
-		     b_ui_icon = 'ui-icon-minus';
-		 }
-		 var b_ui_props = {
-		     icons: { primary: b_ui_icon},
-		     text: false
-		 };
-
-		 // Create the button and immediately add the event.
-		 //jQuery('#' + button_id).button(b_ui_props).click(
-		 jQuery('#' + button_id).click(
-		     function(){
-			 var tid = jQuery(this).attr('id');
-			 var call_time_button_props = button_hash[tid];
-			 var call_field = call_time_button_props[0];	 
-			 var call_filter = call_time_button_props[1];
-			 //var in_count = button_props[2];
-			 var call_polarity = call_time_button_props[3];
-
-			 // Change manager and fire.
-			 // var bstr =call_field+' '+call_filter+' '+call_polarity;
-			 // alert(bstr);
-			 manager.add_query_filter(call_field, call_filter,
-			  			  [call_polarity]);
-			 manager.search();
-		     });
-	     });
+	// events, etc. in the main accordion section.
+	each(button_hash, filter_select_live);
 
 	// Next, tie the events to the "more" spans.
 	each(overflow_hash,
@@ -9334,23 +9439,31 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 			 var curr_row = manager.get('rows');
 			 manager.set('rows', 0);
 
-			 // Open the shield (to pevent further
+			 // Open the shield (TODO: prevent further
 			 // interaction with the manager with this
 			 // possibly very large/slow setting).
-			 // TODO
-			 //ll('SHIELD: ' + manager.get_query_url());
-			 var filter_shield =
-			     new bbop.widget.display.filter_shield([], manager);
-			 filter_shield.draw();
+			 function draw_shield(json_data){
+
+			     // First, extract the fields from the
+			     // minimal response.
+			     var resp = new bbop.golr.response(json_data);
+			     var fina = call_time_field_name;
+			     var flist = resp.facet_field(call_time_field_name);
+
+			     // Build the shield.
+			     var filter_shield =
+			     	 new bbop.widget.display.filter_shield(fina,
+								       flist,
+			     					       manager);
+			     filter_shield.draw();
+			 }
+			 manager.fetch(draw_shield);
 
 			 // Reset the manager to more sane settings.
 			 manager.reset_facet_limit();
-			 //manager.reset_facet_limit(call_time_field_name);
 			 manager.set('rows', curr_row);
-			 //ll('POST CHECK: ' + manager.get_query_url());
 		     });
 	     });
-
 
 	ll('Done current accordion for: ' + ui_div_id);
     };
