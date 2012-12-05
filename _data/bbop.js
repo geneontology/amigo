@@ -1138,7 +1138,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20121130";
+bbop.version.release = "20121205";
 /*
  * Package: logger.js
  * 
@@ -8503,7 +8503,8 @@ bbop.core.namespace('bbop', 'widget', 'display', 'filter_shield');
  * Returns:
  *  self
  */
-bbop.widget.display.filter_shield = function(field_name, filter_list, manager){
+bbop.widget.display.filter_shield = function(){
+
     this._is_a = 'bbop.widget.display.filter_shield';
 
     var anchor = this;
@@ -8512,6 +8513,53 @@ bbop.widget.display.filter_shield = function(field_name, filter_list, manager){
     var logger = new bbop.logger();
     logger.DEBUG = true;
     function ll(str){ logger.kvetch('W (filter_shield): ' + str); }
+
+    // Variables that we'll need to keep.
+    var is_open_p = false;
+    var pbar = new bbop.html.tag('div', {'generate_id': true}, 'Waiting...');
+    var div = new bbop.html.tag('div', {'generate_id': true}, pbar);
+    var pbar_id = pbar.get_id();
+    var div_id = div.get_id();
+    var diargs = {
+	modal: true,
+	draggable: false,
+	width: 800,
+	height: 600,
+	close:
+	function(){
+	    // TODO: Could maybe use .dialog('destroy') instead?
+	    jQuery('#' + div_id).remove();
+	}	    
+    };
+
+    /*
+     * Function: start_wait
+     * 
+     * Render an unpopulated modal shield with some kind of waiting
+     * element. This is to act as a block for the IO if
+     * desired--calling this before .draw() is not required (as
+     * .draw() will call it anyways if you haven't).
+     * 
+     * Arguments:
+     *  n/a
+     * 
+     * Returns:
+     *  n/a
+     */
+    this.start_wait = function(){
+
+	// Mark that we've finally opened it.
+	is_open_p = true;
+
+	// Append div to body.
+	jQuery('body').append(div.to_string());	
+
+	// Pop open the dialog.
+	var dia = jQuery('#' + div_id).dialog(diargs);
+	// Pop open the progress bar.
+	jQuery('#' + pbar_id).empty();
+	jQuery('#' + pbar_id).progressbar({value: 50});
+    };
 
     /*
      * Function: draw
@@ -8524,8 +8572,14 @@ bbop.widget.display.filter_shield = function(field_name, filter_list, manager){
      * Returns:
      *  n/a
      */
-    this.draw = function(){
+    this.draw = function(field_name, filter_list, manager){
 	//ll(doc['id']);
+
+	// Open the shield if it is not already open.
+	if( ! is_open_p ){
+	    anchor.open();
+	}
+
 	var txt = 'No filters...';
 	var tbl = new bbop.html.table();
 	var button_hash = {};
@@ -8554,14 +8608,8 @@ bbop.widget.display.filter_shield = function(field_name, filter_list, manager){
 	     });
 	txt = tbl.to_string();
 	
-	// Create div.
-	var div = new bbop.html.tag('div', {'generate_id': true});
-	var div_id = div.get_id();
-	
-	// Append div to body.
-	jQuery('body').append(div.to_string());
-	
 	// Add text to div.
+	jQuery('#' + div_id).empty();
 	jQuery('#' + div_id).append(txt);
 	
 	// Okay, now introducing a function that we'll be using a
@@ -8604,18 +8652,6 @@ bbop.widget.display.filter_shield = function(field_name, filter_list, manager){
 	// events, etc. in the main accordion section.
 	each(button_hash, filter_select_live);
 
-	var diargs = {
-	    modal: true,
-	    draggable: false,
-	    width: 800,
-	    height: 600,
-	    close:
-	    function(){
-		// TODO: Could maybe use .dialog('destroy') instead?
-		jQuery('#' + div_id).remove();
-	    }	    
-	};
-	var dia = jQuery('#' + div_id).dialog(diargs);
     };
 
 };
@@ -9439,9 +9475,13 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 			 var curr_row = manager.get('rows');
 			 manager.set('rows', 0);
 
-			 // Open the shield (TODO: prevent further
-			 // interaction with the manager with this
-			 // possibly very large/slow setting).
+			 // Create the shield and pop-up the
+			 // placeholder.
+			 var filter_shield =
+			     new bbop.widget.display.filter_shield();
+			 filter_shield.start_wait();
+
+			 // Open the populated shield.
 			 function draw_shield(json_data){
 
 			     // First, extract the fields from the
@@ -9450,12 +9490,8 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 			     var fina = call_time_field_name;
 			     var flist = resp.facet_field(call_time_field_name);
 
-			     // Build the shield.
-			     var filter_shield =
-			     	 new bbop.widget.display.filter_shield(fina,
-								       flist,
-			     					       manager);
-			     filter_shield.draw();
+			     // Draw the proper contents of the shield.
+			     filter_shield.draw(fina, flist, manager);
 			 }
 			 manager.fetch(draw_shield);
 
