@@ -35,7 +35,8 @@ var gm_ann = new bbop.golr.manager.rhino(gserv.golr_base(), gconf);
 gm_ann.debug(false);
 gm_ann.set_facet_limit(-1);
 if( ! gm_ann.set_personality('bbop_ann') ){ // profile in gconf
-    ll('There seems to have been an ERROR in the YAML loader...');
+    //ll('There seems to have been an ERROR in the YAML loader...');
+    throw new Error('There seems to have been an ERROR in the YAML loader...');
 }
 var loop = bbop.core.each;
 

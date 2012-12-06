@@ -8496,9 +8496,7 @@ bbop.core.namespace('bbop', 'widget', 'display', 'filter_shield');
  * <bbop.widget.display.live_search>
  * 
  * Arguments:
- *  field_name - the name (id) of the filter field to display
- *  filter_list - a list of [[filter_id, filter_count], ...]
- *  manager - the manager that we'll use for the callbacks
+ *  n/a
  * 
  * Returns:
  *  self
@@ -8567,7 +8565,9 @@ bbop.widget.display.filter_shield = function(){
      * Render a temporary modal filter shield.
      * 
      * Arguments:
-     *  n/a
+     *  field_name - the name (id) of the filter field to display
+     *  filter_list - a list of [[filter_id, filter_count], ...]
+     *  manager - the manager that we'll use for the callbacks
      * 
      * Returns:
      *  n/a
