@@ -121,8 +121,8 @@
 
 (defun golr-shell-command (cmnd)
   "Standard shell command with printing."
-  (princ (concat "[GOlr] " cmnd "\n")))
-;;  (shell-command cmnd))
+  (princ (concat "[GOlr] " cmnd "\n"))
+  (shell-command cmnd))
 
 ;;;
 ;;; Command bundles.
