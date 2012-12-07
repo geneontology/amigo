@@ -143,8 +143,8 @@
 	   "OWLTools-Runner/bin/owltools"
 	   " " (mapconcat 'identity golr-ontology-url-list " ")
 	   " --merge-support-ontologies --reasoner elk"
-	   " --solr-url http://localhost:8080/solr/ "
-	   " --solr-purge "
+	   " --solr-url http://localhost:8080/solr/"
+	   " --solr-purge"
 	   " --solr-config " golr-amigo-2-location "metadata/ont-config.yaml"
 	   " --solr-load-ontology"
 	   " --solr-load-panther"
