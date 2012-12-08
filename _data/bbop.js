@@ -1138,7 +1138,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20121205";
+bbop.version.release = "20121207";
 /*
  * Package: logger.js
  * 
@@ -8514,8 +8514,13 @@ bbop.widget.display.filter_shield = function(){
 
     // Variables that we'll need to keep.
     var is_open_p = false;
-    var pbar = new bbop.html.tag('div', {'generate_id': true}, 'Waiting...');
-    var div = new bbop.html.tag('div', {'generate_id': true}, pbar);
+    var parea = new bbop.html.tag('div', {'generate_id': true});
+    var pmsg = new bbop.html.tag('div', {'generate_id': true}, "Waiting...");
+    var pbar = new bbop.html.tag('div', {'generate_id': true});
+    parea.add_to(pmsg);
+    parea.add_to(pbar);
+    var div = new bbop.html.tag('div', {'generate_id': true}, parea);
+    var pmsg_id = pmsg.get_id();
     var pbar_id = pbar.get_id();
     var div_id = div.get_id();
     var diargs = {
@@ -8554,9 +8559,27 @@ bbop.widget.display.filter_shield = function(){
 
 	// Pop open the dialog.
 	var dia = jQuery('#' + div_id).dialog(diargs);
-	// Pop open the progress bar.
+
+	// Start the progress bar in the dialog
+	//var progress_val = 10;
 	jQuery('#' + pbar_id).empty();
-	jQuery('#' + pbar_id).progressbar({value: 50});
+	jQuery('#' + pbar_id).progressbar({value: 10});
+	// var progression_id = null;
+	// function progression(){
+	//     var success_p = false;
+	//     if( jQuery('#' + pbar_id) ){
+	// 	if( progress_val < 100 ){
+	// 	    progress_val += 10;
+	// 	    jQuery('#' + pbar_id).progressbar("value", progress_val);
+	// 	    success_p = true;
+	// 	}
+	//     }
+	//     if( ! success_p && progression_id ){
+	// 	window.clearInterval(progression_id);
+	// 	ll("waiting spinner interrupt");
+	//     }
+	// }
+	// progression_id = window.setInterval(progression, 100);
     };
 
     /*
