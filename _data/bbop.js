@@ -1138,7 +1138,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20121207";
+bbop.version.release = "20121210";
 /*
  * Package: logger.js
  * 
@@ -8296,13 +8296,15 @@ bbop.core.namespace('bbop', 'widget', 'display', 'results_table_by_class_conf');
  *  class_conf - a <bbop.golr.conf_class>
  *  golr_resp - a <bbop.golr.response>
  *  linker - a linker object; see <amigo.linker> for more details
+ *  elt_id - the element id to attach it to
  *
  * Returns:
  *  <bbop.html.table> filled with results
  */
 bbop.widget.display.results_table_by_class = function(cclass,
-							       golr_resp,
-							       linker){
+						      golr_resp,
+						      linker,
+						      elt_id){
     //bbop.html.tag.call(this, 'div');
     //var amigo = new bbop.amigo();
 
@@ -8312,6 +8314,45 @@ bbop.widget.display.results_table_by_class = function(cclass,
     // function ll(str){ logger.kvetch('TT: ' + str); }
 
     var each = bbop.core.each; // conveience
+
+    var ea_regexp = new RegExp("\<\/a\>", "i"); // only want to compile once
+    // Now take what we have, and wrap around some expansion code
+    // if it looks like it is too long.
+    var trim_hash = {};
+    var trimit = 100;
+    function _trim_and_store( in_str ){
+
+	var retval = in_str;
+
+	// Skip if it has a link or is too short.
+	if( ! ea_regexp.test(retval) && retval.length > (trimit + 50) ){
+
+	    // Setup the text for tease and full versions.
+	    var tease = new bbop.html.span(bbop.core.crop(retval, trimit, ''),
+					   {'generate_id': true});
+	    var more_b = new bbop.html.span('<b>[more...]</b>',
+					    {'generate_id': true});
+	    var full = new bbop.html.span(retval,
+					  {'generate_id': true});
+	    var less_b = new bbop.html.span('<b>[less]</b>',
+					    {'generate_id': true});
+	    
+	    // Store the different parts for later activation.
+	    var tease_id = tease.get_id();
+	    var more_b_id = more_b.get_id();
+	    var full_id = full.get_id();
+	    var less_b_id = less_b.get_id();
+	    trim_hash[tease_id] = [tease_id, more_b_id, full_id, less_b_id];
+	    
+	    // New final string.
+	    retval = tease.to_string() + " " +
+		more_b.to_string() + " " +
+		full.to_string() + " " +
+		less_b.to_string();
+	    
+	}
+	return retval;
+    }
 
     // Start with score, and add the others by order of the class
     // results_weights field.
@@ -8409,13 +8450,48 @@ bbop.widget.display.results_table_by_class = function(cclass,
 				   //ll('out: ' + out);
 				   tmp_buff.push(out);
 			       });
-			  entry_buff.push(tmp_buff.join(' '));
+			  // Join it, trim/store it, push to to output.
+			  var joined = tmp_buff.join('<br />');
+			  entry_buff.push(_trim_and_store(joined));
 		      }
 		  });
 	     table_buff.push(entry_buff);
 	 });
-    
-    return new bbop.html.table(headers_display, table_buff);
+	
+	// Add the table to the DOM.
+	var final_table = new bbop.html.table(headers_display, table_buff);
+	jQuery('#' + elt_id).append(bbop.core.to_string(final_table));
+
+	// Add the roll-up/down events to the doc.
+	each(trim_hash,
+	    function(key, val){
+		var tease_id = val[0];
+		var more_b_id = val[1];
+		var full_id = val[2];
+		var less_b_id = val[3];
+
+		// Initial state.
+		jQuery('#' + full_id ).hide();
+		jQuery('#' + less_b_id ).hide();
+
+		// Click actions to go back and forth.
+		jQuery('#' + more_b_id ).click(
+		    function(){
+			jQuery('#' + tease_id ).hide();
+			jQuery('#' + more_b_id ).hide();
+			jQuery('#' + full_id ).show('fast');
+			jQuery('#' + less_b_id ).show('fast');
+		    });
+		jQuery('#' + less_b_id ).click(
+		    function(){
+			jQuery('#' + full_id ).hide();
+			jQuery('#' + less_b_id ).hide();
+			jQuery('#' + tease_id ).show('fast');
+			jQuery('#' + more_b_id ).show('fast');
+		    });
+	    });
+
+	return final_table;
 };
 bbop.widget.display.results_table_by_class.prototype = new bbop.html.tag;
 /*
@@ -8973,6 +9049,10 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 	ll('Draw meta div...');
 	var golr_resp = new bbop.golr.response(json_data);
 
+	///
+	/// Section 1: the numbers display.
+	///
+
 	// Collect numbers for display.
 	var total_c = golr_resp.total_documents();
 	var first_d = golr_resp.start_document();
@@ -8993,6 +9073,10 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 	    jQuery('#' + ui_meta_div_id).empty();
 	    jQuery('#' + ui_meta_div_id).append(dmeta.to_string());
 
+	    ///
+	    /// Section 2: the paging buttons.
+	    ///
+	    
 	    // Now add the raw buttons to the interface, and after this,
 	    // activation and adding events.
 	    var b_first = new bbop.html.button('First', {'generate_id': true});
@@ -9074,6 +9158,40 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 		function(){
 		    // A little trickier.
 		    manager.page_last(total_c);
+		});
+	    
+	    ///
+	    /// Section 3: the export-to-wherever buttons.
+	    ///
+	    
+	    // Cart.
+	    var b_export = new bbop.html.button('Cart',
+						{'generate_id': true});
+	    jQuery('#' + ui_meta_div_id).append('&nbsp;&nbsp;&nbsp;' +
+						'&nbsp;&nbsp;&nbsp;');
+	    jQuery('#' + ui_meta_div_id).append(b_export.to_string());
+	    var b_export_props = {
+		icons: { primary: "ui-icon-circle-zoomin"},
+		disabled: false,
+		text: false
+	    };
+	    jQuery('#' + b_export.get_id()).button(b_export_props).click(
+		function(){
+		    alert('TODO: Export to Galaxy: ' + manager.get_query_url());
+		});
+
+	    // Cart.
+	    var b_cart = new bbop.html.button('Cart',
+						{'generate_id': true});
+	    jQuery('#' + ui_meta_div_id).append(b_cart.to_string());
+	    var b_cart_props = {
+		icons: { primary: "ui-icon-cart"},
+		disabled: false,
+		text: false
+	    };
+	    jQuery('#' + b_cart.get_id()).button(b_cart_props).click(
+		function(){
+		    alert('TODO: Cart function: ' + manager.get_query_url());
 		});
 	}
     };
@@ -9545,21 +9663,24 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 
 	ll('Draw results div...');
 	var golr_resp = new bbop.golr.response(json_data);
-	var final_table =
-	    new bbop.widget.display.results_table_by_class(anchor.class_conf,
-							   golr_resp,
-							   linker);
 
 	//ll('final_table a: ' + final_table._is_a);
 	//ll('final_table b: ' + final_table.to_string);
 	//ll('final_table c: ' + final_table.to_string());
 
-	// Display product when not empty.
+	// Clear whatever is there.
 	var urtdi = ui_results_table_div_id;
-	var docs = golr_resp.documents();
 	jQuery('#' + urtdi).empty();
+
+	// Display product when not empty.
+	var docs = golr_resp.documents();
 	if( ! bbop.core.is_empty(docs) ){
-	    jQuery('#' + urtdi).append(bbop.core.to_string(final_table));
+	    var final_table =
+		new bbop.widget.display.results_table_by_class(anchor.class_conf,
+							       golr_resp,
+							       linker,
+							       urtdi);
+	    //jQuery('#' + urtdi).append(bbop.core.to_string(final_table));
 	}
     };
 
