@@ -740,7 +740,8 @@ bbop.core.has_interface = function(iobj, interface_list){
  * the tests to get an idea of what this is doing.
  * 
  * The last argument of double hashes gets quoted (Solr-esque),
- * otherwise not.
+ * otherwise not. It will try and avoid adding additional sets of
+ * quotes to strings.
  *
  * This does nothing to make the produced "URL" in any way safe.
  * 
@@ -801,7 +802,14 @@ bbop.core.get_assemble = function(qargs){
 			     nano_buff.push(sub_name);
 			     nano_buff.push(':');
 			     if( typeof sub_val !== 'undefined' && sub_val ){
-				 nano_buff.push('"' + sub_val + '"');
+				 // Do not double quote strings.
+				 if( bbop.core.what_is(sub_val) == 'string' &&
+				     sub_val.charAt(0) == '"' &&
+				     sub_val.charAt(sub_val.length -1) == '"' ){
+				     nano_buff.push(sub_val);
+				 }else{
+				     nano_buff.push('"' + sub_val + '"');
+				 }
 			     }else{
 				 nano_buff.push('""');
 			     }
@@ -1021,6 +1029,30 @@ bbop.core.numeric_sort_descending = function(a, b){
 };
 
 /*
+ * Function: dequote
+ *
+ * Remove the quotes from a string.
+ * 
+ * Parameters:
+ *  str - the string to dequote
+ *
+ * Returns:
+ *  the dequoted string (or the original string)
+ */
+bbop.core.dequote = function(str){
+    var retstr = str;
+
+    if( bbop.core.is_defined(str) && str.length > 2 ){
+	var end = str.length -1;
+	if( str.charAt(0) == '"' && str.charAt(end) == '"' ){
+	    retstr = str.substr(1, end -1);
+	}
+    }
+
+    return retstr;
+};
+
+/*
  * Function: extend
  * 
  * What seems to be a typical idiom for subclassing in JavaScript.
@@ -1138,7 +1170,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20121210";
+bbop.version.release = "20121211";
 /*
  * Package: logger.js
  * 
@@ -5894,24 +5926,26 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	    'facet.mincount': 1,
 	    'facet.sort': 'count',
 	    'json.nl': 'arrarr', // only in facets right now
-	    'facet.limit': anchor.default_facet_limit,
-	    //'facet.limit': 25,
+	    'facet.limit': anchor.default_facet_limit
 	    // TODO?: 'f.???.facet.limit': 50,
 	    // TODO: 'json.nl': [flat|map|arrarr]
-	    // They are unlikely to be messed with too much.
-	    'facet.field': []
+
+	    // Deprecated: see facet_fields
+	    //'facet.field': []
 	};
 
-    // This is the 'qf' parameter. Althoug we keep it, it only needs
-    // to be exposed when the query ('q') field is set. These have a
-    // different format, so assemble can't really be used.:
-    // [qf=field01^value01]
-    this.query_fields = [];
+    // This is the 'qf' parameter. Although we keep it, it only needs
+    // to be exposed when the query ('q') field is set.
+    //this.query_fields = [];
+    this.query_fields = {};
 
     // A richer way to handle the 'fq' query variant.
     // It should look like:
     // {<filter>: {<value>:{'sticky_p':(t|f), 'negative_p':(t|f)}, ...}}
     this.query_filters = {};
+
+    // The engine for the facet.field list.
+    this.facet_fields = {};
 
     /*
      * Function: debug
@@ -6216,7 +6250,7 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	//ll("Current state: " + bbop.core.dump(this.query_filters));
 
 	return {}; // TODO
-   };
+    };
 
     /*
      * Function: remove_query_filter
@@ -6709,10 +6743,49 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
     };
 
     /*
+     * Function: add_query_field
+     * 
+     * Add a new query field to the query. 
+     * 
+     * This does not go through and expand into searchable fields, for
+     * that see: <query_field_set>.
+     *
+     * Parameters: 
+     *  qf - the query field to add
+     *  boost - *[optional]* defaults to 1.0
+     *
+     * Returns:
+     *  true or false on whether or not it is a new field
+     * 
+     * See also:
+     *  <query_field_set>
+     */
+    this.add_query_field = function(qf, boost){
+	
+	var retval = false;
+
+	// Make sure that some boost is there.
+	if( ! bbop.core.is_defined(boost) ){
+	    boost = 1.0;
+	}
+
+	// Check.
+	if( ! bbop.core.is_defined(anchor.query_fields[qf]) ){
+	    retval = true;
+	}
+
+	// Add.
+	anchor.query_fields[qf] = boost;
+
+	return retval;
+    };
+
+    /*
      * Function: query_field_set
      *
-     * Getter/setter for the query fields--the fields that are search
-     * (and by what weight) when using a query ('q').
+     * Bulk getter/setter for the query fields--the fields that are
+     * searched (and by what weight) when using a query ('q' or
+     * set_query(), i.e. the 'qf' field).
      * 
      * This will always use searchable fields if possible,
      * automatically replacing the non-searchable versions (I can't
@@ -6734,12 +6807,14 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
      */
     this.query_field_set = function(qfs){
 
+	// Covenience.
+	var loop = bbop.core.each;
+	var cclass = anchor._current_class;
+
 	// Only do something if we have a query field set.
 	if( qfs ){
 	    
 	    // Only do the probing if a personality has been set.
-	    var loop = bbop.core.each;
-	    var cclass = anchor._current_class;
 	    if( cclass ){
 
 		// Get the current searchable extension string from
@@ -6763,25 +6838,26 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 			 }
 	    	     });
 		qfs = searchable_qfs;
-	    }
-	    
-	    // Using either the original or the converted information,
-	    // convert them to the proper internal format.
-	    var actual_format = [];
-	    loop(qfs,
-		 function(filter, value){
-		     actual_format.push(filter + '^' + value);
-		 });
-	    anchor.query_fields = actual_format;
+	    }	    
+
+	    // Overwrite the current.
+	    anchor.query_fields = qfs;
 	}
 	
-	return anchor.query_fields;
+	// Using the original information, convert them to the
+	// proper output format.
+	var output_format = [];
+	loop(anchor.query_fields,
+	     function(filter, value){
+		 output_format.push(filter + '^' + value);
+	     });
+	return output_format;
     };
 
     /*
      * Function: facets
      *
-     * Getter/setter for facets (technically 'facet.field').
+     * Bulk getter/setter for facets (technically 'facet.field').
      *
      * Parameters: 
      *  key - *[optional]* facet to add to the facet list
@@ -6794,13 +6870,20 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
      */
     this.facets = function(list_or_key){
 	if( list_or_key ){
-	    if( bbop.core.what_is(list_or_key) == 'array' ){ // replace as list
-		anchor.query_variants['facet.field'] = list_or_key;
-	    }else{ // add as key
-		anchor.query_variants['facet.field'].push(list_or_key);
+	    if( bbop.core.what_is(list_or_key) != 'array' ){
+		// Arrayify it.
+		list_or_key = [list_or_key];
+	    }else{
+		// When there is a list, we are replacing the whole
+		// thing, so let's just poof it out of existance.
+		anchor.facet_fields = {};
 	    }
+	    bbop.core.each(list_or_key,
+			   function(item){
+			       anchor.facet_fields[item] = true;
+			   });
 	}
-	return anchor.get('facet.field');
+	return bbop.core.get_keys(anchor.facet_fields);
     };
 
     /*
@@ -7262,8 +7345,9 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	    bbop.core.get_assemble(anchor.query_variants),
 	    bbop.core.get_assemble(anchor.current_facet_field_limits),
 	    //bbop.core.get_assemble({'fq': anchor.query_sticky_filters}),
-	    //bbop.core.get_assemble({'qf': anchor.query_fields}),
 	    bbop.core.get_assemble({'fq': fq}),
+	    bbop.core.get_assemble({'facet.field':
+				    bbop.core.get_keys(anchor.facet_fields)}),
 	    bbop.core.get_assemble({'q': anchor.query}),
 	    anchor.query_extra
 	];
@@ -7273,7 +7357,8 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	    anchor.query.length &&
 	    anchor.query.length != 0 &&
 	    anchor.query != anchor.fundamental_query ){
-		var in_qf = bbop.core.get_assemble({'qf': anchor.query_fields});
+		var in_qf =
+		    bbop.core.get_assemble({'qf': anchor.query_field_set()});
 		things_to_add.push(in_qf);
 	    }
 	
@@ -7296,23 +7381,85 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
     };
 
     /*
+     * Function: get_download_url
+     *
+     * Get the current invariant state of the manager returned as a
+     * URL string.
+     * 
+     * This differs from <get_query_url> in that the generated string
+     * is intended for text-processing uses rather than computerized
+     * searching uses. The idea where is to create a TSV file for
+     * downloading and consumption.
+     * 
+     * The optional argument hash looks like:
+     *  rows - the number of rows to return; defaults to: 1000
+     *  encapsulator - how to enclose whitespace fields; defaults to: ""
+     *  separator - separator between fields; defaults to: "%09" (tab)
+     *  header - whether or not to show headers; defaults to: "false"
+     *  mv_separator - separator for multi-valued fields; defaults to: "|"
+     * 
+     * Parameters:
+     *  field_list - a list of fields to return
+     *  in_arg_hash - *[optional]* additional optional arguments
+     * 
+     * Returns:
+     *  URL string
+     * 
+     * Also see:
+     *  <get_query_url>
+     */
+    this.get_download_url = function(field_list, in_arg_hash){
+	
+	// Deal with getting arguments in properly.
+	var default_hash =
+	    {
+		rows : 1000,
+		encapsulator : '',
+		separator : "%09",
+		header : 'false',
+		mv_separator : "|"
+	    };
+	var arg_hash = bbop.core.fold(default_hash, in_arg_hash);
+
+	// Save current state.
+	var old_state = anchor.get_query_url();
+
+	// Make the changes we want.
+	anchor.set('wt', 'csv');
+	anchor.set('start', 0);
+	anchor.set('fl', field_list.join(','));
+	anchor.set('rows', arg_hash['rows']);
+	anchor.set('csv.encapsulator', arg_hash['encapsulator']);
+	anchor.set('csv.separator', arg_hash['separator']);
+	anchor.set('csv.header', arg_hash['header']);
+	anchor.set('csv.mv.separator', arg_hash['mv_separator']);
+
+	// Get url.
+	var returl = anchor.get_query_url();
+
+	// Reset the current state.
+	anchor.load_url(old_state);
+
+    	return returl;
+    };
+
+    /*
      * Function: load_url
      *
-     * TODO - light psuedo-code approach done
-     * 
      * Makes a a best attempt to recover the state of a manager from
      * the clues left in a data url. This can also (and probably
-     * should) be thought of as a "bookmark" function. Theoretically,
-     * you should even be able to use "bookmarks" from alien
-     * installations.
+     * should) be thought of as a "load bookmark"
+     * function. Theoretically, you should even be able to use
+     * "bookmarks" from alien installations.
      * 
      * Note that while this recovers enough to get the same data,
-     * certain "session"/"preference" type things are encoded in the
-     * url, such as filter stickiness, the contents of batch queues,
-     * non-default base queries, etc.
+     * certain "session"/"preference" type things are not encoded in
+     * the url (e.g. filter stickiness, the contents of batch queues,
+     * non-default base queries, etc.).
      * 
      * Warning: this currently only replays a small subset of possible
-     * parameters. Currently: personality, q, ???
+     * parameters. Currently: personality, q, fq, ???. In the future,
+     * this should no all non-session information.
      * 
      * This returns true if the parameter portions of the new and
      * bookmark urls match.
@@ -7331,7 +7478,10 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	var in_params = bbop.core.url_parameters(url);
 
 	// First, look for the personality setting and invoke it if
-	// it's there--it will dominate.
+	// it's there--it will dominate unless we take care of it first.
+	// Also note the all the keys that we see (for later erasure
+	// of excess).
+	var seen_params = {};
 	loop(in_params,
 	     function(ip){
 		 var key = ip[0];
@@ -7339,6 +7489,7 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 		 if( key == 'personality' && val && val != '' ){
 		     anchor.set_personality(val);
 		 }
+		 seen_params[key] = true;
 	     });
 	
 	// Now cycle through the the parameters again and invoke the
@@ -7347,22 +7498,53 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	     function(ip){
 		 var key = ip[0];
 		 var val = ip[1];
-		 if( val && val != '' ){
-		     if( key == 'q' ){
+		 if( bbop.core.is_defined(val) && val != '' ){
+		     if( key == 'personality' ){
+			 // Already did it, skip.
+		     }else if( key == 'q' ){
 			 anchor.set_query(val);
-		     // }else if( key == 'qf' ){
-		     // 	 // TODO: ???
 		     }else if( key == 'fq' ){
 			 // Split the fq parameter.
 			 var fnv = bbop.core.first_split(':', val);
 			 var fname = fnv[0];
 			 var fval = fnv[1];
-			 print('fname: ' + fname);
-			 print('fval: ' + fval);
-			 if( fname && fval){
-			     anchor.add_query_filter(fname, fval);
+			 //ll('HERE: fname: ' + fname);
+			 //ll('HERE: fval: ' + fval);
+			 if( fname && fval ){
+			     // Do not allow quotes in--they will be
+			     // added by the assembler.
+			     anchor.add_query_filter(fname,
+						     bbop.core.dequote(fval));
 			 }
+		     }else if( key == 'qf' ){
+			 // qf is handles a little strangly...
+			 var foo = bbop.core.first_split('^', val);
+			 anchor.add_query_field(foo[0], foo[1]);
+		     }else if( key == 'facet.field' ){
+		      	 anchor.facets(val);
+		     }else if( key == 'start' || key == 'rows' ){
+			 // Numbers need to be handled carefully.
+			 if( bbop.core.what_is(val) == 'string' ){
+			     val = parseFloat(val);
+			 }
+		      	 anchor.set(key, val);
+		     }else{
+			 // This one catches all of the non-special
+			 // parameters and resets them using .set().
+			 anchor.set(key, val);
+			 // if( key == 'fq' ){
+			 //     throw new Error("OI");			     
+			 // }
 		     }
+		 }
+	     });
+
+	// Now go through and remove all of the query variant
+	// parameters that were not seen in the bookmark.
+	loop(anchor.query_variants,
+	     function(key, val){
+		 if( ! bbop.core.is_defined(seen_params[key]) ){
+		     anchor.unset(key);
 		 }
 	     });
 
@@ -9163,16 +9345,19 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 	    ///
 	    /// Section 3: the export-to-wherever buttons.
 	    ///
-	    
-	    // Cart.
-	    var b_export = new bbop.html.button('Cart',
-						{'generate_id': true});
+
+	    // Spacer.	    
 	    jQuery('#' + ui_meta_div_id).append('&nbsp;&nbsp;&nbsp;' +
 						'&nbsp;&nbsp;&nbsp;');
+
+	    // Export.
+	    var b_export = new bbop.html.button('Export to GO Galaxy',
+						{'generate_id': true});
 	    jQuery('#' + ui_meta_div_id).append(b_export.to_string());
 	    var b_export_props = {
 		icons: { primary: "ui-icon-circle-zoomin"},
-		disabled: false,
+		//disabled: false,
+		disabled: true,
 		text: false
 	    };
 	    jQuery('#' + b_export.get_id()).button(b_export_props).click(
@@ -9180,19 +9365,55 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 		    alert('TODO: Export to Galaxy: ' + manager.get_query_url());
 		});
 
-	    // Cart.
-	    var b_cart = new bbop.html.button('Cart',
-						{'generate_id': true});
-	    jQuery('#' + ui_meta_div_id).append(b_cart.to_string());
-	    var b_cart_props = {
-		icons: { primary: "ui-icon-cart"},
+	    // GAF.
+	    var b_gaf = new bbop.html.button('GAF download',
+					     {'generate_id': true});
+	    jQuery('#' + ui_meta_div_id).append(b_gaf.to_string());
+	    var b_gaf_props = {
+		icons: { primary: "ui-icon-circle-arrow-s"},
 		disabled: false,
 		text: false
 	    };
-	    jQuery('#' + b_cart.get_id()).button(b_cart_props).click(
+	    jQuery('#' + b_gaf.get_id()).button(b_gaf_props).click(
 		function(){
-		    alert('TODO: Cart function: ' + manager.get_query_url());
+		    var fl = [
+			'source',
+			// 'bioentity_internal_id',
+			'bioentity_label',
+			//'qualifier',
+			'annotation_class',
+			'reference',
+			'evidence_type',
+			'evidence_with',
+			// 'aspect',
+			// 'bioentity_name',
+			// 'bioentity_synonym',
+			// 'type',
+			'taxon',
+			'date',
+			// 'assigned_by',
+			'annotation_extension_class',
+			'bioentity'
+		    ];
+		    alert('GAF download (1000 lines): ' +
+			  manager.get_download_url(fl));
+		    ;
+		    //alert('GAF download: ' + manager.get_query_url());
 		});
+
+	    // // Cart.
+	    // var b_cart = new bbop.html.button('Cart',
+	    // 					{'generate_id': true});
+	    // jQuery('#' + ui_meta_div_id).append(b_cart.to_string());
+	    // var b_cart_props = {
+	    // 	icons: { primary: "ui-icon-cart"},
+	    // 	disabled: false,
+	    // 	text: false
+	    // };
+	    // jQuery('#' + b_cart.get_id()).button(b_cart_props).click(
+	    // 	function(){
+	    // 	    alert('TODO: Cart function: ' + manager.get_query_url());
+	    // 	});
 	}
     };
 
