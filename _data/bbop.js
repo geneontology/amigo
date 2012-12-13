@@ -1170,7 +1170,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20121211";
+bbop.version.release = "20121212";
 /*
  * Package: logger.js
  * 
@@ -7421,8 +7421,12 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	    };
 	var arg_hash = bbop.core.fold(default_hash, in_arg_hash);
 
-	// Save current state.
+	// Save current state (data).
 	var old_state = anchor.get_query_url();
+
+	// Save current state (session).
+	// Get the sticky filters.
+	var session_stickies = anchor.get_sticky_query_filters();
 
 	// Make the changes we want.
 	anchor.set('wt', 'csv');
@@ -7439,6 +7443,22 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 
 	// Reset the current state.
 	anchor.load_url(old_state);
+
+	// Reset the current session
+	// Add the sticky filters.
+	bbop.core.each(session_stickies,
+		       function(sticky){
+			   var flt = sticky['filter'];
+			   var fvl = sticky['value'];
+			   var fpl = [];
+			   if( sticky['negative_p'] == true ){
+			       fpl.push('-');
+			   }
+			   if( sticky['sticky_p'] == true ){
+			       fpl.push('*');
+			   }
+			   anchor.add_query_filter(flt, fvl, fpl);
+		       });
 
     	return returl;
     };
@@ -7511,10 +7531,23 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 			 //ll('HERE: fname: ' + fname);
 			 //ll('HERE: fval: ' + fval);
 			 if( fname && fval ){
+
+			     var plist = [];
+
+			     // Remove leading sign on a filter and
+			     // add it to the plist.
+			     var lead_char = fname.charAt(0);
+			     if( lead_char == '-' || lead_char == '+' ){
+				 plist.push(lead_char);
+				 fname = fname.substr(1, fname.length -1);
+			     }
+
 			     // Do not allow quotes in--they will be
 			     // added by the assembler.
-			     anchor.add_query_filter(fname,
-						     bbop.core.dequote(fval));
+			     fval = bbop.core.dequote(fval);
+
+			     // Add the query filter properly.
+			     anchor.add_query_filter(fname, fval, plist);
 			 }
 		     }else if( key == 'qf' ){
 			 // qf is handles a little strangly...
