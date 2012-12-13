@@ -5866,6 +5866,9 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
     this._batch_accumulator_func = function(){};
     this._batch_final_func = function(){};
 
+    // The current state stack.
+    this._excursions = [];
+
     // The current class/personality that we're using. It may be none.
     this._current_class = null;
 
@@ -7381,6 +7384,94 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
     };
 
     /*
+     * Function: push_excursion
+     *
+     * Save the current state of the manager--data and sticky filter
+     * information--onto an internal stack. Batch information is not
+     * stored.
+     * 
+     * Useful for gettinginto a state, doing something else, then
+     * returning to the original state.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  the number of items on the excursion stack
+     * 
+     * Also see:
+     *  <get_query_url>
+     *  <pop_excursion>
+     */
+    this.push_excursion = function(){
+	
+	var now = {
+	    // Save current state (data).
+	    data_url: anchor.get_query_url(),
+	    // Save current state (session).
+	    session: {
+		// Get the sticky filters.
+		sticky_filters: anchor.get_sticky_query_filters()
+	    }
+	};
+
+	// Save.
+	anchor._excursions.push(now);
+
+	// ...
+    	return anchor._excursions.length;
+    };
+
+    /*
+     * Function: pop_excursion
+     *
+     * Return to a previously pushed state. Batch items are not
+     * recovered.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  boolean on whether a state was recovered
+     * 
+     * Also see:
+     *  <get_query_url>
+     *  <gpush_excursion>
+     */
+    this.pop_excursion = function(){
+	
+	var retval = false;
+
+	var then = anchor._excursions.pop();
+	if( then ){
+	    retval = true;
+
+	    // Recover data state.
+	    var then_data_url = then['data_url'];
+	    anchor.load_url(then_data_url);
+
+	    // Recover the session state.
+	    var then_session_stickies = then['session']['sticky_filters'];
+	    // Add the sticky filters.
+	    bbop.core.each(then_session_stickies,
+			   function(sticky){
+			       var flt = sticky['filter'];
+			       var fvl = sticky['value'];
+			       var fpl = [];
+			       if( sticky['negative_p'] == true ){
+				   fpl.push('-');
+			       }
+			       if( sticky['sticky_p'] == true ){
+				   fpl.push('*');
+			       }
+			       anchor.add_query_filter(flt, fvl, fpl);
+			   });	    
+	}
+
+    	return retval;
+    };
+
+    /*
      * Function: get_download_url
      *
      * Get the current invariant state of the manager returned as a
@@ -7410,6 +7501,9 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
      */
     this.get_download_url = function(field_list, in_arg_hash){
 	
+	// Save current state.
+	anchor.push_excursion();
+
 	// Deal with getting arguments in properly.
 	var default_hash =
 	    {
@@ -7420,13 +7514,6 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 		mv_separator : "|"
 	    };
 	var arg_hash = bbop.core.fold(default_hash, in_arg_hash);
-
-	// Save current state (data).
-	var old_state = anchor.get_query_url();
-
-	// Save current state (session).
-	// Get the sticky filters.
-	var session_stickies = anchor.get_sticky_query_filters();
 
 	// Make the changes we want.
 	anchor.set('wt', 'csv');
@@ -7441,24 +7528,8 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	// Get url.
 	var returl = anchor.get_query_url();
 
-	// Reset the current state.
-	anchor.load_url(old_state);
-
-	// Reset the current session
-	// Add the sticky filters.
-	bbop.core.each(session_stickies,
-		       function(sticky){
-			   var flt = sticky['filter'];
-			   var fvl = sticky['value'];
-			   var fpl = [];
-			   if( sticky['negative_p'] == true ){
-			       fpl.push('-');
-			   }
-			   if( sticky['sticky_p'] == true ){
-			       fpl.push('*');
-			   }
-			   anchor.add_query_filter(flt, fvl, fpl);
-		       });
+	// Reset the old state.
+	anchor.pop_excursion();
 
     	return returl;
     };
