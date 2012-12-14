@@ -82,6 +82,7 @@ sub setup {
 		   # ## Service apps.
 		   # 'workspace'           => 'mode_workspace',
 
+		   'repl'               => 'mode_repl',
 		   'drill'               => 'mode_drilldown_browser',
 		   'visic'               => 'mode_visic',
 
@@ -255,6 +256,54 @@ sub mode_ptree {
 
   ##
   $self->add_template_content('pages/phylo_ntree.tmpl');
+  return $self->generate_template_page();
+}
+
+
+## BBOP web REPL.
+sub mode_repl {
+
+  my $self = shift;
+
+  ## Incoming template.
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile();
+  $self->_common_params_settings($params);
+
+  ###
+  ### Page settings.
+  ###
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      'standard', # basic GO-styles
+      'com.jquery.jqamigo.custom',
+      'bbop.amigo.ui.widgets',
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.jquery-ui',
+      'com.jquery.jstree',
+      'bbop',
+      'amigo',
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('REPL.js')
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  ## Initialize javascript app.
+  $self->add_template_javascript($self->{JS}->initializer_jquery('REPLInit();'));
+
+  ##
+  #$self->set_template_parameter('filler_n', 10);
+  $self->add_template_content('pages/repl.tmpl');
   return $self->generate_template_page();
 }
 
