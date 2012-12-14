@@ -113,7 +113,9 @@ sub input_profile {
     ## Default nothingness.
   }elsif( $profile_name eq 'term' ){
     $self->_add_ontology();
-    $self->_add_compat_term();
+    ## Remove the idea of a "GO" term.
+    #$self->_add_compat_term();
+    $self->_add_term();
     # ## TODO: remove these later after testing.
     #$self->_add_simple_argument('graph_type', 'correct', ['all', 'correct']);
   }elsif( $profile_name eq 'gp' ){
@@ -297,7 +299,7 @@ sub input_profile {
   if( $results->{valid} ){
     $self->{CORE}->kvetch("Valid:");
     foreach my $item (keys %{$results->{valid}}){
-      $self->{CORE}->kvetch("$item => " . $results->{valid}->{$item});
+      $self->{CORE}->kvetch("\t$item => " . $results->{valid}->{$item});
     }
   }
 
@@ -501,37 +503,38 @@ sub _add_term {
   ## Terms.
   push @{$profile->{optional}}, 'term';
   my $regexp = $self->{CORE}->term_regexp_string();
-  $profile->{constraint_methods}{term} = qr/^(\s*$regexp\s*)$/;
+  #$profile->{constraint_methods}{term} = qr/^(\s*$regexp\s*)$/;
 }
 
 
-## This is specifically for the case where we want ot be compatible
-## with the old term-details.cgi and allow for subset accs and normal
-## go_ids. Likely only useful for term_details.
-sub _add_compat_term {
+# ## This is specifically for the case where we want ot be compatible
+# ## with the old term-details.cgi and allow for subset accs and normal
+# ## go_ids. Likely only useful for term_details.
+# sub _add_compat_term {
 
-  my $self = shift;
+#   my $self = shift;
 
-  ## Terms.
-  push @{$profile->{required}}, 'term';
-  my $regexp = $self->{CORE}->term_regexp_string();
-  $profile->{constraint_methods}{term} = sub {
+#   ## Terms.
+#   push @{$profile->{required}}, 'term';
+#   my $regexp = $self->{CORE}->term_regexp_string();
+#   $profile->{constraint_methods}{term} = sub {
 
-    my ($dfv, $val) = @_;
-    #$dfv->set_current_constraint_name('my_constraint_name');
-    my $retval = 0;
-    if( $val =~ /^(\s*$regexp\s*)$/ ){
-      $retval = 1;
-    }else{
-      my $ss = $self->{CORE}->subset();
-      if( $ss->{$val} ){
-	$retval = 1;
-      }
-    }
+#     my ($dfv, $val) = @_;
+#     #$dfv->set_current_constraint_name('my_constraint_name');
+#     my $retval = 0;
+#     if( $val =~ /^(\s*$regexp\s*)$/ ){
+#       $retval = 1;
+#     }else{
+#       ## Not doing subsets right now.
+#       # my $ss = $self->{CORE}->subset();
+#       # if( $ss->{$val} ){
+#       # 	$retval = 1;
+#       # }
+#     }
 
-    return $retval;
-  }
-}
+#     return $retval;
+#   }
+# }
 
 
 ##

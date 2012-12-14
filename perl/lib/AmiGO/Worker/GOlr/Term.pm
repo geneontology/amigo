@@ -117,7 +117,7 @@ sub get_info {
 
 =item get_child_info_for
 
-Args: term acc string of term we already info about
+Args: term acc string of term we already got info for
 Returns: hash containing various term infomation, keyed by (int) order
 
 =cut

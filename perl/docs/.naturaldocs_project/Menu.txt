@@ -49,6 +49,7 @@ Format: 1.51
 Group: AmiGO  {
 
    File: Aid.pm  (AmiGO/Aid.pm)
+   File: Aid/ReferenceGenome.pm  (AmiGO/Aid/ReferenceGenome.pm)
    File: AmiGO::WebApp  (AmiGO/WebApp.pm)
    File: ChewableGraph.pm  (AmiGO/ChewableGraph.pm)
    File: CSS.pm  (AmiGO/CSS.pm)
@@ -110,6 +111,8 @@ Group: AmiGO  {
    File: KVStore.pm  (AmiGO/KVStore.pm)
    File: new  (AmiGO/Worker.pm)
    File: Sanitize.pm  (AmiGO/Sanitize.pm)
+   File: SVG.pm  (AmiGO/SVG.pm)
+   File: SVGRewrite.pm  (AmiGO/SVGRewrite.pm)
 
    Group: WebApp  {
 

@@ -717,8 +717,8 @@ This returns an array of five things:
  *) a hashref of node/object ids to the calculated layout distance from root(s)
  *) a scalar of the max layout distance found
 
-Yes, an odd an inefficient bunch, but supported for the time being for
-historical reasons of driving as much of the AmiGO 1.x code as
+Yes, an odd and inefficient bunch, but supported for the time being
+for historical reason of driving as much of the AmiGO 1.x code as
 possible.
 
 Given how thin this wrapper is, it may just be easier to do away with

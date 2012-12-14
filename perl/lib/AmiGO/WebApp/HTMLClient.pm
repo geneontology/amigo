@@ -20,8 +20,8 @@ use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::Redirect;
 
-## Internal workers.
-use AmiGO::ChewableGraph;
+# ## Internal workers.
+# use AmiGO::ChewableGraph;
 
 ## Real external workers.
 use AmiGO::Worker::GOlr::Term;
@@ -453,11 +453,13 @@ sub mode_visualize {
     ## that we're doing here.
     if( $input_term_data_type eq 'json' ){
       eval {
-	JSON::decode_json($input_term_data);
+	$self->{CORE}->_read_json_string($input_term_data);
       };
       if ($@) {
-	my $str = 'Your JSON was not formatted correctly...please go back and retry. Look at the "advanced format" documentation for more details.';
+	my $str = 'Your JSON was not formatted correctly...please go back and retry. Look at the <a href="http://wiki.geneontology.org/index.php/AmiGO_Manual:_Visualize">advanced format</a> documentation for more details.';
 	#return $self->mode_die_with_message($str . '<br />' . $@);
+	$self->{CORE}->kvetch("die decoding JSON: " . $@);
+	$self->{CORE}->kvetch("JSON: " . $input_term_data);
 	return $self->mode_die_with_message($str);
       }
     }
@@ -574,6 +576,7 @@ sub mode_golr_term_details {
   ##
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile('term');
+  $self->{CORE}->kvetch(Dumper($params));
   my $input_term_id = $params->{term};
 
   ## Input sanity check.
@@ -617,8 +620,7 @@ sub mode_golr_term_details {
 
   }else{
 
-    $self->{CORE}->kvetch('Looks like a subset acc: ' . $input_term_id);
-
+    #$self->{CORE}->kvetch('Looks like a subset acc: ' . $input_term_id);
     #   ## Convert input subset acc to term accs.
     #   my $sget = AmiGO::Worker::Subset->new();
     #   my @subset_term_list = keys(%{$sget->get_term_accs($input_term_id)});
@@ -626,6 +628,14 @@ sub mode_golr_term_details {
     #     push @$input_term_id_list, $k;
     #     push @$acc_list_for_gpc_info, $k;
     #   }
+
+    ## Looks exotic.
+    $self->{CORE}->kvetch('Looks like an exotic acc: ' . $input_term_id);
+    $self->add_mq('warning', 'The term ' . $input_term_id .
+		  ' is not an internal term,' .
+		  ' but likely comes from an external resource.' .
+		  ' For full information on this term,' .
+		  ' please refer to the originating resource.');
   }
 
   ###
