@@ -1,11 +1,47 @@
 <!-- START: repl.tmpl -->
 
-<h2>GOlr/BBOP JS REPL</h2>
+<div class="block">
 
-<!-- <div class="contents"> -->
-<div>
-  <div id="repl" style="padding:1.5em;">
-    Waiting for server response.
+  <h2>GOlr/BBOP JS REPL</h2>
+
+  <p>REPL info...</p>
+
+  <!-- <div class="contents"> -->
+  <div>
+    <table>
+      <tr>
+	<td>
+	  <div id="repl">
+	    Waiting for server response.
+	  </div>
+	</td>
+	<td>
+	  <div class="block">
+	    <p>
+	      The alpha API documentation can be current found
+	      <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/index.html">here</a>.
+	      <br />
+	      TODO: pull-down of examples scraped from wiki...
+	      <br />
+	      Until then, try something like:
+	    </p>
+	    <p>
+	      <code>
+		var b = new bbop.widget.browse(gloc, gconf, 'div2');
+		b.draw_browser('GO:0022008');
+	      </code>
+	    </p>
+	  </div>
+	  <div>
+	    <p>
+	      <div id="div1"><b>[Useable div: id="div1"]</b></div>
+	      <div id="div2"><b>[Useable div: id="div2"]</b></div>
+	      <div id="div3"><b>[Useable div: id="div3"]</b></div>
+	    </p>
+	  </div>
+	</td>
+      </tr>
+    </table>
   </div>
 </div>
 

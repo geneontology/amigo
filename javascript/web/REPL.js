@@ -1,59 +1,34 @@
 ////
 //// Attempt at an interactive web REPL for BBOP JS over GO data.
 ////
-
-// Logger for all functions.
-var logger = new bbop.logger();
-logger.DEBUG = true;
-function ll(str){ logger.kvetch('REPL: ' + str); }    
-
+//// TODO: Callback makes fields and button unavailable until
+//// return. TODO: Have panic timeout in the case that something
+//// goes very wrong.
+////
 
 // Go and get the initial results for building our tree.
 function REPLInit(){
 
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch('REPL: ' + str); }
     ll('');
     ll('REPL.js');
     ll('REPLInit start...');
 
-    // AmiGO env.
-    var server_meta = new amigo.data.server();
-    var gconf = new bbop.golr.conf(amigo.data.golr);
-    var go = new bbop.golr.manager.jquery(server_meta.golr_base(), gconf);
+    // Pull in how we want to start.
+    var initial_repl_commands = [
+	'var $ = null;',
+	'var server_meta = new amigo.data.server();',
+	'var gloc = server_meta.golr_base();',
+	'var gconf = new bbop.golr.conf(amigo.data.golr);',
+	'var go = new bbop.golr.manager.jquery(gloc, gconf);',
+	//'var rmsg = "// [Done callback.]";',
+	"function callback(json){ $ = new bbop.golr.response(json); }",
+	"go.register('search', 's', callback);"
+    ];
+    var repl = new bbop.widget.repl('repl', initial_repl_commands,
+				    {});
 
-    var repl_id = 'repl';
-    jQuery('#' + repl_id).empty();
-
-    ///
-    /// Setup the environment on the page.
-    ///
-
-    // TODO: Work buffer.
-    var eval_buffer = new bbop.html.tag('textarea',
-					{'rows': '12', cols:'80',
-					 'generate_id': true});
-    jQuery('#' + repl_id).append(eval_buffer.to_string());
-
-    // Eval button.
-    var eval_button = new bbop.html.button('Evaluate buffer.',
-	    				   {'generate_id': true});
-    jQuery('#' + repl_id).append(eval_button.to_string());
-    var eval_button_props = {
-	icons: { primary: "ui-icon-play"},
-	disabled: false,
-	text: false
-    };
-    jQuery('#' + eval_button.get_id()).button(eval_button_props).click(
-	function(){
-	    alert('TODO: EVAL: ' + jQuery('#' + eval_buffer.get_id()).val());
-	});
-
-    // TODO: Command line.
-
-    // TODO: Log (+ clear botton).
-
-    // TODO: Callback makes fields and button unavailable until
-    // return. TODO: Have panic timeout incase something goes very
-    // wrong.
-
-    ll('REPLInit done.');
+    //ll('REPLInit done.');
 }
