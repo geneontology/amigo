@@ -4,7 +4,12 @@
 
   <h2>GOlr/BBOP JS REPL</h2>
 
-  <p>REPL info...</p>
+  <p>This REPL makes use of the bbop.contrib.go.overlay
+  environment--making a simpler environment and removing a lot of the
+  boring overhead operations that you might run into using BBOP
+  JS. The cost of this easier environment is that some things are now
+  a little bit more GO-specific (but don't worry, you still have
+  access to the full stack).</p>
 
   <!-- <div class="contents"> -->
   <div>
@@ -21,15 +26,17 @@
 	      The alpha API documentation can be current found
 	      <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/index.html">here</a>.
 	      <br />
-	      TODO: pull-down of examples scraped from wiki...
-	      <br />
-	      Until then, try something like:
+	      Examples scraped from wiki
+	      <a href="http://wiki.geneontology.org/index.php/Example_GOlr_Sessions">sessions example</a> page:
 	    </p>
 	    <p>
-	      <code>
-		var b = new bbop.widget.browse(gloc, gconf, 'div2');
-		b.draw_browser('GO:0022008');
-	      </code>
+	      <select id="golr_session_example_selection">
+		[% FOREACH item IN bbop_js_examples_list %]
+		<option value="[% item.bbopjs %]">
+		  [% item.title %]
+		</option>
+		[% END %]
+	      </select>
 	    </p>
 	  </div>
 	  <div>

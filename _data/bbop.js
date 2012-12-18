@@ -1227,7 +1227,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20121214";
+bbop.version.release = "20121217";
 /*
  * Package: logger.js
  * 
@@ -10934,6 +10934,14 @@ bbop.core.namespace('bbop', 'widget', 'repl');
  * 
  * Contructor for the bbop.widget.repl object.
  * 
+ * The in_argument_hash has the following options.
+ * 
+ *  buffer_id - the id of the evaluation buffer textarea (default: null/random)
+ *  cli_id - the id of the CLI textarea (default: null/random)
+ * 
+ * If you do not specify ids for the inputs, random ones will be
+ * generated.
+ * 
  * Arguments:
  *  interface_id - string id of the element to build on
  *  initial_command - a list of initial commands to feed the interpreter
@@ -10960,20 +10968,13 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
     // Our argument default hash.
     var default_hash =
 	{
-	    // 'label_template': '{{id}}',
-	    // 'value_template': '{{id}}',
-	    // 'minimum_length': 3, // wait for three characters or more
-	    // 'list_select_callback': function(){}
+	    'buffer_id': null,
+	    'cli_id': null
 	};
     var folding_hash = in_argument_hash || {};
     var arg_hash = bbop.core.fold(default_hash, folding_hash);
-
-    // // There should be a string interface_id argument.
-    // this._interface_id = interface_id;
-    // this._list_select_callback = arg_hash['list_select_callback'];
-    // var label_tt = new bbop.template(arg_hash['label_template']);
-    // var value_tt = new bbop.template(arg_hash['value_template']);
-    // var minlen = arg_hash['minimum_length'];
+    var in_buffer_id = arg_hash['buffer_id'];
+    var in_cli_id = arg_hash['cli_id'];
 
     // The main div we'll work with.
     var repl_id = interface_id;
@@ -10988,9 +10989,13 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
     ///
 
     // Env into work buffer.
-    var command_buffer = new bbop.html.tag('textarea',
-					   {'rows': '12', cols:'80',
-					    'generate_id': true},
+    var command_buffer_args = {'rows': '12', cols:'80'};
+    if( in_buffer_id ){
+	command_buffer_args['id'] = in_buffer_id;
+    }else{
+	command_buffer_args['generate_id'] = true;
+    }
+    var command_buffer = new bbop.html.tag('textarea', command_buffer_args,
 					   init_buffer.join("\n"));
     jQuery('#' + repl_id).append(command_buffer.to_string());
     
@@ -11035,9 +11040,13 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
     jQuery('#' + repl_id).append('<br />');
 
     // Command line.
-    var command_line = new bbop.html.tag('textarea',
-					 {'rows': '1', cols:'80',
-					  'generate_id': true});
+    var command_line_args = {'rows': '1', cols:'80'};
+    if( in_cli_id ){
+	command_line_args['id'] = in_cli_id;
+    }else{
+	command_line_args['generate_id'] = true;
+    }
+    var command_line = new bbop.html.tag('textarea', command_line_args);
     jQuery('#' + repl_id).append(command_line.to_string());
 
     // // Setup target divs.
@@ -11060,12 +11069,52 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
 	rlogger.kvetch(str);
     }
 
-    // Can't be bothered to check now, but this needs to be done
-    // separately from the log because of an initial race condition.
-    function advance_log_to_bottom(){
+    /*
+     * Function: advance_log_to_bottom
+     * 
+     * Can't be bothered to check now, but this needs to be done
+     * separately from the log because of an initial race condition.
+     * 
+     * Arguments:
+     *  n/a
+     * 
+     * Returns:
+     *  n/a
+     */
+    this.advance_log_to_bottom = function(){
     	var cons = jQuery('#' + logging_console_id);
     	var foo = cons.scrollTop(cons[0].scrollHeight);	
-    }
+    };
+
+    /*
+     * Function: replace_buffer_text
+     * 
+     * Replace the buffer text with new text.
+     * 
+     * Arguments:
+     *  str - the new text for the command buffer
+     * 
+     * Returns:
+     *  n/a
+     */
+    this.replace_buffer_text = function(str){
+	jQuery('#' + command_buffer.get_id()).val(str);
+    };
+
+    // /*
+    //  * Function: replace_buffer_text
+    //  * 
+    //  * Replace the buffer text with new text.
+    //  * 
+    //  * Arguments:
+    //  *  str - the new text for the command buffer
+    //  * 
+    //  * Returns:
+    //  *  n/a
+    //  */
+    // this.replace_buffer_text = function(str){
+    // 	jQuery('#' + command_buffer.get_id()).val(str);
+    // };
 
     // Eval!
     function evaluate(to_eval){
@@ -11139,7 +11188,7 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
 		to_eval = bbop.core.ensure(to_eval, ';', 'back');
 		log(to_eval);
 		log('// ' + evaluate(to_eval));
-		advance_log_to_bottom();
+		anchor.advance_log_to_bottom();
 
 		return false;
 	    }
@@ -11182,7 +11231,7 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
 	    //log(to_eval);
 	    log('// Evaluating buffer...');
 	    log('// ' + evaluate(to_eval));
-	    advance_log_to_bottom();
+	    anchor.advance_log_to_bottom();
 	}
     }
     var cbbid = '#' + command_buffer_button.get_id();
@@ -11243,4 +11292,151 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
 	jQuery('#' + anchor._interface_id).val('');
     };
 
+};
+/*
+ * Package: overlay.js
+ * 
+ * Namespace: bbop.contrib.go.overlay
+ * 
+ * This package contributes some very high-level functions to make
+ * using things like the REPL easier to use with GOlr data sources.
+ * 
+ * It is suggested that you *[not]* use this if you are seriously
+ * programming for BBOP JS since it plays fast and loose with the
+ * dynamic environment, as well as polluting the global namespace.
+ */
+
+// Setup the internal requirements.
+bbop.core.require('bbop', 'core');
+bbop.core.namespace('bbop', 'contrib', 'go', 'overlay');
+
+/*
+ * Function: overlay
+ * 
+ * Put a set of useful functions into the global namespace for use
+ * with REPLs and the like.
+ * 
+ * Arguments:
+ *  manager_type - the manager type to use, or null (no sublcass)
+ * 
+ * Returns:
+ *  boolean on whether any errors were thrown
+ */
+bbop.contrib.go.overlay = function(manager_type){
+
+    //var anchor = this;
+    var global_ret = true;
+
+    // Either the base manager, or a manager subclass.
+    var mtype = '';
+    if( manager_type ){
+	mtype = '.' + manager_type;
+    }
+
+    var env = [
+	'var loop = bbop.core.each;',
+	'var dump = bbop.core.dump;',
+	'var what_is = bbop.core.what_is;',
+
+	// Defined a global logger.
+	'var logger = new bbop.logger();',
+	'logger.DEBUG = true;',
+	'function ll(str){ return logger.kvetch(str); }',
+	
+	// Get our data env right.
+	'var server_meta = new amigo.data.server();',
+	'var gloc = server_meta.golr_base();',
+	'var gconf = new bbop.golr.conf(amigo.data.golr);',
+
+	// Support a call back to data.
+	'var data = null;',
+	"function callback(json){ ll('// Returned with \"data\".'); data = new bbop.golr.response(json); }",
+
+	// Get a global manager.
+	'var go = new bbop.golr.manager' + mtype + '(gloc, gconf);',
+	"go.register('search', 's', callback);",
+
+	// Add GO-specific methods to our manager.
+	"bbop.golr.manager.prototype.gaf_url = function(){ return this.get_download_url(['source', 'bioentity_label', 'annotation_class', 'reference', 'evidence_type', 'evidence_with', 'taxon', 'date', 'annotation_extension_class', 'bioentity']); };",
+	"bbop.golr.manager.prototype.doc_type = function(t){ return this.add_query_filter('document_type', t); };",
+	"bbop.golr.manager.prototype.filter = function(f, t, p){ var pol = p || \'+'; return this.add_query_filter(f, t, [p]); };"
+    ];
+
+    var jquery_env = [
+	"var empty = function(did){ jQuery('#' + did).empty(); };",
+	"var append = function(did, str){ jQuery('#' + did).append(str); };"
+    ];
+
+    function _b_eval(to_eval){
+	return window.eval(to_eval);
+    }
+    function _s_eval(to_eval){
+	return eval(to_eval);
+    }
+
+    // The main evaluation function.
+    function _eval(to_eval){
+	
+	var retval = '';
+
+	// Try and detect our environment.
+	var env_type = 'server';
+	try{
+	    if( bbop.core.is_defined(window) &&
+		bbop.core.is_defined(window.eval) &&
+		bbop.core.what_is(window.eval) == 'function' ){
+		    env_type = 'browser';
+		}
+	} catch (x) {
+	    // Probably not a browser then, right?
+	}
+
+	// Now try for the execution.
+	try{
+	    // Try and generically evaluate.
+	    var tmp_ret = null;
+	    if( env_type == 'browser' ){
+		tmp_ret = _b_eval(to_eval);
+	    }else{
+		// TODO: Does this work?
+		tmp_ret = _s_eval(to_eval);		
+	    }
+
+	    // Make whatever the tmp_ret is prettier for the return
+	    // val.
+	    if( bbop.core.is_defined(tmp_ret) ){
+		if( bbop.core.what_is(tmp_ret) == 'string' ){
+		    retval = '"' + tmp_ret + '"';
+		}else{
+		    retval = tmp_ret;
+		}
+	    }else{
+		// ...
+	    }
+	}catch (x){
+	    // Bad things happened.
+	    //print('fail on: (' + tmp_ret +'): ' + to_eval);
+	    retval = '[n/a]';
+	    global_ret = false;
+	}
+	
+	return retval;
+    }
+
+    // Now cycle through the command list.
+    bbop.core.each(env,
+		   function(line){
+		       _eval(line);
+		   });
+    
+    // Add a few specific things if we're in a jQuery REPL
+    // environment.
+    if( manager_type && manager_type == 'jquery' ){	
+	bbop.core.each(jquery_env,
+		       function(line){
+			   _eval(line);
+		       });
+    }
+    
+    return global_ret;
 };

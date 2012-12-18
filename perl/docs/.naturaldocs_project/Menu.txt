@@ -64,6 +64,7 @@ Group: AmiGO  {
       Group: HTML  {
 
          File: Wiki  (AmiGO/External/HTML/Wiki.pm)
+         File: Wiki::BBOPJS  (AmiGO/External/HTML/Wiki/BBOPJS.pm)
          File: Wiki::GOLD  (AmiGO/External/HTML/Wiki/GOLD.pm)
          File: Wiki::GOlr  (AmiGO/External/HTML/Wiki/GOlr.pm)
          File: Wiki::LEAD  (AmiGO/External/HTML/Wiki/LEAD.pm)
@@ -123,6 +124,7 @@ Group: AmiGO  {
       File: HTMLClientExp  (AmiGO/WebApp/HTMLClientExp.pm)
       File: Input  (AmiGO/WebApp/Input.pm)
       File: PGraph  (AmiGO/WebApp/PGraph.pm)
+      File: REPL.pm  (AmiGO/WebApp/REPL.pm)
       File: Services  (AmiGO/WebApp/Services.pm)
       }  # Group: WebApp
 

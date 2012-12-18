@@ -6,6 +6,8 @@
 //// goes very wrong.
 ////
 
+//var goo = 'goo!';
+
 // Go and get the initial results for building our tree.
 function REPLInit(){
 
@@ -16,19 +18,33 @@ function REPLInit(){
     ll('REPL.js');
     ll('REPLInit start...');
 
+    var cmnd_buff_id = 'command_buffer';
+
+    ///
+    /// Set the repl widget.
+    ///
+
     // Pull in how we want to start.
     var initial_repl_commands = [
-	'var $ = null;',
-	'var server_meta = new amigo.data.server();',
-	'var gloc = server_meta.golr_base();',
-	'var gconf = new bbop.golr.conf(amigo.data.golr);',
-	'var go = new bbop.golr.manager.jquery(gloc, gconf);',
-	//'var rmsg = "// [Done callback.]";',
-	"function callback(json){ $ = new bbop.golr.response(json); }",
-	"go.register('search', 's', callback);"
+	"bbop.contrib.go.overlay('jquery');"
     ];
-    var repl = new bbop.widget.repl('repl', initial_repl_commands,
-				    {});
+    var repl = new bbop.widget.repl('repl', initial_repl_commands);
+				    //   {'buffer_id': cmnd_buff_id});
+
+    ///
+    /// Make the pull-down active.
+    ///
+
+    // Get things from pulldown into textarea on change.
+    jQuery("#" + "golr_session_example_selection").change(
+	function(){
+	    var sess_golr = jQuery(this).val();
+	    //ll('// sess_golr: ' + sess_golr);
+	    //alert('foo!');
+	    //jQuery('#' + cmnd_buff_id).val(sess_golr);
+	    repl.replace_buffer_text(sess_golr);
+	    repl.advance_log_to_bottom();
+	});
 
     //ll('REPLInit done.');
 }

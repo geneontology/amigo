@@ -40,7 +40,7 @@ if ( $opt_e ) {
   ll("Will also install experimental binaries and executables.");
 }
 if ( $opt_g ) {
-  ll("Will also install GOOSE and Gannet.");
+  ll("Will also install GOOSE, Gannet, and REPL.");
 }
 if ( $opt_b ) {
   ll("Will do what is necessary to just produce the JS bundle.");
@@ -316,12 +316,13 @@ if( ! $opt_b ){
        );
   }
 
-  ## Copy GOOSE and Gannet over on -g or -G.
+  ## Copy GOOSE, Gannet, and REPL over on -g.
   if ( $opt_g ) {
     push @mods,
       qw(
 	  goose
 	  gannet
+	  repl
        );
   }
 
@@ -1110,7 +1111,7 @@ Also install experimental CGIs, binaries, and configs.
 
 =item -g
 
-Also install GOOSE and Gannet.
+Also install GOOSE, Gannet, and REPL.
 
 =item -d
 
