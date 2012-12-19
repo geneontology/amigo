@@ -1109,6 +1109,81 @@ bbop.core.ensure = function(str, add, place){
     return front_add + str + back_add;
 };
 
+// // Giving up on this for now: the general case seems too hard to work with 
+// // in so many different, contradictory, and changing environments.
+// /*
+//  * Function: evaluate
+//  * 
+//  * Getting a cross-platform that can evaluate to the global namespace
+//  * seems a little bit problematic. This is an attempt to wrap that all
+//  * away.
+//  * 
+//  * This is not an easy problem--just within browsers there are a lot
+//  * of issues:
+//  * http://perfectionkills.com/global-eval-what-are-the-options/ After
+//  * that, the server side stuff tries various ways to keep you from
+//  * affecting the global namespace in certain circumstances.
+//  * 
+//  * Parameters:
+//  *  to_eval - the string to evaluate
+//  * 
+//  * Returns:
+//  *  A list with the following fields: retval, retval_str, okay_p, env_type.
+//  */
+// bbop.core.evaluate = function(to_eval){
+
+//     var retval = null;
+//     var retval_str = '';
+//     var okay_p = true;
+//     var env_type = 'server';
+
+//     // Try and detect our environment.
+//     try{
+// 	if( bbop.core.is_defined(window) &&
+// 	    bbop.core.is_defined(window.eval) &&
+// 	    bbop.core.what_is(window.eval) == 'function' ){
+// 		env_type = 'browser';
+// 	    }
+//     } catch (x) {
+// 	// Probably not a browser then, right? Hopefully all the
+// 	// servers that we'll run into are the same (TODO: check
+// 	// nodejs).
+//     }
+//     print('et: ' + env_type);
+
+//     // Now try for the execution.
+//     try{
+// 	// Try and generically evaluate.
+// 	if( env_type == 'browser' ){
+// 	    print('eval as if (browser)');
+// 	    retval = window.eval(to_eval);
+// 	}else{
+// 	    // TODO: Does this work?
+// 	    print('eval as else (server)');
+// 	    //retval = this.eval(to_eval);		
+// 	    retval = bbop.core.global.eval(to_eval);
+// 	}
+//     }catch (x){
+// 	// Bad things happened.
+// 	print('fail on: (' + retval +'): ' + to_eval);
+// 	retval_str = '[n/a]';
+// 	okay_p = false;
+//     }
+	
+//     // Make whatever the tmp_ret is prettier for the return string.
+//     if( bbop.core.is_defined(retval) ){
+// 	if( bbop.core.what_is(retval) == 'string' ){
+// 	    retval_str = '"' + retval + '"';
+// 	}else{
+// 	    retval_str = retval;
+// 	}
+//     }else{
+// 	// Return as-is.
+//     }
+
+//     return [retval, retval_str, okay_p, env_type];
+// };
+
 /*
  * Function: extend
  * 
@@ -1227,7 +1302,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20121217";
+bbop.version.release = "20121218";
 /*
  * Package: logger.js
  * 
@@ -1236,9 +1311,10 @@ bbop.version.release = "20121217";
  * BBOP JS logger object. Using .kvetch(), you can automatically log a
  * message in almost any environment you find yourself in--browser,
  * server wherever. Also, if you have jQuery available and an element
- * with the id "bbop-logger-console-text" or
- * "bbop-logger-console-html", the logger will append to that element
- * (with a "\n" or "<br />" terminator respectively) instead.
+ * with the id "bbop-logger-console-textarea",
+ * "bbop-logger-console-text", or "bbop-logger-console-html", the
+ * logger will append to that element (with a "\n" (autoscroll), "\n",
+ * or "<br />" terminator respectively) instead.
  */
 
 // Setup the internal requirements.
@@ -1312,18 +1388,40 @@ bbop.logger = function(initial_context){
     // Generalizer console (or whatever) printing.
     this._console_sayer = function(){};
 
-    // Check for: Opera, FF, Safari, Chrome, console, etc.
+    // // Check for: Opera, FF, Safari, Chrome, console, etc.
+    // if( typeof(jQuery) != 'undefined' &&
+    // 	jQuery('#' + 'bbop-logger-console-textarea') != 'undefined' ){
+    // 	    // Our own logging console takes precedence. 
+    // 	    this._console_sayer = function(msg){
+    // 		var area = jQuery('#'+ 'bbop-logger-console-textarea');
+    // 		area.append(msg + "\n");
+    // 		try{
+    // 		    area.scrollTop(area[0].scrollHeight);
+    // 		} catch (x) {
+    // 		    // could scroll
+    // 		}
+    // 	    };
+    // }else if( typeof(jQuery) != 'undefined' &&
+    // 	jQuery('#' + 'bbop-logger-console-text') != 'undefined' &&
+    // 	jQuery('#' + 'bbop-logger-console-text').length != 0 ){
+    // 	    // Our own logging console takes precedence. 
+    // 	    this._console_sayer = function(msg){
+    // 		jQuery('#' + 'bbop-logger-console-text').append(msg + "\n");
+    // 	    };
+    // }else
     if( typeof(jQuery) != 'undefined' &&
-	jQuery('#' + 'bbop-logger-console-text') != 'undefined' ){
+	jQuery('#' + 'bbop-logger-console-html') != 'undefined' &&
+	jQuery('#' + 'bbop-logger-console-html').length ){
 	    // Our own logging console takes precedence. 
 	    this._console_sayer = function(msg){
-		jQuery('#' + 'bbop-logger-console-text').append(msg + "\n");
-	    };
-    }else if( typeof(jQuery) != 'undefined' &&
-	jQuery('#' + 'bbop-logger-console-html') != 'undefined' ){
-	    // Our own logging console takes precedence. 
-	    this._console_sayer = function(msg){
-		jQuery('#' + 'bbop-logger-console-html').append(msg + "<br />");
+		var area = jQuery('#'+ 'bbop-logger-console-html');
+		area.append(msg + "<br />");
+		try{
+    		    area.scrollTop(area[0].scrollHeight);
+		} catch (x) {
+		    // could scroll
+		}
+		//jQuery('#' + 'bbop-logger-console-html').append(msg + "<br />");
 	    };
     }else if( typeof(opera) != 'undefined' &&
 	typeof(opera.postError) == 'function' ){
@@ -10921,6 +11019,9 @@ bbop.core.extend(bbop.widget.search_pane, bbop.golr.manager.jquery);
  * environment that you setup.
  * 
  * This is a completely self-contained UI and manager.
+ * 
+ * WARNING: This widget cannot display any kind of HTML tags in the
+ * log.
  */
 
 bbop.core.require('bbop', 'core');
@@ -10938,13 +11039,14 @@ bbop.core.namespace('bbop', 'widget', 'repl');
  * 
  *  buffer_id - the id of the evaluation buffer textarea (default: null/random)
  *  cli_id - the id of the CLI textarea (default: null/random)
+ *  display_initial_commands_p - (default true)
  * 
  * If you do not specify ids for the inputs, random ones will be
  * generated.
  * 
  * Arguments:
  *  interface_id - string id of the element to build on
- *  initial_command - a list of initial commands to feed the interpreter
+ *  initial_commands - a list of initial commands to feed the interpreter
  *  in_argument_hash - *[optional]* optional hash of optional arguments
  * 
  * Returns:
@@ -10957,25 +11059,22 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
     var anchor = this;
     var loop = bbop.core.each;
     
-    // Per-UI logger.
-    var rlogger = new bbop.logger();
-    rlogger.DEBUG = true;
-    function log(str){ rlogger.kvetch('repl (pre): ' + str); }
-
-    // Get no commands if nothing else.
-    var init_buffer = initial_commands || [];
-    
     // Our argument default hash.
     var default_hash =
 	{
 	    'buffer_id': null,
-	    'cli_id': null
+	    'cli_id': null,
+	    'display_initial_commands_p': true
 	};
     var folding_hash = in_argument_hash || {};
     var arg_hash = bbop.core.fold(default_hash, folding_hash);
     var in_buffer_id = arg_hash['buffer_id'];
     var in_cli_id = arg_hash['cli_id'];
+    var display_initial_commands_p = arg_hash['display_initial_commands_p'];
 
+    // Get no commands if nothing else.
+    var init_buffer = initial_commands || [];
+    
     // The main div we'll work with.
     var repl_id = interface_id;
     jQuery('#' + repl_id).empty();
@@ -10996,7 +11095,7 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
 	command_buffer_args['generate_id'] = true;
     }
     var command_buffer = new bbop.html.tag('textarea', command_buffer_args,
-					   init_buffer.join("\n"));
+					   init_buffer.join("\n"));	
     jQuery('#' + repl_id).append(command_buffer.to_string());
     
     jQuery('#' + repl_id).append('<br />');
@@ -11006,15 +11105,10 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
 	    				   {'generate_id': true});
     jQuery('#' + repl_id).append(command_buffer_button.to_string());
 
-    //jQuery('#' + repl_id).append('&nbsp;');
-
     // Clear buffer button.
     var clear_buffer_button = new bbop.html.button('Clear buffer',
-	    					   {//'style':'float:right;',
-						    'generate_id': true});
+	    					   {'generate_id': true});
     jQuery('#' + repl_id).append(clear_buffer_button.to_string());
-
-    //jQuery('#' + repl_id).append('&nbsp;&nbsp;&nbsp;');
 
     // Clear log button.
     var clear_log_button = new bbop.html.button('Clear log',
@@ -11024,14 +11118,20 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
     jQuery('#' + repl_id).append('<br />');
 
     // Log (+ clear botton).
-    var logging_console_id = 'bbop-logger-console-text';
-    var logging_console = new bbop.html.tag('textarea',
-					    {'rows': '7', cols:'80',
-					     'readonly': 'readonly',
-					     'id': logging_console_id});
+    // //var logging_console_id = 'bbop-logger-console-text';
+    // var logging_console_id = 'bbop-logger-console-textarea';
+    // var logging_console = new bbop.html.tag('textarea',
+    // 					    {'rows': '7', cols:'80',
+    // 					     'readonly': 'readonly',
+    // 					     'id': logging_console_id});
+    var logging_console_id = 'bbop-logger-console-html';
+    var logging_console = new bbop.html.tag('div',
+    					    {'id': logging_console_id,
+					     'class': 'nowrap',
+    					     'style': 'height: 7em; width: 40em; border: 1px solid #888888; overflow: auto;'});
     jQuery('#' + repl_id).append(logging_console.to_string());
 
-    jQuery('#' + repl_id).append('<br />');
+    //jQuery('#' + repl_id).append('<br />');
 
     // A usage message.
     var cli_msg = new bbop.html.tag('span', {},
@@ -11049,109 +11149,77 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
     var command_line = new bbop.html.tag('textarea', command_line_args);
     jQuery('#' + repl_id).append(command_line.to_string());
 
-    // // Setup target divs.
-    // bbop.core.each(['div1', 'div2', 'div3'],
-    // 		   function(d){
-    // 		       //log('// :' + d);
-    // 		       var div =
-    // 			   new bbop.html.tag('div', {'id':d}, '<b>'+ d +'</b>');
-    // 		       jQuery('#' + repl_id).append(div.to_string());
-    // 		       //jQuery('#' + repl_id).append('<br />');
-    // 		   });
-
     ///
     /// Core helper functions.
     ///
 
-    // Clobber the original logger to send stuff to the internal log
-    // if possible.
-    function log(str){
-	rlogger.kvetch(str);
-    }
+    // Per-UI logger. Notice that we waited until after the log div
+    // was added to run this to make sure we bind to the right spot.
+    var rlogger = new bbop.logger();
+    rlogger.DEBUG = true;
+    //function log(str){ rlogger.kvetch('repl (pre): ' + str); }
+    function log(str){ rlogger.kvetch(str); }
 
-    /*
-     * Function: advance_log_to_bottom
-     * 
-     * Can't be bothered to check now, but this needs to be done
-     * separately from the log because of an initial race condition.
-     * 
-     * Arguments:
-     *  n/a
-     * 
-     * Returns:
-     *  n/a
-     */
-    this.advance_log_to_bottom = function(){
-    	var cons = jQuery('#' + logging_console_id);
-    	var foo = cons.scrollTop(cons[0].scrollHeight);	
+    // Advance the log to the bottom.
+    function _advance_log_to_bottom(){
+    	// var cons = jQuery('#' + logging_console_id);
+    	// var foo = cons.scrollTop(cons[0].scrollHeight);	
     };
-
-    /*
-     * Function: replace_buffer_text
-     * 
-     * Replace the buffer text with new text.
-     * 
-     * Arguments:
-     *  str - the new text for the command buffer
-     * 
-     * Returns:
-     *  n/a
-     */
-    this.replace_buffer_text = function(str){
-	jQuery('#' + command_buffer.get_id()).val(str);
-    };
-
-    // /*
-    //  * Function: replace_buffer_text
-    //  * 
-    //  * Replace the buffer text with new text.
-    //  * 
-    //  * Arguments:
-    //  *  str - the new text for the command buffer
-    //  * 
-    //  * Returns:
-    //  *  n/a
-    //  */
-    // this.replace_buffer_text = function(str){
-    // 	jQuery('#' + command_buffer.get_id()).val(str);
-    // };
 
     // Eval!
-    function evaluate(to_eval){
+    function _evaluate(to_eval){
 
-	var retval = '';
+	var retval = null;
+	var retval_str = '';
+	var okay_p = true;
+
 	try{
 	    // If we get through this, things have gone well.
 	    // Global eval actually kind of tricky:
 	    //  http://perfectionkills.com/global-eval-what-are-the-options/
 	    //var ret = eval(to_eval);
 	    //var ret = jQuery.globalEval(to_eval);
-	    var ret = window.eval(to_eval);
-	    if( bbop.core.is_defined(ret) ){
-		if( bbop.core.what_is(ret) == 'string' ){
-		    retval = '"' + ret + '"';
+	    retval = window.eval(to_eval);
+	    if( bbop.core.is_defined(retval) ){
+		//log('// in def if');
+		if( bbop.core.what_is(retval) == 'string' ){
+		    // // log('// in str if');
+		    // retval_str = retval;
+		    // // var gt_re = new RegExp("/\>/", "gi");
+		    // // var lt_re = new RegExp("/\</", "gi");
+		    // retval_str.replace(">", "&gt;");
+		    // retval_str.replace("<", "&lt;");
+		    // //retval_str = '<pre>' + retval_str + '</pre>';
+		    // // log('// end: (' + retval_str + ')');
+		    // retval_str = '<code>' + retval_str + '</code>';
+		    // retval_str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+		    retval_str = '"' + retval + '"';
 		}else{
-		    retval = ret;
+		    retval_str = retval; // worth a try at least
 		}
 	    }else{
-		// ...
+		// Maybe undefined, but probably just no return value.
+		//retval_str = '[undefined]';
+		retval_str = '';
 	    }
 	}catch (x){
 	    // Bad things happened.
-	    retval = '[n/a]';
+	    retval = null;
+	    retval_str = '[n/a]';
+	    okay_p = false;
 	}
 
-	return retval;
+	return [retval, retval_str, okay_p];
     }
 
     // Update the CLI to the current point in the history.
-    function update_cli(){
+    function _update_cli(){
 
 	var item = history_list[history_pointer];
 	jQuery('#' + command_line.get_id()).val(item);
 	//log('// [history]: ' + item);
 	//log('// history: '+history_pointer+', '+history_list.length);
-	//advance_log_to_bottom();
+	//_advance_log_to_bottom();
     }
 
     ///
@@ -11187,8 +11255,9 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
 		// Log, eval, log.
 		to_eval = bbop.core.ensure(to_eval, ';', 'back');
 		log(to_eval);
-		log('// ' + evaluate(to_eval));
-		anchor.advance_log_to_bottom();
+		var evals = _evaluate(to_eval);
+		log('// ' + evals[1]);
+		_advance_log_to_bottom();
 
 		return false;
 	    }
@@ -11198,10 +11267,10 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
 	    event.preventDefault();
 
 	    if( history_pointer == 0 ){
-		update_cli();
+		_update_cli();
 	    }else if( history_pointer > 0 ){
 		history_pointer--;
-		update_cli();
+		_update_cli();
 	    }
 
 	    return false;
@@ -11213,7 +11282,7 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
 
 	    if( history_pointer < history_list.length -1 ){
 		history_pointer++;
-		update_cli();
+		_update_cli();
 	    }
 
 	    return false;
@@ -11221,17 +11290,16 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
 
 	return true;
     }
-    //jQuery('#' + command_line.get_id()).keypress(read_cli);
     jQuery('#' + command_line.get_id()).keydown(read_cli);
 
     // Bind buffer eval.
     function read_buffer(){
 	var to_eval = jQuery('#' + command_buffer.get_id()).val();
 	if( to_eval != '' ){
-	    //log(to_eval);
 	    log('// Evaluating buffer...');
-	    log('// ' + evaluate(to_eval));
-	    anchor.advance_log_to_bottom();
+	    var evals = _evaluate(to_eval);
+	    log('// ' + evals[1]);
+	    _advance_log_to_bottom();
 	}
     }
     var cbbid = '#' + command_buffer_button.get_id();
@@ -11272,10 +11340,50 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
     /// Bootstrap session.
     ///
 
+    // Evaluate what we initially put in the command buffer.
+    jQuery(cbbid).click(); // run the stuff in the buffer
+    if( display_initial_commands_p == false ){ // maybe make it disappear
+	clear_buffer();
+	clear_log();
+    }
     log('// [Session start.]');
 
-    // Evaluate what we initially put in the command buffer.
-    jQuery(cbbid).click();
+    ///
+    /// External use methods.
+    ///
+
+    /*
+     * Function: replace_buffer_text
+     * 
+     * Replace the buffer text with new text.
+     * 
+     * Arguments:
+     *  str - the new text for the command buffer
+     * 
+     * Returns:
+     *  n/a
+     */
+    this.replace_buffer_text = function(str){
+	//jQuery('#' + command_buffer.get_id()).val(str);
+	jQuery('#' + command_buffer.get_id()).empty();
+	jQuery('#' + command_buffer.get_id()).append(str);
+    };
+
+    /*
+     * Function: advance_log_to_bottom
+     * 
+     * Can't be bothered to check now, but this needs to be done
+     * separately from the log because of an initial race condition.
+     * 
+     * Arguments:
+     *  n/a
+     * 
+     * Returns:
+     *  n/a
+     */
+    this.advance_log_to_bottom = function(){
+	_advance_log_to_bottom();
+    };
 
     /*
      * Function: destroy
@@ -11299,11 +11407,17 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
  * Namespace: bbop.contrib.go.overlay
  * 
  * This package contributes some very high-level functions to make
- * using things like the REPL easier to use with GOlr data sources.
+ * using things like the web REPL easier to use with GOlr data
+ * sources.
  * 
  * It is suggested that you *[not]* use this if you are seriously
  * programming for BBOP JS since it plays fast and loose with the
  * dynamic environment, as well as polluting the global namespace.
+ * 
+ * NOTE: Again, this overlay is only usable in a (jQuery) browser
+ * environment--the JS environments are too varied for this to work
+ * arbitrarily, but similar approaches might work in other
+ * envorinments.
  */
 
 // Setup the internal requirements.
@@ -11331,6 +11445,14 @@ bbop.contrib.go.overlay = function(manager_type){
     var mtype = '';
     if( manager_type ){
 	mtype = '.' + manager_type;
+    }
+
+    // Well, for now, this is what we will do--see bbop.core.evaluate
+    // for a start on a more general ability. I could likely remove
+    // the "var" and have everything out in the global, but it looks
+    // like that might case errors too.
+    if( manager_type != 'jquery' ){
+	throw new Error('Cannot create non-jquery overlays at this time!');
     }
 
     var env = [
