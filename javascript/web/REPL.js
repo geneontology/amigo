@@ -54,7 +54,6 @@ function REPLInit(){
 	// Add GO-specific methods to our manager.
 	"bbop.golr.manager.prototype.gaf_url = function(){ return this.get_download_url(['source', 'bioentity_label', 'annotation_class', 'reference', 'evidence_type', 'evidence_with', 'taxon', 'date', 'annotation_extension_class', 'bioentity']); };",
 	"bbop.golr.manager.prototype.doc_type = function(t){ return this.add_query_filter('document_type', t); };",
-	"bbop.golr.manager.prototype.filter = function(f, t, p){ var pol = p || \'+'; return this.add_query_filter(f, t, [p]); };",
 
 	// jQuery helpers.
 	"var empty = function(did){ jQuery('#' + did).empty(); };",
@@ -86,6 +85,13 @@ function REPLInit(){
 	    //jQuery('#' + cmnd_buff_id).val(sess_golr);
 	    repl.replace_buffer_text(sess_golr);
 	    //repl.advance_log_to_bottom();
+	});
+
+    // Roll up the function/object dictionary.
+    jQuery("#" + "env-entities").hide();
+    jQuery("#" + "show-entities").click(
+	function(){
+	    jQuery("#" + "env-entities").slideToggle();
 	});
 
     //ll('REPLInit done.');

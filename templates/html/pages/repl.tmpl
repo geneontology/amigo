@@ -4,7 +4,13 @@
 
   <h2>GOlr/BBOP JS REPL</h2>
 
-  <p>This REPL makes use of the a simplified environment described
+  <p>
+    REPL (read, evaluate, and print loop) environments are ideal for
+    prototyping, exploring, and learning.
+  </p>
+
+  <p>This REPL environment for the Gene Ontology GOlr data using BBOP
+  JS makes use of the a simplified environment described
     <a href="http://wiki.geneontology.org/index.php/Example_GOlr_Sessions#Startup_code_for_REPL_environment.">here</a>. The cost of this easier environment is that
   some things are now a little bit more GO-specific (but don't worry,
   you still have access to the full stack).</p>
@@ -23,8 +29,8 @@
 	    <p>
 	      The alpha API documentation can be current found
 	      <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/index.html">here</a>.
-	      <br />
-	      Examples scraped from wiki
+	    </p>
+	    <p> Example interactions scraped from wiki
 	      <a href="http://wiki.geneontology.org/index.php/Example_GOlr_Sessions">sessions example</a> page:
 	    </p>
 	    <p>
@@ -36,12 +42,46 @@
 		[% END %]
 	      </select>
 	    </p>
-	  </div>
-	  <div>
 	    <p>
-	      <div id="div1"><b>[Useable div: id="div1"]</b></div>
-	      <div id="div2"><b>[Useable div: id="div2"]</b></div>
-	      <div id="div3"><b>[Useable div: id="div3"]</b></div>
+	      Enitities already defined in the REPL environment:
+	      <br />
+	      <span id="show-entities">[<a href="#">show/hide</a>]</span>
+	      <dl id="env-entities">
+		<dt>loop (function)</dt>
+		<dd>- An alias for <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/core-js.html#bbop.core.each">bbop.core.each</a>.</dd>
+		<dt>dump (function)</dt>
+		<dd>- An alias for <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/core-js.html#bbop.core.dump">bbop.core.dump</a>.</dd>
+		<dt>what_is (function)</dt>
+		<dd>- An alias for <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/core-js.html#bbop.core.what_is">bbop.core.what_is</a>.</dd>
+		<dt>ll (function)</dt>
+		<dd>- Write something to the log console.</dd>
+		<dt>server_meta (object)</dt>
+		<dd>- An instance of <a href="http://cdn.berkeleybop.org/jsapi/amigo2/docs/files/index.html">amigo.data.server</a>.</dd>
+		<dt>gloc (string)</dt>
+		<dd>- The URL location of our GOlr server.</dd>
+		<dt>gconf (object)</dt>
+		<dd>- An instance of <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/golr/conf-js.html#bbop.golr.conf">bbop.golr.conf</a>.</dd>
+		<dt>go (object)</dt>
+		<dd>- An instance of <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/golr/manager/jquery-js.html">bbop.golr.manager.jquery</a>. When data is retrieved using this manager, the return response is automatically generated and put into the variable "data" (see the next item).</dd>
+		<dt>data (object)</dt>
+		<dd>- Usually an instance of <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/golr/response-js.html">bbop.golr.response</a>. See above.</dd>
+		<dt>go.gaf_url (function)</dt>
+		<dd>- Return a URL for a psuedo GAF file given the current filters.</dd>
+		<dt>go.doc_type (function)</dt>
+		<dd>- Set the "document_type" to filter one time (a thin wrapper for <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/golr/manager-js.html#bbop.golr.manager.add_query_filter">bbop.golr.manager.add_query_filter</a>).</dd>
+		<dt>empty (function)</dt>
+		<dd>- Empty an HTML div of its contents. See examples.</dd>
+		<dt>append (function)</dt>
+		<dd>- Append HTML contents to a given div. See examples.</dd>
+	      </dl> 
+	    </p>
+	  </div>
+	  <div class="block">
+	    <!-- <h4>User addressable divs</h4> -->
+	    <p>
+	      <div id="div1"><b>&lt;div id="div1"&gt;</b></div>
+	      <div id="div2"><b>&lt;div id="div2"&gt;</b></div>
+	      <div id="div3"><b>&lt;div id="div3"&gt;</b></div>
 	    </p>
 	  </div>
 	</td>
