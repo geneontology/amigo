@@ -1302,7 +1302,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20121219";
+bbop.version.release = "20121220";
 /*
  * Package: logger.js
  * 
@@ -9242,11 +9242,13 @@ bbop.core.namespace('bbop', 'widget', 'live_search');
  * Arguments:
  *  interface_id - string id of the div to build on
  *  conf_class - <bbop.golr.conf_class> for hints and other settings
+ *  buttons_defs - a list of button definition hashes
  * 
  * Returns:
  *  BBOP GOlr UI object
  */
-bbop.widget.display.live_search = function (interface_id, conf_class){
+bbop.widget.display.live_search = function (interface_id, conf_class,
+					    button_defs){
 
     var anchor = this;
     var each = bbop.core.each;
@@ -9619,63 +9621,101 @@ bbop.widget.display.live_search = function (interface_id, conf_class){
 		});
 	    
 	    ///
-	    /// Section 3: the export-to-wherever buttons.
+	    /// Section 3: the button_defs buttons.
 	    ///
 
 	    // Spacer.	    
 	    jQuery('#' + ui_meta_div_id).append('&nbsp;&nbsp;&nbsp;' +
 						'&nbsp;&nbsp;&nbsp;');
 
-	    // Export.
-	    var b_export = new bbop.html.button('Export to GO Galaxy',
-						{'generate_id': true});
-	    jQuery('#' + ui_meta_div_id).append(b_export.to_string());
-	    var b_export_props = {
-		icons: { primary: "ui-icon-circle-zoomin"},
-		//disabled: false,
-		disabled: true,
-		text: false
-	    };
-	    jQuery('#' + b_export.get_id()).button(b_export_props).click(
-		function(){
-		    alert('TODO: Export to Galaxy: ' + manager.get_query_url());
-		});
+	    // Add all of the defined buttons after the spacing.
+	    function _button_rollout(button_def_hash){
+		var default_hash =
+    		    {
+			label : 'n/a',
+			disabled_p : false,
+			text_p : false,
+			icon : 'ui-icon-help',
+			click_function_generator :
+			function(){
+			    return function(){
+				alert('No callback defined for this button--' +
+				      'the generator may have been empty!');
+			    };
+			}
+    		    };
+		var folding_hash = button_def_hash || {};
+		var arg_hash = bbop.core.fold(default_hash, folding_hash);
 
-	    // GAF.
-	    var b_gaf = new bbop.html.button('GAF download',
-					     {'generate_id': true});
-	    jQuery('#' + ui_meta_div_id).append(b_gaf.to_string());
-	    var b_gaf_props = {
-		icons: { primary: "ui-icon-circle-arrow-s"},
-		disabled: false,
-		text: false
-	    };
-	    jQuery('#' + b_gaf.get_id()).button(b_gaf_props).click(
-		function(){
-		    var fl = [
-			'source',
-			// 'bioentity_internal_id',
-			'bioentity_label',
-			//'qualifier',
-			'annotation_class',
-			'reference',
-			'evidence_type',
-			'evidence_with',
-			// 'aspect',
-			// 'bioentity_name',
-			// 'bioentity_synonym',
-			// 'type',
-			'taxon',
-			'date',
-			// 'assigned_by',
-			'annotation_extension_class',
-			'bioentity'
-		    ];
-		    alert('GAF download (1000 lines): ' +
-			  manager.get_download_url(fl));
-		    ;
-		    //alert('GAF download: ' + manager.get_query_url());
-		});
+		var label = arg_hash['label'];
+		var disabled_p = arg_hash['disabled_p'];
+		var text_p = arg_hash['text_p'];
+		var icon = arg_hash['icon'];
+		var click_function_generator =
+		    arg_hash['click_function_generator'];
+
+		var b = new bbop.html.button(label, {'generate_id': true});
+		jQuery('#' + ui_meta_div_id).append(b.to_string());
+		var b_props = {
+		    icons: { primary: icon},
+		    disabled: disabled_p,
+		    text: text_p
+		};
+		var click_fun = click_function_generator(manager);
+		jQuery('#' + b.get_id()).button(b_props).click(click_fun);
+	    }
+	    bbop.core.each(button_defs, _button_rollout);
+
+	    // // GAF.
+	    // // Export.
+	    // var b_export = new bbop.html.button('Export to GO Galaxy',
+	    // 					{'generate_id': true});
+	    // jQuery('#' + ui_meta_div_id).append(b_export.to_string());
+	    // var b_export_props = {
+	    // 	icons: { primary: "ui-icon-circle-zoomin"},
+	    // 	//disabled: false,
+	    // 	disabled: true,
+	    // 	text: false
+	    // };
+	    // jQuery('#' + b_export.get_id()).button(b_export_props).click(
+	    // 	function(){
+	    // 	    alert('TODO: Export to Galaxy: ' + manager.get_query_url());
+	    // 	});
+
+	    // var b_gaf = new bbop.html.button('GAF download',
+	    // 				     {'generate_id': true});
+	    // jQuery('#' + ui_meta_div_id).append(b_gaf.to_string());
+	    // var b_gaf_props = {
+	    // 	icons: { primary: "ui-icon-circle-arrow-s"},
+	    // 	disabled: false,
+	    // 	text: false
+	    // };
+	    // jQuery('#' + b_gaf.get_id()).button(b_gaf_props).click(
+	    // 	function(){
+	    // 	    var fl = [
+	    // 		'source',
+	    // 		// 'bioentity_internal_id',
+	    // 		'bioentity_label',
+	    // 		//'qualifier',
+	    // 		'annotation_class',
+	    // 		'reference',
+	    // 		'evidence_type',
+	    // 		'evidence_with',
+	    // 		// 'aspect',
+	    // 		// 'bioentity_name',
+	    // 		// 'bioentity_synonym',
+	    // 		// 'type',
+	    // 		'taxon',
+	    // 		'date',
+	    // 		// 'assigned_by',
+	    // 		'annotation_extension_class',
+	    // 		'bioentity'
+	    // 	    ];
+	    // 	    alert('GAF download (1000 lines): ' +
+	    // 		  manager.get_download_url(fl));
+	    // 	    ;
+	    // 	    //alert('GAF download: ' + manager.get_query_url());
+	    // 	});
 
 	    // // Cart.
 	    // var b_cart = new bbop.html.button('Cart',
@@ -10864,6 +10904,7 @@ bbop.core.namespace('bbop', 'widget', 'search_pane');
  *  show_searchbox_p - show the search query box (default true)
  *  show_filterbox_p - show currents filters and accordion (default true)
  *  show_pager_p - show the results pager (default true)
+ *  buttons -  a list of button definition hashes (default [])
  * 
  * Arguments:
  *  golr_loc - string url to GOlr server; not needed if local
@@ -10899,7 +10940,8 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	    'show_global_reset_p' : true,
     	    'show_searchbox_p' : true,
     	    'show_filterbox_p' : true,
-    	    'show_pager_p' : true
+    	    'show_pager_p' : true,
+	    'buttons' : []
     	};
     var folding_hash = in_argument_hash || {};
     var arg_hash = bbop.core.fold(default_hash, folding_hash);
@@ -10912,6 +10954,7 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     var show_searchbox_p = arg_hash['show_searchbox_p'];
     var show_filterbox_p = arg_hash['show_filterbox_p'];
     var show_pager_p = arg_hash['show_pager_p'];
+    var button_defs = arg_hash['buttons'];
 
     /*
      * Function: establish_display
@@ -10951,7 +10994,8 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	// and variables.
     	var ui = null;
 	if( layout_type == 'two-column' ){
-	    ui = new bbop.widget.display.live_search(interface_id, cclass);
+	    ui = new bbop.widget.display.live_search(interface_id, cclass,
+						     button_defs);
 	}else{
     	    throw new Error('ERROR: unsupported layout type: ' + layout_type);
 	}

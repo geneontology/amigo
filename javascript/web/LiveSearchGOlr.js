@@ -51,7 +51,41 @@ function LiveSearchGOlrInit(){
     	'show_global_reset_p' : true,
     	'show_searchbox_p' : true,
     	'show_filterbox_p' : true,
-    	'show_pager_p' : true
+    	'show_pager_p' : true,
+    	'buttons' : [
+	    {
+		label: 'GAF download',
+		diabled_p: false,
+		text_p: false,
+		icon: 'ui-icon-circle-arrow-s',
+		click_function_generator: function(manager){
+		    return function(event){
+			var fl = [
+			    'source',
+			    // 'bioentity_internal_id',
+			    'bioentity_label',
+			    //'qualifier',
+			    'annotation_class',
+			    'reference',
+			    'evidence_type',
+			    'evidence_with',
+			    // 'aspect',
+			    // 'bioentity_name',
+			    // 'bioentity_synonym',
+			    // 'type',
+			    'taxon',
+			    'date',
+			    // 'assigned_by',
+			    'annotation_extension_class',
+			    'bioentity'
+			];
+			//alert('GAF download: ' + manager.get_query_url());
+			alert('GAF download (1000 lines): ' +
+			      search.get_download_url(fl));
+		    };
+		}
+	    }
+	]
     };
     var search = new bbop.widget.search_pane(solr_server, gconf, div_id, hargs);
     // Default profile we'll use in gconf.
