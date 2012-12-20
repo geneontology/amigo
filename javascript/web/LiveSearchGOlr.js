@@ -84,6 +84,19 @@ function LiveSearchGOlrInit(){
 			      search.get_download_url(fl));
 		    };
 		}
+	    },
+	    {
+		label: 'Show URL',
+		diabled_p: false,
+		text_p: false,
+		icon: 'ui-icon-help',
+		click_function_generator: function(manager){
+		    return function(event){
+			//alert('GAF download: ' + manager.get_query_url());
+			alert('URL: ' +
+			      search.get_query_url());
+		    };
+		}
 	    }
 	]
     };
