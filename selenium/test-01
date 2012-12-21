@@ -27,8 +27,18 @@
 	<td>&quot;id=query&quot;, &quot;misfolded&quot;</td>
 </tr>
 <tr>
+	<td>waitForTextPresent</td>
+	<td>misfolded protein binding</td>
+	<td></td>
+</tr>
+<tr>
+	<td>mouseOver</td>
+	<td>xpath=/html/body/ul/li/a[. = &quot;misfolded protein binding (GO:0051787)&quot;]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>click</td>
-	<td>xpath=/html/body/ul/li/a</td>
+	<td>xpath=/html/body/ul/li/a[. = &quot;misfolded protein binding (GO:0051787)&quot;]</td>
 	<td></td>
 </tr>
 <tr>
