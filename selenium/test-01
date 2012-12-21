@@ -22,7 +22,7 @@
 	<td>misfolded</td>
 </tr>
 <tr>
-	<td>typeKeysAndWait</td>
+	<td>typeKeys</td>
 	<td>id=query</td>
 	<td>&quot;id=query&quot;, &quot;misfolded&quot;</td>
 </tr>
@@ -37,14 +37,9 @@
 	<td></td>
 </tr>
 <tr>
-	<td>click</td>
+	<td>clickAndWait</td>
 	<td>xpath=/html/body/ul/li/a[. = &quot;misfolded protein binding (GO:0051787)&quot;]</td>
 	<td></td>
-</tr>
-<tr>
-	<td>waitForPageToLoad</td>
-	<td></td>
-	<td>3000</td>
 </tr>
 <tr>
 	<td>assertTitle</td>
