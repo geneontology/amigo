@@ -17,12 +17,13 @@ use vars qw(
 	     $opt_n
 	     $opt_d
 	     $opt_r
+	     $opt_u
 	  );
 use Getopt::Std;
 
 
 ## Since internal checks are done, get ready for user input.
-getopts('hvi:o:n:d:r:');
+getopts('hvi:o:n:d:r:u');
 
 ## Embedded help through perldoc.
 if( $opt_h ){
@@ -47,6 +48,7 @@ die "need -o option--use -h flag for help" if ! $opt_o;
 die "need -n option--use -h flag for help" if ! $opt_n;
 die "need -d option--use -h flag for help" if ! $opt_d;
 die "need -r option--use -h flag for help" if ! $opt_r;
+# $opt_u will be 1 or 0.
 
 ###
 ### Get oriented.
@@ -133,11 +135,17 @@ ll('Staging (base): ' . $bundle_output_fname);
 ll('Staging (base, versioned): ' . $versioned_fname);
 force_copy($bundle_output_fname, $versioned_fname);
 
-ll('Staging (base, minified): ' . $mini_fname);
-make_compressed_js($bundle_output_fname, $mini_fname);
+## Minify on option or not.
+if( $opt_u ){
+  ll('Skipping minified versions.');
+}else{
+  ll('Staging (base, minified): ' . $mini_fname);
+  make_compressed_js($bundle_output_fname, $mini_fname);
 
-ll('Staging (base, versioned, minified): ' . $versioned_mini_fname);
-force_copy($mini_fname, $versioned_mini_fname);
+  ll('Staging (base, versioned, minified): ' . $versioned_mini_fname);
+  force_copy($mini_fname, $versioned_mini_fname);
+}
+
 
 ###
 ### Helper functions.
@@ -305,6 +313,11 @@ The destination of the version file.
 =item -r <version number>
 
 The major.minor version number to use (e.g. "0.9", "1.2").
+
+=item -u
+
+Skip making the minified version, and only create the uncompressed
+version.
 
 =back
 
