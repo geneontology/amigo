@@ -313,6 +313,7 @@ if( ! $opt_b ){
 	  amigo_exp
 	  aserve_exp
 	  pgraph
+	  matrix
        );
   }
 
@@ -349,6 +350,9 @@ if( ! $opt_b ){
 	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
   ## The jQuery and jQuery UI libraries.
   force_copy(Cwd::cwd() . '/javascript/lib/com',
+	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
+  ## The D3 and other .org libs.
+  force_copy(Cwd::cwd() . '/javascript/lib/org',
 	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
 
   # ll("Install GO JS libraries.");

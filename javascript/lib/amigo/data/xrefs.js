@@ -184,6 +184,19 @@ amigo.data.xrefs = {
       "url_syntax" : "http://www.ncbi.nlm.nih.gov/entrez/viewer.fcgi?val=[example_id]",
       "datatype" : null
    },
+   "geo" : {
+      "uri_prefix" : null,
+      "name" : null,
+      "url_example" : "http://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc=GDS2223",
+      "database" : "NCBI Gene Expression Omnibus",
+      "example_id" : "GDS2223",
+      "generic_url" : "http://www.ncbi.nlm.nih.gov/geo/",
+      "fullname" : null,
+      "id" : null,
+      "abbreviation" : "GEO",
+      "url_syntax" : "http://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc=[example_id]",
+      "datatype" : null
+   },
    "agricola_ind" : {
       "object" : "AGRICOLA IND number",
       "uri_prefix" : null,
@@ -1386,20 +1399,6 @@ amigo.data.xrefs = {
       "url_syntax" : "http://www.ncbi.nlm.nih.gov/pubmed/[example_id]",
       "datatype" : null
    },
-   "ecoliwiki" : {
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : null,
-      "description" : "EcoliHub's subsystem for community annotation of E. coli K-12",
-      "database" : "EcoliWiki from EcoliHub",
-      "local_id_syntax" : "^[A-Za-z]{3,4}$",
-      "generic_url" : "http://ecoliwiki.net/",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "EcoliWiki",
-      "url_syntax" : null,
-      "datatype" : null
-   },
    "maizegdb" : {
       "object" : "MaizeGDB Object ID Number",
       "uri_prefix" : null,
@@ -1412,6 +1411,20 @@ amigo.data.xrefs = {
       "id" : null,
       "abbreviation" : "MaizeGDB",
       "url_syntax" : "http://www.maizegdb.org/cgi-bin/id_search.cgi?id=[example_id]",
+      "datatype" : null
+   },
+   "ecoliwiki" : {
+      "uri_prefix" : null,
+      "name" : null,
+      "url_example" : null,
+      "description" : "EcoliHub's subsystem for community annotation of E. coli K-12",
+      "database" : "EcoliWiki from EcoliHub",
+      "local_id_syntax" : "^[A-Za-z]{3,4}$",
+      "generic_url" : "http://ecoliwiki.net/",
+      "fullname" : null,
+      "id" : null,
+      "abbreviation" : "EcoliWiki",
+      "url_syntax" : null,
       "datatype" : null
    },
    "ensembl_transcriptid" : {
@@ -3549,20 +3562,6 @@ amigo.data.xrefs = {
       "url_syntax" : "http://www.reactome.org/cgi-bin/eventbrowser_st_id?ST_ID=[example_id]",
       "datatype" : null
    },
-   "subtilistg" : {
-      "object" : "Gene symbol",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : null,
-      "database" : "Bacillus subtilis Genome Sequence Project",
-      "example_id" : "SUBTILISTG:accC",
-      "generic_url" : "http://genolist.pasteur.fr/SubtiList/",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "SUBTILISTG",
-      "url_syntax" : null,
-      "datatype" : null
-   },
    "wp" : {
       "object" : "Identifier",
       "uri_prefix" : null,
@@ -3576,6 +3575,20 @@ amigo.data.xrefs = {
       "id" : null,
       "abbreviation" : "WP",
       "url_syntax" : "http://www.wormbase.org/db/get?class=Protein;name=WP:[example_id]",
+      "datatype" : null
+   },
+   "subtilistg" : {
+      "object" : "Gene symbol",
+      "uri_prefix" : null,
+      "name" : null,
+      "url_example" : null,
+      "database" : "Bacillus subtilis Genome Sequence Project",
+      "example_id" : "SUBTILISTG:accC",
+      "generic_url" : "http://genolist.pasteur.fr/SubtiList/",
+      "fullname" : null,
+      "id" : null,
+      "abbreviation" : "SUBTILISTG",
+      "url_syntax" : null,
       "datatype" : null
    },
    "ddanat" : {

@@ -169,6 +169,9 @@ my $sig2path =
    'org.prototype' =>
    'org/prototype-1.6.0.3.js',
 
+   'org.d3' =>
+   'org/d3.v3.min.js',
+
    ## Should be pick-up anyways.
    # 'bbop.core' =>
    # 'bbop/core.js',
