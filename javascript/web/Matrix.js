@@ -137,11 +137,14 @@ function MatrixInit(){
 		      function(obj, link_count){
 
 			  // Only add links that we haven't yet.
-			  var lid = sub + '_' + obj;
-			  if( ! bbop.core.is_defined(already_done_links[lid]) ){
+			  var li1 = sub + '_' + obj;
+			  var li2 = obj + '_' + sub;
+			  if( ! bbop.core.is_defined(already_done_links[li1]) ){
 
-			      // Add it to our done list.
-			      already_done_links[lid] = true;
+			      // Add it to our done list. Either way
+			      // we'll catch it.
+			      already_done_links[li1] = true;
+			      already_done_links[li2] = true;
 			      
 			      // Push the new link data.
 			      var link = {
@@ -155,8 +158,8 @@ function MatrixInit(){
 	     });
 
 
-	ll('Nodes: ' + dump(seen_nodes));
-	ll('Links: ' + dump(seen_links));
+	ll('Seen nodes: ' + dump(seen_nodes));
+	ll('Seen links: ' + dump(seen_links));
 	ll('Data: ' + dump(data));
 	// //ll(h + ', ' + v + ': ' + count);
 	// ll('accumulate: ' + axis1 + ', ' + axis2 + ': ' + count);
@@ -208,6 +211,9 @@ function MatrixInit(){
 		nodes[link.target].count += link.value;
 	    });
 
+	ll('Nodes: ' + dump(nodes));
+	ll('Matrix: ' + dump(matrix));
+
 	// Precompute the orders.
 	var orders = {
 	    name: d3.range(n).sort(
@@ -236,7 +242,9 @@ function MatrixInit(){
 	    .enter().append("g")
 	    .attr("class", "row")
 	    .attr("transform",
-		  function(d, i) { return "translate(0," + x(i) + ")"; })
+		  function(d, i) {
+		      return "translate(0," + x(i) + ")";
+		  })
 	    .each(row);
 
 	row.append("line")
