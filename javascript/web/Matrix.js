@@ -2,13 +2,13 @@
 //// Experiment in D3 JS; no cart like in NMatrix.
 ////
 
-// Get the layout done and request ws info.
+// Get the information for the incoming terms.
 function MatrixInit(){
 
     // Ready logging.
     var logger = new bbop.logger();
     logger.DEBUG = true;
-    function ll(str){ logger.kvetch('JSM: ' + str); }
+    function ll(str){ logger.kvetch('JSM01: ' + str); }
     ll('');
     ll('MatrixInit start...');
 
@@ -16,11 +16,89 @@ function MatrixInit(){
     var each = bbop.core.each;
     var dump = bbop.core.dump;
 
-    // Get the data that we want.
-    // A variation on BBOP JS's shared_annotation_count.js.
-
     // Let's start with this test.
     var term_accs = ['GO:0043473', 'GO:0009987', 'GO:0022008'];
+    // Val's half example.
+    //var term_accs = ['GO:0006310', 'GO:0006281', 'GO:0006260', 'GO:0030437', 'GO:0005975', 'GO:0007155', 'GO:0006520', 'GO:0070882', 'GO:0016568', 'GO:0051276', 'GO:0007059', 'GO:0051186', 'GO:0000747', 'GO:0000910', 'GO:0002181', 'GO:0007010', 'GO:0007163', 'GO:0006091', 'GO:0006629', 'GO:0016071', 'GO:0007126', 'GO:0007005', 'GO:0071941'];
+    // Val's full example.
+    //var term_accs = ['GO:0006310', 'GO:0006281', 'GO:0006260', 'GO:0030437', 'GO:0005975', 'GO:0007155', 'GO:0006520', 'GO:0070882', 'GO:0016568', 'GO:0051276', 'GO:0007059', 'GO:0051186', 'GO:0000747', 'GO:0000910', 'GO:0002181', 'GO:0007010', 'GO:0007163', 'GO:0006091', 'GO:0006629', 'GO:0016071', 'GO:0007126', 'GO:0007005', 'GO:0071941', 'GO:0055086', 'GO:0006913', 'GO:0007031', 'GO:0030163', 'GO:0006461', 'GO:0006457', 'GO:0006486', 'GO:0051604', 'GO:0070647', 'GO:0006605', 'GO:0007346', 'GO:0042254', 'GO:0023052', 'GO:0006399', 'GO:0006351', 'GO:0055085', 'GO:0007033', 'GO:0016192', 'GO:0006766'];
+
+    // Next, setup the manager environment.
+    ll('Setting up manager.');
+    var server_meta = new amigo.data.server();
+    var gloc = server_meta.golr_base();
+    var gconf = new bbop.golr.conf(amigo.data.golr);
+    var go = new bbop.golr.manager.jquery(gloc, gconf);
+    go.set_personality('bbop_ont');
+    //go.debug(false);
+
+    // Now, cycle though all of the terms to collect info on.
+    ll('Gathering batch URLs for term data...');
+    var term_user_order = {};
+    for(var r_i = 0; r_i < term_accs.length; r_i++){
+    	var r = term_accs[r_i];	
+    	// Set the next query.
+    	go.reset_query_filters(); // reset from the last iteration
+    	go.set_id(r);
+    	go.add_to_batch();
+	term_user_order[r] = r_i;
+    }
+
+    var term_info = {};
+    var accumulator_fun = function(json_resp){	
+	// Fetch the data and grab the number we want.
+	var resp = new bbop.golr.response(json_resp);
+
+	// Who was this?
+	var qval = resp.parameter('q');
+	var two_part = bbop.core.first_split(':', qval);
+	var acc = two_part[1];
+	ll('Lookings at info for: ' + acc);
+	term_info[acc] = {
+	    id : acc,
+	    name: acc,
+	    source : 'n/a',
+	    index : term_user_order[acc]
+	};
+
+	// Dig out names and the like.
+	var doc = resp.get_doc(0);
+	if( doc ){
+	    term_info[acc]['name'] = doc['annotation_class_label'];
+	    term_info[acc]['source'] = doc['source'];
+	}	
+
+    };
+
+    // The final function is the data renderer.
+    var final_fun = function(){
+	ll('Starting final in stage 01...');
+
+	ll('term_info: ' + dump(term_info));
+	stage_02(term_info, term_accs);
+
+	ll('Completed stage 01!');
+    };
+    go.run_batch(accumulator_fun, final_fun);
+
+}
+
+// Get the layout done and request ws info.
+function stage_02(term_info, term_accs){
+
+    // Ready logging.
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch('JSM02: ' + str); }
+    ll('');
+    ll('Stage 02 start...');
+
+    // Helpers.
+    var each = bbop.core.each;
+    var dump = bbop.core.dump;
+
+    // Get the data that we want.
+    // A variation on BBOP JS's shared_annotation_count.js.
 
     // Next, setup the manager environment.
     ll('Setting up manager.');
@@ -102,7 +180,7 @@ function MatrixInit(){
 
     // The final function is the data renderer.
     var final_fun = function(){
-	ll('Starting final...');
+	ll('Starting final in stage 02...');
 
 	// We want this to be fully defined at the end of the accumulator.
 	var data = {
@@ -119,9 +197,9 @@ function MatrixInit(){
 		 // Get some node info.
 		 var node = {
 		     'id': acc,
-		     'name': acc,
-		     'group': 0,
-		     'index': starting_node_index
+		     'name': term_info[acc]['name'],
+		     'source': term_info[acc]['source'],
+		     'index': term_info[acc]['index']
 		 };
 		 data.nodes.push(node);
 		 starting_node_index_lookup[acc] = starting_node_index;
@@ -220,17 +298,27 @@ function MatrixInit(){
 		function(a, b) {
 		    return d3.ascending(nodes[a].name, nodes[b].name);
 		}),
+	    source: d3.range(n).sort(
+		function(a, b) {
+		    return d3.ascending(nodes[a].source, nodes[b].source);
+		}),
+	    id: d3.range(n).sort(
+		function(a, b) {
+		    return d3.ascending(nodes[a].id, nodes[b].id);
+		}),
 	    count: d3.range(n).sort(
 		function(a, b) {
 		    return nodes[b].count - nodes[a].count;
 		}),
-	    group: d3.range(n).sort(
+	    index: d3.range(n).sort(
 		function(a, b) {
-		    return nodes[b].group - nodes[a].group; })
+		    return nodes[b].index - nodes[a].index;
+		})
 	};
 
 	// The default sort order.
-	x.domain(orders.name);
+	//x.domain(orders.name);
+	x.domain(orders.index);
 
 	svg.append("rect")
 	    .attr("class", "background")
@@ -287,7 +375,7 @@ function MatrixInit(){
 		.style("fill-opacity", function(d) { return z(d.z); })
 		.style("fill",
 		       function(d) {
-			   return nodes[d.x].group == nodes[d.y].group ? c(nodes[d.x].group) : null; })
+			   return nodes[d.x].source == nodes[d.y].source ? c(nodes[d.x].source) : null; })
 		.on("mouseover", mouseover)
 		.on("mouseout", mouseout);
 	}
@@ -309,7 +397,7 @@ function MatrixInit(){
 	
 	d3.select("#order").on("change",
 			       function() {
-				   clearTimeout(timeout);
+				   //clearTimeout(timeout);
 				   order(this.value);
 			       });
 	
@@ -336,17 +424,17 @@ function MatrixInit(){
 		      });
 	}
 	
-	var timeout = setTimeout(
-	    function() {
-		order("group");
-		d3.select("#order").property("selectedIndex", 2).node().focus();
-	    }, 5000);
+	// var timeout = setTimeout(
+	//     function() {
+	// 	order("source");
+	// 	d3.select("#order").property("selectedIndex", 2).node().focus();
+	//     }, 5000);
 
 	///
 	/// End the section from the example.
 	///	
 	
-	ll('Complete!');
+	ll('Completed stage 02!');
     };
     go.run_batch(accumulator_fun, final_fun);
 }
