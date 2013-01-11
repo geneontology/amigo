@@ -123,6 +123,7 @@ Group: AmiGO  {
       File: HTMLClient  (AmiGO/WebApp/HTMLClient.pm)
       File: HTMLClientExp  (AmiGO/WebApp/HTMLClientExp.pm)
       File: Input  (AmiGO/WebApp/Input.pm)
+      File: Matrix.pm  (AmiGO/WebApp/Matrix.pm)
       File: PGraph  (AmiGO/WebApp/PGraph.pm)
       File: REPL.pm  (AmiGO/WebApp/REPL.pm)
       File: Services  (AmiGO/WebApp/Services.pm)
