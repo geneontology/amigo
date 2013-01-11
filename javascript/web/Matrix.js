@@ -2,8 +2,22 @@
 //// Experiment in D3 JS; no cart like in NMatrix.
 ////
 
+var MousePosition = { x: -1, y: -1 };
+
 // TODO: Interact with the user, launch stage 01.
 function MatrixInit(){
+
+    // First things first, let's hide that nasty floating div...
+    jQuery("#info").hide();
+    jQuery(document).mousemove(function(event) {
+        MousePosition.x = event.pageX;
+        MousePosition.y = event.pageY;
+    });
+
+    // Also, add a new bit of stylesheet.
+    var more_style = jQuery("<style>");
+    more_style.attr('text.active { fill: red; }');
+    jQuery("head").append(more_style);
 
     // Ready logging.
     var logger = new bbop.logger();
@@ -145,15 +159,15 @@ function stage_02(term_info, term_accs){
 	    go.add_to_batch();
 	}
     }
-    // // Reflexive.
-    // for(var r_i = 0; r_i < term_accs.length; r_i++){
-    // 	var r = term_accs[r_i];
+    // Reflexive.
+    for(var r_i = 0; r_i < term_accs.length; r_i++){
+    	var r = term_accs[r_i];
 	
-    // 	// Set the next query.
-    // 	go.reset_query_filters(); // reset from the last iteration
-    // 	go.add_query_filter('isa_partof_closure', r);
-    // 	go.add_to_batch();
-    // }
+    	// Set the next query.
+    	go.reset_query_filters(); // reset from the last iteration
+    	go.add_query_filter('isa_partof_closure', r);
+    	go.add_to_batch();
+    }
 
     // Actually serially fetch the data.
     var seen_links = {};
@@ -199,6 +213,7 @@ function stage_02(term_info, term_accs){
 
 	// We want this to be fully defined at the end of the accumulator.
 	var data = {
+    	    graph: seen_links,
     	    nodes: [],
     	    links: []
 	};
@@ -287,7 +302,8 @@ function stage_03 (data, max_count){
     var x = d3.scale.ordinal().rangeBands([0, width]);
     var z = d3.scale.linear().domain([0, 4]).clamp(true);
     //var c = d3.scale.category10().domain(d3.range(10));
-    var c = d3.scale.category10().domain(d3.range(max_count));
+    //var c = d3.scale.category10().domain(d3.range(max_count));
+    var c = d3.scale.linear().domain([0,max_count]).rangeRound([127,255]);
     
     var svg = d3.select("#matrix_results").append("svg")
 	.attr("width", width + margin.left + margin.right)
@@ -308,7 +324,7 @@ function stage_03 (data, max_count){
     // Compute index per node.
     nodes.forEach(
 	function(node, i) {
-	    node.index = i;
+	    //node.index = i;
 	    node.count = 0;
 	    matrix[i] = d3.range(n).map(
 		function(j) {
@@ -319,14 +335,20 @@ function stage_03 (data, max_count){
     // TODO: Is this bit necessary?
     // Convert links to matrix; count character occurrences.
     data.links.forEach(
-	function(link) {
-	    matrix[link.source][link.target].z += link.value;
-	    matrix[link.target][link.source].z += link.value;
-	    matrix[link.source][link.source].z += link.value;
-	    matrix[link.target][link.target].z += link.value;
-	    nodes[link.source].count += link.value;
-	    nodes[link.target].count += link.value;
-	});
+    	function(link) {
+	    var s_index = link.source;
+	    var t_index = link.target;
+	    var sid = nodes[s_index]['id'];
+	    var tid = nodes[t_index]['id'];
+	    // Matrix fill.
+    	    matrix[link.source][link.target].z = data.graph[sid][tid] || 0;
+    	    matrix[link.target][link.source].z = data.graph[tid][sid] || 0;
+    	    matrix[link.source][link.source].z = data.graph[sid][sid] || 0;
+    	    matrix[link.target][link.target].z = data.graph[tid][tid] || 0;
+	    // Tally the per-node count.
+    	    nodes[link.source].count += link.value || 0;
+    	    nodes[link.target].count += link.value || 0;
+    	});
     
     ll('Nodes: ' + dump(nodes));
     ll('Matrix: ' + dump(matrix));
@@ -351,8 +373,7 @@ function stage_03 (data, max_count){
 	    }),
 	count: d3.range(n).sort(
 	    function(a, b) {
-		//return nodes[b].count - nodes[a].count;
-		return nodes[a].count - nodes[b].count;
+		return nodes[b].count - nodes[a].count;
 	    }),
 	index: d3.range(n).sort(
 	    function(a, b) {
@@ -367,7 +388,8 @@ function stage_03 (data, max_count){
     // Attach the off-color background.
     svg.append("rect")
 	//.attr("class", "background")
-	.attr("style", "fill: #eeeeee;")
+	//.attr("style", "fill: #eeeeee;")
+	.attr("style", "fill: #ffffff;")
 	.attr("width", width)
 	.attr("height", height);
     
@@ -425,7 +447,26 @@ function stage_03 (data, max_count){
 	      });
 
     function mouseover(p) {
-	ll("mouse over: (" + p.x + ', ' + p.y + ')');
+    	var sac = matrix[p.x][p.y].z;
+	ll("mouse over: (" + p.x + ', ' + p.y + '): ' + sac);
+	jQuery("#info").empty();
+	var xn = nodes[p.x];
+	var yn = nodes[p.y];
+
+	jQuery("#info").append("<b>" + yn.name + "</b> (" + yn.id + ")");
+	jQuery("#info").append("<br />");
+	jQuery("#info").append("<b>" + xn.name + "</b> (" + xn.id + ")");
+	jQuery("#info").append("<br />");
+	jQuery("#info").append("SAC: <b>" + sac + "</b>");
+
+	var xpos = MousePosition.x + 10;
+	var ypos = MousePosition.y + 10;
+
+	jQuery("#info").css('left', xpos);
+	jQuery("#info").css('top', ypos);
+
+	jQuery("#info").show();
+
 	d3.selectAll(".row text").classed("active",
 					  function(d, i) {
 					      return i == p.y;
@@ -437,6 +478,7 @@ function stage_03 (data, max_count){
     }
     
     function mouseout() {
+	jQuery("#info").hide();
 	d3.selectAll("text").classed("active", false);
     }
     
@@ -461,9 +503,18 @@ function stage_03 (data, max_count){
 		   })
 	    .style("fill",
 		   function(d) {
-		       var retval = null;
-		       if( nodes[d.x].source == nodes[d.y].source ){
-			   retval = c(nodes[d.x].source);
+		       var retval = '#eeeeee';
+		       var mval = matrix[d.x][d.y].z;
+		       var cval = c(mval);
+		       var cinv = 255 - cval;
+		       var chex = cinv.toString(16);
+		       if( chex.length == 1 ){
+			   chex = '0' + chex;
+		       }
+		       //var cvalinv = 109 - cval;
+		       ll('VALS: ' + mval + ', ' + cval + ', ' + chex);
+		       if( cval ){
+			   retval = '#' + chex + chex + chex + '';
 		       }
 		       return retval;
 		   })
