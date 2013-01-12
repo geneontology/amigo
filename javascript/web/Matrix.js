@@ -2,22 +2,13 @@
 //// Experiment in D3 JS; no cart like in NMatrix.
 ////
 
-var MousePosition = { x: -1, y: -1 };
-
 // TODO: Interact with the user, launch stage 01.
 function MatrixInit(){
 
-    // First things first, let's hide that nasty floating div...
+    // First things first, let's hide the nasty flying divs...
     jQuery("#info").hide();
-    jQuery(document).mousemove(function(event) {
-        MousePosition.x = event.pageX;
-        MousePosition.y = event.pageY;
-    });
-
-    // Also, add a new bit of stylesheet.
-    var more_style = jQuery("<style>");
-    more_style.attr('text.active { fill: red; }');
-    jQuery("head").append(more_style);
+    jQuery("#progress-widget").hide();
+    jQuery("#order-selector").hide();
 
     // Ready logging.
     var logger = new bbop.logger();
@@ -26,14 +17,27 @@ function MatrixInit(){
     ll('');
     ll('MatrixInit start...');
 
+    // Pull in and fix the GO term data.
+    jQuery('#button').click(
+	function(e){
+	    //alert(jQuery('#input-terms').val());
+	    var raw_text = jQuery('#input-terms').val();
+	    raw_text = raw_text.replace(/^\s+/,'');
+	    raw_text = raw_text.replace(/\s+$/,'');
+	    var term_accs = raw_text.split(/\s+/); // split on any ws
+	    ll('Running: ' + bbop.core.dump(term_accs));
+	    stage_01(term_accs);
+	});
+
     // Let's start with this test.
-    var term_accs = ['GO:0043473', 'GO:0009987', 'GO:0022008'];
+    //GO:0043473 GO:0009987 GO:0022008
+    //var term_accs = ['GO:0043473', 'GO:0009987', 'GO:0022008'];
     // Val's half example.
     //var term_accs = ['GO:0006310', 'GO:0006281', 'GO:0006260', 'GO:0030437', 'GO:0005975', 'GO:0007155', 'GO:0006520', 'GO:0070882', 'GO:0016568', 'GO:0051276', 'GO:0007059', 'GO:0051186', 'GO:0000747', 'GO:0000910', 'GO:0002181', 'GO:0007010', 'GO:0007163', 'GO:0006091', 'GO:0006629', 'GO:0016071', 'GO:0007126', 'GO:0007005', 'GO:0071941'];
     // Val's full example.
     //var term_accs = ['GO:0006310', 'GO:0006281', 'GO:0006260', 'GO:0030437', 'GO:0005975', 'GO:0007155', 'GO:0006520', 'GO:0070882', 'GO:0016568', 'GO:0051276', 'GO:0007059', 'GO:0051186', 'GO:0000747', 'GO:0000910', 'GO:0002181', 'GO:0007010', 'GO:0007163', 'GO:0006091', 'GO:0006629', 'GO:0016071', 'GO:0007126', 'GO:0007005', 'GO:0071941', 'GO:0055086', 'GO:0006913', 'GO:0007031', 'GO:0030163', 'GO:0006461', 'GO:0006457', 'GO:0006486', 'GO:0051604', 'GO:0070647', 'GO:0006605', 'GO:0007346', 'GO:0042254', 'GO:0023052', 'GO:0006399', 'GO:0006351', 'GO:0055085', 'GO:0007033', 'GO:0016192', 'GO:0006766'];
 
-    stage_01(term_accs);
+    //stage_01(term_accs);
 
     ll('Completed init!');    
 }
@@ -51,6 +55,14 @@ function stage_01(term_accs){
     // Helpers.
     var each = bbop.core.each;
     var dump = bbop.core.dump;
+
+    // Prep the progress bar and hide the order selector until we're
+    // done.
+    jQuery("#progress-text").empty();
+    jQuery("#progress-text").append('<b>Loading...</b>');
+    //jQuery("#progress-bar").empty();
+    jQuery("#progress-widget").show();
+    jQuery("#order-selector").hide();
 
     // Next, setup the manager environment.
     ll('Setting up manager.');
@@ -142,6 +154,9 @@ function stage_02(term_info, term_accs){
     go.set_facet_limit(0); // we don't need any actual facets returned
     //go.debug(false);
 
+    // The number of requests that we will make.
+    var request_count = 0;
+
     // Now, cycle though all of the posible pairs of terms while setting
     // and unsetting the query filter on the manager.
     ll('Gathering batch URLs and simple term data...');
@@ -157,6 +172,8 @@ function stage_02(term_info, term_accs){
 	    go.add_query_filter('isa_partof_closure', v);
 	    go.add_query_filter('isa_partof_closure', h);
 	    go.add_to_batch();
+
+	    request_count++;
 	}
     }
     // Reflexive.
@@ -167,14 +184,32 @@ function stage_02(term_info, term_accs){
     	go.reset_query_filters(); // reset from the last iteration
     	go.add_query_filter('isa_partof_closure', r);
     	go.add_to_batch();
+
+	request_count++;
     }
+
+    // Now that we know how many requests we will make, initialize the
+    // progress bar.
+    jQuery("#progress-text").empty();
+    jQuery("#progress-text").append('<b><span id="progress-count">0</span> of '
+				    + request_count + '</b>');
+    //jQuery("#progress-bar").empty();
+    jQuery("#progress-bar").progressbar({ max: request_count });
+    jQuery("#progress-widget").show();
 
     // Actually serially fetch the data.
     var seen_links = {};
     var max_count = 0;
+    var requests_done = 0;
     var accumulator_fun = function(json_resp){	
 	// Fetch the data and grab the number we want.
 	var resp = new bbop.golr.response(json_resp);
+
+	// Update the bar.
+	requests_done++;
+	jQuery('#progress-bar').progressbar({ value: requests_done });
+	jQuery("#progress-count").empty();
+	jQuery("#progress-count").append(requests_done);
 
 	// Count is easy.
 	var count = resp.total_documents();
@@ -210,6 +245,11 @@ function stage_02(term_info, term_accs){
     // The final function is the data renderer.
     var final_fun = function(){
 	ll('Starting final in stage 02...');
+
+	// We're done, so hide the progress bar again and show the
+	// order selector.
+	jQuery('#progress-widget').hide();
+	jQuery("#order-selector").show();
 
 	// We want this to be fully defined at the end of the accumulator.
 	var data = {
@@ -300,10 +340,23 @@ function stage_03 (data, max_count){
     var height = 800;
     
     var x = d3.scale.ordinal().rangeBands([0, width]);
-    var z = d3.scale.linear().domain([0, 4]).clamp(true);
+    // var z = d3.scale.linear().domain([0, 4]).clamp(true);
     //var c = d3.scale.category10().domain(d3.range(10));
     //var c = d3.scale.category10().domain(d3.range(max_count));
+
+    // A value from our values domain in to a color in our range.
     var c = d3.scale.linear().domain([0,max_count]).rangeRound([127,255]);
+    function value_to_color(val){
+	var retval = '#eeeeee';
+	var cval = c(val);
+	var cinv = 255 - cval;
+	var chex = cinv.toString(16);
+	if( cval ){
+	    if( chex.length == 1 ){ chex = '0' + chex; }
+	    retval = '#' + chex + chex + chex + '';
+	}
+	return retval;
+    }
     
     var svg = d3.select("#matrix_results").append("svg")
 	.attr("width", width + margin.left + margin.right)
@@ -446,40 +499,74 @@ function stage_03 (data, max_count){
 		  return nodes[i].name + ' (' + nodes[i].id + ')';
 	      });
 
+    // Make sure the tha info dialog follows the mouse.
+    // Using jQuery so we get a continuous event stream (necessary for
+    // proper hover following).
+    jQuery(document).mousemove(
+	function(event) {
+	    
+	    if( jQuery("#info").is(":visible") ){
+		
+		var pre_x = event.pageX;
+		var pre_y = event.pageY;
+		
+		var xpos = pre_x + 10;
+		var ypos = pre_y + 10;
+		
+		jQuery("#info").css('left', xpos);
+		jQuery("#info").css('top', ypos);
+	    }
+	});
+
     function mouseover(p) {
+
+	// Grab the shared annotation value.
     	var sac = matrix[p.x][p.y].z;
-	ll("mouse over: (" + p.x + ', ' + p.y + '): ' + sac);
-	jQuery("#info").empty();
+
+	// Map order to node object.
 	var xn = nodes[p.x];
 	var yn = nodes[p.y];
 
+	// Update the hovering info box.
+	jQuery("#info").empty();
 	jQuery("#info").append("<b>" + yn.name + "</b> (" + yn.id + ")");
 	jQuery("#info").append("<br />");
 	jQuery("#info").append("<b>" + xn.name + "</b> (" + xn.id + ")");
 	jQuery("#info").append("<br />");
 	jQuery("#info").append("SAC: <b>" + sac + "</b>");
-
-	var xpos = MousePosition.x + 10;
-	var ypos = MousePosition.y + 10;
-
-	jQuery("#info").css('left', xpos);
-	jQuery("#info").css('top', ypos);
-
 	jQuery("#info").show();
 
-	d3.selectAll(".row text").classed("active",
-					  function(d, i) {
-					      return i == p.y;
-					  });
-	d3.selectAll(".column text").classed("active",
-					     function(d, i) {
-						 return i == p.x;
-					     });
+	var thing = d3.select(this);
+	thing.style('fill', "red");
+
+	//ll("mouse over: (" + p.x + ', ' + p.y + '): ' + thing);
+
+	// Old class-based code.
+	// //d3.selectAll(".row text").classed("active",
+	// d3.selectAll(".row text").classed("light-cell",
+	// 				  function(d, i) {
+	// 				      return i == p.y;
+	// 				  });
+	// d3.selectAll(".column text").classed("active",
+	// 				     function(d, i) {
+	// 					 return i == p.x;
+	// 				     });
     }
     
-    function mouseout() {
+    function mouseout(p) {
+
+	// First, get rid of the old info box.
 	jQuery("#info").hide();
-	d3.selectAll("text").classed("active", false);
+
+	// Now take the color back to where is should be by
+	// recalculating it.
+	var mval = matrix[p.x][p.y].z;
+	var clr = value_to_color(mval);
+	var thing = d3.select(this);
+	thing.style('fill', clr);
+
+	// Old class-based code.
+	//d3.selectAll("text").classed("active", false);
     }
     
     function row_fun(in_row) {
@@ -497,26 +584,14 @@ function stage_03 (data, max_count){
 		  })
 	    .attr("width", x.rangeBand())
 	    .attr("height", x.rangeBand())
-	    .style("fill-opacity",
-		   function(d) {
-		       return z(d.z);
-		   })
+	    // .style("fill-opacity",
+	    // 	   function(d) {
+	    // 	       return z(d.z);
+	    // 	   })
 	    .style("fill",
 		   function(d) {
-		       var retval = '#eeeeee';
 		       var mval = matrix[d.x][d.y].z;
-		       var cval = c(mval);
-		       var cinv = 255 - cval;
-		       var chex = cinv.toString(16);
-		       if( chex.length == 1 ){
-			   chex = '0' + chex;
-		       }
-		       //var cvalinv = 109 - cval;
-		       ll('VALS: ' + mval + ', ' + cval + ', ' + chex);
-		       if( cval ){
-			   retval = '#' + chex + chex + chex + '';
-		       }
-		       return retval;
+		       return value_to_color(mval);
 		   })
 	    .on("mouseover", mouseover)
 	    .on("mouseout", mouseout);
