@@ -335,10 +335,10 @@ function stage_03 (data, max_count){
 
     /// First the canvas sizing and layout.
     // Margins for writing the column/row header text.
-    var margin = { top: 250, right: 0, bottom: 0, left: 250 };
+    var margin = { top: 300, right: 0, bottom: 0, left: 300 };
     // Total width.
-    var width = 800;
-    var height = 800;
+    var width = 900;
+    var height = 900;
     
     var x = d3.scale.ordinal().rangeBands([0, width]);
     // var z = d3.scale.linear().domain([0, 4]).clamp(true);
@@ -350,7 +350,7 @@ function stage_03 (data, max_count){
     var c = d3.scale.linear().domain([0,max_count]).rangeRound([127,255]);
     function value_to_color(val){
 	//var retval = '#efefef';
-	var retval = '#fcfcfc';
+	var retval = '#fafafa';
 	if( val != 0 ){
 	    var cval = c(val);
 	    var cinv = 255 - cval;
@@ -618,17 +618,42 @@ function stage_03 (data, max_count){
     
     function row_fun(in_row) {
 
+	// Create container cells.
 	var rows = d3.select(this).selectAll(".cell")
-	    .data(in_row);
-	
-	// Add colored squares.
-	rows.enter()
-	    .append("rect")
-	    .attr("class", "cell") // tag as cell with class for later ref
+	    .data(in_row).enter()
+	    .append("g")
+	    .attr("class", "cell"); // tag as cell with class for later ref
+	    // .attr("x",
+	    // 	  function(d) {
+	    // 	      return x(d.x);
+	    // 	  });
+
+	// Add text.
+	d3.select(this).selectAll(".cell")
+	    .append("text")
+	.attr("class", "cell") // tag as cell with class for later ref
 	    .attr("x",
-		  function(d) {
-		      return x(d.x);
-		  })
+	    	  function(d) {
+	    	      return x(d.x);
+	    	  })
+	    // .attr("y",
+	    // 	  function(d) {
+	    // 	      return x(d.x);
+	    // 	  })
+	    .attr("dy", "1em")
+	    // .attr("text-anchor", "end")
+	    .text(function(d, i) {
+	    	  return '' + matrix[d.x][d.y].z + '';
+		  });
+
+	// Add colored squares.
+	d3.select(this).selectAll(".cell")
+	    .append("rect")
+	.attr("class", "cell") // tag as cell with class for later ref
+	    .attr("x",
+	    	  function(d) {
+	    	      return x(d.x);
+	    	  })
 	    .attr("width", x.rangeBand())
 	    .attr("height", x.rangeBand())
 	    .style("fill",
@@ -637,27 +662,10 @@ function stage_03 (data, max_count){
 		       var retcolor = value_to_color(mval);
 		       return retcolor;
 		   })
+    	    .style("fill-opacity", "0.5")
 	    .on("mouseover", mouseover)
 	    .on("mouseout", mouseout);
 
-	// // Add text above.
-	// rows.enter()
-	//     .append("text")
-	//     .attr("x",
-	//       function(d) {
-	// 	      return x(d.x);
-	// 	  })
-	//     // .attr("y",
-	//     // 	  function(d) {
-	//     // 	      return x(d.x);
-	//     // 	  })
-	//     .attr("dy", "1em")
-	//     // .attr("text-anchor", "end")
-	//     .text(function(d, i) {
-	// 	  return '' + matrix[d.x][d.y].z + '';
-	//       });
-	//     // .on("mouseover", mouseover)
-	//     // .on("mouseout", mouseout);	
     }
     
     function order(value) {
