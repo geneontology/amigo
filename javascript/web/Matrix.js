@@ -26,6 +26,7 @@ function MatrixInit(){
 	    raw_text = raw_text.replace(/\s+$/,'');
 	    var term_accs = raw_text.split(/\s+/); // split on any ws
 	    ll('Running: ' + bbop.core.dump(term_accs));
+	    jQuery('#matrix_results').empty();
 	    stage_01(term_accs);
 	});
 
@@ -345,15 +346,19 @@ function stage_03 (data, max_count){
     //var c = d3.scale.category10().domain(d3.range(max_count));
 
     // A value from our values domain in to a color in our range.
+    // 0 always maps to a white-ish color.
     var c = d3.scale.linear().domain([0,max_count]).rangeRound([127,255]);
     function value_to_color(val){
-	var retval = '#eeeeee';
-	var cval = c(val);
-	var cinv = 255 - cval;
-	var chex = cinv.toString(16);
-	if( cval ){
-	    if( chex.length == 1 ){ chex = '0' + chex; }
-	    retval = '#' + chex + chex + chex + '';
+	//var retval = '#efefef';
+	var retval = '#fcfcfc';
+	if( val != 0 ){
+	    var cval = c(val);
+	    var cinv = 255 - cval;
+	    var chex = cinv.toString(16);
+	    if( cval ){
+		if( chex.length == 1 ){ chex = '0' + chex; }
+		retval = '#' + chex + chex + chex + '';
+	    }
 	}
 	return retval;
     }
@@ -568,15 +573,57 @@ function stage_03 (data, max_count){
 	// Old class-based code.
 	//d3.selectAll("text").classed("active", false);
     }
+
+    // Working:    
+    //  function row_fun(in_row) {
+    // 	var cell = d3.select(this).selectAll(".cell")
+    // 	    // .data(in_row.filter(
+    // 	    // 	      function(d) {
+    // 	    // 		  return d.z;
+    // 	    // 	      }))
+    // 	    .data(in_row)
+    // 	    .enter().append("rect")
+    // 	    //.attr("style", "fill: #ff00ff")
+    // 	    .attr("class", "cell") // tag as cell with class for later ref
+    // 	    .attr("x",
+    // 		  function(d) {
+    // 		      return x(d.x);
+    // 		  })
+    // 	    .attr("width", x.rangeBand())
+    // 	    .attr("height", x.rangeBand())
+    // 	    // .style("fill-opacity",
+    // 	    // 	   function(d) {
+    // 	    // 	       return z(d.z);
+    // 	    // 	   })
+    // 	    .style("fill",
+    // 		   function(d) {
+    // 		       var mval = matrix[d.x][d.y].z;
+    // 		       var retcolor = value_to_color(mval);
+    // 		       return retcolor;
+    // 		   })
+    // 	    // .append("text")
+    // 	    // .attr("x",
+    // 	    // 	  function(d) {
+    // 	    // 	      return x(d.x);
+    // 	    // 	  })
+    // 	    // .attr("y", x.rangeBand() / 2)
+    // 	    // .attr("dy", ".30em")
+    // 	    // .attr("text-anchor", "end")
+    // 	    // .text(function(d, i) {
+    // 	    // 	      return '(' + matrix[d.x][d.y].z + ')';
+    // 	    // 	  })
+    // 	    .on("mouseover", mouseover)
+    // 	    .on("mouseout", mouseout);
+    // }
     
     function row_fun(in_row) {
-	var cell = d3.select(this).selectAll(".cell")
-	    .data(in_row.filter(
-		      function(d) {
-			  return d.z;
-		      }))
-	    .enter().append("rect")
-	    //.attr("style", "fill: #ff00ff")
+
+	var rows = d3.select(this).selectAll(".cell")
+	    .data(in_row);
+	
+	// Add colored squares.
+	rows.enter()
+	    .append("rect")
 	    .attr("class", "cell") // tag as cell with class for later ref
 	    .attr("x",
 		  function(d) {
@@ -584,17 +631,33 @@ function stage_03 (data, max_count){
 		  })
 	    .attr("width", x.rangeBand())
 	    .attr("height", x.rangeBand())
-	    // .style("fill-opacity",
-	    // 	   function(d) {
-	    // 	       return z(d.z);
-	    // 	   })
 	    .style("fill",
 		   function(d) {
 		       var mval = matrix[d.x][d.y].z;
-		       return value_to_color(mval);
+		       var retcolor = value_to_color(mval);
+		       return retcolor;
 		   })
 	    .on("mouseover", mouseover)
 	    .on("mouseout", mouseout);
+
+	// // Add text above.
+	// rows.enter()
+	//     .append("text")
+	//     .attr("x",
+	//       function(d) {
+	// 	      return x(d.x);
+	// 	  })
+	//     // .attr("y",
+	//     // 	  function(d) {
+	//     // 	      return x(d.x);
+	//     // 	  })
+	//     .attr("dy", "1em")
+	//     // .attr("text-anchor", "end")
+	//     .text(function(d, i) {
+	// 	  return '' + matrix[d.x][d.y].z + '';
+	//       });
+	//     // .on("mouseover", mouseover)
+	//     // .on("mouseout", mouseout);	
     }
     
     function order(value) {
