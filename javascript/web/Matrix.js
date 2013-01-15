@@ -337,8 +337,8 @@ function stage_03 (data, max_count){
     // Margins for writing the column/row header text.
     var margin = { top: 300, right: 0, bottom: 0, left: 300 };
     // Total width.
-    var width = 900;
-    var height = 900;
+    var width = 800;
+    var height = 800;
     
     var x = d3.scale.ordinal().rangeBands([0, width]);
     // var z = d3.scale.linear().domain([0, 4]).clamp(true);
