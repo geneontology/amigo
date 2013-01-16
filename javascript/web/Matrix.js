@@ -628,10 +628,38 @@ function stage_03 (data, max_count){
 	    // 	      return x(d.x);
 	    // 	  });
 
+	// WARNING: This next bit is so not thread safe it's funny.
+	// Get the width of a cell in this case.
+	var cw = x.rangeBand(); // essentially a constant
 	// Add text.
 	d3.select(this).selectAll(".cell")
 	    .append("text")
-	.attr("class", "cell") // tag as cell with class for later ref
+	    .text(function(d, i) {
+
+		      var final_str = '';
+		      var val_holder = matrix[d.x][d.y].z;
+		      if( val_holder != 0 ){
+			  // Make the string we'll use.
+			  final_str = '' + val_holder + '';
+		      }
+
+		      // Now also calculate some text scaling.
+		      // WARNING: Guessing at 1em =~ 10px.
+		      var text_scale = '14';
+		      var fs_len = final_str.length;
+		      //ll('out: ' + fs_len + ', ' + cw);
+		      if( fs_len > 1 && (cw / 10.0) < fs_len ){
+			  var tmp_size = (cw / 10.0) / (fs_len * 1.0);
+			  text_scale = 
+			      Math.floor(text_scale * tmp_size);
+			  matrix[d.x][d.y].font_size = text_scale;
+		      }
+
+		      ll('fs: ' + final_str +
+			 ' (' + text_scale + ' over ' + cw + ')');
+	    	      return final_str;
+		  })
+	    .attr("class", "cell") // tag as cell with class for later ref
 	    .attr("x",
 	    	  function(d) {
 	    	      return x(d.x);
@@ -641,10 +669,14 @@ function stage_03 (data, max_count){
 	    // 	      return x(d.x);
 	    // 	  })
 	    .attr("dy", "1em")
-	    // .attr("text-anchor", "end")
-	    .text(function(d, i) {
-	    	  return '' + matrix[d.x][d.y].z + '';
-		  });
+	    .attr("font-size",
+	    	  function(d) {
+		      // WARNING: This works, but saving the value in
+		      // a higher scope did not--I can't imagine what
+		      // this all folds out to...
+	    	      return matrix[d.x][d.y].font_size;
+	    	  })
+	    .attr("text-anchor", "beginning"); // middle, end
 
 	// Add colored squares.
 	d3.select(this).selectAll(".cell")
@@ -654,15 +686,15 @@ function stage_03 (data, max_count){
 	    	  function(d) {
 	    	      return x(d.x);
 	    	  })
-	    .attr("width", x.rangeBand())
-	    .attr("height", x.rangeBand())
+	    .attr("width", cw)
+	    .attr("height", cw)
 	    .style("fill",
 		   function(d) {
 		       var mval = matrix[d.x][d.y].z;
 		       var retcolor = value_to_color(mval);
 		       return retcolor;
 		   })
-    	    .style("fill-opacity", "0.5")
+    	    .style("fill-opacity", "0.50")
 	    .on("mouseover", mouseover)
 	    .on("mouseout", mouseout);
 
