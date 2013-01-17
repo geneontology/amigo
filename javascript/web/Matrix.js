@@ -348,7 +348,7 @@ function stage_03 (data, max_count){
     // A value from our values domain in to a color in our range.
     // 0 always maps to a white-ish color.
     var c = d3.scale.linear().domain([0,max_count]).rangeRound([127,255]);
-    function value_to_color(val){
+    function value_to_color_dark(val){
 	//var retval = '#efefef';
 	var retval = '#fafafa';
 	if( val != 0 ){
@@ -362,7 +362,37 @@ function stage_03 (data, max_count){
 	}
 	return retval;
     }
+    function value_to_color_step(val){
+	//var retval = '#efefef';
+	var retval = '#fafafa';
+	if( val != 0 ){
+	    // 1-3 = pale green
+	    // 4-10 = yellow
+	    // 11-100 = orange
+	    // 101+ = red 
+	    if( val <= 3 ){
+		retval = '#79f853'; // green
+	    }else if( val <= 10 ){
+		//retval = '#f5ff2b'; // yellow
+		retval = '#e8f129'; // yellow
+	    }else if( val <= 100 ){
+		retval = '#fd953b'; // orange		
+	    }else{
+		retval = '#ff4e53';
+	    }
+	}
+	return retval;
+    }
     
+    // Decide our coloration live at this point.
+    var value_to_color = value_to_color_dark; // default
+    var curr_color_selection = jQuery("input:radio[name=color]:checked").val();
+    if( curr_color_selection == 'dark' ){
+	 value_to_color = value_to_color_dark;
+    }else if( curr_color_selection == 'step' ){
+	 value_to_color = value_to_color_step;
+    }
+
     var svg = d3.select("#matrix_results").append("svg")
 	.attr("width", width + margin.left + margin.right)
 	.attr("height", height + margin.top + margin.bottom)
