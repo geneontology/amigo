@@ -143,6 +143,15 @@ function stage_02(term_info, term_accs){
     // Get the data that we want.
     // A variation on BBOP JS's shared_annotation_count.js.
 
+    // Before we start, decide our taxon.
+    var taxon_filter = null; // default to no filter
+    var curr_taxon_selection = jQuery("input:radio[name=taxon]:checked").val();
+    if( curr_taxon_selection == 'pombe' ){
+        // "taxon":"NCBITaxon:4896",
+        // "taxon_label":"Schizosaccharomyces pombe",
+	 taxon_filter = "NCBITaxon:4896";
+    }
+
     // Next, setup the manager environment.
     ll('Setting up manager.');
     var server_meta = new amigo.data.server();
@@ -150,6 +159,7 @@ function stage_02(term_info, term_accs){
     var gconf = new bbop.golr.conf(amigo.data.golr);
     var go = new bbop.golr.manager.jquery(gloc, gconf);
     go.add_query_filter('document_category', 'annotation', ['*']);
+    if( taxon_filter ){	go.add_query_filter('taxon', taxon_filter, ['*']); }
     go.set_personality('bbop_ann');
     go.set('rows', 0); // we don't need any actual rows returned
     go.set_facet_limit(0); // we don't need any actual facets returned

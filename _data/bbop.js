@@ -1055,10 +1055,11 @@ bbop.core.dequote = function(str){
 /*
  * Function: ensure
  *
- * Remove the quotes from a string.
+ * Make sure that a substring exists at the beginning or end (or both)
+ * of a string.
  * 
  * Parameters:
- *  str - the string to ensure has the property
+ *  str - the string to ensure that has the property
  *  add - the string to check for (and possibly add)
  *  place - *[optional]* "front"|"back", place to ensure (defaults to both)
  *
@@ -1107,6 +1108,55 @@ bbop.core.ensure = function(str, add, place){
     // print('back_add: ' + back_add);
 
     return front_add + str + back_add;
+};
+
+/*
+ * Function: chomp
+ *
+ * Trim the leading and trailing whitespace from a string.
+ * Named differently so as not to confuse with JS 1.8.1's trim().
+ * 
+ * Parameters:
+ *  str - the string to ensure that has the property
+ *
+ * Returns:
+ *  the trimmed string
+ */
+bbop.core.chomp = function(str){
+
+    var retstr = '';
+
+    retstr = str.replace(/^\s+/,'');
+    retstr = retstr.replace(/\s+$/,'');
+
+    return retstr;
+};
+
+/*
+ * Function: splode
+ *
+ * Break apart a string on certain delimiter.
+ * 
+ * Parameters:
+ *  str - the string to ensure that has the property
+ *  delimiter - *[optional]* either a string or a simple regexp; defaults to ws
+ *
+ * Returns:
+ *  a list of separated substrings
+ */
+bbop.core.splode = function(str, delimiter){
+
+    var retlist = null;
+
+    if( bbop.core.is_defined(str) ){
+	if( ! bbop.core.is_defined(delimiter) ){
+	    delimiter = /\s+/;
+	}
+	
+	retlist = str.split(delimiter);
+    }
+
+    return retlist;
 };
 
 // // Giving up on this for now: the general case seems too hard to work with 
@@ -1302,7 +1352,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130117";
+bbop.version.release = "20130118";
 /*
  * Package: logger.js
  * 
