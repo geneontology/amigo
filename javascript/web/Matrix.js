@@ -158,10 +158,11 @@ function stage_02(term_info, term_accs){
     var gloc = server_meta.golr_base();
     var gconf = new bbop.golr.conf(amigo.data.golr);
     var go = new bbop.golr.manager.jquery(gloc, gconf);
-    go.add_query_filter('document_category', 'annotation', ['*']);
+    //go.add_query_filter('document_category', 'annotation', ['*']);
+    go.add_query_filter('document_category', 'bioentity', ['*']);
     if( taxon_filter ){	go.add_query_filter('taxon', taxon_filter, ['*']); }
     go.set_personality('bbop_ann');
-    go.set('rows', 0); // we don't need any actual rows returned
+    go.set('rows', 1); // we don't need any actual rows returned
     go.set_facet_limit(0); // we don't need any actual facets returned
     //go.debug(false);
 
