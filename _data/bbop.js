@@ -1352,7 +1352,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130119";
+bbop.version.release = "20130129";
 /*
  * Package: logger.js
  * 
@@ -1473,6 +1473,11 @@ bbop.logger = function(initial_context){
 		}
 		//jQuery('#' + 'bbop-logger-console-html').append(msg + "<br />");
 	    };
+    }else if( typeof(console) != 'undefined' &&
+	      typeof(console.log) == 'function' ){
+	// This may be okay for Chrome and a subset of various console
+	// loggers. This should now include FF's Web Console.
+	this._console_sayer = function(msg){ console.log(msg + "\n"); };
     }else if( typeof(opera) != 'undefined' &&
 	typeof(opera.postError) == 'function' ){
 	// If Opera is in there, probably Opera.
@@ -1497,11 +1502,6 @@ bbop.logger = function(initial_context){
 	// the wrapper function because safari has personality
 	// problems.
 	this._console_sayer = function(msg){ window.console.log(msg + "\n"); };
-    }else if( typeof(console) != 'undefined' &&
-	      typeof(console.log) == 'function' ){
-	// This may be okay for Chrome and a subset of various console
-	// loggers.
-	this._console_sayer = function(msg){ console.log(msg + "\n"); };
     }else if( typeof(build) == 'function' &&
 	      typeof(getpda) == 'function' &&
 	      typeof(pc2line) == 'function' &&
@@ -2598,7 +2598,7 @@ bbop.registry = function(evt_list){
      * with a higher priority...getting priority.
      * 
      * Parameters: 
-     *  category - string; ont of the pre-defined categories
+     *  category - string; one of the pre-defined categories
      *  function_id - string; a unique string to identify a function
      *  in_function - function
      *  in_priority - *[optional]* number
@@ -2625,6 +2625,38 @@ bbop.registry = function(evt_list){
 		runner: in_function,
 		priority: priority
 	    };
+    };
+
+    /*
+     * Function: is_registered
+     *
+     * Returns whether or not an id has already been registered to a
+     * category. Will return null if the category does not exist.
+     * 
+     * Parameters: 
+     *  category - string; one of the pre-defined categories
+     *  function_id - string; a unique string to identify a function
+     *
+     * Returns: 
+     *  true, false, or null
+     */
+    this.is_registered = function(category, function_id){
+
+	var retval = null;
+
+	var anc = registry_anchor.callback_registry;
+
+	//
+	if( typeof(anc[category]) != 'undefined'){
+	    
+	    retval = false;
+
+	    if( typeof(anc[category][function_id]) != 'undefined'){
+		retval = true;
+	    }
+	}
+
+	return retval;
     };
 
     /*
@@ -9641,7 +9673,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      */
     this.setup_query = function(label_str){
     
-	ll('Build query UI for: ' + ui_query_input_id);
+	ll('setup_query for: ' + ui_query_input_id);
 
 	// Tags and output to the page.
 	if( ! label_str ){ label_str = 'Search:&nbsp;'; }
@@ -9693,7 +9725,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      */
     this.setup_current_filters = function(){
     
-	ll('Build current filter UI for class configuration: ' +
+	ll('setup_current_filters UI for class configuration: ' +
 	   this.class_conf.id());
 
 	var current_filters_div =
@@ -9721,7 +9753,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      */
     this.setup_accordion = function(){
     
-	ll('Build accordion UI for class configuration: ' +
+	ll('setup_accordion UI for class configuration: ' +
 	   this.class_conf.id());
 
 	var filter_accordion_attrs = {
@@ -9771,7 +9803,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      */
     this.setup_results = function(args){
 
-	ll('Build results UI for class configuration: ' + this.class_conf.id());
+	ll('setup_results UI for class configuration: ' + this.class_conf.id());
 	
 	// Decide whether or not to add the meta div.
 	var add_meta_p = false;
@@ -9825,7 +9857,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      */
     this.draw_meta = function(json_data, manager){
 	
-	ll('Draw meta div...');
+	ll('draw_meta for: ' + ui_meta_div_id);
 	var golr_resp = new bbop.golr.response(json_data);
 
 	///
@@ -10060,6 +10092,11 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      * 
      * Due to the nature of this, it is only reset when called.
      * 
+     * NOTE: Since this is part of the "persistant" interface (i.e. it
+     * does not get wiped after every call), we make sure to clear the
+     * event listeners when we retry the function to prevent them fomr
+     * building up.
+     * 
      * Parameters:
      *  json_data - the raw returned JSON response from the server
      *  manager - <bbop.golr.manager> that we initially registered with
@@ -10069,7 +10106,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      */
     this.reset_query = function(json_data, manager){
 
-    	ll('Reset query for: ' + ui_query_input_id);
+    	ll('reset_query for: ' + ui_query_input_id);
 	//var golr_resp = new bbop.golr.response(json_data);
 
 	// Reset manager and ui.
@@ -10077,6 +10114,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 	manager.reset_query();
 
 	// Add a smartish listener.
+	jQuery('#' + ui_query_input_id).unbind('keyup');
 	jQuery('#' + ui_query_input_id).keyup(
 	    function(event){
 
@@ -10125,6 +10163,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 	    });
 
 	// Now reset the clear button and immediately set the event.
+	jQuery('#' + ui_clear_query_span_id).unbind('click');
 	jQuery('#' + ui_clear_query_span_id).click(
 	    function(){
 		jQuery('#' + ui_query_input_id).val('');
@@ -10138,6 +10177,11 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      *
      * Add events and redraw to the global reset button section.
      * 
+     * NOTE: Since this is part of the "persistant" interface (i.e. it
+     * does not get wiped after every call), we make sure to clear the
+     * event listeners when we retry the function to prevent them fomr
+     * building up.
+     * 
      * Parameters:
      *  n/a
      *
@@ -10146,9 +10190,10 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      */
     this.reset_global_reset_button = function(json_data, manager){
     
-    	ll('Reset global reset button');
+    	ll('reset_global_reset_button');
     	//jQuery('#' + ui_reset_span_id).empty();
     	// Immediately set the event.
+	jQuery('#' + ui_global_reset_span_id).unbind('click');
     	jQuery('#' + ui_global_reset_span_id).click(
     	    function(){
     		manager.reset();
@@ -10170,7 +10215,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      */
     this.draw_current_filters = function(json_data, manager){
     
-	ll('Draw current filters for: ' + ui_div_id);
+	ll('draw_current_filters for: ' + ui_div_id);
 	var golr_resp = new bbop.golr.response(json_data);
 
 	// Add in the actual HTML for the filters and buttons. While
@@ -10284,7 +10329,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      */
     this.draw_accordion = function(json_data, manager){
     
-	ll('Draw current accordion for: ' + ui_div_id);
+	ll('draw_accordion for: ' + ui_div_id);
 	var golr_resp = new bbop.golr.response(json_data);
 
 	// Make sure that accordion has already been inited.
@@ -10517,7 +10562,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 	
 	var linker = new amigo.linker();
 
-	ll('Draw results div...');
+	ll('draw_results for: ' + ui_results_table_div_id);
 	var golr_resp = new bbop.golr.response(json_data);
 
 	//ll('final_table a: ' + final_table._is_a);
@@ -10553,7 +10598,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      *  n/a
      */
     this.draw_error = function(error_message, manager){
-	ll("Runtime error: " + error_message);
+	ll("draw_error: " + error_message);
 	alert("Runtime error: " + error_message);
     };
 
@@ -11326,7 +11371,7 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	}
     	if( show_global_reset_p ){ // conditionally show global reset button
     	    anchor.register('reset', 'global_reset_button',
-    	    		    ui.reset_global_reset_button,-1);
+    	    		    ui.reset_global_reset_button, -1);
     	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.register('reset', 'curr_first',
