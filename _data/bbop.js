@@ -1352,7 +1352,483 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130129";
+bbop.version.release = "20130130";
+/* 
+ * Package: json.js
+ * 
+ * Namespace: bbop.json
+ * 
+ * JSON stringifying and parsing capabilities.  This package is a
+ * small modification of json2.js (in the Public Domain from
+ * https://raw.github.com/douglascrockford/JSON-js/master/json2.js and
+ * http://json.org) to fit in a little more with the style of BBOP
+ * JS. As well, the Date prototypes were removed. See json2.js in the
+ * source directory for this package for the original.
+ * 
+ * As much of the original documentation and structure was kept as
+ * possible while converting to Naturaldocs and the bbop namespace.
+ * 
+ * Purpose: Ensure that JSON parsing capabilites exist on all
+ * platforms that BBOP JS runs on.
+ */
+
+/*
+ * Function: stringify
+ * 
+ * This method produces a JSON text from a JavaScript value.
+ * 
+ * When an object value is found, if the object contains a toJSON
+ * method, its toJSON method will be called and the result will be
+ * stringified. A toJSON method does not serialize: it returns the
+ * value represented by the name/value pair that should be serialized,
+ * or undefined if nothing should be serialized. The toJSON method
+ * will be passed the key associated with the value, and this will be
+ * bound to the value.
+
+ * For example, this would serialize Dates as ISO strings.
+ * 
+ * : Date.prototype.toJSON = function (key) {
+ * :         function f(n) {
+ * :               // Format integers to have at least two digits.
+ * :                    return n < 10 ? '0' + n : n;
+ * :                }
+ * :
+ * :                return this.getUTCFullYear()   + '-' +
+ * :                  f(this.getUTCMonth() + 1) + '-' +
+ * :                     f(this.getUTCDate())      + 'T' +
+ * :                     f(this.getUTCHours())     + ':' +
+ * :                     f(this.getUTCMinutes())   + ':' +
+ * :                     f(this.getUTCSeconds())   + 'Z';
+ * :            };
+ * 
+ * You can provide an optional replacer method. It will be passed the
+ * key and value of each member, with this bound to the containing
+ * object. The value that is returned from your method will be
+ * serialized. If your method returns undefined, then the member will
+ * be excluded from the serialization.
+ * 
+ * If the replacer parameter is an array of strings, then it will be
+ * used to select the members to be serialized. It filters the results
+ * such that only members with keys listed in the replacer array are
+ * stringified.
+ * 
+ * Values that do not have JSON representations, such as undefined or
+ * functions, will not be serialized. Such values in objects will be
+ * dropped; in arrays they will be replaced with null. You can use
+ * a replacer function to replace those with JSON values.
+ * JSON.stringify(undefined) returns undefined.
+ * 
+ * The optional space parameter produces a stringification of the
+ * value that is filled with line breaks and indentation to make it
+ * easier to read.
+ * 
+ * If the space parameter is a non-empty string, then that string will
+ * be used for indentation. If the space parameter is a number, then
+ * the indentation will be that many spaces. For example:
+ * 
+ * : text = JSON.stringify(['e', {pluribus: 'unum'}]);
+ * : // text is '["e",{"pluribus":"unum"}]'
+ * : 
+ * : text = JSON.stringify(['e', {pluribus: 'unum'}], null, '\t');
+ * : // text is '[\n\t"e",\n\t{\n\t\t"pluribus": "unum"\n\t}\n]'
+ * :
+ * : text = JSON.stringify([new Date()], function (key, value) {
+ * :          return this[key] instanceof Date ?
+ * :                 'Date(' + this[key] + ')' : value;
+ * :  });
+ * :  // text is '["Date(---current time---)"]'
+ *
+ * Parameters:
+ *  value - any JavaScript value, usually an object or array.
+ *  replacer - an optional parameter that determines how object values are stringified for objects. It can be a function or an array of strings.
+ *  space - an optional parameter that specifies the indentation of nested structures. If it is omitted, the text will be packed without extra whitespace. If it is a number, it will specify the number of spaces to indent at each level. If it is a string (such as '\t' or '&nbsp;'), it contains the characters used to indent at each level.
+ * 
+ * Returns: string
+ */
+
+/*
+ * Function: parse
+ * (text, reviver)
+ * 
+ * This method parses a JSON text to produce an object or array.
+ * It can throw a SyntaxError exception.
+ * 
+ * The optional reviver parameter is a function that can filter and
+ * transform the results. It receives each of the keys and values,
+ * and its return value is used instead of the original value.
+ * If it returns what it received, then the structure is not modified.
+ * If it returns undefined then the member is deleted. For example:
+ * 
+ * : // Parse the text. Values that look like ISO date strings will
+ * : // be converted to Date objects.
+ * :
+ * : myData = JSON.parse(text, function (key, value) {
+ * :     var a;
+ * :     if (typeof value === 'string') {
+ * :         a =
+/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
+ * :         if (a) {
+ * :             return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
+ * :                 +a[5], +a[6]));
+ * :         }
+ * :     }
+ * :     return value;
+ * : });
+ * :
+ * : myData = JSON.parse('["Date(09/09/2001)"]', function (key, value) {
+ * :     var d;
+ * :     if (typeof value === 'string' &&
+ * :             value.slice(0, 5) === 'Date(' &&
+ * :             value.slice(-1) === ')') {
+ * :         d = new Date(value.slice(5, -1));
+ * :                   if (d) {
+ * :             return d;
+ * :         }
+ * :     }
+ * :     return value;
+ * : });
+ * 
+ * Parameters:
+ *  text - the string to parse to a JavaScript entity.
+ *  reviver - *[optional]* optional transforming function for modifying results; see the documentation above for more details.
+ * 
+ * Returns: well, pretty much anything you put in...
+ */
+
+/*jslint evil: true, regexp: true */
+
+/*members "", "\b", "\t", "\n", "\f", "\r", "\"", JSON, "\\", apply,
+    call, charCodeAt, getUTCDate, getUTCFullYear, getUTCHours,
+    getUTCMinutes, getUTCMonth, getUTCSeconds, hasOwnProperty, join,
+    lastIndex, length, parse, prototype, push, replace, slice, stringify,
+    test, toJSON, toString, valueOf
+*/
+
+
+bbop.core.require('bbop', 'core');
+bbop.core.namespace('bbop', 'json');
+
+(function () {
+    'use strict';
+
+    // function f(n) {
+    //     // Format integers to have at least two digits.
+    //     return n < 10 ? '0' + n : n;
+    // }
+
+    // if (typeof Date.prototype.toJSON !== 'function') {
+
+    //     Date.prototype.toJSON = function (key) {
+
+    //         return isFinite(this.valueOf())
+    //             ? this.getUTCFullYear()     + '-' +
+    //                 f(this.getUTCMonth() + 1) + '-' +
+    //                 f(this.getUTCDate())      + 'T' +
+    //                 f(this.getUTCHours())     + ':' +
+    //                 f(this.getUTCMinutes())   + ':' +
+    //                 f(this.getUTCSeconds())   + 'Z'
+    //             : null;
+    //     };
+
+    //     String.prototype.toJSON      =
+    //         Number.prototype.toJSON  =
+    //         Boolean.prototype.toJSON = function (key) {
+    //             return this.valueOf();
+    //         };
+    // }
+
+    var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+        escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+        gap,
+        indent,
+        meta = {    // table of character substitutions
+            '\b': '\\b',
+            '\t': '\\t',
+            '\n': '\\n',
+            '\f': '\\f',
+            '\r': '\\r',
+            '"' : '\\"',
+            '\\': '\\\\'
+        },
+        rep;
+
+
+    function quote(string) {
+
+// If the string contains no control characters, no quote characters, and no
+// backslash characters, then we can safely slap some quotes around it.
+// Otherwise we must also replace the offending characters with safe escape
+// sequences.
+
+        escapable.lastIndex = 0;
+        return escapable.test(string) ? '"' + string.replace(escapable, function (a) {
+            var c = meta[a];
+            return typeof c === 'string'
+                ? c
+                : '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+        }) + '"' : '"' + string + '"';
+    }
+
+
+    function str(key, holder) {
+
+// Produce a string from holder[key].
+
+        var i,          // The loop counter.
+            k,          // The member key.
+            v,          // The member value.
+            length,
+            mind = gap,
+            partial,
+            value = holder[key];
+
+// If the value has a toJSON method, call it to obtain a replacement value.
+
+        if (value && typeof value === 'object' &&
+                typeof value.toJSON === 'function') {
+            value = value.toJSON(key);
+        }
+
+// If we were called with a replacer function, then call the replacer to
+// obtain a replacement value.
+
+        if (typeof rep === 'function') {
+            value = rep.call(holder, key, value);
+        }
+
+// What happens next depends on the value's type.
+
+        switch (typeof value) {
+        case 'string':
+            return quote(value);
+
+        case 'number':
+
+// JSON numbers must be finite. Encode non-finite numbers as null.
+
+            return isFinite(value) ? String(value) : 'null';
+
+        case 'boolean':
+        case 'null':
+
+// If the value is a boolean or null, convert it to a string. Note:
+// typeof null does not produce 'null'. The case is included here in
+// the remote chance that this gets fixed someday.
+
+            return String(value);
+
+// If the type is 'object', we might be dealing with an object or an array or
+// null.
+
+        case 'object':
+
+// Due to a specification blunder in ECMAScript, typeof null is 'object',
+// so watch out for that case.
+
+            if (!value) {
+                return 'null';
+            }
+
+// Make an array to hold the partial results of stringifying this object value.
+
+            gap += indent;
+            partial = [];
+
+// Is the value an array?
+
+            if (Object.prototype.toString.apply(value) === '[object Array]') {
+
+// The value is an array. Stringify every element. Use null as a placeholder
+// for non-JSON values.
+
+                length = value.length;
+                for (i = 0; i < length; i += 1) {
+                    partial[i] = str(i, value) || 'null';
+                }
+
+// Join all of the elements together, separated with commas, and wrap them in
+// brackets.
+
+                v = partial.length === 0
+                    ? '[]'
+                    : gap
+                    ? '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']'
+                    : '[' + partial.join(',') + ']';
+                gap = mind;
+                return v;
+            }
+
+// If the replacer is an array, use it to select the members to be stringified.
+
+            if (rep && typeof rep === 'object') {
+                length = rep.length;
+                for (i = 0; i < length; i += 1) {
+                    if (typeof rep[i] === 'string') {
+                        k = rep[i];
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
+                        }
+                    }
+                }
+            } else {
+
+// Otherwise, iterate through all of the keys in the object.
+
+                for (k in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
+                        }
+                    }
+                }
+            }
+
+// Join all of the member texts together, separated with commas,
+// and wrap them in braces.
+
+            v = partial.length === 0
+                ? '{}'
+                : gap
+                ? '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}'
+                : '{' + partial.join(',') + '}';
+            gap = mind;
+            return v;
+        }
+    }
+
+// If the JSON object does not yet have a stringify method, give it one.
+
+    if (typeof bbop.json.stringify !== 'function') {
+        bbop.json.stringify = function (value, replacer, space) {
+
+// The stringify method takes a value and an optional replacer, and an optional
+// space parameter, and returns a JSON text. The replacer can be a function
+// that can replace values, or an array of strings that will select the keys.
+// A default replacer method can be provided. Use of the space parameter can
+// produce text that is more easily readable.
+
+            var i;
+            gap = '';
+            indent = '';
+
+// If the space parameter is a number, make an indent string containing that
+// many spaces.
+
+            if (typeof space === 'number') {
+                for (i = 0; i < space; i += 1) {
+                    indent += ' ';
+                }
+
+// If the space parameter is a string, it will be used as the indent string.
+
+            } else if (typeof space === 'string') {
+                indent = space;
+            }
+
+// If there is a replacer, it must be a function or an array.
+// Otherwise, throw an error.
+
+            rep = replacer;
+            if (replacer && typeof replacer !== 'function' &&
+                    (typeof replacer !== 'object' ||
+                    typeof replacer.length !== 'number')) {
+                throw new Error('bbop.json.stringify');
+            }
+
+// Make a fake root object containing our value under the key of ''.
+// Return the result of stringifying the value.
+
+            return str('', {'': value});
+        };
+    }
+
+
+// If the JSON object does not yet have a parse method, give it one.
+
+    if (typeof bbop.json.parse !== 'function') {
+        bbop.json.parse = function (text, reviver) {
+
+// The parse method takes a text and an optional reviver function, and returns
+// a JavaScript value if the text is a valid JSON text.
+
+            var j;
+
+            function walk(holder, key) {
+
+// The walk method is used to recursively walk the resulting structure so
+// that modifications can be made.
+
+                var k, v, value = holder[key];
+                if (value && typeof value === 'object') {
+                    for (k in value) {
+                        if (Object.prototype.hasOwnProperty.call(value, k)) {
+                            v = walk(value, k);
+                            if (v !== undefined) {
+                                value[k] = v;
+                            } else {
+                                delete value[k];
+                            }
+                        }
+                    }
+                }
+                return reviver.call(holder, key, value);
+            }
+
+
+// Parsing happens in four stages. In the first stage, we replace certain
+// Unicode characters with escape sequences. JavaScript handles many characters
+// incorrectly, either silently deleting them, or treating them as line endings.
+
+            text = String(text);
+            cx.lastIndex = 0;
+            if (cx.test(text)) {
+                text = text.replace(cx, function (a) {
+                    return '\\u' +
+                        ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+                });
+            }
+
+// In the second stage, we run the text against regular expressions that look
+// for non-JSON patterns. We are especially concerned with '()' and 'new'
+// because they can cause invocation, and '=' because it can cause mutation.
+// But just to be safe, we want to reject all unexpected forms.
+
+// We split the second stage into 4 regexp operations in order to work around
+// crippling inefficiencies in IE's and Safari's regexp engines. First we
+// replace the JSON backslash pairs with '@' (a non-JSON character). Second, we
+// replace all simple value tokens with ']' characters. Third, we delete all
+// open brackets that follow a colon or comma or that begin the text. Finally,
+// we look to see that the remaining characters are only whitespace or ']' or
+// ',' or ':' or '{' or '}'. If that is so, then the text is safe for eval.
+
+            if (/^[\],:{}\s]*$/
+                    .test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@')
+                        .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']')
+                        .replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+
+// In the third stage we use the eval function to compile the text into a
+// JavaScript structure. The '{' operator is subject to a syntactic ambiguity
+// in JavaScript: it can begin a block or an object literal. We wrap the text
+// in parens to eliminate the ambiguity.
+
+                j = eval('(' + text + ')');
+
+// In the optional fourth stage, we recursively walk the new structure, passing
+// each name/value pair to a reviver function for possible transformation.
+
+                return typeof reviver === 'function'
+                    ? walk({'': j}, '')
+                    : j;
+            }
+
+// If the text is not JSON parseable, then a SyntaxError is thrown.
+
+            throw new SyntaxError('bbop.json.parse');
+        };
+    }
+}());
 /*
  * Package: logger.js
  * 
@@ -5459,7 +5935,7 @@ bbop.golr.conf_class = function (class_conf_struct){
      * Returns a search field by id string. Null otherwise.
      * 
      * Returns:
-     *  <bbop.conf_field>
+     *  <bbop.golr.conf_field>
      */
     this.get_field = function(fid){
 	var retval = null;
@@ -5621,7 +6097,7 @@ bbop.golr.conf = function (golr_conf_var){
      *  fid - TODO
      * 
      * Returns:
-     *  bbop.conf_class.
+     *  bbop.golr.conf_class.
      */
     this.get_class = function(fid){
 	var retval = null;
@@ -5689,8 +6165,18 @@ bbop.golr.response = function(json_data){
     this._success = null;
 
     // Cache for repeated calls to get_doc* functions.
+    // These are non-incremental indices--they are either full formed
+    // (the first time they are hit) or they are null.
     this._doc_id2index = null;
     this._doc_index2_id = null;
+
+    // Cache for repeated calls to resolve labels.
+    // This cache is incremental--the more it's used the larger it gets.
+    this._doc_label_maps = {}; // {<field_1>: <parsed_json_map_1>, ...}
+
+    // For highlight stripping, I just want to compile this once.
+    this._hl_regexp = new RegExp("\<\[\^\>\]\*\>", "g");
+
 };
 
 /*
@@ -5978,7 +6464,7 @@ bbop.golr.response.prototype.documents = function(){
 /*
  * Function: get_doc
  * 
- * Returns a specified document.
+ * Returns a specified document, in its raw hash form.
  * 
  * Arguments:
  *  doc_id - document identifier either an id (first) or place in the array
@@ -6033,6 +6519,10 @@ bbop.golr.response.prototype.get_doc = function(doc_id){
  * 
  * Returns the value(s) of the requested fields.
  * 
+ * Remember that determining whether the returned value is a string or
+ * a list is left as an exercise for the reader when using this
+ * function.
+ * 
  * Arguments:
  *  doc_id - document identifier either an id (first) or place in the array
  *  field_id - the identifier of the field we're trying to pull
@@ -6056,29 +6546,140 @@ bbop.golr.response.prototype.get_doc_field = function(doc_id, field_id){
 };
 
 /*
- * Function: get_doc_field_hl
+ * Function: get_doc_label
+ * 
+ * Tries to return a label for a document, field, and id combination.
+ * 
+ * WARNING: This function could be potentially slow on large datasets.
+ * 
+ * Arguments:
+ *  doc_id - document identifier either an id (first) or place in the array
+ *  field_id - the identifier of the field we're trying to pull
+ *  item_id - *[optional]* the item identifier that we're trying to resolve; if the field in question is a string or a single-valued list (as opposed to a multi-values list), this argument is not necessary, but it wouldn't hurt either
+ * 
+ * Returns:
+ *  null (not found) or string
+ */
+bbop.golr.response.prototype.get_doc_label = function(doc_id,field_id,item_id){
+
+    var retval = null;
+
+    var anchor = this;
+
+    // If we found our doc, and confirmed that the field in question
+    // exists in the doc, go ahead and start digging to resolve the id.
+    var doc = this.get_doc(doc_id);
+    if( doc && bbop.core.is_defined(doc[field_id]) ){
+	
+	// First try the '_label' extension.
+	var ilabel = this.get_doc_field(doc_id, field_id + '_label');
+
+	if( ilabel && bbop.core.what_is(ilabel) == 'string' ){
+	    // It looks like the simple solution.
+	    //print('trivial hit');
+	    retval = ilabel; // Hit!
+	}else if( ilabel && bbop.core.what_is(ilabel) == 'array' ){
+	    
+	    // Well, it's multi-valued, but id might just be the one.
+	    var iid = this.get_doc_field(doc_id, field_id);
+	    if( ilabel.length == 1 && iid &&
+		bbop.core.what_is(iid) == 'array' &&
+		iid.length == 1 ){
+		    // Case of a single id trivially mapping to a
+		    // single label.
+		    //print('forced hit');
+		    retval = ilabel[0]; // Hit!
+	    }else{
+
+		//print('need to probe');
+
+		// Since we'll do this twice with different map
+		// fields, a generic function to try and probe a JSON
+		// string map (caching it along the way) for a label.
+		function _map_to_try(doc_key, map_field, item_key){
+
+		    var retlbl = null;
+
+		    var map_str = anchor.get_doc_field(doc_key, map_field);
+
+		    if( map_str && bbop.core.what_is(map_str) == 'string' ){
+
+			// First, check the cache. If it's not there
+			// add it.
+			if( ! bbop.core.is_defined(anchor._doc_label_maps[doc_key]) ){
+			    anchor._doc_label_maps[doc_key] = {};
+			}
+			if( ! bbop.core.is_defined(anchor._doc_label_maps[doc_key][map_field]) ){
+			    // It looks like a map wasn't defined, so let's
+			    // convert it into JSON now.
+			    anchor._doc_label_maps[doc_key][map_field] =
+				bbop.json.parse(map_str);
+			}
+
+			// Pull our map out of the cache.
+			var map = anchor._doc_label_maps[doc_key][map_field];
+
+			// Probe to see if we have anything in the map.
+			if( map && map[item_key] ){
+			    retlbl = map[item_key];
+			}
+		    }
+
+		    return retlbl;
+		}
+
+		// Well, now we know that either we have to find a map
+		// or the information isn't there. First try the
+		// standard "_map".
+		var mlabel = _map_to_try(doc_id, field_id + '_map', item_id);
+		if( mlabel ){
+		    //print('map hit');
+		    retval = mlabel; // Hit!
+		}else{
+		    // If that didn't work, try again with
+		    // "_closure_map".
+		    var cmlabel =
+			_map_to_try(doc_id, field_id + '_closure_map', item_id);
+		    if( cmlabel ){
+			//print('closure map hit');
+			retval = cmlabel; // Hit!
+		    }
+		}
+	    }
+	}
+    }
+
+    return retval;
+};
+
+/*
+ * Function: get_doc_highlight
  * 
  * Returns the highlighted value(s) of the requested fields.
  * 
- * WARNING: This function is a work in progress and may not return
- * multi-valued fields properly. If you find an issues, please let the
- * developers know. This is currently returning 
+ * WARNING: This function is a work in progress and will not return
+ * multi-valued fields, just the first match it finds.
+ * 
+ * WARNING: This function could be potentially slow on large datasets.
  * 
  * Arguments:
  *  doc_id - document id
  *  field_id - the identifier of the field we're trying to pull
+ *  item - the item that we're looking for the highlighted HTML for
  * 
  * Returns:
- *  string or list of highlight, or null if nothing was found
+ *  string of highlight or null if nothing was found
  */
-bbop.golr.response.prototype.get_doc_field_hl = function(doc_id, field_id){
+bbop.golr.response.prototype.get_doc_highlight = function(doc_id,field_id,item){
 
     var ret = null;
     var robj = this._raw;
+    var hlre = this._hl_regexp;
 
-    // See if we can find a highlighted version. First, see if the
-    // document is in the hilight section; otherwise try and pull the
-    // id out first, then head for the highlight section.
+    // See if we can find a highlighted version in the raw
+    // response. First, see if the document is in the hilight section;
+    // otherwise try and pull the id out first, then head for the
+    // highlight section.
     var hilite_obj = null;
     if( robj.highlighting && robj.highlighting[doc_id] ){
 	hilite_obj = robj.highlighting[doc_id];
@@ -6093,12 +6694,55 @@ bbop.golr.response.prototype.get_doc_field_hl = function(doc_id, field_id){
 	}
     }
 
-    // Now see if the highlighted field is there.
-    if( hilite_obj && hilite_obj[field_id] ){
+    // If we got a highlight object, see if the highlighted field is
+    // there--search the different possibilities for what a highlight
+    // field may br called.
+    if( hilite_obj ){
 	
-	// BUG/TODO: Detect whether we want a list or
-	// single-valued return.
-	ret = hilite_obj[field_id][0];
+	//print('here (field_id): ' + field_id);
+
+	var ans = null;
+
+	if( hilite_obj[field_id + '_label_searchable'] ){
+	    ans = hilite_obj[field_id + '_label_searchable'];
+	}
+
+	if( ! ans ){
+	    if( hilite_obj[field_id + '_label'] ){
+		ans = hilite_obj[field_id + '_label'];
+	    }	    
+	}
+
+	if( ! ans ){
+	    if( hilite_obj[field_id + '_searchable'] ){
+		ans = hilite_obj[field_id + '_searchable'];
+	    }
+	}
+
+	if( ! ans ){
+	    if( hilite_obj[field_id] ){
+		//print('here (field_id): ' + field_id);
+		ans = hilite_obj[field_id];
+	    }
+	}
+
+	if( ans ){ // looks like I found a list of something
+
+	    // Use only the first match.
+	    var matches_p = false;
+	    bbop.core.each(ans,
+			   function(an){
+			       if( ! matches_p ){
+				   var stripped = an.replace(hlre, '');
+				   //print('stripped: ' + stripped);
+				   //print('item: ' + item);
+				   if( item == stripped ){
+				       matches_p = true;
+				       ret = an;
+				   }
+			       }
+			   });
+	}
     }
 
     return ret;
@@ -9117,10 +9761,10 @@ bbop.widget.display.results_table_by_class = function(cclass,
     //bbop.html.tag.call(this, 'div');
     //var amigo = new bbop.amigo();
 
-    // // Temp logger.
-    // var logger = new bbop.logger();
-    // logger.DEBUG = true;
-    // function ll(str){ logger.kvetch('TT: ' + str); }
+    // Temp logger.
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch('TT: ' + str); }
 
     var each = bbop.core.each; // conveience
 
@@ -9185,22 +9829,21 @@ bbop.widget.display.results_table_by_class = function(cclass,
 	var retval = '';
 	var did = doc['id'];
 
+	// BUG/TODO: First see if the filed will be multi or not.
+	// If not multi, follow the first path. If multi, break it
+	// down and try again.
+
 	// Get a label instead if we can.
-	var ilabel = golr_resp.get_doc_field(did, fid + '_label');
+	var ilabel = golr_resp.get_doc_label(did, fid, iid);
 	if( ! ilabel ){
-	    ilabel = golr_resp.get_doc_field(did, fid);
+	    ilabel = iid;
 	}
 
-	// Extract highlighting if we can.
-	var hl = golr_resp.get_doc_field_hl(did, fid + '_label' + ext);
-	if( ! hl ){
-	    hl = golr_resp.get_doc_field_hl(did, fid + ext);
-	}
-	if( ! hl ){
-	    hl = golr_resp.get_doc_field_hl(did, fid);
-	}
+	// Extract highlighting if we can from whatever our "label"
+	// was.
+	var hl = golr_resp.get_doc_highlight(did, fid, ilabel);
 
-	// See what we can create from what we got.
+	// See what kind of link we can create from what we got.
 	var ilink = linker.anchor({id: iid, label: ilabel, hilite: hl}, fid);
 	
 	// See what we got, in order of how much we'd like to have it.
@@ -9245,8 +9888,10 @@ bbop.widget.display.results_table_by_class = function(cclass,
 			  var bits = [];
 			  if( doc[fid] ){
 			      if( field.is_multi() ){
+				  //ll("Is multi: " + fid);
 				  bits = doc[fid];
 			      }else{
+				  //ll("Is single: " + fid);
 				  bits = [doc[fid]];
 			      }
 			  }
