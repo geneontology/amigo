@@ -1352,7 +1352,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130130";
+bbop.version.release = "20130131";
 /* 
  * Package: json.js
  * 
@@ -6955,8 +6955,8 @@ bbop.golr.response.prototype.query_filters = function(){
  *  search - functions for receiving standard search results
  *  error - functions to call when something goes very wrong
  * 
- * Both json_data (or clean error data) and the manager itself (this
- * as anchor) should be passed to the callbacks.
+ * Both <bbop.golr.response> (or clean error data) and the manager
+ * itself (this as anchor) should be passed to the callbacks.
  * 
  * TODO/BUG: <set_query> and <set_default_query> should both take
  * strings or <bbop.logic> as arguments. Those, as well as <get_query>
@@ -6967,6 +6967,7 @@ bbop.golr.response.prototype.query_filters = function(){
 bbop.core.require('bbop', 'core');
 bbop.core.require('bbop', 'registry');
 bbop.core.require('bbop', 'golr', 'conf');
+bbop.core.require('bbop', 'golr', 'response');
 bbop.core.namespace('bbop', 'golr', 'manager');
 
 /*
@@ -7617,20 +7618,23 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
     // then it does all of the callbacks.
     this._run_reset_callbacks = function(json_data){
 	ll('run reset callbacks...');
-	anchor.apply_callbacks('reset', [json_data, anchor]);
+	var response = new bbop.golr.response(json_data);
+	anchor.apply_callbacks('reset', [response, anchor]);
     };
 
     // The main callback function called after a successful AJAX call in
     // the update function.
     this._run_search_callbacks = function(json_data){
 	ll('run search callbacks...');
-	anchor.apply_callbacks('search', [json_data, anchor]);
+	var response = new bbop.golr.response(json_data);
+	anchor.apply_callbacks('search', [response, anchor]);
     };
 
     // This set is called when we run into a problem.
     this._run_error_callbacks = function(json_data){
 	ll('run error callbacks...');
-	anchor.apply_callbacks('error', [json_data, anchor]);
+	var response = new bbop.golr.response(json_data);
+	anchor.apply_callbacks('error', [response, anchor]);
     };
 
     /*
@@ -9116,11 +9120,12 @@ bbop.golr.manager.preload.prototype.update = function(callback_type,
 
     // Grab the data from the server and pick the right callback group
     // accordingly.
-    var data = this._bgm_load;
-    if( bbop.core.is_defined(data) ){
-	this.apply_callbacks(callback_type, [data, this]);
+    var json_data = this._bgm_load;    
+    if( bbop.core.is_defined(json_data) ){
+	var response = new bbop.golr.response(json_data);
+	this.apply_callbacks(callback_type, [response, this]);
     }else{
-	this.apply_callbacks('error', ['unparsable data', this]);
+	this.apply_callbacks('error', ['unparsable json data', this]);
     }
 
     return qurl;
@@ -9226,7 +9231,8 @@ bbop.golr.manager.nodejs.prototype.update = function(callback_type,
 	res.on('end', function () {
 		   var json_data = JSON.parse(raw_data);
 		   anchor.last = json_data;
-		   anchor.apply_callbacks(callback_type, [json_data, anchor]);
+		   var response = new bbop.golr.response(json_data);
+		   anchor.apply_callbacks(callback_type, [response, anchor]);
 	       });
     }
     var http = require('http');
@@ -9318,7 +9324,8 @@ bbop.golr.manager.rhino.prototype.update = function(callback_type,
     if( raw && raw != '' ){
 	json_data = JSON.parse(raw);
 	if( json_data ){
-	    this.apply_callbacks(callback_type, [json_data, this]);
+	    var response = new bbop.golr.response(json_data);
+	    this.apply_callbacks(callback_type, [response, this]);
 	}else{
 	    this.apply_callbacks('error', ['unparsable data', this]);
 	}
@@ -9339,7 +9346,7 @@ bbop.golr.manager.rhino.prototype.update = function(callback_type,
  *  n/a 
  *
  * Returns:
- *  the JSON response as an object or null
+ *  <bbop.golr.response> or null
  * 
  * Also see:
  *  <update>
@@ -9356,7 +9363,8 @@ bbop.golr.manager.rhino.prototype.fetch = function(){
     if( raw && raw != '' ){
 	json_data = JSON.parse(raw);
 	if( json_data ){
-	    retval = json_data;
+	    var response = new bbop.golr.response(json_data);
+	    retval = response;
 	}
     }
 
@@ -9479,13 +9487,13 @@ bbop.golr.manager.jquery = function (golr_loc, golr_conf_obj){
     this._callback_type_decider = function(json_data){
     	ll('in callback type decider...');
 
-	var resp = new bbop.golr.response(json_data);
+	var response = new bbop.golr.response(json_data);
 
     	// 
-    	if( ! resp.success() ){
+    	if( ! response.success() ){
     	    throw new Error("Unsuccessful response from golr server!");
     	}else{
-    	    var cb_type = resp.callback_type();
+    	    var cb_type = response.callback_type();
     	    ll('okay response from server, will probe type...: ' + cb_type);
     	    if( cb_type == 'reset' ){
     		anchor._run_reset_callbacks(json_data);
@@ -9602,7 +9610,8 @@ bbop.golr.manager.jquery.prototype.run_batch = function(accumulator_func,
 	// Generate a custom callback function that will start
 	// this process (next_generator) again--continue the cycle.
 	var next_cycle = function(json_data){
-	    anchor._batch_accumulator_func.apply(anchor, [json_data, anchor]);
+	    var response = new bbop.golr.response(json_data);
+	    anchor._batch_accumulator_func.apply(anchor, [response, anchor]);
 	    anchor.run_batch();
 	};
 	
@@ -10494,25 +10503,24 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      * TODO: paging, etc.
      * 
      * Parameters:
-     *  json_data - the raw returned JSON response from the server
+     *  response - the <bbop.golr.response> returned from the server
      *  manager - <bbop.golr.manager> that we initially registered with
      *
      * Returns:
      *  n/a
      */
-    this.draw_meta = function(json_data, manager){
+    this.draw_meta = function(response, manager){
 	
 	ll('draw_meta for: ' + ui_meta_div_id);
-	var golr_resp = new bbop.golr.response(json_data);
 
 	///
 	/// Section 1: the numbers display.
 	///
 
 	// Collect numbers for display.
-	var total_c = golr_resp.total_documents();
-	var first_d = golr_resp.start_document();
-	var last_d = golr_resp.end_document();
+	var total_c = response.total_documents();
+	var first_d = response.start_document();
+	var last_d = response.end_document();
 
 	// Draw meta; the current numbers and page--the same for
 	// every type of return.
@@ -10551,7 +10559,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 	    var b_last_disabled_p = false;
 	    
 	    // Only activate paging if it is necessary to the returns.
-	    if( ! golr_resp.paging_p() ){
+	    if( ! response.paging_p() ){
 		b_first_disabled_p = true;
 		b_back_disabled_p = true;
 		b_forward_disabled_p = true;
@@ -10559,13 +10567,13 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 	    }
 	    
 	    // Don't activate back on the first page.
-	    if( ! golr_resp.paging_previous_p() ){
+	    if( ! response.paging_previous_p() ){
 		b_first_disabled_p = true;
 		b_back_disabled_p = true;
 	    }
 	    
 	    // Don't activate next on the last page.
-	    if( ! golr_resp.paging_next_p() ){
+	    if( ! response.paging_next_p() ){
 		b_forward_disabled_p = true;
 		b_last_disabled_p = true;
 	    }
@@ -10743,16 +10751,15 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      * building up.
      * 
      * Parameters:
-     *  json_data - the raw returned JSON response from the server
+     *  response - the <bbop.golr.response> returned from the server
      *  manager - <bbop.golr.manager> that we initially registered with
      *
      * Returns:
      *  n/a
      */
-    this.reset_query = function(json_data, manager){
+    this.reset_query = function(response, manager){
 
     	ll('reset_query for: ' + ui_query_input_id);
-	//var golr_resp = new bbop.golr.response(json_data);
 
 	// Reset manager and ui.
 	jQuery('#' + ui_query_input_id).val('');
@@ -10828,12 +10835,13 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      * building up.
      * 
      * Parameters:
-     *  n/a
-     *
+     *  response - the <bbop.golr.response> returned from the server
+     *  manager - <bbop.golr.manager> that we initially registered with
+     * 
      * Returns:
      *  n/a
      */
-    this.reset_global_reset_button = function(json_data, manager){
+    this.reset_global_reset_button = function(response, manager){
     
     	ll('reset_global_reset_button');
     	//jQuery('#' + ui_reset_span_id).empty();
@@ -10852,21 +10860,20 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      * This function makes them active as well.
      * 
      * Parameters:
-     *  json_data - the raw returned JSON response from the server
+     *  response - the <bbop.golr.response> returned from the server
      *  manager - <bbop.golr.manager> that we initially registered with
      *
      * Returns:
      *  n/a
      */
-    this.draw_current_filters = function(json_data, manager){
+    this.draw_current_filters = function(response, manager){
     
 	ll('draw_current_filters for: ' + ui_div_id);
-	var golr_resp = new bbop.golr.response(json_data);
 
 	// Add in the actual HTML for the filters and buttons. While
 	// doing so, tie a unique id to the filter--we'll use that
 	// later on to add buttons and events to them.
-	var in_query_filters = golr_resp.query_filters();
+	var in_query_filters = response.query_filters();
 	var sticky_query_filters = manager.get_sticky_query_filters();
 	ll('filters: ' + bbop.core.dump(in_query_filters));
 	var fq_list_tbl = new bbop.html.table(['', 'Filters', ''], []);
@@ -10966,16 +10973,15 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      * This function makes them active as well.
      * 
      * Parameters:
-     *  json_data - the raw returned JSON response from the server
+     *  response - the <bbop.golr.response> returned from the server
      *  manager - <bbop.golr.manager> that we initially registered with
      *
      * Returns:
      *  n/a
      */
-    this.draw_accordion = function(json_data, manager){
+    this.draw_accordion = function(response, manager){
     
 	ll('draw_accordion for: ' + ui_div_id);
-	var golr_resp = new bbop.golr.response(json_data);
 
 	// Make sure that accordion has already been inited.
 	if( typeof(filter_accordion_widget) == 'undefined' ){
@@ -10998,10 +11004,10 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 	// Cycle through each facet field; all the items in each,
 	// create the lists and buttons (while collectong data useful
 	// in creating the callbacks) and put them into the accordion.
-	each(golr_resp.facet_field_list(),
+	each(response.facet_field_list(),
 	     function(in_field){
 
-		 var facet_bd = golr_resp.facet_field(in_field);
+		 var facet_bd = response.facet_field(in_field);
 		 if( bbop.core.is_empty(facet_bd) ){
 		     
 		     // No filters means nothing in the box.
@@ -11023,7 +11029,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 			 new bbop.html.table([], [], facet_list_tbl_attrs);
 		     
 		     // Now go through and get filters and counts.
-		     each(golr_resp.facet_field(in_field),
+		     each(response.facet_field(in_field),
 			  function(ff_field, ff_index){
 
 			      // Only go for it if we have still below
@@ -11169,11 +11175,10 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 			 filter_shield.start_wait();
 
 			 // Open the populated shield.
-			 function draw_shield(json_data){
+			 function draw_shield(resp){
 
 			     // First, extract the fields from the
 			     // minimal response.
-			     var resp = new bbop.golr.response(json_data);
 			     var fina = call_time_field_name;
 			     var flist = resp.facet_field(call_time_field_name);
 
@@ -11197,18 +11202,17 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      * Draw results using hints from the golr class configuration.
      * 
      * Parameters:
-     *  json_data - the raw returned JSON response from the server
+     *  response - the <bbop.golr.response> returned from the server
      *  manager - <bbop.golr.manager> that we initially registered with
      *
      * Returns:
      *  n/a
      */
-    this.draw_results = function(json_data, manager){
+    this.draw_results = function(response, manager){
 	
 	var linker = new amigo.linker();
 
 	ll('draw_results for: ' + ui_results_table_div_id);
-	var golr_resp = new bbop.golr.response(json_data);
 
 	//ll('final_table a: ' + final_table._is_a);
 	//ll('final_table b: ' + final_table.to_string);
@@ -11219,11 +11223,11 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 	jQuery('#' + urtdi).empty();
 
 	// Display product when not empty.
-	var docs = golr_resp.documents();
+	var docs = response.documents();
 	if( ! bbop.core.is_empty(docs) ){
 	    var final_table =
 		new bbop.widget.display.results_table_by_class(anchor.class_conf,
-							       golr_resp,
+							       response,
 							       linker,
 							       urtdi);
 	    //jQuery('#' + urtdi).append(bbop.core.to_string(final_table));
@@ -11354,14 +11358,14 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj, interface_id,
     anchor.register('search', 'do', draw_rich_layout);
 
     // Recursively draw a rich layout using nested uls.
-    function draw_rich_layout(json_data){
+    function draw_rich_layout(resp){
 	
 	///
 	/// Get the rich layout from the returned document if
-	/// possible.
+	/// possible. Note the use of JSON, supplied by jQuery,
+	/// instead of out internal method bbop.json.parse.
 	///
-	var resp = new bbop.golr.response(json_data);
-	var doc = resp.documents(json_data)[0];
+	var doc = resp.documents()[0];
 
 	var topo_graph = new bbop.model.bracket.graph();
 	topo_graph.load_json(JSON.parse(doc[topo_graph_field]));
@@ -11832,8 +11836,7 @@ bbop.widget.term_shield = function(golr_loc, golr_conf_obj, in_argument_hash){
     // gets local.
     // TODO: spinner?
     function _draw_remote_id(id_string){
-	function _process_resp(json_data){
-	    var resp = new bbop.golr.response(json_data);
+	function _process_resp(resp){
 	    var doc = resp.get_doc(0);
 	    _draw_local_doc(doc);
 	}

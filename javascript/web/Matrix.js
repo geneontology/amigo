@@ -87,10 +87,8 @@ function stage_01(term_accs){
     }
 
     var term_info = {};
-    var accumulator_fun = function(json_resp){	
-	// Fetch the data and grab the number we want.
-	var resp = new bbop.golr.response(json_resp);
-
+    // Fetch the data and grab the number we want.
+    var accumulator_fun = function(resp){	
 	// Who was this?
 	var qval = resp.parameter('q');
 	var two_part = bbop.core.first_split(':', qval);
@@ -213,10 +211,8 @@ function stage_02(term_info, term_accs){
     var seen_links = {};
     var max_count = 0;
     var requests_done = 0;
-    var accumulator_fun = function(json_resp){	
-	// Fetch the data and grab the number we want.
-	var resp = new bbop.golr.response(json_resp);
-
+    // Fetch the data and grab the number we want.
+    var accumulator_fun = function(resp){	
 	// Update the bar.
 	requests_done++;
 	jQuery('#progress-bar').progressbar({ value: requests_done });

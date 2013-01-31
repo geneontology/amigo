@@ -44,7 +44,7 @@ function REPLInit(){
 
 	// Support a call back to data.
 	'var data = null;',
-	"function callback(json){ data = new bbop.golr.response(json); ll('// Returned value placed in [data].'); }",
+	"function callback(response){ data = response; ll('// Returned value placed in [data].'); }",
 
 	// Get a global manager.
 	//'var go = new bbop.golr.manager' + mtype + '(gloc, gconf);',

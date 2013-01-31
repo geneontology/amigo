@@ -75,22 +75,22 @@ function DDInit(){
 			ll('ERROR: ' + e);
 			//throw new Error('...');
 		    },
-	            "success" : function(jdata) {
+	            "success" : function(json_data) {
 
 			//ll('SUCCESS on data');
 
 			// Figure out if there was a parent and
 			// capture the id if there was.
 			var parent_id = null;
-			if( jdata &&
-			    jdata.responseHeader &&
-			    jdata.responseHeader.params &&
-			    jdata.responseHeader.params.parent ){
-				parent_id = jdata.responseHeader.params.parent;
+			if( json_data &&
+			    json_data.responseHeader &&
+			    json_data.responseHeader.params &&
+			    json_data.responseHeader.params.parent ){
+				parent_id = json_data.responseHeader.params.parent;
 			}
 
 			// Gather the documents found.
-			var resp = new bbop.golr.response(jdata);
+			var resp = new bbop.golr.response(json_data);
 			var docs = resp.documents();
 			var json_nodes = [];
 			var each = bbop.core.each;

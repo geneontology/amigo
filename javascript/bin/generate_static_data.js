@@ -79,8 +79,7 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 
 	// General annotation data setup for both categories.
 	gm_ann.add_query_filter('document_category', 'annotation', ['*']);
-	var json_data = gm_ann.fetch();
-	var resp = new bbop.golr.response(json_data);
+	var resp = new bbop.golr.response(gm_ann.fetch());
 	var count = resp.total_documents();
 	var facet_list = resp.facet_field_list();
 	var raw_data = null;
@@ -145,8 +144,7 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 		 
 		 // ll('isrc: ' + isrc);
 
-		 var jdata = gm_ann.fetch();
-		 var resp = new bbop.golr.response(jdata);
+		 var resp = new bbop.golr.response(gm_ann.fetch());
 		 // The evidence facet.
 		 var facet_list = resp.facet_field_list();
 		 var ev_fasc_hash =
