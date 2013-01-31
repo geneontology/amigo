@@ -11,6 +11,11 @@
  *  : generate_static_data.js --ann-source
  *  : generate_static_data.js --ann-evidence
  *  : generate_static_data.js --ann-overview
+ * 
+ * WARNING: in all likelihood, usage will actually look like:
+ *  : rhino -opt -1 ./generate_static_data.js --ann-source
+ * This is because the static checking has a hard time with some of the 
+ * code that we use (I suspect in the global namespace).
  */
 
 ///
@@ -79,7 +84,7 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 
 	// General annotation data setup for both categories.
 	gm_ann.add_query_filter('document_category', 'annotation', ['*']);
-	var resp = new bbop.golr.response(gm_ann.fetch());
+	var resp = gm_ann.fetch();
 	var count = resp.total_documents();
 	var facet_list = resp.facet_field_list();
 	var raw_data = null;
@@ -144,7 +149,7 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 		 
 		 // ll('isrc: ' + isrc);
 
-		 var resp = new bbop.golr.response(gm_ann.fetch());
+		 var resp = gm_ann.fetch();
 		 // The evidence facet.
 		 var facet_list = resp.facet_field_list();
 		 var ev_fasc_hash =
