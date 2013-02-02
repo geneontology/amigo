@@ -1,0 +1,20 @@
++TITLE: BBOP JS README
+#+Options: num:nil
+#+STARTUP: odd
+#+Style: <style> h1,h2,h3 {font-family: arial, helvetica, sans-serif} </style>
+
+* Overview
+
+  While you can run release, testing, and docs for the JS separately
+  from the rest of the AmiGO installation process, you probably
+  shouldn't. For the eperimental install with Gannet and GOOSE, try:
+
+  = ./install -v -e -g =
+
+  Although, usually, you'll just want to do something like:
+
+  = make install =
+
+  To get the TAGS file for editing perl and js:
+
+  = make tags =

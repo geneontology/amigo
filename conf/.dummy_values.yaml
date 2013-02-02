@@ -44,7 +44,7 @@ AMIGO_PUBLIC_GOLR_URL:
   type: url
   value: http://localhost:8080/solr/
 AMIGO_ROOT:
-  comment: "Please enter the full path to the SVN geneontology/AmiGO[/trunk] directory.\n"
+  comment: "Please enter the full path to the git repo amigo[/trunk] directory."
   type: directory
   value: ./
 AMIGO_SHOW_GOOSE_LINKS:
