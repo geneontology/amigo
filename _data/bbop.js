@@ -1352,7 +1352,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130131";
+bbop.version.release = "20130201";
 /* 
  * Package: json.js
  * 
@@ -1506,10 +1506,11 @@ bbop.version.release = "20130131";
 
 
 bbop.core.require('bbop', 'core');
-bbop.core.namespace('bbop', 'json');
+bbop.core.namespace('bbop', 'json', 'stringify');
+bbop.core.namespace('bbop', 'json', 'parse');
 
 (function () {
-    'use strict';
+    //'use strict';
 
     // function f(n) {
     //     // Format integers to have at least two digits.
@@ -1700,7 +1701,7 @@ bbop.core.namespace('bbop', 'json');
 
 // If the JSON object does not yet have a stringify method, give it one.
 
-    if (typeof bbop.json.stringify !== 'function') {
+//    if (typeof bbop.json.stringify !== 'function') {
         bbop.json.stringify = function (value, replacer, space) {
 
 // The stringify method takes a value and an optional replacer, and an optional
@@ -1742,12 +1743,12 @@ bbop.core.namespace('bbop', 'json');
 
             return str('', {'': value});
         };
-    }
+//    }
 
 
 // If the JSON object does not yet have a parse method, give it one.
 
-    if (typeof bbop.json.parse !== 'function') {
+//    if (typeof bbop.json.parse !== 'function') {
         bbop.json.parse = function (text, reviver) {
 
 // The parse method takes a text and an optional reviver function, and returns
@@ -1827,7 +1828,7 @@ bbop.core.namespace('bbop', 'json');
 
             throw new SyntaxError('bbop.json.parse');
         };
-    }
+//    }
 }());
 /*
  * Package: logger.js
@@ -9235,7 +9236,9 @@ bbop.golr.manager.nodejs.prototype.update = function(callback_type,
 		   anchor.apply_callbacks(callback_type, [response, anchor]);
 	       });
     }
-    var http = require('http');
+    //debugger;
+    // WARNING: This should actually be passed in by the context.
+    //var http = require('http');
     var req = http.request(qurl, on_connect);
     req.on('error', on_error);
     
