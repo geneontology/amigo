@@ -1,6 +1,8 @@
 ## Do not want to commit staging files.
-staging/*
-javascript/staging/*
+staging/*.js
+javascript/staging/*.js
+staging/*.dat
+javascript/staging/*.dat
 
 ## My my_rhino workaround should never be committed.
 my_rhino
