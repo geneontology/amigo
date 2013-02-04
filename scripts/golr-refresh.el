@@ -27,14 +27,14 @@
   :type 'string
   :group 'golr)
 
-(defcustom golr-golr-location
-  "/home/bbop/local/src/svn/geneontology/golr/"
-  "The location of the OWLTools source code on the filesystem."
-  :type 'string
-  :group 'golr)
+;; (defcustom golr-golr-location
+;;   "/home/bbop/local/src/svn/geneontology/golr/"
+;;   "The location of the OWLTools source code on the filesystem."
+;;   :type 'string
+;;   :group 'golr)
 
 (defcustom golr-amigo-2-location
-  "/home/bbop/local/src/svn/geneontology/AmiGO/trunk/"
+  "/home/bbop/local/src/git/bbop-js/"
   "The location of the AmiGO 2 source code on the filesystem."
   :type 'string
   :group 'golr)
@@ -153,13 +153,13 @@
 	   " --solr-load-gafs"
 	   " " (mapconcat 'identity golr-annotation-url-list " "))))
 
-(defun golr-update-golr ()
-  (golr-shell-command
-   (concat "cd " golr-golr-location " && svn update --accept theirs-full")))
+;; (defun golr-update-golr ()
+;;   (golr-shell-command
+;;    (concat "cd " golr-golr-location " && svn update --accept theirs-full")))
 
 (defun golr-update-amigo-2 ()
   (golr-shell-command
-   (concat "cd " golr-amigo-2-location " && svn update --accept theirs-full")))
+   (concat "cd " golr-amigo-2-location " && git reset --hard && git pull")))
 
 (defun golr-update-bbop-js ()
   (golr-shell-command
@@ -182,7 +182,7 @@
   (golr-update-owltools)
   (golr-build-owltools)
   (golr-load-golr)
-  (golr-update-golr)
+  ;; (golr-update-golr)
   (golr-update-amigo-2)
   (golr-update-bbop-js)
   (golr-build-bbop-js)
