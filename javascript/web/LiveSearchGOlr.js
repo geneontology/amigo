@@ -3,13 +3,13 @@
 //// It ends up being a light wrapping around the search_pane widget.
 //// 
 
-// Logger.
-var logger = new bbop.logger();
-logger.DEBUG = true;
-function ll(str){ logger.kvetch('LS: ' + str); }    
-
 //
 function LiveSearchGOlrInit(){
+
+    // Logger.
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch('LS: ' + str); }    
 
     // Start messages.
     ll('');
@@ -168,8 +168,10 @@ function LiveSearchGOlrInit(){
 	var active_class = null;
 	loop(active_classes,
 	     function(acls, index){
+		 //ll("index: " + index);		 
+		 //ll("acls['id']: " + acls['id']);		 
 		 if( acls['id'] == cid ){
-		     active_class = acls[index];
+		     active_class = acls;
 		 }
 	     });
 
