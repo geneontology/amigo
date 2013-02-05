@@ -12,7 +12,7 @@ TESTS = $(wildcard javascript/lib/amigo/*.js.tests) \
 JS = rhino # or smjs
 JSFLAGS = -opt -1
 #JSENGINES = node smjs rhino
-BBOP_JS = ../../../../git/bbop-js/
+BBOP_JS = ../bbop-js/
 
 all:
 	@echo "Default JS engine: $(JS)"

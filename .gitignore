@@ -4,6 +4,9 @@ javascript/staging/*.js
 staging/*.dat
 javascript/staging/*.dat
 
+## Do not commit our TAGS
+TAGS
+
 ## My my_rhino workaround should never be committed.
 my_rhino
 
