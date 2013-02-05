@@ -1470,7 +1470,7 @@ sub golr_configuration {
 }
 
 
-=item golr_class_info_list_by_weight
+=item golr_class_info
 
 Arguments: golr class id
 Return href of info.
@@ -1655,6 +1655,32 @@ sub golr_class_weights {
   return $rethash;
 }
 
+=item get_amigo_layout
+
+Arguments: the AMIGO_LAYOUT_* variable that contains a list of GOlr classes
+
+Return: an ordered aref of GOlr class information for the list IDs.
+
+=cut
+sub get_amigo_layout {
+
+  my $self = shift;
+  my $layout_env_id = shift || die "which AMIGO_LAYOUT_* do you mean?";
+
+  my $retlist = [];
+
+  ## Extract the landing page search order from the ID.
+  my $str_raw = $self->amigo_env($layout_env_id) || '';
+  my $clist = $self->clean_list($str_raw);
+  foreach my $citem (@$clist){
+    my $try_class = $self->golr_class_info($citem);
+    if( $try_class ){
+      push @$retlist, $try_class;
+    }
+  }
+
+  return $retlist;
+}
 
 # ## Read misc_keys.pl (unless otherwise specified) and return the
 # ## thawed hash. BUG/TODO: we should be moving away from perl-specific

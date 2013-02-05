@@ -17,6 +17,44 @@ function LiveSearchGOlrInit(){
     ll('LiveSearchGOlrInit start...');
 
     ///
+    /// A description of the active buttons and what to do when they
+    /// are clicked. Very likely the only thing that you'd have to
+    /// change on this page.
+    ///
+
+    var active_classes = [
+	{
+	    id: 'bbop_ann', 
+	    on_click: function(manager){
+		manager.add_query_filter('document_category',
+					 'annotation', ['*']);
+	    }
+	},
+	{
+	    id: 'bbop_ont',
+	    on_click: function(manager){
+    		manager.add_query_filter('document_category',
+					 'ontology_class', ['*']);
+	    }
+	},
+	{
+	    id: 'bbop_bio',
+	    on_click: function(manager){
+    		manager.add_query_filter('document_category',
+					 'bioentity',['*']);
+	    }
+	},
+	{
+	    id: 'bbop_ann_ev_agg',
+	    on_click: function(manager){
+    		manager.add_query_filter('document_category',
+    					 'annotation_evidence_aggregate',['*']);
+
+	    }
+	}
+    ];
+
+    ///
     /// Tabify the layout if we can (may be in a non-tabby version).
     ///
 
@@ -101,20 +139,12 @@ function LiveSearchGOlrInit(){
 	]
     };
     var search = new bbop.widget.search_pane(solr_server, gconf, div_id, hargs);
-    // Default profile we'll use in gconf.
-    search.set_personality('bbop_ann');
     // We like highlights; they should be included automatically
     // through the widget.
     search.include_highlighting(true);
-    // We still need this--without it we end up with a lot of
-    // stray fields where automatic controls fail.
-    search.add_query_filter('document_category', 'annotation', ['*']);
-    // // DEBUG: For testing, for now, I want to limit this to 10/11.
-    // search.set_default_facet_limit(10 + 1);
-    // search.reset_facet_limit();
-
-    // Initialze/establish the display.
-    search.establish_display();
+    
+    // NOTE: We leave the rest of the configuration to the triggered
+    // button click below.
 
     ///
     /// Enable search class switching.
@@ -122,40 +152,54 @@ function LiveSearchGOlrInit(){
 
     // Process to switch the search into a different type.
     function _on_search_select(){
+	// Recover the 'id' of the clicked element.
     	var cid = jQuery(this).attr('id');
 
-    	// Make sure whatever sitcky whas there is gone.
-    	search.remove_query_filter('document_category', 'annotation', ['*']);
+    	// Make sure whatever sticky filters we had are completely
+    	// gone.
+	// TODO/BUG: make this more generic.
+    	search.remove_query_filter('document_category', 'annotation',['*']);
     	search.remove_query_filter('document_category','ontology_class',['*']);
     	search.remove_query_filter('document_category', 'bioentity',['*']);
     	search.remove_query_filter('document_category',
-    				   'annotation_evidence_aggregate', ['*']);
+    				   'annotation_evidence_aggregate',['*']);
 
-    	search.set_personality(cid);
-    	if( cid == 'bbop_ann' ){
-    	    search.add_query_filter('document_category', 'annotation', ['*']);
-    	}else if( cid == 'bbop_ont' ){
-    	    search.add_query_filter('document_category','ontology_class',['*']);
-    	}else if( cid == 'bbop_bio' ){
-    	    search.add_query_filter('document_category', 'bioentity',['*']);
-    	}else if( cid == 'bbop_ann_ev_agg' ){
-    	    search.add_query_filter('document_category',
-    				    'annotation_evidence_aggregate', ['*']);
-    	}
-	// Essentially reset the display after every personality
-	// switch.
-    	search.establish_display();
+	// Find the click class in the set of active classes.
+	var active_class = null;
+	loop(active_classes,
+	     function(acls, index){
+		 if( acls['id'] == cid ){
+		     active_class = acls[index];
+		 }
+	     });
+
+	// If we found it, set personality, run the stored function,
+	// and then establish/reset display.
+	if( ! active_class ){
+	    alert('ERROR: Could not find class: ' + cid);
+	}else{
+    	    search.set_personality(cid);
+	    var run_fun = active_class['on_click'];
+	    run_fun(search);
+    	    search.establish_display();
+	}
     }
 
     // Turn the radio row into a jQuery button set and make them
-    // active.
+    // active to clicks.
     jQuery("#search_radio").buttonset();
     var loop = bbop.core.each;
-    loop(['bbop_ann', 'bbop_ont', 'bbop_bio', 'bbop_ann_ev_agg'],
-    	 function(cclass_id){
+    loop(active_classes,
+    	 function(active_class){
+	     var cclass_id = active_class['id'];
     	     var c = '#' + cclass_id;
     	     jQuery(c).click(_on_search_select);
     	 });
+
+    // Click the first one in the radio row to start. This will
+    // hopefully add the necessary personality and trigger the
+    // establishment of the interface.
+    jQuery('#' + active_classes[0]['id']).click();
 
     // Done message.
     ll('LiveSearchGOlrInit done.');

@@ -12,6 +12,8 @@ function BrowseInit(){
 
     var sd = new amigo.data.server();
     var gconf = new bbop.golr.conf(amigo.data.golr);
+    // Alias.
+    var loop = bbop.core.each;
 
     ///
     /// The info shield.
@@ -49,24 +51,57 @@ function BrowseInit(){
     b.draw_browser('GO:0008150');
 
     ///
-    /// Ontology selector.
+    /// Ontologies shortcut selector buttons.
     ///
 
-    jQuery("#graph_radio").buttonset();
-    var loop = bbop.core.each;
-    loop(['bp', 'cc', 'mf'],
-	 function(ont){
-	     jQuery('#'+ont).click(function(){
-				       var o = jQuery(this).attr('id');
-				       if( o == 'bp' ){
-					   b.draw_browser('GO:0008150');
-				       }else if( o == 'cc' ){
-					   b.draw_browser('GO:0005575');
-				       }else{
-					   b.draw_browser('GO:0003674');
-				       }
-				   });
+    // id and term are different since there might be HTML naming
+    // problems with some ids.
+    var shortcuts = [
+	{
+	    id: 'bp',
+	    label: 'biological process',
+	    term: 'GO:0008150'
+	},
+	{
+	    id: 'cc',
+	    label: 'cellular component',
+	    term: 'GO:0005575'
+	},
+	{
+	    id: 'mf',
+	    label: 'molecular function',
+	    term: 'GO:0003674'
+	}
+    ];
+
+    // First, go through and add all of our shortcuts to the page.
+    loop(shortcuts,
+	 function(shortcut){
+	     var sid = shortcut['id'];
+	     var term = shortcut['term'];
+	     var label = shortcut['label'];
+
+	     // 
+	     var itag = new bbop.html.input({id: sid, type: 'radio',
+					     name: 'graph_radio'});
+	     var ltag = new bbop.html.tag('label', {for: sid}, label);
+	     jQuery("#graph_radio").append(itag.to_string());
+	     jQuery("#graph_radio").append(ltag.to_string());
 	 });
+
+    // Now, make our different shortcut buttons active.
+    jQuery("#graph_radio").buttonset();
+    loop(shortcuts,
+	 function(shortcut){
+	     var sid = shortcut['id'];
+	     var term = shortcut['term'];
+	     jQuery('#' + sid).click(function(){ b.draw_browser(term); });
+	 });
+
+    // Finally, start the first draw with an artificial click on the
+    // first shortcut button.
+    var start_id = shortcut[0]['id'];
+    jQuery('#' + start_id).click();
 
     ///
     /// The autocomplete talking back to the tree browser.

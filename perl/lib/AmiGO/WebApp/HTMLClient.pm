@@ -90,8 +90,9 @@ sub mode_landing {
   $self->set_template_parameter('page_title', 'AmiGO: Welcome');
   $self->set_template_parameter('content_title', 'AmiGO 2');
 
+  ## Extract the landing page search order from AMIGO_LAYOUT_LANDING.
   ## Grab the config info for the simple search form construction.
-  my $ss_info = $self->{CORE}->golr_class_info_list_by_weight(25);
+  my $ss_info = $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_LANDING');
   $self->set_template_parameter('simple_search_form_info', $ss_info);
 
   ## Pick the first to be the default.
@@ -151,6 +152,14 @@ sub mode_browse {
   $self->set_template_parameter('page_name', 'browse');
   $self->set_template_parameter('page_title', 'AmiGO: Browse');
   $self->set_template_parameter('content_title', 'Browse');
+
+  ## Get the layout info to describe which buttons should be
+  ## generated.
+  #my $bbinfo = $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_BROWSE');
+  #$self->set_template_parameter('browse_button_info', $bbinfo);
+  ## Pick the first to be the default.
+  #my $sb = $$bbinfo[0]->{id};
+  #$self->set_template_parameter('starting_button', $sb);
 
   ## Our AmiGO services CSS.
   my $prep =
@@ -529,6 +538,13 @@ sub mode_live_search {
   ## Grab resources we want.
   $self->set_template_parameter('STAR_IMAGE',
 				$self->{CORE}->get_image_resource('star'));
+
+  ## Get the layout info to describe which tabs should be generated.
+  my $stinfo = $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_SEARCH');
+  $self->set_template_parameter('search_tab_info', $stinfo);
+  ## Pick the first to be the default.
+  my $gc = $$stinfo[0]->{id};
+  $self->set_template_parameter('starting_golr_class', $gc);
 
   ## Our AmiGO services CSS.
   my $prep =

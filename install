@@ -93,8 +93,8 @@ $yconf->write();
 if( int($yconf->{AMIGO_CONFIGURED}{value}) ){
   ll("AmiGO configured, will proceed...");
 }else{
-  ll("AmiGO not yet configured, see INSTALL.txt.");
-  die "AmiGO not yet configured, see INSTALL.txt";
+  ll("AmiGO not yet configured, see INSTALL.org.");
+  die "AmiGO not yet configured, see INSTALL.org";
 }
 
 ###
@@ -407,7 +407,7 @@ sub create_synthetic_amigo_environmental_variables {
   print FILE <<EOC;
 ############################
 ####
-#### See INSTALL.txt on how to change these variables.
+#### See INSTALL.org on how to change these variables.
 ####
 ############################
 
@@ -1093,7 +1093,7 @@ install [-h] [-v] [-g] [-e] [-t]
 This is the main AmiGO installation script--it moves files to the
 proper location with the proper permissions.
 
-Please see README.txt and INSTALL.txt for more details.
+Please see README.org and INSTALL.org for more details.
 
 =head1 OPTIONS
 
