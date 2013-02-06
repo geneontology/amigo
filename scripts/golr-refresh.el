@@ -34,7 +34,7 @@
 ;;   :group 'golr)
 
 (defcustom golr-amigo-2-location
-  "/home/bbop/local/src/git/bbop-js/"
+  "/home/bbop/local/src/git/amigo/"
   "The location of the AmiGO 2 source code on the filesystem."
   :type 'string
   :group 'golr)
