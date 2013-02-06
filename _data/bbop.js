@@ -1352,7 +1352,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130204";
+bbop.version.release = "20130205";
 /* 
  * Package: json.js
  * 
@@ -8707,6 +8707,44 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
     };
 
     /*
+     * Function: get_state_url
+     *
+     * Get the current invariant state of the manager, plus the
+     * current personality as a paramater, returned as a URL string.
+     * 
+     * This differs from <get_query_url> in that the generated string
+     * is intended for applications that may want a little more
+     * information and hinting over just what the current search
+     * is. This method essentially parameterizes some of the "hidden
+     * state" of the manager.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  URL string
+     * 
+     * Also see:
+     *  <get_query_url>
+     */
+    this.get_state_url = function(){
+	
+	// Save current state.
+	anchor.push_excursion();
+
+	// Make the changes we want.
+	anchor.set('personality', anchor.get_personality());
+
+	// Get url.
+	var returl = anchor.get_query_url();
+
+	// Reset the old state.
+	anchor.pop_excursion();
+
+    	return returl;
+    };
+
+    /*
      * Function: load_url
      *
      * Makes a a best attempt to recover the state of a manager from
@@ -8716,13 +8754,17 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
      * "bookmarks" from alien installations.
      * 
      * Note that while this recovers enough to get the same data,
-     * certain "session"/"preference" type things are not encoded in
-     * the url (e.g. filter stickiness, the contents of batch queues,
-     * non-default base queries, etc.).
+     * certain "session"/"preference" type things that are not encoded
+     * in the url (e.g. filter stickiness, the contents of batch
+     * queues, non-default base queries, etc.) will not be replayed
+     * and must be recovered or guessed on an app by app basis..
      * 
      * Warning: this currently only replays a small subset of possible
      * parameters. Currently: personality, q, fq, ???. In the future,
      * this should no all non-session information.
+     * 
+     * Warning: Because there is more to bookmarks than just the major
+     * stuff, variants not supplied in the bookmark will be removed.
      * 
      * This returns true if the parameter portions of the new and
      * bookmark urls match.
@@ -11714,6 +11756,84 @@ bbop.widget.search_box = function(golr_loc,
 };
 bbop.core.extend(bbop.widget.search_box, bbop.golr.manager.jquery);
 /*
+ * Package: dialog.js
+ * 
+ * Namespace: bbop.widget.dialog
+ * 
+ * BBOP object to produce a self-constructing/self-destructing
+ * jQuery popup dialog.
+ * 
+ * This is a completely self-contained UI.
+ */
+
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'logger');
+bbop.core.require('bbop', 'html');
+bbop.core.namespace('bbop', 'widget', 'dialog');
+
+/*
+ * Constructor: dialog
+ * 
+ * Contructor for the bbop.widget.dialog object.
+ * 
+ * The optional hash arguments look like:
+ * 
+ * Arguments:
+ *  item - string or bbop.html to display.
+ *  in_argument_hash - *[optional]* optional hash of optional arguments
+ * 
+ * Returns:
+ *  self
+ */
+bbop.widget.dialog = function(item, in_argument_hash){
+    
+    this._is_a = 'bbop.widget.dialog';
+
+    var anchor = this;
+
+    // Per-UI logger.
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch('W (dialog): ' + str); }
+
+    // Our argument default hash.
+    var default_hash = {
+	//modal: true,
+	//draggable: false,
+	//width: 700
+	close:
+	function(){
+	    // TODO: Could maybe use .dialog('destroy') instead?
+	    jQuery('#' + div_id).remove();
+	}	    
+    };
+    var folding_hash = in_argument_hash || {};
+    var arg_hash = bbop.core.fold(default_hash, folding_hash);
+
+    ///
+    /// Actually draw.
+    ///
+
+    // Coerce our argument into a string.
+    var str = item || 'Nothing here...';
+    if( bbop.core.what_is(item) != 'string' ){
+	str = item.to_string();
+    }
+
+    // Create new div.
+    var div = new bbop.html.tag('div', {'generate_id': true});
+    var div_id = div.get_id();
+
+    // Append div to end of body.
+    jQuery('body').append(div.to_string());
+    
+    // Add text to div.
+    jQuery('#' + div_id).append(str);
+    
+    // Boink!
+    var dia = jQuery('#' + div_id).dialog(arg_hash);
+};
+/*
  * Package: term_shield.js
  * 
  * Namespace: bbop.widget.term_shield
@@ -11886,6 +12006,10 @@ bbop.core.extend(bbop.widget.term_shield, bbop.golr.manager.jquery);
  * personality is set. Also, in many use cases, you'll want to have an line like the following befire running ".establish_display()".
  * : sp_widget.add_query_filter('document_category', 'annotation', ['*']);
  * 
+ * Also, establish_display() literally just establishes the physical
+ * presence of the display. To actually populate it with data once you
+ * start, a seeding call to the .reset() or .search() is necessary.
+ * 
  * The search pane will display one less filter row than is set with
  * .set_facet_limit(), it will use this runover to decide whether or
  * not to display the "more" option for the filters.
@@ -11997,8 +12121,8 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	var personality = anchor.get_personality();
     	var cclass = golr_conf_obj.get_class(personality);
     	if( ! personality || ! cclass ){
-    	    ll('ERROR: no personality set');
-    	    throw new Error('ERROR: no personality set');
+    	    ll('ERROR: no useable personality set');
+    	    throw new Error('ERROR: no useable personality set');
     	}
 
     	///
@@ -12061,11 +12185,11 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	}
     	ui.setup_results({'meta': show_pager_p});
 	
-    	// Start the ball with a reset event.
-    	anchor.reset();
+    	// // Start the ball with a reset event.
+    	//anchor.reset();
     };
 
-    // Now let's run the above function as the initializer.
+    // // Now let's run the above function as the initializer.
     // anchor.establish_display();
 };
 bbop.core.extend(bbop.widget.search_pane, bbop.golr.manager.jquery);

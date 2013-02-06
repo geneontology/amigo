@@ -54,6 +54,20 @@ function LiveSearchGOlrInit(){
 	}
     ];
 
+    // Helper function to pull out class by id.
+    function _get_active_class(cid){
+	var retcls = null;
+	loop(active_classes,
+	     function(acls, index){
+		 //ll("index: " + index);		 
+		 //ll("acls['id']: " + acls['id']);		 
+		 if( acls['id'] == cid ){
+		     retcls = acls;
+		 }
+	     });
+	return retcls;
+    }
+
     ///
     /// Tabify the layout if we can (may be in a non-tabby version).
     ///
@@ -72,6 +86,7 @@ function LiveSearchGOlrInit(){
 
     var gconf = new bbop.golr.conf(amigo.data.golr);
     var sd = new amigo.data.server();
+    var linker = new amigo.linker();
     var solr_server = sd.golr_base();
     var div_id = 'display-general-search';
 
@@ -131,8 +146,15 @@ function LiveSearchGOlrInit(){
 		click_function_generator: function(manager){
 		    return function(event){
 			//alert('GAF download: ' + manager.get_query_url());
-			alert('URL: ' +
-			      search.get_query_url());
+			//alert('URL: ' + search.get_query_url());
+			var raw_bookmark =
+			    encodeURIComponent(search.get_state_url());
+			var a_args = {
+			    id: raw_bookmark,
+			    label: 'this search'
+			};
+			new bbop.widget.dialog('Bookmark for: ' +
+					       linker.anchor(a_args, 'search'));
 		    };
 		}
 	    }
@@ -151,9 +173,16 @@ function LiveSearchGOlrInit(){
     /// 
 
     // Process to switch the search into a different type.
-    function _on_search_select(){
-	// Recover the 'id' of the clicked element.
-    	var cid = jQuery(this).attr('id');
+    function _on_search_select(string_or_event){
+
+	// Recover the 'id' of the clicked element if we didn't
+	// already define it as a string argument. If it's not a
+	// string argument, it's probably an event.
+	var cid = string_or_event; // string
+	if( bbop.core.what_is(string_or_event) != 'string' ){ // event
+    	    cid = jQuery(this).attr('id');	    
+    	    //cid = jQuery(this).val();
+	}
 
     	// Make sure whatever sticky filters we had are completely
     	// gone.
@@ -165,15 +194,7 @@ function LiveSearchGOlrInit(){
     				   'annotation_evidence_aggregate',['*']);
 
 	// Find the click class in the set of active classes.
-	var active_class = null;
-	loop(active_classes,
-	     function(acls, index){
-		 //ll("index: " + index);		 
-		 //ll("acls['id']: " + acls['id']);		 
-		 if( acls['id'] == cid ){
-		     active_class = acls;
-		 }
-	     });
+	var active_class = _get_active_class(cid);
 
 	// If we found it, set personality, run the stored function,
 	// and then establish/reset display.
@@ -184,6 +205,7 @@ function LiveSearchGOlrInit(){
 	    var run_fun = active_class['on_click'];
 	    run_fun(search);
     	    search.establish_display();
+	    search.reset();
 	}
     }
 
@@ -198,10 +220,80 @@ function LiveSearchGOlrInit(){
     	     jQuery(c).click(_on_search_select);
     	 });
 
-    // Click the first one in the radio row to start. This will
-    // hopefully add the necessary personality and trigger the
-    // establishment of the interface.
-    jQuery('#' + active_classes[0]['id']).click();
+
+    // First, define a helper function to try and probe various things
+    // to establish what should be established--find the checked radio
+    // button (from the layout) and click it, or, failing that, the
+    // first one and click it.
+    function _establish_default_interface(){
+	    
+	var checked_radio_vals = [];
+	var checked_elt = null;
+	jQuery("[name='" + 'search_radio' + "']:checked").each(
+	    function(){
+		checked_elt = jQuery(this);
+		checked_radio_vals.push(checked_elt.val());
+	    });
+	
+	if( checked_radio_vals && checked_radio_vals.length == 1 ){
+	    // Find the checked radio value and click on it.
+	    var clid = checked_radio_vals[0];
+	    var cls = _get_active_class(clid);
+	    ll("Select the checked radio value: " + cls['id']);
+	    //jQuery(checked_elt).click();
+	    //jQuery('#' + cls['id']).click();
+	    _on_search_select(cls['id']);
+	}else{
+	    // Click the first defined class.
+	    ll("Just select the first: " + active_classes[0]['id']);
+	    //jQuery('#' + active_classes[0]['id']).click();
+	    _on_search_select(active_classes[0]['id']);
+	}
+    }
+
+    // Check to see if we have a bookmark or not. If we have one, run
+    // it, otherwise use the default.
+    if( global_live_search_bookmark ){ // has bookmark
+	ll("Try and use bookmark.");
+
+	// Load it and see what happens.
+	var parm_list = 
+	    bbop.core.url_parameters(global_live_search_bookmark);
+	//alert(bbop.core.dump(parm_list));
+	var bookmark_probe = bbop.core.hashify(parm_list);
+	//alert(bbop.core.dump(bookmark_probe));
+
+	if( ! bookmark_probe['personality'] || // book mark is bad
+	    bookmark_probe['json.nl'] != 'arrarr' ||
+	    bookmark_probe['wt'] != 'json' ){ //||
+	    //! bookmark_probe['document_category'] ){
+
+            ll("Bookmark lacks sanity.");
+	    alert('ERROR: Bookmark did not include a personality, and sanity. '+
+		  'Please remove the bookmark parameter from the URL.');
+	    // Fall back onto the defaults.
+	    _establish_default_interface();
+	}else{ // probably good bookmark
+	    ll("Bookmark has a personality: " + search.get_personality());
+
+	    // Load bookmark.
+	    //ll("Pre bookmark: " + search.get_query_url());
+	    search.load_url(global_live_search_bookmark);
+	    ll("Post bookmark:: " + search.get_query_url());
+
+	    // BUG/TODO: Make likely sticky things sticky.
+	    //var dc = bookmark_probe['document_category'];
+	    //search.add_query_filter('document_category', 'annotation', ['*']);
+	    
+	    // Establish the display with what we have.
+    	    search.establish_display();
+	    search.search();
+	    //ll("Post establish: " + search.get_query_url());
+	}
+    }else{ // no bookmark
+	ll("No bookmark");
+	_establish_default_interface();
+    }
 
     // Done message.
     ll('LiveSearchGOlrInit done.');

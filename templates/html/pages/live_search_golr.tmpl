@@ -32,10 +32,12 @@
       [% FOREACH infi IN search_tab_info %]
       <input type="radio"
 	     name="search_radio"
+             id="[% infi.id %]"
+             value="[% infi.id %]"
       [%    IF starting_golr_class == infi.id %]
-	     id="[% infi.id %]" checked="yes" />
+	     checked="yes" />
       [%    ELSE %]
-             id="[% infi.id %]" />
+             />
       [%    END %]
       <label for="[% infi.id %]">[% infi.display_name %]</label>
       [% END %]

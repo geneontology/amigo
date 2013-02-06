@@ -529,6 +529,18 @@ sub mode_live_search {
 
   my $self = shift;
 
+  ## Pull out the bookmark parameter.
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile('live_search');
+  my $bookmark = $params->{bookmark} || '';
+
+  ## If it is defined, try to decode it into something useful that we
+  ## can pass in as javascript.
+  if( $bookmark ){
+    # $bookmark = $self->{JS}->make_js($bookmark);
+    $bookmark =~ s/\"/\\\"/g;
+  }
+
   ## Page settings.
   $self->set_template_parameter('STANDARD_CSS', 'no');
   $self->set_template_parameter('page_title', 'AmiGO: Search');
@@ -542,7 +554,9 @@ sub mode_live_search {
   ## Get the layout info to describe which tabs should be generated.
   my $stinfo = $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_SEARCH');
   $self->set_template_parameter('search_tab_info', $stinfo);
-  ## Pick the first to be the default.
+  ## Pick the first to be the default. Technically, this is optional
+  ## since the JS will eventually fall back to just picking the first
+  ## defined class.
   my $gc = $$stinfo[0]->{id};
   $self->set_template_parameter('starting_golr_class', $gc);
 
@@ -566,6 +580,7 @@ sub mode_live_search {
      ],
      javascript =>
      [
+      $self->{JS}->make_var('global_live_search_bookmark', $bookmark),
       $self->{JS}->get_lib('LiveSearchGOlr.js')
      ],
      javascript_init =>

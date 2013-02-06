@@ -65,6 +65,9 @@ amigo.linker.prototype.url = function (id, xid){
 		  xid == 'gene_product' ||
 		  xid == 'bioentity' ){
 	        retval = 'amigo?mode=golr_gene_product_details&gp=' + id;
+        }else if( xid == 'search' ||
+		  xid == 'live_search' ){
+	        retval = 'amigo?mode=search&bookmark=' + id;
         }
     }
 
@@ -142,6 +145,10 @@ amigo.linker.prototype.anchor = function(args, xid){
 		      xid == 'bioentity' ){
 		    retval = '<a title="Go to the gene product ' +
 			      'details page for ' + label +
+			      '." href="' + url + '">' + hilite + '</a>';
+            }else if( xid == 'search' ||
+		      xid == 'live_search' ){
+		    retval = '<a title="Reinstate bookmark for ' + label +
 			      '." href="' + url + '">' + hilite + '</a>';
 	    }
 	}

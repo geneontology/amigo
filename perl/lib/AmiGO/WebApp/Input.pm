@@ -191,6 +191,8 @@ sub input_profile {
     $self->_add_simple_argument('golr_class', '');
     $self->_add_simple_argument('page', '1');
     $self->_add_simple_search_set();
+  }elsif( $profile_name eq 'live_search' ){
+    $self->_add_simple_argument('bookmark', '');
   }elsif( $profile_name eq 'live_search_term' ){
     $self->_add_simple_search_set();
     $self->_add_range_set();
