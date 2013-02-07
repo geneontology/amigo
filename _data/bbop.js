@@ -803,9 +803,18 @@ bbop.core.get_assemble = function(qargs){
 			     nano_buff.push(':');
 			     if( typeof sub_val !== 'undefined' && sub_val ){
 				 // Do not double quote strings.
-				 if( bbop.core.what_is(sub_val) == 'string' &&
+				 // Also, do not requote if we already
+				 // have parens in place--that
+				 // indicates a complicated
+				 // expression. See the unit tests.
+				 var val_is_a = bbop.core.what_is(sub_val);
+				 if( val_is_a == 'string' &&
 				     sub_val.charAt(0) == '"' &&
 				     sub_val.charAt(sub_val.length -1) == '"' ){
+				     nano_buff.push(sub_val);
+				 }else if( val_is_a == 'string' &&
+				     sub_val.charAt(0) == '(' &&
+				     sub_val.charAt(sub_val.length -1) == ')' ){
 				     nano_buff.push(sub_val);
 				 }else{
 				     nano_buff.push('"' + sub_val + '"');
@@ -7000,6 +7009,12 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
     this._logger.DEBUG = false;
     function ll(str){ anchor._logger.kvetch(str); }
 
+    // Some Regexps that would be nice to just compile once.
+    var regexp_url_space = /\%20/g; // '%20' == ' '
+    var regexp_url_quote = /\%22/g; // '%22' == '"'
+    var regexp_url_left_paren = /\%28/g; // '%28' == '('
+    var regexp_url_right_paren = /\%29/g; // '%29' == ')'
+
     // To help keep requests from the past haunting us. Actually doing
     // something with this number is up to the UI.
     this.last_sent_packet = 0;
@@ -8826,6 +8841,14 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 				 plist.push(lead_char);
 				 fname = fname.substr(1, fname.length -1);
 			     }
+
+			     // If the fval looks like it has not been
+			     // decoded (like from a URL-safe
+			     // bookmark), go ahead and do so.
+			     fval = fval.replace(regexp_url_space, ' ');
+			     fval = fval.replace(regexp_url_quote, '"');
+			     fval = fval.replace(regexp_url_left_paren, '(');
+			     fval = fval.replace(regexp_url_right_paren, ')');
 
 			     // Do not allow quotes in--they will be
 			     // added by the assembler.

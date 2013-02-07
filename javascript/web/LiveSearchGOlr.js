@@ -274,11 +274,14 @@ function LiveSearchGOlrInit(){
 	    // Fall back onto the defaults.
 	    _establish_default_interface();
 	}else{ // probably good bookmark
-	    ll("Bookmark has a personality: " + search.get_personality());
+	    //ll("Bookmark has a personality: " + search.get_personality());
 
 	    // Load bookmark.
 	    //ll("Pre bookmark: " + search.get_query_url());
+	    //ll(global_live_search_bookmark);
+	    //ll("Pre-bookmark personality: " + search.get_personality());
 	    search.load_url(global_live_search_bookmark);
+	    ll("Post-bookmark personality: " + search.get_personality());
 	    ll("Post bookmark:: " + search.get_query_url());
 
 	    // BUG/TODO: Make likely sticky things sticky.
