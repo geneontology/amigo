@@ -5922,22 +5922,22 @@ bbop.golr.conf_class = function (class_conf_struct){
 	return this._class['id'];
     };
 
-    /*
-     * Function: searchable_extension
-     * 
-     * This returns the searchable extension used for this
-     * class. There is a typical default, but it might be change in
-     * namespace collisions, so it's better to just use this.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    this.searchable_extension = function(){
-	return this._class['searchable_extension'] || '_searchable';
-    };
+    // /*
+    //  * Function: searchable_extension
+    //  * 
+    //  * This returns the searchable extension used for this
+    //  * class. There is a typical default, but it might be change in
+    //  * namespace collisions, so it's better to just use this.
+    //  * 
+    //  * Parameters:
+    //  *  n/a
+    //  * 
+    //  * Returns:
+    //  *  string
+    //  */
+    // this.searchable_extension = function(){
+    // 	return this._class['searchable_extension'] || '_searchable';
+    // };
 
     /*
      * Function: get_field
@@ -8009,7 +8009,9 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 
 		// Get the current searchable extension string from
 		// the personality class.
-		var s_ext = cclass.searchable_extension();
+		//var s_ext = cclass.searchable_extension();
+		// Actually, we're going to make this non-variable.
+		var s_ext = '_searchable';
 
 		// Probe the input to see if there are any searchable
 		// alternatives to try, use those instead.

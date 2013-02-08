@@ -30,9 +30,6 @@ mapping:
   "result_weights":
     type: str
     required: no
-  "searchable_extension":
-    type: str
-    required: no
   "fields":
     type: seq
     sequence:
