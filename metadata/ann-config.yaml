@@ -8,7 +8,7 @@ document_category: annotation
 weight: 20
 boost_weights: annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 family_tag^1.0 family_tag_label^1.0
 result_weights: annotation_class^9.0 evidence_type^8.0 bioentity^7.0 source^4.0 taxon^3.0 evidence_with^2.0 family_tag^1.5 annotation_extension_class^1.0
-filter_weights: source^7.0 evidence_type_closure^6.0 family_tag_label^5.5 taxon_closure_label^5.0 isa_partof_closure_label^4.0 annotation_extension_class_closure_label^3.0
+filter_weights: source^7.0 assigned_by^6.5 evidence_type_closure^6.0 family_tag_label^5.5 taxon_closure_label^5.0 isa_partof_closure_label^4.0 annotation_extension_class_closure_label^3.0
 fields:
   - id: id
     description: A unique (and internal) combination of bioentity and ontology class.
@@ -16,8 +16,13 @@ fields:
     type: string
     property: []
   - id: source
-    description: "Column 15: assigned by."
+    description: "Column 1: database source."
     display_name: Source
+    type: string
+    property: []
+  - id: assigned_by
+    description: "Column 15: assigned by."
+    display_name: Assigned by
     type: string
     property: []
   - id: date
@@ -25,11 +30,11 @@ fields:
     display_name: Date
     type: string
     property: []
-#   - id: type
-#     description: "Column 12: type class id."
-#     display_name: Type class id
-#     type: string
-#     property: []
+  - id: type
+    description: "Column 12: type class id."
+    display_name: Type class id
+    type: string
+    property: []
 #   - id: type_label
 #     description: "Column 12: type class label."
 #     display_name: Type class label
@@ -108,12 +113,12 @@ fields:
 #     type: string
 #     property: []
 #     searchable: true
-#   - id: synonym
-#     description: Any synonym.
-#     display_name: Synonym
-#     type: string
-#     cardinality: multi
-#     property: []
+  - id: synonym
+    description: "Gene product synonyms."
+    display_name: Synonym
+    type: string
+    cardinality: multi
+    property: []
 #   - id: alternate_id
 #     description: Any alternaitve id.
 #     display_name: Alt id
@@ -190,12 +195,12 @@ fields:
 #     display_name: Is not
 #     type: string
 #     property: []
-#   - id: qualifier
-#     description: Derived from column 4.
-#     display_name: Qualifier
-#     type: string
-#     cardinality: multi
-#     property: []
+  - id: qualifier
+    description: "Derived from column 4."
+    display_name: Qualifier
+    type: string
+    cardinality: multi
+    property: []
   - id: annotation_class
     description: Column 5.
     display_name: Annotation class
@@ -207,11 +212,11 @@ fields:
     type: string
     property: []
     searchable: true
-#   - id: aspect
-#     description: Column 9.
-#     display_name: Ontology (aspect)
-#     type: string
-#     property: []
+  - id: aspect
+    description: "Column 9: Ontology aspect."
+    display_name: Ontology (aspect)
+    type: string
+    property: []
 #   - id: secondary_taxon
 #     description: Acts on taxon.
 #     display_name: Secondary taxon
@@ -222,12 +227,11 @@ fields:
 #     display_name: Secondary taxon label
 #     type: string
 #     property: []
-#   - id: bioentity_isoform
-#     description: ???
-#     display_name: Bioentity isoform
-#     type: string
-#     cardinality: multi
-#     property: []
+  - id: bioentity_isoform
+    description: "Columns 17: Bioentity isoform."
+    display_name: Bioentity isoform
+    type: string
+    property: []
 #   - id: bioentity_isoform_label
 #     description: ???
 #     display_name: Bioentity isoform label

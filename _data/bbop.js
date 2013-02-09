@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130207";
+bbop.version.release = "20130208";
 /* 
  * Package: json.js
  * 
@@ -5922,22 +5922,23 @@ bbop.golr.conf_class = function (class_conf_struct){
 	return this._class['id'];
     };
 
-    // /*
-    //  * Function: searchable_extension
-    //  * 
-    //  * This returns the searchable extension used for this
-    //  * class. There is a typical default, but it might be change in
-    //  * namespace collisions, so it's better to just use this.
-    //  * 
-    //  * Parameters:
-    //  *  n/a
-    //  * 
-    //  * Returns:
-    //  *  string
-    //  */
-    // this.searchable_extension = function(){
-    // 	return this._class['searchable_extension'] || '_searchable';
-    // };
+    /*
+     * Function: searchable_extension
+     * 
+     * This returns the searchable extension used for this
+     * class. There is a typical default, but it might be change in
+     * namespace collisions, so it's better to just use this.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    this.searchable_extension = function(){
+    	//return this._class['searchable_extension'] || '_searchable';
+    	return '_searchable';
+    };
 
     /*
      * Function: get_field
