@@ -6,8 +6,8 @@ description: A description of annotations for GOlr and AmiGO.
 display_name: Annotations
 document_category: annotation
 weight: 20
-boost_weights: annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 family_tag^1.0 family_tag_label^1.0
-result_weights: annotation_class^9.0 evidence_type^8.0 bioentity^7.0 source^4.0 taxon^3.0 evidence_with^2.0 family_tag^1.5 annotation_extension_class^1.0
+boost_weights: annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 bioentity_name^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 family_tag^1.0 family_tag_label^1.0
+result_weights: annotation_class^9.0 evidence_type^8.0 bioentity^7.0 bioentity_name^5.0 source^4.0 taxon^3.0 evidence_with^2.0 family_tag^1.5 annotation_extension_class^1.0
 filter_weights: source^7.0 assigned_by^6.5 evidence_type_closure^6.0 family_tag_label^5.5 taxon_closure_label^5.0 isa_partof_closure_label^4.0 annotation_extension_class_closure_label^3.0
 fields:
   - id: id
@@ -20,16 +20,6 @@ fields:
     display_name: Source
     type: string
     property: []
-  - id: assigned_by
-    description: "Column 15: assigned by."
-    display_name: Assigned by
-    type: string
-    property: []
-  - id: date
-    description: "Column 14: date of assignment."
-    display_name: Date
-    type: string
-    property: []
   - id: type
     description: "Column 12: type class id."
     display_name: Type class id
@@ -40,6 +30,16 @@ fields:
 #     display_name: Type class label
 #     type: string
 #     property: []
+  - id: date
+    description: "Column 14: date of assignment."
+    display_name: Date
+    type: string
+    property: []
+  - id: assigned_by
+    description: "Column 15: assigned by."
+    display_name: Assigned by
+    type: string
+    property: []
 #   - id: type_closure
 #     description: "Derived from c12 + SO."
 #     display_name: Type closure
@@ -114,7 +114,7 @@ fields:
 #     property: []
 #     searchable: true
   - id: synonym
-    description: "Gene product synonyms."
+    description: "Column 11: gene product synonyms."
     display_name: Synonym
     type: string
     cardinality: multi
@@ -184,6 +184,12 @@ fields:
     type: string
     property: []
     searchable: true
+  - id: bioentity_name
+    description: "The full name of the gene product."
+    display_name: Name
+    type: string
+    property: []
+    searchable: true
 #   - id: bioentity_alternate_label
 #     description: Alternate label.
 #     display_name: Alternate label
@@ -239,7 +245,7 @@ fields:
 #     cardinality: multi
 #     property: []
   - id: evidence_type
-    description: ???
+    description: "Column 7: evidence type."
     display_name: Evidence type
     type: string
     property: []
@@ -256,12 +262,12 @@ fields:
     cardinality: multi
     property: []
   - id: reference
-    description: ???
+    description: "Column 6: database reference."
     display_name: Reference
     type: string
     property: []
   - id: annotation_extension_class
-    description: ???
+    description: "Column 16: extension class for the annotation."
     display_name: Annotation extension class
     type: string
     cardinality: multi

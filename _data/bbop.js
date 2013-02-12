@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130208";
+bbop.version.release = "20130211";
 /* 
  * Package: json.js
  * 
@@ -10318,7 +10318,7 @@ bbop.core.namespace('bbop', 'widget', 'live_search');
  * Arguments:
  *  interface_id - string id of the div to build on
  *  conf_class - <bbop.golr.conf_class> for hints and other settings
- *  buttons_defs - a list of button definition hashes
+ *  button_defs - a list of button definition hashes
  * 
  * Returns:
  *  BBOP GOlr UI object

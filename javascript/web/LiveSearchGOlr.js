@@ -114,27 +114,33 @@ function LiveSearchGOlrInit(){
 		click_function_generator: function(manager){
 		    return function(event){
 			var fl = [
-			    'source',
-			    // 'bioentity_internal_id',
-			    'bioentity_label',
-			    //'qualifier',
-			    'annotation_class',
-			    'reference',
-			    'evidence_type',
-			    'evidence_with',
-			    // 'aspect',
-			    // 'bioentity_name',
-			    // 'bioentity_synonym',
-			    // 'type',
-			    'taxon',
-			    'date',
-			    // 'assigned_by',
-			    'annotation_extension_class',
-			    'bioentity'
+			    'source', // c1
+			    'bioentity', // c2
+			    'bioentity_label', // c3
+			    'qualifier', // c4
+			    'annotation_class', // c5
+			    'reference', // c6
+			    'evidence_type', // c7
+			    'evidence_with', // c8
+			    'aspect', // c9
+			    'bioentity_name', // c10
+			    'synonym', // c11
+			    'type', // c12
+			    'taxon', // c13
+			    'date', // c14
+			    'assigned_by', // c15
+			    'annotation_extension_class', // c16
+			    'bioentity_isoform' // c17
 			];
-			//alert('GAF download: ' + manager.get_query_url());
-			alert('GAF download (1000 lines): ' +
-			      search.get_download_url(fl));
+			var raw_gdl = search.get_download_url(fl);
+			// Aaand encodeURI is a little overzealous on
+			// our case, so we turn our %09, which it
+			// turned into %2509, back into %09.
+			var gdl = encodeURI(raw_gdl).replace(/\%2509/g, '%09');
+			new bbop.widget.dialog('Download: <a href="' + gdl +
+					       '" title="Download psuedo-GAF."'+
+					       '>psuedo-GAF</a> ' + 
+					       '(max. 1000 lines).');
 		    };
 		}
 	    },
