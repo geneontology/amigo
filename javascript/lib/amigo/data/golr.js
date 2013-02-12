@@ -90,6 +90,18 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
+            "description" : "The bioentity ID used at the database of origin.",
+            "display_name" : "This should not be displayed",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "bioentity_internal_id",
+            "property" : []
+         },
+         {
+            "transform" : [],
             "description" : "Column 12: type class id.",
             "display_name" : "Type class id",
             "indexed" : "true",
@@ -292,6 +304,18 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "bioentity_name",
+            "property" : []
+         },
+         "bioentity_internal_id" : {
+            "transform" : [],
+            "description" : "The bioentity ID used at the database of origin.",
+            "display_name" : "This should not be displayed",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "bioentity_internal_id",
             "property" : []
          },
          "id" : {
@@ -954,6 +978,18 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
+            "description" : "The bioentity ID used at the database of origin.",
+            "display_name" : "This should not be displayed",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "bioentity_internal_id",
+            "property" : []
+         },
+         {
+            "transform" : [],
             "description" : "Derived from column 4.",
             "display_name" : "Qualifier",
             "indexed" : "true",
@@ -1228,6 +1264,18 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "reference",
+            "property" : []
+         },
+         "bioentity_internal_id" : {
+            "transform" : [],
+            "description" : "The bioentity ID used at the database of origin.",
+            "display_name" : "This should not be displayed",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "bioentity_internal_id",
             "property" : []
          },
          "bioentity_name" : {

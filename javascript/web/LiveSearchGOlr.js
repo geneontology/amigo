@@ -115,7 +115,8 @@ function LiveSearchGOlrInit(){
 		    return function(event){
 			var fl = [
 			    'source', // c1
-			    'bioentity', // c2
+			    //'bioentity', // c2
+			    'bioentity_internal_id', // c2
 			    'bioentity_label', // c3
 			    'qualifier', // c4
 			    'annotation_class', // c5

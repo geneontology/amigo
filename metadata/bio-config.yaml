@@ -32,6 +32,12 @@ fields:
     type: string
     property: []
     searchable: true
+  - id: bioentity_internal_id
+    description: "The bioentity ID used at the database of origin."
+    display_name: This should not be displayed
+    type: string
+    property: []
+    indexed: false
   - id: type
     description: "Column 12: type class id."
     display_name: Type class id
