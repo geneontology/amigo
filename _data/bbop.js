@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130211";
+bbop.version.release = "20130213";
 /* 
  * Package: json.js
  * 
@@ -10369,6 +10369,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
     // column display.
     var ui_meta_div_id = mangle + 'meta-id';
     var ui_results_table_div_id = mangle + 'results-table-id';
+    var ui_sticky_filters_div_id = mangle + 'sticky_filters-id';
     var ui_current_filters_div_id = mangle + 'current_filters-id';
     var ui_query_input_id = mangle + 'query-id';
     var ui_clear_query_span_id = mangle + 'clear-query-id';
@@ -10434,6 +10435,35 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
     };
 
     /*
+     * Function: setup_sticky_filters
+     *
+     * Setup sticky filters display under contructed tags for later
+     * population. The seeding information is coming in through the
+     * GOlr conf class.
+     * 
+     * Add in the filter state up here.
+     * 
+     * Parameters:
+     *  n/a
+     *
+     * Returns:
+     *  n/a
+     */
+    this.setup_sticky_filters = function(){
+    
+	ll('setup_sticky_filters UI for class configuration: ' +
+	   this.class_conf.id());
+
+	var sticky_filters_div =
+	    new bbop.html.tag('div', {'id': ui_sticky_filters_div_id},
+			      "No applied sticky filters.");
+
+	// Add the output to the page.
+	var sticky_filters_str = sticky_filters_div.to_string();
+	jQuery('#' + ui_controls_section_id).append(sticky_filters_str);
+    };
+
+    /*
      * Function: setup_current_filters
      *
      * Setup current filters display under contructed tags for later
@@ -10455,7 +10485,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 
 	var current_filters_div =
 	    new bbop.html.tag('div', {'id': ui_current_filters_div_id},
-			      "No applied filters.");
+			      "No applied user filters.");
 
 	// Add the output to the page.
 	var curr_filters_str = current_filters_div.to_string();
@@ -10925,9 +10955,59 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
     };
 
     /*
+     * Function: draw_sticky_filters
+     *
+     * (Re)draw the information on the sticky filter set.
+     * 
+     * Parameters:
+     *  response - the <bbop.golr.response> returned from the server
+     *  manager - <bbop.golr.manager> that we initially registered with
+     *
+     * Returns:
+     *  n/a
+     */
+    this.draw_sticky_filters = function(response, manager){
+    
+	ll('draw_sticky_filters for: ' + ui_div_id);
+
+	// Add in the actual HTML for the pinned filters and buttons.
+	var sticky_query_filters = manager.get_sticky_query_filters();
+	ll('sticky filters: ' + bbop.core.dump(sticky_query_filters));
+	var fq_list_tbl = new bbop.html.table(['', 'Pinned filters'], []);
+	// [{'filter': A, 'value': B, 'negative_p': C, 'sticky_p': D}, ...]
+	each(sticky_query_filters,
+	     function(fset){
+
+		 //
+		 var sfield = fset['filter'];
+		 var sfield_val = fset['value'];
+
+		 // Boolean value to a character.
+		 var polarity = fset['negative_p'];
+		 var polstr = '-';
+		 if( polarity ){ polstr = '+'; }
+
+		 // Generate a button with a unique id.
+		 var label_str = polstr + ' ' + sfield + ':' + sfield_val;
+		 fq_list_tbl.add_to(['<b>'+ polstr +'</b>',
+				     sfield + ': ' + sfield_val]);
+	     });
+	
+	// Either add to the display, or display the "empty" message.
+	var sfid = '#' + ui_sticky_filters_div_id;
+	jQuery(sfid).empty();
+	if( sticky_query_filters.length == 0 ){
+	    jQuery(sfid).append("No sticky filters.");
+	}else{
+	    // Attach to the DOM...
+	    jQuery(sfid).append(fq_list_tbl.to_string());
+	}
+    };
+
+    /*
      * Function: draw_current_filters
      *
-     * (Re)draw the information in the current filter set.
+     * (Re)draw the information on the current filter set.
      * This function makes them active as well.
      * 
      * Parameters:
@@ -10945,9 +11025,9 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 	// doing so, tie a unique id to the filter--we'll use that
 	// later on to add buttons and events to them.
 	var in_query_filters = response.query_filters();
-	var sticky_query_filters = manager.get_sticky_query_filters();
+	//var sticky_query_filters = manager.get_sticky_query_filters();
 	ll('filters: ' + bbop.core.dump(in_query_filters));
-	var fq_list_tbl = new bbop.html.table(['', 'Filters', ''], []);
+	var fq_list_tbl = new bbop.html.table(['', 'User filters', ''], []);
 	var has_fq_p = false; // assume there are no filters to begin with
 	var button_hash = {};
 	each(in_query_filters,
@@ -10997,7 +11077,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 	var cfid = '#' + ui_current_filters_div_id;
 	jQuery(cfid).empty();
 	if( ! has_fq_p ){
-	    jQuery(cfid).append("No current filters.");
+	    jQuery(cfid).append("No current user filters.");
 	}else{
 
 	    // With this, the buttons will be attached to the
@@ -12175,6 +12255,8 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	    		    ui.reset_global_reset_button, -1);
     	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
+    	    anchor.register('reset', 'sticky_first',
+    			    ui.draw_sticky_filters, -1);
     	    anchor.register('reset', 'curr_first',
     			    ui.draw_current_filters, -1);
     	    anchor.register('reset', 'accordion_first',
@@ -12186,6 +12268,8 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	
     	// Things to do on every search event.
     	if( show_filterbox_p ){ // conditionally display filter stuff
+    	    anchor.register('search','sticky_filters_std',
+    			    ui.draw_sticky_filters);
     	    anchor.register('search','curr_filters_std',
     			    ui.draw_current_filters);
     	    anchor.register('search', 'accordion_std', ui.draw_accordion);
@@ -12206,6 +12290,7 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	    ui.setup_global_reset_button();
 	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
+    	    ui.setup_sticky_filters();
     	    ui.setup_current_filters();
     	    ui.setup_accordion();
 	}
