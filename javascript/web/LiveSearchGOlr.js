@@ -72,13 +72,13 @@ function LiveSearchGOlrInit(){
     /// Tabify the layout if we can (may be in a non-tabby version).
     ///
 
-    var dtabs = jQuery("#display-tabs");
-    if( dtabs ){
-    	ll('Apply tabs...');
-    	jQuery("#display-tabs").tabs();
-    	//dtabs.tabs();
-    	jQuery("#display-tabs").tabs('select', 0);
-    }
+    // var dtabs = jQuery("#display-tabs");
+    // if( dtabs ){
+    // 	ll('Apply tabs...');
+    // 	jQuery("#display-tabs").tabs();
+    // 	//dtabs.tabs();
+    // 	jQuery("#display-tabs").tabs('select', 0);
+    // }
 
     ///
     /// Ready the configuration that we'll use.
@@ -303,7 +303,7 @@ function LiveSearchGOlrInit(){
     }else{ // no bookmark
 	ll("No bookmark");
 	_establish_default_interface();
-    }
+    } 
 
     // Done message.
     ll('LiveSearchGOlrInit done.');

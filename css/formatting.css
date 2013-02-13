@@ -500,6 +500,23 @@ class. */
     margin-left: -100%;
     /* background: #cccccc; */
 }
+
+/*
+ * This is a slight correction for the large size give by jQuery's
+ * ui-accordion when in the context of our two-column live search
+ * layout.
+ */
+.twocol-leftcolumn .ui-accordion {
+    font-size: 100%;
+}
+.twocol-leftcolumn .ui-accordion-header {
+    margin-left: 0px; /* was 10px */
+    margin-right: 0px; /* was 10px */
+}
+.twocol-leftcolumn .ui-accordion-header a {
+    border-bottom-style: none; /* was dotted */
+}
+
 .twocol-content {
     /* margin-left: 25em; */
 }
