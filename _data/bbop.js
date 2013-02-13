@@ -10407,7 +10407,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 					    label_str);
 	var query_div = new bbop.html.input({'id': ui_query_input_id,
 					     'class': 'golr-ui-input'});	
-	var clear_query_span =new bbop.html.span('&nbsp;<b>[clear]</b>',
+	var clear_query_span =new bbop.html.span('&nbsp;<b>[clear search]</b>',
 						 {'id':ui_clear_query_span_id});
 	jQuery('#' + ui_controls_section_id).append(query_label.to_string());
 	jQuery('#' + ui_controls_section_id).append(query_div.to_string());
@@ -10428,7 +10428,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
     this.setup_global_reset_button = function(){    
     	// Tags and output to the page.
     	var global_reset_span =
-	    new bbop.html.span('&nbsp;<b>[reset all]</b>',
+	    new bbop.html.span('&nbsp;<b>[reset all user filters]</b>',
 			       {'id': ui_global_reset_span_id});
 	var gstr = global_reset_span.to_string();
     	jQuery('#' + ui_controls_section_id).append(gstr);

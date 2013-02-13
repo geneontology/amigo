@@ -29,56 +29,26 @@ function TermDetailsInit(){
 	jQuery("#display-tabs").tabs('select', 0);
     }
 
-    ///
-    /// Ready the configuration that we'll use.
-    ///
-
+    // Ready the configuration that we'll use.
     var gconf = new bbop.golr.conf(amigo.data.golr);
     var solr_server = sd.golr_base();
 
-    ///
-    /// Manager and callbacks.
-    ///
-
     // Setup the annotation profile and make the annotation document
     // category and the current acc sticky in the filters.
-    var gm_ann = new bbop.golr.manager.jquery(solr_server, gconf);
-    gm_ann.set_personality('bbop_ann'); // profile in gconf
-    gm_ann.add_query_filter('document_category', 'annotation', ['*']);
-    gm_ann.add_query_filter('isa_partof_closure', global_acc, ['*']);
+    var gps = new bbop.widget.search_pane(solr_server, gconf,
+					  'display-associations',
+					  {});
+    // Set the manager profile.
+    gps.set_personality('bbop_ann'); // profile in gconf
+    gps.include_highlighting(true);
 
-    // Create a two column layout and a lot of hidden switches and
-    // variables.
-    var ui_ann = new bbop.widget.live_search('display-associations',
-					     gconf.get_class('bbop_ann'));   
-    
-    ///
-    /// Setup and bind them together.
-    ///
+    // Two sticky filters.
+    gps.add_query_filter('document_category', 'annotation', ['*']);
+    gps.add_query_filter('isa_partof_closure', global_acc, ['*']);
 
-    // Setup the gross frames for the filters and results.
-    ui_ann.setup_current_filters();
-    ui_ann.setup_accordion();
-    ui_ann.setup_results({'meta': true});
-
-    // Things to do on every reset event. Essentially re-draw
-    // everything.
-    gm_ann.register('reset', 'curr_first', ui_ann.draw_current_filters, -1);
-    gm_ann.register('reset', 'accordion_first', ui_ann.draw_accordion, -1);
-    gm_ann.register('reset', 'meta_first', ui_ann.draw_meta, -1);
-    gm_ann.register('reset', 'results_first', ui_ann.draw_results, -1);
-
-    // Things to do on every search event.
-    gm_ann.register('search', 'curr_filters_std', ui_ann.draw_current_filters);
-    gm_ann.register('search', 'accordion_std', ui_ann.draw_accordion);
-    gm_ann.register('search', 'meta_usual', ui_ann.draw_meta);
-    gm_ann.register('search', 'results_usual', ui_ann.draw_results);
-
-    // Things to do on an error.
-    gm_ann.register('error', 'results_unusual', ui_ann.draw_error);
-
-    // Start the ball with a reset event.
-    gm_ann.reset();
+    // Get the interface going.
+    gps.establish_display();
+    gps.reset();
 
     //
     ll('TermDetailsInit done.');
