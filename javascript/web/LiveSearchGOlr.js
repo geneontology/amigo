@@ -105,6 +105,14 @@ function LiveSearchGOlrInit(){
     	'show_searchbox_p' : true,
     	'show_filterbox_p' : true,
     	'show_pager_p' : true,
+    	//'icon_remove_label' : 'foo',
+    	//'icon_remove_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
+    	//'icon_clear_label' : 'foo',
+    	//'icon_clear_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
+    	//'icon_positive_label' : '+',
+    	//'icon_positive_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
+    	//'icon_negative_label' : '-',
+    	//'icon_negative_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
     	'buttons' : [
 	    {
 		label: 'GAF download',
@@ -133,7 +141,8 @@ function LiveSearchGOlrInit(){
 			    'annotation_extension_class', // c16
 			    'bioentity_isoform' // c17
 			];
-			var raw_gdl = search.get_download_url(fl);
+			var raw_gdl =
+			    search.get_download_url(fl, {'rows': 5000});
 			// Aaand encodeURI is a little overzealous on
 			// our case, so we turn our %09, which it
 			// turned into %2509, back into %09.
@@ -141,7 +150,7 @@ function LiveSearchGOlrInit(){
 			new bbop.widget.dialog('Download: <a href="' + gdl +
 					       '" title="Download psuedo-GAF."'+
 					       '>psuedo-GAF</a> ' + 
-					       '(max. 1000 lines).');
+					       '(max. 5000 lines).');
 		    };
 		}
 	    },

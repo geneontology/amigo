@@ -10375,6 +10375,14 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
     var ui_clear_query_span_id = mangle + 'clear-query-id';
     var ui_global_reset_span_id = mangle + 'global-reset-id';
 
+    // Globally declared (or not) icons.
+    var ui_icon_positive_label = '';
+    var ui_icon_positive_source = '';
+    var ui_icon_negative_label = '';
+    var ui_icon_negative_source = '';
+    var ui_icon_remove_label = '';
+    var ui_icon_remove_source = '';
+
     // Additional id hooks for easy callbacks. While these are not as
     // easily changable as the above, we use them often enough and
     // across functions to have a hook.
@@ -10391,27 +10399,47 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      * Setup the free text query display under contructed tags for
      * later population.
      * 
+     * If no icon_clear_source is defined, icon_clear_label will be
+     * used as the defining text.
+     * 
      * Parameters:
      *  label_str - *[optional]* string or bbop.html for input label
+     *  icon_clear_label - *[optional]* string or bbop.html for clear icon
+     *  icon_clear_source - *[optional]* string to define the src of img 
      *
      * Returns:
      *  n/a
      */
-    this.setup_query = function(label_str){
-    
+    this.setup_query = function(label_str, icon_clear_label, icon_clear_source){
 	ll('setup_query for: ' + ui_query_input_id);
 
+	// Some defaults
+	if( ! label_str ){ label_str = ''; }
+	if( ! icon_clear_label ){ icon_clear_label = ''; }
+	if( ! icon_clear_source ){ icon_clear_source = ''; }
+	
 	// Tags and output to the page.
-	if( ! label_str ){ label_str = 'Search:&nbsp;'; }
 	var query_label = new bbop.html.tag('label', {'for': ui_query_input_id},
 					    label_str);
 	var query_div = new bbop.html.input({'id': ui_query_input_id,
 					     'class': 'golr-ui-input'});	
-	var clear_query_span =new bbop.html.span('&nbsp;<b>[clear search]</b>',
-						 {'id':ui_clear_query_span_id});
+
+	// Figure out an icon or a label.
+	if( icon_clear_source == '' ){
+	    var clear_query_obj =
+		new bbop.html.span('&nbsp;' + icon_clear_label,
+				   {'id':ui_clear_query_span_id});	    
+	}else{
+	    var clear_query_obj =
+		new bbop.html.image({'src': icon_clear_source,
+				     'title': icon_clear_label,
+				     'id': ui_clear_query_span_id});
+	}
+
+	// Add to display.
 	jQuery('#' + ui_controls_section_id).append(query_label.to_string());
 	jQuery('#' + ui_controls_section_id).append(query_div.to_string());
-	jQuery('#'+ui_controls_section_id).append(clear_query_span.to_string());
+	jQuery('#' +ui_controls_section_id).append(clear_query_obj.to_string());
     };
 
     /*
@@ -10419,18 +10447,37 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      *
      * Add a bit of a place for the global reset button.
      * 
+     * If no icon_reset_source is defined, icon_reset_label will be
+     * used as the defining text.
+     * 
      * Parameters:
-     *  n/a
+     *  icon_clear_label - *[optional]* string or bbop.html for clear icon
+     *  icon_clear_source - *[optional]* string to define the src of img 
      *
      * Returns:
      *  n/a
      */
-    this.setup_global_reset_button = function(){    
-    	// Tags and output to the page.
-    	var global_reset_span =
-	    new bbop.html.span('&nbsp;<b>[reset all user filters]</b>',
-			       {'id': ui_global_reset_span_id});
-	var gstr = global_reset_span.to_string();
+    this.setup_global_reset_button = function(icon_reset_label,
+					      icon_reset_source){
+
+	// Some defaults
+	if( ! icon_reset_label ){ icon_reset_label = ''; }
+	if( ! icon_reset_source ){ icon_reset_source = ''; }
+
+	// Figure out an icon or a label.
+	if( icon_reset_source == '' ){
+    	    var global_reset_obj =
+		new bbop.html.span('&nbsp;' + icon_reset_label,
+				   {'id': ui_global_reset_span_id});
+	}else{
+    	    var global_reset_obj =
+		new bbop.html.image({'src': icon_reset_source,
+				     'title': icon_reset_label,
+				     'id': ui_global_reset_span_id});	    
+	}
+
+	//
+	var gstr = global_reset_obj.to_string();
     	jQuery('#' + ui_controls_section_id).append(gstr);
     };
 
@@ -10472,17 +10519,25 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      * 
      * Add in the filter state up here.
      * 
+     * If no icon_reset_source is defined, icon_reset_label will be
+     * used as the defining text.
+     * 
      * Parameters:
-     *  n/a
+     *  icon_remove_label - *[optional]* string or bbop.html for remove icon
+     *  icon_remove_source - *[optional]* string to define the src of img 
      *
      * Returns:
      *  n/a
      */
-    this.setup_current_filters = function(){
-    
+    this.setup_current_filters = function(icon_remove_label,icon_remove_source){
 	ll('setup_current_filters UI for class configuration: ' +
 	   this.class_conf.id());
 
+	// Set the class variables for use when we do the redraws.
+	if( icon_remove_label ){ ui_icon_remove_label = icon_remove_label; }
+	if( icon_remove_source ){ ui_icon_remove_source = icon_remove_source; }
+
+	// Create the placeholder.
 	var current_filters_div =
 	    new bbop.html.tag('div', {'id': ui_current_filters_div_id},
 			      "No applied user filters.");
@@ -10500,16 +10555,33 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      * GOlr conf class.
      * Start building the accordion here. Not an updatable part.
      * 
+     * If no icon_*_source is defined, icon_*_label will be
+     * used as the defining text.
+     * 
      * Parameters:
-     *  n/a 
+     *  icon_positive_label - *[optional]* string or bbop.html for positive icon
+     *  icon_positive_source - *[optional]* string to define the src of img 
+     *  icon_negative_label - *[optional]* string or bbop.html for positive icon
+     *  icon_negative_source - *[optional]* string to define the src of img 
      *
      * Returns: 
      *  n/a
      */
-    this.setup_accordion = function(){
-    
+    this.setup_accordion = function(icon_positive_label, icon_positive_source,
+				    icon_negative_label, icon_negative_source){
+	
 	ll('setup_accordion UI for class configuration: ' +
 	   this.class_conf.id());
+
+	// Set the class variables for use when we do the redraws.
+	if( icon_positive_label ){
+	    ui_icon_positive_label = icon_positive_label; }
+	if( icon_positive_source ){
+	    ui_icon_positive_source = icon_positive_source; }
+	if( icon_negative_label ){
+	    ui_icon_negative_label = icon_negative_label; }
+	if( icon_negative_source ){
+	    ui_icon_negative_source = icon_negative_source; }
 
 	var filter_accordion_attrs = {
 	    id: accordion_div_id,
@@ -11051,12 +11123,24 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 
 			      // Generate a button with a unique id.
 			      var label_str = polstr+' '+ field +':'+field_val;
-			      // var b =
-			      // 	  new bbop.html.button('remove filter',
-			      // 			       {'generate_id': true});
-			      var b =
-				  new bbop.html.span('<b>[&nbsp;X&nbsp;]</b>',
-						     {'generate_id': true});
+
+			      // Argh! Real jQuery buttons are way too slow!
+			      // var b = new bbop.html.button('remove filter',
+			      // 		  {'generate_id': true});
+
+			      // Is the "button" a span or an image?
+			      var b = null;
+			      if( ui_icon_remove_source == '' ){
+				  b = new bbop.html.span(ui_icon_remove_label,
+							 {'generate_id': true});
+			      }else{
+				  var bargs = {
+				      'src': ui_icon_remove_source,
+				      'title': ui_icon_remove_label,
+				      'generate_id': true
+				  };
+				  b = new bbop.html.image(bargs);
+			      }
 			      
 			      // Tie the button it to the filter for
 			      // jQuery and events attachment later on.
@@ -11197,20 +11281,33 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 				  
 				  // Create buttons and store them for later
 				  // activation with callbacks to the manager.
-				  // var b_plus =
-				  //     new bbop.html.button('+filter',
-				  // 		   {'generate_id': true});
-				  // var b_minus =
-				  //     new bbop.html.button('-filter',
-				  // 		   {'generate_id': true});
-				  var b_plus_txt = '<b>[&nbsp;+&nbsp;]</b>';
-				  var b_plus =
-				      new bbop.html.span(b_plus_txt,
-							 {'generate_id': true});
-				  var b_minus_txt = '<b>[&nbsp;-&nbsp;]</b>';
-				  var b_minus =
-				      new bbop.html.span(b_minus_txt,
-							 {'generate_id': true});
+				  var b_plus = null;
+				  if( ui_icon_positive_source == '' ){
+				      b_plus =
+					  new bbop.html.span(ui_icon_positive_label, {'generate_id': true});
+				  }else{
+				      var b_plus_args = {
+					  'src': ui_icon_positive_source,
+					  'title': ui_icon_positive_label,
+					  'generate_id': true
+				      };
+				      b_plus = new bbop.html.image(b_plus_args);
+				  }
+				  var b_minus = null;
+				  if( ui_icon_negative_source == '' ){
+				      b_minus =
+					  new bbop.html.span(ui_icon_negative_label, {'generate_id': true});
+				  }else{
+				      var b_minus_args = {
+					  'src': ui_icon_negative_source,
+					  'title': ui_icon_negative_label,
+					  'generate_id': true
+				      };
+				      b_minus=new bbop.html.image(b_minus_args);
+				  }
+
+				  // Store in hash for later keying to
+				  // event.
 				  button_hash[b_plus.get_id()] =
 				      [in_field, f_name, f_count, '+'];
 				  button_hash[b_minus.get_id()] =
@@ -12142,13 +12239,20 @@ bbop.core.namespace('bbop', 'widget', 'search_pane');
  * 
  * The optional hash arguments look like:
  * 
- *  base_icon_url - base path to icons, see above (default null, use text)
- *  image_type - icon image type (default 'gif')
- *  layout_type - choose the layout type to use (default 'two-column')
  *  show_global_reset_p - show the global reset button (default true)
  *  show_searchbox_p - show the search query box (default true)
  *  show_filterbox_p - show currents filters and accordion (default true)
  *  show_pager_p - show the results pager (default true)
+ *  icon_clear_label - (default: '[clear search]')
+ *  icon_clear_source - (default: '')
+ *  icon_reset_label - (default: '[reset all user filters]')
+ *  icon_reset_source - (default: '')
+ *  icon_positive_label - (default: '<b>[&nbsp;+&nbsp;]</b>')
+ *  icon_positive_source - (default: '')
+ *  icon_negative_label - (default: '<b>[&nbsp;-&nbsp;]</b>')
+ *  icon_negative_source - (default: '')
+ *  icon_remove_label - (default: '<b>[&nbsp;X&nbsp;]</b>')
+ *  icon_remove_source - (default: '')
  *  buttons -  a list of button definition hashes (default [])
  * 
  * Arguments:
@@ -12179,26 +12283,44 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     // Our argument default hash.
     var default_hash =
     	{
-    	    'base_icon_url' : null,
-    	    'image_type' : 'gif',
-    	    'layout_type' : 'two-column',
+    	    //'layout_type' : 'two-column',
     	    'show_global_reset_p' : true,
     	    'show_searchbox_p' : true,
     	    'show_filterbox_p' : true,
     	    'show_pager_p' : true,
+	    'icon_clear_label': '<b>[clear search]</b>',
+	    'icon_clear_source': '',
+	    'icon_reset_label': '<b>[reset all user filters]</b>',
+	    'icon_reset_source': '',
+	    'icon_positive_label': '<b>[&nbsp;+&nbsp;]</b>',
+	    'icon_positive_source': '',
+	    'icon_negative_label': '<b>[&nbsp;-&nbsp;]</b>',
+	    'icon_negative_source': '',
+	    'icon_remove_label': '<b>[&nbsp;X&nbsp;]</b>',
+	    'icon_remove_source': '',
 	    'buttons' : []
     	};
     var folding_hash = in_argument_hash || {};
     var arg_hash = bbop.core.fold(default_hash, folding_hash);
 
     // Pull args into variables.
-    var base_icon_url = arg_hash['base_icon_url'];
-    var image_type = arg_hash['image_type'];
-    var layout_type = arg_hash['layout_type'];
+    //var base_icon_url = arg_hash['base_icon_url'];
+    //var image_type = arg_hash['image_type'];
+    //var layout_type = arg_hash['layout_type'];
     var show_global_reset_p = arg_hash['show_global_reset_p'];
     var show_searchbox_p = arg_hash['show_searchbox_p'];
     var show_filterbox_p = arg_hash['show_filterbox_p'];
     var show_pager_p = arg_hash['show_pager_p'];
+    var icon_clear_label = arg_hash['icon_clear_label'];
+    var icon_clear_source = arg_hash['icon_clear_source'];
+    var icon_reset_label = arg_hash['icon_reset_label'];
+    var icon_reset_source = arg_hash['icon_reset_source'];
+    var icon_positive_label = arg_hash['icon_positive_label'];
+    var icon_positive_source = arg_hash['icon_positive_source'];
+    var icon_negative_label = arg_hash['icon_negative_label'];
+    var icon_negative_source = arg_hash['icon_negative_source'];
+    var icon_remove_label = arg_hash['icon_remove_label'];
+    var icon_remove_source = arg_hash['icon_remove_source'];
     var button_defs = arg_hash['buttons'];
 
     /*
@@ -12238,12 +12360,12 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	// Create a new two column layout and a lot of hidden switches
     	// and variables.
     	var ui = null;
-	if( layout_type == 'two-column' ){
+	// if( layout_type == 'two-column' ){
 	    ui = new bbop.widget.display.live_search(interface_id, cclass,
 						     button_defs);
-	}else{
-    	    throw new Error('ERROR: unsupported layout type: ' + layout_type);
-	}
+	// }else{
+    	//     throw new Error('ERROR: unsupported layout type: '+ layout_type);
+	// }
 	
     	// Things to do on every reset event. Essentially re-draw
     	// everything.
@@ -12284,15 +12406,20 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	// Setup the gross frames for the filters and results.
     	//ui.setup_reset_button();
     	if( show_searchbox_p ){ // conditionally display search box stuff
-    	    ui.setup_query();
+    	    //ui.setup_query();
+    	    ui.setup_query('Search:&nbsp;',icon_clear_label,icon_clear_source);
 	}
     	if( show_global_reset_p ){ // conditionally show global reset button
-	    ui.setup_global_reset_button();
+	    //ui.setup_global_reset_button();
+	    ui.setup_global_reset_button(icon_reset_label, icon_reset_source);
 	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    ui.setup_sticky_filters();
-    	    ui.setup_current_filters();
-    	    ui.setup_accordion();
+    	    //ui.setup_current_filters();
+    	    //ui.setup_accordion();
+    	    ui.setup_current_filters(icon_remove_label, icon_remove_source);
+    	    ui.setup_accordion(icon_positive_label, icon_positive_source,
+			       icon_negative_label, icon_negative_source);
 	}
     	ui.setup_results({'meta': show_pager_p});
 	
