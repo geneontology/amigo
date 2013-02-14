@@ -12042,6 +12042,7 @@ bbop.widget.dialog = function(item, in_argument_hash){
 	//modal: true,
 	//draggable: false,
 	width: 300, // the jQuery default anyways
+	title: '', 
 	close:
 	function(){
 	    // TODO: Could maybe use .dialog('destroy') instead?
@@ -12050,6 +12051,10 @@ bbop.widget.dialog = function(item, in_argument_hash){
     };
     var folding_hash = in_argument_hash || {};
     var arg_hash = bbop.core.fold(default_hash, folding_hash);
+
+    // Not an argument for the dialog, so remove it.
+    var title = arg_hash['title'];
+    delete arg_hash['title'];
 
     ///
     /// Actually draw.
@@ -12062,7 +12067,7 @@ bbop.widget.dialog = function(item, in_argument_hash){
     }
 
     // Create new div.
-    var div = new bbop.html.tag('div', {'generate_id': true});
+    var div = new bbop.html.tag('div', {'generate_id': true, title: title});
     var div_id = div.get_id();
 
     // Append div to end of body.
