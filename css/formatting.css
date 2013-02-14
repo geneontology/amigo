@@ -497,7 +497,7 @@ class. */
 .twocol-leftcolumn {
     float: left;
     width: 25em;
-    margin-left: -100%;
+    /* margin-left: -100%; */ /* what was this doing!? */
     /* background: #cccccc; */
 }
 

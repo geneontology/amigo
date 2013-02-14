@@ -12041,7 +12041,7 @@ bbop.widget.dialog = function(item, in_argument_hash){
     var default_hash = {
 	//modal: true,
 	//draggable: false,
-	//width: 700
+	width: 300, // the jQuery default anyways
 	close:
 	function(){
 	    // TODO: Could maybe use .dialog('destroy') instead?

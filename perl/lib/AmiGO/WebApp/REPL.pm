@@ -86,6 +86,7 @@ sub mode_bbop_js {
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile();
   $self->_common_params_settings($params);
+  #$params->{STANDARD_CSS} = 'yes';
 
   ## Get various examples from the wiki.
   $self->set_template_parameter('bbop_js_examples_list',
@@ -101,7 +102,7 @@ sub mode_bbop_js {
     {
      css_library =>
      [
-      'standard', # basic GO-styles
+      #'standard', # basic GO-styles
       'com.jquery.jqamigo.custom',
      ],
      javascript_library =>

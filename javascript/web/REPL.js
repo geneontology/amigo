@@ -6,8 +6,6 @@
 //// goes very wrong.
 ////
 
-//var goo = 'goo!';
-
 // Go and get the initial results for building our tree.
 function REPLInit(){
 
