@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130213";
+bbop.version.release = "20130214";
 /* 
  * Package: json.js
  * 
@@ -9770,6 +9770,70 @@ bbop.golr.faux_ajax = function (){
     };
 };
 /*
+ * Package: clickable_object.js
+ * 
+ * Namespace: bbop.widget.display.clickable_object
+ * 
+ * BBOP object to produce a clickable image or a clickable text span,
+ * both producing something that can give its id for later clickable
+ * actions.
+ * 
+ * This is a method, not a constructor.
+ */
+
+bbop.core.require('bbop', 'core');
+//bbop.core.require('bbop', 'logger');
+bbop.core.require('bbop', 'html');
+bbop.core.namespace('bbop', 'widget', 'display', 'clickable_object');
+
+/*
+ * Method: clickable_object
+ * 
+ * Generator for a clickable object.
+ * 
+ * TODO: May eventually expand it to include making a jQuery button.
+ * 
+ * Arguments:
+ *  label - *[optional]* the text to use for the span or label (defaults to '')
+ *  source - *[optional]* the URL source of the image (defaults to '')
+ *  id - *[optional]* the id for the object (defaults to generate_id: true)
+ * 
+ * Returns:
+ *  bbop.html.span or bbop.html.image
+ */
+bbop.widget.display.clickable_object = function(label, source, id){
+    //this._is_a = 'bbop.widget.display.clickable_object';
+    //var anchor = this;
+    // // Per-UI logger.
+    // var logger = new bbop.logger();
+    // logger.DEBUG = true;
+    // function ll(str){ logger.kvetch('W (clickable_object): ' + str); }
+
+    // Default args.
+    if( ! label ){ label = ''; }
+    if( ! source ){ source = ''; }
+
+    // Decide whether we'll use an incoming id or generate our own.
+    var args = {};
+    if( id ){
+	args['id'] = id;
+    }else{
+	args['generate_id'] = true;
+    }
+
+    // Figure out an icon or a label.
+    var obj = null;
+    if( source == '' ){
+	obj = new bbop.html.span(label, args);
+    }else{
+	args['src'] = source;
+	args['title'] = label;
+	obj = new bbop.html.image(args);
+    }
+
+    return obj;
+};
+/*
  * Package: meta_results.js
  * 
  * Namespace: bbop.widget.display.meta_results
@@ -10309,6 +10373,7 @@ bbop.widget.display.filter_shield = function(){
 
 bbop.core.require('bbop', 'core');
 bbop.core.require('bbop', 'logger');
+bbop.core.require('bbop', 'widget', 'display', 'clickable_object');
 bbop.core.require('bbop', 'widget', 'display', 'meta_results');
 bbop.core.require('bbop', 'widget', 'display', 'results_table_by_class_conf');
 bbop.core.require('bbop', 'widget', 'display', 'two_column_layout');
@@ -10417,7 +10482,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
     this.setup_query = function(label_str, icon_clear_label, icon_clear_source){
 	ll('setup_query for: ' + ui_query_input_id);
 
-	// Some defaults
+	// Some defaults.
 	if( ! label_str ){ label_str = ''; }
 	if( ! icon_clear_label ){ icon_clear_label = ''; }
 	if( ! icon_clear_source ){ icon_clear_source = ''; }
@@ -10429,16 +10494,10 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 					     'class': 'golr-ui-input'});	
 
 	// Figure out an icon or a label.
-	if( icon_clear_source == '' ){
-	    var clear_query_obj =
-		new bbop.html.span('&nbsp;' + icon_clear_label,
-				   {'id':ui_clear_query_span_id});	    
-	}else{
-	    var clear_query_obj =
-		new bbop.html.image({'src': icon_clear_source,
-				     'title': icon_clear_label,
-				     'id': ui_clear_query_span_id});
-	}
+	var clear_query_obj =
+	    bbop.widget.display.clickable_object(icon_clear_label,
+						 icon_clear_source,
+						 ui_clear_query_span_id);
 
 	// Add to display.
 	jQuery('#' + ui_controls_section_id).append(query_label.to_string());
@@ -10469,16 +10528,10 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 	if( ! icon_reset_source ){ icon_reset_source = ''; }
 
 	// Figure out an icon or a label.
-	if( icon_reset_source == '' ){
-    	    var global_reset_obj =
-		new bbop.html.span('&nbsp;' + icon_reset_label,
-				   {'id': ui_global_reset_span_id});
-	}else{
-    	    var global_reset_obj =
-		new bbop.html.image({'src': icon_reset_source,
-				     'title': icon_reset_label,
-				     'id': ui_global_reset_span_id});	    
-	}
+    	var global_reset_obj =
+	    bbop.widget.display.clickable_object(icon_reset_label,
+						 icon_reset_source,
+						 ui_global_reset_span_id);
 
 	//
 	var gstr = global_reset_obj.to_string();
@@ -11133,19 +11186,11 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 			      // 		  {'generate_id': true});
 
 			      // Is the "button" a span or an image?
-			      var b = null;
-			      if( ui_icon_remove_source == '' ){
-				  b = new bbop.html.span(ui_icon_remove_label,
-							 {'generate_id': true});
-			      }else{
-				  var bargs = {
-				      'src': ui_icon_remove_source,
-				      'title': ui_icon_remove_label,
-				      'generate_id': true
-				  };
-				  b = new bbop.html.image(bargs);
-			      }
-			      
+			      var b = bbop.widget.display.clickable_object(
+				  ui_icon_remove_label,
+				  ui_icon_remove_source,
+				  null); // generate_id
+
 			      // Tie the button it to the filter for
 			      // jQuery and events attachment later on.
 			      var bid = b.get_id();
@@ -11285,30 +11330,16 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 				  
 				  // Create buttons and store them for later
 				  // activation with callbacks to the manager.
-				  var b_plus = null;
-				  if( ui_icon_positive_source == '' ){
-				      b_plus =
-					  new bbop.html.span(ui_icon_positive_label, {'generate_id': true});
-				  }else{
-				      var b_plus_args = {
-					  'src': ui_icon_positive_source,
-					  'title': ui_icon_positive_label,
-					  'generate_id': true
-				      };
-				      b_plus = new bbop.html.image(b_plus_args);
-				  }
-				  var b_minus = null;
-				  if( ui_icon_negative_source == '' ){
-				      b_minus =
-					  new bbop.html.span(ui_icon_negative_label, {'generate_id': true});
-				  }else{
-				      var b_minus_args = {
-					  'src': ui_icon_negative_source,
-					  'title': ui_icon_negative_label,
-					  'generate_id': true
-				      };
-				      b_minus=new bbop.html.image(b_minus_args);
-				  }
+				  var b_plus =
+				      bbop.widget.display.clickable_object(
+					  ui_icon_positive_label,
+					  ui_icon_positive_source,
+					  null); // generate_id
+				  var b_minus =
+				      bbop.widget.display.clickable_object(
+					  ui_icon_negative_label,
+					  ui_icon_negative_source,
+					  null); // generate_id
 
 				  // Store in hash for later keying to
 				  // event.
