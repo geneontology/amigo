@@ -9717,7 +9717,11 @@ bbop.golr.manager.jquery.prototype.fetch = function(run_func){
     var anchor = this;
     var qurl = anchor.get_query_url();
     anchor._run_func = run_func;
-    anchor.jq_vars['success'] = anchor._run_func;
+    anchor.jq_vars['success'] =
+	function(json_data){
+	    var response = new bbop.golr.response(json_data);
+	    anchor._run_func(response);   
+	};
     anchor.jq_vars['error'] = anchor._run_error_callbacks;
     anchor.JQ.ajax(qurl, anchor.jq_vars);
 };
@@ -11424,6 +11428,9 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 
 			 // Open the populated shield.
 			 function draw_shield(resp){
+
+			    // ll("shield what: " + bbop.core.what_is(resp));
+			    // ll("shield resp: " + bbop.core.dump(resp));
 
 			     // First, extract the fields from the
 			     // minimal response.
