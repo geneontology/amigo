@@ -76,7 +76,7 @@ function REPLInit(){
 
     // Get things from pulldown into textarea on change.
     jQuery("#" + "golr_session_example_selection").change(
-	function(){
+	function(event){
 	    var sess_golr = jQuery(this).val();
 	    //ll('// sess_golr: ' + sess_golr);
 	    //alert('foo!');
@@ -92,5 +92,5 @@ function REPLInit(){
 	    jQuery("#" + "env-entities").slideToggle();
 	});
 
-    //ll('REPLInit done.');
+    ll('REPLInit done.');
 }

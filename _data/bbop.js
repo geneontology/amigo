@@ -12772,7 +12772,11 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
     // Bind buffer clear.
     function clear_buffer(){
 	//jQuery('#' + logging_console_id).val('');
-	jQuery('#' + command_buffer.get_id()).empty();
+	//alert('to clear: ' + command_buffer.get_id());
+	// FF, at least, does something weird here and empty() does
+	// not always work--doubling seems to be file.
+	jQuery('#' + command_buffer.get_id()).val('');
+	//jQuery('#' + command_buffer.get_id()).empty();
     }
     var cbuid = '#' + clear_buffer_button.get_id();
     var clear_buffer_button_props = {
@@ -12812,6 +12816,33 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
     ///
 
     /*
+     * Function: get_id
+     * 
+     * Get the id of different components in the REPL.
+     * 
+     * Currently supported arguments are:
+     *  - 'buffer'
+     * 
+     * Arguments:
+     *  str - the item you want to check
+     * 
+     * Returns:
+     *  string or null
+     */
+    this.get_id = function(str){
+
+	var retval = null;
+
+	if( str ){
+	    if( str == 'buffer' ){
+		retval = command_buffer.get_id();
+	    }
+	}
+
+	return retval;
+    };
+
+    /*
      * Function: replace_buffer_text
      * 
      * Replace the buffer text with new text.
@@ -12823,9 +12854,9 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
      *  n/a
      */
     this.replace_buffer_text = function(str){
-	//jQuery('#' + command_buffer.get_id()).val(str);
-	jQuery('#' + command_buffer.get_id()).empty();
-	jQuery('#' + command_buffer.get_id()).append(str);
+	clear_buffer();
+	//jQuery('#' + command_buffer.get_id()).append(str);
+	jQuery('#' + command_buffer.get_id()).val(str);
     };
 
     /*
