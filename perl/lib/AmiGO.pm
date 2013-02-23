@@ -888,73 +888,74 @@ sub unknown_header{ print "content-type:unknown\n\n"; }
 # }
 
 
-# =item database_link
+=item database_link
 
-# Args: database id, entity id
-# Returns: URL string
+Args: database id, entity id
+Returns: URL string
 
-# =cut
-# sub database_link {
+=cut
+sub database_link {
 
-#   my $self = shift;
-#   my $db = shift || '';
-#   my $id = shift || '';
+  my $self = shift;
+  my $db = shift || '';
+  my $id = shift || '';
 
-#   #print STDERR "_db_" . $db . "\n";
-#   #print STDERR "_id_" . $id . "\n";
+  #print STDERR "_db_" . $db . "\n";
+  #print STDERR "_id_" . $id . "\n";
 
-#   ## WARNING
-#   ## TODO: Temporary Reactome special case. This should be removeable
-#   ## in a couple of months when Reactome has entirely switched over to
-#   ## satable ids...
-#   ## Stable id:
-#   ## http://www.reactome.org/cgi-bin/link?SOURCE=Reactome&ID=REACT_604
-#   ## DB id:
-#   ## http://www.reactome.org/cgi-bin/eventbrowser?DB=gk_current&ID=10046
-#   # $self->kvetch("Reactome test: $db $id");
-#   if( $db =~ /^reactome$/i && $id =~ /^[0-9]+$/i ){
-#     $self->kvetch("looks like a Reactome db id--special case!");
-#     return 'http://www.reactome.org/cgi-bin/eventbrowser?DB=gk_current&ID='.$id;
-#   }
+  # ## WARNING
+  # ## TODO: Temporary Reactome special case. This should be removeable
+  # ## in a couple of months when Reactome has entirely switched over to
+  # ## satable ids...
+  # ## Stable id:
+  # ## http://www.reactome.org/cgi-bin/link?SOURCE=Reactome&ID=REACT_604
+  # ## DB id:
+  # ## http://www.reactome.org/cgi-bin/eventbrowser?DB=gk_current&ID=10046
+  # # $self->kvetch("Reactome test: $db $id");
+  # if( $db =~ /^reactome$/i && $id =~ /^[0-9]+$/i ){
+  # $self->kvetch("looks like a Reactome db id--special case!");
+  # return 'http://www.reactome.org/cgi-bin/eventbrowser?DB=gk_current&ID='.$id;
+  # }
 
-#   ## Revive the cache if we don't have it.
-#   if( ! defined($self->{DB_INFO}) ){
-#     ## Populate our hash.
-#     my($ret_hash) = _read_frozen_file($self, '/db_info.pl');
-#     $self->{DB_INFO} = $ret_hash || {};
-#     #print STDERR "_init_...\n";
-#     #print STDERR "_keys: " . scalar(keys %$ret_hash) . "\n";
-#   }
+  ## Revive the cache from the JSON if we don't have it.
+  if( ! defined($self->{DB_INFO}) ){
+    ## Populate our hash.
+    #my($ret_hash) = _read_frozen_file($self, '/db_info.pl');
+    my($ret_hash) = _read_json_file($self, 'xrefs.json');
+    $self->{DB_INFO} = $ret_hash || {};
+    #print STDERR "_init_...\n";
+    #print STDERR "_keys: " . scalar(keys %$ret_hash) . "\n";
+  }
 
-#   #$self->kvetch("DB_INFO: " . Dumper($self->{DB_INFO}));
+  #$self->kvetch("DB_INFO: " . Dumper($self->{DB_INFO}));
 
-#   ## Get the link string through the cache.
-#   $db = lc($db);
-#   my $retval = undef;
-#   if( defined $self->{DB_INFO}{$db} ){
+  ## Get the link string through the cache.
+  $db = lc($db);
+  my $retval = undef;
+  if( defined $self->{DB_INFO}{$db} ){
 
-#     my $link_string = $self->{DB_INFO}{$db}{url_syntax};
+    my $link_string = $self->{DB_INFO}{$db}{url_syntax};
 
-#     #print STDERR "_Ls_ $link_string\n";
+    #print STDERR "_Ls_ $link_string\n";
 
-#     ## Insert the id through the link string if one was available.
-#     if( $link_string ){
-#       # ## Special case for UniGene?
-#       # if( $db eq lc('UniGene') ){
-#       # 	## Split id on '.'. First part goes to
-#       # 	## [organism_abbreviation], second part goes to [cluster_id].
-#       # 	my($first, $second) = split(/\./, $id);
-#       # 	$link_string =~ s/\[organism\_abbreviation\]/$first/g;
-#       # 	$link_string =~ s/\[cluster\_id\]/$second/g;
-#       # }else{
-#       $link_string =~ s/\[example\_id\]/$id/g;
-#       # }
-#       $retval = $link_string;
-#     }
-#   }
+    ## Insert the id through the link string if one was available.
+    if( $link_string ){
+      # ## Special case for UniGene?
+      # if( $db eq lc('UniGene') ){
+      # 	## Split id on '.'. First part goes to
+      # 	## [organism_abbreviation], second part goes to [cluster_id].
+      # 	my($first, $second) = split(/\./, $id);
+      # 	$link_string =~ s/\[organism\_abbreviation\]/$first/g;
+      # 	$link_string =~ s/\[cluster\_id\]/$second/g;
+      # }else{
+      $link_string =~ s/\[example\_id\]/$id/g;
+      # }
+      $retval = $link_string;
+    }
+  }
 
-#   return $retval;
-# }
+  return $retval;
+}
 
 
 # =item ontology
@@ -1390,7 +1391,7 @@ sub _read_json_string {
   my $self = shift;
   my $json_str = shift || die 'yes, but what string do you want read?';
 
-  #$self->kvetch("JSON contents: " . $json_str);
+  $self->kvetch("JSON contents: " . $json_str);
 
   ## Read in data.
   # $self->kvetch("json: " . $self->{JSON});

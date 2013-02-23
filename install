@@ -255,14 +255,18 @@ amigo_env_to_js($amigo_env_fname);
 ll("Created AmiGO JavaScript meta file: \"$amigo_env_fname\".");
 
 ###
-### Pull in the GO_xref.abbs file and turn it into a form that the
-### linker can use (amigo.data.xrefs).
+### Pull in the GO_xref.abbs file and turn it into a form that the js
+### linker can use (amigo.data.xrefs), as well as the perl linker
+### (through AmiGO.pm).
 ###
 
-my $xrefs_data_fname = 'javascript/lib/amigo/data/xrefs.js';
+my $xrefs_js_data_fname = 'javascript/lib/amigo/data/xrefs.js';
+my $xrefs_json_data_fname = $env_conf{AMIGO_CGI_ROOT_DIR} . '/xrefs.json';
 my $xrefs_url = 'http://www.geneontology.org/doc/GO.xrf_abbs';
-xref_abbs_to_meta_js($xrefs_data_fname, $xrefs_url);
-ll("Created GO XRefs JavaScript data file: \"$xrefs_data_fname\".");
+xref_abbs_to_meta_js($xrefs_js_data_fname, $xrefs_json_data_fname,
+		     $xrefs_url);
+ll("Created GO XRefs JavaScript data file: \"$xrefs_js_data_fname\".");
+ll("Created GO XRefs JSON data file: \"$xrefs_json_data_fname\".");
 
 ## Dump out the discoverable stats, but only generate the statistics
 ## package if there is already amigo.js files in the javascript
@@ -439,10 +443,12 @@ EOC
 
 
 ## file: <local_js_tree>/lib/amigo/data/xrefs.js
+## file: <amigo_cgi_bin>/xrefs.json
 ## Taken from: ../../go-dev/trunk/amigo/scripts/make_dblinks.pl
 sub xref_abbs_to_meta_js {
 
-  my $js_file_str = shift || die "need a js file string or something";
+  my $js_file_str = shift || die "need a JS file string or something";
+  my $json_file_str = shift || die "need a json file string or something";
   my $xrefs_url = shift || die "need a url for the GO.xrf_abbs file";
 
   ## 
@@ -540,7 +546,7 @@ sub xref_abbs_to_meta_js {
   my $js_str = $js->encode($database_info);
   chomp $js_str;
 
-  ## If the file is already there, blow it away.
+  ## If the JS file is already there, blow it away, and pile it in.
   unlink $js_file_str if -f $js_file_str;
   open(FILE, ">$js_file_str") or die "cannot open $js_file_str: $!";
 
@@ -574,6 +580,17 @@ EOJS
   ## Close file.
   close(FILE);
   make_readable($js_file_str);
+
+  ## If the json file is already there, blow it away, and pile it in.
+  unlink $json_file_str if -f $json_file_str;
+  my $json = JSON::XS->new()->pretty(0);
+  #$js->allow_bignum(1); # if needed, go back to ::PP
+  my $json_str = $json->encode($database_info);
+  chomp $json_str;
+  open(JSONF, ">$json_file_str") or die "cannot open $json_file_str: $!";
+  print JSONF $json_str;
+  close(JSONF);
+  make_readable($json_file_str);
 }
 
 

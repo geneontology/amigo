@@ -49,13 +49,13 @@
 	<dd class="symbol">[% GP_INFO.label %]</dd>
 	
 	<dt>Name(s)</dt>
-	<dd class="full_name">[% GP_INFO.descriptive_name %]</dd>
+	<dd class="full_name">[% GP_INFO.name %]</dd>
 	
 	<dt>Type</dt> 
 	<dd class="type">[% GP_INFO.type %]</dd>
 	
 	<dt>Taxon</dt>
-	<dd class="spp">[% GP_INFO.taxon %]</dd>
+	<dd class="spp">[% GP_INFO.taxon_readable %]</dd>
 	<!-- TODO: Oo! Copy below. -->
 	<!-- <dd class="spp"><a href="http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=44689" title="View Dictyostelium discoideum details on the NCBI taxonomy website">Dictyostelium discoideum</a></dd> -->
 	
@@ -66,17 +66,18 @@
 	<dd>None</dd>
 	[% ELSE %]
 	[%    FOREACH synh IN sl %]
-	<dd class="syn">[% IF synh.scope %]<span class="type">[% synh.scope %]</span>: [% END %][% synh.acc %]</dd>
+	<!-- <dd class="syn">[% IF synh.scope %]<span class="type">[% synh.scope %]</span>: [% END %][% synh.acc %]</dd> -->
+	<dd class="syn">[% synh %]</dd>
 	[%    END %]
 	[% END %]
 
 	<dt>Database</dt>
-	<dd>dictyBase, <a href="http://dictybase.org/gene/DDB_G0267178" title="View details of DDB_G0267178_RTE at dictyBase">dictyBase:DDB_G0267178</a>
+	<dd>[% GP_INFO.source %], <a href="[% GP_INFO.db_link %]" title="View details of [% GP_INFO.internal_id %] at [% GP_INFO.source %]">[% GP_INFO.internal_id %]</a>
 	</dd>
 
-	<dt>Sequence</dt>				
-	<dd><a href="#sequence" title="View DDB_G0267178_RTE sequence" id="seqToggle">View sequence</a>; 
-	  <a class="blast-link" href="blast.cgi?action=blast&amp;seq_id=dictyBase:DDB_G0267178&amp;session_id=5582amigo1308272909" title="Use sequence as BLAST query">use as BLAST query sequence</a></dd>
+	<!-- <dt>Sequence</dt>				 -->
+	<!-- <dd><a href="#sequence" title="View DDB_G0267178_RTE sequence" id="seqToggle">View sequence</a>;  -->
+	<!--   <a class="blast-link" href="blast.cgi?action=blast&amp;seq_id=dictyBase:DDB_G0267178" title="Use sequence as BLAST query">use as BLAST query sequence</a></dd> -->
 		
 	[% IF PHYLO_TREE_LINK %]
 	<dt>PANTHER Family</dt>				
