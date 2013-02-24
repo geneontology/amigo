@@ -260,13 +260,11 @@ ll("Created AmiGO JavaScript meta file: \"$amigo_env_fname\".");
 ### (through AmiGO.pm).
 ###
 
+## Roll JS out to the server environment in a b-flag situation.
 my $xrefs_js_data_fname = 'javascript/lib/amigo/data/xrefs.js';
-my $xrefs_json_data_fname = $env_conf{AMIGO_CGI_ROOT_DIR} . '/xrefs.json';
 my $xrefs_url = 'http://www.geneontology.org/doc/GO.xrf_abbs';
-xref_abbs_to_meta_js($xrefs_js_data_fname, $xrefs_json_data_fname,
-		     $xrefs_url);
+xref_abbs_to_meta_js($xrefs_js_data_fname, $xrefs_url, 'js');
 ll("Created GO XRefs JavaScript data file: \"$xrefs_js_data_fname\".");
-ll("Created GO XRefs JSON data file: \"$xrefs_json_data_fname\".");
 
 ## Dump out the discoverable stats, but only generate the statistics
 ## package if there is already amigo.js files in the javascript
@@ -299,6 +297,12 @@ system(@$release_args) == 0 || die "system $rcmd failed: $?";
 ###
 
 if( ! $opt_b ){
+
+  ## Roll perl out to the server environment in a non-b-flag situation.
+  my $xrefs_json_data_fname = $env_conf{AMIGO_CGI_ROOT_DIR} . '/xrefs.json';
+  my $xrefs_url = 'http://www.geneontology.org/doc/GO.xrf_abbs';
+  xref_abbs_to_meta_js($xrefs_json_data_fname, $xrefs_url, 'json');
+  ll("Created GO XRefs JSON data file: \"$xrefs_json_data_fname\".");
 
   ## Standard modules
   my @mods = ();
@@ -447,9 +451,9 @@ EOC
 ## Taken from: ../../go-dev/trunk/amigo/scripts/make_dblinks.pl
 sub xref_abbs_to_meta_js {
 
-  my $js_file_str = shift || die "need a JS file string or something";
-  my $json_file_str = shift || die "need a json file string or something";
+  my $file_str = shift || die "need a file string or something";
   my $xrefs_url = shift || die "need a url for the GO.xrf_abbs file";
+  my $type = shift || die "need 'js' or 'json'";
 
   ## 
   use lib getcwd() . '/perl/lib';
@@ -537,21 +541,23 @@ sub xref_abbs_to_meta_js {
     }
   }
 
-  ###
-  ### Conf to JS.
-  ###
+  if( $type eq 'js' ){
 
-  my $js = JSON::XS->new()->pretty(1);
-  #$js->allow_bignum(1); # if needed, go back to ::PP
-  my $js_str = $js->encode($database_info);
-  chomp $js_str;
+    ###
+    ### Conf to JS.
+    ###
 
-  ## If the JS file is already there, blow it away, and pile it in.
-  unlink $js_file_str if -f $js_file_str;
-  open(FILE, ">$js_file_str") or die "cannot open $js_file_str: $!";
+    my $js = JSON::XS->new()->pretty(1);
+    #$js->allow_bignum(1); # if needed, go back to ::PP
+    my $js_str = $js->encode($database_info);
+    chomp $js_str;
 
-  ## 
-  print FILE <<EOJS;
+    ## If the JS file is already there, blow it away, and pile it in.
+    unlink $file_str if -f $file_str;
+    open(FILE, ">$file_str") or die "cannot open $file_str: $!";
+
+    ## 
+    print FILE <<EOJS;
 /* 
  * Package: xrefs.js
  * 
@@ -577,20 +583,23 @@ bbop.core.namespace('amigo', 'data', 'xrefs');
 amigo.data.xrefs = $js_str;
 EOJS
 
-  ## Close file.
-  close(FILE);
-  make_readable($js_file_str);
+    ## Close file.
+    close(FILE);
+    make_readable($file_str);
 
-  ## If the json file is already there, blow it away, and pile it in.
-  unlink $json_file_str if -f $json_file_str;
-  my $json = JSON::XS->new()->pretty(0);
-  #$js->allow_bignum(1); # if needed, go back to ::PP
-  my $json_str = $json->encode($database_info);
-  chomp $json_str;
-  open(JSONF, ">$json_file_str") or die "cannot open $json_file_str: $!";
-  print JSONF $json_str;
-  close(JSONF);
-  make_readable($json_file_str);
+  }elsif( $type eq 'json' ){
+
+    ## If the json file is already there, blow it away, and pile it in.
+    unlink $file_str if -f $file_str;
+    open(JSONF, ">$file_str") or die "cannot open $file_str: $!";
+    my $json = JSON::XS->new()->pretty(0);
+    #$js->allow_bignum(1); # if needed, go back to ::PP
+    my $json_str = $json->encode($database_info);
+    chomp $json_str;
+    print JSONF $json_str;
+    close(JSONF);
+    make_readable($file_str);
+  }
 }
 
 
