@@ -1552,7 +1552,7 @@ amigo.data.golr = {
    "bbop_ont" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "annotation_class^8.0 description^6.0 source^4.0 synonym^3.0 alternate_id^2.0 comment^1.0",
-      "filter_weights" : "source^4.0 subset^2.0 isa_partof_closure_label^1.0 is_obsolete^0.0",
+      "filter_weights" : "source^4.0 subset^3.0 isa_partof_closure_label^2.0 regulates_closure_label^1.0 is_obsolete^0.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//ont-config.yaml",
       "display_name" : "Ontology",
       "description" : "Test mapping of ontology class for GO.",
@@ -1754,7 +1754,8 @@ amigo.data.golr = {
             "type" : "string",
             "id" : "isa_partof_closure",
             "property" : [
-               "getIsaPartofIDClosure"
+               "getRelationIDClosure",
+               "BFO:0000050"
             ]
          },
          {
@@ -1768,7 +1769,44 @@ amigo.data.golr = {
             "type" : "string",
             "id" : "isa_partof_closure_label",
             "property" : [
-               "getIsaPartofLabelClosure"
+               "getRelationLabelClosure",
+               "BFO:0000050"
+            ]
+         },
+         {
+            "transform" : [],
+            "description" : "Closure of ids/accs over regulates.",
+            "display_name" : "Regulates closure",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "regulates_closure",
+            "property" : [
+               "getRelationIDClosure",
+               "BFO:0000050",
+               "RO:0002211",
+               "RO:0002212",
+               "RO:0002213"
+            ]
+         },
+         {
+            "transform" : [],
+            "description" : "Closure of labels over regulates.",
+            "display_name" : "Regulates closure (labels)",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "regulates_closure_label",
+            "property" : [
+               "getRelationLabelClosure",
+               "BFO:0000050",
+               "RO:0002211",
+               "RO:0002212",
+               "RO:0002213"
             ]
          },
          {
@@ -1926,7 +1964,8 @@ amigo.data.golr = {
             "type" : "string",
             "id" : "isa_partof_closure_label",
             "property" : [
-               "getIsaPartofLabelClosure"
+               "getRelationLabelClosure",
+               "BFO:0000050"
             ]
          },
          "replaced_by" : {
@@ -1972,6 +2011,42 @@ amigo.data.golr = {
                "getDef"
             ]
          },
+         "regulates_closure_label" : {
+            "transform" : [],
+            "description" : "Closure of labels over regulates.",
+            "display_name" : "Regulates closure (labels)",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "regulates_closure_label",
+            "property" : [
+               "getRelationLabelClosure",
+               "BFO:0000050",
+               "RO:0002211",
+               "RO:0002212",
+               "RO:0002213"
+            ]
+         },
+         "regulates_closure" : {
+            "transform" : [],
+            "description" : "Closure of ids/accs over regulates.",
+            "display_name" : "Regulates closure",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "regulates_closure",
+            "property" : [
+               "getRelationIDClosure",
+               "BFO:0000050",
+               "RO:0002211",
+               "RO:0002212",
+               "RO:0002213"
+            ]
+         },
          "transitivity_graph" : {
             "transform" : [],
             "description" : "JSON blob form of the local relation transitivity graph.",
@@ -1997,7 +2072,8 @@ amigo.data.golr = {
             "type" : "string",
             "id" : "isa_partof_closure",
             "property" : [
-               "getIsaPartofIDClosure"
+               "getRelationIDClosure",
+               "BFO:0000050"
             ]
          },
          "synonym" : {
