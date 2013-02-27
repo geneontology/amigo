@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130214";
+bbop.version.release = "20130227";
 /* 
  * Package: json.js
  * 
@@ -4336,7 +4336,7 @@ bbop.model.node.prototype.label = function(value){
  *  value - *[optional]* new value for this property to take
  *
  * Returns: 
- *  string
+ *  value
  */
 bbop.model.node.prototype.metadata = function(value){
     if(value) this._metadata = value; return this._metadata; };
@@ -4486,7 +4486,7 @@ bbop.model.edge.prototype.type = function(value){
  *  value - *[optional]* new value for this property to take
  *
  * Returns: 
- *  string
+ *  value
  */
 bbop.model.edge.prototype.metadata = function(value){
     if(value) this._metadata = value; return this._metadata; };
@@ -4507,6 +4507,7 @@ bbop.model.edge.prototype.clone = function(){
     var tmp_clone = new bbop.model.edge(this.subject_id(),
 					this.object_id(),
 					this.predicate_id());
+    // Metadata kind of needs to be duped separately.
     tmp_clone.metadata(bbop.core.clone(this.metadata()));
     return tmp_clone;
 };
@@ -4820,7 +4821,6 @@ bbop.model.graph.prototype.get_edge = function(sub_id, obj_id, pred){
     if( this._sop_table[sub_id] &&
 	this._sop_table[sub_id][obj_id] &&
 	this._sop_table[sub_id][obj_id][pred] ){
-	    // retval = new bbop.model.edge(sub_id, obj_id, pred);
 	    var tmp_edge = this._sop_table[sub_id][obj_id][pred];
 	    ret_edge = tmp_edge.clone();
 	}
@@ -4845,7 +4845,9 @@ bbop.model.graph.prototype.get_edges = function(sub_id, obj_id){
     if( this._sop_table[sub_id] &&
 	this._sop_table[sub_id][obj_id] ){
 	    for( var pred in this._sop_table[sub_id][obj_id] ){
-		retlist.push(new bbop.model.edge(sub_id, obj_id, pred));
+		var found_edge = this._sop_table[sub_id][obj_id][pred];
+		var tmp_edge = found_edge.clone();
+		retlist.push(tmp_edge);
 	    }
 	}		
     return retlist;
@@ -5284,11 +5286,12 @@ bbop.model.graph.prototype.load_json = function(json_object){
     if( json_object.nodes ){
 	bbop.core.each(json_object.nodes,
 		       function(node_raw){
-			  var nid = node_raw.id;
-			  var nlabel = node_raw.lbl;
-			  var n = new bbop.model.node(nid, nlabel);
-			  anchor.add_node(n);
-		      });
+			   var nid = node_raw.id;
+			   var nlabel = node_raw.lbl;
+			   var n = new bbop.model.node(nid, nlabel);
+			   if(node_raw.meta){ n.metadata(node_raw.meta); }
+			   anchor.add_node(n);
+		       });
     }
 
     // Now try to load edges; scrape out what we can.
@@ -5298,12 +5301,541 @@ bbop.model.graph.prototype.load_json = function(json_object){
 			   var e = new bbop.model.edge(edge_raw.sub,
 						       edge_raw.obj,
 						       edge_raw.pred);
+			   // Copy out meta.
+			   if(edge_raw.meta){ e.metadata(edge_raw.meta); } 
+			   
 			   anchor.add_edge(e);
 		      });
     }
 
     return true;
 };
+/* 
+ * Package: tree.js
+ * 
+ * Namespace: bbop.model.tree
+ * 
+ * Purpose: Extend <bbop.model> in <model.js> to be handy for a (phylo)tree.
+ * 
+ * TODO: /Much/ better documentation. I have no idea what's going on
+ * in there anymore...
+ * 
+ * TODO: See: http://raphaeljs.com/graffle.html
+ * 
+ * TODO: Subtree calculation during bracket_down.
+ */
+
+// Module and namespace checking.
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'logger');
+bbop.core.require('bbop', 'model');
+bbop.core.namespace('bbop', 'model', 'tree');
+
+
+// // BUG/TODO: remove later...or something...
+// bbop.model.tree.logger = new bbop.logger();
+// bbop.model.tree.logger.DEBUG = true;
+// var _kvetch = bbop.model.tree.logger.kvetch;
+
+/*
+ * Namespace: bbop.model.tree.node
+ * 
+ * Constructor: node
+ * 
+ * Same as parent, but just takes id in constructor.
+ * 
+ * Arguments:
+ *  new_id - a unique id for the node
+ */
+bbop.model.tree.node = function(new_id){
+    bbop.model.node.call(this, new_id);
+    this._is_a = 'bbop.model.tree.node';
+};
+bbop.core.extend(bbop.model.tree.node, bbop.model.node);
+
+/*
+ * Namespace: bbop.model.tree.edge
+ * 
+ * Constructor: edge
+ * 
+ * Same as parent class, but optionally adds distance as an argument.
+ */
+bbop.model.tree.edge = function(parent, child, distance){
+    bbop.model.edge.call(this, child, parent, '');
+    this._is_a = 'bbop.model.tree.edge';
+    this._distance = distance || 0.0;
+};
+bbop.core.extend(bbop.model.tree.edge, bbop.model.edge);
+
+/*
+ * Function: distance
+ *
+ * Return an edge's "distance".
+ *
+ * Parameters:
+ *  value - *[optional]* new number for this property to take
+ *
+ * Returns: 
+ *  number
+ */
+bbop.model.tree.edge.prototype.distance = function(d){
+    if(d){ this._distance = d; }
+    return this._distance;
+};
+
+/*
+ * Function: clone
+ *
+ * Make sure that clone gets distance as well.
+ *
+ * Parameters: 
+ *  n/a
+ *
+ * Returns: 
+ *  <bbop.model.tree.edge>
+ */
+bbop.model.tree.edge.prototype.clone = function(){
+    var tmp_clone = new bbop.model.tree.edge(this.object_id(),
+					     this.subject_id(),
+					     this.distance());
+    tmp_clone.metadata(bbop.core.clone(this.metadata()));
+    return tmp_clone;
+};
+
+/*
+ * Namespace: bbop.model.tree.graph
+ * 
+ * Constructor: graph
+ * 
+ * Same as parent.
+ * Needs some more functionality...
+ */
+bbop.model.tree.graph = function(){
+    bbop.model.graph.call(this);
+    this._is_a = 'bbop.model.tree.graph';
+
+    // Useful for making sure that certain recursive functions keep
+    // the desired notion of "this"ness.
+    var anchor = this;
+
+    /*
+     * Function: default_sort
+     *
+     * The default comparator function for ordering the
+     * brackets. Alphabetical down.
+     * 
+     * Parameters: 
+     *  a - a bracket item
+     *  b - a bracket item
+     *
+     * Returns: 
+     *  string
+     */
+    this.default_sort = function(a, b){
+	var sort_val = 0;
+	if( a.id < b.id ){
+	    sort_val = - 1;
+	}else if( a.id > b.id ){
+	    sort_val = 1;
+	}
+	//_kvetch('sort: ' + a.id + ' <?> ' + b.id + ' = ' + sort_val);
+	return sort_val;
+    };
+
+    // Get information on kids, relations, and distances working our
+    // way up from the leaves.
+    var max_dist = 0.0;
+    var all_dists_parent = {};
+    var all_dists_child = {};
+    var node_list = new Array();
+    var node_hash = {};
+    var edge_list = new Array();
+    var edge_hash = {};
+    function info_up(node_id){
+	
+	var nid = node_id;
+	//_kvetch("info_up: working on: " + nid);
+
+	// Node bookkeeping.
+	if( ! node_hash[nid] ){
+	    node_hash[nid] = true;
+	    node_list.push(nid);
+	}
+
+	// Can only have at most one parent.
+	var node_parent = anchor.get_parent_nodes(nid);
+	if( node_parent && node_parent.length ){
+	    node_parent = node_parent[0];
+	    var pid = node_parent.id();
+
+	    // Edge bookkeeping.
+	    var edge_uid = pid + '_!muNge!_' + node_id;
+	    if( ! edge_hash[edge_uid] ){
+		edge_hash[edge_uid] = true;
+		edge_list.push([pid, node_id]);
+		//_kvetch('info_up: indexing: ' + edge_uid);
+	    }
+
+	    // Add new data to globals.
+	    //_kvetch(" info_up: seems to have parent: " + pid);
+	    if( ! all_dists_parent[pid]){
+		all_dists_parent[pid] = {};
+	    }
+	    if( ! all_dists_child[nid]){
+		all_dists_child[nid] = {};
+	    }
+
+	    if( ! all_dists_parent[pid][nid] ){
+		// 
+		var dist = anchor.get_edge(nid,pid).distance();
+		all_dists_parent[pid][nid] = dist;
+		all_dists_child[nid][pid] = dist;
+		// Look a little for max.
+		if( dist > max_dist ){
+		    max_dist = dist;
+		}
+	    }
+
+	    // Get any data you can from your kids.
+	    for( var k_id in all_dists_parent[nid] ){
+
+		var increment = all_dists_parent[pid][nid] +
+		    all_dists_parent[nid][k_id];
+		all_dists_parent[pid][k_id] = increment;
+		all_dists_child[k_id][pid] = increment;
+
+		// Look a little for max.
+		if( increment > max_dist ){
+		    max_dist = increment;
+		}
+	    }
+
+	    // Recur on parent.
+	    info_up(pid);
+	}
+    }
+
+    // Recursive comb down (give partitioned ordering).
+    // A bracket looks like: "[{id:a, brackets: [...]}, ...]".
+    // TODO: subtree calculation during.
+    var brackets = new Array();
+    var max_depth = 0;
+    function bracket_down(in_node, lvl, parent_node_id){
+	    
+	// Bootstrap lvl to 1.
+	if( ! lvl ){ lvl = 1; }
+	if( ! parent_node_id ){ parent_node_id = null; }
+
+	var in_node_id = in_node.id();
+	//_kvetch(' bracket_down: ' + in_node_id);
+
+	// 
+	var child_bracket = new Array();
+	var child_nodes = anchor.get_child_nodes(in_node_id);
+	for( var cb = 0; cb < child_nodes.length; cb++ ){
+	    var child_node = child_nodes[cb];
+	    var child_node_id = child_node.id();
+	    //_kvetch('  bracket_down: pushing: ' + child_node_id);
+	    child_bracket.push(bracket_down(child_node, lvl + 1, in_node_id));
+	}
+
+	// Sort the children.
+	child_bracket.sort(anchor.default_sort);
+
+	// Grab max depth.
+	if( lvl > max_depth ){ max_depth = lvl;	}
+
+	//
+	//_kvetch(' bracket_down: found kids: ' + child_bracket.length);
+	return {
+	    id: in_node_id,
+	    routing_node: false,
+	    level: lvl,
+	    parent_id: parent_node_id,
+	    brackets: child_bracket
+	};
+    }
+
+    // Return a layout that can be trivially rendered
+    // by...something...
+    var max_width = 0;
+    var cohort_list = new Array(); // will reinit
+
+    /*
+     * Function: layout
+     *
+     * With the current graph, produce a usable layout object.
+     * 
+     * TODO: layout should take bracket ordering func
+     *
+     * Parameters:
+     *  n/a
+     *
+     * Returns: 
+     *  a rather complicated layout object
+     */
+    this.layout = function (){
+
+	// Refresh scope on new layout call.
+	brackets = new Array();
+	node_list = new Array();
+	node_hash = {};
+	edge_list = new Array();
+	edge_hash = {};
+	cohort_list = new Array(); // token--now also reset and sized below
+
+	// Pass one:
+	// Collect all of our bracketing information, also order the
+	// brackets to some function.
+	var base_nodes = anchor.get_root_nodes();
+	for( var bb = 0; bb < base_nodes.length; bb++ ){
+	    //_kvetch('bracket_down: start: ' + base_nodes[bb].id());
+	    brackets.push(bracket_down(base_nodes[bb]));
+	}
+	// The children are ordered--make the top-level one ordered as
+	// well.
+	brackets.sort(anchor.default_sort);
+
+	// Pass one:
+	// Essentially walk the brackets, find brackets that end early
+	// (above max_depth) and add routing nodes down.
+	function dangle_routing(in_item){
+	    if( in_item.level < max_depth ){
+		in_item.brackets.push({id: in_item.id,
+				       routing_node: true,
+				       level: in_item.level + 1,
+				       parent_id: in_item.id,
+				       brackets: []
+				      });
+		dangle_routing(in_item.brackets[0]);
+	    }
+	    return in_item;
+	}
+	function add_routing(in_brackets){
+
+	    //
+	    for( var i = 0; i < in_brackets.length; i++ ){
+		var item = in_brackets[i];
+
+		//
+		if( item.brackets.length == 0 && item.level < max_depth ){
+		    //_kvetch(' add_routing: dangle: ' + item.id);
+		    dangle_routing(item);
+		}else if( item.brackets.length != 0 ){
+		    //_kvetch(' add_routing: descend: ' + item.id);
+		    add_routing(item.brackets);
+		}
+	    }
+	}
+	add_routing(brackets);
+
+	// Pass three:
+	// Collect global cohort information into a matrix (cohort_list).
+	cohort_list = new Array(max_depth);
+	for( var cli = 0; cli < cohort_list.length; cli++ ){
+	    cohort_list[cli] = new Array();
+	}
+	// Walk down and stack up.
+	function order_cohort(in_brackets){	    
+	    // Push into global cohort list list.
+	    for( var i = 0; i < in_brackets.length; i++ ){
+		var bracket_item = in_brackets[i];
+		//
+		//_kvetch(' order_cohort: i: ' + i);
+		//_kvetch(' order_cohort: lvl: ' + bracket_item.level);
+		cohort_list[bracket_item.level - 1].push(bracket_item);
+		// Drill down.
+		if( bracket_item.brackets.length > 0 ){
+		    //_kvetch(' order_cohort: down: ' +
+		    //        bracket_item.brackets.length);
+		    order_cohort(bracket_item.brackets);
+		}
+	    }
+	}
+	order_cohort(brackets);
+
+	// Gather distance info up from leaves.
+	var base_info_nodes = anchor.get_leaf_nodes();
+	max_width = base_info_nodes.length; // by def, leaves are widest
+	for( var bi = 0; bi < base_info_nodes.length; bi++ ){
+	    info_up(base_info_nodes[bi].id());
+	}
+
+	///
+	/// Decide relative y positions by walking backwards through
+	/// the cohorts.
+	///
+
+
+	// Walk backwards through the cohorts to find a base Y position. for
+	// the final cohort.
+	var position_y = {};
+	var final_cohort = cohort_list[(max_depth - 1)];
+	//_kvetch('look at final cohort: ' + (max_depth - 1));
+	for( var j = 0; j < final_cohort.length; j++ ){
+	    var f_item = final_cohort[j];
+	    //var local_shift = j + 1.0; // correct, but shifts too far down
+	    var local_shift = j + 0.0;
+	    position_y[f_item.id] = local_shift;
+	    //_kvetch('position_y: ' + f_item.id + ', ' + local_shift);
+	}
+	// Walk backwards through the remaining cohorts to find the best Y
+	// positions.
+	for( var i = cohort_list.length - 1; i > 0; i-- ){
+	    //
+	    var cohort = cohort_list[i - 1];
+	    //_kvetch('look at cohort: ' + (i - 1));
+	    for( var k = 0; k < cohort.length; k++ ){
+		var item = cohort[k];
+
+		// Deeper placements always take precedence.
+		if( position_y[item.id] != undefined ){
+		    //_kvetch('position_y (old): '+ item.id);
+		}else{
+
+		    // If you have one parent, they have the same Y as you.
+		    // This generalizes to: the parent has the average Y of
+		    // it's children. This is easy then, once we
+		    // start, but how to get the initial leaf
+		    // placement? Get item's children and take their
+		    // average (by definition, they must already be in
+		    // the placed list (even if it was just a routing
+		    // node)).
+		    var c_nodes = anchor.get_child_nodes(item.id);
+		    var position_acc = 0.0;
+		    for( var ci = 0; ci < c_nodes.length; ci++ ){
+			var node = c_nodes[ci];
+			position_acc = position_acc + position_y[node.id()];
+		    }
+		    // _kvetch(' position_acc: ' + position_acc);
+		    // _kvetch(' c_nodes: ' + c_nodes);
+		    // _kvetch(' c_nodes.length: ' + c_nodes.length);
+		    var avg = position_acc / (c_nodes.length * 1.0);
+		    position_y[item.id] = avg;
+		    //_kvetch('position_y (new): '+ item.id +', '+ avg);
+		}
+	    }
+	}
+ 
+	//
+	var x_offset = 0.0;
+	var position_x = {};
+	var roots = anchor.get_root_nodes();
+	for( var r = 0; r < roots.length; r++ ){
+
+	    var root_id = roots[r].id();
+	    position_x[root_id] = x_offset;
+	    //_kvetch('position_x:: ' + root_id + ', ' + position_x[root_id]);
+    
+	    if( item.routing_node == false ){
+		// Get kids and their x distance (for placement).
+		for( var nid in all_dists_parent[root_id] ){
+		    var dist = all_dists_parent[root_id][nid] + x_offset;
+		    position_x[nid] = dist;
+		    //_kvetch('position_x:: ' + nid + ', ' + dist);
+		}
+	    }
+	}
+
+	//
+	return {
+	    parent_distances: all_dists_parent,
+	    child_distances: all_dists_child,
+	    max_distance: max_dist,
+	    max_depth: max_depth,
+	    max_width: max_width,
+	    cohorts: cohort_list,
+	    //routing: routing_list,
+	    brackets: brackets,
+	    node_list: node_list,
+	    edge_list: edge_list,
+	    position_x: position_x,
+	    position_y: position_y
+	};
+    };
+
+    /*
+     * Function: dump_cohorts
+     *
+     * Dump the cohorts; for debugging?
+     *
+     * Parameters:
+     *  n/a
+     *
+     * Returns: 
+     *  n/a
+     */
+    this.dump_cohorts = function(){
+    	for( var i = 0; i < cohort_list.length; i++ ){
+    	    for( var j = 0; j < cohort_list[i].length; j++ ){
+    		var item = cohort_list[i][j];
+    		//_kvetch(item.id + ' ' + i +':'+ j + ', ' + item.routing_node);
+    	    }
+    	}
+    };
+
+    /*
+     * Function: dump_dist
+     *
+     * Dump distances; for debugging?
+     *
+     * Parameters: 
+     *  in_arg - string; 'child'/'parent'?
+     *
+     * Returns: 
+     *  n/a
+     */
+    this.dump_dist = function(in_arg){
+
+	//_kvetch(' in ');
+
+	// Argument selection.
+	var dists = all_dists_parent;
+	if( in_arg == "child" ){
+	    dists = all_dists_child;
+	}
+
+	// Dump selected dist.
+	for( var n_id in dists ){
+	    for( var k_id in dists[n_id] ){
+		//_kvetch(n_id +' : '+ k_id +' => '+ dists[n_id][k_id]);
+	    }
+	}
+    };
+
+    /*
+     * Function: dump_brackets
+     *
+     * Dump brackets; for debugging?
+     *
+     * Parameters: 
+     *  brack - *[optional]* ???
+     *
+     * Returns: 
+     *  n/a
+     */
+    this.dump_brackets = function(brack){
+
+	// Bootstrap if just starting.
+	if( ! brack ){ brack = brackets; }
+	//if( ! lvl ){ lvl = 1; }
+
+	// Printer.
+	for( var i = 0; i < brack.length; i++ ){
+
+	    var pid = '(null)';
+	    if( brack[i].parent_id ){ pid = brack[i].parent_id; }
+
+	    // _kvetch('id: ' + brack[i].id +
+	    // 		     ', parent: ' + pid +
+	    // 		     ', level: ' + brack[i].level);
+	    this.dump_brackets(brack[i].brackets);
+	}
+    };
+
+};
+bbop.core.extend(bbop.model.tree.graph, bbop.model.graph);
+// Overload add_node to add label information to new object.
 /* 
  * Package: bracket.js
  * 
@@ -12893,6 +13425,1054 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
      */
     this.destroy = function(){
 	jQuery('#' + anchor._interface_id).val('');
+    };
+
+};
+////////////
+////
+//// bbop.widget.phylo
+////
+//// Purpose: Extend the model to be handy for a (phylo)tree.
+//// 
+//// Width is determined by used div width (style).
+//// 
+//// Taken name spaces:
+////    bbop.widget.phylo.*
+////
+//// TODO: better selection of displayable text
+//// TODO: get parser so we can start really checking/use.
+//// TODO: make things non-interactive during visible == false?
+//// TODO: font and text placement
+//// TODO: better text alignment
+//// TODO: floating right-hand text (see PAINT)
+//// TODO: some "speed-up" refactoring?
+////
+//// OKAY: FF, Safari, Chrome, Opera
+//// TODO: IE a little wonky, but not too bad--easy fix?
+////
+//// Required:
+////    Rafael
+////    bbop.core
+////    bbop.model
+////    bbop.model.tree
+////
+//////////
+
+
+// Module and namespace checking.
+//bbop.core.require('Raphael');
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'model');
+bbop.core.require('bbop', 'model', 'tree');
+bbop.core.namespace('bbop', 'widget', 'phylo');
+//bbop.core.namespace('bbop', 'widget', 'phylo', 'renderer');
+
+///
+/// PNodes (phylonode) object.
+///
+
+// Render out.
+// Actually, use this to wrap graph abstraction.
+bbop.widget.phylo.renderer = function (element_id, info_box_p){
+
+    // Logger.
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch(str); }
+
+    var elt_id = element_id;
+
+    var renderer_context = this;
+
+    // Properties that can be manipulated externally.
+    //this.animation_time = 100;
+    this.animation_time = 200;
+    //this.animation_time = 1000; // for debug
+    //this.use_animation = true;
+    this.use_animation = false;
+
+    // These first two defaults will be overwritten on display.
+    this.box_width = 60;
+    this.box_height = 30;
+
+    // Internal-only variables.
+    this._render_frame_width = 800;
+    this._render_interal_width = this._render_frame_width;
+    this._render_frame_height = 600;
+    this._render_internal_height = this._render_height;
+    //this._node_labels = {};
+    //this._node_hover_labels = {};
+    //this._edge_labels = {};
+    //this._floating_labels = {};
+
+    ///
+    /// Functions to handle internal graph management.
+    ///
+    
+    var node_cache_hash = {};
+    this._graph = new bbop.model.tree.graph();
+
+    //
+    this.add_node = function(node){
+	var nid = node.id();
+	node_cache_hash[nid] = node;
+	this._graph.add_node(node);
+    };	
+
+    //
+    //this.add_edge = function(nid1, nid2, dist){
+    this.add_edge = function(edge){
+
+	var retval = false;
+
+	var n1 = node_cache_hash[edge.subject_id()];
+	var n2 = node_cache_hash[edge.object_id()];
+	if( n1 && n2 ){
+	    this._graph.add_edge(edge);
+	    retval = true;	    
+	}
+
+	return retval;
+    };
+
+    ///
+    /// ...
+    ///
+
+    // Init: context, label, x-coord, y-coord.
+    graph_pnode = function(context, label, px, py, internal_p){
+
+	var pnode_box_width = renderer_context.box_width;
+	var pnode_box_height = renderer_context.box_height;
+
+	// Color and size definitions.
+	var text_offset_x = pnode_box_width / 2.0;
+	var text_offset_y = pnode_box_height / 2.0;
+	this.base_node_color = "#00f";
+
+	// Variations if an internal node.
+	if( internal_p ){
+	    pnode_box_width = pnode_box_width / 2.0;
+	    pnode_box_width = 2.0;
+	    //pnode_box_height = 2.0;
+	    text_offset_x = (pnode_box_width / 2.0);
+	}
+
+	// Future visibility.    
+	this.visible = true;
+	
+	// For advanced tree use.
+	this.open = true;
+	
+	// Coloration and style attributes.
+	this.shape_base_attr = {
+	    "fill": this.base_node_color,
+	    "fill-opacity": 0.05,
+	    "opacity": 1.0,
+	    "stroke": this.base_node_color,
+	    "stroke-width": 2,
+	    "title": "This is " + label,
+	    "cursor": "move"
+	};
+	this.shape_highlight_attr = {
+	    "fill": this.base_node_color,
+	    "fill-opacity": 0.5,
+	    "opacity": 1.0,
+	    "stroke": this.base_node_color,
+	    "stroke-width": 3
+	};
+	this.shape_dim_attr = {
+	    "fill": this.base_node_color,
+	    "fill-opacity": 0.0,
+	    "opacity": 0.5,
+	    "stroke": this.base_node_color,
+	    "stroke-width": 1
+	};
+	this.shape_invisible_attr = {
+	    "fill": "#000",
+	    "fill-opacity": 0.0,
+	    "opacity": 0.0,
+	    "stroke": "#000",
+	    "stroke-width": 0
+	};
+	// Text in node.
+	this.text_base_attr = {
+	    //"fill-opacity": 1.0,
+	    "opacity" : 1.0,
+	    "font-size" : 10
+	};
+	//this.text_highlight_attr = {"fill-opacity": 1.0, "font-size" : 12};
+	this.text_highlight_attr = {
+	    //"fill-opacity": 1.0,
+	    "opacity" : 1.0,
+	    "font-size" : 10
+	};
+	this.text_dim_attr = {
+	    //"fill-opacity": 0.2,
+	    "opacity" : 0.2,
+	    "font-size" : 10
+	};
+	this.text_invisible_attr = {
+	    //"fill-opacity": 0.0,
+	    "opacity" : 0.0,
+	    "font-size" : 10
+	};
+
+	// Draw out initial node.
+	this._context = context;
+
+	this._text = // NOTE: text is *centered* at this point.
+	this._context.text(px + text_offset_x, py + text_offset_y, label);
+	this._text.toBack(); // make sure it's behind the boxes
+	this._shape = this._context.rect(px, py,
+					 pnode_box_width, pnode_box_height,
+					 2);
+
+	// Proxy properties and functions.
+	// This is so wrong, but feels so good...proxy most things through
+	// shape.
+	this.id = this._shape.id; // Use the shape's UID as our UID.
+	this.getBBox = function(){
+	    return this._shape.getBBox.call(this._shape);
+	};
+	// Semi-proxy.
+	this.shape_attr = function(arg){
+	    return this._shape.attr.call(this._shape, arg);
+	};
+
+	// Add to the object the initial position.
+	this._start_shape_y = this._shape.attr("y");
+	this._start_text_y = this._text.attr("y");
+
+	// Setup shape attributes.
+	this._shape.attr(this.shape_base_attr);
+    };
+    // Call first when you want to move.
+    graph_pnode.prototype.update_position = function(){
+	this._start_shape_y = this._shape.attr("y");
+	this._start_text_y = this._text.attr("y");
+    };
+    // Move.
+    graph_pnode.prototype.move_y = function(arg){
+	var d_shape = this._start_shape_y + arg;
+	var d_text = this._start_text_y + arg;
+	this._shape.attr.call(this._shape, {"y": d_shape});
+	this._text.attr.call(this._text, {"y": d_text});
+    };
+    // Event handler proxies for underlying shapes (text ignored).
+    graph_pnode.prototype.drag = function(mv_func,start_func,end_func){
+	this._shape.drag(mv_func, start_func, end_func);
+    };
+    graph_pnode.prototype.dblclick = function(handler){
+	this._shape.dblclick.call(this._shape, handler);
+    };
+    graph_pnode.prototype.mouseover = function(handler){
+	this._shape.mouseover.call(this._shape, handler);
+    };
+    graph_pnode.prototype.mouseout = function(handler){
+	this._shape.mouseout.call(this._shape, handler);
+    };
+
+    graph_pnode.prototype.update = function(message){
+
+	//
+	var shape_attr_to_apply = this.shape_base_attr;
+	var text_attr_to_apply = this.text_base_attr;
+
+	// 
+	if( this.visible == false ){
+	    shape_attr_to_apply = this.shape_invisible_attr;
+	    text_attr_to_apply = this.text_invisible_attr;
+	}else if( message == 'highlight' ){
+	    shape_attr_to_apply = this.shape_highlight_attr;
+	    text_attr_to_apply = this.text_highlight_attr;
+	}else if( message == 'dim' ){
+	    shape_attr_to_apply = this.shape_dim_attr;
+	    text_attr_to_apply = this.text_dim_attr;
+	}
+
+	// Change border on whether or not it's "opened".
+	if( this.open == false ){
+	    shape_attr_to_apply['stroke'] = "#070";
+	}else{
+    	    shape_attr_to_apply['stroke'] = this.base_node_color;	
+	}
+
+	// Render with whatever filtered through.
+	if( renderer_context.use_animation ){
+	    this._shape.animate.call(this._shape,
+				     shape_attr_to_apply,
+				     renderer_context.animation_time);
+	    this._shape.animate.call(this._text,
+				     text_attr_to_apply,
+				     renderer_context.animation_time);	
+	}else{
+	    this._shape.attr(shape_attr_to_apply);
+	    this._text.attr(text_attr_to_apply);
+	}
+    };
+
+
+    ///
+    /// Define the edges (connections) to be used for drawing.
+    /// Connection (between two pnodes) object.
+    ///
+
+    // Init: context, shape, shape, and "distance" representation
+    // (optional).
+    graph_connection = function(context, obj1, obj2, dist_rep){
+
+	//this.context = context;
+
+	// These need to be set right away for path calculation.    
+	this.from = obj1;
+	this.to = obj2;
+
+	this.id = this.from.id + '_id_invariant_' + this.to.id;
+
+	// Get path.
+	var path_info = this.get_path_between_info();
+	var path = path_info['path'];
+	var cp = path_info['center_point'];
+
+	// ll("conn: cp: (" + cp[0] + ", " + cp[1] + ")");
+
+	// Future visibility.
+	this.visible = true;
+
+	var base_edge_color = "#030";
+	var base_edge_width = "3";
+	var highlight_edge_color = "#00f";
+	var highlight_edge_width = "5";
+	var invisible_edge_color = "#000";
+	var invisible_edge_width = "0";
+
+	this.edge_base_attr = {
+	    "stroke": base_edge_color,
+     	    "stroke-width": base_edge_width,
+	    "fill": "none",
+	    "opacity": 1.0,
+	    "fill-opacity": 0.0
+	};
+	this.edge_highlight_attr = {
+	    "stroke": highlight_edge_color,
+     	    "stroke-width": highlight_edge_width,
+	    "fill": "none",
+	    "opacity": 1.0,
+	    "fill-opacity": 0.0
+	};
+	this.edge_dim_attr = {
+	    "stroke": base_edge_color,
+     	    "stroke-width": 1,
+	    "fill": "none",
+	    "opacity": 0.5,
+	    "fill-opacity": 0.0
+	};
+	this.edge_invisible_attr = {
+	    "stroke": invisible_edge_color,
+     	    "stroke-width": invisible_edge_width,
+	    "fill": "none",
+	    "opacity": 0.0,
+	    "fill-opacity": 0.0
+	};
+	// // As connections.
+	// this.text_base_attr = {"fill-opacity": 1.0, "font-size" : 10};
+	// this.text_highlight_attr = {"fill-opacity": 1.0, "font-size" : 10};
+	// this.text_dim_attr = {"fill-opacity": 0.2, "font-size" : 10};
+	// this.text_invisible_attr = {"fill-opacity": 0.0, "font-size" : 10};
+	// Highlight-only.
+	this.text_base_attr = {
+	    "opacity": 0.0,
+	    "font-size" : 10
+	};
+	//this.text_highlight_attr = {"fill-opacity": 1.0, "font-size" : 12};
+	this.text_highlight_attr = {
+	    "opacity": 1.0,
+	    "font-size" : 10
+	};
+	this.text_dim_attr = {
+	    "opacity": 0.0,
+	    "font-size" : 10
+	};
+	this.text_invisible_attr = {
+	    "opacity": 0.0,
+	    "font-size" : 10
+	};
+
+	// Build up text at path centerpoint.
+	this.text = null;
+	if( dist_rep ){
+	    this.text = context.text(cp[0], (cp[1] + 10), dist_rep);
+	    this.text.toBack(); // make sure it's behind the boxes
+	    this.text.attr(this.text_base_attr);	
+	}
+
+	// Colors and lines.
+	this.line = context.path(path);
+	this.line.attr(this.edge_base_attr);
+    };
+    // Update line graphic.
+    graph_connection.prototype.update = function(message){
+
+	// Get path.
+	var path_info = this.get_path_between_info();
+	var path = path_info['path'];
+
+	// Update line position.
+	this.line.attr({path: path});
+
+	// Update line graphics on message.
+	var line_attr_to_apply = null;
+	if( this.visible == false ){
+	    line_attr_to_apply = this.edge_invisible_attr;
+	}else if( message == 'highlight' ){
+	    line_attr_to_apply = this.edge_highlight_attr;
+	}else if( message == 'dim' ){
+	    line_attr_to_apply = this.edge_dim_attr;
+	}else{
+	    line_attr_to_apply = this.edge_base_attr;
+	}
+
+	// Render with whatever filtered through.
+	if( renderer_context.use_animation ){	
+	    this.line.animate.call(this.line,
+				   line_attr_to_apply,
+				   renderer_context.animation_time);
+	}else{
+	    this.line.attr(line_attr_to_apply);
+	}
+
+	// Update text position.
+	var text_attr_to_apply = null;
+	if( this.text ){
+	    var cp = path_info['center_point'];
+	    this.text.attr({"x": cp[0], "y": (cp[1] + 10)});
+
+	    // Update graphics graphics on message.
+	    if( this.visible == false ){
+		text_attr_to_apply = this.text_invisible_attr;
+	    }else if( message == 'highlight' ){
+		text_attr_to_apply = this.text_highlight_attr;
+	    }else if( message == 'dim' ){
+		text_attr_to_apply = this.text_dim_attr;
+	    }else{
+		text_attr_to_apply = this.text_base_attr;
+	    }
+
+	    // Render with whatever filtered through.
+	    if( renderer_context.use_animation ){	
+		this.text.animate.call(this.text,
+				       text_attr_to_apply,
+				       renderer_context.animation_time);
+	    }else{
+		this.text.attr(text_attr_to_apply);
+	    }
+	}
+    };
+    // // Generate path from between the two internally stored objects.
+    // graph_connection.prototype.get_path_between_info = function(){
+
+    // 	var bb1 = this.from.getBBox();
+    // 	var bb2 = this.to.getBBox();
+
+    // 	//ll("bb1.width: " + bb1.width);
+    // 	//ll("bb1.x: " + bb1.x + ", bb1.y: " + bb1.y);
+    // 	//ll("bb1.width: "+ bb1.width +", bb1.height: "+ bb1.height);
+
+    // 	var p = [{x: bb1.x + bb1.width / 2, y: bb1.y - 1},
+    // 		 {x: bb1.x + bb1.width / 2, y: bb1.y + bb1.height + 1},
+    // 		 {x: bb1.x - 1, y: bb1.y + bb1.height / 2},
+    // 		 {x: bb1.x + bb1.width + 1, y: bb1.y + bb1.height / 2},
+    // 		 {x: bb2.x + bb2.width / 2, y: bb2.y - 1},
+    // 		 {x: bb2.x + bb2.width / 2, y: bb2.y + bb2.height + 1},
+    // 		 {x: bb2.x - 1, y: bb2.y + bb2.height / 2},
+    // 		 {x: bb2.x + bb2.width + 1, y: bb2.y + bb2.height / 2}];
+    // 	var d = {};
+    // 	var dis = [];
+    // 	for (var i = 0; i < 4; i++) {
+    //         for (var j = 4; j < 8; j++) {
+    // 		var dx = Math.abs(p[i].x - p[j].x);
+    // 		var dy = Math.abs(p[i].y - p[j].y);
+    // 		if ((i == j - 4) ||
+    // 		    (((i != 3 && j != 6) || p[i].x < p[j].x) &&
+    // 		     ((i != 2 && j != 7) || p[i].x > p[j].x) &&
+    // 		     ((i != 0 && j != 5) || p[i].y > p[j].y) &&
+    // 		     ((i != 1 && j != 4) || p[i].y < p[j].y))) {
+    //                 dis.push(dx + dy);
+    //                 d[dis[dis.length - 1]] = [i, j];
+    // 		}
+    //         }
+    // 	}
+    // 	var res = null;
+    // 	if (dis.length == 0) {
+    //         res = [0, 4];
+    // 	}else{
+    //         res = d[Math.min.apply(Math, dis)];
+    // 	}
+    // 	var x1 = p[res[0]].x;
+    // 	var y1 = p[res[0]].y;
+    // 	var x2 = p[res[1]].x;
+    // 	var y2 = p[res[1]].y;
+    // 	var dx = Math.max(Math.abs(x1 - x2) / 2, 10);
+    // 	var dy = Math.max(Math.abs(y1 - y2) / 2, 10);
+    // 	return {"path": [
+    // 		    "M", x1.toFixed(3), y1.toFixed(3),
+    // 		    "L", x1.toFixed(3), y2.toFixed(3),
+    // 		    "L", x2.toFixed(3), y2.toFixed(3)
+    // 		].join(","),
+    // 		// "center_point": [(x1.toFixed(3) + x1.toFixed(3)),
+    // 		// 		     (y1.toFixed(3) + y2.toFixed(3))]
+    // 		"center_point": [(x1 + x2) / 2.0, (y2)]
+    // 	       };
+    // };
+
+    // Generate path from between the two internally stored objects.
+    graph_connection.prototype.get_path_between_info = function(){
+
+	var bb1 = this.from.getBBox();
+	var bb2 = this.to.getBBox();
+
+	//ll("bb1.width: " + bb1.width);
+	//ll("bb1.x: " + bb1.x + ", bb1.y: " + bb1.y);
+	//ll("bb1.width: "+ bb1.width +", bb1.height: "+ bb1.height);
+
+	var p =
+	    [
+		// bb1: middle-top
+		{x: bb1.x + bb1.width / 2, y: bb1.y - 1},
+		// bb1: middle-bottom
+		{x: bb1.x + bb1.width / 2, y: bb1.y + bb1.height + 1},
+		// bb1: left-middle
+		{x: bb1.x - 1, y: bb1.y + bb1.height / 2},
+		// bb1: right-middle
+		{x: bb1.x + bb1.width + 1, y: bb1.y + bb1.height / 2},
+		// bb2: middle-top
+		//{x: bb2.x + bb2.width / 2, y: bb2.y - 1},
+		{x: bb2.x - 1, y: bb2.y + bb2.height / 2},
+		// bb2: middle-bottom
+		//{x: bb2.x + bb2.width / 2, y: bb2.y + bb2.height + 1},
+		{x: bb2.x - 1, y: bb2.y + bb2.height / 2},
+		// bb2: left-middle
+		{x: bb2.x - 1, y: bb2.y + bb2.height / 2},
+		// bb2: right-middle
+		//{x: bb2.x + bb2.width + 1, y: bb2.y + bb2.height / 2}
+		{x: bb2.x - 1, y: bb2.y + bb2.height / 2}
+	    ];
+	var d = {};
+	var dis = [];
+	for (var i = 0; i < 4; i++) { // for bb1
+            for (var j = 4; j < 8; j++) { // for bb2
+		var dx = Math.abs(p[i].x - p[j].x);
+		var dy = Math.abs(p[i].y - p[j].y);
+		if ((i == j - 4) ||
+    		    (((i != 3 && j != 6) || p[i].x < p[j].x) &&
+    		     ((i != 2 && j != 7) || p[i].x > p[j].x) &&
+    		     ((i != 0 && j != 5) || p[i].y > p[j].y) &&
+    		     ((i != 1 && j != 4) || p[i].y < p[j].y))) {
+                    dis.push(dx + dy);
+                    d[dis[dis.length - 1]] = [i, j];
+		}
+            }
+	}
+	var res = null;
+	if (dis.length == 0) {
+            res = [0, 4];
+	}else{
+            res = d[Math.min.apply(Math, dis)];
+	}
+	var x1 = p[res[0]].x;
+	var y1 = p[res[0]].y;
+	var x2 = p[res[1]].x;
+	var y2 = p[res[1]].y;
+	//var dx = Math.max(Math.abs(x1 - x2) / 2, 10);
+	//var dy = Math.max(Math.abs(y1 - y2) / 2, 10);
+	return {"path": [
+    		    "M", x1.toFixed(3), y1.toFixed(3),
+    		    "L", x1.toFixed(3), y2.toFixed(3),
+    		    "L", x2.toFixed(3), y2.toFixed(3)
+		].join(","),
+		// "center_point": [(x1.toFixed(3) + x1.toFixed(3)),
+		// 		     (y1.toFixed(3) + y2.toFixed(3))]
+		"center_point": [(x1 + x2) / 2.0, (y2)]
+	       };
+    };
+
+    ///
+    /// Functions and sub-functions for display.
+    ///
+
+    // TODO: later, allow display to take args to force size.
+    this.display = function () {
+
+	var layout = this._graph.layout();
+	var elt = document.getElementById(elt_id);
+
+	// Fudge variables.
+	var edge_shift = 1.0; // fudge to allow the last little bit on screen
+	var absolute_pull = 15.0; // there seems to be a misjudgement
+				  // in width by about this much
+
+	// Adjust vertical scales and display.
+	var y_scale = renderer_context.box_height * 2.0; // fixed y-scale
+	this._render_frame_height = (layout.max_width * y_scale);
+	this._render_internal_height = this._render_frame_height - edge_shift;
+
+	// Adjust for render width based on platform.
+	// TODO: later, allow display to take args to force size.
+	var x_scale = 1.0;
+	//if( window && window.innerWidth && 1 == 2){
+	    //this._render_frame_width = window.innerWidth;
+	//}else 
+	if( elt.clientWidth ){
+	    this._render_frame_width = elt.clientWidth;
+	}else{
+	    ll("UFP: Unidentified Failing Platform.");
+	}
+	// Now adjust the drawing width to make sure that the boxes
+	// fit.
+	//this._render_internal_width = this._render_frame_width;
+	this._render_internal_width =
+	    this._render_frame_width
+	    - (1.0 * renderer_context.box_width)
+	    - absolute_pull;
+	// If we're using the info box, adjust inwards by some amount.
+	if( info_box_p ){
+	    this._render_internal_width = this._render_internal_width * 0.8;
+	}
+	// Recalculate x-scale.
+	x_scale = this._render_internal_width / layout.max_distance;
+	// Get that last pixel column on board.
+	ll('internal width: ' + this._render_internal_width);
+	ll('frame width: ' + this._render_frame_width);
+
+	// Create context.
+	var paper = Raphael(elt_id,
+			    this._render_frame_width,
+			    this._render_frame_height);
+	ll('display: made paper');
+
+	///
+	/// Graph helper function definitions.
+	/// 
+
+	function get_pnode_from_phynode_id(phynode_id){
+	    var ret = null;
+	    if( phynode_id_to_index[phynode_id] ){
+		ret = phynodes[phynode_id_to_index[phynode_id]];
+	    }
+	    return ret;
+	}
+
+	// Subtree list, including self.
+	function gather_list_from_hash(nid, hash){
+    	    var retlist = new Array();
+    	    retlist.push(nid);
+    	    // Get all nodes cribbing from distances.
+    	    for( vt in hash[nid] ){
+    		//ll("id: " + id + ", v: " + ct);
+    		retlist.push(vt);
+    	    }
+    	    return retlist;	
+	}
+
+	// Subtree list, including self.
+	function get_descendant_node_list(nid){
+	    return gather_list_from_hash(nid, layout.parent_distances);
+	}
+
+	// Ancestor list, including self.
+	function get_ancestor_node_list(nid){
+	    return gather_list_from_hash(nid, layout.child_distances);
+	}
+
+	//
+	function get_associated(phynode_id, index_kept, getter){
+
+    	    var retlist = new Array();
+	    
+    	    var node_id = phynode_id_to_node_id[phynode_id];
+    	    var subtree_node_list = getter(node_id);
+    	    for( var si = 0; si < subtree_node_list.length; si++ ){
+
+    		var subnode_id = subtree_node_list[si];
+    		var sindex = node_id_to_index[subnode_id];
+
+    		var thing = index_kept[sindex];
+    		retlist.push(thing);
+    	    }
+
+    	    return retlist;
+	}
+
+	function get_descendant_phynodes(phynode_id){
+    	    return get_associated(phynode_id, phynodes, get_descendant_node_list);
+	}
+
+	function get_descendant_texts(phynode_id){
+    	    return get_associated(phynode_id, texts, get_descendant_node_list);
+	}
+
+	function get_ancestor_phynodes(phynode_id){
+    	    return get_associated(phynode_id, phynodes, get_ancestor_node_list);
+	}
+
+	// General func.
+	function get_connections(phynode_id, phynode_getter, conn_hash){
+
+	    var retlist = new Array();
+
+	    // Fish in the connection ancestor hash for edges.
+	    var tmp_phynodes = phynode_getter(phynode_id);
+	    for( var si = 0; si < tmp_phynodes.length; si++ ){
+		var tshp = tmp_phynodes[si];
+		var tnid = phynode_id_to_node_id[tshp.id];
+		if( tnid && conn_hash[tnid] ){
+		    for( var anid in conn_hash[tnid] ){
+			var conn_index = conn_hash[tnid][anid];
+			var conn = connections[conn_index];
+			ll('get_conn: found: [' + conn_index +
+					 '] ' + anid + ' <=> ' + tnid +
+					 ' ... ' + conn);
+			retlist.push(conn);
+		    }
+		}
+	    }
+	    return retlist;
+	};
+
+	//
+	function get_ancestor_connections(phynode_id){
+	    return get_connections(phynode_id,
+				   get_ancestor_phynodes,
+				   conn_hash_ancestor);
+	}
+
+	//
+	function get_descendant_connections(phynode_id){
+	    return get_connections(phynode_id,
+				   get_descendant_phynodes,
+				   conn_hash_descendant);
+	}
+
+	///
+	/// Phynode manipulation function definitions.
+	/// 
+
+	// Dragging animation (color dimming).
+	var start = function () {
+
+    	    var phynode_id = this.id;
+
+	    // Darken boxes and update current position before dragging.
+    	    var assoc_phynodes = get_descendant_phynodes(phynode_id);
+    	    for( var si = 0; si < assoc_phynodes.length; si++ ){
+		var phynode = assoc_phynodes[si];
+		phynode.update_position();
+		phynode.update("dim");
+    	    }
+
+	    // "Dim" edges.
+	    var subtree_edges = get_descendant_connections(phynode_id);
+	    for( var se = 0; se < subtree_edges.length; se++ ){
+		var ste = subtree_edges[se];
+		ste.update("dim");
+	    }
+	};
+
+	// Movement animation (don't allow movement on the x-axis) and
+	// redo lines.
+	var move = function (dx, dy) {
+
+    	    var phynode_id = this.id;
+
+	    // Move box positions.
+    	    var assoc_phynodes = get_descendant_phynodes(phynode_id);
+    	    for( var si = 0; si < assoc_phynodes.length; si++ ){
+		var mshp = assoc_phynodes[si];
+		mshp.move_y(dy);
+		//ll('mshp['+si+']:'+' oy: '+mshp.start_y+', dy:'+dy);
+    	    }
+
+	    // Collect subtree edges for next bit.
+	    var dimmable_subtree = {};
+	    var subtree_edges = get_descendant_connections(phynode_id);
+	    for( var se = 0; se < subtree_edges.length; se++ ){
+		var ste = subtree_edges[se];
+		dimmable_subtree[ste.id] = true;
+	    }
+
+	    // Update connections; keep subtree dimmed while in transit.
+            for (var i = connections.length; i--;) {
+		var conn = connections[i];
+		if( dimmable_subtree[conn.id] ){
+		    conn.update('dim');		
+		}else{
+		    conn.update();		
+		}
+            }
+            paper.safari();
+	};
+
+	// Undrag animation.
+	var stop = function () {
+
+    	    var phynode_id = this.id;
+
+	    // Fade boxes.
+    	    var assoc_phynodes = get_descendant_phynodes(phynode_id);
+    	    for( var si = 0; si < assoc_phynodes.length; si++ ){
+		var mshp = assoc_phynodes[si];
+		mshp.update();
+    	    }
+
+	    // Update connections; bring them all back to normal.
+            for (var i = connections.length; i--;) {
+		connections[i].update();		
+            }
+            paper.safari();
+	};
+
+	// Experiment with double click.
+	function dblclick_event_handler(event){
+
+	    var phynode_id = this.id;
+
+	    // If this is the first double click here...
+	    var pn = get_pnode_from_phynode_id(phynode_id);
+	    if( pn.open == true ){
+		
+		// "Vanish" edges.
+		var subtree_edges = get_descendant_connections(phynode_id);
+		for( var se = 0; se < subtree_edges.length; se++ ){
+		    var ste = subtree_edges[se];
+		    ste.visible = false;
+		    ste.update();
+		}
+
+		// "Vanish" nodes and text; not this node though...
+		var subtree_nodes = get_descendant_phynodes(phynode_id);
+		for( var sn = 0; sn < subtree_nodes.length; sn++ ){
+		    var stn = subtree_nodes[sn];
+		    if( stn.id != phynode_id ){
+			// Turn of visibilty for children.
+			stn.visible = false;
+		    }else{
+			// Mark self as closed.
+			stn.open = false;
+		    }
+		    stn.update();
+		}
+	    }else{ //Otherwise...
+		
+		// Reestablish edges.
+		var subtree_edges = get_descendant_connections(phynode_id);
+		for( var se = 0; se < subtree_edges.length; se++ ){
+		    var ste = subtree_edges[se];
+		    ste.visible = true;
+		    ste.update();
+		}
+
+		// Restablish pnodes; clear all history.
+		var subtree_nodes = get_descendant_phynodes(phynode_id);
+		for( var sn = 0; sn < subtree_nodes.length; sn++ ){
+		    var stn = subtree_nodes[sn];
+		    stn.open = true;
+		    stn.visible = true;
+		    stn.update();
+		}
+	    }
+	}
+
+	// Experiment with hover.
+	function mouseover_event_handler(event){
+
+    	    var phynode_id = this.id;
+
+	    // Cycle through ancestor phynodes.
+    	    var anc_phynodes = get_ancestor_phynodes(phynode_id);
+    	    for( var ai = 0; ai < anc_phynodes.length; ai++ ){
+		// Change boxes opacity (darken).
+		var ashp = anc_phynodes[ai];
+		ashp.update("highlight");
+	    }
+	    // Cycle through descendant phynodes.
+    	    var desc_phynodes = get_descendant_phynodes(phynode_id);
+    	    for( var di = 0; di < desc_phynodes.length; di++ ){
+		// Change boxes opacity (darken).
+		var dshp = desc_phynodes[di];
+		dshp.update("highlight");
+	    }
+
+	    // See if we can fish any edges out and highlight them.
+    	    var anc_edges = get_ancestor_connections(phynode_id);
+    	    for( var ac = 0; ac < anc_edges.length; ac++ ){
+		var aconn = anc_edges[ac];
+		aconn.update("highlight");
+	    }
+    	    var desc_edges = get_descendant_connections(phynode_id);
+    	    for( var dc = 0; dc < desc_edges.length; dc++ ){
+		var dconn = desc_edges[dc];
+		dconn.update("highlight");
+	    }
+	    paper.safari();
+	}
+	function mouseout_event_handler(event){
+
+    	    var phynode_id = this.id;
+
+	    // Cycle through ancestor phynodes.
+    	    var anc_phynodes = get_ancestor_phynodes(phynode_id);
+    	    for( var ai = 0; ai < anc_phynodes.length; ai++ ){
+		// Change boxes opacity (lighten).
+		var ashp = anc_phynodes[ai];
+		ashp.update();
+    	    }
+	    // Cycle through descendant phynodes.
+    	    var desc_phynodes = get_descendant_phynodes(phynode_id);
+    	    for( var di = 0; di < desc_phynodes.length; di++ ){
+		// Change boxes opacity (lighten).
+		var dshp = desc_phynodes[di];
+		dshp.update();
+    	    }
+
+	    // See if we can fish any edges out and unhighlight them.
+    	    var anc_edges = get_ancestor_connections(phynode_id);
+    	    for( var ac = 0; ac < anc_edges.length; ac++ ){
+		var aconn = anc_edges[ac];
+		aconn.update();
+	    }
+    	    var desc_edges = get_descendant_connections(phynode_id);
+    	    for( var dc = 0; dc < desc_edges.length; dc++ ){
+		var dconn = desc_edges[dc];
+		dconn.update();
+	    }
+	    paper.safari();
+	}
+
+	///
+	///  Render info box if wanted.
+	///
+
+	if( info_box_p ){
+	    
+	    //var lnodes = this._graph.get_leaf_nodes();
+	    // Get the last ordered cohort and build table from that.
+	    var lnodes = layout.cohorts[layout.cohorts.length - 1];
+	    for( var ln = 0; ln < lnodes.length; ln++ ){	    
+		var lnode = lnodes[ln];
+
+		var pr_xa = paper.width - (paper.width * 0.2) + 20; // x-axis
+		var pr_ya = 1.0 + (y_scale * ln); // y-axis
+		var bw = (paper.width * 0.2) - 30.0; // width
+		var bh = y_scale - 1.0; // height
+		var pr = paper.rect(pr_xa, pr_ya,
+				    bw, bh,
+				    1); // roundness
+		pr.attr({
+			    "fill": "#eeee99",
+			    "fill-opacity": 0.5,
+			    "opacity": 1.0,
+			    "stroke": "#333388",
+			    "stroke-width": 1,
+			    "title": "This is " + lnode.id
+			    //"cursor": "move"
+			});
+
+		var pt = paper.text(pr_xa + (bw / 2.0), pr_ya + (bh / 2.0),
+				    "Data for " + lnode.id);
+	    }
+	}
+
+	///
+	/// Phynode creation and placement.
+	/// 
+
+	// Add phynodes and create lookup (hash) for use with connections.
+	var phynodes = new Array();
+	var phynode_hash = {};
+	var texts = new Array();
+	var phynode_id_to_index = {};
+	var phynode_id_to_node_id = {};
+	var node_id_to_index = {};
+	for( var nidi = 0; nidi < layout.node_list.length; nidi++ ){
+
+	    // Calculate position.
+	    var node_id = layout.node_list[nidi];
+	    var lpx = (layout.position_x[node_id] * x_scale) + edge_shift;
+	    var lpy = (layout.position_y[node_id] * y_scale) + edge_shift;
+
+	    // Create node at place. 
+	    var phynode = null;
+	    if( ! this._graph.is_leaf_node(node_id) && info_box_p ){
+		ll('display: internal node: ' + node_id);
+		phynode = new graph_pnode(paper, node_id, lpx, lpy, true);
+		//phynode.attr("width") = 10;
+		//phynode.attr("height") = 10;
+	    }else{
+		phynode = new graph_pnode(paper, node_id, lpx, lpy);
+	    }
+
+            phynodes.push(phynode);
+
+	    // Indexing for later (edge) use.
+	    phynode_hash[node_id] = nidi;
+
+	    // More indexing.
+	    var ref_index = phynodes.length -1;
+	    var phynode_id = phynode.id;
+	    phynode_id_to_index[phynode_id] = ref_index;
+	    phynode_id_to_node_id[phynode_id] = node_id;
+	    node_id_to_index[node_id] = ref_index;
+
+	    ll('display: indexed (node): node_id: ' + node_id +
+			     ', phynode_id: ' + phynode_id +
+			     ', ref_index: ' + ref_index);
+	}
+
+	// Add listeners.
+	for (var i = 0, ii = phynodes.length; i < ii; i++) {
+	    phynodes[i].dblclick(dblclick_event_handler);
+            phynodes[i].drag(move, start, stop);
+	    phynodes[i].mouseover(mouseover_event_handler);
+	    phynodes[i].mouseout(mouseout_event_handler);
+	}
+
+	// Add stored connections.
+	var connections = new Array();
+	var conn_hash_ancestor = {};
+	var conn_hash_descendant = {};
+	for( var ei = 0; ei < layout.edge_list.length; ei++ ){
+
+	    //
+	    var edge = layout.edge_list[ei];
+	    var e0 = edge[0];
+	    var e1 = edge[1];
+
+	    // Push edge onto array.
+	    var n0_pnode = phynodes[phynode_hash[e0]];
+	    var n1_pnode = phynodes[phynode_hash[e1]];
+	    var d_label = layout.parent_distances[e0][e1] + '';
+	    var nconn = new graph_connection(paper, n0_pnode, n1_pnode,
+					     d_label);
+	    connections.push(nconn);
+
+	    // Index edge index for later recall.
+	    if( ! conn_hash_descendant[e0] ){ conn_hash_descendant[e0] = {}; }
+	    conn_hash_descendant[e0][e1] = ei;
+	    if( ! conn_hash_ancestor[e1] ){ conn_hash_ancestor[e1] = {}; }
+	    conn_hash_ancestor[e1][e0] = ei;
+
+	    ll('display: indexed (edge): e0: ' + e0 +
+	       ', e1: ' + e1 +
+	       ', ei: ' + ei);
+	}
+	
+	// See: https://github.com/sorccu/cufon/wiki/about
+	// See: http://raphaeljs.com/reference.html#getFont
+	// var txt = paper.print(100, 100, "print",
+	//  paper.getFont("Museo"), 30).attr({fill: "#00f"});
+	//paper.print(100, 100, "Test string", paper.getFont("Times", 800), 30);
+	//txt[0].attr({fill: "#f00"});
     };
 
 };

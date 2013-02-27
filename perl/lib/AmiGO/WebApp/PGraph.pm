@@ -75,12 +75,17 @@ sub mode_exp {
      [
       'com.raphael',
       'com.raphael.graffle',
-      'bbop.core',
-      'bbop.logger',
-      'bbop.model',
-      'bbop.model.tree',
-      'bbop.graph.render.phylo',
-      'exp'
+      # 'bbop.core',
+      # 'bbop.logger',
+      # 'bbop.model',
+      # 'bbop.model.tree',
+      # 'bbop.graph.render.phylo',
+      'bbop',
+      'amigo'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('PhyloExp.js')
      ]
     };
   $self->add_template_bulk($prep);
@@ -114,13 +119,18 @@ sub mode_pthr10170 {
      [
       'com.raphael',
       'com.raphael.graffle',
-      'bbop.core',
-      'bbop.logger',
-      'bbop.model',
-      'bbop.model.tree',
-      'bbop.graph.render.phylo',
-      'pthr10170'
-     ]
+      # 'bbop.core',
+      # 'bbop.logger',
+      # 'bbop.model',
+      # 'bbop.model.tree',
+      # 'bbop.graph.render.phylo',
+      'bbop',
+      'amigo'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('PTHR10170.js')
+     ],
     };
   $self->add_template_bulk($prep);
   $self->set_template_parameter('page_title', 'Phylo Demo 2');

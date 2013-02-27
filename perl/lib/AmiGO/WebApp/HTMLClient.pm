@@ -1048,9 +1048,9 @@ sub mode_phylo_graph {
       'com.raphael.graffle',
       'bbop',
       'amigo',
-      'bbop.model',
-      'bbop.model.tree',
-      'bbop.graph.render.phylo',
+      #'bbop.model',
+      #'bbop.model.tree',
+      #'bbop.graph.render.phylo',
      ],
      javascript =>
      [
