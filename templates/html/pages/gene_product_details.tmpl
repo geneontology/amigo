@@ -67,7 +67,12 @@
 	[% ELSE %]
 	[%    FOREACH synh IN sl %]
 	<!-- <dd class="syn">[% IF synh.scope %]<span class="type">[% synh.scope %]</span>: [% END %][% synh.acc %]</dd> -->
+	[%       ## Something broken in the GAF or pipeline? %]
+	[%       IF synh == "" %]
+	<dd class="syn">(n/a)</dd>
+	[%       ELSE %]
 	<dd class="syn">[% synh %]</dd>
+	[%       END %]
 	[%    END %]
 	[% END %]
 
