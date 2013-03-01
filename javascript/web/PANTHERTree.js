@@ -8,7 +8,7 @@ function PT(){
     ///
     
     // Example graph hand loaded through tree.
-    var r0 = new bbop.widget.phylo.renderer('pgraph_0', true);
+    var r0 = new bbop.widget.phylo_old.renderer('pgraph_0', true);
     
     bbop.core.each(global_graph['nodes'],
 		   function(n){

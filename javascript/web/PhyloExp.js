@@ -5,13 +5,13 @@
 bbop.core.require('bbop', 'core');
 bbop.core.require('bbop', 'model');
 bbop.core.require('bbop', 'model', 'tree');
-bbop.core.require('bbop', 'widget', 'phylo');
+bbop.core.require('bbop', 'widget', 'phylo_old');
 
 // Run the layout after everything is loaded.
 window.onload = function(){
 
     // Example graph hand loaded through tree.
-    var r0 = new bbop.widget.phylo.renderer('test0', true);
+    var r0 = new bbop.widget.phylo_old.renderer('test0', true);
 
     function _quick_node_add(r, nid){
 	var new_node = new bbop.model.tree.node(nid);
@@ -138,7 +138,7 @@ window.onload = function(){
     /// 
 
     // Example graph hand loaded through tree.
-    var r1 = new bbop.widget.phylo.renderer('test1');
+    var r1 = new bbop.widget.phylo_old.renderer('test1');
     _quick_node_add(r1, 'AN0');
     _quick_node_add(r1, 'AN1');
     _quick_node_add(r1, 'AN2');
@@ -166,7 +166,7 @@ window.onload = function(){
     r1.display();
 
     //
-    var r2 = new bbop.widget.phylo.renderer('test2');
+    var r2 = new bbop.widget.phylo_old.renderer('test2');
     _quick_node_add(r2, 'A0');
     _quick_node_add(r2, 'D0');
     _quick_node_add(r2, 'D1');
@@ -183,7 +183,7 @@ window.onload = function(){
     r2.display();
 
     //
-    var r3 = new bbop.widget.phylo.renderer('test3');
+    var r3 = new bbop.widget.phylo_old.renderer('test3');
     _quick_node_add(r3, 'A0');
     _quick_node_add(r3, 'D0');
     _quick_node_add(r3, 'D1');

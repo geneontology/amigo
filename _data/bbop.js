@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130227";
+bbop.version.release = "20130228";
 /* 
  * Package: json.js
  * 
@@ -13430,14 +13430,16 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
 };
 ////////////
 ////
-//// bbop.widget.phylo
+//// bbop.widget.phylo_old
 ////
 //// Purpose: Extend the model to be handy for a (phylo)tree.
 //// 
+//// WARNING: This functionality is deprecated.
+////
 //// Width is determined by used div width (style).
 //// 
 //// Taken name spaces:
-////    bbop.widget.phylo.*
+////    bbop.widget.phylo_old.*
 ////
 //// TODO: better selection of displayable text
 //// TODO: get parser so we can start really checking/use.
@@ -13464,8 +13466,8 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
 bbop.core.require('bbop', 'core');
 bbop.core.require('bbop', 'model');
 bbop.core.require('bbop', 'model', 'tree');
-bbop.core.namespace('bbop', 'widget', 'phylo');
-//bbop.core.namespace('bbop', 'widget', 'phylo', 'renderer');
+bbop.core.namespace('bbop', 'widget', 'phylo_old');
+//bbop.core.namespace('bbop', 'widget', 'phylo_old', 'renderer');
 
 ///
 /// PNodes (phylonode) object.
@@ -13473,7 +13475,7 @@ bbop.core.namespace('bbop', 'widget', 'phylo');
 
 // Render out.
 // Actually, use this to wrap graph abstraction.
-bbop.widget.phylo.renderer = function (element_id, info_box_p){
+bbop.widget.phylo_old.renderer = function (element_id, info_box_p){
 
     // Logger.
     var logger = new bbop.logger();

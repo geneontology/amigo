@@ -5,7 +5,7 @@
 bbop.core.require('bbop', 'core');
 bbop.core.require('bbop', 'model');
 bbop.core.require('bbop', 'model', 'tree');
-bbop.core.require('bbop', 'widget', 'phylo');
+bbop.core.require('bbop', 'widget', 'phylo_old');
 
 // Run the layout after everything is loaded.
 window.onload = function(){
@@ -15,7 +15,7 @@ window.onload = function(){
     /// 
 
     // Example graph hand loaded through tree.
-    var r0 = new bbop.widget.phylo.renderer('test0', true);
+    var r0 = new bbop.widget.phylo_old.renderer('test0', true);
 
     function _quick_node_add(nid){
 	var new_node = new bbop.model.tree.node(nid);
