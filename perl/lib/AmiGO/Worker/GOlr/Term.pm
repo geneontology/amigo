@@ -45,7 +45,7 @@ sub new {
       $intermediate =
 	{
 	 acc => $found_doc->{id},
-	 name => $found_doc->{label},
+	 name => $found_doc->{annotation_class_label},
 	 #ontology_readable => $self->{A_AID}->readable($found_doc->{source}),
 	 ontology_readable => $found_doc->{source},
 	 ontology => $found_doc->{source},
