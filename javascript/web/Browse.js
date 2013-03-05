@@ -100,7 +100,7 @@ function BrowseInit(){
 
     // Finally, start the first draw with an artificial click on the
     // first shortcut button.
-    var start_id = shortcut[0]['id'];
+    var start_id = shortcuts[0]['id'];
     jQuery('#' + start_id).click();
 
     ///
