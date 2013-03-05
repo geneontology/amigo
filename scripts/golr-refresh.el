@@ -51,12 +51,6 @@
   :type 'string
   :group 'golr)
 
-(defcustom golr-panther-meta-file
-  "/home/bbop/tmp/PANTHER7.2_HMM_classifications"
-  "The location of the PANTHER HMM meta-information on the filesystem."
-  :type 'string
-  :group 'golr)
-
 (defcustom golr-maven-3-full-path
   "/home/bbop/local/src/java/apache-maven-3.0.4/bin/mvn"
   "The full path to Maven 3 binary."
@@ -147,9 +141,7 @@
 	   " --solr-purge"
 	   " --solr-config " golr-amigo-2-location "metadata/ont-config.yaml"
 	   " --solr-load-ontology"
-	   " --solr-load-panther"
-	   " " golr-panther-meta-file
-	   " " golr-panther-tree-location
+	   " --solr-load-panther " golr-panther-tree-location
 	   " --solr-load-gafs"
 	   " " (mapconcat 'identity golr-annotation-url-list " "))))
 
