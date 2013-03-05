@@ -17,7 +17,7 @@ This is the URL that points to the QuickGO services API.
 
 =cut
 my $URL_FOR_QUICKGO_TERM =
-  'http://www.ebi.ac.uk/ego/DisplayGoTerm?id=';
+  'http://www.ebi.ac.uk/QuickGO/GTerm?id=';
 
 =item new
 
