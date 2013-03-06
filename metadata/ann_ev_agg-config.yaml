@@ -40,7 +40,7 @@ fields:
     searchable: true
   - id: evidence_type_closure
     description: All evidence for this term/gene product pair
-    display_name: Evidence closure
+    display_name: Evidence type
     type: string
     cardinality: multi
     property: []
@@ -63,20 +63,20 @@ fields:
     searchable: true
   - id: taxon_closure
     description: "IDs derived from C13 + ncbi_taxonomy.obo."
-    display_name: Taxon closure
+    display_name: Taxon (IDs)
     type: string
     cardinality: multi
     property: []
   - id: taxon_closure_label
     description: "Labels derived from C13 + ncbi_taxonomy.obo."
-    display_name: Taxon closure (labels)
+    display_name: Taxon
     type: string
     cardinality: multi
     property: []
     searchable: true
   - id: family_tag
     description: Family IDs that are associated with this entity.
-    display_name: Family ID
+    display_name: Protein family
     type: string
     cardinality: multi
     searchable: true

@@ -877,7 +877,9 @@ sub mode_golr_term_details {
 
   ## Page settings.
   $self->set_template_parameter('page_title',
-				'AmiGO: Term Details for ' . $input_term_id);
+				'AmiGO: Term Details for "' .
+				$term_info_hash->{$input_term_id}{'name'} .
+				'" (' .	$input_term_id . ')');
   $self->set_template_parameter('content_title',
 				$term_info_hash->{$input_term_id}{'name'});
 

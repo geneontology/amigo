@@ -73,39 +73,39 @@ fields:
     searchable: true
   - id: taxon_closure
     description: "IDs derived from C13 + ncbi_taxonomy.obo."
-    display_name: Taxon closure
+    display_name: Taxon (IDs)
     type: string
     cardinality: multi
     property: []
   - id: taxon_closure_label
     description: "Labels derived from C13 + ncbi_taxonomy.obo."
-    display_name: Taxon closure (labels)
+    display_name: Taxon
     type: string
     cardinality: multi
     property: []
     searchable: true
   - id: isa_partof_closure
     description: "Closure of ids/accs over isa and partof."
-    display_name: Is-a/Part-of closure
+    display_name: Involved in (IDs)
     type: string
     cardinality: multi
     property: []
   - id: isa_partof_closure_label
     description: "Closure of labels over isa and partof."
-    display_name: Is-a/Part-of closure (labels)
+    display_name: Involved in
     type: string
     cardinality: multi
     property: []
     searchable: true
   - id: regulates_closure
     description: "Closure of ids/accs over regulates."
-    display_name: Regulates closure
+    display_name: Regulates (IDs)
     type: string
     cardinality: multi
     property: []
   - id: regulates_closure_label
     description: "Closure of labels over regulates."
-    display_name: Regulates closure (labels)
+    display_name: Regulates
     type: string
     cardinality: multi
     property: []
@@ -123,7 +123,7 @@ fields:
     property: []
   - id: family_tag
     description: Family IDs that are associated with this entity.
-    display_name: Family ID
+    display_name: Protein family
     type: string
     cardinality: multi
     searchable: true

@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130228";
+bbop.version.release = "20130305";
 /* 
  * Package: json.js
  * 
@@ -10489,8 +10489,10 @@ bbop.widget.display.results_table_by_class = function(cclass,
 
     // Start with score, and add the others by order of the class
     // results_weights field.
-    var headers = ['score'];
-    var headers_display = ['Score'];
+    // var headers = ['score'];
+    // var headers_display = ['Score'];
+    var headers = [];
+    var headers_display = [];
     var results_order = cclass.field_order_by_weight('result');
     each(results_order,
 	 function(fid){

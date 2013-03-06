@@ -65,39 +65,39 @@ fields:
     searchable: true
   - id: taxon_closure
     description: "IDs derived from C13 + ncbi_taxonomy.obo."
-    display_name: Taxon closure
+    display_name: Taxon (IDs)
     type: string
     cardinality: multi
     property: []
   - id: taxon_closure_label
     description: "Labels derived from C13 + ncbi_taxonomy.obo."
-    display_name: Taxon closure (labels)
+    display_name: Taxon
     type: string
     cardinality: multi
     property: []
     searchable: true
   - id: isa_partof_closure
     description: "Closure of ids/accs over isa and partof."
-    display_name: Is-a/Part-of closure
+    display_name: Involved in (IDs)
     type: string
     cardinality: multi
     property: []
   - id: isa_partof_closure_label
     description: "Closure of labels over isa and partof."
-    display_name: Is-a/Part-of closure (labels)
+    display_name: Involved in
     type: string
     cardinality: multi
     property: []
     searchable: true
   - id: regulates_closure
     description: "Closure of ids/accs over regulates."
-    display_name: Regulates closure
+    display_name: Regulates (IDs)
     type: string
     cardinality: multi
     property: []
   - id: regulates_closure_label
     description: "Closure of labels over regulates."
-    display_name: Regulates closure (labels)
+    display_name: Regulates
     type: string
     cardinality: multi
     property: []
@@ -176,7 +176,7 @@ fields:
 #     property: []
   - id: bioentity
     description: "Column 1 + columns 2."
-    display_name: Gene Product
+    display_name: Gene/Product
     type: string
     property: []
   - id: bioentity_label
@@ -187,7 +187,7 @@ fields:
     searchable: true
   - id: bioentity_name
     description: "The full name of the gene product."
-    display_name: Name
+    display_name: Gene/Product name
     type: string
     property: []
     searchable: true
@@ -241,8 +241,8 @@ fields:
 #     type: string
 #     property: []
   - id: bioentity_isoform
-    description: "Columns 17: Bioentity isoform."
-    display_name: Bioentity isoform
+    description: "Column 17: Bioentity isoform."
+    display_name: Isoform
     type: string
     property: []
 #   - id: bioentity_isoform_label
@@ -253,18 +253,18 @@ fields:
 #     property: []
   - id: evidence_type
     description: "Column 7: evidence type."
-    display_name: Evidence type
+    display_name: Direct evidence type
     type: string
     property: []
   - id: evidence_type_closure
     description: All evidence (evidence closure) for this annotation
-    display_name: Evidence closure
+    display_name: Evidence type
     type: string
     cardinality: multi
     property: []
   - id: evidence_with
     description: "Column 8: with/from."
-    display_name: With
+    display_name: Evidence with
     type: string
     cardinality: multi
     property: []
@@ -275,33 +275,33 @@ fields:
     property: []
   - id: annotation_extension_class
     description: "Column 16: extension class for the annotation."
-    display_name: Annotation extension class
+    display_name: Annotation extension
     type: string
     cardinality: multi
     property: []
   - id: annotation_extension_class_label
     description: ???
-    display_name: Annotation extension class (labels)
+    display_name: Annotation extension (labels)
     type: string
     cardinality: multi
     property: []
     searchable: true
   - id: annotation_extension_class_closure
     description: ???
-    display_name: Annotation extension class closure
+    display_name: Annotation extension (IDs)
     type: string
     cardinality: multi
     property: []
   - id: annotation_extension_class_closure_label
     description: ???
-    display_name: Annotation extension class closure (labels)
+    display_name: Annotation extension
     type: string
     cardinality: multi
     property: []
     searchable: true
   - id: family_tag
     description: Family IDs that are associated with this entity.
-    display_name: Family ID
+    display_name: Protein family
     type: string
     cardinality: multi
     searchable: true

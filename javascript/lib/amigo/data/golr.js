@@ -139,7 +139,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon closure",
+            "display_name" : "Taxon (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -151,7 +151,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon closure (labels)",
+            "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -163,7 +163,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
-            "display_name" : "Is-a/Part-of closure",
+            "display_name" : "Involved in (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -175,7 +175,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of labels over isa and partof.",
-            "display_name" : "Is-a/Part-of closure (labels)",
+            "display_name" : "Involved in",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -187,7 +187,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates closure",
+            "display_name" : "Regulates (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -199,7 +199,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates closure (labels)",
+            "display_name" : "Regulates",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -235,7 +235,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Family IDs that are associated with this entity.",
-            "display_name" : "Family ID",
+            "display_name" : "Protein family",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -297,7 +297,7 @@ amigo.data.golr = {
          "taxon_closure_label" : {
             "transform" : [],
             "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon closure (labels)",
+            "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -357,7 +357,7 @@ amigo.data.golr = {
          "taxon_closure" : {
             "transform" : [],
             "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon closure",
+            "display_name" : "Taxon (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -369,7 +369,7 @@ amigo.data.golr = {
          "isa_partof_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over isa and partof.",
-            "display_name" : "Is-a/Part-of closure (labels)",
+            "display_name" : "Involved in",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -381,7 +381,7 @@ amigo.data.golr = {
          "family_tag" : {
             "transform" : [],
             "description" : "Family IDs that are associated with this entity.",
-            "display_name" : "Family ID",
+            "display_name" : "Protein family",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -405,7 +405,7 @@ amigo.data.golr = {
          "regulates_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates closure (labels)",
+            "display_name" : "Regulates",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -417,7 +417,7 @@ amigo.data.golr = {
          "regulates_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates closure",
+            "display_name" : "Regulates (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -441,7 +441,7 @@ amigo.data.golr = {
          "isa_partof_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
-            "display_name" : "Is-a/Part-of closure",
+            "display_name" : "Involved in (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -577,7 +577,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "All evidence for this term/gene product pair",
-            "display_name" : "Evidence closure",
+            "display_name" : "Evidence type",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -625,7 +625,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon closure",
+            "display_name" : "Taxon (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -637,7 +637,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon closure (labels)",
+            "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -649,7 +649,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Family IDs that are associated with this entity.",
-            "display_name" : "Family ID",
+            "display_name" : "Protein family",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -675,7 +675,7 @@ amigo.data.golr = {
          "family_tag" : {
             "transform" : [],
             "description" : "Family IDs that are associated with this entity.",
-            "display_name" : "Family ID",
+            "display_name" : "Protein family",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -699,7 +699,7 @@ amigo.data.golr = {
          "taxon_closure_label" : {
             "transform" : [],
             "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon closure (labels)",
+            "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -771,7 +771,7 @@ amigo.data.golr = {
          "evidence_type_closure" : {
             "transform" : [],
             "description" : "All evidence for this term/gene product pair",
-            "display_name" : "Evidence closure",
+            "display_name" : "Evidence type",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -819,7 +819,7 @@ amigo.data.golr = {
          "taxon_closure" : {
             "transform" : [],
             "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon closure",
+            "display_name" : "Taxon (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -931,7 +931,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon closure",
+            "display_name" : "Taxon (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -943,7 +943,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon closure (labels)",
+            "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -955,7 +955,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
-            "display_name" : "Is-a/Part-of closure",
+            "display_name" : "Involved in (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -967,7 +967,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of labels over isa and partof.",
-            "display_name" : "Is-a/Part-of closure (labels)",
+            "display_name" : "Involved in",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -979,7 +979,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates closure",
+            "display_name" : "Regulates (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -991,7 +991,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates closure (labels)",
+            "display_name" : "Regulates",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1015,7 +1015,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Column 1 + columns 2.",
-            "display_name" : "Gene Product",
+            "display_name" : "Gene/Product",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1039,7 +1039,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "The full name of the gene product.",
-            "display_name" : "Name",
+            "display_name" : "Gene/Product name",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1110,8 +1110,8 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Columns 17: Bioentity isoform.",
-            "display_name" : "Bioentity isoform",
+            "description" : "Column 17: Bioentity isoform.",
+            "display_name" : "Isoform",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1123,7 +1123,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Column 7: evidence type.",
-            "display_name" : "Evidence type",
+            "display_name" : "Direct evidence type",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1135,7 +1135,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "All evidence (evidence closure) for this annotation",
-            "display_name" : "Evidence closure",
+            "display_name" : "Evidence type",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1147,7 +1147,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Column 8: with/from.",
-            "display_name" : "With",
+            "display_name" : "Evidence with",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1171,7 +1171,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Column 16: extension class for the annotation.",
-            "display_name" : "Annotation extension class",
+            "display_name" : "Annotation extension",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1183,7 +1183,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "???",
-            "display_name" : "Annotation extension class (labels)",
+            "display_name" : "Annotation extension (labels)",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1195,7 +1195,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "???",
-            "display_name" : "Annotation extension class closure",
+            "display_name" : "Annotation extension (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1207,7 +1207,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "???",
-            "display_name" : "Annotation extension class closure (labels)",
+            "display_name" : "Annotation extension",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1219,7 +1219,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Family IDs that are associated with this entity.",
-            "display_name" : "Family ID",
+            "display_name" : "Protein family",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1245,7 +1245,7 @@ amigo.data.golr = {
          "annotation_extension_class" : {
             "transform" : [],
             "description" : "Column 16: extension class for the annotation.",
-            "display_name" : "Annotation extension class",
+            "display_name" : "Annotation extension",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1269,7 +1269,7 @@ amigo.data.golr = {
          "annotation_extension_class_closure_label" : {
             "transform" : [],
             "description" : "???",
-            "display_name" : "Annotation extension class closure (labels)",
+            "display_name" : "Annotation extension",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1293,7 +1293,7 @@ amigo.data.golr = {
          "taxon_closure_label" : {
             "transform" : [],
             "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon closure (labels)",
+            "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1353,7 +1353,7 @@ amigo.data.golr = {
          "bioentity_name" : {
             "transform" : [],
             "description" : "The full name of the gene product.",
-            "display_name" : "Name",
+            "display_name" : "Gene/Product name",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1365,7 +1365,7 @@ amigo.data.golr = {
          "evidence_type" : {
             "transform" : [],
             "description" : "Column 7: evidence type.",
-            "display_name" : "Evidence type",
+            "display_name" : "Direct evidence type",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1389,7 +1389,7 @@ amigo.data.golr = {
          "taxon_closure" : {
             "transform" : [],
             "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon closure",
+            "display_name" : "Taxon (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1401,7 +1401,7 @@ amigo.data.golr = {
          "annotation_extension_class_label" : {
             "transform" : [],
             "description" : "???",
-            "display_name" : "Annotation extension class (labels)",
+            "display_name" : "Annotation extension (labels)",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1412,8 +1412,8 @@ amigo.data.golr = {
          },
          "bioentity_isoform" : {
             "transform" : [],
-            "description" : "Columns 17: Bioentity isoform.",
-            "display_name" : "Bioentity isoform",
+            "description" : "Column 17: Bioentity isoform.",
+            "display_name" : "Isoform",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1425,7 +1425,7 @@ amigo.data.golr = {
          "isa_partof_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over isa and partof.",
-            "display_name" : "Is-a/Part-of closure (labels)",
+            "display_name" : "Involved in",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1437,7 +1437,7 @@ amigo.data.golr = {
          "family_tag" : {
             "transform" : [],
             "description" : "Family IDs that are associated with this entity.",
-            "display_name" : "Family ID",
+            "display_name" : "Protein family",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1485,7 +1485,7 @@ amigo.data.golr = {
          "regulates_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates closure (labels)",
+            "display_name" : "Regulates",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1497,7 +1497,7 @@ amigo.data.golr = {
          "regulates_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates closure",
+            "display_name" : "Regulates (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1509,7 +1509,7 @@ amigo.data.golr = {
          "isa_partof_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
-            "display_name" : "Is-a/Part-of closure",
+            "display_name" : "Involved in (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1521,7 +1521,7 @@ amigo.data.golr = {
          "bioentity" : {
             "transform" : [],
             "description" : "Column 1 + columns 2.",
-            "display_name" : "Gene Product",
+            "display_name" : "Gene/Product",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1569,7 +1569,7 @@ amigo.data.golr = {
          "evidence_type_closure" : {
             "transform" : [],
             "description" : "All evidence (evidence closure) for this annotation",
-            "display_name" : "Evidence closure",
+            "display_name" : "Evidence type",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1593,7 +1593,7 @@ amigo.data.golr = {
          "evidence_with" : {
             "transform" : [],
             "description" : "Column 8: with/from.",
-            "display_name" : "With",
+            "display_name" : "Evidence with",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1629,7 +1629,7 @@ amigo.data.golr = {
          "annotation_extension_class_closure" : {
             "transform" : [],
             "description" : "???",
-            "display_name" : "Annotation extension class closure",
+            "display_name" : "Annotation extension (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1842,7 +1842,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
-            "display_name" : "Is-a/Part-of closure",
+            "display_name" : "Involved in (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1857,7 +1857,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of labels over isa and partof.",
-            "display_name" : "Is-a/Part-of closure (labels)",
+            "display_name" : "Involved in",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1872,7 +1872,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates closure",
+            "display_name" : "Regulates (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1890,7 +1890,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates closure (labels)",
+            "display_name" : "Regulates",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -2052,7 +2052,7 @@ amigo.data.golr = {
          "isa_partof_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over isa and partof.",
-            "display_name" : "Is-a/Part-of closure (labels)",
+            "display_name" : "Involved in",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -2110,7 +2110,7 @@ amigo.data.golr = {
          "regulates_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates closure (labels)",
+            "display_name" : "Regulates",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -2128,7 +2128,7 @@ amigo.data.golr = {
          "regulates_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates closure",
+            "display_name" : "Regulates (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -2160,7 +2160,7 @@ amigo.data.golr = {
          "isa_partof_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
-            "display_name" : "Is-a/Part-of closure",
+            "display_name" : "Involved in (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
