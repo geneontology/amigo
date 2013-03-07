@@ -301,7 +301,6 @@ Return: a string that can be used to compile a term-matching regexp.
 
 =cut
 sub term_regexp_string {
-
   my $self = shift;
   return $self->amigo_env('AMIGO_TERM_REGEXP');
 }
@@ -957,6 +956,34 @@ sub database_link {
   return $retval;
 }
 
+
+=item database_link_set
+
+Args: list of database IDs
+Returns: list if hashes structured like [{id: "db:id", link: "http://url"}, ...]
+
+=cut
+sub database_link_set {
+
+  my $self = shift;
+  my $dbids = shift || [];
+  my $retlist = [];
+
+  foreach my $dbid (@$dbids){
+
+    my($db, $id) = $self->split_gene_product_acc($dbid);
+
+    push @$retlist,
+      {
+       id => $dbid,
+       dbname => $db,
+       key => $id,
+       link => $self->database_link($db, $id)
+      };
+  }
+
+  return $retlist;
+}
 
 # =item ontology
 

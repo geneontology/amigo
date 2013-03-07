@@ -141,6 +141,12 @@ fields:
     type: string
     property: []
     indexed: false
+  - id: database_xref
+    description: Database cross-reference.
+    display_name: DB xref
+    type: string
+    property: []
+    cardinality: multi
 ## TODO: Sleeping for now, but will re-add when the right
 ## experimental GAFs start getting loaded as well.
 # - id: phylo_ancestor_closure

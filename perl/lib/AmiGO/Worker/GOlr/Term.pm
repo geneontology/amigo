@@ -66,8 +66,15 @@ sub new {
 	 synonyms => $found_doc->{synonym} || [],
 	 #dbxrefs => [],
 	 term_dbxrefs => $found_doc->{definition_xref} || [],
+	 dbxrefs => $found_doc->{database_xref} || [],
 	 topology_graph => $found_doc->{topology_graph},
 	 transitivity_graph => $found_doc->{transitivity_graph},
+
+	 ## Convert the dbxrefs into something usable/linkable.
+	 term_dbxref_links =>
+	 $self->database_link_set($found_doc->{definition_xref}),
+	 dbxref_links =>
+	 $self->database_link_set($found_doc->{database_xref}),
 
 	 ## A secondary data structure.
 	 chewable_graph =>

@@ -1828,7 +1828,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Definition cross-reference.",
-            "display_name" : "Def XRef",
+            "display_name" : "Def xref",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1837,6 +1837,20 @@ amigo.data.golr = {
             "id" : "definition_xref",
             "property" : [
                "getDefXref"
+            ]
+         },
+         {
+            "transform" : [],
+            "description" : "Database cross-reference.",
+            "display_name" : "DB xref",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "database_xref",
+            "property" : [
+               "getXref"
             ]
          },
          {
@@ -1952,7 +1966,7 @@ amigo.data.golr = {
          "definition_xref" : {
             "transform" : [],
             "description" : "Definition cross-reference.",
-            "display_name" : "Def XRef",
+            "display_name" : "Def xref",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1961,6 +1975,20 @@ amigo.data.golr = {
             "id" : "definition_xref",
             "property" : [
                "getDefXref"
+            ]
+         },
+         "database_xref" : {
+            "transform" : [],
+            "description" : "Database cross-reference.",
+            "display_name" : "DB xref",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "database_xref",
+            "property" : [
+               "getXref"
             ]
          },
          "alternate_id" : {

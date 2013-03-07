@@ -90,9 +90,15 @@ fields:
     cardinality: multi
   - id: definition_xref
     description: Definition cross-reference.
-    display_name: Def XRef
+    display_name: Def xref
     type: string
     property: [getDefXref]
+    cardinality: multi
+  - id: database_xref
+    description: Database cross-reference.
+    display_name: DB xref
+    type: string
+    property: [getXref]
     cardinality: multi
   - id: isa_partof_closure
     description: "Closure of ids/accs over isa and partof."
