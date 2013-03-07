@@ -61,7 +61,7 @@
       [%    FOREACH synh IN sl %]
       <!-- BUG/TODO: Like this when we have scope available. -->
       <!-- <dd class="syn">[% IF synh.scope %]<span class="type">[% synh.scope %]</span>: [% END %][% synh.acc %]</dd> -->
-      <dd class="syn"><b>(scopeless) label</b>: [% synh %]</dd>
+      <dd class="syn">[% synh %]</dd>
       [%    END %]
       [% END %]
 
@@ -177,7 +177,7 @@
        </li>
        <li>
 	 <a href="#display-qg"
-	    class="override"><span>Graph View</span></a>
+	    class="override"><span>Graph Views</span></a>
        </li>
        <li>
 	 <a href="#display-sentences"
@@ -187,10 +187,10 @@
 	 <a href="#display-graph"
 	    class="override"><span>Inferred Tree View</span></a>
        </li>
-       <li>
-	 <a href="#display-out"
-	    class="override"><span>Other Views</span></a>
-       </li>
+       <!-- <li> -->
+       <!-- 	 <a href="#display-out" -->
+       <!-- 	    class="override"><span>Other Views</span></a> -->
+       <!-- </li> -->
        <!-- <li> -->
        <!-- 	 <a href="#display-down" -->
        <!-- 	    class="override"><span>Downloads</span></a> -->
@@ -221,6 +221,27 @@
 		 alt="Graph of [% TERM_INFO.acc %] from QuickGO" />
 	  </a>
 	</p>
+
+	<p>
+	  <ul>
+	    <li><b>Additional external viewing options</b></li>
+	    <li><a href="[% OLSVIS_GO_LINK %]"
+		   title="View the graph in the OLSVis viewer">OLSVis (interactive)</a></li>
+	  </ul>
+	  <ul>
+	    <li><b>Additional internal viewing options</b></li>
+	    <!-- TODO: do this with breadcrumbsy string (taken from REST URL) --> 
+	    <!-- <li>Last action: [% last_action || 'unknown' %]</li> -->
+	    <li><a href="[% VIZ_STATIC_LINK %]"
+		   title="View the graph as a static PNG image">Graphical view (PNG)</a></li>
+	    <li><a href="[% VIZ_DYNAMIC_LINK %]"
+		   title="View the graph as an interactive SVG+JS document">Graphical view (SVG)</a></li>
+	    <!-- One day this will be out of experimental. -->
+	    <!-- <li><a href="[% NAVIGATION_LINK %]" -->
+		 <!-- 	      title="Navigate the GO, using the current term as a seed">GO Navigation</a></li> -->
+	  </ul>
+	</p>       
+
 	[% # ELSE %]
 	<!-- <p> -->
 	<!--   <a class="override" -->
@@ -403,27 +424,8 @@
 
      </div>
 
-      <div id="display-out">
-	<p>
-	  <ul>
-	    <li><b>Additional external viewing options</b></li>
-	    <li><a href="[% OLSVIS_GO_LINK %]"
-		   title="View the graph in the OLSVis viewer">OLSVis (interactive)</a></li>
-	  </ul>
-	  <ul>
-	    <li><b>Additional internal viewing options</b></li>
-	    <!-- TODO: do this with breadcrumbsy string (taken from REST URL) --> 
-	    <!-- <li>Last action: [% last_action || 'unknown' %]</li> -->
-	    <li><a href="[% VIZ_STATIC_LINK %]"
-		   title="View the graph as a static PNG image">Graphical view (PNG)</a></li>
-	    <li><a href="[% VIZ_DYNAMIC_LINK %]"
-		   title="View the graph as an interactive SVG+JS document">Graphical view (SVG)</a></li>
-	    <!-- One day this will be out of experimental. -->
-	    <!-- <li><a href="[% NAVIGATION_LINK %]" -->
-		 <!-- 	      title="Navigate the GO, using the current term as a seed">GO Navigation</a></li> -->
-	  </ul>
-	</p>       
-      </div>
+      <!-- <div id="display-out"> -->
+      <!-- </div> -->
 
       <!-- <div id="display-down"> -->
       <!-- 	<p> -->

@@ -116,7 +116,7 @@ function LiveSearchGOlrInit(){
     	//'icon_negative_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
     	'buttons' : [
 	    {
-		label: 'GAF download',
+		label: 'GAF chunk download',
 		diabled_p: false,
 		text_p: false,
 		icon: 'ui-icon-circle-arrow-s',
@@ -149,8 +149,8 @@ function LiveSearchGOlrInit(){
 			// turned into %2509, back into %09.
 			var gdl = encodeURI(raw_gdl).replace(/\%2509/g, '%09');
 			new bbop.widget.dialog('Download: <a href="' + gdl +
-					       '" title="Download psuedo-GAF."'+
-					       '>psuedo-GAF</a> ' + 
+					       '" title="Download GAF chunk."'+
+					       '>GAF chunk</a> ' + 
 					       '(max. 5000 lines).');
 		    };
 		}

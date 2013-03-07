@@ -4,26 +4,26 @@
 ####
 id: bbop_ann_ev_agg
 description: A description of annotation evidence aggregate for GOlr and AmiGO.
-display_name: Evidence Aggregate
+display_name: Advanced
 document_category: annotation_evidence_aggregate
 weight: 10
-boost_weights: annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 family_tag^1.0 family_tag_label^1.0
+boost_weights: annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 family_tag^1.0 family_tag_label^1.0 taxon_closure_label^1.0
 result_weights: bioentity^4.0 annotation_class^3.0 taxon^2.0
 filter_weights: evidence_type_closure^4.0 evidence_with^3.0 taxon_closure_label^2.0
 fields:
   - id: id
-    description: Bioentity id.
+    description: Gene/product ID.
     display_name: Acc
     type: string
     property: []
   - id: bioentity
     description: "Column 1 + columns 2."
-    display_name: Bioentity ID
+    display_name: Gene/product ID
     type: string
     property: []
   - id: bioentity_label
     description: Column 3.
-    display_name: Bioentity label
+    display_name: Gene/product label
     type: string
     property: []
     searchable: true

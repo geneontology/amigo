@@ -33,16 +33,16 @@ bbop.core.namespace('amigo', 'data', 'golr');
 amigo.data.golr = {
    "bbop_bio" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "bioentity^6.0 bioentity_name^5.0 taxon^4.0 family_tag^3.0 type^2.0 source^1.0",
+      "result_weights" : "bioentity^6.0 bioentity_name^5.0 taxon^4.0 family_tag^3.0 type^2.0 source^1.0 taxon_closure_label^1.0",
       "filter_weights" : "source^7.0 type^6.0 family_tag_label^5.0 taxon_closure_label^4.0 isa_partof_closure_label^3.0 regulates_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//bio-config.yaml",
-      "display_name" : "Bioentities",
+      "display_name" : "Gene/products",
       "description" : "A description of bioentities file for GOlr.",
-      "boost_weights" : "bioentity^2.0 bioentity_label^2.0 bioentity_name^1.0 isa_partof_closure_label^1.0 regulates_closure_label^1.0 family_tag^1.0 family_tag_label^1.0",
+      "boost_weights" : "bioentity^2.0 bioentity_label^2.0 bioentity_name^1.0 isa_partof_closure_label^1.0 regulates_closure_label^1.0 family_tag^1.0 family_tag_label^1.0 taxon_closure_label^1.0",
       "fields" : [
          {
             "transform" : [],
-            "description" : "Bioentity ID.",
+            "description" : "Gene/product ID.",
             "display_name" : "Acc",
             "indexed" : "true",
             "searchable" : "false",
@@ -54,7 +54,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Bioentity ID.",
+            "description" : "Gene/product ID.",
             "display_name" : "Acc",
             "indexed" : "true",
             "searchable" : "false",
@@ -187,7 +187,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates (IDs)",
+            "display_name" : "Regulates + involved in (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -199,7 +199,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates",
+            "display_name" : "Regulates + involved in",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -344,7 +344,7 @@ amigo.data.golr = {
          },
          "id" : {
             "transform" : [],
-            "description" : "Bioentity ID.",
+            "description" : "Gene/product ID.",
             "display_name" : "Acc",
             "indexed" : "true",
             "searchable" : "false",
@@ -405,7 +405,7 @@ amigo.data.golr = {
          "regulates_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates",
+            "display_name" : "Regulates + involved in",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -417,7 +417,7 @@ amigo.data.golr = {
          "regulates_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates (IDs)",
+            "display_name" : "Regulates + involved in (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -428,7 +428,7 @@ amigo.data.golr = {
          },
          "bioentity" : {
             "transform" : [],
-            "description" : "Bioentity ID.",
+            "description" : "Gene/product ID.",
             "display_name" : "Acc",
             "indexed" : "true",
             "searchable" : "false",
@@ -510,13 +510,13 @@ amigo.data.golr = {
       "result_weights" : "bioentity^4.0 annotation_class^3.0 taxon^2.0",
       "filter_weights" : "evidence_type_closure^4.0 evidence_with^3.0 taxon_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//ann_ev_agg-config.yaml",
-      "display_name" : "Evidence Aggregate",
+      "display_name" : "Advanced",
       "description" : "A description of annotation evidence aggregate for GOlr and AmiGO.",
-      "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 family_tag^1.0 family_tag_label^1.0",
+      "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 family_tag^1.0 family_tag_label^1.0 taxon_closure_label^1.0",
       "fields" : [
          {
             "transform" : [],
-            "description" : "Bioentity id.",
+            "description" : "Gene/product ID.",
             "display_name" : "Acc",
             "indexed" : "true",
             "searchable" : "false",
@@ -529,7 +529,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Column 1 + columns 2.",
-            "display_name" : "Bioentity ID",
+            "display_name" : "Gene/product ID",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -541,7 +541,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Column 3.",
-            "display_name" : "Bioentity label",
+            "display_name" : "Gene/product label",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -687,7 +687,7 @@ amigo.data.golr = {
          "bioentity_label" : {
             "transform" : [],
             "description" : "Column 3.",
-            "display_name" : "Bioentity label",
+            "display_name" : "Gene/product label",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -735,7 +735,7 @@ amigo.data.golr = {
          "bioentity" : {
             "transform" : [],
             "description" : "Column 1 + columns 2.",
-            "display_name" : "Bioentity ID",
+            "display_name" : "Gene/product ID",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -794,7 +794,7 @@ amigo.data.golr = {
          },
          "id" : {
             "transform" : [],
-            "description" : "Bioentity id.",
+            "description" : "Gene/product ID.",
             "display_name" : "Acc",
             "indexed" : "true",
             "searchable" : "false",
@@ -838,7 +838,7 @@ amigo.data.golr = {
    "bbop_ann" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "annotation_class^9.0 evidence_type^8.0 bioentity^7.0 bioentity_name^5.0 source^4.0 taxon^3.0 evidence_with^2.0 family_tag^1.5 annotation_extension_class^1.0 bioentity_isoform^0.5",
-      "filter_weights" : "source^7.0 assigned_by^6.5 evidence_type_closure^6.0 family_tag_label^5.5 taxon_closure_label^5.0 isa_partof_closure_label^4.0 regulates_closure_label^3.0 annotation_extension_class_closure_label^2.0",
+      "filter_weights" : "source^7.0 assigned_by^6.5 aspect^6.25 evidence_type_closure^6.0 family_tag_label^5.5 taxon_closure_label^5.0 isa_partof_closure_label^4.0 regulates_closure_label^3.0 annotation_extension_class_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//ann-config.yaml",
       "display_name" : "Annotations",
       "description" : "A description of annotations for GOlr and AmiGO.",
@@ -979,7 +979,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates (IDs)",
+            "display_name" : "Regulates + involved in (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -991,7 +991,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates",
+            "display_name" : "Regulates + involved in",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1027,7 +1027,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Column 3: bioentity label.",
-            "display_name" : "Bioentity label",
+            "display_name" : "Gene/product label",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1123,7 +1123,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Column 7: evidence type.",
-            "display_name" : "Direct evidence type",
+            "display_name" : "Evidence",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1135,7 +1135,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "All evidence (evidence closure) for this annotation",
-            "display_name" : "Evidence type",
+            "display_name" : "Evidence type (inferred)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1281,7 +1281,7 @@ amigo.data.golr = {
          "bioentity_label" : {
             "transform" : [],
             "description" : "Column 3: bioentity label.",
-            "display_name" : "Bioentity label",
+            "display_name" : "Gene/product label",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1365,7 +1365,7 @@ amigo.data.golr = {
          "evidence_type" : {
             "transform" : [],
             "description" : "Column 7: evidence type.",
-            "display_name" : "Direct evidence type",
+            "display_name" : "Evidence",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1485,7 +1485,7 @@ amigo.data.golr = {
          "regulates_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates",
+            "display_name" : "Regulates + involved in",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1497,7 +1497,7 @@ amigo.data.golr = {
          "regulates_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates (IDs)",
+            "display_name" : "Regulates + involved in (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1569,7 +1569,7 @@ amigo.data.golr = {
          "evidence_type_closure" : {
             "transform" : [],
             "description" : "All evidence (evidence closure) for this annotation",
-            "display_name" : "Evidence type",
+            "display_name" : "Evidence type (inferred)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1872,7 +1872,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates (IDs)",
+            "display_name" : "Regulates + involved in (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1890,7 +1890,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates",
+            "display_name" : "Regulates + involved in",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -2110,7 +2110,7 @@ amigo.data.golr = {
          "regulates_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates",
+            "display_name" : "Regulates + involved in",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -2128,7 +2128,7 @@ amigo.data.golr = {
          "regulates_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates (IDs)",
+            "display_name" : "Regulates + involved in (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",

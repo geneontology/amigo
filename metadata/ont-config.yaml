@@ -113,7 +113,7 @@ fields:
     searchable: true
   - id: regulates_closure
     description: "Closure of ids/accs over regulates."
-    display_name: Regulates (IDs)
+    display_name: Regulates + involved in (IDs)
     type: string
     cardinality: multi
     property:
@@ -124,7 +124,7 @@ fields:
       - "RO:0002213"
   - id: regulates_closure_label
     description: "Closure of labels over regulates."
-    display_name: Regulates
+    display_name: Regulates + involved in
     type: string
     cardinality: multi
     property:
