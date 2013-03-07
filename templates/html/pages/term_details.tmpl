@@ -69,6 +69,8 @@
       <dt>Definition</dt>
       [% IF TERM_INFO.definition %]
       <dd class="def">[% TERM_INFO.definition %]
+	[% wikipedia_label = "" %]
+	[% wikipedia_link = "" %]
 	[% IF TERM_INFO.term_dbxref_links && TERM_INFO.term_dbxref_links.size > 0 %]
 	<br /><i>Source:</i>
 	[%    txref_count = TERM_INFO.term_dbxref_links.size %]
@@ -79,6 +81,10 @@
 	[%      IF txref_link.dbname == "URL" %]
 	[%         href = txref_link.key %]
 	[%         vis = txref_link.key %]
+	[%      END %]
+	[%      IF txref_link.dbname == "Wikipedia" %]
+	[%         wikipedia_link = txref_link.link %]
+	[%         wikipedia_label = txref_link.key %]
 	[%      END %]
 	[%      IF  txref_link.dbname == 'PMID' || txref_link.dbname == 'DOI' %]<cite class="paper">[% ELSE %]<cite>[% END %][% IF href %]<a title="Go to [% vis %]" href="[% href %]">[% vis %]</a>[% ELSE %][% txref_link.id %][% END %]</cite>[% IF txref_counter < txref_count; txref_counter = txref_counter + 1 %],[% END %]
        [%    END %]
@@ -130,6 +136,7 @@
      <dd>None</dd>
      [% END %]
      
+     [% # Note that wikipedia is in here too...rename community? %]
      [% INCLUDE common/term_details_gonuts.tmpl %]
 
    </dl>

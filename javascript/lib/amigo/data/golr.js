@@ -267,6 +267,18 @@ amigo.data.golr = {
             "type" : "string",
             "id" : "phylo_graph",
             "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Database cross-reference.",
+            "display_name" : "DB xref",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "database_xref",
+            "property" : []
          }
       ],
       "fields_hash" : {
@@ -292,6 +304,18 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "bioentity_label",
+            "property" : []
+         },
+         "database_xref" : {
+            "transform" : [],
+            "description" : "Database cross-reference.",
+            "display_name" : "DB xref",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "database_xref",
             "property" : []
          },
          "taxon_closure_label" : {
