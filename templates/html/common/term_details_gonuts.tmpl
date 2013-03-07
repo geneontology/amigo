@@ -3,12 +3,12 @@
 [% IF GONUTS_SUCCESS || wikipedia_label %]
 [%    IF GONUTS_SUCCESS %]
 <dd>
-<a href="[% GONUTS_PAGE_URL %]" title="Community note for [% GONUTS_PAGE_TITLE %]">[% IF GONUTS_TOTAL_COUNT > 0 %]View or edit[% ELSE %]Add[% END %]</a> usage comments for this term on the <acronym title="GO Normal Usage Tracking System">GONUTS</acronym> wiki.
+<!-- <img height="16px" src="[% image_dir %]/gonuts.link.jpg" alt="GONUTS" /> --><small><b>GN</b></small> <a href="[% GONUTS_PAGE_URL %]" title="Community note for [% GONUTS_PAGE_TITLE %]">[% IF GONUTS_TOTAL_COUNT > 0 %]View or edit[% ELSE %]Add[% END %]</a> usage comments for this term on the <acronym title="GO Normal Usage Tracking System">GONUTS</acronym> wiki.
 </dd>
 [%    END %]
 [%    IF wikipedia_label %]
 <dd>
-<a href="[% wikipedia_link %]" title="Wikipedia page for [% wikipedia_label %]">View and edit</a> information about this term on Wikipedia.
+<img height="18px" src="[% image_dir %]/wikipedia.link.png" alt="Wikipedia" /><a href="[% wikipedia_link %]" title="Wikipedia page for [% wikipedia_label %]">View and edit</a> information about this term on Wikipedia.
 </dd>
 [%    END %]
 [% ELSE %]
