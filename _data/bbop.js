@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130306";
+bbop.version.release = "20130307";
 /* 
  * Package: json.js
  * 
@@ -10448,7 +10448,9 @@ bbop.widget.display.results_table_by_class = function(cclass,
 
     var each = bbop.core.each; // conveience
 
-    var ea_regexp = new RegExp("\<\/a\>", "i"); // only want to compile once
+    // Only want to compile once.
+    var ea_regexp = new RegExp("\<\/a\>", "i");
+    var br_regexp = new RegExp("\<br\ \/\>", "i");
     // Now take what we have, and wrap around some expansion code
     // if it looks like it is too long.
     var trim_hash = {};
@@ -10457,33 +10459,71 @@ bbop.widget.display.results_table_by_class = function(cclass,
 
 	var retval = in_str;
 
-	// Skip if it has a link or is too short.
-	if( ! ea_regexp.test(retval) && retval.length > (trimit + 50) ){
+	ll("T&S: " + in_str);
 
-	    // Setup the text for tease and full versions.
-	    var tease = new bbop.html.span(bbop.core.crop(retval, trimit, ''),
-					   {'generate_id': true});
-	    var more_b = new bbop.html.span('<b>[more...]</b>',
-					    {'generate_id': true});
-	    var full = new bbop.html.span(retval,
-					  {'generate_id': true});
-	    var less_b = new bbop.html.span('<b>[less]</b>',
-					    {'generate_id': true});
+	// Skip if it is too short.
+	//if( ! ea_regexp.test(retval) && retval.length > (trimit + 50) ){
+	if( retval.length > (trimit + 50) ){
+	    ll("T&S: too long");
+
+	    // Now determine if links or <br>s (connotating that this
+	    // is an assembled list) can be found in the string.
+	    if( ea_regexp.test(retval) && ! br_regexp.test(retval) ){
+		// It looks like it is a link without a break, so not
+		// a list. We cannot trim this safely.
+		ll("T&S: cannot work on");
+	    }else{
+		ll("T&S: can work on");
+
+		// Generate different teases depending on 
+		var tease = "[n/a]";
 	    
-	    // Store the different parts for later activation.
-	    var tease_id = tease.get_id();
-	    var more_b_id = more_b.get_id();
-	    var full_id = full.get_id();
-	    var less_b_id = less_b.get_id();
-	    trim_hash[tease_id] = [tease_id, more_b_id, full_id, less_b_id];
+		if( ea_regexp.test(retval) && br_regexp.test(retval) ){
+		    ll("T&S: do breakdown");
+		    // It is a list of anchors, but breakable, so
+		    // let's work on it until we reach the limit.
+		    var new_str_list = retval.split(br_regexp);
+		    var new_str = new_str_list.shift();
+		    each(new_str_list,
+			function(part){
+			    if( new_str.length + part.length < (trimit + 400 )){
+				new_str = new_str + "<br />" + part;
+			    }
+			});
+		    ll("T&S: new_str: " + new_str);
+		    tease = new bbop.html.span(new_str, {'generate_id': true});
+		}else{
+		    // A normal string then...trim it!
+		    ll("T&S: pass thru");
+		    tease = new bbop.html.span(bbop.core.crop(retval,trimit,''),
+					       {'generate_id': true});
+		    
+		}
+		ll("T&S: tease: " + tease.to_string());
+
+		// Setup the text for tease and full versions.
+		var more_b = new bbop.html.span('<b>[more...]</b>',
+						{'generate_id': true});
+		var full = new bbop.html.span(retval,
+					      {'generate_id': true});
+		var less_b = new bbop.html.span('<b>[less]</b>',
+						{'generate_id': true});
 	    
-	    // New final string.
-	    retval = tease.to_string() + " " +
-		more_b.to_string() + " " +
-		full.to_string() + " " +
-		less_b.to_string();
+		// Store the different parts for later activation.
+		var tease_id = tease.get_id();
+		var more_b_id = more_b.get_id();
+		var full_id = full.get_id();
+		var less_b_id = less_b.get_id();
+		trim_hash[tease_id] = [tease_id, more_b_id, full_id, less_b_id];
 	    
+		// New final string.
+		retval = tease.to_string() + " " +
+		    more_b.to_string() + " " +
+		    full.to_string() + " " +
+		    less_b.to_string();
+	    }
 	}
+
 	return retval;
     }
 
