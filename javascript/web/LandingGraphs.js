@@ -52,7 +52,7 @@ function GooglesLoaderIsAJerk(){
     };
     var bio_args = {
 	'label_template':
-	'{{bioentity_label}} ({{id}})',
+	'{{bioentity_label}} ({{id}}/{{taxon_label}})',
 	'value_template': '{{bioentity}}',
 	'list_select_callback': forward
     };

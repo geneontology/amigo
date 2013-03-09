@@ -44,11 +44,38 @@ function TermDetailsInit(){
 
     // Two sticky filters.
     gps.add_query_filter('document_category', 'annotation', ['*']);
-    gps.add_query_filter('isa_partof_closure', global_acc, ['*']);
+    gps.add_query_filter('regulates_closure', global_acc, ['*']);
+    //gps.add_query_filter('annotation_class', global_acc, ['*']);
+    // TODO: And or this in as well.
+    //gps.add_query_filter('annotation_class', global_acc, ['*']);
 
     // Get the interface going.
     gps.establish_display();
     gps.reset();
+
+    ///
+    /// TODO: Create a bookmark for searching bioentities with this
+    /// term and the default, and add it to the DOM at
+    /// "related-terms-span".
+    ///
+    
+    // Get bookmark.
+    var relman = new bbop.golr.manager.jquery(solr_server, gconf);
+    relman.set_personality('bbop_bio');
+    relman.add_query_filter('document_category', 'bioentity', ['*']);
+    relman.add_query_filter('regulates_closure', global_acc);
+    //ll('qurl: ' + relman.get_query_url());
+    var relstate = encodeURIComponent(relman.get_state_url());
+
+    // Generate the link.
+    var al = new amigo.linker();
+    var hot_anchor = al.anchor({id:relstate, label:'Search'}, 'search');
+
+    // Add it to the DOM.
+    var rtid = "#related-terms-span";
+    jQuery(rtid).empty();
+    jQuery(rtid).append(hot_anchor + ' for <i>bioentities</i> ' +
+			'that have been annotated with this term.');
 
     //
     ll('TermDetailsInit done.');

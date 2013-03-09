@@ -299,7 +299,7 @@ function LiveSearchGOlrInit(){
 	    //ll("Pre-bookmark personality: " + search.get_personality());
 	    search.load_url(global_live_search_bookmark);
 	    ll("Post-bookmark personality: " + search.get_personality());
-	    ll("Post bookmark:: " + search.get_query_url());
+	    ll("Post bookmark: " + search.get_query_url());
 
 	    // BUG/TODO: Make likely sticky things sticky.
 	    //var dc = bookmark_probe['document_category'];

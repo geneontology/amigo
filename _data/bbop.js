@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130307";
+bbop.version.release = "20130308";
 /* 
  * Package: json.js
  * 
@@ -7600,6 +7600,8 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 
     // We remember defaults in the case of rows and start since they
     // are the core to any paging mechanisms and may change often.
+    //this.default_rows = 25;
+    //this.default_rows = 100;
     this.default_rows = 10;
     this.default_start = 0;
 
@@ -10459,27 +10461,27 @@ bbop.widget.display.results_table_by_class = function(cclass,
 
 	var retval = in_str;
 
-	ll("T&S: " + in_str);
+	//ll("T&S: " + in_str);
 
 	// Skip if it is too short.
 	//if( ! ea_regexp.test(retval) && retval.length > (trimit + 50) ){
 	if( retval.length > (trimit + 50) ){
-	    ll("T&S: too long");
+	    //ll("T&S: too long");
 
 	    // Now determine if links or <br>s (connotating that this
 	    // is an assembled list) can be found in the string.
 	    if( ea_regexp.test(retval) && ! br_regexp.test(retval) ){
 		// It looks like it is a link without a break, so not
 		// a list. We cannot trim this safely.
-		ll("T&S: cannot work on");
+		//ll("T&S: cannot work on");
 	    }else{
-		ll("T&S: can work on");
+		//ll("T&S: can work on");
 
 		// Generate different teases depending on 
 		var tease = "[n/a]";
 	    
 		if( ea_regexp.test(retval) && br_regexp.test(retval) ){
-		    ll("T&S: do breakdown");
+		    //ll("T&S: do breakdown");
 		    // It is a list of anchors, but breakable, so
 		    // let's work on it until we reach the limit.
 		    var new_str_list = retval.split(br_regexp);
@@ -10490,16 +10492,16 @@ bbop.widget.display.results_table_by_class = function(cclass,
 				new_str = new_str + "<br />" + part;
 			    }
 			});
-		    ll("T&S: new_str: " + new_str);
+		    //ll("T&S: new_str: " + new_str);
 		    tease = new bbop.html.span(new_str, {'generate_id': true});
 		}else{
 		    // A normal string then...trim it!
-		    ll("T&S: pass thru");
+		    //ll("T&S: pass thru");
 		    tease = new bbop.html.span(bbop.core.crop(retval,trimit,''),
 					       {'generate_id': true});
 		    
 		}
-		ll("T&S: tease: " + tease.to_string());
+		//ll("T&S: tease: " + tease.to_string());
 
 		// Setup the text for tease and full versions.
 		var more_b = new bbop.html.span('<b>[more...]</b>',
@@ -11676,7 +11678,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 	// Add in the actual HTML for the pinned filters and buttons.
 	var sticky_query_filters = manager.get_sticky_query_filters();
 	ll('sticky filters: ' + bbop.core.dump(sticky_query_filters));
-	var fq_list_tbl = new bbop.html.table(['', 'Pinned filters'], []);
+	var fq_list_tbl = new bbop.html.table(['', 'Your search is pinned to these filters'], []);
 	// [{'filter': A, 'value': B, 'negative_p': C, 'sticky_p': D}, ...]
 	each(sticky_query_filters,
 	     function(fset){
@@ -11687,8 +11689,8 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 
 		 // Boolean value to a character.
 		 var polarity = fset['negative_p'];
-		 var polstr = '-';
-		 if( polarity ){ polstr = '+'; }
+		 var polstr = '+';
+		 if( polarity ){ polstr = '-'; }
 
 		 // Generate a button with a unique id.
 		 var label_str = polstr + ' ' + sfield + ':' + sfield_val;
@@ -11850,6 +11852,11 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 	// display the "more" option for the field filters.
 	var curr_facet_limit = manager.get_facet_limit();
 
+	// We want this so we can filter out any facets that have the
+	// same count as the current response total--these facets are
+	// pretty much information free.
+	var total_docs = response.total_documents();
+
 	// Hash where we collect our button information.
 	// button_id -> [source, filter, count, polarity];
 	var button_hash = {};
@@ -11865,14 +11872,20 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 	each(response.facet_field_list(),
 	     function(in_field){
 
-		 var facet_bd = response.facet_field(in_field);
-		 if( bbop.core.is_empty(facet_bd) ){
-		     
-		     // No filters means nothing in the box.
+		 // A helper function for when no filters are
+		 // displayed.
+		 function _nothing_to_see_here(){
 		     var section_id =
 			 filter_accordion_widget.get_section_id(in_field);
 		     jQuery('#' + section_id).empty();
 		     jQuery('#' + section_id).append('Nothing to filter.');
+		 }
+
+		 var facet_bd = response.facet_field(in_field);
+		 if( bbop.core.is_empty(facet_bd) ){
+		     
+		     // No filters means nothing in the box.
+		     _nothing_to_see_here();
 
 		 }else{
 		     
@@ -11887,73 +11900,91 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 			 new bbop.html.table([], [], facet_list_tbl_attrs);
 		     
 		     // Now go through and get filters and counts.
+		     var virtual_ff_index = 0; // only count when good
 		     each(response.facet_field(in_field),
 			  function(ff_field, ff_index){
-
-			      // Only go for it if we have still below
-			      // the limit by one; otherwise, we'll
-			      // want to display the larger selection
-			      // shield.
-			      if( ff_index < curr_facet_limit -1 ){ // offset
 				  
-				  // Pull out info.
-				  var f_name = ff_field[0];
-				  var f_count = ff_field[1];
-				  //var fstr = f_name +" ("+ f_count +")";
-				  //ll("COLLECT: " + fstr);
-				  
-				  // Create buttons and store them for later
-				  // activation with callbacks to the manager.
-				  var b_plus =
-				      bbop.widget.display.clickable_object(
-					  ui_icon_positive_label,
-					  ui_icon_positive_source,
-					  null); // generate_id
-				  var b_minus =
-				      bbop.widget.display.clickable_object(
-					  ui_icon_negative_label,
-					  ui_icon_negative_source,
-					  null); // generate_id
+			      // Pull out info early so we can test it
+			      // for information content.
+			      var f_name = ff_field[0];
+			      var f_count = ff_field[1];
+			      //var fstr = f_name +" ("+ f_count +")";
+			      //ll("COLLECT: " + fstr);	  
 
-				  // Store in hash for later keying to
-				  // event.
-				  button_hash[b_plus.get_id()] =
-				      [in_field, f_name, f_count, '+'];
-				  button_hash[b_minus.get_id()] =
-				      [in_field, f_name, f_count, '-'];
-				  
-				  // // Add the label and buttons to the
-				  // // appropriate ul list.
-				  //facet_list_ul.add_to(
-				  // fstr,b_plus.to_string(),
-				  // 		       b_minus.to_string());
-				  // Add the label and buttons to the table.
-				  facet_list_tbl.add_to([f_name,'('+f_count+')',
-							 b_plus.to_string(),
-							 b_minus.to_string()]);
-			      }else{
+			      // Test--only go if it's not redundant.
+			      if( f_count != total_docs ){
 
-				  // Since this is the overflow item,
-				  // add a span that can be clicked on
-				  // to get the full filter list.
-				  //ll("Overflow for " + in_field);
-				  var b_over_txt = '<b>[more...]</b>';
-				  var b_over =
-				      new bbop.html.span(b_over_txt,
-							 {'generate_id': true});
-				  facet_list_tbl.add_to([b_over.to_string(),
-				  			 '', '']);
-				  overflow_hash[b_over.get_id()] = in_field;
+				  // Only go for it if we have still below
+				  // the limit by one; otherwise, we'll
+				  // want to display the larger selection
+				  // shield.
+				  if( virtual_ff_index < curr_facet_limit -1 ){
+				      virtual_ff_index++;
+
+				      // Create buttons and store them for later
+				      // activation with callbacks to
+				      // the manager.
+				      var b_plus =
+					  bbop.widget.display.clickable_object(
+					      ui_icon_positive_label,
+					      ui_icon_positive_source,
+					      null); // generate_id
+				      var b_minus =
+					  bbop.widget.display.clickable_object(
+					      ui_icon_negative_label,
+					      ui_icon_negative_source,
+					      null); // generate_id
+
+				      // Store in hash for later keying to
+				      // event.
+				      button_hash[b_plus.get_id()] =
+					  [in_field, f_name, f_count, '+'];
+				      button_hash[b_minus.get_id()] =
+					  [in_field, f_name, f_count, '-'];
+				      
+				      // // Add the label and buttons to the
+				      // // appropriate ul list.
+				      //facet_list_ul.add_to(
+				      // fstr,b_plus.to_string(),
+				      //   b_minus.to_string());
+				      // Add the label and buttons to the table.
+				      facet_list_tbl.add_to([f_name,
+							     '('+ f_count+ ')',
+							     b_plus.to_string(),
+							     b_minus.to_string()
+							    ]);
+				  }else{
+
+				      // Since this is the overflow item,
+				      // add a span that can be clicked on
+				      // to get the full filter list.
+				      //ll("Overflow for " + in_field);
+				      var b_over_txt = '<b>[more...]</b>';
+				      var b_over =
+					  new bbop.html.span(b_over_txt,
+							     {'generate_id':
+							      true});
+				      facet_list_tbl.add_to([b_over.to_string(),
+				  			     '', '']);
+				      overflow_hash[b_over.get_id()] = in_field;
+				  }
 			      }
 			  });
 
-		     // Now add the ul to the appropriate section of the
-		     // accordion in the DOM.
-		     var sect_id =
-			 filter_accordion_widget.get_section_id(in_field);
-		     jQuery('#' + sect_id).empty();
-		     var final_tbl_str = facet_list_tbl.to_string();
-		     jQuery('#' + sect_id).append(final_tbl_str);
+		     // There is a case when we have filtered out all
+		     // avilable filters (think db source).
+		     if( virtual_ff_index == 0 ){
+			 _nothing_to_see_here();
+		     }else{
+			 // Otherwise, now add the ul to the
+			 // appropriate section of the accordion in
+			 // the DOM.
+			 var sect_id =
+			     filter_accordion_widget.get_section_id(in_field);
+			 jQuery('#' + sect_id).empty();
+			 var final_tbl_str = facet_list_tbl.to_string();
+			 jQuery('#' + sect_id).append(final_tbl_str);
+		     }
 		 }
 	     });
 
