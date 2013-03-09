@@ -31,3 +31,6 @@ tramp
 # Org-mode
 .org-id-locations
 *_archive
+
+## Would rather not have the minimal java stuff pollute.
+*.class
