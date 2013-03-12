@@ -3241,6 +3241,10 @@ bbop.registry = function(evt_list){
  * Anatomy of a bbop.handler argument.
  * 
  * : {handler:"bbop.handler.foo", WHATEVER}
+ * 
+ * WARNING: Since I don't have time to play with the ever increasingly
+ * frustrating NodeJS right now, it's unknown whether or not this
+ * would work properly.
  */
 
 bbop.core.require('bbop', 'core');
