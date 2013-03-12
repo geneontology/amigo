@@ -21,18 +21,18 @@ var mr_t = new bbop.test();
 ///
 
 // Simple OWLClassExpression.
-//(function(){
+(function(){
 
-var jostr = '{"handler": "amigo.handler.owl_class_expression", "relationship": {"relation": [{"id": "RO:001234", "label": "regulates"}, {"id":"BFO:0003456", "label": "hp"}], "id": "MGI:MGI:185963", "label": "kidney"}}';
-
-var h = new bbop.handler();
-var owlo = bbop.json.parse(jostr);
-var t0 = h.dispatch(owlo);
-
-mr_t.is_true(t0.success, "ran okay");
-mr_t.is_same_atom(t0.results, '{"foo":4,"bar":false}', 'complicated output');
+     var jostr = '{"handler": "amigo.handler.owl_class_expression", "relationship": {"relation": [{"id": "RO:001234", "label": "regulates"}, {"id":"BFO:0003456", "label": "hp"}], "id": "MGI:MGI:185963", "label": "kidney"}}';
      
-// })();
+     var h = new bbop.handler();
+     var owlo = bbop.json.parse(jostr);
+     var t0 = h.dispatch(owlo);
+     
+mr_t.is_true(t0.success, "ran okay");
+     mr_t.is_same_atom(t0.results, '<a title="Go to the page for regulates." href="http://purl.obolibrary.org/obo/RO_001234">regulates</a> &rarr; <a title="Go to the page for hp." href="http://purl.obolibrary.org/obo/BFO_0003456">hp</a> <a title="Go to the page for kidney." href="http://www.informatics.jax.org/accession/MGI:185963">kidney</a>', 'complicated output');
+     
+ })();
 
 ///
 /// End unit testing.

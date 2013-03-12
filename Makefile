@@ -7,7 +7,8 @@
 
 TESTS = $(wildcard javascript/lib/amigo/*.js.tests) \
  $(wildcard javascript/lib/amigo/data/*.js.tests) \
- $(wildcard javascript/lib/amigo/ui/*.js.tests)
+ $(wildcard javascript/lib/amigo/ui/*.js.tests) \
+ $(wildcard javascript/lib/amigo/handler/*.js.tests)
 #BENCHMARKS = $(wildcard _benchmark/*.js)
 JS = rhino # or smjs
 JSFLAGS = -opt -1

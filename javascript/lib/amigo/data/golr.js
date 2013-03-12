@@ -1247,7 +1247,7 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
-            "cardinality" : "single",
+            "cardinality" : "multi",
             "type" : "string",
             "id" : "annotation_extension_class_handler",
             "property" : []
@@ -1345,7 +1345,7 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
-            "cardinality" : "single",
+            "cardinality" : "multi",
             "type" : "string",
             "id" : "annotation_extension_class_handler",
             "property" : []
