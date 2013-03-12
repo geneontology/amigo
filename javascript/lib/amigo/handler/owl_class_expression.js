@@ -4,7 +4,7 @@
  * Namespace: amigo.handler.owl_class_expression
  * 
  * Static function handler for displaying OWL class expression
- * results.
+ * results. To be used for GAF column 16 stuff.
  */
 
 // Setup the internal requirements.

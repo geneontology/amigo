@@ -56,6 +56,7 @@ Group: Data  {
 
 File: api.js  (api.js)
 File: linker.js  (linker.js)
+File: owl_class_expression.js  (handler/owl_class_expression.js)
 File: version.js  (version.js)
 
 Group: Index  {
