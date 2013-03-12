@@ -104,7 +104,9 @@
     "http://www.geneontology.org/gene-associations/gene_association.sgn.gz"
     "http://www.geneontology.org/gene-associations/gene_association.tair.gz"
     "http://www.geneontology.org/gene-associations/gene_association.wb.gz"
-    "http://www.geneontology.org/gene-associations/gene_association.zfin.gz")
+    "http://www.geneontology.org/gene-associations/gene_association.zfin.gz"
+    ;; And higher-level PAINT annotations.
+    "http://www.geneontology.org/gene-associations/submission/paint/pre-submission/gene_association.paint_other.gaf")
   "The URLs for the annotations (GAFs) that we want to load."
   :type 'sexp
   :group 'golr)
