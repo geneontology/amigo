@@ -1,0 +1,42 @@
+////
+//// Some unit testing for owl_class_expression.js
+////
+//// Usage:
+////    Command line: "rhino -f owl_class_expression.js.tests"
+////    Interactive: "rhino -f owl_class_expression.js.tests -f -"
+////
+
+// Correct environment.
+load('../../../../_data/bbop.js');
+load('../data/xrefs.js');
+load('../linker.js');
+load('owl_class_expression.js');
+
+// Load testing.
+var mr_t = new bbop.test();
+
+
+///
+/// Start unit testing.
+///
+
+// Simple OWLClassExpression.
+//(function(){
+
+var jostr = '{"handler": "amigo.handler.owl_class_expression", "relationship": {"relation": [{"id": "RO:001234", "label": "regulates"}, {"id":"BFO:0003456", "label": "hp"}], "id": "MGI:MGI:185963", "label": "kidney"}}';
+
+var h = new bbop.handler();
+var owlo = bbop.json.parse(jostr);
+var t0 = h.dispatch(owlo);
+
+mr_t.is_true(t0.success, "ran okay");
+mr_t.is_same_atom(t0.results, '{"foo":4,"bar":false}', 'complicated output');
+     
+// })();
+
+///
+/// End unit testing.
+///
+
+// Final report.
+mr_t.report();
