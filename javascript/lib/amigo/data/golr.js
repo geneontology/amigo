@@ -1242,6 +1242,18 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
+            "description" : "A special blob for a spec display.",
+            "display_name" : "Annotation extension C16 JSON",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_extension_class_handler",
+            "property" : []
+         },
+         {
+            "transform" : [],
             "description" : "Family IDs that are associated with this entity.",
             "display_name" : "Protein family",
             "indexed" : "true",
@@ -1266,30 +1278,6 @@ amigo.data.golr = {
          }
       ],
       "fields_hash" : {
-         "annotation_extension_class" : {
-            "transform" : [],
-            "description" : "Column 16: extension class for the annotation.",
-            "display_name" : "Annotation extension",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "annotation_extension_class",
-            "property" : []
-         },
-         "source" : {
-            "transform" : [],
-            "description" : "Column 1: database source.",
-            "display_name" : "Source",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "source",
-            "property" : []
-         },
          "annotation_extension_class_closure_label" : {
             "transform" : [],
             "description" : "???",
@@ -1314,18 +1302,6 @@ amigo.data.golr = {
             "id" : "bioentity_label",
             "property" : []
          },
-         "taxon_closure_label" : {
-            "transform" : [],
-            "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon",
-            "indexed" : "true",
-            "searchable" : "true",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "taxon_closure_label",
-            "property" : []
-         },
          "date" : {
             "transform" : [],
             "description" : "Column 14: date of assignment.",
@@ -1336,30 +1312,6 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "date",
-            "property" : []
-         },
-         "qualifier" : {
-            "transform" : [],
-            "description" : "Derived from column 4.",
-            "display_name" : "Qualifier",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "qualifier",
-            "property" : []
-         },
-         "reference" : {
-            "transform" : [],
-            "description" : "Column 6: database reference.",
-            "display_name" : "Reference",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "reference",
             "property" : []
          },
          "bioentity_internal_id" : {
@@ -1386,6 +1338,18 @@ amigo.data.golr = {
             "id" : "bioentity_name",
             "property" : []
          },
+         "annotation_extension_class_handler" : {
+            "transform" : [],
+            "description" : "A special blob for a spec display.",
+            "display_name" : "Annotation extension C16 JSON",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_extension_class_handler",
+            "property" : []
+         },
          "evidence_type" : {
             "transform" : [],
             "description" : "Column 7: evidence type.",
@@ -1410,18 +1374,6 @@ amigo.data.golr = {
             "id" : "id",
             "property" : []
          },
-         "taxon_closure" : {
-            "transform" : [],
-            "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon (IDs)",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "taxon_closure",
-            "property" : []
-         },
          "annotation_extension_class_label" : {
             "transform" : [],
             "description" : "???",
@@ -1434,18 +1386,6 @@ amigo.data.golr = {
             "id" : "annotation_extension_class_label",
             "property" : []
          },
-         "bioentity_isoform" : {
-            "transform" : [],
-            "description" : "Column 17: Bioentity isoform.",
-            "display_name" : "Isoform",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "bioentity_isoform",
-            "property" : []
-         },
          "isa_partof_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over isa and partof.",
@@ -1456,6 +1396,150 @@ amigo.data.golr = {
             "cardinality" : "multi",
             "type" : "string",
             "id" : "isa_partof_closure_label",
+            "property" : []
+         },
+         "annotation_class" : {
+            "transform" : [],
+            "description" : "Column 5.",
+            "display_name" : "Annotation class",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_class",
+            "property" : []
+         },
+         "synonym" : {
+            "transform" : [],
+            "description" : "Column 11: gene product synonyms.",
+            "display_name" : "Synonym",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "synonym",
+            "property" : []
+         },
+         "family_tag_label" : {
+            "transform" : [],
+            "description" : "Families that are associated with this entity.",
+            "display_name" : "Family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "family_tag_label",
+            "property" : []
+         },
+         "assigned_by" : {
+            "transform" : [],
+            "description" : "Column 15: assigned by.",
+            "display_name" : "Assigned by",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "assigned_by",
+            "property" : []
+         },
+         "type" : {
+            "transform" : [],
+            "description" : "Column 12: type class id.",
+            "display_name" : "Type class id",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "type",
+            "property" : []
+         },
+         "source" : {
+            "transform" : [],
+            "description" : "Column 1: database source.",
+            "display_name" : "Source",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "source",
+            "property" : []
+         },
+         "annotation_extension_class" : {
+            "transform" : [],
+            "description" : "Column 16: extension class for the annotation.",
+            "display_name" : "Annotation extension",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "annotation_extension_class",
+            "property" : []
+         },
+         "taxon_closure_label" : {
+            "transform" : [],
+            "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "taxon_closure_label",
+            "property" : []
+         },
+         "qualifier" : {
+            "transform" : [],
+            "description" : "Derived from column 4.",
+            "display_name" : "Qualifier",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "qualifier",
+            "property" : []
+         },
+         "reference" : {
+            "transform" : [],
+            "description" : "Column 6: database reference.",
+            "display_name" : "Reference",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "reference",
+            "property" : []
+         },
+         "taxon_closure" : {
+            "transform" : [],
+            "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon (IDs)",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "taxon_closure",
+            "property" : []
+         },
+         "bioentity_isoform" : {
+            "transform" : [],
+            "description" : "Column 17: Bioentity isoform.",
+            "display_name" : "Isoform",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "bioentity_isoform",
             "property" : []
          },
          "family_tag" : {
@@ -1482,16 +1566,16 @@ amigo.data.golr = {
             "id" : "aspect",
             "property" : []
          },
-         "annotation_class" : {
+         "regulates_closure_label" : {
             "transform" : [],
-            "description" : "Column 5.",
-            "display_name" : "Annotation class",
+            "description" : "Closure of labels over regulates.",
+            "display_name" : "Regulates + involved in",
             "indexed" : "true",
-            "searchable" : "false",
+            "searchable" : "true",
             "required" : "false",
-            "cardinality" : "single",
+            "cardinality" : "multi",
             "type" : "string",
-            "id" : "annotation_class",
+            "id" : "regulates_closure_label",
             "property" : []
          },
          "taxon" : {
@@ -1506,18 +1590,6 @@ amigo.data.golr = {
             "id" : "taxon",
             "property" : []
          },
-         "regulates_closure_label" : {
-            "transform" : [],
-            "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates + involved in",
-            "indexed" : "true",
-            "searchable" : "true",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "regulates_closure_label",
-            "property" : []
-         },
          "regulates_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
@@ -1528,18 +1600,6 @@ amigo.data.golr = {
             "cardinality" : "multi",
             "type" : "string",
             "id" : "regulates_closure",
-            "property" : []
-         },
-         "isa_partof_closure" : {
-            "transform" : [],
-            "description" : "Closure of ids/accs over isa and partof.",
-            "display_name" : "Involved in (IDs)",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "isa_partof_closure",
             "property" : []
          },
          "bioentity" : {
@@ -1554,16 +1614,16 @@ amigo.data.golr = {
             "id" : "bioentity",
             "property" : []
          },
-         "annotation_class_label" : {
+         "isa_partof_closure" : {
             "transform" : [],
-            "description" : "Column 5 + ontology.",
-            "display_name" : "Annotation class label",
+            "description" : "Closure of ids/accs over isa and partof.",
+            "display_name" : "Involved in (IDs)",
             "indexed" : "true",
-            "searchable" : "true",
+            "searchable" : "false",
             "required" : "false",
-            "cardinality" : "single",
+            "cardinality" : "multi",
             "type" : "string",
-            "id" : "annotation_class_label",
+            "id" : "isa_partof_closure",
             "property" : []
          },
          "taxon_label" : {
@@ -1578,16 +1638,16 @@ amigo.data.golr = {
             "id" : "taxon_label",
             "property" : []
          },
-         "synonym" : {
+         "annotation_class_label" : {
             "transform" : [],
-            "description" : "Column 11: gene product synonyms.",
-            "display_name" : "Synonym",
+            "description" : "Column 5 + ontology.",
+            "display_name" : "Annotation class label",
             "indexed" : "true",
-            "searchable" : "false",
+            "searchable" : "true",
             "required" : "false",
-            "cardinality" : "multi",
+            "cardinality" : "single",
             "type" : "string",
-            "id" : "synonym",
+            "id" : "annotation_class_label",
             "property" : []
          },
          "evidence_type_closure" : {
@@ -1602,18 +1662,6 @@ amigo.data.golr = {
             "id" : "evidence_type_closure",
             "property" : []
          },
-         "family_tag_label" : {
-            "transform" : [],
-            "description" : "Families that are associated with this entity.",
-            "display_name" : "Family",
-            "indexed" : "true",
-            "searchable" : "true",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "family_tag_label",
-            "property" : []
-         },
          "evidence_with" : {
             "transform" : [],
             "description" : "Column 8: with/from.",
@@ -1624,30 +1672,6 @@ amigo.data.golr = {
             "cardinality" : "multi",
             "type" : "string",
             "id" : "evidence_with",
-            "property" : []
-         },
-         "assigned_by" : {
-            "transform" : [],
-            "description" : "Column 15: assigned by.",
-            "display_name" : "Assigned by",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "assigned_by",
-            "property" : []
-         },
-         "type" : {
-            "transform" : [],
-            "description" : "Column 12: type class id.",
-            "display_name" : "Type class id",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "type",
             "property" : []
          },
          "annotation_extension_class_closure" : {

@@ -194,6 +194,8 @@
     <field name="source" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- bbop_ont: Term that replaces this term. -->
     <field name="replaced_by" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- bbop_ann: A special blob for a spec display. -->
+    <field name="annotation_extension_class_handler" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- bbop_ont: JSON blob form of the local stepwise topology graph. -->
     <field name="topology_graph" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bbop_ann: All evidence (evidence closure) for this annotation -->

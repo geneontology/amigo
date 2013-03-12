@@ -39,11 +39,11 @@ amigo.handler.owl_class_expression = function(owlo){
 
     var retstr = "";
 
-    // Add logging.
-    var logger = new bbop.logger();
-    logger.DEBUG = true;
-    //logger.DEBUG = false;
-    function ll(str){ logger.kvetch(str); }
+    // // Add logging.
+    // var logger = new bbop.logger();
+    // logger.DEBUG = true;
+    // //logger.DEBUG = false;
+    // function ll(str){ logger.kvetch(str); }
 
     // Check to make sure that it looks right.
     var is_def = bbop.core.is_defined;
@@ -74,10 +74,10 @@ amigo.handler.owl_class_expression = function(owlo){
 			       var an =
 				   link.anchor({id: rel_id, label: rel_lbl});
 			       rel_buff.push(an);
-			       ll('in ' + rel_id + ' + ' + rel_lbl + ': ' + an);
+			       // ll('in ' + rel_id + ' + ' + rel_lbl + ': ' + an);
 			   }
 		       });
-	retstr = rel_buff.join(' ') + ' ' +
+	retstr = rel_buff.join(' &rarr; ') + ' ' +
 	    link.anchor({id: owlo['relationship']['id'],
 			 label: owlo['relationship']['label']});
     }

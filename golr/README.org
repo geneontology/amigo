@@ -14,8 +14,8 @@
     [Restart Jetty.]
     /etc/init.d jetty restart
 ** Solr schema
-   schema.xml is generated something like:
-   ~/local/src/svn/owltools/OWLTools-Runner/bin/owltools --solr-config /home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/ont-config.yaml /home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/bio-config.yaml /home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/ann-config.yaml /home/sjcarbon/local/src/svn/owltools/OWLTools-Solr/src/main/resources/ann_ev_agg-config.yaml --solr-schema-dump
+   schema.xml is currently generated something like:
+   ~/local/src/svn/owltools/OWLTools-Runner/bin/owltools --solr-config ~/local/src/git/amigo/metadata/ont-config.yaml ~/local/src/git/amigo/metadata/bio-config.yaml ~/local/src/git/amigo/metadata/ann-config.yaml ~/local/src/git/amigo/metadata/ann_ev_agg-config.yaml --solr-schema-dump > ~/local/src/git/amigo/golr/solr/conf/schema.xml
 ** Experimental:
    sudo ./tools/golr.el
 * Updating the instance on stove

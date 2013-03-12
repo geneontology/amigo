@@ -3309,6 +3309,7 @@ bbop.handler = function(){
 		    // Okay, now try running the function defined in
 		    // handler with the dispatch object.
 		    try{
+			//retval = eval(handler_string + ';')(object_to_dispatch);
 			retval = eval(handler_string)(object_to_dispatch);
 			status = true;
 		    }catch (x){
@@ -6421,6 +6422,25 @@ bbop.golr.conf_field = function (field_conf_struct){
     this.is_multi = function(){
 	var retval = false;
 	if( this._field['cardinality'] == 'multi' ){
+	    retval = true;	
+	}
+	return retval;
+    };
+
+    /*
+     * Function: has_handler
+     * 
+     * Giving meaning to the "_handler" extension, reports whether or
+     * not this field should use a special handler instead of the
+     * standard.
+     * 
+     * Returns:
+     *  Boolean.
+     */
+    this.has_handler = function(){
+	var retval = false;
+	var fid = this._field['id'];
+	if( fid && fid.substring(fid.length - 8) == '_handler' ){
 	    retval = true;	
 	}
 	return retval;
@@ -10641,7 +10661,8 @@ bbop.widget.display.results_table_by_class = function(cclass,
 	 });
 
     // Some of what we'll do for each field in each doc (see below).
-    var ext = cclass.searchable_extension();
+    // var ext = cclass.searchable_extension();
+    var handler = new bbop.handler(); // may use a special handler
     function _process_entry(fid, iid, doc){
 
 	var retval = '';
@@ -10696,11 +10717,12 @@ bbop.widget.display.results_table_by_class = function(cclass,
 			  score = bbop.core.to_string(100.0 * score);
 			  entry_buff.push(bbop.core.crop(score, 4) + '%');
 		      }else{
+
 			  // Not "score", so let's figure out what we
 			  // can automatically.
 			  var field = cclass.get_field(fid);
 
-			  // Make sure that comething is there and
+			  // Make sure that something is there and
 			  // that we can iterate over whatever it
 			  // is.
 			  var bits = [];
@@ -10718,9 +10740,32 @@ bbop.widget.display.results_table_by_class = function(cclass,
 			  var tmp_buff = [];
 			  each(bits,
 			       function(bit){
-				   var out = _process_entry(fid, bit, doc);
-				   //ll('out: ' + out);
-				   tmp_buff.push(out);
+
+				   // The major difference that we'll have here
+				   // is between standard fields and special
+				   // hander fields, as defined by
+				   // _handler.
+				   var out = null;
+				   if( field.has_handler() ){
+				       // Special handler output.
+				       var json_f = doc['fid'];
+				       var objo = bbop.json.parse(json_f); 
+				       var reso = handler.dispatch(objo);
+				       if( reso.success ){
+					   out = reso.results;
+					   tmp_buff.push(out);
+				       }else{
+					   // Something noticable on
+					   // failure.
+					   tmp_buff.push('???');
+				       }
+
+				   }else{
+				       // Standard output.   
+				       out = _process_entry(fid, bit, doc);
+				       //ll('out: ' + out);
+				       tmp_buff.push(out);
+				   }
 			       });
 			  // Join it, trim/store it, push to to output.
 			  var joined = tmp_buff.join('<br />');

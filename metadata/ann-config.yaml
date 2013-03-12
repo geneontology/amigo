@@ -299,6 +299,12 @@ fields:
     cardinality: multi
     property: []
     searchable: true
+  - id: annotation_extension_class_handler
+    description: A special blob for a spec display.
+    display_name: Annotation extension C16 JSON
+    type: string
+    cardinality: multi
+    property: []
   - id: family_tag
     description: Family IDs that are associated with this entity.
     display_name: Protein family
