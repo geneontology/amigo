@@ -1,6 +1,7 @@
 javascript/lib/amigo/version.js
 javascript/lib/amigo/api.js
 javascript/lib/amigo/linker.js
+javascript/lib/amigo/handler/owl_class_expression.js
 javascript/lib/amigo/data/golr.js
 javascript/lib/amigo/data/server.js
 javascript/lib/amigo/data/xrefs.js
