@@ -73,13 +73,18 @@ amigo.handler.owl_class_expression = function(owlo){
 			   if( is_def(rel_id) && is_def(rel_lbl) ){
 			       var an =
 				   link.anchor({id: rel_id, label: rel_lbl});
+			       // Final check: if we didn't get
+			       // anything reasonable, just a label.
+			       if( ! an ){ an = rel_lbl; }
 			       rel_buff.push(an);
 			       // ll('in ' + rel_id + ' + ' + rel_lbl + ': ' + an);
 			   }
 		       });
-	retstr = rel_buff.join(' &rarr; ') + ' ' +
-	    link.anchor({id: owlo['relationship']['id'],
-			 label: owlo['relationship']['label']});
+	var ranc = link.anchor({id: owlo['relationship']['id'],
+				label: owlo['relationship']['label']});
+	// Again, a final check
+	if( ! ranc ){ ranc = owlo['relationship']['label']; }
+	retstr = rel_buff.join(' &rarr; ') + ' ' + ranc;
     }
     
     return retstr;

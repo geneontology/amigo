@@ -61,7 +61,8 @@
   '("http://purl.obolibrary.org/obo/go.owl"
     "http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl"
     "http://purl.obolibrary.org/obo/cl.owl"
-    "http://purl.obolibrary.org/obo/eco.owl")
+    "http://purl.obolibrary.org/obo/eco.owl"
+    "http://geneontology.org/ontology/extensions/go_annotation_extension_relations.obo")
   "The URLs for the ontologies that we want to load."
   :type 'sexp
   :group 'golr)

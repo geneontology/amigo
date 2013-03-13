@@ -301,7 +301,7 @@ fields:
     searchable: true
   - id: annotation_extension_class_handler
     description: A special special display for GAF column 16.
-    display_name: Annotation extension+
+    display_name: Annotation extension composition
     type: string
     cardinality: multi
     property: []

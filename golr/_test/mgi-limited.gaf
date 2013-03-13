@@ -1,32 +1,3 @@
-!GOC Validation Date: 03/08/2013 $
-!Submission Date: 3/7/2013
-!
-! The above "Submission Date" is when the annotation project provided
-! this file to the Gene Ontology Consortium (GOC).  The "GOC Validation
-! Date" indicates when this file was last changed as a result of a GOC
-! validation and filtering process.  
-!
-! Note: The contents of this file may differ from that submitted to the
-! GOC. The identifiers and syntax of the file have been checked, rows of
-! data not meeting the standards set by the GOC have been removed. This
-! file may also have annotations removed because the annotations for the
-! listed Taxonomy identifier are only allowed in a file provided by
-! another annotation project.  The original submitted file is available from:
-!  http://www.geneontology.org/gene-associations/submission/
-!
-! For information on which taxon are allowed in which files please see:
-!  http://www.geneontology.org/GO.annotation.shtml#script
-!
-!gaf-version: 2.0
-!Project_name: Mouse Genome Informatics (MGI)
-!URL: http://www.informatics.jax.org/
-!Contact Email: mgi-help@jax.org
-!Funding: NHGRI of US National Institutes of Health
-!software version: $Revision: 1.78 $
-!date: 03/07/2013 $
-!
-! from Mouse Genome Database (MGD) & Gene Expression Database (GXD)
-!
 MGI	MGI:1921291	4632434I11Rik		GO:2000270	MGI:MGI:3718924|PMID:17515607	IMP		P	RIKEN cDNA 4632434I11 gene	noxin	protein	taxon:10090	20111018	MGI	regulates_o_occurs_in(CL:0000057)	ENSEMBL:ENSMUSP00000032877
 MGI	MGI:2442752	9630033F20Rik		GO:0010666	MGI:MGI:5319065|PMID:22044588	IMP	MGI:MGI:5319187	P	RIKEN cDNA 9630033F20 gene	Tigar	protein	taxon:10090	20121025	MGI	regulates_o_occurs_in(MA:0000072),regulates_o_occurs_in(CL:0000746)	VEGA:OTTMUSP00000028647
 MGI	MGI:2442752	9630033F20Rik		GO:1901525	MGI:MGI:5319065|PMID:22044588	IMP	MGI:MGI:5319187	P	RIKEN cDNA 9630033F20 gene	Tigar	protein	taxon:10090	20121025	MGI	regulates_o_occurs_in(CL:0000746)	VEGA:OTTMUSP00000028647
