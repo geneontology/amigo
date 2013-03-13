@@ -10597,7 +10597,7 @@ bbop.widget.display.results_table_by_class = function(cclass,
 		if( ea_regexp.test(retval) && br_regexp.test(retval) ){
 		    //ll("T&S: do breakdown");
 		    // It is a list of anchors, but breakable, so
-		    // let's work on it until we reach the limit.
+		    // let's work on it until we reach a limit.
 		    var new_str_list = retval.split(br_regexp);
 		    var new_str = new_str_list.shift();
 		    each(new_str_list,
@@ -10625,18 +10625,24 @@ bbop.widget.display.results_table_by_class = function(cclass,
 		var less_b = new bbop.html.span('<b>[less]</b>',
 						{'generate_id': true});
 	    
-		// Store the different parts for later activation.
-		var tease_id = tease.get_id();
-		var more_b_id = more_b.get_id();
-		var full_id = full.get_id();
-		var less_b_id = less_b.get_id();
-		trim_hash[tease_id] = [tease_id, more_b_id, full_id, less_b_id];
+ 		// // Final check--only do the tease if it is actually
+		// // shorter than the original string.
+		// if( tease < full ){
+		    
+		    // Store the different parts for later activation.
+		    var tease_id = tease.get_id();
+		    var more_b_id = more_b.get_id();
+		    var full_id = full.get_id();
+		    var less_b_id = less_b.get_id();
+		    trim_hash[tease_id] = 
+			[tease_id, more_b_id, full_id, less_b_id];
 	    
-		// New final string.
-		retval = tease.to_string() + " " +
-		    more_b.to_string() + " " +
-		    full.to_string() + " " +
-		    less_b.to_string();
+		    // New final string.
+		    retval = tease.to_string() + " " +
+			more_b.to_string() + " " +
+			full.to_string() + " " +
+			less_b.to_string();
+		// }
 	    }
 	}
 
@@ -10748,7 +10754,7 @@ bbop.widget.display.results_table_by_class = function(cclass,
 				   var out = null;
 				   if( field.has_handler() ){
 				       // Special handler output.
-				       var json_f = doc['fid'];
+				       var json_f = doc[fid];
 				       var objo = bbop.json.parse(json_f); 
 				       var reso = handler.dispatch(objo);
 				       if( reso.success ){

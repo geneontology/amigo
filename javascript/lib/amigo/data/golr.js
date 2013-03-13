@@ -861,7 +861,7 @@ amigo.data.golr = {
    },
    "bbop_ann" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "annotation_class^9.0 evidence_type^8.0 bioentity^7.0 bioentity_name^5.0 source^4.0 taxon^3.0 evidence_with^2.0 family_tag^1.5 annotation_extension_class^1.0 bioentity_isoform^0.5",
+      "result_weights" : "annotation_class^9.0 evidence_type^8.0 bioentity^7.0 bioentity_name^5.0 source^4.0 taxon^3.0 evidence_with^2.0 family_tag^1.5 annotation_extension_class^1.0 annotation_extension_class_handler^0.75 bioentity_isoform^0.5",
       "filter_weights" : "source^7.0 assigned_by^6.5 aspect^6.25 evidence_type_closure^6.0 family_tag_label^5.5 taxon_closure_label^5.0 isa_partof_closure_label^4.0 regulates_closure_label^3.0 annotation_extension_class_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//ann-config.yaml",
       "display_name" : "Annotations",
@@ -1242,8 +1242,8 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "A special blob for a spec display.",
-            "display_name" : "Annotation extension C16 JSON",
+            "description" : "A special special display for GAF column 16.",
+            "display_name" : "Annotation extension+",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1340,8 +1340,8 @@ amigo.data.golr = {
          },
          "annotation_extension_class_handler" : {
             "transform" : [],
-            "description" : "A special blob for a spec display.",
-            "display_name" : "Annotation extension C16 JSON",
+            "description" : "A special special display for GAF column 16.",
+            "display_name" : "Annotation extension+",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
