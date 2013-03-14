@@ -505,6 +505,7 @@ sub xref_abbs_to_meta_js {
        url_syntax => undef,
        url_example => undef,
        uri_prefix => undef,
+       #synonym => [], # legit use?
       };
     ## Split on ':' and trim; add it to the above template.
     foreach my $line (@middle_chunks){

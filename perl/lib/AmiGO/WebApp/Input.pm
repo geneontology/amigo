@@ -115,7 +115,7 @@ sub input_profile {
     $self->_add_ontology();
     ## Remove the idea of a "GO" term.
     #$self->_add_compat_term();
-    $self->_add_term();
+    $self->_add_loose_term();
     # ## TODO: remove these later after testing.
     #$self->_add_simple_argument('graph_type', 'correct', ['all', 'correct']);
   }elsif( $profile_name eq 'gp' ){
@@ -154,7 +154,7 @@ sub input_profile {
     $self->_add_term_data_type();
   }elsif( $profile_name eq 'visualize_single' ){
     $self->_add_inline_p();
-    $self->_add_term();
+    $self->_add_loose_term();
   }elsif( $profile_name eq 'visualize_subset' ){
     $self->_add_inline_p();
     $self->_add_simple_argument('subset', '');
@@ -250,17 +250,17 @@ sub input_profile {
     $self->_add_paging();
   }elsif( $profile_name eq 'workspace' ){
     $self->_add_workspace_set();
-  }elsif( $profile_name eq 'xp_term_request' ){
-    $self->_add_xp_term_request();
-  }elsif( $profile_name eq 'orb' ){
-    $self->_add_orb_set();
-  }elsif( $profile_name eq 'orb_client' ){
-    $self->_add_orb_client_set();
-  }elsif( $profile_name eq 'assoc' ){
-    $self->_add_ontology();
-    $self->_add_term();
-    $self->_add_gps_string();
-    $self->_add_assoc_set();
+  # }elsif( $profile_name eq 'xp_term_request' ){
+  #   $self->_add_xp_term_request();
+  # }elsif( $profile_name eq 'orb' ){
+  #   $self->_add_orb_set();
+  # }elsif( $profile_name eq 'orb_client' ){
+  #   $self->_add_orb_client_set();
+  # }elsif( $profile_name eq 'assoc' ){
+  #   $self->_add_ontology();
+  #   $self->_add_loose_term();
+  #   $self->_add_gps_string();
+  #   $self->_add_assoc_set();
   }else{
     die "no such input type (Input.pm)";
   }
@@ -498,15 +498,14 @@ sub _add_gptype {
 
 ##
 ## TODO: add generalized constraint.
-sub _add_term {
+sub _add_loose_term {
 
   my $self = shift;
 
   ## Terms.
   push @{$profile->{optional}}, 'term';
-  my $regexp = $self->{CORE}->term_regexp_string();
-  $profile->{constraint_methods}{term} = qr/^(\s*$regexp\s*)*$/;
-  #$profile->{constraint_methods}{term} = qr/^(\s*$regexp\s*)$/;
+  # my $regexp = $self->{CORE}->term_regexp_string();
+  # $profile->{constraint_methods}{term} = qr/^(\s*$regexp\s*)*$/;
 }
 
 
