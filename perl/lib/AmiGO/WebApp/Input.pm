@@ -119,7 +119,7 @@ sub input_profile {
     # ## TODO: remove these later after testing.
     #$self->_add_simple_argument('graph_type', 'correct', ['all', 'correct']);
   }elsif( $profile_name eq 'gp' ){
-    $self->_add_gp_set();
+    $self->_add_gps_string();
   }elsif( $profile_name eq 'gaffer' ){
     $self->_add_simple_argument('data_url', '');
   }elsif( $profile_name eq 'matrix' ){
@@ -259,7 +259,7 @@ sub input_profile {
   }elsif( $profile_name eq 'assoc' ){
     $self->_add_ontology();
     $self->_add_term();
-    $self->_add_gp_set();
+    $self->_add_gps_string();
     $self->_add_assoc_set();
   }else{
     die "no such input type (Input.pm)";
@@ -505,6 +505,7 @@ sub _add_term {
   ## Terms.
   push @{$profile->{optional}}, 'term';
   my $regexp = $self->{CORE}->term_regexp_string();
+  $profile->{constraint_methods}{term} = qr/^(\s*$regexp\s*)*$/;
   #$profile->{constraint_methods}{term} = qr/^(\s*$regexp\s*)$/;
 }
 
@@ -572,10 +573,22 @@ sub _add_gps_string {
   my $self = shift;
 
   ## A string on incoming (possible) gps.
-  push @{$profile->{optional}}, 'gene_product';
-  $profile->{constraint_methods}{gene_product} =
+  push @{$profile->{optional}}, 'gp';
+  # push @{$profile->{optional}}, 'gene_product';
+  $profile->{constraint_methods}{gp} =
     qr/^(\s*[\w\d\-\_\.]+\:[\w\d\:\-\_\.]+\s*)*$/;
+  # $profile->{constraint_methods}{gene_product} =
+  #   qr/^(\s*[\w\d\-\_\.]+\:[\w\d\:\-\_\.]+\s*)*$/;
 }
+
+# ##
+# sub _add_gp_set {
+
+#   ## GPs.
+#   push @{$profile->{optional}}, 'gp';
+#   ## TODO: get a tighter definition of a gene product.
+#   $profile->{constraint_methods}{gp} = qr/^[\w\d\:]+$/i;
+# }
 
 
 ## Term data will be something like a JSON string or acc list...
@@ -914,16 +927,6 @@ sub _add_paging {
   $profile->{defaults}{page} = 1;
   push @{$profile->{required}}, 'per_page';
   $profile->{defaults}{per_page} = 20;
-}
-
-
-##
-sub _add_gp_set {
-
-  ## GPs.
-  push @{$profile->{optional}}, 'gp';
-  ## TODO: get a tighter definition of a gene product.
-  $profile->{constraint_methods}{gp} = qr/^[\w\d\:]+$/i;
 }
 
 
