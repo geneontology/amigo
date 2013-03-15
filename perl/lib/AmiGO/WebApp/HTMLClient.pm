@@ -74,8 +74,40 @@ sub setup {
 		   'css'                 => 'mode_dynamic_style',
 		   'AUTOLOAD'            => 'mode_exception'
 		  );
+
 }
 
+## Quick helper to read a file in as a string.
+sub _min_slurp {
+  my $infile = shift || die "need file here";
+  my $string = '';
+  open INFILE, $infile or die "Couldn't open file: $!"; 
+  while( <INFILE> ){ $string .= $_; }
+  close INFILE;
+  return $string;
+}
+
+##
+sub check_for_condition_files {
+
+  my $self = shift;
+
+  ## Okay, here we're going to add a little system of passing messages
+  ## globally through filesystem manipulation.
+  my $root_dir = $self->{CORE}->amigo_env('AMIGO_CGI_ROOT_DIR');
+  my @root_a_files = glob($root_dir . '/.amigo.*');
+  foreach my $afile (@root_a_files){
+    if( $afile =~ /\.amigo\.warning.*/ ){
+      my $cstr = _min_slurp($afile);
+      $self->add_mq('warning', $cstr) if $cstr;
+    }elsif( $afile =~ /\.amigo\.error.*/ ){
+      my $cstr = _min_slurp($afile);
+      $self->add_mq('error', $cstr) if $cstr;
+    }else{
+      ## Everything else is ignored.
+    }
+  }
+}
 
 ##
 sub mode_landing {
@@ -84,6 +116,7 @@ sub mode_landing {
 
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile();
+  $self->check_for_condition_files();
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'landing');
@@ -147,6 +180,7 @@ sub mode_browse {
 
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile();
+  $self->check_for_condition_files();
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'browse');
@@ -607,6 +641,7 @@ sub mode_golr_term_details {
   ##
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile('term');
+  $self->check_for_condition_files();
   $self->{CORE}->kvetch(Dumper($params));
   my $input_term_id = $params->{term};
 
@@ -911,6 +946,7 @@ sub mode_golr_gene_product_details {
 
   ##
   my $i = AmiGO::WebApp::Input->new();
+  $self->check_for_condition_files();
   my $params = $i->input_profile('gp');
   my $input_gp_id = $params->{gp};
 
