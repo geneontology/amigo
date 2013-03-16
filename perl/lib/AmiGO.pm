@@ -1360,7 +1360,15 @@ sub get_interlink {
 		  $_ . '=' . $args->{$_};
 		} keys %$args);
        }
-     }
+     },
+
+     # 'golr_direct' =>
+     # sub {
+     #   die "interlink mode 'golr_download' requires args" if ! defined $args;
+     #   my $tacc = $args->{term} || '';
+     #   $ilink = 'http://ols.wordvis.com/q=' . $tacc;
+     # }
+
     );
 
   ## Check hash for our link function and run it if found.

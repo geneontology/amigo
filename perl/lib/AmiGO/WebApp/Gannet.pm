@@ -412,42 +412,52 @@ sub mode_gannet {
 	$direct_solr_url = $q->url();
 	$direct_solr_results = $q->raw();
 
-	## Prepare to go through the gaffer.
+	# ## Prepare to go through the gaffer.
+	# my $full_id_url = $q->full_results_url('id');
+	# my $tmp_id_gurl =
+	#   $self->{CORE}->get_interlink({
+	# 				mode => 'gaffer',
+	# 				arg =>
+	# 				{
+	# 				 mode => 'solr_to_id_list',
+	# 				 url => $full_id_url
+	# 				},
+	# 				optional =>
+	# 				{
+	# 				 full => 1
+	# 				}});
+	# #my $full_gaf_url = $q->full_results_url('id');
+	# my $full_gaf_url = $q->full_results_url('*');
+	# my $tmp_gaf_gurl =
+	#   $self->{CORE}->get_interlink({
+	# 				mode => 'gaffer',
+	# 				arg =>
+	# 				{
+	# 				 mode => 'solr_to_gaf',
+	# 				 url => $full_gaf_url
+	# 				},
+	# 				optional =>
+	# 				{
+	# 				 full => 1
+	# 				}});
+	# $self->{CORE}->kvetch('full id url: ' . $full_id_url);
+	# $self->{CORE}->kvetch('full gaf url: ' . $full_gaf_url);
+	# $self->{CORE}->kvetch('id gurl: ' . $tmp_id_gurl);
+	# $self->{CORE}->kvetch('gaf gurl: ' . $tmp_gaf_gurl);
+	# $self->set_template_parameter('direct_gaffer_id_url_safe',
+	# 			      $self->{CORE}->html_safe($tmp_id_gurl));
+	# $self->set_template_parameter('direct_gaffer_gaf_url_safe',
+	# 			      $self->{CORE}->html_safe($tmp_gaf_gurl));
+
+	## Prepare the direct links to the GOlr data.
 	my $full_id_url = $q->full_results_url('id');
-	my $tmp_id_gurl =
-	  $self->{CORE}->get_interlink({
-					mode => 'gaffer',
-					arg =>
-					{
-					 mode => 'solr_to_id_list',
-					 url => $full_id_url
-					},
-					optional =>
-					{
-					 full => 1
-					}});
-	#my $full_gaf_url = $q->full_results_url('id');
-	my $full_gaf_url = $q->full_results_url('*');
-	my $tmp_gaf_gurl =
-	  $self->{CORE}->get_interlink({
-					mode => 'gaffer',
-					arg =>
-					{
-					 mode => 'solr_to_gaf',
-					 url => $full_gaf_url
-					},
-					optional =>
-					{
-					 full => 1
-					}});
+	my $full_all_url = $q->full_results_url('*');
 	$self->{CORE}->kvetch('full id url: ' . $full_id_url);
-	$self->{CORE}->kvetch('full gaf url: ' . $full_gaf_url);
-	$self->{CORE}->kvetch('id gurl: ' . $tmp_id_gurl);
-	$self->{CORE}->kvetch('gaf gurl: ' . $tmp_gaf_gurl);
-	$self->set_template_parameter('direct_gaffer_id_url_safe',
-				      $self->{CORE}->html_safe($tmp_id_gurl));
-	$self->set_template_parameter('direct_gaffer_gaf_url_safe',
-				      $self->{CORE}->html_safe($tmp_gaf_gurl));
+	$self->{CORE}->kvetch('full all url: ' . $full_gaf_url);
+	$self->set_template_parameter('direct_id_url_safe',
+				      $self->{CORE}->html_safe($full_id_url));
+	$self->set_template_parameter('direct_all_url_safe',
+				      $self->{CORE}->html_safe($full_all_url));
       }else{
 
 	## Final run sanity check.
@@ -660,9 +670,9 @@ sub mode_gannet {
 
     ## Page settings.
     $self->set_template_parameter('page_title',
-				  'GOOSE-like Solr Environment');
+				  'Gannet: GOOSE-like Solr Environment');
     $self->set_template_parameter('content_title',
-				  'GOOSE-like Solr Environment');
+				  'Gannet: GOOSE-like Solr Environment');
 
     ## 
     $self->{CORE}->kvetch("pre-template limit: " . $in_limit);
