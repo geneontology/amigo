@@ -74,6 +74,11 @@ AMIGO_PUBLIC_GOLR_URL:
   comment: Please enter the public URL of the GOlr server.
   type: url
 
+AMIGO_PUBLIC_GALAXY_URL:
+  value: http://galaxy.berkeleybop.org/
+  comment: Please enter the public URL of the Galaxy server.
+  type: url
+
 ###
 ### AmiGO internal variables.
 ###
