@@ -215,7 +215,7 @@ sub mode_gannet {
   my $in_query = $params->{query};
 
   ## Try and come to terms with Galaxy.
-  my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
+  my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy('goose');
   $self->galaxy_settings($in_galaxy, $galaxy_external_p);
 
   ## Get various examples from the wiki.

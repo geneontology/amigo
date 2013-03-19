@@ -333,6 +333,7 @@ is valid)
 sub comprehend_galaxy {
 
   my $self = shift;
+  my $flavor = shift || 'general'; # that's a TODO for upstream
 
   my $results = $self->{AWI_VALIDATION_RESULTS};
   my $params = $results->{valid};
@@ -348,7 +349,7 @@ sub comprehend_galaxy {
   if( ! $in_galaxy ){
     ## Get the Galaxy return URL if we can.
     $in_galaxy = $self->{CORE}->get_interlink({mode => 'galaxy_by_tool',
-					       arg => {tool_id => 'goose'}});
+					       arg => {tool_id => $flavor}});
     if( $in_galaxy ){ # use whatever is defined first in the template
       $in_galaxy_external_p = 0;
     }
