@@ -43,6 +43,10 @@ AMIGO_PUBLIC_GOLR_URL:
   comment: Please enter the public URL of the GOlr server.
   type: url
   value: http://localhost:8080/solr/
+AMIGO_PUBLIC_GALAXY_URL:
+  value: http://galaxy.berkeleybop.org/
+  comment: Please enter the public URL of the Galaxy server.
+  type: url
 AMIGO_ROOT:
   comment: "Please enter the full path to the git repo amigo[/trunk] directory."
   type: directory
