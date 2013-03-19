@@ -440,8 +440,8 @@ sub next_page_url {
 
 =item full_results_url
 
-Args: optional field (as solr fl argument) to be collected
-Return: url for the _full_ results of the current query
+Args: optional fields (as solr fl argument) to be collected
+Return: url for the _full_ results of the current query--no limit
 
 =cut
 sub full_results_url {
@@ -466,6 +466,43 @@ sub full_results_url {
   return $returl;
 }
 
+=item download_results_url
+
+Arg: optional fields (as solr fl argument) to be collected
+Return: url for the TSV results of the current query, limited
+
+=cut
+sub download_results_url {
+
+  my $self = shift;
+  my $fl = shift || undef;
+  #my $limit = shift || 5000;
+
+  ## Save our little trip--we're going to need to make some changes.
+  my $save = Clone::clone($self->{AEJS_BASE_HASH});
+
+  ## Settings to get everything as a CSV download.
+  $self->{AEJS_BASE_HASH}{'wt'} = 'csv';
+  $self->{AEJS_BASE_HASH}{'csv.encapsulator'} = '';
+  $self->{AEJS_BASE_HASH}{'csv.separator'} = '%09';
+  $self->{AEJS_BASE_HASH}{'csv.header'} = 'false';
+  $self->{AEJS_BASE_HASH}{'csv.mv.separator'} = '|';
+
+  ## Mode and number details.
+  #$self->{AEJS_BASE_HASH}{start} = 0;
+  #$self->{AEJS_BASE_HASH}{rows} = $self->total();
+  #$self->{AEJS_BASE_HASH}{rows} = $limit;
+  #$self->{AEJS_BASE_HASH}{'fl'} = field_list.join(',');
+  if( defined $fl ){
+    $self->{AEJS_BASE_HASH}{fl} = $fl;
+  }
+  my $returl = $self->_query_url();
+
+  ## Restore back to where we began.
+  $self->{AEJS_BASE_HASH} = $save;
+
+  return $returl;
+}
 
 ## No longer have to worry about open connections.
 sub DESTROY {
