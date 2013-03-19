@@ -568,6 +568,10 @@ sub mode_live_search {
   my $params = $i->input_profile('live_search');
   my $bookmark = $params->{bookmark} || '';
 
+  ## Try and come to terms with Galaxy.
+  my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
+  $self->galaxy_settings($in_galaxy, $galaxy_external_p);
+
   ## If it is defined, try to decode it into something useful that we
   ## can pass in as javascript.
   if( $bookmark ){
