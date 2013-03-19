@@ -260,6 +260,36 @@ sub get_mq {
 }
 
 
+=item galaxy_settings
+
+Args: GALAXY_URL (invalid okay) and 1 on it being an external setting
+
+Side effects: adds 'galaxy_url', and 'galaxy_url_external_p' to the
+template parameters as well as adding an mq notice when the URL is
+external.
+
+Returns: true when it has had side-effects
+
+=cut
+sub galaxy_settings {
+  my $self = shift;
+  my $retval = false;
+
+  my $in_galaxy = shift || '';
+  my $galaxy_external_p = shift || undef;
+
+  if( $in_galaxy ){
+    $retval = true;
+    $self->set_template_parameter('galaxy_url', $in_galaxy);
+    $self->set_template_parameter('galaxy_url_external_p', $galaxy_external_p);
+    if( $galaxy_external_p ){
+      $self->add_mq('notice', 'Welcome Galaxy visitor!');
+    }
+  }
+
+  return $retval;
+}
+
 #sub cgiapp_get_query {
 #  my $self = shift;
 #  require CGI;
@@ -980,11 +1010,9 @@ sub mode_js_exception {
   return $json_resp->make_js();
 }
 
-
 ###
 ### Utility functions for the applications.
 ###
-
 
 ## Irritating FormValidator can return scalar or array
 ## ref. Normalize on array ref.

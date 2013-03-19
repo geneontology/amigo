@@ -214,19 +214,11 @@ sub mode_gannet {
   my $in_mirror = $params->{mirror};
   my $in_query = $params->{query};
 
-  ## Galaxy prep.
-  my $in_galaxy = $params->{GALAXY_URL};
-  if( $in_galaxy ){
-    #$self->add_mq('notice', 'Welcome to Galaxy visitor from ' . $in_galaxy);
-    $self->add_mq('notice', 'Welcome Galaxy visitor!');
-    $self->set_template_parameter('galaxy_url', $in_galaxy);
-  }
+  ## Try and come to terms with Galaxy.
+  my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
+  $self->galaxy_settings($in_galaxy, $galaxy_external_p);
 
   ## Get various examples from the wiki.
-  # $self->set_template_parameter('lead_examples_list',
-  # 				$self->_gannet_get_wiki_lead_examples());
-  # $self->set_template_parameter('gold_examples_list',
-  # 				$self->_gannet_get_wiki_gold_examples());
   $self->set_template_parameter('golr_examples_list',
 				$self->_gannet_get_wiki_golr_examples());
 
@@ -393,127 +385,48 @@ sub mode_gannet {
 
     $self->{CORE}->kvetch("trying query:" . $in_query);
 
-    # ## Solr work, otherwise SQL.
-    # if( $in_type =~ /solr/ ){
+    ## Grab the solr worker.
+    my $q =
+      AmiGO::External::JSON::Solr::GOlr::SafeQuery->new($props->{database});
+    $q->safe_query($in_query);
+    $solr_results = $q->docs();
 
-      ## Grab the solr worker.
-      my $q =
-	AmiGO::External::JSON::Solr::GOlr::SafeQuery->new($props->{database});
-      $q->safe_query($in_query);
-      $solr_results = $q->docs();
+    ## Let's check it again.
+    if( defined $solr_results ){
 
-      ## Let's check it again.
-      if( defined $solr_results ){
+      ## Basic results.
+      $count = $q->total() || 0;
+      $in_limit = $q->count() || 0;
+      $self->{CORE}->kvetch("Got Solr results #: " . $count);
+      $direct_solr_url = $q->url();
+      $direct_solr_results = $q->raw();
 
-	## Basic results.
-	$count = $q->total() || 0;
-	$in_limit = $q->count() || 0;
-	$self->{CORE}->kvetch("Got Solr results #: " . $count);
-	$direct_solr_url = $q->url();
-	$direct_solr_results = $q->raw();
+      ## Prepare the direct links to the GOlr data.
+      my $golr_id_url = $q->download_results_url('id');
+      my $golr_all_url = $q->download_results_url('*');
+      $self->{CORE}->kvetch('golr id url: ' . $golr_id_url);
+      $self->{CORE}->kvetch('golr all url: ' . $full_gaf_url);
+      $self->set_template_parameter('direct_id_url_safe',
+				    $self->{CORE}->html_safe($golr_id_url));
+      $self->set_template_parameter('direct_all_url_safe',
+				    $self->{CORE}->html_safe($golr_all_url));
+    }else{
 
-	# ## Prepare to go through the gaffer.
-	# my $full_id_url = $q->full_results_url('id');
-	# my $tmp_id_gurl =
-	#   $self->{CORE}->get_interlink({
-	# 				mode => 'gaffer',
-	# 				arg =>
-	# 				{
-	# 				 mode => 'solr_to_id_list',
-	# 				 url => $full_id_url
-	# 				},
-	# 				optional =>
-	# 				{
-	# 				 full => 1
-	# 				}});
-	# #my $full_gaf_url = $q->full_results_url('id');
-	# my $full_gaf_url = $q->full_results_url('*');
-	# my $tmp_gaf_gurl =
-	#   $self->{CORE}->get_interlink({
-	# 				mode => 'gaffer',
-	# 				arg =>
-	# 				{
-	# 				 mode => 'solr_to_gaf',
-	# 				 url => $full_gaf_url
-	# 				},
-	# 				optional =>
-	# 				{
-	# 				 full => 1
-	# 				}});
-	# $self->{CORE}->kvetch('full id url: ' . $full_id_url);
-	# $self->{CORE}->kvetch('full gaf url: ' . $full_gaf_url);
-	# $self->{CORE}->kvetch('id gurl: ' . $tmp_id_gurl);
-	# $self->{CORE}->kvetch('gaf gurl: ' . $tmp_gaf_gurl);
-	# $self->set_template_parameter('direct_gaffer_id_url_safe',
-	# 			      $self->{CORE}->html_safe($tmp_id_gurl));
-	# $self->set_template_parameter('direct_gaffer_gaf_url_safe',
-	# 			      $self->{CORE}->html_safe($tmp_gaf_gurl));
-
-	## Prepare the direct links to the GOlr data.
-	my $full_id_url = $q->full_results_url('id');
-	my $full_all_url = $q->full_results_url('*');
-	$self->{CORE}->kvetch('full id url: ' . $full_id_url);
-	$self->{CORE}->kvetch('full all url: ' . $full_gaf_url);
-	$self->set_template_parameter('direct_id_url_safe',
-				      $self->{CORE}->html_safe($full_id_url));
-	$self->set_template_parameter('direct_all_url_safe',
-				      $self->{CORE}->html_safe($full_all_url));
-      }else{
-
-	## Final run sanity check.
-	#$self->{CORE}->kvetch('$q: ' . Dumper($q));
-	if( $q->error_p() ){
-	  if( $q->raw() ){
-	    my $raw_out = $q->html_safe($q->raw());
-	    $tmpl_args->{message} = $q->error_message() . " " . $raw_out;
-	  }else{
-	    $tmpl_args->{message} = $q->error_message();
-	  }
+      ## Final run sanity check.
+      #$self->{CORE}->kvetch('$q: ' . Dumper($q));
+      if( $q->error_p() ){
+	if( $q->raw() ){
+	  my $raw_out = $q->html_safe($q->raw());
+	  $tmpl_args->{message} = $q->error_message() . " " . $raw_out;
 	}else{
-	  $tmpl_args->{message} =
-	    "Something failed in Solr query process. Bailing.";
+	  $tmpl_args->{message} = $q->error_message();
 	}
-	return $self->mode_generic_message($tmpl_args);
+      }else{
+	$tmpl_args->{message} =
+	  "Something failed in Solr query process. Bailing.";
       }
-
-    # }else{
-
-    #   ## Get the right query worker for SQL.
-    #   my $q = undef;
-    #   if( $in_type =~ /lead/ ){
-    # 	$q = AmiGO::External::LEAD::Query->new($props, $in_limit);
-    #   }elsif( $in_type =~ /gold/ ){
-    # 	$q = AmiGO::External::GOLD::Query->new($props, $in_limit);
-    #   }else{
-    # 	$self->{CORE}->kvetch("_unknown database_");
-    # 	$tmpl_args->{message} = "_unknown database_";
-    # 	return $self->mode_generic_message($tmpl_args);
-    #   }
-
-    #   ## Try sql.
-    #   $self->{CORE}->kvetch("using limit: " . $in_limit);
-    #   $sql_results = $q->try($in_query);
-    #   #$self->{CORE}->kvetch("_res_: " . Dumper($sql_results));
-
-    #   ## Check processing.
-    #   if( ! $q->ok() ){
-    # 	$self->{CORE}->kvetch("_not ok_!");
-    # 	$tmpl_args->{message} = $q->error_message();
-    # 	return $self->mode_generic_message($tmpl_args);
-    #   }
-
-    #   ## Let's check it again.
-    #   if( defined $sql_results ){
-    # 	$count = $q->count() || 0;
-    # 	$self->{CORE}->kvetch("Got SQL results #: " . $count);
-    # 	$sql_headers = $q->headers();
-    #   }else{
-    # 	## Final run sanity check.
-    # 	$tmpl_args->{message} =
-    # 	  "Something failed in the final SQL results check. Bailing";
-    # 	return $self->mode_generic_message($tmpl_args);
-    #   }
-    # }
+      return $self->mode_generic_message($tmpl_args);
+    }
   }
 
   ###
@@ -521,22 +434,7 @@ sub mode_gannet {
   ###
 
   my $output = '';
-  if( $in_format eq 'text' && ( $in_type =~ /lead/ || $in_type =~ /gold/ )){
-    $self->{CORE}->kvetch("text/sql combination");
-
-    $self->header_add( -type => 'plain/text' );
-
-    my $nlbuf = [];
-    foreach my $row (@$sql_results){
-      my $tabbuf = [];
-      foreach my $col (@$row){
-	push @$tabbuf, $col;
-      }
-      push @$nlbuf, join "\t", @$tabbuf;
-    }
-    $output = join "\n", @$nlbuf;
-
-  }elsif( $in_format eq 'text' && $in_type =~ /solr/ ){
+  if( $in_format eq 'text' && $in_type =~ /solr/ ){
     $self->{CORE}->kvetch("text/solr combination: " . $direct_solr_results);
     $self->header_add( -type => 'plain/text' );
     $output = $direct_solr_results;
@@ -548,48 +446,7 @@ sub mode_gannet {
     my $found_terms = [];
     my $found_terms_i = 0;
 
-    if( $in_type =~ /lead/ || $in_type =~ /gold/ ){
-      $self->{CORE}->kvetch("html/sql combination");
-
-      ## Cycle through results and webify them. This may include
-      ## cleaning, text IDing for linking, etc.
-      if( defined $sql_results ){
-
-	## TODO: fix headers
-	#$q->escapeHTML($header);
-
-	##
-	my $treg = $self->{CORE}->term_regexp();
-	foreach my $row (@$sql_results){
-	  my $rowbuf = [];
-	  foreach my $col (@$row){
-	    ## Some things may be undef.
-	    if( $col ){
-	      $col =~ s/\&/\&amp\;/g;
-	      $col =~ s/\</\&lt\;/g;
-	      $col =~ s/\>/\&gt\;/g;
-
-	      ## Linkify things that look like terms.
-	      if( $col =~ /($treg)/ ){
-		my $link =
-		  $self->{CORE}->get_interlink({
-						mode => 'term-details-old',
-						optional => { public => 1 },
-						arg => { acc => $1 }
-					       });
-		$col = '<a title="'. $1 .'" href="'. $link .'">'. $1 .'</a>';
-		if( $found_terms_i < $VISUALIZE_LIMIT ){
-		  $found_terms_i++;
-		  push @$found_terms, $1;
-		}
-	      }
-	    }
-	    push @$rowbuf, $col;
-	  }
-	  push @$htmled_results, $rowbuf;
-	}
-      }
-    }elsif( $in_type =~ /solr/ ){
+    if( $in_type =~ /solr/ ){
       $self->{CORE}->kvetch("html/solr combination");
       #push @$htmled_results, "TODO: solr html output";
 

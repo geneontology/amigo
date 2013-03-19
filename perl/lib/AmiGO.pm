@@ -1362,12 +1362,18 @@ sub get_interlink {
        }
      },
 
-     # 'golr_direct' =>
-     # sub {
-     #   die "interlink mode 'golr_download' requires args" if ! defined $args;
-     #   my $tacc = $args->{term} || '';
-     #   $ilink = 'http://ols.wordvis.com/q=' . $tacc;
-     # }
+     ## Well, only interlink some of the time.
+     ## This will only return if the internal galaxy URL is set.
+     'galaxy_by_tool' =>
+     sub {
+       die "interlink mode 'galaxy_by_tool' requires args" if ! defined $args;
+       my $gtid = $args->{tool_id} || die 'needs tool_id argument';
+       $ilink = ''; # not really defined if we don't have it
+       my $in_galaxy = $self->amigo_env('AMIGO_PUBLIC_GALAXY_URL');
+       if( $in_galaxy ){ # we have our galaxy defined, so make the URL real.
+	 $ilink = $in_galaxy . '/tool_runner?tool_id=' . $gtid;
+       }
+     }
 
     );
 

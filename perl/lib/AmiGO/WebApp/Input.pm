@@ -89,6 +89,8 @@ sub new {
   #foreach my $req_arg (keys %amigo_args){
   #}
 
+  $self->{AWI_VALIDATION_RESULTS} = undef;
+
   bless $self, $class;
   return $self;
 }
@@ -267,6 +269,7 @@ sub input_profile {
 
   #$self->query();
   my $results = Data::FormValidator->check( $self->query(), $profile );
+  $self->{AWI_VALIDATION_RESULTS} = $results;
   #my $results = Data::FormValidator->check( $self->{CGI}, $profile );
 
   ## TODO: Throw errors, tantrum, to message...something.
@@ -284,7 +287,6 @@ sub input_profile {
       $self->{CORE}->kvetch("$item => " . $results->{invalid}->{$item});
     }
   }
-
 
   ## For the time being, these can just rot, but I'm sure we'll want
   ## them for something later.
@@ -310,6 +312,52 @@ sub input_profile {
 }
 
 
+=item comprehend_galaxy
+
+A helper function to help keep track of which galaxy we're supposed to
+be using and what's valid given the incoming GALAXY_URL which trumps
+the local internal variable.
+
+Keep in mind that it is up to the application writer to preserve the
+variable when bouncing around--we're still restful, there is no
+session!
+
+Side effects: affects the message queue if there is a valid external
+galaxy.
+
+Returns: an array: first value galaxy url to use (or ''), second value
+1 if external 0 if internal (sensible results only if the first value
+is valid)
+
+=cut
+sub comprehend_galaxy {
+
+  my $self = shift;
+
+  my $results = $self->{AWI_VALIDATION_RESULTS};
+  my $params = $results->{valid};
+
+  ## Galaxy prep if we don't have an incoming URL to work with, take
+  ## the one from our configuration. If that's not there, skip it.
+  ## We are also deciding if the galaxy url is internal or external.
+  my $in_galaxy = $params->{GALAXY_URL};
+  my $in_galaxy_external_p = undef;
+  if( $in_galaxy ){ # note the external URL
+    $in_galaxy_external_p = 1;
+  }
+  if( ! $in_galaxy ){
+    ## Get the Galaxy return URL if we can.
+    $in_galaxy = $self->{CORE}->get_interlink({mode => 'galaxy_by_tool',
+					       arg => {tool_id => 'goose'}});
+    if( $in_galaxy ){ # use whatever is defined first in the template
+      $in_galaxy_external_p = 0;
+    }
+  }
+
+  return ($in_galaxy, $in_galaxy_external_p);
+}
+
+
 ##
 sub _add_core_set {
 
@@ -318,7 +366,7 @@ sub _add_core_set {
   ## I think this will be easier in the end for the optional args.
   $profile->{missing_optional_valid} = 1;
 
-  ## Allow for incoming galaxy instances.
+  ## Universally allow for incoming galaxy instances.
   $self->_add_simple_argument('GALAXY_URL', '');
 
   ## Request.
@@ -625,7 +673,6 @@ sub _add_full_p {
   $profile->{constraint_methods}{full} =
     is_in_list_p('false', 'true');
 }
-
 
 ## Settings for geo-type things
 sub _add_geo_set {
