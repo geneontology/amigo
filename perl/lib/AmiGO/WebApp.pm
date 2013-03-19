@@ -266,7 +266,7 @@ Args: GALAXY_URL (invalid okay) and 1 on it being an external setting
 
 Side effects: adds 'galaxy_url', and 'galaxy_url_external_p' to the
 template parameters as well as adding an mq notice when the URL is
-external.
+external and a global_galaxy_url variable for JS if extant.
 
 Returns: true when it has had side-effects
 
@@ -285,6 +285,10 @@ sub galaxy_settings {
     if( $galaxy_external_p ){
       $self->add_mq('notice', 'Welcome Galaxy visitor!');
     }
+
+    ## Add a global galaxy URL if we're good.
+    my $gjs = $self->{JS}->make_var('global_galaxy_url', $in_galaxy);
+    $self->add_template_javascript($gjs);
   }
 
   return $retval;
