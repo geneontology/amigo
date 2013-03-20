@@ -5,11 +5,17 @@
 OWLTOOLS = ~/local/src/svn/owltools
 SOLR = http://localhost:8080/solr/ 
 PANTHER_FILES = ~/tmp/p2/panther_data/
-ONTOLOGIES = http://purl.obolibrary.org/obo/go.owl \
+ONTOLOGIES = \
+ http://purl.obolibrary.org/obo/go.owl \
  http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl \
  http://purl.obolibrary.org/obo/cl.owl \
  http://purl.obolibrary.org/obo/eco.owl \
  http://geneontology.org/ontology/extensions/go_annotation_extension_relations.obo
+METADATA = \
+ ../metadata/ont-config.yaml \
+ ../metadata/bio-config.yaml \
+ ../metadata/ann-config.yaml \
+ ../metadata/ann_ev_agg-config.yaml
 MGI_GAF = http://www.geneontology.org/gene-associations/gene_association.mgi.gz
 MGI_TEST_GAF = ./_test/mgi-limited.gaf
 
@@ -43,6 +49,10 @@ golr-install:
 .PHONY: golr-purge
 golr-purge:
 	$(OWLTOOLS)/OWLTools-Runner/bin/owltools --solr-url $(SOLR) --solr-purge
+
+.PHONY: golr-schema
+golr-schema:
+	$(OWLTOOLS)/OWLTools-Runner/bin/owltools --solr-config $(METADATA) --solr-schema-dump | ./tools/remove-schema-cruft.pl > ./solr/conf/schema.xml
 
 ###
 ### GAFs

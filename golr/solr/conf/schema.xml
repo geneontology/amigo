@@ -183,7 +183,7 @@
     <!-- bbop_ann_ev_agg: IDs derived from C13 + ncbi_taxonomy.obo. -->
     <field name="taxon_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- bbop_ann: Column 6: database reference. -->
-    <field name="reference" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <field name="reference" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- bbop_ont: Alternate term id. -->
     <field name="alternate_id" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- bbop_ann: Column 9: Ontology aspect. -->
@@ -194,7 +194,7 @@
     <field name="source" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- bbop_ont: Term that replaces this term. -->
     <field name="replaced_by" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- bbop_ann: A special blob for a spec display. -->
+    <!-- bbop_ann: A special special display for GAF column 16. -->
     <field name="annotation_extension_class_handler" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- bbop_ont: JSON blob form of the local stepwise topology graph. -->
     <field name="topology_graph" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
