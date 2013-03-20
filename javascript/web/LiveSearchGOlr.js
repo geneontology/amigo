@@ -28,6 +28,9 @@ function LiveSearchGOlrInit(){
 	    on_click: function(manager){
 		manager.add_query_filter('document_category',
 					 'annotation', ['*']);
+		manager.clear_buttons();
+		manager.add_button(gaf_download_button);
+		manager.add_button(bookmark_button);
 	    }
 	},
 	{
@@ -35,6 +38,9 @@ function LiveSearchGOlrInit(){
 	    on_click: function(manager){
     		manager.add_query_filter('document_category',
 					 'ontology_class', ['*']);
+		manager.clear_buttons();
+		manager.add_button(id_download_button);
+		manager.add_button(bookmark_button);
 	    }
 	},
 	{
@@ -42,6 +48,9 @@ function LiveSearchGOlrInit(){
 	    on_click: function(manager){
     		manager.add_query_filter('document_category',
 					 'bioentity',['*']);
+		manager.clear_buttons();
+		manager.add_button(id_download_button);
+		manager.add_button(bookmark_button);
 	    }
 	},
 	{
@@ -49,7 +58,7 @@ function LiveSearchGOlrInit(){
 	    on_click: function(manager){
     		manager.add_query_filter('document_category',
     					 'annotation_evidence_aggregate',['*']);
-
+		manager.clear_buttons();
 	    }
 	}
     ];
@@ -91,6 +100,95 @@ function LiveSearchGOlrInit(){
     var div_id = 'display-general-search';
 
     ///
+    /// Defined some useful buttons.
+    ///
+
+    var id_download_button =
+	{
+	    label: 'Download IDs (up to 5000)',
+	    diabled_p: false,
+	    text_p: false,
+	    icon: 'ui-icon-circle-arrow-s',
+	    click_function_generator: function(manager){
+		return function(event){
+		    var fl = ['id'];
+		    var raw_gdl =
+			search.get_download_url(fl, {'rows': 5000});
+		    // Aaand encodeURI is a little overzealous on
+		    // our case, so we turn our %09, which it
+		    // turned into %2509, back into %09.
+		    var gdl = encodeURI(raw_gdl).replace(/\%2509/g, '%09');
+		    new bbop.widget.dialog('Download: <a href="' + gdl +
+					   '" title="Download ID list."'+
+					   '>ID list</a> ' + 
+					   '(max. 5000 lines).');
+		};
+	    }
+	};
+    var gaf_download_button =
+	{
+	    label: 'GAF chunk download (up to 5000)',
+	    diabled_p: false,
+	    text_p: false,
+	    icon: 'ui-icon-circle-arrow-s',
+	    click_function_generator: function(manager){
+		return function(event){
+		    var fl = [
+			'source', // c1
+			//'bioentity', // c2
+			'bioentity_internal_id', // c2
+			'bioentity_label', // c3
+			'qualifier', // c4
+			'annotation_class', // c5
+			'reference', // c6
+			'evidence_type', // c7
+			'evidence_with', // c8
+			'aspect', // c9
+			'bioentity_name', // c10
+			'synonym', // c11
+			'type', // c12
+			'taxon', // c13
+			'date', // c14
+			'assigned_by', // c15
+			'annotation_extension_class', // c16
+			'bioentity_isoform' // c17
+		    ];
+		    var raw_gdl =
+			search.get_download_url(fl, {'rows': 5000});
+		    // Aaand encodeURI is a little overzealous on
+		    // our case, so we turn our %09, which it
+		    // turned into %2509, back into %09.
+		    var gdl = encodeURI(raw_gdl).replace(/\%2509/g, '%09');
+		    new bbop.widget.dialog('Download: <a href="' + gdl +
+					   '" title="Download GAF chunk."'+
+					   '>GAF chunk</a> ' + 
+					   '(max. 5000 lines).');
+		};
+	    }
+	};
+    var bookmark_button =
+	{
+	    label: 'Show URL/bookmark',
+	    diabled_p: false,
+	    text_p: false,
+	    icon: 'ui-icon-help',
+	    click_function_generator: function(manager){
+		return function(event){
+		    //alert('GAF download: ' + manager.get_query_url());
+		    //alert('URL: ' + search.get_query_url());
+		    var raw_bookmark =
+			encodeURIComponent(search.get_state_url());
+		    var a_args = {
+			id: raw_bookmark,
+			label: 'this search'
+		    };
+		    new bbop.widget.dialog('Bookmark for: ' +
+					   linker.anchor(a_args, 'search'));
+		};
+	    }
+	};
+
+    ///
     /// Ready widget.
     ///
 
@@ -112,70 +210,12 @@ function LiveSearchGOlrInit(){
     	//'icon_remove_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
     	'icon_positive_label' : '<b>[&nbsp;+&nbsp;]</b>',
     	//'icon_positive_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
-    	'icon_negative_label' : '<b>[&nbsp;-&nbsp;]</b>',
+    	'icon_negative_label' : '<b>[&nbsp;-&nbsp;]</b>'
     	//'icon_negative_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
-    	'buttons' : [
-	    {
-		label: 'GAF chunk download',
-		diabled_p: false,
-		text_p: false,
-		icon: 'ui-icon-circle-arrow-s',
-		click_function_generator: function(manager){
-		    return function(event){
-			var fl = [
-			    'source', // c1
-			    //'bioentity', // c2
-			    'bioentity_internal_id', // c2
-			    'bioentity_label', // c3
-			    'qualifier', // c4
-			    'annotation_class', // c5
-			    'reference', // c6
-			    'evidence_type', // c7
-			    'evidence_with', // c8
-			    'aspect', // c9
-			    'bioentity_name', // c10
-			    'synonym', // c11
-			    'type', // c12
-			    'taxon', // c13
-			    'date', // c14
-			    'assigned_by', // c15
-			    'annotation_extension_class', // c16
-			    'bioentity_isoform' // c17
-			];
-			var raw_gdl =
-			    search.get_download_url(fl, {'rows': 5000});
-			// Aaand encodeURI is a little overzealous on
-			// our case, so we turn our %09, which it
-			// turned into %2509, back into %09.
-			var gdl = encodeURI(raw_gdl).replace(/\%2509/g, '%09');
-			new bbop.widget.dialog('Download: <a href="' + gdl +
-					       '" title="Download GAF chunk."'+
-					       '>GAF chunk</a> ' + 
-					       '(max. 5000 lines).');
-		    };
-		}
-	    },
-	    {
-		label: 'Show URL',
-		diabled_p: false,
-		text_p: false,
-		icon: 'ui-icon-help',
-		click_function_generator: function(manager){
-		    return function(event){
-			//alert('GAF download: ' + manager.get_query_url());
-			//alert('URL: ' + search.get_query_url());
-			var raw_bookmark =
-			    encodeURIComponent(search.get_state_url());
-			var a_args = {
-			    id: raw_bookmark,
-			    label: 'this search'
-			};
-			new bbop.widget.dialog('Bookmark for: ' +
-					       linker.anchor(a_args, 'search'));
-		    };
-		}
-	    }
-	]
+    	// 'buttons' : [
+	//     gaf_download_button,
+	//     bookmark_button
+	// ]
     };
     var search = new bbop.widget.search_pane(solr_server, gconf, div_id, hargs);
     // We like highlights; they should be included automatically
