@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130319";
+bbop.version.release = "20130320";
 /* 
  * Package: json.js
  * 
@@ -11132,6 +11132,10 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
     this.interface_id = interface_id;
     this.class_conf = conf_class;
    
+    // We need strong control of the displayed buttons since we're
+    // going to make them a dynamic (post-setup) resource.
+    this.button_definitions = button_defs;
+
     // Get the user interface hook and remove anything that was there.
     var ui_div_id = this.interface_id;
     jQuery('#' + ui_div_id).empty();
@@ -11161,6 +11165,7 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
     // Main div id hooks to the easily changable areas of the two
     // column display.
     var ui_meta_div_id = mangle + 'meta-id';
+    var ui_user_button_div_id = mangle + 'user-button-id';
     var ui_results_table_div_id = mangle + 'results-table-id';
     var ui_sticky_filters_div_id = mangle + 'sticky_filters-id';
     var ui_current_filters_div_id = mangle + 'current_filters-id';
@@ -11451,10 +11456,60 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
     };
 
     /*
+     * Function: draw_user_buttons
+     *
+     * (Re)draw the user-defined buttons in the meta information area.
+     * 
+     * Parameters:
+     *  manager - <bbop.golr.manager> that we initially registered with
+     *
+     * Returns:
+     *  n/a
+     */
+    this.draw_user_buttons = function(manager){
+	function _button_rollout(button_def_hash){
+	    var default_hash =
+    		{
+		    label : 'n/a',
+		    disabled_p : false,
+		    text_p : false,
+		    icon : 'ui-icon-help',
+		    click_function_generator :
+		    function(){
+			return function(){
+			    alert('No callback defined for this button--' +
+				  'the generator may have been empty!');
+			};
+		    }
+    		};
+	    var folding_hash = button_def_hash || {};
+	    var arg_hash = bbop.core.fold(default_hash, folding_hash);
+	    
+	    var label = arg_hash['label'];
+	    var disabled_p = arg_hash['disabled_p'];
+	    var text_p = arg_hash['text_p'];
+	    var icon = arg_hash['icon'];
+	    var click_function_generator =
+		arg_hash['click_function_generator'];
+	    
+	    var b = new bbop.html.button(label, {'generate_id': true});
+	    jQuery('#' + ui_user_button_div_id).append(b.to_string());
+	    var b_props = {
+		icons: { primary: icon},
+		disabled: disabled_p,
+		text: text_p
+	    };
+	    var click_fun = click_function_generator(manager);
+	    jQuery('#' + b.get_id()).button(b_props).click(click_fun);
+	}
+	jQuery('#' + ui_user_button_div_id).empty();
+	bbop.core.each(anchor.button_definitions, _button_rollout);
+    };
+
+    /*
      * Function: draw_meta
      *
      * Draw meta results.
-     * TODO: paging, etc.
      * 
      * Parameters:
      *  response - the <bbop.golr.response> returned from the server
@@ -11579,115 +11634,21 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 		});
 	    
 	    ///
-	    /// Section 3: the button_defs buttons.
+	    /// Section 3: the button_definition buttons.
 	    ///
 
 	    // Spacer.	    
 	    jQuery('#' + ui_meta_div_id).append('&nbsp;&nbsp;&nbsp;' +
 						'&nbsp;&nbsp;&nbsp;');
 
+	    // (R)establish the user button div to the end of the meta
+	    // retults.
+	    var ubuttons = new bbop.html.tag('span',
+					     {'id': ui_user_button_div_id});
+	    jQuery('#' + ui_meta_div_id).append(ubuttons.to_string());
+
 	    // Add all of the defined buttons after the spacing.
-	    function _button_rollout(button_def_hash){
-		var default_hash =
-    		    {
-			label : 'n/a',
-			disabled_p : false,
-			text_p : false,
-			icon : 'ui-icon-help',
-			click_function_generator :
-			function(){
-			    return function(){
-				alert('No callback defined for this button--' +
-				      'the generator may have been empty!');
-			    };
-			}
-    		    };
-		var folding_hash = button_def_hash || {};
-		var arg_hash = bbop.core.fold(default_hash, folding_hash);
-
-		var label = arg_hash['label'];
-		var disabled_p = arg_hash['disabled_p'];
-		var text_p = arg_hash['text_p'];
-		var icon = arg_hash['icon'];
-		var click_function_generator =
-		    arg_hash['click_function_generator'];
-
-		var b = new bbop.html.button(label, {'generate_id': true});
-		jQuery('#' + ui_meta_div_id).append(b.to_string());
-		var b_props = {
-		    icons: { primary: icon},
-		    disabled: disabled_p,
-		    text: text_p
-		};
-		var click_fun = click_function_generator(manager);
-		jQuery('#' + b.get_id()).button(b_props).click(click_fun);
-	    }
-	    bbop.core.each(button_defs, _button_rollout);
-
-	    // // GAF.
-	    // // Export.
-	    // var b_export = new bbop.html.button('Export to GO Galaxy',
-	    // 					{'generate_id': true});
-	    // jQuery('#' + ui_meta_div_id).append(b_export.to_string());
-	    // var b_export_props = {
-	    // 	icons: { primary: "ui-icon-circle-zoomin"},
-	    // 	//disabled: false,
-	    // 	disabled: true,
-	    // 	text: false
-	    // };
-	    // jQuery('#' + b_export.get_id()).button(b_export_props).click(
-	    // 	function(){
-	    // 	    alert('TODO: Export to Galaxy: ' + manager.get_query_url());
-	    // 	});
-
-	    // var b_gaf = new bbop.html.button('GAF download',
-	    // 				     {'generate_id': true});
-	    // jQuery('#' + ui_meta_div_id).append(b_gaf.to_string());
-	    // var b_gaf_props = {
-	    // 	icons: { primary: "ui-icon-circle-arrow-s"},
-	    // 	disabled: false,
-	    // 	text: false
-	    // };
-	    // jQuery('#' + b_gaf.get_id()).button(b_gaf_props).click(
-	    // 	function(){
-	    // 	    var fl = [
-	    // 		'source',
-	    // 		// 'bioentity_internal_id',
-	    // 		'bioentity_label',
-	    // 		//'qualifier',
-	    // 		'annotation_class',
-	    // 		'reference',
-	    // 		'evidence_type',
-	    // 		'evidence_with',
-	    // 		// 'aspect',
-	    // 		// 'bioentity_name',
-	    // 		// 'bioentity_synonym',
-	    // 		// 'type',
-	    // 		'taxon',
-	    // 		'date',
-	    // 		// 'assigned_by',
-	    // 		'annotation_extension_class',
-	    // 		'bioentity'
-	    // 	    ];
-	    // 	    alert('GAF download (1000 lines): ' +
-	    // 		  manager.get_download_url(fl));
-	    // 	    ;
-	    // 	    //alert('GAF download: ' + manager.get_query_url());
-	    // 	});
-
-	    // // Cart.
-	    // var b_cart = new bbop.html.button('Cart',
-	    // 					{'generate_id': true});
-	    // jQuery('#' + ui_meta_div_id).append(b_cart.to_string());
-	    // var b_cart_props = {
-	    // 	icons: { primary: "ui-icon-cart"},
-	    // 	disabled: false,
-	    // 	text: false
-	    // };
-	    // jQuery('#' + b_cart.get_id()).button(b_cart_props).click(
-	    // 	function(){
-	    // 	    alert('TODO: Cart function: ' + manager.get_query_url());
-	    // 	});
+	    anchor.draw_user_buttons(manager);
 	}
     };
 
@@ -12288,6 +12249,40 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
     this.draw_error = function(error_message, manager){
 	ll("draw_error: " + error_message);
 	alert("Runtime error: " + error_message);
+    };
+
+    /*
+     * Function: add_button
+     *
+     * Add a button to the display by adding a button to the button
+     * definition hash list.
+     * 
+     * Parameters:
+     *  button_definition_hash - ""
+     *
+     * Returns:
+     *  n/a
+     */
+    this.add_button = function(button_definition_hash){
+	ll("add_button: " + button_definition_hash);
+	this.button_definitions.push(button_definition_hash);
+    };
+
+    /*
+     * Function: clear_buttons
+     *
+     * Remove all user-defined buttons from the display by resetting
+     * the button definition hash list.
+     * 
+     * Parameters:
+     *  n/a
+     *
+     * Returns:
+     *  n/a
+     */
+    this.clear_buttons = function(){
+	ll("clearing buttons");
+	this.button_definitions = [];
     };
 
 };
@@ -13002,8 +12997,10 @@ bbop.core.extend(bbop.widget.term_shield, bbop.golr.manager.jquery);
  * self-contained UI and manager.
  * 
  * The function ".establish_display()" must be run *after* an initial
- * personality is set. Also, in many use cases, you'll want to have an line like the following befire running ".establish_display()".
- * : sp_widget.add_query_filter('document_category', 'annotation', ['*']);
+ * personality is set. Also, in many use cases, you'll want to have a
+ * line like the following before running ".establish_display()":
+ * sp_widget.add_query_filter('document_category', 'annotation',
+ * ['*']);
  * 
  * Also, establish_display() literally just establishes the physical
  * presence of the display. To actually populate it with data once you
@@ -13075,6 +13072,10 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     // ...
     var loop = bbop.core.loop;
     var anchor = this;
+
+    // We need to keep a handle on the live_search ui component so we
+    // can manipulate the buttons after the fact.
+    this.ui = null;
 
     // Our argument default hash.
     var default_hash =
@@ -13155,10 +13156,10 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	
     	// Create a new two column layout and a lot of hidden switches
     	// and variables.
-    	var ui = null;
+    	// // var ui = null;
 	// if( layout_type == 'two-column' ){
-	    ui = new bbop.widget.display.live_search(interface_id, cclass,
-						     button_defs);
+	anchor.ui = new bbop.widget.display.live_search(interface_id, cclass,
+							button_defs);
 	// }else{
     	//     throw new Error('ERROR: unsupported layout type: '+ layout_type);
 	// }
@@ -13166,61 +13167,108 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	// Things to do on every reset event. Essentially re-draw
     	// everything.
     	if( show_searchbox_p ){ // conditionally display search box stuff
-    	    anchor.register('reset', 'reset_query', ui.reset_query, -1);
+    	    anchor.register('reset', 'reset_query', anchor.ui.reset_query, -1);
 	}
     	if( show_global_reset_p ){ // conditionally show global reset button
     	    anchor.register('reset', 'global_reset_button',
-    	    		    ui.reset_global_reset_button, -1);
+    	    		    anchor.ui.reset_global_reset_button, -1);
     	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.register('reset', 'sticky_first',
-    			    ui.draw_sticky_filters, -1);
+    			    anchor.ui.draw_sticky_filters, -1);
     	    anchor.register('reset', 'curr_first',
-    			    ui.draw_current_filters, -1);
+    			    anchor.ui.draw_current_filters, -1);
     	    anchor.register('reset', 'accordion_first',
-    			    ui.draw_accordion, -1);
+    			    anchor.ui.draw_accordion, -1);
     	}
     	// We're always showing meta and results.
-    	anchor.register('reset', 'meta_first', ui.draw_meta, -1);
-    	anchor.register('reset', 'results_first', ui.draw_results, -1);
+    	anchor.register('reset', 'meta_first', anchor.ui.draw_meta, -1);
+    	anchor.register('reset', 'results_first', anchor.ui.draw_results, -1);
 	
     	// Things to do on every search event.
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.register('search','sticky_filters_std',
-    			    ui.draw_sticky_filters);
+    			    anchor.ui.draw_sticky_filters);
     	    anchor.register('search','curr_filters_std',
-    			    ui.draw_current_filters);
-    	    anchor.register('search', 'accordion_std', ui.draw_accordion);
+    			    anchor.ui.draw_current_filters);
+    	    anchor.register('search', 'accordion_std',
+			    anchor.ui.draw_accordion);
     	}
     	// These will always be updated after a search.
-    	anchor.register('search', 'meta_usual', ui.draw_meta);
-    	anchor.register('search', 'results_usual', ui.draw_results);
+    	anchor.register('search', 'meta_usual', anchor.ui.draw_meta);
+    	anchor.register('search', 'results_usual', anchor.ui.draw_results);
 	
     	// Things to do on an error.
-    	anchor.register('error', 'results_unusual', ui.draw_error);	
+    	anchor.register('error', 'results_unusual', anchor.ui.draw_error);	
 	
     	// Setup the gross frames for the filters and results.
-    	//ui.setup_reset_button();
+    	//anchor.ui.setup_reset_button();
     	if( show_searchbox_p ){ // conditionally display search box stuff
-    	    //ui.setup_query();
-    	    ui.setup_query('Search:&nbsp;',icon_clear_label,icon_clear_source);
+    	    //anchor.ui.setup_query();
+    	    anchor.ui.setup_query('Search:&nbsp;',
+				  icon_clear_label,
+				  icon_clear_source);
 	}
     	if( show_global_reset_p ){ // conditionally show global reset button
-	    //ui.setup_global_reset_button();
-	    ui.setup_global_reset_button(icon_reset_label, icon_reset_source);
+	    //anchor.ui.setup_global_reset_button();
+	    anchor.ui.setup_global_reset_button(icon_reset_label,
+						icon_reset_source);
 	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
-    	    ui.setup_sticky_filters();
-    	    //ui.setup_current_filters();
-    	    //ui.setup_accordion();
-    	    ui.setup_current_filters(icon_remove_label, icon_remove_source);
-    	    ui.setup_accordion(icon_positive_label, icon_positive_source,
-			       icon_negative_label, icon_negative_source);
+    	    anchor.ui.setup_sticky_filters();
+    	    //anchor.ui.setup_current_filters();
+    	    //anchor.ui.setup_accordion();
+    	    anchor.ui.setup_current_filters(icon_remove_label,
+					    icon_remove_source);
+    	    anchor.ui.setup_accordion(icon_positive_label,
+				      icon_positive_source,
+				      icon_negative_label,
+				      icon_negative_source);
 	}
-    	ui.setup_results({'meta': show_pager_p});
+    	anchor.ui.setup_results({'meta': show_pager_p});
 	
     	// // Start the ball with a reset event.
     	//anchor.reset();
+    };
+
+    /*
+     * Function: add_button
+     * 
+     * Add a user-defined button to the display.
+     * 
+     * NOTE: The button change will not appear until the next search
+     * refresh.
+     * 
+     * Parameters:
+     *  button_definition_hash - ""
+     *
+     * Returns
+     *  n/a
+     */
+    this.add_button = function(button_definition_hash){
+	anchor.ui.add_button(button_definition_hash);
+	// And trigger a redraw of meta.
+	anchor.ui.draw_user_buttons(anchor);
+    };
+
+    /*
+     * Function: clear_buttons
+     * 
+     * Remove all user-defined buttons from the display.
+     * 
+     * NOTE: The button change will not appear until the next search
+     * refresh.
+     * 
+     * Parameters:
+     *  n/a
+     *
+     * Returns
+     *  n/a
+     */
+    this.clear_buttons = function(){
+	anchor.ui.clear_buttons();
+	// And trigger a redraw of meta.
+	anchor.ui.draw_user_buttons(anchor);
     };
 
     // // Now let's run the above function as the initializer.
