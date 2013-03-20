@@ -27,9 +27,7 @@ all:
 ###
 
 .PHONY: test $(TESTS)
-
 test: $(TESTS)
-
 $(TESTS): bundle
 	echo "trying: $@"
 	cd $(@D) && $(JS) $(JSFLAGS) -f $(@F)
@@ -39,7 +37,6 @@ $(TESTS): bundle
 ###
 
 .PHONY: pass
-
 pass:
 	make test | grep -i fail; test $$? -ne 0
 
@@ -48,7 +45,6 @@ pass:
 ###
 
 .PHONY: docs
-
 docs:
 	naturaldocs --rebuild-output --input ./javascript/lib/amigo --project javascript/docs/.naturaldocs_project/ --output html javascript/docs/
 	naturaldocs --rebuild-output --input ./perl/lib/ --project perl/docs/.naturaldocs_project/ --output html perl/docs
@@ -59,9 +55,12 @@ docs:
 ###
 
 .PHONY: bundle
-
 bundle:
 	./install -b
+
+.PHONY: bundle-uncompressed
+bundle-uncompressed:
+	./install -b -u
 
 ###
 ### Produce static statistics data files for landing page.
@@ -77,9 +76,13 @@ data:
 ###
 
 .PHONY: install
-
 install: test docs
 	./install -v -e -g
+
+## This target skips testing.
+.PHONY: install-uncompressed
+install-uncompressed: docs
+	./install -v -e -g -u
 
 ###
 ### Copy in some dummy values for use with testing.
@@ -95,7 +98,6 @@ dummy:
 ###
 
 .PHONY: release
-
 release: bundle docs
 	s3cmd -P put javascript/staging/amigo*.js s3://bbop/jsapi/
 
@@ -104,7 +106,6 @@ release: bundle docs
 ###
 
 .PHONY: tags
-
 tags:
 	@echo "Using BBOP-JS at: $(BBOP_JS)"
 	rm -f TAGS
@@ -116,7 +117,6 @@ tags:
 ###
 
 .PHONY: refresh
-
 refresh: tags bundle
 	@echo "Using BBOP-JS at: $(BBOP_JS)"
 	cd $(BBOP_JS); make bundle

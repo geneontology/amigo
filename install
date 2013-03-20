@@ -18,12 +18,13 @@ use vars qw(
 	     $opt_g
 	     $opt_e
 	     $opt_b
+	     $opt_u
 	  );
 use Getopt::Std;
 
 
 ## Since internal checks are done, get ready for user input.
-getopts('hvgedb');
+getopts('hvgedbu');
 
 ## Embedded help through perldoc.
 if( $opt_h ){
@@ -278,7 +279,7 @@ ll("Created AmiGO JavaScript meta file: \"$amigo_stats_fname\".");
 ###
 
 ## 
-my $release_args =
+my $release_args_compressed =
   [
    './scripts/release-js.pl', '-v',
    '-i', 'scripts/release-js-file-map.txt',
@@ -287,9 +288,22 @@ my $release_args =
    '-d', 'javascript/lib/amigo',
    '-r', $env_conf{AMIGO_JS_VERSION}
   ];
-my $rcmd = join(' ', @$release_args);
+## In the case that we don't want compression, add the -u flag.
+if( $opt_u ){
+  $release_args_compressed =
+    [
+     './scripts/release-js.pl', '-v',
+     '-u',
+     '-i', 'scripts/release-js-file-map.txt',
+     '-o', 'javascript/staging/amigo.js',
+     '-n', 'amigo',
+     '-d', 'javascript/lib/amigo',
+     '-r', $env_conf{AMIGO_JS_VERSION}
+    ];
+}
+my $rcmd = join(' ', @$release_args_compressed);
 ll('System: ' . $rcmd . '"');
-system(@$release_args) == 0 || die "system $rcmd failed: $?";
+system(@$release_args_compressed) == 0 || die "system $rcmd failed: $?";
 
 ###
 ### Roll out the files in our repo to the appropriate directories on
@@ -1154,6 +1168,11 @@ Also generate documentation.
 Ignore all other flags, no not install anything, just do what is
 necessary to create a JS bundle for this installation and put it into
 staging.
+
+=item -u
+
+Create the bundle, but do not use compressions (minification). Only
+relevant with the -b flag.
 
 =back
 
