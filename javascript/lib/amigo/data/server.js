@@ -30,7 +30,7 @@ bbop.core.namespace('amigo', 'data', 'server');
 amigo.data.server = function(){
 
     // All of the server/instance-specific meta-data.
-    var meta_data = {"html_base":"http://localhost/amigo2","app_base":"http://localhost/cgi-bin/amigo2","term_regexp":"all|GO:[0-9]{7}","species":[],"ontologies":[],"gp_types":[],"sources":[],"species_map":{},"bbop_img_star":"http://localhost/amigo2/images/star.png","image_base":"http://localhost/amigo2/images","evidence_codes":{},"golr_base":"http://localhost:8080/solr/"};
+    var meta_data = {"html_base":"http://localhost/amigo2","galaxy_base":"http://galaxy.berkeleybop.org/","app_base":"http://localhost/cgi-bin/amigo2","term_regexp":"all|GO:[0-9]{7}","species":[],"ontologies":[],"gp_types":[],"sources":[],"species_map":{},"bbop_img_star":"http://localhost/amigo2/images/star.png","image_base":"http://localhost/amigo2/images","evidence_codes":{},"golr_base":"http://localhost:8080/solr/"};
 
     ///
     /// Break out the data and various functions to access them...
@@ -49,6 +49,20 @@ amigo.data.server = function(){
      */
     var html_base = meta_data.html_base;
     this.html_base = function(){ return html_base; };
+
+    /*
+     * Function: galaxy_base
+     * 
+     * Access to AmiGO variable galaxy_base.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    var galaxy_base = meta_data.galaxy_base;
+    this.galaxy_base = function(){ return galaxy_base; };
 
     /*
      * Function: app_base

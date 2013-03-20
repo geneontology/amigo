@@ -861,12 +861,12 @@ amigo.data.golr = {
    },
    "bbop_ann" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "annotation_class^9.0 bioentity^7.0 bioentity_name^5.0 source^4.0 taxon^3.0 evidence_type^2.5 evidence_with^2.0 family_tag^1.5 annotation_extension_class^1.0 annotation_extension_class_handler^0.75 bioentity_isoform^0.5",
+      "result_weights" : "annotation_class^9.0 bioentity^7.0 bioentity_name^5.0 source^4.0 taxon^3.0 evidence_type^2.5 evidence_with^2.0 family_tag^1.5 annotation_extension_class^1.0 annotation_extension_class_handler^0.75 bioentity_isoform^0.5 reference^0.25",
       "filter_weights" : "source^7.0 assigned_by^6.5 aspect^6.25 evidence_type_closure^6.0 family_tag_label^5.5 taxon_closure_label^5.0 isa_partof_closure_label^4.0 regulates_closure_label^3.0 annotation_extension_class_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//ann-config.yaml",
       "display_name" : "Annotations",
       "description" : "A description of annotations for GOlr and AmiGO.",
-      "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 bioentity_name^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 family_tag^1.0 family_tag_label^1.0 bioentity_isoform^1.0",
+      "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 bioentity_name^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 reference^1.0 family_tag^1.0 family_tag_label^1.0 bioentity_isoform^1.0",
       "fields" : [
          {
             "transform" : [],
@@ -1187,7 +1187,7 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
-            "cardinality" : "single",
+            "cardinality" : "multi",
             "type" : "string",
             "id" : "reference",
             "property" : []
@@ -1513,7 +1513,7 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
-            "cardinality" : "single",
+            "cardinality" : "multi",
             "type" : "string",
             "id" : "reference",
             "property" : []

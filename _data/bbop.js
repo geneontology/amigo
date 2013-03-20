@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130313";
+bbop.version.release = "20130319";
 /* 
  * Package: json.js
  * 
@@ -10691,6 +10691,9 @@ bbop.widget.display.results_table_by_class = function(cclass,
 	// See what kind of link we can create from what we got.
 	var ilink = linker.anchor({id: iid, label: ilabel, hilite: hl}, fid);
 	
+	//ll('processing: ' + [fid, iid, ilabel].join(', '));
+	//ll('ilink: ' + ilink);
+
 	// See what we got, in order of how much we'd like to have it.
 	if( ilink ){
 	    retval = ilink;
