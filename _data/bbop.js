@@ -11111,13 +11111,11 @@ bbop.core.namespace('bbop', 'widget', 'live_search');
  * Arguments:
  *  interface_id - string id of the div to build on
  *  conf_class - <bbop.golr.conf_class> for hints and other settings
- *  button_defs - a list of button definition hashes
  * 
  * Returns:
  *  BBOP GOlr UI object
  */
-bbop.widget.display.live_search = function (interface_id, conf_class,
-					    button_defs){
+bbop.widget.display.live_search = function(interface_id, conf_class){
 
     var anchor = this;
     var each = bbop.core.each;
@@ -11134,7 +11132,8 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
    
     // We need strong control of the displayed buttons since we're
     // going to make them a dynamic (post-setup) resource.
-    this.button_definitions = button_defs;
+    //this.button_definitions = button_defs;
+    this.button_definitions = [];
 
     // Get the user interface hook and remove anything that was there.
     var ui_div_id = this.interface_id;
@@ -11459,6 +11458,8 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
      * Function: draw_user_buttons
      *
      * (Re)draw the user-defined buttons in the meta information area.
+     * Will naturally fail if there is no meta div that has been
+     * nested with the user button element.
      * 
      * Parameters:
      *  manager - <bbop.golr.manager> that we initially registered with
@@ -11502,8 +11503,15 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
 	    var click_fun = click_function_generator(manager);
 	    jQuery('#' + b.get_id()).button(b_props).click(click_fun);
 	}
-	jQuery('#' + ui_user_button_div_id).empty();
-	bbop.core.each(anchor.button_definitions, _button_rollout);
+
+	// Check that we're not about to do the impossible.
+	if( ! jQuery('#' + ui_user_button_div_id) ){
+	    alert('cannot refresh buttons without a place to draw them');
+	}else{
+	    jQuery('#' + ui_user_button_div_id).empty();
+	    jQuery('#' + ui_user_button_div_id).empty();
+	    bbop.core.each(anchor.button_definitions, _button_rollout);
+	}
     };
 
     /*
@@ -12252,39 +12260,27 @@ bbop.widget.display.live_search = function (interface_id, conf_class,
     };
 
     /*
-     * Function: add_button
+     * Function: set_buttons
      *
-     * Add a button to the display by adding a button to the button
+     * Set the list of buttons for display by changing the button
      * definition hash list.
      * 
-     * Parameters:
-     *  button_definition_hash - ""
-     *
-     * Returns:
-     *  n/a
-     */
-    this.add_button = function(button_definition_hash){
-	ll("add_button: " + button_definition_hash);
-	this.button_definitions.push(button_definition_hash);
-    };
-
-    /*
-     * Function: clear_buttons
-     *
-     * Remove all user-defined buttons from the display by resetting
-     * the button definition hash list.
+     * If no buttons are set, the list is cleared.
      * 
      * Parameters:
-     *  n/a
+     *  button_def_list - *[optional]*
      *
      * Returns:
      *  n/a
      */
-    this.clear_buttons = function(){
-	ll("clearing buttons");
-	this.button_definitions = [];
+    this.set_buttons = function(button_def_list){
+	if( ! button_def_list ){
+	    button_def_list = [];
+	}
+	ll("changing buttons: to " + button_def_list.length +
+	   " from " + anchor.button_definitions.length);
+	anchor.button_definitions = button_def_list;
     };
-
 };
 /*
  * Package: browse.js
@@ -13046,7 +13042,6 @@ bbop.core.namespace('bbop', 'widget', 'search_pane');
  *  icon_negative_source - (default: '')
  *  icon_remove_label - (default: '<b>[&nbsp;X&nbsp;]</b>')
  *  icon_remove_source - (default: '')
- *  buttons -  a list of button definition hashes (default [])
  * 
  * Arguments:
  *  golr_loc - string url to GOlr server; not needed if local
@@ -13070,12 +13065,19 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     // ll("what_is (post: this.update): " + bbop.core.what_is(this.update));
 
     // ...
-    var loop = bbop.core.loop;
     var anchor = this;
 
     // We need to keep a handle on the live_search ui component so we
     // can manipulate the buttons after the fact.
     this.ui = null;
+    this.user_buttons = [];
+
+    // It's also good to know if the display has actually been
+    // established yet (e.g. the user-defined buttons being added
+    // before can have the redraw not happen, since there is nothing
+    // there yet and they will be draw naturally when the display
+    // finally is.
+    this.established_p = false;
 
     // Our argument default hash.
     var default_hash =
@@ -13094,8 +13096,7 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	    'icon_negative_label': '<b>[&nbsp;-&nbsp;]</b>',
 	    'icon_negative_source': '',
 	    'icon_remove_label': '<b>[&nbsp;X&nbsp;]</b>',
-	    'icon_remove_source': '',
-	    'buttons' : []
+	    'icon_remove_source': ''
     	};
     var folding_hash = in_argument_hash || {};
     var arg_hash = bbop.core.fold(default_hash, folding_hash);
@@ -13118,7 +13119,6 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     var icon_negative_source = arg_hash['icon_negative_source'];
     var icon_remove_label = arg_hash['icon_remove_label'];
     var icon_remove_source = arg_hash['icon_remove_source'];
-    var button_defs = arg_hash['buttons'];
 
     /*
      * Function: establish_display
@@ -13127,7 +13127,8 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
      * 
      * Required to display after setting up the manager.
      * 
-     * Also may be useful after a major change to the manager.
+     * Also may be useful after a major change to the manager to reset
+     * it.
      * 
      * Parameters:
      *  n/a
@@ -13154,16 +13155,12 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	/// Setup UI and bind it to events.
     	///
 	
-    	// Create a new two column layout and a lot of hidden switches
-    	// and variables.
-    	// // var ui = null;
-	// if( layout_type == 'two-column' ){
-	anchor.ui = new bbop.widget.display.live_search(interface_id, cclass,
-							button_defs);
-	// }else{
-    	//     throw new Error('ERROR: unsupported layout type: '+ layout_type);
-	// }
-	
+	anchor.ui = new bbop.widget.display.live_search(interface_id, cclass);
+
+	// Try to add any buttons that we have loafing around into the
+	// initial setup.
+	anchor.ui.set_buttons(anchor.user_buttons);
+
     	// Things to do on every reset event. Essentially re-draw
     	// everything.
     	if( show_searchbox_p ){ // conditionally display search box stuff
@@ -13229,6 +13226,9 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	
     	// // Start the ball with a reset event.
     	//anchor.reset();
+
+	// The display has been established.
+	anchor.established_p = true;
     };
 
     /*
@@ -13236,8 +13236,7 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
      * 
      * Add a user-defined button to the display.
      * 
-     * NOTE: The button change will not appear until the next search
-     * refresh.
+     * NOTE: Does not function until the display is established.
      * 
      * Parameters:
      *  button_definition_hash - ""
@@ -13246,9 +13245,13 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
      *  n/a
      */
     this.add_button = function(button_definition_hash){
-	anchor.ui.add_button(button_definition_hash);
-	// And trigger a redraw of meta.
-	anchor.ui.draw_user_buttons(anchor);
+	// Add to our locally stored buttons.
+	anchor.user_buttons.push(button_definition_hash);
+
+	if( anchor.established_p && anchor.ui ){
+	    anchor.ui.set_buttons(anchor.user_buttons);
+	    anchor.ui.draw_user_buttons(anchor);	    
+	}
     };
 
     /*
@@ -13256,8 +13259,7 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
      * 
      * Remove all user-defined buttons from the display.
      * 
-     * NOTE: The button change will not appear until the next search
-     * refresh.
+     * NOTE: Does not function until the display is established.
      * 
      * Parameters:
      *  n/a
@@ -13266,9 +13268,13 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
      *  n/a
      */
     this.clear_buttons = function(){
-	anchor.ui.clear_buttons();
-	// And trigger a redraw of meta.
-	anchor.ui.draw_user_buttons(anchor);
+	// Clear our locally stored buttons.
+	anchor.user_buttons = [];
+
+	if( anchor.established_p && anchor.ui ){
+	    anchor.ui.set_buttons(anchor.user_buttons);
+	    anchor.ui.draw_user_buttons(anchor);	    
+	}
     };
 
     // // Now let's run the above function as the initializer.
