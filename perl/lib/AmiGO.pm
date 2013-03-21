@@ -1371,7 +1371,11 @@ sub get_interlink {
        $ilink = ''; # not really defined if we don't have it
        my $in_galaxy = $self->amigo_env('AMIGO_PUBLIC_GALAXY_URL');
        if( $in_galaxy ){ # we have our galaxy defined, so make the URL real.
-	 $ilink = $in_galaxy . '/tool_runner?tool_id=' . $gtid;
+	 if( $in_galaxy =~ /\/$/ ){
+	   $ilink = $in_galaxy . 'tool_runner?tool_id=' . $gtid;
+	 }else{
+	   $ilink = $in_galaxy . '/tool_runner?tool_id=' . $gtid;
+	 }
        }
      }
 
