@@ -61,27 +61,27 @@ sub setup {
   $self->start_mode('landing');
   $self->error_mode('mode_fatal');
   $self->run_modes(
+		   ## Standard.
 		   'landing'             => 'mode_landing',
-		   'browse'              => 'mode_browse',
-		   'simple_search'       => 'mode_simple_search',
-		   'software_list'       => 'mode_software_list',
-		   'visualize'           => 'mode_visualize',
-		   'subset_summary'      => 'mode_subset_summary',
 		   'search'              => 'mode_live_search',
+		   'browse'              => 'mode_browse',
 		   'term'                => 'mode_golr_term_details',
-		   'gp'                  => 'mode_golr_gene_product_details',
+		   'gene_product'        => 'mode_golr_gene_product_details',
+		   'visualize'           => 'mode_visualize',
+		   'software_list'       => 'mode_software_list',
+		   ## ???
 		   'phylo_graph'         => 'mode_phylo_graph',
-		   'css'                 => 'mode_dynamic_style',
+		   ## Fallback.
+		   'simple_search'       => 'mode_simple_search',
 		   'AUTOLOAD'            => 'mode_exception'
 		  );
-
 }
 
 ## Quick helper to read a file in as a string.
 sub _min_slurp {
   my $infile = shift || die "need file here";
   my $string = '';
-  open INFILE, $infile or die "Couldn't open file: $!"; 
+  open INFILE, $infile or die "Couldn't open file: $!";
   while( <INFILE> ){ $string .= $_; }
   close INFILE;
   return $string;
@@ -535,25 +535,6 @@ sub mode_visualize {
   }
 
   return $output;
-}
-
-
-## TODO/BUG: get new info to need this.
-sub mode_dynamic_style {
-
-  my $self = shift;
-  $self->header_add( -type => 'text/css' ); #,-expires=>'+7d');
-  my @dstack = ();
-
-  ## TODO:
-  #my $rg = $aid->species_information($aid->species_list({num_p => 1}));
-  my $rg = {};
-  foreach my $spc (keys %$rg){
-    push @dstack, sprintf('.taxid_%s { background-color: %s }',
-			  $spc, $rg->{$spc}{species_color});
-  }
-
-  return join("\n", @dstack);
 }
 
 

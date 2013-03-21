@@ -64,7 +64,7 @@ amigo.linker.prototype.url = function (id, xid){
         }else if( xid == 'gp' ||
 		  xid == 'gene_product' ||
 		  xid == 'bioentity' ){
-	        retval = 'amigo?mode=gp&gp=' + id;
+	        retval = 'amigo?mode=gene_product&gp=' + id;
         }else if( xid == 'search' ||
 		  xid == 'live_search' ){
 		      if( id ){

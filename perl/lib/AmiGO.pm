@@ -1177,7 +1177,7 @@ sub get_interlink {
        if( defined($acc) && defined($db) ){
 	 $gp = $db . ':' . $acc;
        }
-       $ilink = 'amigo?mode=gp&gp=' . $gp;
+       $ilink = 'amigo?mode=gene_product&gp=' . $gp;
      },
 
      'term_subset' =>
