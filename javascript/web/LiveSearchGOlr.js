@@ -30,6 +30,7 @@ function LiveSearchGOlrInit(){
 					 'annotation', ['*']);
 		manager.clear_buttons();
 		manager.add_button(gaf_download_button);
+		manager.add_button(gaf_galaxy_button);
 		manager.add_button(bookmark_button);
 	    }
 	},
@@ -103,6 +104,27 @@ function LiveSearchGOlrInit(){
     /// Defined some useful buttons.
     ///
 
+    var _gaf_fl = [
+	'source', // c1
+	//'bioentity', // c2
+	'bioentity_internal_id', // c2
+	'bioentity_label', // c3
+	'qualifier', // c4
+	'annotation_class', // c5
+	'reference', // c6
+	'evidence_type', // c7
+	'evidence_with', // c8
+	'aspect', // c9
+	'bioentity_name', // c10
+	'synonym', // c11
+	'type', // c12
+	'taxon', // c13
+	'date', // c14
+	'assigned_by', // c15
+	'annotation_extension_class', // c16
+	'bioentity_isoform' // c17
+    ];
+
     var id_download_button =
 	{
 	    label: 'Download IDs (up to 5000)',
@@ -111,9 +133,8 @@ function LiveSearchGOlrInit(){
 	    icon: 'ui-icon-circle-arrow-s',
 	    click_function_generator: function(manager){
 		return function(event){
-		    var fl = ['id'];
 		    var raw_gdl =
-			search.get_download_url(fl, {'rows': 5000});
+			search.get_download_url(['id'], {'rows': 5000});
 		    // Aaand encodeURI is a little overzealous on
 		    // our case, so we turn our %09, which it
 		    // turned into %2509, back into %09.
@@ -133,28 +154,8 @@ function LiveSearchGOlrInit(){
 	    icon: 'ui-icon-circle-arrow-s',
 	    click_function_generator: function(manager){
 		return function(event){
-		    var fl = [
-			'source', // c1
-			//'bioentity', // c2
-			'bioentity_internal_id', // c2
-			'bioentity_label', // c3
-			'qualifier', // c4
-			'annotation_class', // c5
-			'reference', // c6
-			'evidence_type', // c7
-			'evidence_with', // c8
-			'aspect', // c9
-			'bioentity_name', // c10
-			'synonym', // c11
-			'type', // c12
-			'taxon', // c13
-			'date', // c14
-			'assigned_by', // c15
-			'annotation_extension_class', // c16
-			'bioentity_isoform' // c17
-		    ];
 		    var raw_gdl =
-			search.get_download_url(fl, {'rows': 5000});
+			search.get_download_url(_gaf_fl, {'rows': 5000});
 		    // Aaand encodeURI is a little overzealous on
 		    // our case, so we turn our %09, which it
 		    // turned into %2509, back into %09.
@@ -163,6 +164,76 @@ function LiveSearchGOlrInit(){
 					   '" title="Download GAF chunk."'+
 					   '>GAF chunk</a> ' + 
 					   '(max. 5000 lines).');
+		};
+	    }
+	};
+    var gaf_galaxy_button =
+	{
+	    label: 'GAF chunk to Galaxy (up to 5000)',
+	    diabled_p: false,
+	    text_p: false,
+	    icon: 'ui-icon-circle-arrow-s',
+	    click_function_generator: function(manager){
+		return function(event){
+
+		    // The global_galaxy_url variable should already be
+		    // defined for us and ready to rock (thanks perl
+		    // AmiGO!).
+
+		    // // Try and find a Galaxy--remote gets preference.
+		    // var use_galaxy = null;
+		    // if( global_galaxy_url && global_galaxy_url != "" ){
+		    // 	use_galaxy = global_galaxy_url;
+		    // }else{
+		    // 	var amigo_galaxy = sd.galaxy_base();
+		    // 	if( amigo_galaxy_url && amigo_galaxy_url != "" ){
+		    // 	    use_galaxy = amigo_galaxy_url;
+		    // 	}
+		    // }
+
+		    // If we have something, construct a form
+		    if( ! global_galaxy_url || global_galaxy_url == "" ){
+			alert('Sorry: could not find a usable Galaxy.');
+		    }else{
+			// We have a galaxy, so let's try and kick out
+			// to it. Cribbing from Gannet.
+			var input_su =
+			    new bbop.html.input({name: 'submit',
+						 type: 'submit',
+						 value: 'all fields'});
+			var input_um =
+			    new bbop.html.input({name: 'URL_method',
+						 type: 'hidden',
+						 value: 'get'});
+
+			// See GAF download button for more info.
+			var raw_gdl =
+			    search.get_download_url(_gaf_fl, {'rows': 5000});
+			var gdl = encodeURI(raw_gdl).replace(/\%2509/g, '%09');
+
+			var input_url =
+			    new bbop.html.input({name: 'URL',
+						 type: 'hidden',
+						 //value: raw_gdl});
+						 value: gdl});
+
+			var form =
+			    new bbop.html.tag('form',
+					      {
+						  id: 'galaxyform',
+						  name: 'galaxyform',
+						  method: 'POST',
+						  target: '_blank',
+						  action: global_galaxy_url
+					      },
+					      [input_su, input_um, input_url]
+					     );
+			
+			// Finally, bang out what we've constructed in
+			// a form.
+			new bbop.widget.dialog('Export to Galaxy: ' +
+					       form.to_string());
+		    }
 		};
 	    }
 	};
@@ -211,11 +282,7 @@ function LiveSearchGOlrInit(){
     	'icon_positive_label' : '<b>[&nbsp;+&nbsp;]</b>',
     	//'icon_positive_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
     	'icon_negative_label' : '<b>[&nbsp;-&nbsp;]</b>'
-    	//'icon_negative_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
-    	// 'buttons' : [
-	//     gaf_download_button,
-	//     bookmark_button
-	// ]
+    	//'icon_negative_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png'
     };
     var search = new bbop.widget.search_pane(solr_server, gconf, div_id, hargs);
     // We like highlights; they should be included automatically
