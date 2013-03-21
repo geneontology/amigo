@@ -4,14 +4,7 @@
 ## Actually, making a perl package might be the best way...
 BEGIN { require "config.pl"; }
 use lib $ENV{AMIGO_ROOT} . '/perl/lib';
-use AmiGO;
 
 use AmiGO::WebApp::HTMLClient;
-my $amigo = AmiGO::WebApp::HTMLClient->new(
-					   PARAMS => {
-						      'thing_1' => 'some val',
-						      'thing_2' => 'some val',
-						     }
-					  );
-
+my $amigo = AmiGO::WebApp::HTMLClient->new(PARAMS => {});
 $amigo->run();

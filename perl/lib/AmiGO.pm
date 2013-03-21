@@ -1177,7 +1177,7 @@ sub get_interlink {
        if( defined($acc) && defined($db) ){
 	 $gp = $db . ':' . $acc;
        }
-       $ilink = 'amigo?mode=golr_gene_product_details&gp=' . $gp;
+       $ilink = 'amigo?mode=gp&gp=' . $gp;
      },
 
      'term_subset' =>
@@ -1196,7 +1196,7 @@ sub get_interlink {
        die "interlink mode 'term_details' requires args" if ! defined $args;
        my $acc = $args->{acc} || '';
        #$ilink = 'term_details?term=' . $acc;
-       $ilink = 'amigo?mode=golr_term_details&term=' . $acc;
+       $ilink = 'amigo?mode=term&term=' . $acc;
      },
 
      ##

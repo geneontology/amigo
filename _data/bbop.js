@@ -10581,7 +10581,7 @@ bbop.widget.display.results_table_by_class = function(cclass,
 	// Skip if it is too short.
 	//if( ! ea_regexp.test(retval) && retval.length > (trimit + 50) ){
 	if( retval.length > (trimit + 50) ){
-	    ll("T&S: too long: " + retval);
+	    //ll("T&S: too long: " + retval);
 
 	    // Let there be tests.
 	    var list_p = br_regexp.test(retval);
@@ -10590,23 +10590,23 @@ bbop.widget.display.results_table_by_class = function(cclass,
 	    var tease = null;
 	    if( ! anchors_p && ! list_p ){
 		// A normal string then...trim it!
-		ll("\tT&S: easy normal text, go nuts!");
+		//ll("\tT&S: easy normal text, go nuts!");
 		tease = new bbop.html.span(bbop.core.crop(retval, trimit, ''),
 					   {'generate_id': true});
 	    }else if( anchors_p && ! list_p ){
 		// It looks like it is a link without a break, so not
 		// a list. We cannot trim this safely.
-		ll("\tT&S: single link so cannot work on!");
+		//ll("\tT&S: single link so cannot work on!");
 	    }else{
-		ll("\tT&S: we have a list to deal with");
+		//ll("\tT&S: we have a list to deal with");
 		
 		var new_str_list = retval.split(br_regexp);
 		if( new_str_list.length <= 3 ){
 		    // Let's just ignore lists that are only three
 		    // items.
-		    ll("\tT&S: pass thru list length <= 3");
+		    //ll("\tT&S: pass thru list length <= 3");
 		}else{
-		    ll("\tT&S: contruct into 2 plus tag");
+		    //ll("\tT&S: contruct into 2 plus tag");
 		    var new_str = '';
 		    new_str = new_str + new_str_list.shift();
 		    new_str = new_str + '<br />';

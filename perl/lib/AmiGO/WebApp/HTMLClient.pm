@@ -1,5 +1,6 @@
 ####
-#### TODO/BUG: session_id needs to be stored as a cookie, caching reasons, etc.
+#### TODO/BUG: session_id needs to be stored as a cookie, caching
+#### reasons, etc.
 ####
 #### TODO: replace internal $core calls with the one saved in
 #### AmiGO::WebApp::$self as much as possible (save on things like
@@ -61,16 +62,15 @@ sub setup {
   $self->error_mode('mode_fatal');
   $self->run_modes(
 		   'landing'             => 'mode_landing',
-		   'browse'             => 'mode_browse',
+		   'browse'              => 'mode_browse',
 		   'simple_search'       => 'mode_simple_search',
 		   'software_list'       => 'mode_software_list',
 		   'visualize'           => 'mode_visualize',
 		   'subset_summary'      => 'mode_subset_summary',
 		   'search'              => 'mode_live_search',
-		   'golr_term_details'   =>  'mode_golr_term_details',
-		   'golr_gene_product_details' =>
-		   'mode_golr_gene_product_details',
-		   'phylo_graph'         =>  'mode_phylo_graph',
+		   'term'                => 'mode_golr_term_details',
+		   'gp'                  => 'mode_golr_gene_product_details',
+		   'phylo_graph'         => 'mode_phylo_graph',
 		   'css'                 => 'mode_dynamic_style',
 		   'AUTOLOAD'            => 'mode_exception'
 		  );

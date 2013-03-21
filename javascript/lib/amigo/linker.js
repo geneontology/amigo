@@ -60,15 +60,19 @@ amigo.linker.prototype.url = function (id, xid){
 	if( xid == 'term' ||
 	    xid == 'annotation_class' ||
 	    xid == 'ontology_class' ){
-		retval = 'amigo?mode=golr_term_details&term=' + id;
+		retval = 'amigo?mode=term&term=' + id;
         }else if( xid == 'gp' ||
 		  xid == 'gene_product' ||
 		  xid == 'bioentity' ){
-	        retval = 'amigo?mode=golr_gene_product_details&gp=' + id;
+	        retval = 'amigo?mode=gp&gp=' + id;
         }else if( xid == 'search' ||
 		  xid == 'live_search' ){
-	        retval = 'amigo?mode=search&bookmark=' + id;
-        }
+		      if( id ){
+			  retval = 'amigo?mode=search&bookmark=' + id;
+		      }else{
+			  retval = 'amigo?mode=search';
+		      }
+		  }
     }
 
     // Since we couldn't find anything with our explicit
