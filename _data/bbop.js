@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130320";
+bbop.version.release = "20130321";
 /* 
  * Package: json.js
  * 
@@ -10565,8 +10565,9 @@ bbop.widget.display.results_table_by_class = function(cclass,
     var each = bbop.core.each; // conveience
 
     // Only want to compile once.
-    var ea_regexp = new RegExp("\<\/a\>", "i");
-    var br_regexp = new RegExp("\<br\ \/\>", "i");
+    var ea_regexp = new RegExp("\<\/a\>", "i"); // detect an <a>
+    var br_regexp = new RegExp("\<br\ \/\>", "i"); // detect a <br />
+
     // Now take what we have, and wrap around some expansion code
     // if it looks like it is too long.
     var trim_hash = {};
@@ -10580,43 +10581,45 @@ bbop.widget.display.results_table_by_class = function(cclass,
 	// Skip if it is too short.
 	//if( ! ea_regexp.test(retval) && retval.length > (trimit + 50) ){
 	if( retval.length > (trimit + 50) ){
-	    //ll("T&S: too long");
+	    ll("T&S: too long: " + retval);
 
-	    // Now determine if links or <br>s (connotating that this
-	    // is an assembled list) can be found in the string.
-	    if( ea_regexp.test(retval) && ! br_regexp.test(retval) ){
+	    // Let there be tests.
+	    var list_p = br_regexp.test(retval);
+	    var anchors_p = ea_regexp.test(retval);
+
+	    var tease = null;
+	    if( ! anchors_p && ! list_p ){
+		// A normal string then...trim it!
+		ll("\tT&S: easy normal text, go nuts!");
+		tease = new bbop.html.span(bbop.core.crop(retval, trimit, ''),
+					   {'generate_id': true});
+	    }else if( anchors_p && ! list_p ){
 		// It looks like it is a link without a break, so not
 		// a list. We cannot trim this safely.
-		//ll("T&S: cannot work on");
+		ll("\tT&S: single link so cannot work on!");
 	    }else{
-		//ll("T&S: can work on");
-
-		// Generate different teases depending on 
-		var tease = "[n/a]";
-	    
-		if( ea_regexp.test(retval) && br_regexp.test(retval) ){
-		    //ll("T&S: do breakdown");
-		    // It is a list of anchors, but breakable, so
-		    // let's work on it until we reach a limit.
-		    var new_str_list = retval.split(br_regexp);
-		    var new_str = new_str_list.shift();
-		    each(new_str_list,
-			function(part){
-			    if( new_str.length + part.length < (trimit + 400 )){
-				new_str = new_str + "<br />" + part;
-			    }
-			});
-		    //ll("T&S: new_str: " + new_str);
-		    tease = new bbop.html.span(new_str, {'generate_id': true});
+		ll("\tT&S: we have a list to deal with");
+		
+		var new_str_list = retval.split(br_regexp);
+		if( new_str_list.length <= 3 ){
+		    // Let's just ignore lists that are only three
+		    // items.
+		    ll("\tT&S: pass thru list length <= 3");
 		}else{
-		    // A normal string then...trim it!
-		    //ll("T&S: pass thru");
-		    tease = new bbop.html.span(bbop.core.crop(retval,trimit,''),
-					       {'generate_id': true});
-		    
+		    ll("\tT&S: contruct into 2 plus tag");
+		    var new_str = '';
+		    new_str = new_str + new_str_list.shift();
+		    new_str = new_str + '<br />';
+		    new_str = new_str + new_str_list.shift();
+		    tease = new bbop.html.span(new_str, {'generate_id': true});
 		}
-		//ll("T&S: tease: " + tease.to_string());
+	    }
 
+	    // If we have a tease, assemble the rest of the packet
+	    // to create the UI.
+	    if( tease ){
+		//ll("T&S: tease: " + tease.to_string());
+		
 		// Setup the text for tease and full versions.
 		var more_b = new bbop.html.span('<b>[more...]</b>',
 						{'generate_id': true});
@@ -10624,25 +10627,20 @@ bbop.widget.display.results_table_by_class = function(cclass,
 					      {'generate_id': true});
 		var less_b = new bbop.html.span('<b>[less]</b>',
 						{'generate_id': true});
-	    
- 		// // Final check--only do the tease if it is actually
-		// // shorter than the original string.
-		// if( tease < full ){
-		    
-		    // Store the different parts for later activation.
-		    var tease_id = tease.get_id();
-		    var more_b_id = more_b.get_id();
-		    var full_id = full.get_id();
-		    var less_b_id = less_b.get_id();
-		    trim_hash[tease_id] = 
-			[tease_id, more_b_id, full_id, less_b_id];
-	    
-		    // New final string.
-		    retval = tease.to_string() + " " +
-			more_b.to_string() + " " +
-			full.to_string() + " " +
-			less_b.to_string();
-		// }
+		
+		// Store the different parts for later activation.
+		var tease_id = tease.get_id();
+		var more_b_id = more_b.get_id();
+		var full_id = full.get_id();
+		var less_b_id = less_b.get_id();
+		trim_hash[tease_id] = 
+		    [tease_id, more_b_id, full_id, less_b_id];
+		
+		// New final string.
+		retval = tease.to_string() + " " +
+		    more_b.to_string() + " " +
+		    full.to_string() + " " +
+		    less_b.to_string();
 	    }
 	}
 
