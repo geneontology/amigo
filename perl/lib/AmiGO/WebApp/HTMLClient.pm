@@ -69,6 +69,10 @@ sub setup {
 		   'gene_product'        => 'mode_golr_gene_product_details',
 		   'visualize'           => 'mode_visualize',
 		   'software_list'       => 'mode_software_list',
+		   ## Old--need to be removed once okayed.
+		   'golr_term_details'   => 'mode_golr_term_details',
+		   'golr_gene_product_details' 
+		   => 'mode_golr_gene_product_details',
 		   ## ???
 		   'phylo_graph'         => 'mode_phylo_graph',
 		   ## Fallback.
