@@ -273,13 +273,13 @@ Returns: true when it has had side-effects
 =cut
 sub galaxy_settings {
   my $self = shift;
-  my $retval = false;
+  my $retval = 0;
 
   my $in_galaxy = shift || '';
   my $galaxy_external_p = shift || undef;
 
   if( $in_galaxy ){
-    $retval = true;
+    $retval = 1;
     $self->set_template_parameter('galaxy_url', $in_galaxy);
     $self->set_template_parameter('galaxy_url_external_p', $galaxy_external_p);
     if( $galaxy_external_p ){
