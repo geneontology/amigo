@@ -15,25 +15,15 @@ BEGIN {
     die "unable to find config.pl";
   }
 }
-# use lib $ENV{GO_DEV_ROOT} . '/go-perl';
-# use lib $ENV{GO_DEV_ROOT} . '/go-db-perl';
-# use lib $ENV{GO_DEV_ROOT} . '/amigo/perl';
-# use lib $ENV{GOBO_ROOT};
 
 ## Bring in necessaries.
 use utf8;
 use strict;
 use Data::Dumper;
-#use Test::More qw(no_plan);
-#use Test::More;
-#use Test::WWW::Mechanize::CGIApp;
-#use AmiGO::WebApp::HTMLClient;
 use Getopt::Long;
-#use File::Path qw(remove_tree);
 use File::Path; # old versions don't have this
 use File::Find;
 use File::stat;
-#use Time::Local;
 use Time::localtime;
 use File::Temp qw(tempfile);
 
@@ -105,7 +95,7 @@ global-message.pl
 
 =head1 SYNOPSIS
 
-refresh.pl [-h/--help] [-v/--verbose] [-c/--clear] [-w/--warning MESSAGE] [-e/--error MESSAGE]
+global-message.pl [-h/--help] [-v/--verbose] [-c/--clear] [-w/--warning MESSAGE] [-e/--error MESSAGE]
 
 =head1 DESCRIPTION
 
