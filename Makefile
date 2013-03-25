@@ -124,3 +124,14 @@ refresh: tags bundle
 	cp ./javascript/lib/amigo/data/*.js $(BBOP_JS)/_data/
 	cp ./javascript/lib/amigo/data/golr.js $(BBOP_JS)/demo/
 	./install -v -e -g
+	./scripts/blank-kvetch.pl
+
+###
+### Essentially a lite refresh for when working on or testing HTML,
+### CSS, etc.
+###
+
+.PHONY: rollout
+rollout:
+	./install -v -e -g
+	./scripts/blank-kvetch.pl
