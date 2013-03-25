@@ -287,7 +287,7 @@ ul.dot { list-style-type: disc; margin-left: 20px; }
 
 #footer, #header { width: 100%; background: #e9effa; border-width: 3px 0 3px 0; border-color: #3875D7; border-style: solid; margin: 0; overflow: hidden; }
 
-#header { background: url(../images/GO-head.gif) #e9effa 0 -10px no-repeat; }
+#header { background: url(../images/go_logo.gif) #e9effa 0 -10px no-repeat; }
 
 #header h1 { font: italic 200% "trebuchet ms", "lucida grande", arial, sans-serif; margin: 0; padding: 15px 5px 5px 125px; color: #3875D7; text-align: left; }
 
