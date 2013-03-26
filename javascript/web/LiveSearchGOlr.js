@@ -130,7 +130,7 @@ function LiveSearchGOlrInit(){
 	    label: 'Download IDs (up to 5000)',
 	    diabled_p: false,
 	    text_p: false,
-	    icon: 'ui-icon-circle-arrow-s',
+	    icon: 'ui-icon-document',
 	    click_function_generator: function(manager){
 		return function(event){
 		    var raw_gdl =
@@ -151,7 +151,7 @@ function LiveSearchGOlrInit(){
 	    label: 'GAF chunk download (up to 5000)',
 	    diabled_p: false,
 	    text_p: false,
-	    icon: 'ui-icon-circle-arrow-s',
+	    icon: 'ui-icon-document',
 	    click_function_generator: function(manager){
 		return function(event){
 		    var raw_gdl =
@@ -169,10 +169,10 @@ function LiveSearchGOlrInit(){
 	};
     var gaf_galaxy_button =
 	{
-	    label: 'GAF chunk to Galaxy (up to 5000)',
+	    label: 'Send GAF chunk to Galaxy (up to 5000)',
 	    diabled_p: false,
 	    text_p: false,
-	    icon: 'ui-icon-circle-arrow-s',
+	    icon: 'ui-icon-mail-closed',
 	    click_function_generator: function(manager){
 		return function(event){
 
@@ -242,7 +242,7 @@ function LiveSearchGOlrInit(){
 	    label: 'Show URL/bookmark',
 	    diabled_p: false,
 	    text_p: false,
-	    icon: 'ui-icon-help',
+	    icon: 'ui-icon-link',
 	    click_function_generator: function(manager){
 		return function(event){
 		    //alert('GAF download: ' + manager.get_query_url());

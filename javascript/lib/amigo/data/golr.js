@@ -1243,7 +1243,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "A special special display for GAF column 16.",
-            "display_name" : "Annotation extension composition",
+            "display_name" : "Annotation extension",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1341,7 +1341,7 @@ amigo.data.golr = {
          "annotation_extension_class_handler" : {
             "transform" : [],
             "description" : "A special special display for GAF column 16.",
-            "display_name" : "Annotation extension composition",
+            "display_name" : "Annotation extension",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
