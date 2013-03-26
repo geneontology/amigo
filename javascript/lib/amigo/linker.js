@@ -61,20 +61,20 @@ amigo.linker.prototype.url = function (id, xid){
 	    xid == 'annotation_class' ||
 	    xid == 'ontology_class' ){
 		//retval = 'amigo?mode=term&term=' + id;
-		retval = 'amigo/term/' + id;
+		retval = 'term/' + id;
         }else if( xid == 'gp' ||
 		  xid == 'gene_product' ||
 		  xid == 'bioentity' ){
 	        //retval = 'amigo?mode=gene_product&gp=' + id;
-	        retval = 'amigo/gene_product/' + id;
+	        retval = 'gene_product/' + id;
         }else if( xid == 'search' ||
 		  xid == 'live_search' ){
 		      if( id ){
 			  //retval = 'amigo?mode=search&bookmark=' + id;
-			  retval = 'amigo/search?bookmark=' + id;
+			  retval = 'search?bookmark=' + id;
 		      }else{
 			  //retval = 'amigo?mode=search';
-			  retval = 'amigo/search';
+			  retval = 'search';
 		      }
 		  }
     }

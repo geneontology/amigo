@@ -7,9 +7,9 @@
 <!-- session_id_for_url = [% session_id_for_url %] -->
 <div id="header">
   [% IF BETA == 1 %]
-  <a class="logo floatR" href="[% public_base %]/search.cgi?session_id=[% session_id %]"><img src="[% image_dir %]/logo-amigolabs-sm.png" alt="AmiGO logo" title="AmiGO front page"></a> <h1 id="top"><a href="http://www.geneontology.org/" title="Gene Ontology website">the Gene Ontology</a></h1>
+  <a class="logo floatR" href="[% public_base %]/search"><img src="[% image_dir %]/logo-amigolabs-sm.png" alt="AmiGO logo" title="AmiGO front page"></a> <h1 id="top"><a href="http://www.geneontology.org/" title="Gene Ontology website">the Gene Ontology</a></h1>
   [% ELSE %]
-  <a class="logo floatR" href="[% public_base %]/search.cgi?session_id=[% session_id %]"><img src="[% image_dir %]/logo-sm.png" alt="AmiGO logo" title="AmiGO front page"></a> <h1 id="top"><a href="http://www.geneontology.org/" title="Gene Ontology website">the Gene Ontology</a></h1>
+  <a class="logo floatR" href="[% public_base %]/search"><img src="[% image_dir %]/logo-sm.png" alt="AmiGO logo" title="AmiGO front page"></a> <h1 id="top"><a href="http://www.geneontology.org/" title="Gene Ontology website">the Gene Ontology</a></h1>
   [% END %]
 </div>
 
@@ -28,7 +28,7 @@
     <li class="here">Home</li>
     [% ELSE %] 
     <li>
-      <a href="[% base %]/amigo" title="The AmiGO 2 landing page.">Home</a>
+      <a href="[% base %]/amigo/landing" title="The AmiGO 2 landing page.">Home</a>
     </li>
     [% END %] 
 
@@ -36,7 +36,7 @@
     <li class="here">Search</li>
     [% ELSE %] 
     <li>
-      <a href="[% base %]/amigo?mode=search" title="Search for GO terms, gene product annotations, and other entities.">Search</a>
+      <a href="[% base %]/amigo/search" title="Search for GO terms, gene product annotations, and other entities.">Search</a>
     </li>
     [% END %] 
 
@@ -44,7 +44,7 @@
     <li class="here">Browse</li>
     [% ELSE %] 
     <li>
-      <a href="[% base %]/amigo?mode=browse" title="Browse GO terms.">Browse</a>
+      <a href="[% base %]/amigo/browse" title="Browse GO terms.">Browse</a>
     </li>
     [% END %] 
 
@@ -52,12 +52,12 @@
     [% IF page_name == "software_list" %]
     <li class="here">
       <a style="border: 0; background-color: #e9effa; color: #006;"
-	 href="[% base %]/amigo?mode=software_list"
+	 href="[% base %]/amigo/software_list"
          title="More tools to explore the Gene Ontology">Tools&nbsp;&amp;&nbsp;Resources</a> 
     </li>
     [% ELSE %]
     <li>
-      <a href="[% base %]/amigo?mode=software_list"
+      <a href="[% base %]/amigo/software_list"
          title="More tools to explore the Gene Ontology">Tools&nbsp;&amp;&nbsp;Resources</a> 
     </li>
     [% END %]

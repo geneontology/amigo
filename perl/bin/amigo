@@ -26,6 +26,7 @@ my $dispatch_table =
    'landing'           => { app => $app, rm => 'landing'},
    'search'            => { app => $app, rm => 'search'},
    'simple_search'     => { app => $app, rm => 'simple_search'},
+   'browse'            => { app => $app, rm => 'browse'},
    'term/:term'        => { app => $app, rm => 'term', term => 'term'},
    'gene_product/:gp'  => { app => $app, rm => 'gene_product', gp => 'gp'},
    'software_list'     => { app => $app, rm => 'software_list'},
