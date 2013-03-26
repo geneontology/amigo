@@ -1177,18 +1177,19 @@ sub get_interlink {
        if( defined($acc) && defined($db) ){
 	 $gp = $db . ':' . $acc;
        }
-       $ilink = 'amigo?mode=gene_product&gp=' . $gp;
+       #$ilink = 'amigo?mode=gene_product&gp=' . $gp;
+       $ilink = 'amigo/gene_product/' . $gp;
      },
 
-     'term_subset' =>
-     sub {
-       die "interlink mode 'term-subset' requires args" if ! defined $args;
-       my $acc = $args->{acc} || '';
-       my $sid = $args->{session_id} || '';
-       $ilink = 'term_details?term=' .
-	 #$self->html_safe($acc) . '&session_id=' . $sid;
-	 $acc . '&session_id=' . $sid;
-     },
+     # 'term_subset' =>
+     # sub {
+     #   die "interlink mode 'term-subset' requires args" if ! defined $args;
+     #   my $acc = $args->{acc} || '';
+     #   my $sid = $args->{session_id} || '';
+     #   $ilink = 'term_details?term=' .
+     # 	 #$self->html_safe($acc) . '&session_id=' . $sid;
+     # 	 $acc . '&session_id=' . $sid;
+     # },
 
      ## NOTE: Should now be the same as term-details.
      'term_details' =>
@@ -1196,7 +1197,8 @@ sub get_interlink {
        die "interlink mode 'term_details' requires args" if ! defined $args;
        my $acc = $args->{acc} || '';
        #$ilink = 'term_details?term=' . $acc;
-       $ilink = 'amigo?mode=term&term=' . $acc;
+       #$ilink = 'amigo?mode=term&term=' . $acc;
+       $ilink = 'amigo/term/' . $acc;
      },
 
      ##
@@ -1209,16 +1211,17 @@ sub get_interlink {
        if( defined($acc) && defined($db) ){
 	 $gp = $db . ':' . $acc;
        }
-       $ilink = 'amigo?mode=phylo_graph&gp=' . $gp;
+       #$ilink = 'amigo?mode=phylo_graph&gp=' . $gp;
+       $ilink = 'amigo/phylo_graph/' . $gp;
      },
 
-     ## Slightly different than the others.
-     'gaffer' =>
-     sub {
-       my $gmode = $args->{mode} || die 'need mode';
-       my $gurl = $args->{url} || die 'need url';
-       $ilink = 'gaffer?mode=' . $gmode . '&data_url=' . $self->uri_safe($gurl);
-     },
+     # ## Slightly different than the others.
+     # 'gaffer' =>
+     # sub {
+     #   my $gmode = $args->{mode} || die 'need mode';
+     #   my $gurl = $args->{url} || die 'need url';
+     #   $ilink = 'gaffer?mode=' . $gmode . '&data_url=' . $self->uri_safe($gurl);
+     # },
 
      'visualize' =>
      sub {
@@ -1313,10 +1316,13 @@ sub get_interlink {
 	 # $args->{query}
 	 # $args->{document_category}
 	 # $args->{page}
-     	 $ilink = 'amigo?mode=simple_search&'.
+     	 #$ilink = 'amigo?mode=simple_search&'.
+     	 #  $self->hash_to_query_string($args);
+     	 $ilink = 'amigo/simple_search?'.
      	   $self->hash_to_query_string($args);
        }else{
-     	 $ilink = 'amigo?mode=simple_search';
+     	 #$ilink = 'amigo?mode=simple_search';
+     	 $ilink = 'amigo/simple_search';
        }
      },
 
@@ -1334,12 +1340,12 @@ sub get_interlink {
        $ilink = 'amigo_exp?mode=ptree&id=' . $id;
      },
 
-     'style' =>
-     sub {
-       my $sheet = $args->{sheet} || '';
-       #$ilink = 'amigo?mode=css' . $sheet . '.css';
-       $ilink = 'amigo?mode=css';
-     },
+     # 'style' =>
+     # sub {
+     #   my $sheet = $args->{sheet} || '';
+     #   #$ilink = 'amigo?mode=css' . $sheet . '.css';
+     #   $ilink = 'amigo?mode=css';
+     # },
 
      'olsvis_go' =>
      sub {
@@ -1436,7 +1442,7 @@ sub _read_json_string {
   my $self = shift;
   my $json_str = shift || die 'yes, but what string do you want read?';
 
-  $self->kvetch("JSON contents: " . $json_str);
+  #$self->kvetch("JSON contents: " . $json_str);
 
   ## Read in data.
   # $self->kvetch("json: " . $self->{JSON});

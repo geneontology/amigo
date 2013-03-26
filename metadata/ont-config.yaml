@@ -17,7 +17,7 @@ fields:
     property: [getIdentifier]
   - id: annotation_class
     description: Term acc/ID.
-    display_name: Term ID
+    display_name: Term
     type: string
     property: [getIdentifier]
   - id: annotation_class_label
@@ -58,8 +58,8 @@ fields:
 ## looks like single in OWLGraphWrapper API
 #    cardinality: multi
   - id: synonym
-    description: Term synonym.
-    display_name: Synonym
+    description: Term synonyms.
+    display_name: Synonyms
     type: string
     property: [getOBOSynonymStrings]
     cardinality: multi

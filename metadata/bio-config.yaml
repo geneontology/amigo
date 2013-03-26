@@ -117,7 +117,7 @@ fields:
     property: []
   - id: synonym
     description: "Gene product synonyms."
-    display_name: Synonym
+    display_name: Synonyms
     type: string
     cardinality: multi
     property: []

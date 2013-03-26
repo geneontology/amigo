@@ -323,8 +323,6 @@ if( ! $opt_b ){
   push @mods,
     qw(
 	amigo
-	aserve
-	gaffer
 	visualize
      );
 
@@ -333,6 +331,7 @@ if( ! $opt_b ){
     push @mods,
       qw(
 	  amigo_exp
+	  aserve
 	  aserve_exp
 	  pgraph
 	  matrix

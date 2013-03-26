@@ -223,7 +223,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Gene product synonyms.",
-            "display_name" : "Synonym",
+            "display_name" : "Synonyms",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -489,7 +489,7 @@ amigo.data.golr = {
          "synonym" : {
             "transform" : [],
             "description" : "Gene product synonyms.",
-            "display_name" : "Synonym",
+            "display_name" : "Synonyms",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1719,7 +1719,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Term acc/ID.",
-            "display_name" : "Term ID",
+            "display_name" : "Term",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1802,8 +1802,8 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Term synonym.",
-            "display_name" : "Synonym",
+            "description" : "Term synonyms.",
+            "display_name" : "Synonyms",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -2158,7 +2158,7 @@ amigo.data.golr = {
          "annotation_class" : {
             "transform" : [],
             "description" : "Term acc/ID.",
-            "display_name" : "Term ID",
+            "display_name" : "Term",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -2250,8 +2250,8 @@ amigo.data.golr = {
          },
          "synonym" : {
             "transform" : [],
-            "description" : "Term synonym.",
-            "display_name" : "Synonym",
+            "description" : "Term synonyms.",
+            "display_name" : "Synonyms",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",

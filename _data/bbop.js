@@ -10512,9 +10512,12 @@ bbop.widget.display.meta_results = function (total, first, last){
     bbop.html.tag.call(this, 'div');
 
     // Add number slots.
-    this.add_to('Total: ' + total + '&nbsp;&nbsp;&nbsp;');
-    this.add_to('First: ' + first + '&nbsp;&nbsp;&nbsp;');
-    this.add_to('Last: ' + last + '<br />');
+    // this.add_to('Total: ' + total + '; ');
+    // this.add_to('First: ' + first + '&nbsp;&nbsp;&nbsp;');
+    // this.add_to('Last: ' + last + '<br />');
+    this.add_to('Total: ' + total +
+		'; showing ' +first +
+		' to ' + last + '<br />');
 
     // // Add button slots.
     // this.add_to('<button />');

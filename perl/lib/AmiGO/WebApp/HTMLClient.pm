@@ -69,12 +69,12 @@ sub setup {
 		   'gene_product'        => 'mode_golr_gene_product_details',
 		   'visualize'           => 'mode_visualize',
 		   'software_list'       => 'mode_software_list',
+		   ## ???
+		   'phylo_graph'         => 'mode_phylo_graph',
 		   ## Old--need to be removed once okayed.
 		   'golr_term_details'   => 'mode_golr_term_details',
 		   'golr_gene_product_details' 
 		   => 'mode_golr_gene_product_details',
-		   ## ???
-		   'phylo_graph'         => 'mode_phylo_graph',
 		   ## Fallback.
 		   'simple_search'       => 'mode_simple_search',
 		   'AUTOLOAD'            => 'mode_exception'
@@ -630,6 +630,9 @@ sub mode_golr_term_details {
   ##
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile('term');
+  ## Deal with the different types of dispatch we might be facing.
+  $params->{term} = $self->param('term')
+    if ! $params->{term} && $self->param('term');
   $self->check_for_condition_files();
   $self->{CORE}->kvetch(Dumper($params));
   my $input_term_id = $params->{term};
@@ -937,6 +940,9 @@ sub mode_golr_gene_product_details {
   my $i = AmiGO::WebApp::Input->new();
   $self->check_for_condition_files();
   my $params = $i->input_profile('gp');
+  ## Deal with the different types of dispatch we might be facing.
+  $params->{gp} = $self->param('gp')
+    if ! $params->{gp} && $self->param('gp');
   my $input_gp_id = $params->{gp};
 
   ## Input sanity check.
@@ -1030,6 +1036,9 @@ sub mode_phylo_graph {
   ##
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile('gp');
+  ## Deal with the different types of dispatch we might be facing.
+  $params->{gp} = $self->param('gp')
+    if ! $params->{gp} && $self->param('gp');
   my $input_gp_id = $params->{gp};
 
   ## Input sanity check.

@@ -61,19 +61,6 @@ sub new {
   my $self  = $class->SUPER::new();
   #my $arg = shift || {};
 
-  # # my @foo = keys %{$self->{CORE}->species()};
-  # # $self->{POSSIBLE_SPECIES_LIST} = \@foo;
-  # # $self->{CORE}->kvetch('_in_spec_ ' . join ' ', @foo);
-  # $self->{POSSIBLE_SPECIES_LIST} = [keys %{$self->{CORE}->species()}];
-  # $self->{POSSIBLE_SOURCE_LIST} = [keys %{$self->{CORE}->source()}];
-  # $self->{POSSIBLE_GPTYPE_LIST} = [keys %{$self->{CORE}->gptype()}];
-  # $self->{POSSIBLE_ONTOLOGY_LIST} = [keys %{$self->{CORE}->ontology()}];
-
-  # $self->{CORE}->kvetch('_spec_'.join(' ',@{$self->{POSSIBLE_SPECIES_LIST}}));
-  # $self->{CORE}->kvetch('_src_'.join(' ',@{$self->{POSSIBLE_SOURCE_LIST}}));
-  # $self->{CORE}->kvetch('_gpt_'.join(' ',@{$self->{POSSIBLE_GPTYPE_LIST}}));
-  # $self->{CORE}->kvetch('_ont_'.join(' ',@{$self->{POSSIBLE_ONTOLOGY_LIST}}));
-
   ## TODO: Junk below?
   ## We'll borrow SUCCESS and ERROR_MESSAGE from AmiGO.
   ## Set up CGI environment,
@@ -290,16 +277,14 @@ sub input_profile {
 
   ## For the time being, these can just rot, but I'm sure we'll want
   ## them for something later.
-  #if( $results->{unknown} ){
-  #  print STDERR "<p>\n";
-  #  print STDERR "Unknown: <br />\n";
-  #  foreach my $item (keys %{$results->{unknown}}){
-  #    print STDERR "<p>$item => " . $results->{unknown}->{$item} . "</p>\n";
-  #  }
-  #  print STDERR "</p>\n";
-  #}
+  if( $results->{unknown} && scalar(keys %{$results->{unknown}}) ){
+    $self->{CORE}->kvetch("Unknown:");
+    foreach my $item (keys %{$results->{unknown}}){
+      $self->{CORE}->kvetch("$item => " . $results->{unknown}->{$item});
+    }
+  }
 
-  ## Lets wrap-up the valids
+  ## Lets wrap-up with the valids.
   if( $results->{valid} ){
     $self->{CORE}->kvetch("Valid:");
     foreach my $item (keys %{$results->{valid}}){
@@ -622,11 +607,8 @@ sub _add_gps_string {
 
   ## A string on incoming (possible) gps.
   push @{$profile->{optional}}, 'gp';
-  # push @{$profile->{optional}}, 'gene_product';
   $profile->{constraint_methods}{gp} =
     qr/^(\s*[\w\d\-\_\.]+\:[\w\d\:\-\_\.]+\s*)*$/;
-  # $profile->{constraint_methods}{gene_product} =
-  #   qr/^(\s*[\w\d\-\_\.]+\:[\w\d\:\-\_\.]+\s*)*$/;
 }
 
 # ##
