@@ -8,6 +8,7 @@
 
 // Load testing and correct environment.
 load('../../../_data/bbop.js');
+load('data/server.js');
 load('data/xrefs.js');
 var mr_t = new bbop.test();
 load('linker.js');
@@ -27,11 +28,13 @@ mr_t.is_same_atom(l.url('GO:0022008'),
 		  'linker: go');
 mr_t.is_same_atom(l.url('GO:0022008', 'term'),
 		  //'amigo?mode=term&term=GO:0022008',
-		  'term/GO:0022008',
+		  //'term/GO:0022008',
+		  'http://localhost/cgi-bin/amigo2/amigo/term/GO:0022008',
 		  'linker: go term');
 mr_t.is_same_atom(l.url('foo', 'gp'),
 		  //'amigo?mode=gene_product&gp=foo',
-		  'gene_product/foo',
+		  //'gene_product/foo',
+		  'http://localhost/cgi-bin/amigo2/amigo/gene_product/foo',
 		  'linker: go gp');
 mr_t.is_same_atom(l.url('SGD:S000006169'),
 		  'http://db.yeastgenome.org/cgi-bin/locus.pl?dbid=S000006169',

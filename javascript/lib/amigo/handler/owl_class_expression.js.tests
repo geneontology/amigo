@@ -8,6 +8,7 @@
 
 // Correct environment.
 load('../../../../_data/bbop.js');
+load('../data/server.js');
 load('../data/xrefs.js');
 load('../linker.js');
 load('owl_class_expression.js');

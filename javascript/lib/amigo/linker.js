@@ -3,8 +3,8 @@
  * 
  * Namespace: amigo.linker
  * 
- * Generic AmiGO linking function. A real function mind you--not an
- * object generator.
+ * Generic AmiGO link generator, fed by <amigo.data.server> for local
+ * links and <amigo.data.xrefs> for non-local links.
  * 
  * TODO: maybe this should actually be under bbop.html so we could
  * make use of the anchor tag stuff?
@@ -18,7 +18,8 @@
 
 // Setup the internal requirements.
 bbop.core.require('bbop', 'core');
-//bbop.core.require('bbop', 'logger');
+//bbop.core.require('amigo', 'data', 'server');
+//bbop.core.require('amigo', 'data', 'xrefs');
 bbop.core.namespace('amigo', 'linker');
 
 /*
@@ -37,6 +38,14 @@ bbop.core.namespace('amigo', 'linker');
  */
 amigo.linker = function (){
     this._is_a = 'amigo.linker';
+
+    // With the new dispatcher, relative URLs no longer work, so we
+    // have to bring in server data--first let's ensure it.
+    if( ! amigo.data.server ){
+	throw new Error('we are missing access to amigo.data.server!');
+    }
+    var sd = new amigo.data.server();
+    this.app_base = sd.app_base();
 };
 
 /*
@@ -61,20 +70,20 @@ amigo.linker.prototype.url = function (id, xid){
 	    xid == 'annotation_class' ||
 	    xid == 'ontology_class' ){
 		//retval = 'amigo?mode=term&term=' + id;
-		retval = 'term/' + id;
+		retval = this.app_base + '/amigo/term/' + id;
         }else if( xid == 'gp' ||
 		  xid == 'gene_product' ||
 		  xid == 'bioentity' ){
 	        //retval = 'amigo?mode=gene_product&gp=' + id;
-	        retval = 'gene_product/' + id;
+	        retval = this.app_base + '/amigo/gene_product/' + id;
         }else if( xid == 'search' ||
 		  xid == 'live_search' ){
 		      if( id ){
 			  //retval = 'amigo?mode=search&bookmark=' + id;
-			  retval = 'search?bookmark=' + id;
+			  retval = this.app_base +'/amigo/search?bookmark='+ id;
 		      }else{
 			  //retval = 'amigo?mode=search';
-			  retval = 'search';
+			  retval = this.app_base + '/amigo/search';
 		      }
 		  }
     }
