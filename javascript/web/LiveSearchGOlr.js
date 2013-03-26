@@ -265,15 +265,12 @@ function LiveSearchGOlrInit(){
 
     // Setup the annotation profile and make the annotation document
     // category and the current acc sticky in the filters.
-    //var search = new bbop.golr.manager.jquery(solr_server, gconf);
-    function _button_wrapper(str, title){
-	if( ! title ){
-	    title = '';
-	}
-	return '<span class="text-button-sim" title="' + 
-	    title + '"><b>' +
-	    str + '</b></span>';
-    }
+    // function _button_wrapper(str, title){
+    // 	if( ! title ){ title = ''; }
+    // 	return '<span class="bbop-js-text-button-sim" title="' + 
+    // 	    title + '"><b>' +
+    // 	    str + '</b></span>';
+    // }
     var hargs = {
 	'base_icon_url' : null,
     	'image_type' : 'gif',
@@ -281,15 +278,15 @@ function LiveSearchGOlrInit(){
     	'show_global_reset_p' : true,
     	'show_searchbox_p' : true,
     	'show_filterbox_p' : true,
-    	'show_pager_p' : true,
-    	'icon_clear_label' : _button_wrapper('X', 'Clear text from query'),
+    	'show_pager_p' : true
+    	//'icon_clear_label' : _button_wrapper('X', 'Clear text from query'),
     	//'icon_clear_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
-    	'icon_reset_label' : '&nbsp;<b>[reset all user filters]</b>',
-    	'icon_remove_label' : _button_wrapper('X', 'Remove filter from query'),
+    	//'icon_reset_label' : '&nbsp;<b>[reset all user filters]</b>',
+    	//'icon_remove_label' : _button_wrapper('X', 'Remove filter from query'),
     	//'icon_remove_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
-    	'icon_positive_label' : _button_wrapper('+', 'Add positive filter'),
+    	//'icon_positive_label' : _button_wrapper('+', 'Add positive filter'),
     	//'icon_positive_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
-    	'icon_negative_label' : _button_wrapper('-', 'Add negative filter')
+    	//'icon_negative_label' : _button_wrapper('-', 'Add negative filter')
     	//'icon_negative_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png'
     };
     var search = new bbop.widget.search_pane(solr_server, gconf, div_id, hargs);

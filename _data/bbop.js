@@ -11243,7 +11243,7 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     var ui_current_filters_div_id = mangle + 'current_filters-id';
     var ui_query_input_id = mangle + 'query-id';
     var ui_clear_query_span_id = mangle + 'clear-query-id';
-    var ui_global_reset_span_id = mangle + 'global-reset-id';
+    var ui_clear_user_filter_span_id = mangle + 'clear-user-filter-id';
 
     // Globally declared (or not) icons.
     var ui_icon_positive_label = '';
@@ -11304,39 +11304,6 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	jQuery('#' + ui_controls_section_id).append(query_label.to_string());
 	jQuery('#' + ui_controls_section_id).append(query_div.to_string());
 	jQuery('#' +ui_controls_section_id).append(clear_query_obj.to_string());
-    };
-
-    /*
-     * Function: setup_global_reset_button
-     *
-     * Add a bit of a place for the global reset button.
-     * 
-     * If no icon_reset_source is defined, icon_reset_label will be
-     * used as the defining text.
-     * 
-     * Parameters:
-     *  icon_clear_label - *[optional]* string or bbop.html for clear icon
-     *  icon_clear_source - *[optional]* string to define the src of img 
-     *
-     * Returns:
-     *  n/a
-     */
-    this.setup_global_reset_button = function(icon_reset_label,
-					      icon_reset_source){
-
-	// Some defaults
-	if( ! icon_reset_label ){ icon_reset_label = ''; }
-	if( ! icon_reset_source ){ icon_reset_source = ''; }
-
-	// Figure out an icon or a label.
-    	var global_reset_obj =
-	    bbop.widget.display.clickable_object(icon_reset_label,
-						 icon_reset_source,
-						 ui_global_reset_span_id);
-
-	//
-	var gstr = global_reset_obj.to_string();
-    	jQuery('#' + ui_controls_section_id).append(gstr);
     };
 
     /*
@@ -11828,37 +11795,6 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     };
 
     /*
-     * Function: reset_global_reset_button
-     *
-     * Add events and redraw to the global reset button section.
-     * 
-     * NOTE: Since this is part of the "persistant" interface (i.e. it
-     * does not get wiped after every call), we make sure to clear the
-     * event listeners when we retry the function to prevent them fomr
-     * building up.
-     * 
-     * Parameters:
-     *  response - the <bbop.golr.response> returned from the server
-     *  manager - <bbop.golr.manager> that we initially registered with
-     * 
-     * Returns:
-     *  n/a
-     */
-    this.reset_global_reset_button = function(response, manager){
-    
-    	ll('reset_global_reset_button');
-    	//jQuery('#' + ui_reset_span_id).empty();
-    	// Immediately set the event.
-	jQuery('#' + ui_global_reset_span_id).unbind('click');
-    	jQuery('#' + ui_global_reset_span_id).click(
-    	    function(){
-		//jQuery('#' + ui_query_input_id).val('');
-		//manager.reset_query();
-    		manager.reset();
-    	    });
-    };
-
-    /*
      * Function: draw_sticky_filters
      *
      * (Re)draw the information on the sticky filter set.
@@ -11877,7 +11813,9 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	// Add in the actual HTML for the pinned filters and buttons.
 	var sticky_query_filters = manager.get_sticky_query_filters();
 	ll('sticky filters: ' + bbop.core.dump(sticky_query_filters));
-	var fq_list_tbl = new bbop.html.table(['', 'Your search is pinned to these filters'], []);
+	var fq_list_tbl =
+	    new bbop.html.table(['',
+				 'Your search is pinned to these filters'], []);
 	// [{'filter': A, 'value': B, 'negative_p': C, 'sticky_p': D}, ...]
 	each(sticky_query_filters,
 	     function(fset){
@@ -11925,13 +11863,27 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     
 	ll('draw_current_filters for: ' + ui_div_id);
 
-	// Add in the actual HTML for the filters and buttons. While
-	// doing so, tie a unique id to the filter--we'll use that
-	// later on to add buttons and events to them.
+	///
+	/// Add in the actual HTML for the filters and buttons. While
+	/// doing so, tie a unique id to the filter--we'll use that
+	/// later on to add buttons and events to them.
+	///
+
+	// First, we need to make the filter clear button for the top
+	// of the table.
+	var b_cf = new bbop.html.span('<b>X</b>',
+				      {'id': 'ui_clear_user_filter_span_id',
+				       'class': 'bbop-js-text-button-sim',
+				       'title': 'Clear all user filters'});
+	// 	    bbop.widget.display.clickable_object(icon_reset_label,
+	// 					 icon_reset_source,
+	// 					 ui_clear_user_filter_span_id);
+
 	var in_query_filters = response.query_filters();
 	//var sticky_query_filters = manager.get_sticky_query_filters();
 	ll('filters: ' + bbop.core.dump(in_query_filters));
-	var fq_list_tbl = new bbop.html.table(['', 'User filters', ''], []);
+	var fq_list_tbl = new bbop.html.table(['', 'User filters',
+					       b_cf.to_string()], []);
 	var has_fq_p = false; // assume there are no filters to begin with
 	var button_hash = {};
 	each(in_query_filters,
@@ -11991,9 +11943,17 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	    // With this, the buttons will be attached to the
 	    // DOM...
 	    jQuery(cfid).append(fq_list_tbl.to_string());
+	    
+	    // First, lets add the reset for all of the filters.
+	    jQuery('#' + b_cf.get_id()).click(
+		function(){
+       		    manager.reset_query_filters();
+       		    manager.search();
+		}		
+	    );
 
 	    // Now let's go back and add the buttons, styles,
-	    // events, etc.
+	    // events, etc. to the filters.
 	    each(button_hash,
 		 function(button_id){
 		     var bid = button_id;
@@ -13137,19 +13097,18 @@ bbop.core.namespace('bbop', 'widget', 'search_pane');
  * 
  * The optional hash arguments look like:
  * 
- *  show_global_reset_p - show the global reset button (default true)
  *  show_searchbox_p - show the search query box (default true)
  *  show_filterbox_p - show currents filters and accordion (default true)
  *  show_pager_p - show the results pager (default true)
- *  icon_clear_label - (default: '[clear search]')
+ *  icon_clear_label - (default: text button based on 'X')
  *  icon_clear_source - (default: '')
- *  icon_reset_label - (default: '[reset all user filters]')
+ *  icon_reset_label - (default: text button based on 'X')
  *  icon_reset_source - (default: '')
- *  icon_positive_label - (default: '<b>[&nbsp;+&nbsp;]</b>')
+ *  icon_positive_label - (default: text button based on '+')
  *  icon_positive_source - (default: '')
- *  icon_negative_label - (default: '<b>[&nbsp;-&nbsp;]</b>')
+ *  icon_negative_label - (default: text button based on '-')
  *  icon_negative_source - (default: '')
- *  icon_remove_label - (default: '<b>[&nbsp;X&nbsp;]</b>')
+ *  icon_remove_label - (default: text button based on 'X')
  *  icon_remove_source - (default: '')
  * 
  * Arguments:
@@ -13194,22 +13153,27 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	function(response, manager){ ll('empty first run'); };
 
     // Our argument default hash.
+    function _button_wrapper(str, title){
+	if( ! title ){ title = ''; }
+	return '<span class="bbop-js-text-button-sim" title="' + 
+	    title + '"><b>' +
+	    str + '</b></span>';
+    }
     var default_hash =
     	{
     	    //'layout_type' : 'two-column',
-    	    'show_global_reset_p' : true,
     	    'show_searchbox_p' : true,
     	    'show_filterbox_p' : true,
     	    'show_pager_p' : true,
-	    'icon_clear_label': '<b>[clear search]</b>',
+	    'icon_clear_label': _button_wrapper('X', 'Clear text from query'),
 	    'icon_clear_source': '',
-	    'icon_reset_label': '<b>[reset all user filters]</b>',
+	    'icon_reset_label': _button_wrapper('!','Reset user query filters'),
 	    'icon_reset_source': '',
-	    'icon_positive_label': '<b>[&nbsp;+&nbsp;]</b>',
+	    'icon_positive_label': _button_wrapper('+', 'Add positive filter'),
 	    'icon_positive_source': '',
-	    'icon_negative_label': '<b>[&nbsp;-&nbsp;]</b>',
+	    'icon_negative_label': _button_wrapper('-', 'Add negative filter'),
 	    'icon_negative_source': '',
-	    'icon_remove_label': '<b>[&nbsp;X&nbsp;]</b>',
+	    'icon_remove_label':_button_wrapper('X','Remove filter from query'),
 	    'icon_remove_source': ''
     	};
     var folding_hash = in_argument_hash || {};
@@ -13219,7 +13183,6 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     //var base_icon_url = arg_hash['base_icon_url'];
     //var image_type = arg_hash['image_type'];
     //var layout_type = arg_hash['layout_type'];
-    var show_global_reset_p = arg_hash['show_global_reset_p'];
     var show_searchbox_p = arg_hash['show_searchbox_p'];
     var show_filterbox_p = arg_hash['show_filterbox_p'];
     var show_pager_p = arg_hash['show_pager_p'];
@@ -13280,10 +13243,10 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	if( show_searchbox_p ){ // conditionally display search box stuff
     	    anchor.register('reset', 'reset_query', anchor.ui.reset_query, -1);
 	}
-    	if( show_global_reset_p ){ // conditionally show global reset button
-    	    anchor.register('reset', 'global_reset_button',
-    	    		    anchor.ui.reset_global_reset_button, -1);
-    	}
+    	// if( show_global_reset_p ){ // conditionally show global reset button
+    	//     anchor.register('reset', 'global_reset_button',
+    	//     		    anchor.ui.reset_global_reset_button, -1);
+    	// }
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.register('reset', 'sticky_first',
     			    anchor.ui.draw_sticky_filters, -1);
@@ -13334,11 +13297,11 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 				  icon_clear_label,
 				  icon_clear_source);
 	}
-    	if( show_global_reset_p ){ // conditionally show global reset button
-	    //anchor.ui.setup_global_reset_button();
-	    anchor.ui.setup_global_reset_button(icon_reset_label,
-						icon_reset_source);
-	}
+    	// if( show_global_reset_p ){ // conditionally show global reset button
+	//     //anchor.ui.setup_global_reset_button();
+	//     anchor.ui.setup_global_reset_button(icon_reset_label,
+	// 					icon_reset_source);
+	// }
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.ui.setup_sticky_filters();
     	    //anchor.ui.setup_current_filters();

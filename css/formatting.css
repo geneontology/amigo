@@ -612,7 +612,7 @@ div .mq_message {
  * Make text buttons seem a little bit more like real buttons when
  * we can.
  */
-.text-button-sim {
+.bbop-js-text-button-sim {
     cursor: pointer;
     background-color: #d3dff5;
     border-style: solid;
