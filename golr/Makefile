@@ -16,6 +16,7 @@ METADATA = \
  ../metadata/bio-config.yaml \
  ../metadata/ann-config.yaml \
  ../metadata/ann_ev_agg-config.yaml
+ONTOLOGY_METADATA = ../metadata/ont-config.yaml
 MGI_GAF = http://www.geneontology.org/gene-associations/gene_association.mgi.gz
 MGI_TEST_GAF = ./_test/mgi-limited.gaf
 
@@ -55,6 +56,14 @@ golr-schema:
 	$(OWLTOOLS)/OWLTools-Runner/bin/owltools --solr-config $(METADATA) --solr-schema-dump | ./tools/remove-schema-cruft.pl > ./solr/conf/schema.xml
 
 ###
+### Load the ontology stuff.
+###
+
+.PHONY: load-ontology
+load-ontology: owltools-build
+	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-config $(ONTOLOGY_METADATA) --solr-load-ontology
+
+###
 ### GAFs
 ### A test load with the MGI GAF.
 ### Column 16, etc.
@@ -62,8 +71,8 @@ golr-schema:
 
 .PHONY: load-mgi-gaf
 load-mgi-gaf: owltools-build
-	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-purge --solr-load-panther $(PANTHER_FILES) --solr-load-gafs $(MGI_GAF)
+	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-load-panther $(PANTHER_FILES) --solr-load-gafs $(MGI_GAF)
 
 .PHONY: load-mgi-test-gaf
 load-mgi-test-gaf: owltools-build
-	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-purge --solr-load-panther $(PANTHER_FILES) --solr-load-gafs $(MGI_TEST_GAF)
+	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-load-panther $(PANTHER_FILES) --solr-load-gafs $(MGI_TEST_GAF)
