@@ -129,11 +129,11 @@ sub mode_landing {
 
   ## Extract the landing page search order from AMIGO_LAYOUT_LANDING.
   ## Grab the config info for the simple search form construction.
-  my $ss_info = $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_LANDING');
-  $self->set_template_parameter('simple_search_form_info', $ss_info);
+  my $ls_info = $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_LANDING');
+  $self->set_template_parameter('landing_search_form_info', $ls_info);
 
   ## Pick the first to be the default.
-  my $gc = $$ss_info[0]->{id};
+  my $gc = $$ls_info[0]->{id};
   my $dc = $self->{CORE}->golr_class_document_category($gc);
   $self->set_template_parameter('golr_class', $gc);
   $self->set_template_parameter('document_category', $dc);
@@ -552,6 +552,8 @@ sub mode_live_search {
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile('live_search');
   my $bookmark = $params->{bookmark} || '';
+  my $golr_class = $params->{golr_class} || '';
+  my $query = $params->{query} || '';
 
   ## Try and come to terms with Galaxy.
   my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
@@ -580,7 +582,9 @@ sub mode_live_search {
   ## Pick the first to be the default. Technically, this is optional
   ## since the JS will eventually fall back to just picking the first
   ## defined class.
-  my $gc = $$stinfo[0]->{id};
+  ## However, if we were kicked in from the landing page, we might
+  ## already have this information.
+  my $gc = $golr_class || $$stinfo[0]->{id};
   $self->set_template_parameter('starting_golr_class', $gc);
 
   ## Our AmiGO services CSS.
@@ -604,6 +608,8 @@ sub mode_live_search {
      javascript =>
      [
       $self->{JS}->make_var('global_live_search_bookmark', $bookmark),
+      $self->{JS}->make_var('global_live_search_query', $query),
+      #$self->{JS}->make_var('global_live_search_golr_class', $golr_class),
       $self->{JS}->get_lib('LiveSearchGOlr.js')
      ],
      javascript_init =>

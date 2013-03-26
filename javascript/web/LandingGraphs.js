@@ -30,6 +30,9 @@ function GooglesLoaderIsAJerk(){
     /// associated toggle) working.
     ///
 
+    //
+    jQuery('input:submit').prop('disabled', false);
+
     // Widget, default personality and filter.
     function forward(doc){
 	if( doc && doc['id'] && doc['document_category'] ){

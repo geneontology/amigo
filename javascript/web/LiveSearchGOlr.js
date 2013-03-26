@@ -350,7 +350,19 @@ function LiveSearchGOlrInit(){
     // button (from the layout) and click it, or, failing that, the
     // first one and click it.
     function _establish_default_interface(){
-	    
+
+	// // Check to see if we have an incoming query (likely the
+	// // landing page).
+	// var qfield_text = null;
+	// if( global_live_search_query ){ // has incoming query
+	//     qfield_text = global_live_search_query;
+    	//     ll("Try and use incoming query: " + qfield_text);
+    	//     // search.set_query_field_text(global_live_search_query);
+    	//     // search.set_comfy_query(global_live_search_query);
+    	//     // search.search();
+	// }
+
+	// Work the radio.
 	var checked_radio_vals = [];
 	var checked_elt = null;
 	jQuery("[name='" + 'search_radio' + "']:checked").each(
@@ -375,8 +387,37 @@ function LiveSearchGOlrInit(){
 	}
     }
 
+    // Check to see if we have an incoming query (likely the landing page).
+    // If we do, work with tricking the reset and initial run
+    // mechanisms to make it look like we're catching the incoming
+    // parameter and setting the environment.
+    if( global_live_search_query ){ // has incoming query
+    	ll("Try and use incoming query (set default): " +
+	   global_live_search_query);
+    	//search.set_comfy_query(global_live_search_query);
+	var def_comfy = search.set_comfy_query(global_live_search_query);
+    	search.set_default_query(def_comfy);
+
+	// Things to do after the initial reset is complete.
+	function _first_runner(response, manager){
+	    // Ignoring the args--we'll just use the "local" names for
+	    // clarity.
+
+	    // Unstick the default query and add the text to the search.
+	    if( global_live_search_query ){ // has incoming query
+    		ll("Initial reset: try set the env to the proper settings...");
+		search.reset_default_query();
+    		search.set_query_field_text(global_live_search_query);
+    		search.set_comfy_query(global_live_search_query);
+	    }
+	}
+	search.set_initial_reset_callback(_first_runner);
+    }
+
+    // Establish the display (and run a reset).
     // Check to see if we have a bookmark or not. If we have one, run
-    // it, otherwise use the default.
+    // it, otherwise use the default. This also establishes the
+    // display at this level.
     if( global_live_search_bookmark ){ // has bookmark
 	ll("Try and use bookmark.");
 
@@ -424,4 +465,6 @@ function LiveSearchGOlrInit(){
 
     // Done message.
     ll('LiveSearchGOlrInit done.');
+    s = search;
 }
+var s;

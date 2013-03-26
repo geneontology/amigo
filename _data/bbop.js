@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130325";
+bbop.version.release = "20130326";
 /* 
  * Package: json.js
  * 
@@ -3156,13 +3156,16 @@ bbop.registry = function(evt_list){
      *  function_id - string
      *
      * Returns: 
-     *  n/a
+     *  boolean on whether something was unregistered
      */
     this.unregister = function(category, function_id){
+	var retval = false;
 	if( registry_anchor.callback_registry[category] &&
 	    registry_anchor.callback_registry[category][function_id] ){
 		delete registry_anchor.callback_registry[category][function_id];
+		retval = true;
             }
+	return retval;
     };
     
     /*
@@ -7652,8 +7655,8 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 
     // Per-manager logger.
     this._logger = new bbop.logger(this._is_a);
-    //this._logger.DEBUG = true;
-    this._logger.DEBUG = false;
+    this._logger.DEBUG = true;
+    //this._logger.DEBUG = false;
     function ll(str){ anchor._logger.kvetch(str); }
 
     // Some Regexps that would be nice to just compile once.
@@ -7706,7 +7709,7 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
     // Our (default) query and the real deal.
     this.fundamental_query = '*:*'; // cannot be changed
     this.default_query = '*:*'; // changable
-    this.query = this.default_query; //current
+    this.query = this.default_query; // current
 
     // Our (default) fl and whatever we have now.
     this.default_fl = '*%2Cscore';
@@ -8745,6 +8748,27 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	return anchor.default_query;
     };
 
+    // /*
+    //  * Function: set_first_run_query
+    //  *
+    //  * Setter for a first run query.  Normally, when <reset_query>, or
+    //  * related method, is executed, we reset back to the default
+    //  * query. This method sets a one time variable so a non empty
+    //  * value can be used for the first reset.
+    //  * 
+    //  * Call <reset_query> if you want to affect query immediately.
+    //  * 
+    //  * Parameters: 
+    //  *  first_run_query - query_string (or TODO: <bbop.logic>)
+    //  *
+    //  * Returns:
+    //  *  the current setting of default query for ('q')
+    //  */
+    // this.set_first_run_query = function(first_run_query){
+    // 	anchor.default_query = new_default_query;
+    // 	return anchor.default_query;
+    // };
+
     /*
      * Function: reset_default_query
      *
@@ -8873,6 +8897,53 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
     };
 
     /*
+     * Function: get_default_query
+     *
+     * Getter for what the query variable 'q' will be set to on a
+     * <reset_query>.
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns:
+     *  the current setting of the default query
+     */
+    this.get_default_query = function(){
+	return anchor.default_query;
+    };
+
+    /*
+     * Function: get_fundamental_query
+     *
+     * Getter for what the query variable 'q' will be set to on a
+     * <reset_default_query>.
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns:
+     *  the current setting of the fundamental default query
+     */
+    this.get_fundamental_query = function(){
+	return anchor.fundamental_query;
+    };
+
+    /*
+     * Function: get_query
+     *
+     * Getter for the query variable ('q').
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns:
+     *  the current setting of extra
+     */
+    this.get_query = function(){
+	return anchor.query;
+    };
+
+    /*
      * Function: reset_query
      *
      * Remove/reset the query variable ('q'); this set it back to the
@@ -8882,7 +8953,7 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
      *  none
      *
      * Returns:
-     *  ""
+     *  the current value of query
      * 
      * Also see:
      *  <set_default_query>
@@ -8890,6 +8961,7 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
      */
     this.reset_query = function(){
 	anchor.query = anchor.default_query;
+	ll('reset query to default: ' + anchor.query);
 	return anchor.query;
     };
 
@@ -11685,8 +11757,15 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 
     	ll('reset_query for: ' + ui_query_input_id);
 
-	// Reset manager and ui.
-	jQuery('#' + ui_query_input_id).val('');
+	// Reset UI. If the default and fundamental are different, be
+	// sticky onto default and render that instead.
+	//if( manager.get_default_query() != manager.get_fundamental_query() ){
+	//   jQuery('#' + ui_query_input_id).val(manager.get_default_query());
+	//}else{
+	//   jQuery('#' + ui_query_input_id).val('');	    
+	//}
+
+	// Reset manager back to the default.
 	manager.reset_query();
 
 	// Add a smartish listener.
@@ -11773,6 +11852,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	jQuery('#' + ui_global_reset_span_id).unbind('click');
     	jQuery('#' + ui_global_reset_span_id).click(
     	    function(){
+		//jQuery('#' + ui_query_input_id).val('');
+		//manager.reset_query();
     		manager.reset();
     	    });
     };
@@ -12281,6 +12362,33 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	ll("changing buttons: to " + button_def_list.length +
 	   " from " + anchor.button_definitions.length);
 	anchor.button_definitions = button_def_list;
+    };
+
+    /*
+     * Function: set_query_field
+     *
+     * Set the text in the search query field box.
+     * 
+     * If no query is set, the field is cleared.
+     * 
+     * Parameters:
+     *  query - *[optional]* string
+     *
+     * Returns:
+     *  true or false on whether the task was accomplished
+     */
+    this.set_query_field = function(query){
+	var retval = false;
+	if( ! query ){
+	    query = '';
+	}
+	if( jQuery('#' + ui_query_input_id) ){
+	    ll("changing query search field: to " + query);
+	    jQuery('#' + ui_query_input_id).val(query);
+	    //jQuery('#' + ui_query_input_id).keyup();
+	    retval = true;
+	}
+	return retval;
     };
 };
 /*
@@ -13080,6 +13188,11 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     // finally is.
     this.established_p = false;
 
+    // A special set for a single run after the first reset.
+    this.initial_reset_p = true;
+    this.initial_reset_callback =
+	function(response, manager){ ll('empty first run'); };
+
     // Our argument default hash.
     var default_hash =
     	{
@@ -13183,6 +13296,20 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	anchor.register('reset', 'meta_first', anchor.ui.draw_meta, -1);
     	anchor.register('reset', 'results_first', anchor.ui.draw_results, -1);
 	
+	// Finally, we're going to add a first run behavior here.
+	// We'll wrap the user-defined function into a 
+	function _initial_runner(response, manager){
+	    // I can't just remove the callback from the register
+	    // after the first run because it would be reconstituted
+	    // every time it was reset (established).
+	    if( anchor.initial_reset_p ){
+		anchor.initial_reset_p = false;
+		anchor.initial_reset_callback(response, manager);
+		//ll('unregister: ' + anchor.unregister('reset', 'first_run'));
+	    }
+	}
+    	anchor.register('reset', 'initial_reset', _initial_runner, -100);
+
     	// Things to do on every search event.
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.register('search','sticky_filters_std',
@@ -13255,7 +13382,7 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	}
     };
 
-    /*
+     /*
      * Function: clear_buttons
      * 
      * Remove all user-defined buttons from the display.
@@ -13276,6 +13403,43 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	    anchor.ui.set_buttons(anchor.user_buttons);
 	    anchor.ui.draw_user_buttons(anchor);	    
 	}
+    };
+
+    /*
+     * Function: set_query_field_text
+     * 
+     * Push text into the search box.
+     * 
+     * NOTE: Does not function until the display is established.
+     * 
+     * Parameters:
+     *  query - the text to put into the search box
+     *
+     * Returns
+     *  true or false on whether the task was accomplished
+     */
+    this.set_query_field_text = function(query){
+	var retval = false;	
+	if( anchor.established_p && anchor.ui ){
+	    retval = anchor.ui.set_query_field(query);
+	}
+	return retval;
+    };
+
+    /*
+     * Function: set_initial_reset_callback
+     * 
+     * Add a callback to be run after the initial reset is finished.
+     * 
+     * Parameters:
+     *  response - the usual
+     *  manager - the usual
+     *
+     * Returns
+     *  n/a
+     */
+    this.set_initial_reset_callback = function(callback){
+	anchor.initial_reset_callback = callback;
     };
 
     // // Now let's run the above function as the initializer.
