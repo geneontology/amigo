@@ -3,7 +3,7 @@
 #### Run this periodically tp get rid of old cached files and
 #### sessions.
 ####
-####  Usage: reset; time perl ./refresh.pl
+####  Usage: reset; time perl ./clean-filesystem.pl
 ####
 
 BEGIN {
@@ -169,11 +169,11 @@ sub ll {
 
 =head1 NAME
 
-refresh.pl
+clean-filesystem.pl
 
 =head1 SYNOPSIS
 
-refresh.pl [-h] [-v] [-s] [-c] [-r] [-x]
+clean-filesystem.pl [-h] [-v] [-s] [-c] [-r] [-x]
 
 =head1 DESCRIPTION
 
