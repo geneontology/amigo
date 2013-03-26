@@ -184,19 +184,6 @@ amigo.data.xrefs = {
       "url_syntax" : "http://www.ncbi.nlm.nih.gov/entrez/viewer.fcgi?val=[example_id]",
       "datatype" : null
    },
-   "geo" : {
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : "http://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc=GDS2223",
-      "database" : "NCBI Gene Expression Omnibus",
-      "example_id" : "GDS2223",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/geo/",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "GEO",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc=[example_id]",
-      "datatype" : null
-   },
    "agricola_ind" : {
       "object" : "AGRICOLA IND number",
       "uri_prefix" : null,
@@ -868,11 +855,11 @@ amigo.data.xrefs = {
       "name" : null,
       "url_example" : "http://www.aspergillusgenome.org/cgi-bin/reference/reference.pl?dbid=90",
       "database" : "Aspergillus Genome Database",
-      "example_id" : "AspGD_REF:90",
+      "example_id" : "ASPGD_REF:90",
       "generic_url" : "http://www.aspergillusgenome.org/",
       "fullname" : null,
       "id" : null,
-      "abbreviation" : "AspGD_REF",
+      "abbreviation" : "ASPGD_REF",
       "url_syntax" : "http://www.aspergillusgenome.org/cgi-bin/reference/reference.pl?dbid=[example_id]",
       "datatype" : null
    },
@@ -1033,11 +1020,11 @@ amigo.data.xrefs = {
       "name" : null,
       "url_example" : "http://www.aspergillusgenome.org/cgi-bin/locus.pl?locus=AN10942",
       "database" : "Aspergillus Genome Database",
-      "example_id" : "AspGD_LOCUS:AN10942",
+      "example_id" : "ASPGD_LOCUS:AN10942",
       "generic_url" : "http://www.aspergillusgenome.org/",
       "fullname" : null,
       "id" : null,
-      "abbreviation" : "AspGD_LOCUS",
+      "abbreviation" : "ASPGD_LOCUS",
       "url_syntax" : "http://www.aspergillusgenome.org/cgi-bin/locus.pl?locus=[example_id]",
       "datatype" : null
    },
@@ -1315,7 +1302,7 @@ amigo.data.xrefs = {
       "object" : "Identifier",
       "uri_prefix" : null,
       "name" : null,
-      "url_example" : "http://omim.org/entry/190198",
+      "url_example" : "http://www.ncbi.nlm.nih.gov/htbin-post/entrez/dispomim.cgi?id=190198",
       "database" : "Mendelian Inheritance in Man",
       "example_id" : "OMIM:190198",
       "synonym" : "MIM",
@@ -1323,7 +1310,7 @@ amigo.data.xrefs = {
       "fullname" : null,
       "id" : null,
       "abbreviation" : "OMIM",
-      "url_syntax" : "http://omim.org/entry/[example_id]",
+      "url_syntax" : "http://www.ncbi.nlm.nih.gov/entrez/dispomim.cgi?id=[example_id]",
       "datatype" : null
    },
    "imgt_hla" : {
@@ -1399,20 +1386,6 @@ amigo.data.xrefs = {
       "url_syntax" : "http://www.ncbi.nlm.nih.gov/pubmed/[example_id]",
       "datatype" : null
    },
-   "maizegdb" : {
-      "object" : "MaizeGDB Object ID Number",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : "http://www.maizegdb.org/cgi-bin/id_search.cgi?id=881225",
-      "database" : "MaizeGDB",
-      "example_id" : "MaizeGDB:881225",
-      "generic_url" : "http://www.maizegdb.org",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "MaizeGDB",
-      "url_syntax" : "http://www.maizegdb.org/cgi-bin/id_search.cgi?id=[example_id]",
-      "datatype" : null
-   },
    "ecoliwiki" : {
       "uri_prefix" : null,
       "name" : null,
@@ -1425,6 +1398,20 @@ amigo.data.xrefs = {
       "id" : null,
       "abbreviation" : "EcoliWiki",
       "url_syntax" : null,
+      "datatype" : null
+   },
+   "maizegdb" : {
+      "object" : "MaizeGDB Object ID Number",
+      "uri_prefix" : null,
+      "name" : null,
+      "url_example" : "http://www.maizegdb.org/cgi-bin/id_search.cgi?id=881225",
+      "database" : "MaizeGDB",
+      "example_id" : "MaizeGDB:881225",
+      "generic_url" : "http://www.maizegdb.org",
+      "fullname" : null,
+      "id" : null,
+      "abbreviation" : "MaizeGDB",
+      "url_syntax" : "http://www.maizegdb.org/cgi-bin/id_search.cgi?id=[example_id]",
       "datatype" : null
    },
    "ensembl_transcriptid" : {
@@ -1511,17 +1498,17 @@ amigo.data.xrefs = {
       "datatype" : null
    },
    "aspgd" : {
-      "object" : "Identifier for AspGD Loci",
+      "object" : "Identifier for ASPGD Loci",
       "uri_prefix" : null,
       "name" : null,
       "url_example" : "http://www.aspergillusgenome.org/cgi-bin/locus.pl?dbid=ASPL0000067538",
       "database" : "Aspergillus Genome Database",
-      "example_id" : "AspGD:ASPL0005516",
-      "synonym" : "AspGDID",
+      "example_id" : "ASPGD:ASPL0005516",
+      "synonym" : "ASPGDID",
       "generic_url" : "http://www.aspergillusgenome.org/",
       "fullname" : null,
       "id" : null,
-      "abbreviation" : "AspGD",
+      "abbreviation" : "ASPGD",
       "url_syntax" : "http://www.aspergillusgenome.org/cgi-bin/locus.pl?dbid=[example_id]",
       "datatype" : null
    },
@@ -1690,16 +1677,16 @@ amigo.data.xrefs = {
       "object" : "Identifier",
       "uri_prefix" : null,
       "name" : null,
-      "url_example" : "http://purl.obolibrary.org/obo/CL_0000041",
+      "url_example" : null,
       "database" : "Cell Type Ontology",
       "local_id_syntax" : "^[0-9]{7}$",
       "example_id" : "CL:0000041",
-      "generic_url" : "http://cellontology.org",
+      "generic_url" : "https://lists.sourceforge.net/lists/listinfo/obo-cell-type",
       "entity_type" : "CL:0000000 ! cell ",
       "fullname" : null,
       "id" : null,
       "abbreviation" : "CL",
-      "url_syntax" : "http://purl.obolibrary.org/obo/CL_[example_id]",
+      "url_syntax" : null,
       "datatype" : null
    },
    "go_ref" : {
@@ -3562,6 +3549,20 @@ amigo.data.xrefs = {
       "url_syntax" : "http://www.reactome.org/cgi-bin/eventbrowser_st_id?ST_ID=[example_id]",
       "datatype" : null
    },
+   "subtilistg" : {
+      "object" : "Gene symbol",
+      "uri_prefix" : null,
+      "name" : null,
+      "url_example" : null,
+      "database" : "Bacillus subtilis Genome Sequence Project",
+      "example_id" : "SUBTILISTG:accC",
+      "generic_url" : "http://genolist.pasteur.fr/SubtiList/",
+      "fullname" : null,
+      "id" : null,
+      "abbreviation" : "SUBTILISTG",
+      "url_syntax" : null,
+      "datatype" : null
+   },
    "wp" : {
       "object" : "Identifier",
       "uri_prefix" : null,
@@ -3575,20 +3576,6 @@ amigo.data.xrefs = {
       "id" : null,
       "abbreviation" : "WP",
       "url_syntax" : "http://www.wormbase.org/db/get?class=Protein;name=WP:[example_id]",
-      "datatype" : null
-   },
-   "subtilistg" : {
-      "object" : "Gene symbol",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : null,
-      "database" : "Bacillus subtilis Genome Sequence Project",
-      "example_id" : "SUBTILISTG:accC",
-      "generic_url" : "http://genolist.pasteur.fr/SubtiList/",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "SUBTILISTG",
-      "url_syntax" : null,
       "datatype" : null
    },
    "ddanat" : {
