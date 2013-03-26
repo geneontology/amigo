@@ -266,6 +266,14 @@ function LiveSearchGOlrInit(){
     // Setup the annotation profile and make the annotation document
     // category and the current acc sticky in the filters.
     //var search = new bbop.golr.manager.jquery(solr_server, gconf);
+    function _button_wrapper(str, title){
+	if( ! title ){
+	    title = '';
+	}
+	return '<span class="text-button-sim" title="' + 
+	    title + '"><b>' +
+	    str + '</b></span>';
+    }
     var hargs = {
 	'base_icon_url' : null,
     	'image_type' : 'gif',
@@ -274,14 +282,14 @@ function LiveSearchGOlrInit(){
     	'show_searchbox_p' : true,
     	'show_filterbox_p' : true,
     	'show_pager_p' : true,
-    	'icon_clear_label' : '&nbsp;<b>[clear search]</b>',
+    	'icon_clear_label' : _button_wrapper('X', 'Clear text from query'),
     	//'icon_clear_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
     	'icon_reset_label' : '&nbsp;<b>[reset all user filters]</b>',
-    	'icon_remove_label' : '<b>[&nbsp;X&nbsp;]</b>',
+    	'icon_remove_label' : _button_wrapper('X', 'Remove filter from query'),
     	//'icon_remove_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
-    	'icon_positive_label' : '<b>[&nbsp;+&nbsp;]</b>',
+    	'icon_positive_label' : _button_wrapper('+', 'Add positive filter'),
     	//'icon_positive_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
-    	'icon_negative_label' : '<b>[&nbsp;-&nbsp;]</b>'
+    	'icon_negative_label' : _button_wrapper('-', 'Add negative filter')
     	//'icon_negative_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png'
     };
     var search = new bbop.widget.search_pane(solr_server, gconf, div_id, hargs);
@@ -414,12 +422,12 @@ function LiveSearchGOlrInit(){
 	search.set_initial_reset_callback(_first_runner);
     }
 
-    // Establish the display (and run a reset).
+    // Establish the display (and run a reset) depending on bookmark.
     // Check to see if we have a bookmark or not. If we have one, run
     // it, otherwise use the default. This also establishes the
     // display at this level.
     if( global_live_search_bookmark ){ // has bookmark
-	ll("Try and use bookmark.");
+	ll("Try and use bookmark in establishment.");
 
 	// Load it and see what happens.
 	var parm_list = 
@@ -449,22 +457,31 @@ function LiveSearchGOlrInit(){
 	    ll("Post-bookmark personality: " + search.get_personality());
 	    ll("Post bookmark: " + search.get_query_url());
 
-	    // BUG/TODO: Make likely sticky things sticky.
-	    //var dc = bookmark_probe['document_category'];
-	    //search.add_query_filter('document_category', 'annotation', ['*']);
+	    // // BUG/TODO: Make likely sticky things sticky.
+	    // var dc = bookmark_probe['document_category'];
+	    // if( dc ){
+	    // 	search.add_query_filter('document_category', dc, ['*']);
+	    // }
 	    
 	    // Establish the display with what we have.
     	    search.establish_display();
 	    search.search();
 	    //ll("Post establish: " + search.get_query_url());
 	}
+
+	// Destroy the bookmark so we don't keep hitting it.
+	global_live_search_bookmark = null;
+
     }else{ // no bookmark
-	ll("No bookmark");
+	ll("No bookmark in establishment.");
 	_establish_default_interface();
     } 
 
     // Done message.
     ll('LiveSearchGOlrInit done.');
+
+    // DEBUGGING: A temporary external hook to help with dev and
+    // debugging.
     s = search;
 }
 var s;

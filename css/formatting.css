@@ -607,3 +607,17 @@ div .mq_message {
 .ui-autocomplete-loading {
     background: white url('../images/waiting_ac.gif') right center no-repeat;
 }
+
+/*
+ * Make text buttons seem a little bit more like real buttons when
+ * we can.
+ */
+.text-button-sim {
+    cursor: pointer;
+    background-color: #d3dff5;
+    border-style: solid;
+    border-color: #3875d7;
+    border-width: 1px;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}

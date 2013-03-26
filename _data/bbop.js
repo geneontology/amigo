@@ -7655,8 +7655,8 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 
     // Per-manager logger.
     this._logger = new bbop.logger(this._is_a);
-    this._logger.DEBUG = true;
-    //this._logger.DEBUG = false;
+    //this._logger.DEBUG = true;
+    this._logger.DEBUG = false;
     function ll(str){ anchor._logger.kvetch(str); }
 
     // Some Regexps that would be nice to just compile once.
