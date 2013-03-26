@@ -394,11 +394,12 @@ Done.
 
 Your new installation is at: $env_conf{AMIGO_CGI_URL}/amigo
 
-You may use the refresh script (refresh.pl) with the "-r" flag to regularly
-purge unneeded and old files generated while AmiGO is running.
+You may need to use the cleaning script (scripts/clean-filesystem.pl)
+to regularly purge unneeded and old files generated while AmiGO is
+running. Please see the script documentation for details and warnings.
 
-The refresh.pl script has many other uses, please see the
-documentation for flags that apply to you.
+The other useful end-user scripts are: global-message.pl and
+blank-kvetch.pl. Please see the script documentation for details.
 
 Your JavaScript bundle should be available in: $env_conf{AMIGO_ROOT}/javascript/staging/.
 
