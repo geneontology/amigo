@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 ####
-####
+#### Script to moderate global messages in AmiGO 2.
 ####
 
 BEGIN {
