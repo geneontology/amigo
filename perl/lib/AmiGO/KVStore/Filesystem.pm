@@ -161,8 +161,9 @@ Useful for cleaning duties.
 sub list {
 
   my $a = AmiGO->new();
-  my @all = glob($a->amigo_env('AMIGO_CACHE_DIR') . '/' .
-		 $AFSS_PREFIX . '*' . $AFSS_SUFFIX);
+  my $gpat =
+    $a->amigo_env('AMIGO_CACHE_DIR') . '/' . $AFSS_PREFIX . '*' . $AFSS_SUFFIX;
+  my @all = glob($gpat);
 
   return \@all;
 }
