@@ -695,7 +695,24 @@ sub mode_golr_term_details {
 
     ## Looks exotic.
     $self->{CORE}->kvetch('Looks like an exotic acc: ' . $input_term_id);
-    $self->add_mq('warning', 'The term ' . $input_term_id .
+
+    ## Let's try and get a link for the exotic ID.
+    my($edb, $eid) = $self->{CORE}->split_gene_product_acc($input_term_id);
+    my $exotic_link = $self->{CORE}->database_link($edb, $eid) || '';
+
+    ## Try to make the message nice.
+    my $exotic_term = '';
+    if( $exotic_link ){
+      $exotic_term = '<a href="' .
+	$exotic_link . '" title="GO to the homepage for ' .
+	  $input_term_id . '">' .
+	    $input_term_id . '</a>';
+    }else{
+      $exotic_term = $input_term_id;
+    }
+
+    ## Add a nice message.
+    $self->add_mq('warning', "The term $exotic_term" .
 		  ' is not an internal term,' .
 		  ' but likely comes from an external resource.' .
 		  ' For full information on this term,' .
