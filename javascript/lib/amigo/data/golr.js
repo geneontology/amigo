@@ -33,12 +33,12 @@ bbop.core.namespace('amigo', 'data', 'golr');
 amigo.data.golr = {
    "bbop_bio" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "bioentity^8.0 bioentity_name^7.0 taxon^6.0 family_tag^5.0 type^4.0 source^3.0 regulates_closure^2.0",
-      "filter_weights" : "source^7.0 type^6.0 family_tag_label^5.0 taxon_closure_label^4.0 isa_partof_closure_label^3.0 regulates_closure_label^2.0",
+      "result_weights" : "bioentity^8.0 bioentity_name^7.0 taxon^6.0 panther_family^5.0 type^4.0 source^3.0 regulates_closure^2.0",
+      "filter_weights" : "source^7.0 type^6.0 panther_family_label^5.0 taxon_closure_label^4.0 isa_partof_closure_label^3.0 regulates_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//bio-config.yaml",
       "display_name" : "Gene/products",
       "description" : "A description of bioentities file for GOlr.",
-      "boost_weights" : "bioentity^2.0 bioentity_label^2.0 bioentity_name^1.0 isa_partof_closure_label^1.0 regulates_closure_label^1.0 family_tag^1.0 family_tag_label^1.0 taxon_closure_label^1.0",
+      "boost_weights" : "bioentity^2.0 bioentity_label^2.0 bioentity_name^1.0 isa_partof_closure_label^1.0 regulates_closure_label^1.0 panther_family^1.0 panther_family_label^1.0 taxon_closure_label^1.0",
       "fields" : [
          {
             "transform" : [],
@@ -239,9 +239,9 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
-            "cardinality" : "multi",
+            "cardinality" : "single",
             "type" : "string",
-            "id" : "family_tag",
+            "id" : "panther_family",
             "property" : []
          },
          {
@@ -251,9 +251,9 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
-            "cardinality" : "multi",
+            "cardinality" : "single",
             "type" : "string",
-            "id" : "family_tag_label",
+            "id" : "panther_family_label",
             "property" : []
          },
          {
@@ -292,6 +292,30 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "source",
+            "property" : []
+         },
+         "panther_family_label" : {
+            "transform" : [],
+            "description" : "Families that are associated with this entity.",
+            "display_name" : "Family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "panther_family_label",
+            "property" : []
+         },
+         "panther_family" : {
+            "transform" : [],
+            "description" : "Family IDs that are associated with this entity.",
+            "display_name" : "Protein family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "panther_family",
             "property" : []
          },
          "bioentity_label" : {
@@ -402,18 +426,6 @@ amigo.data.golr = {
             "id" : "isa_partof_closure_label",
             "property" : []
          },
-         "family_tag" : {
-            "transform" : [],
-            "description" : "Family IDs that are associated with this entity.",
-            "display_name" : "Protein family",
-            "indexed" : "true",
-            "searchable" : "true",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "family_tag",
-            "property" : []
-         },
          "taxon" : {
             "transform" : [],
             "description" : "Column 13: taxon.",
@@ -498,18 +510,6 @@ amigo.data.golr = {
             "id" : "synonym",
             "property" : []
          },
-         "family_tag_label" : {
-            "transform" : [],
-            "description" : "Families that are associated with this entity.",
-            "display_name" : "Family",
-            "indexed" : "true",
-            "searchable" : "true",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "family_tag_label",
-            "property" : []
-         },
          "type" : {
             "transform" : [],
             "description" : "Column 12: type class id.",
@@ -536,7 +536,7 @@ amigo.data.golr = {
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//ann_ev_agg-config.yaml",
       "display_name" : "Advanced",
       "description" : "A description of annotation evidence aggregate for GOlr and AmiGO.",
-      "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 family_tag^1.0 family_tag_label^1.0 taxon_closure_label^1.0",
+      "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 panther_family^1.0 panther_family_label^1.0 taxon_closure_label^1.0",
       "fields" : [
          {
             "transform" : [],
@@ -677,9 +677,9 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
-            "cardinality" : "multi",
+            "cardinality" : "single",
             "type" : "string",
-            "id" : "family_tag",
+            "id" : "panther_family",
             "property" : []
          },
          {
@@ -689,23 +689,35 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
-            "cardinality" : "multi",
+            "cardinality" : "single",
             "type" : "string",
-            "id" : "family_tag_label",
+            "id" : "panther_family_label",
             "property" : []
          }
       ],
       "fields_hash" : {
-         "family_tag" : {
+         "panther_family_label" : {
+            "transform" : [],
+            "description" : "Families that are associated with this entity.",
+            "display_name" : "Family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "panther_family_label",
+            "property" : []
+         },
+         "panther_family" : {
             "transform" : [],
             "description" : "Family IDs that are associated with this entity.",
             "display_name" : "Protein family",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
-            "cardinality" : "multi",
+            "cardinality" : "single",
             "type" : "string",
-            "id" : "family_tag",
+            "id" : "panther_family",
             "property" : []
          },
          "bioentity_label" : {
@@ -804,18 +816,6 @@ amigo.data.golr = {
             "id" : "evidence_type_closure",
             "property" : []
          },
-         "family_tag_label" : {
-            "transform" : [],
-            "description" : "Families that are associated with this entity.",
-            "display_name" : "Family",
-            "indexed" : "true",
-            "searchable" : "true",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "family_tag_label",
-            "property" : []
-         },
          "id" : {
             "transform" : [],
             "description" : "Gene/product ID.",
@@ -861,12 +861,12 @@ amigo.data.golr = {
    },
    "bbop_ann" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "annotation_class^9.0 bioentity^7.0 bioentity_name^5.0 source^4.0 taxon^3.0 evidence_type^2.5 evidence_with^2.0 family_tag^1.5 annotation_extension_class_handler^0.75 bioentity_isoform^0.5 reference^0.25",
-      "filter_weights" : "source^7.0 assigned_by^6.5 aspect^6.25 evidence_type_closure^6.0 family_tag_label^5.5 taxon_closure_label^5.0 isa_partof_closure_label^4.0 regulates_closure_label^3.0 annotation_extension_class_closure_label^2.0",
+      "result_weights" : "annotation_class^9.0 bioentity^7.0 bioentity_name^5.0 source^4.0 taxon^3.0 evidence_type^2.5 evidence_with^2.0 panther_family^1.5 annotation_extension_class_handler^0.75 bioentity_isoform^0.5 reference^0.25",
+      "filter_weights" : "source^7.0 assigned_by^6.5 aspect^6.25 evidence_type_closure^6.0 panther_family_label^5.5 taxon_closure_label^5.0 isa_partof_closure_label^4.0 regulates_closure_label^3.0 annotation_extension_class_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//ann-config.yaml",
       "display_name" : "Annotations",
       "description" : "A description of annotations for GOlr and AmiGO.",
-      "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 bioentity_name^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 reference^1.0 family_tag^1.0 family_tag_label^1.0 bioentity_isoform^1.0",
+      "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 bioentity_name^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 reference^1.0 panther_family^1.0 panther_family_label^1.0 bioentity_isoform^1.0",
       "fields" : [
          {
             "transform" : [],
@@ -1259,9 +1259,9 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
-            "cardinality" : "multi",
+            "cardinality" : "single",
             "type" : "string",
-            "id" : "family_tag",
+            "id" : "panther_family",
             "property" : []
          },
          {
@@ -1271,13 +1271,25 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
-            "cardinality" : "multi",
+            "cardinality" : "single",
             "type" : "string",
-            "id" : "family_tag_label",
+            "id" : "panther_family_label",
             "property" : []
          }
       ],
       "fields_hash" : {
+         "panther_family_label" : {
+            "transform" : [],
+            "description" : "Families that are associated with this entity.",
+            "display_name" : "Family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "panther_family_label",
+            "property" : []
+         },
          "annotation_extension_class_closure_label" : {
             "transform" : [],
             "description" : "???",
@@ -1422,18 +1434,6 @@ amigo.data.golr = {
             "id" : "synonym",
             "property" : []
          },
-         "family_tag_label" : {
-            "transform" : [],
-            "description" : "Families that are associated with this entity.",
-            "display_name" : "Family",
-            "indexed" : "true",
-            "searchable" : "true",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "family_tag_label",
-            "property" : []
-         },
          "assigned_by" : {
             "transform" : [],
             "description" : "Column 15: assigned by.",
@@ -1480,6 +1480,18 @@ amigo.data.golr = {
             "cardinality" : "multi",
             "type" : "string",
             "id" : "annotation_extension_class",
+            "property" : []
+         },
+         "panther_family" : {
+            "transform" : [],
+            "description" : "Family IDs that are associated with this entity.",
+            "display_name" : "Protein family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "panther_family",
             "property" : []
          },
          "taxon_closure_label" : {
@@ -1540,18 +1552,6 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "bioentity_isoform",
-            "property" : []
-         },
-         "family_tag" : {
-            "transform" : [],
-            "description" : "Family IDs that are associated with this entity.",
-            "display_name" : "Protein family",
-            "indexed" : "true",
-            "searchable" : "true",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "family_tag",
             "property" : []
          },
          "aspect" : {

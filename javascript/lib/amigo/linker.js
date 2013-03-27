@@ -105,7 +105,7 @@ amigo.linker.prototype.url = function (id, xid){
 	    var lc_src = src.toLowerCase();
 	    var xref = amigo.data.xrefs[lc_src];
 	    if( xref && xref['url_syntax'] ){
-		retval = xref['url_syntax'].replace('[example_id]', sid);
+		retval = xref['url_syntax'].replace('[example_id]', sid, 'g');
 	    }
 	}
     }

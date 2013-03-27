@@ -57,6 +57,12 @@ mr_t.is_same_atom(l.url('ncbi_taxid:7227'),
 		  'http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=7227',
 		  'linker: ncbi taxon 3');
 
+// And make sure that we can do things like PANTHER's double.
+// url_syntax: http://www.geneontology.org/gene-associations/submission/paint/[example_id]/[example_id].txt
+mr_t.is_same_atom(l.url('PAINT_REF:PTHR10046'),
+		  'http://www.geneontology.org/gene-associations/submission/paint/PTHR10046/PTHR10046.txt',
+		  'linker: panther');
+
 // })();
 
 ///

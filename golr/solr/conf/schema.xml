@@ -19,13 +19,6 @@
   <fields>
     <!-- A special static/fixed (by YAML conf file) field all documents have. -->
     <field name="document_category" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- bbop_bio: Families that are associated with this entity. -->
-    <!-- bbop_ann: Families that are associated with this entity. -->
-    <!-- bbop_ann_ev_agg: Families that are associated with this entity. -->
-    <field name="family_tag_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of family_tag_label.-->
-    <field name="family_tag_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <copyField source="family_tag_label" dest="family_tag_label_searchable"></copyField>
     <!-- bbop_ont: Closure of ids/accs over regulates. -->
     <!-- bbop_bio: Closure of ids/accs over regulates. -->
     <!-- bbop_ann: Closure of ids/accs over regulates. -->
@@ -37,7 +30,7 @@
     <!--An easily searchable (TextField tokenized) version of taxon_label.-->
     <field name="taxon_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="taxon_label" dest="taxon_label_searchable"></copyField>
-    <!-- bbop_ont: Term synonym. -->
+    <!-- bbop_ont: Term synonyms. -->
     <!-- bbop_bio: Gene product synonyms. -->
     <!-- bbop_ann: Column 11: gene product synonyms. -->
     <field name="synonym" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
@@ -51,13 +44,6 @@
     <!--An easily searchable (TextField tokenized) version of bioentity_label.-->
     <field name="bioentity_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="bioentity_label" dest="bioentity_label_searchable"></copyField>
-    <!-- bbop_bio: Family IDs that are associated with this entity. -->
-    <!-- bbop_ann: Family IDs that are associated with this entity. -->
-    <!-- bbop_ann_ev_agg: Family IDs that are associated with this entity. -->
-    <field name="family_tag" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of family_tag.-->
-    <field name="family_tag_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <copyField source="family_tag" dest="family_tag_searchable"></copyField>
     <!-- bbop_ont: Closure of ids/accs over isa and partof. -->
     <!-- bbop_bio: Closure of ids/accs over isa and partof. -->
     <!-- bbop_ann: Closure of ids/accs over isa and partof. -->
@@ -156,6 +142,13 @@
     <field name="taxon" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- bbop_ont: Is the term obsolete? -->
     <field name="is_obsolete" type="boolean" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- bbop_bio: Families that are associated with this entity. -->
+    <!-- bbop_ann: Families that are associated with this entity. -->
+    <!-- bbop_ann_ev_agg: Families that are associated with this entity. -->
+    <field name="panther_family_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of panther_family_label.-->
+    <field name="panther_family_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="panther_family_label" dest="panther_family_label_searchable"></copyField>
     <!-- bbop_bio: Labels derived from C13 + ncbi_taxonomy.obo. -->
     <!-- bbop_ann: Labels derived from C13 + ncbi_taxonomy.obo. -->
     <!-- bbop_ann_ev_agg: Labels derived from C13 + ncbi_taxonomy.obo. -->
@@ -201,6 +194,13 @@
     <!-- bbop_ann: All evidence (evidence closure) for this annotation -->
     <!-- bbop_ann_ev_agg: All evidence for this term/gene product pair -->
     <field name="evidence_type_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- bbop_bio: Family IDs that are associated with this entity. -->
+    <!-- bbop_ann: Family IDs that are associated with this entity. -->
+    <!-- bbop_ann_ev_agg: Family IDs that are associated with this entity. -->
+    <field name="panther_family" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of panther_family.-->
+    <field name="panther_family_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="panther_family" dest="panther_family_searchable"></copyField>
     <!-- bbop_ont: Term comment. -->
     <field name="comment" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of comment.-->

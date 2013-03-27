@@ -4,7 +4,7 @@
 
 OWLTOOLS = ~/local/src/svn/owltools
 SOLR = http://localhost:8080/solr/ 
-PANTHER_FILES = ~/tmp/p2/panther_data/
+PANTHER_FILES = ~/local/src/svn/geneontology.org/trunk/experimental/trees/panther_data/
 ONTOLOGIES = \
  http://purl.obolibrary.org/obo/go.owl \
  http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl \
