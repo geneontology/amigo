@@ -1,5 +1,3 @@
- 
-
 !version: $Revision: 2.302 $
 !date: $Date: 2012/09/20 21:04:35 $
 !
@@ -67,27 +65,27 @@ generic_url: https://asap.ahabs.wisc.edu/annotation/php/ASAP1.htm
 url_syntax: https://asap.ahabs.wisc.edu/annotation/php/feature_info.php?FeatureID=[example_id]
 url_example: https://asap.ahabs.wisc.edu/annotation/php/feature_info.php?FeatureID=ABE-0000008
 
-abbreviation: ASPGD
+abbreviation: AspGD
 database: Aspergillus Genome Database
-object: Identifier for ASPGD Loci
-synonym: ASPGDID
-example_id: ASPGD:ASPL0005516
+object: Identifier for AspGD Loci
+synonym: AspGDID
+example_id: AspGD:ASPL0005516
 generic_url: http://www.aspergillusgenome.org/
 url_syntax: http://www.aspergillusgenome.org/cgi-bin/locus.pl?dbid=[example_id]
 url_example: http://www.aspergillusgenome.org/cgi-bin/locus.pl?dbid=ASPL0000067538
 
-abbreviation: ASPGD_LOCUS
+abbreviation: AspGD_LOCUS
 database: Aspergillus Genome Database
 object: Gene name (gene symbol in mammalian nomenclature)
-example_id: ASPGD_LOCUS:AN10942
+example_id: AspGD_LOCUS:AN10942
 generic_url: http://www.aspergillusgenome.org/
 url_syntax: http://www.aspergillusgenome.org/cgi-bin/locus.pl?locus=[example_id]
 url_example: http://www.aspergillusgenome.org/cgi-bin/locus.pl?locus=AN10942
 
-abbreviation: ASPGD_REF
+abbreviation: AspGD_REF
 database: Aspergillus Genome Database
 object: Literature Reference Identifier
-example_id: ASPGD_REF:90
+example_id: AspGD_REF:90
 generic_url: http://www.aspergillusgenome.org/
 url_syntax: http://www.aspergillusgenome.org/cgi-bin/reference/reference.pl?dbid=[example_id]
 url_example: http://www.aspergillusgenome.org/cgi-bin/reference/reference.pl?dbid=90
@@ -274,7 +272,9 @@ database: Cell Type Ontology
 object: Identifier
 example_id: CL:0000041
 local_id_syntax: ^[0-9]{7}$
-generic_url: https://lists.sourceforge.net/lists/listinfo/obo-cell-type
+generic_url: http://cellontology.org
+url_syntax: http://purl.obolibrary.org/obo/CL_[example_id]
+url_example: http://purl.obolibrary.org/obo/CL_0000041
 entity_type: CL:0000000 ! cell 
 
 abbreviation: COG
@@ -662,6 +662,13 @@ url_example: http://www.genedb.org/genedb/Search?organism=tryp&name=Tb927.1.5250
 abbreviation: GenProtEC
 database: GenProtEC E. coli genome and proteome database
 generic_url: http://genprotec.mbl.edu/
+
+abbreviation: GEO
+database: NCBI Gene Expression Omnibus
+generic_url: http://www.ncbi.nlm.nih.gov/geo/
+example_id: GDS2223
+url_syntax: http://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc=[example_id]
+url_example: http://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc=GDS2223
 
 abbreviation: GermOnline
 database: GermOnline
@@ -1311,8 +1318,8 @@ object: Identifier
 synonym: MIM
 example_id: OMIM:190198
 generic_url: http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=OMIM
-url_syntax: http://www.ncbi.nlm.nih.gov/entrez/dispomim.cgi?id=[example_id]
-url_example: http://www.ncbi.nlm.nih.gov/htbin-post/entrez/dispomim.cgi?id=190198
+url_syntax: http://omim.org/entry/[example_id]
+url_example: http://omim.org/entry/190198
 
 abbreviation: OMSSA
 database: Open Mass Spectrometry Search Algorithm

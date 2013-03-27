@@ -12,6 +12,7 @@ use File::Basename;
 use File::Find;
 use Cwd;
 use Data::Dumper;
+use Clone;
 use vars qw(
 	     $opt_h
 	     $opt_v
@@ -506,6 +507,9 @@ sub xref_abbs_to_meta_js {
   foreach my $middle_chunk_str (@top_chunks){
     my @middle_chunks = split /\n/s, $middle_chunk_str;
 
+    ## Keep a list of things that need to be cloned as synonyms.
+    my $local_clone_list = [];
+
     ## Create an empty template for the kinds of things we might find
     ## and try add fill them in.
     my $tmp_data =
@@ -527,32 +531,32 @@ sub xref_abbs_to_meta_js {
       my $tag = $1;
       my $val = $2;
       if( $tag ){
-	$tmp_data->{$tag} = $val;
+	## If it is a synonym, clone the hash and add it as a separate
+	## abbreviation.
+	if( $tag =~ /^synonym$/ ){
+	  push @$local_clone_list, $val;
+	}else{
+	  ## Otherwise add tag to set.
+	  $tmp_data->{$tag} = $val;
+	}
       }
     }
-
-    # ## Try and create a function that produces the target url.
-    # ## TODO: OR maybe not--better left to the linker code?
-    # $tmp_data->{'function'} = undef;
-    # if( $tmp_data->{url_syntax} ){
-    #   my $url_syn = $tmp_data->{url_syntax};
-    #   my ($shead, $stail) = split('[example_id]', $url_syn);
-    #   if( $shead && $stail ){
-    # 	$tmp_data->{'function'} =
-    # 	  "function(in_id){ return '$shead' + in_id + '$stail'; }";
-    #   }elsif( $shead ){
-    # 	$tmp_data->{'function'} =
-    # 	  "function(in_id){ return '$shead' + in_id; }";
-    #   }else{
-    # 	## Not enough information to produce a function.
-    #   }
-    # }
 
     ## If it looks like it has a key add it to the hash.
     if( $tmp_data->{abbreviation} ){
       my $key = lc($tmp_data->{abbreviation});
       $database_info->{$key} = $tmp_data;
       #ll("Added: $key");
+
+      ## Now let's take a look and see if this needs to be cloned onto
+      ## additional synonym entries.
+      foreach my $clone_abbr (@$local_clone_list){
+	my $clone_key = lc($clone_abbr);
+	my $clone_data = Clone::clone($tmp_data);
+	$clone_data->{abbreviation} = $clone_abbr;
+	$database_info->{$clone_key} = $clone_data;
+	#ll("Added clone: $clone_key");
+      }
     }
   }
 
