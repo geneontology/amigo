@@ -46,7 +46,7 @@
   :group 'golr)
 
 (defcustom golr-panther-tree-location
-  "/home/bbop/tmp/tree/"
+  "/home/bbop/local/src/svn/geneontology.org/trunk/experimental/trees/panther_data/"
   "The location of the PANTHER tree directory on the filesystem."
   :type 'string
   :group 'golr)
