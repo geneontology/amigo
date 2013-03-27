@@ -46,10 +46,18 @@
       <dl class="gp">
 	
 	<dt>Symbol</dt> 
+	[% IF GP_INFO.label %]
 	<dd class="symbol">[% GP_INFO.label %]</dd>
+	[% ELSE %]
+	<dd class="symbol">(n/a)</dd>
+	[% END %]
 	
 	<dt>Name(s)</dt>
+	[% IF GP_INFO.name %]
 	<dd class="full_name">[% GP_INFO.name %]</dd>
+	[% ELSE %]
+	<dd class="full_name">(n/a)</dd>
+	[% END %]
 	
 	<dt>Type</dt> 
 	<dd class="type">[% GP_INFO.type %]</dd>

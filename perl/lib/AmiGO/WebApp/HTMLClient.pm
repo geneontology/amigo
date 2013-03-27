@@ -1020,8 +1020,14 @@ sub mode_golr_gene_product_details {
   $self->set_template_parameter('page_title',
 				'AmiGO: Gene Product Details for ' .
 				$input_gp_id);
-  $self->set_template_parameter('content_title',
-				$gp_info_hash->{$input_gp_id}{'name'});
+  ## Figure out the best title we can.
+  my $best_title = $input_gp_id; # start with the worst as a default
+  if ( $gp_info_hash->{$input_gp_id}{'name'} ){
+    $best_title = $gp_info_hash->{$input_gp_id}{'name'};
+  }elsif( $gp_info_hash->{$input_gp_id}{'label'} ){
+    $best_title = $gp_info_hash->{$input_gp_id}{'label'};
+  }
+  $self->set_template_parameter('content_title', $best_title);
 
   ## Initialize javascript app.
   $self->add_template_javascript($self->{JS}->get_lib('GPDetails.js'));
