@@ -73,8 +73,7 @@ ALL_GAFS = \
 	http://www.geneontology.org/gene-associations/gene_association.tair.gz \
 	http://www.geneontology.org/gene-associations/gene_association.wb.gz \
 	http://www.geneontology.org/gene-associations/gene_association.zfin.gz \
-# And higher-level PAINT annotations.
-	http://www.geneontology.org/gene-associations/submission/paint/pre-submission/gene_association.paint_other.gaf
+	http://www.geneontology.org/gene-associations/submission/paint/pre-submission/gene_association.paint_other.gaf # And higher-level PAINT annotations.
 
 MGI_GAF = http://www.geneontology.org/gene-associations/gene_association.mgi.gz
 MGI_TEST_GAF = ./_test/mgi-limited.gaf
