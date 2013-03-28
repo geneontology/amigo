@@ -42,20 +42,23 @@
       [%  END %]
 
       [% FOREACH field_name = results_order %]
+      [%    item_list = row.$field_name.list %]
       <td rowspan="1">
-	[% IF field_name == "id" AND results_links.$local_id %]
-	<a href=[% results_links.$local_id %]>
-	[% END %]
-	[% IF highlighting.$local_id.$field_name %]
-	[%    highlighting.$local_id.$field_name %]
-	[% ELSE %]
-	[%    row.$field_name %]
-	[% END %]
-	[% IF $field_name == 'id' && results_links.$local_id %]
+      [%    FOREACH item = item_list %]
+	[%     IF results_links_local.$item %]
+	<a href=[% results_links_local.$item %]>
+	[%     END %]
+	[%     IF highlighting.$local_id.$field_name %]
+	[%        highlighting.$local_id.$field_name %]
+	[%     ELSE %]
+	[%        item %]
+	[%     END %]
+	[%     IF results_links_local.$item %]
 	</a>
-	[% END %]
-      </td>
+	[%     END %]
+	[%  END %]
       [% END%]      
+      </td>
     </tr>
     [%    eo = eo + 1 %]
     [% END %]

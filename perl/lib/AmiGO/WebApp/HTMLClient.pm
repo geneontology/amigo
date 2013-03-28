@@ -305,24 +305,47 @@ sub mode_simple_search {
 
     ## See if we can get links.
     ## BUG: Right now, we only understand internal links.
-    my $results_links = {};
+    my $results_links_local = {};
     foreach my $doc (@{$results_docs}) {
       #my $rdoc = $results_docs->{$rid};
       if( $doc->{id} ){
-	my $did = $doc->{id};
-	if( $self->{CORE}->is_term_acc_p($did) ){
-	  $results_links->{$did} = 
-	    $self->{CORE}->get_interlink({mode => 'term_details',
-					  arg => {acc => $did}});
-	}else{
-	  $results_links->{$did} = 
-	    $self->{CORE}->get_interlink({mode => 'gp_details',
-					  arg => {gp => $did}});
+	my $linkable_field = ['annotation_class', 'bioentity',
+			      'evidence_with',
+			      'taxon',
+			      'panther_family'];
+	foreach my $curr_field (@$linkable_field){
+	  ## Make sure we're dealing with a list.
+	  my $curr_field_val_list = $doc->{$curr_field} || [];
+	  $curr_field_val_list = [$curr_field_val_list]
+	    if ref $curr_field_val_list ne 'ARRAY';
+	  foreach my $curr_field_val (@$curr_field_val_list){
+	    if( $curr_field_val ){
+	      if( $curr_field eq 'annotation_class' ){
+		$results_links_local->{$curr_field_val} =
+		  $self->{CORE}->get_interlink({mode => 'term_details',
+						arg => {acc => $curr_field_val},
+						optional => {full => 1}});
+	      }elsif( $curr_field eq 'bioentity' ){
+		$results_links_local->{$curr_field_val} =
+		  $self->{CORE}->get_interlink({mode => 'gp_details',
+						arg => {gp => $curr_field_val},
+						optional => {full => 1}});
+	      }else{
+		## All others for through the general abbs linker.
+		my($cdb, $ckey) =
+		  $self->{CORE}->split_gene_product_acc($curr_field_val);
+		my $link_try = $self->{CORE}->database_link($cdb, $ckey);
+		if( $link_try ){
+		  $results_links_local->{$curr_field_val} = $link_try;
+		}
+	      }
+	    }
+	  }
 	}
       }
     }
-    #$self->{CORE}->kvetch('results_links: ' . Dumper($results_links));
-    $self->set_template_parameter('results_links', $results_links);
+    #$self->{CORE}->kvetch('results_links_local: ' . Dumper($results_links_local));
+    $self->set_template_parameter('results_links_local', $results_links_local);
 
     ## And highlighting.
     my $hlite = $gs->highlighting();
@@ -335,25 +358,29 @@ sub mode_simple_search {
 				    arg => {'query' => $q,
 					    'golr_class'=> $gc,
 					    'page' => $page + 1},
-				    optional => {'frag' => 'nav_anchor'}});
+				    optional => {'frag' => 'nav_anchor',
+						 'full' => 1}});
     my $prev_page_url =
       $self->{CORE}->get_interlink({mode => 'simple_search',
 				    arg => {'query' => $q,
 					    'golr_class'=> $gc,
 					    'page' => $page - 1},
-				    optional => {'frag' => 'nav_anchor'}});
+				    optional => {'frag' => 'nav_anchor',
+						 'full' => 1}});
     my $first_page_url =
       $self->{CORE}->get_interlink({mode => 'simple_search',
 				    arg => {'query' => $q,
 					    'golr_class'=> $gc,
 					    'page' => 1},
-				    optional => {'frag' => 'nav_anchor'}});
+				    optional => {'frag' => 'nav_anchor',
+						 'full' => 1}});
     my $last_page_url =
       $self->{CORE}->get_interlink({mode => 'simple_search',
 				    arg => {'query' => $q,
 					    'golr_class'=> $gc,
 					    'page' => $gs->last_page()},
-				    optional => {'frag' => 'nav_anchor'}});
+				    optional => {'frag' => 'nav_anchor',
+						 'full' => 1}});
     $self->set_template_parameter('first_page_url', $first_page_url);
     $self->set_template_parameter('last_page_url', $last_page_url);
     $self->set_template_parameter('next_page_url', $next_page_url);
