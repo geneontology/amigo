@@ -1700,7 +1700,7 @@ amigo.data.golr = {
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//ont-config.yaml",
       "display_name" : "Ontology",
       "description" : "Test mapping of ontology class for GO.",
-      "boost_weights" : "annotation_class^2.0 annotation_class_label^2.0 description^1.0 comment^0.5 synonym^1.0 alternate_id^1.0",
+      "boost_weights" : "annotation_class^3.0 annotation_class_label^3.0 description^1.0 comment^0.5 synonym^1.0 alternate_id^1.0",
       "fields" : [
          {
             "transform" : [],
