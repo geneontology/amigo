@@ -18,6 +18,12 @@ function TermDetailsInit(){
     ll('TermDetailsInit start...');
 
     ///
+    /// Go ahead and drop in the table sorter. Easy!
+    ///
+    jQuery("#all-table-above").tablesorter(); 
+    jQuery("#all-table-below").tablesorter(); 
+
+    ///
     /// Tabify the layout if we can (may be in a non-tabby version).
     ///
 

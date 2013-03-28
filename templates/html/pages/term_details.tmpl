@@ -7,28 +7,7 @@
     <li><a href="#info" title="View term information">Term information <img src="[% image_dir %]/down.png" alt="Term information link"></a></li>
     <li><a href="#lineage" title="View the placement of the term in the tree">Term neighborhood <img src="[% image_dir %]/down.png" alt="Term neighborhood link"></a></li>
     <li><a href="#xrefs" title="View cross-references to external databases">External references <img src="[% image_dir %]/down.png" alt="External references link"></a></li>
-    <li>
-      [% IF GENE_PRODUCT_ASSOCIATIONS_LINK || ( GENE_PRODUCT_ASSOCIATIONS_COUNT && GENE_PRODUCT_ASSOCIATIONS_COUNT == 0 ) %]
-      <a href="[% GENE_PRODUCT_ASSOCIATIONS_LINK %]"
-	 title="View gene products associated with this term">
-	[%    IF GENE_PRODUCT_ASSOCIATIONS_COUNT %]
-	[%       IF GENE_PRODUCT_ASSOCIATIONS_COUNT == 1 %]
-	1 gene product association
-	[%       ELSE %]
-	[% GENE_PRODUCT_ASSOCIATIONS_COUNT %] gene product associations
-	[%       END %]
-	[%    ELSE %]
-	Gene product associations
-	[%    END %]
-	<img src="[% image_dir %]/left.png" alt="link to another page" />
-      </a>
-      [% END %]
-    </li>
     [% END %]
-    <!-- gp_assoc_text = TERM_INFO.n_deep_products _ ' gene product association'; -->
-    <!-- IF TERM_INFO.n_deep_products != 1; -->
-    <!-- gp_assoc_text = gp_assoc_text _ 's'; -->
-    <!-- <li><a href="term-assoc.cgi?term=[% TERM_INFO.acc %]&amp;session_id=[% session_id %]" title="View gene products associated with this term">[% gp_assoc_text %] <img src="[% image_dir %]/left.png" alt="link to another page"></a></li> -->
   </ul>
 
   [% IF TERM_INFO.is_obsolete == 'true' %]
@@ -67,10 +46,10 @@
 
       <!-- Definition -->
       <dt>Definition</dt>
+      [% wikipedia_label = "" %]
+      [% wikipedia_link = "" %]
       [% IF TERM_INFO.definition %]
       <dd class="def">[% TERM_INFO.definition %]
-	[% wikipedia_label = "" %]
-	[% wikipedia_link = "" %]
 	[% IF TERM_INFO.term_dbxref_links && TERM_INFO.term_dbxref_links.size > 0 %]
 	<br /><i>Source:</i>
 	[%    txref_count = TERM_INFO.term_dbxref_links.size %]
@@ -83,8 +62,8 @@
 	[%         vis = txref_link.key %]
 	[%      END %]
 	[%      IF txref_link.dbname == "Wikipedia" %]
-	[%         wikipedia_link = txref_link.link %]
 	[%         wikipedia_label = txref_link.key %]
+	[%         wikipedia_link = txref_link.link %]
 	[%      END %]
 	[%      IF  txref_link.dbname == 'PMID' || txref_link.dbname == 'DOI' %]<cite class="paper">[% ELSE %]<cite>[% END %][% IF href %]<a title="Go to [% vis %]" href="[% href %]">[% vis %]</a>[% ELSE %][% txref_link.id %][% END %]</cite>[% IF txref_counter < txref_count; txref_counter = txref_counter + 1 %],[% END %]
        [%    END %]
@@ -140,7 +119,7 @@
       <dd><span id="related-terms-span">Not available</span></dd>
 		
      [% # Note that wikipedia is in here too...rename community? %]
-     [% INCLUDE common/term_details_gonuts.tmpl %]
+     [% INCLUDE common/term_details_community.tmpl %]
 
    </dl>
 
@@ -278,12 +257,9 @@
          [%          ANCESTOR_CHUNKS = PARENT_CHUNKS_BY_DEPTH.$d %]
          [%          FOREACH anc IN ANCESTOR_CHUNKS %]
          [%             tmp_acc = anc.acc %]
-         [%             tmp_cnt = GPA_COUNTS.$tmp_acc %]
-         [%             default_count = '[' _ tmp_cnt _ ' gene products]' %]
          [%             graph_entry = anc %]
          [%             number_of_spaces = d %]
          [%             INCLUDE common/term_details_entry.tmpl %]
-         [%             default_count = "" %]
          [%          END %]
          [%       END %]
          [%       d = d + 1 %]
@@ -299,25 +275,19 @@
          [% override_link = "1" %]
          [% override_bold = "1" %]
          [% tmp_acc = graph_entry.acc %]
-         [% tmp_cnt = GPA_COUNTS.$tmp_acc %]
-         [% default_count = '[' _ tmp_cnt _ ' gene products]' %]
          [% INCLUDE common/term_details_entry.tmpl %]
          [% # Reset subroutine values. %]
          [% override_image = "" %]
          [% override_title = "" %]
          [% override_link = "" %]
          [% override_bold = "" %]
-         [% default_count = "" %]
 
          [% IF CHILD_CHUNKS && CHILD_CHUNKS.size > 0 %]
          [%    FOREACH desc IN CHILD_CHUNKS %]
          [%       tmp_acc = desc.acc %]
-         [%       tmp_cnt = GPA_COUNTS.$tmp_acc %]
-         [%       default_count = '[' _ tmp_cnt _ ' gene products]' %]
          [%       graph_entry = desc %]
          [%       number_of_spaces = d %]
          [%       INCLUDE common/term_details_entry.tmpl %]
-         [%       default_count = "" %]
          [%    END %]
          [% ELSE %]
          [% END %]
@@ -337,14 +307,7 @@
 	   Ancestors of [% TERM_INFO.name %] ([% TERM_INFO.acc %])
 	 </caption>
 
-	 <thead>
-	   <tr>
-	     <th style="width: 35%">subject<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by subject" /></th>
-	     <th style="width: 15%">relation<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by relation" /></th>
-	     <th style="width: 35%">object<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by object" /></th>
-	     <th style="width: 15%">annotations<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by count" /></th>
-	   </tr>
-	 </thead>
+	 [% INCLUDE common/term_details_neighborhood_head.tmpl %]
 
 	 <tbody>
        
@@ -360,10 +323,7 @@
            [%             munge_id_tail = "_a" %]
            [%             count_type = "object" %]
            [%             tmp_acc = anc.acc %]
-           [%             tmp_cnt = GPA_COUNTS.$tmp_acc %]
-           [%             default_count = tmp_cnt %]
            [%             INCLUDE common/term_details_re_row.tmpl %]
-           [%             default_count = "" %]
            [%             eo_rows = eo_rows + 1 %]
            [%          END %]
            [%       END %]
@@ -392,14 +352,7 @@
 	   Children of [% TERM_INFO.name %] ([% TERM_INFO.acc %])
 	 </caption>
 
-	 <thead>
-	   <tr>
-	     <th style="width: 35%">subject<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by subject" /></th>
-	     <th style="width: 15%">relation<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by relation" /></th>
-	     <th style="width: 35%">object<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by object" /></th>
-	     <th style="width: 15%">annotations<img style="border: 0px;" src="[% image_dir %]/reorder.gif" alt="Reorder by count" /></th>
-	   </tr>
-	 </thead>
+	 [% INCLUDE common/term_details_neighborhood_head.tmpl %]
 
 	 <tbody>
        
@@ -411,10 +364,7 @@
            [%       munge_id_tail = "_a" %]
            [%       count_type = "subject" %]
            [%       tmp_acc = desc.acc %]
-           [%       tmp_cnt = GPA_COUNTS.$tmp_acc %]
-           [%       default_count = tmp_cnt %]
            [%       INCLUDE common/term_details_re_row.tmpl %]
-           [%       default_count = "" %]
            [%       eo_rows = eo_rows + 1 %]
            [%    END %]
 
@@ -432,77 +382,54 @@
 
      </div>
 
-      <!-- <div id="display-out"> -->
-      <!-- </div> -->
-
-      <!-- <div id="display-down"> -->
-      <!-- 	<p> -->
-      <!-- 	  <ul> -->
-      <!-- 	    <li><b>Downloads in...</b></li> -->
-      <!-- 	    <li><a href="[% cgi %].cgi?[% vbridge %]&amp;format=obo" title="Download the tree in OBO text format">OBO</a></li> -->
-      <!-- 	    <li><a href="[% cgi %].cgi?[% vbridge %]&amp;format=rdfxml" title="Download the tree in RDF-XML format">RDF-XML</a></li> -->
-      <!-- 	    <li><a href="[% cgi %].cgi?[% vbridge %]&amp;format=dot" title="Download the tree in GraphViz dot format">GraphViz dot</a></li> -->
-      <!-- 	  </ul> -->
-      <!-- 	</p> -->
-      <!-- </div> -->
-
       <div id="display-xref">
-	<!-- <p> -->
-	<!--   <ul> -->
-	<!--     <li><b>External references...</b></li> -->
-	<!--     <li>...</li> -->
-	<!--   </ul> -->
-	<!-- </p>        -->
 	
-	<!-- XRefs -->
-	<!-- <div class="block" id="xrefs"> -->
- 	  <!-- <h2>External references</h2> -->
- 	  <b>External references</b>
-	  [% IF TERM_INFO.dbxref_links && TERM_INFO.dbxref_links.size > 0 %]
-	  [% xref_hash = {} %]
-	  [% FOREACH xref = TERM_INFO.dbxref_links;
-          db = xref.dbname;
-          IF xref_hash.$db;
-          xref_list = xref_hash.$db;
-          xref_list.push(xref);
-          xref_hash.$db = xref_list;
-          ELSE;
-          xref_list = [];
-          xref_list.push(xref);
-          xref_hash.$db = xref_list;
-          END;
-	  END %]
-	  <dl class="ext-ref">
-	    [% FOREACH db =  xref_hash.keys.sort %]
-	    <dt>
-	      <!-- <a class="img" -->
-	      <!-- 	 href="#[% db %]"><img src="[% image_dir %]/toggle-open.gif" -->
-	      <!-- 			       alt="toggle" id="[% db %]Img"></a> -->
-	      [% db %] <!-- ([% xref_hash.$db.size %]) -->
-	    </dt>
-	    <dd id="[% db %]"><ul>
-		[% FOREACH xref_item = xref_hash.$db %]
-		<li>
-		  [% xref_key = xref_item.key;
-		  db_link = xref_item.link;
-		  IF db_link %]
-		  <a href="[% db_link %]"
-		     title="View [% xref_key %] in [% db %]">[% xref_key %]</a>
-		  [% ELSE %]
-		  [%    xref_key %]
-		  [% END;
-		  IF xref_item.xref_desc %] [% xref_item.xref_desc %][% END %]
-		</li>
-		[% END %]
-	    </ul></dd>
-	    [% END %]
-	  </dl>
-
-	  [% ELSE %]
-	  <p>None.</p>
+ 	<b>External references</b>
+	[% IF TERM_INFO.dbxref_links && TERM_INFO.dbxref_links.size > 0 %]
+	[% xref_hash = {} %]
+	[% FOREACH xref = TERM_INFO.dbxref_links;
+        db = xref.dbname;
+        IF xref_hash.$db;
+        xref_list = xref_hash.$db;
+        xref_list.push(xref);
+        xref_hash.$db = xref_list;
+        ELSE;
+        xref_list = [];
+        xref_list.push(xref);
+        xref_hash.$db = xref_list;
+        END;
+	END %]
+	<dl class="ext-ref">
+	  [% FOREACH db =  xref_hash.keys.sort %]
+	  <dt>
+	    <!-- <a class="img" -->
+	    <!-- 	 href="#[% db %]"><img src="[% image_dir %]/toggle-open.gif" -->
+	    <!-- 			       alt="toggle" id="[% db %]Img"></a> -->
+	    [% db %] <!-- ([% xref_hash.$db.size %]) -->
+	  </dt>
+	  <dd id="[% db %]"><ul>
+	      [% FOREACH xref_item = xref_hash.$db %]
+	      <li>
+		[% xref_key = xref_item.key;
+		db_link = xref_item.link;
+		IF db_link %]
+		<a href="[% db_link %]"
+		   title="View [% xref_key %] in [% db %]">[% xref_key %]</a>
+		[% ELSE %]
+		[%    xref_key %]
+		[% END;
+		IF xref_item.xref_desc %] [% xref_item.xref_desc %][% END %]
+	      </li>
+	      [% END %]
+	  </ul></dd>
 	  [% END %]
+	</dl>
+	
+	[% ELSE %]
+	<p>None.</p>
+	[% END %]
 	<!-- </div> -->
-
+	
       </div>
 
       <div class="clearall"></div>

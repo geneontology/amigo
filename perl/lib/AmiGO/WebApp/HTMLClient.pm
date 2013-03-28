@@ -690,7 +690,7 @@ sub mode_golr_term_details {
   $self->set_template_parameter('TERM_INFO',
 				$term_info_hash->{$input_term_id});
 
-  ## First switch on term vs. subset.
+  ## First switch on internal term vs. external.
   my $is_term_acc_p = $self->{CORE}->is_term_acc_p($input_term_id);
   my $acc_list_for_gpc_info = [];
   my $input_term_id_list = [];
@@ -698,21 +698,7 @@ sub mode_golr_term_details {
 
     $self->{CORE}->kvetch('Looks like a term acc: ' . $input_term_id);
 
-    #   ## Even if just a single acc, put it into list form--that's what
-    #   ## we'll be using.
-    #   $input_term_id_list = [$input_term_id];
-    #   push @$acc_list_for_gpc_info, $input_term_id;
-
   }else{
-
-    #$self->{CORE}->kvetch('Looks like a subset acc: ' . $input_term_id);
-    #   ## Convert input subset acc to term accs.
-    #   my $sget = AmiGO::Worker::Subset->new();
-    #   my @subset_term_list = keys(%{$sget->get_term_accs($input_term_id)});
-    #   foreach my $k (@subset_term_list){
-    #     push @$input_term_id_list, $k;
-    #     push @$acc_list_for_gpc_info, $k;
-    #   }
 
     ## Looks exotic.
     $self->{CORE}->kvetch('Looks like an exotic acc: ' . $input_term_id);
@@ -721,7 +707,7 @@ sub mode_golr_term_details {
     my($edb, $eid) = $self->{CORE}->split_gene_product_acc($input_term_id);
     my $exotic_link = $self->{CORE}->database_link($edb, $eid) || '';
 
-    ## Try to make the message nice.
+    ## Try to make the message link out.
     my $exotic_term = '';
     if( $exotic_link ){
       $exotic_term = '<a href="' .
@@ -778,70 +764,34 @@ sub mode_golr_term_details {
   				$anc_info->{parent_chunks_by_depth});
   push @$acc_list_for_gpc_info, @{$anc_info->{seen_acc_list}};
 
-  # ## Now that we have all accs that we want counts for, create a
-  # ## mapping between terms and a random address.
-  # my $rand_to_acc = {};
-  # my $acc_to_rand = {};
-  # for( my $i = 0; $i < scalar(@$acc_list_for_gpc_info); $i++ ){
-  #   my $acc = $acc_list_for_gpc_info->[$i];
-  #   my $rand = $self->{CORE}->unique_id();
-  #   $rand_to_acc->{$rand} = $acc;
-  #   $acc_to_rand->{$acc} = $rand;
-  # }
-
-  # $self->set_template_parameter('ACC_TO_RAND', $acc_to_rand);
-  # $self->set_template_parameter('RAND_TO_ACC', $rand_to_acc);
-
-  # ###
-  # ### Pull gene_product_count info.
-  # ###
-
-  # #print STDERR "<<TIME_START>>\n";
-  # ## TODO/BUG: If nothing explodes, memoize this sucker a la Visualize:
-  # my $gpc_q = AmiGO::Worker::GeneProductCount->new($input_term_id,
-  #                                                  $acc_list_for_gpc_info);
-  # #print STDERR "<<TIME_MID>>\n";
-  # my $gpc_info = $gpc_q->get_info();
-
-  # ## Get total counts for all terms (to use in fallback cases where JS
-  # ## is not enabled).
-  # my $gpc_total_count = {};
-  # foreach my $acc (@$acc_list_for_gpc_info){
-  #   $gpc_total_count->{$acc} = $gpc_q->get_count($acc);
-  # }
-  # $self->set_template_parameter('GPA_COUNTS', $gpc_total_count);
-  # $self->set_template_parameter('GENE_PRODUCT_ASSOCIATIONS_COUNT',
-  # 				$gpc_total_count->{$input_term_id});
-
   ## Bridge variables from old system.
   #$self->set_template_parameter('cgi', 'term-details');
   $self->set_template_parameter('cgi', 'browse');
   $self->set_template_parameter('vbridge', 'term=' . $input_term_id);
 
-  # ## These things are of limited use to subsets.
-  # if( $is_term_acc_p ){
-
   ###
   ### External links.
   ###
 
-  $self->set_template_parameter('GENE_PRODUCT_ASSOCIATIONS_LINK',
-				$self->{CORE}->get_interlink({mode => 'term-assoc',
-							      arg =>
-							      {acc =>
-							       $input_term_id}}));
   $self->set_template_parameter('VIZ_STATIC_LINK',
-				$self->{CORE}->get_interlink({mode => 'visualize',
+				$self->{CORE}->get_interlink({mode =>
+							      'visualize',
 							      arg =>
-							      {data => $input_term_id,
-							       format => 'png'}}));
+							      {data =>
+							       $input_term_id,
+							       format =>
+							       'png'}}));
   $self->set_template_parameter('VIZ_DYNAMIC_LINK',
-				$self->{CORE}->get_interlink({mode => 'visualize',
+				$self->{CORE}->get_interlink({mode =>
+							      'visualize',
 							      arg =>
-							      {data => $input_term_id,
-							       format => 'svg'}}));
+							      {data =>
+							       $input_term_id,
+							       format =>
+							       'svg'}}));
   $self->set_template_parameter('NAVIGATION_LINK',
-				$self->{CORE}->get_interlink({mode => 'layers_graph',
+				$self->{CORE}->get_interlink({mode =>
+							      'layers_graph',
 							      arg =>
 							      {terms =>
 							       $input_term_id}}));
@@ -899,17 +849,6 @@ sub mode_golr_term_details {
       # $gonuts->kvetch("\t" . $gonuts->get_page_url());
   }
 
-  # }else{
-
-  #   ## It'll be good to differentiate subset stuff from the οἱ πολλοί.
-  #   my %in_term_hash = map { $_ => 1 } @$input_term_id_list;
-  #   $self->set_template_parameter('SUBSET_TERMS', \%in_term_hash);
-
-  #   $self->set_template_parameter('VIZ_STATIC_LINK',
-  #     $self->{CORE}->get_interlink({mode => 'visualize_subset',
-  # 				    arg => {subset => $input_term_id}}));
-  # }
-
   ###
   ### Standard setup.
   ### TODO: We see this a lot--should this be abstracted out too? No?
@@ -931,6 +870,7 @@ sub mode_golr_term_details {
      [
       'com.jquery',
       'com.jquery-ui',
+      'com.jquery.tablesorter',
       'bbop',
       'amigo'
      ],
@@ -958,17 +898,7 @@ sub mode_golr_term_details {
   $self->add_template_javascript($self->{JS}->get_lib('TermDetails.js'));
   $self->add_template_javascript($self->{JS}->initializer_jquery('TermDetailsInit();'));
 
-  ##
-  ## These things are of limited use to subsets.
-  # if( $is_term_acc_p ){
-    # if( $type eq 'compact' ){
-    #   $self->add_template_content('html/main/term_details_compact.tmpl');
-    # }else{
-      $self->add_template_content('pages/term_details.tmpl');
-    # }
-  # }else{
-  #   $self->add_template_content('html/main/subset_details.tmpl');
-  # }
+  $self->add_template_content('pages/term_details.tmpl');
 
   return $self->generate_template_page();
 }
