@@ -1141,7 +1141,7 @@ sub get_interlink {
 
   ## Optional extant? Override the defaults if they are defined.
   my $optional_public_p = 0; # Give the public URL.
-  my $optional_full_p = 0; # Give the full URL instead of just the partial.
+  my $optional_full_p = 1; # Give the full URL instead of just the partial.
   # my $optional_url_safe_p = 0; # Return a URL safe string.
   my $optional_html_safe_p = 1; # Return an HTML safe string (defaults to 1).
   my $optional_hash_p = 0; # Are we more interested in the args (for

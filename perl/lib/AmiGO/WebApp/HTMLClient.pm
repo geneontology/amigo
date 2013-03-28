@@ -323,13 +323,11 @@ sub mode_simple_search {
 	      if( $curr_field eq 'annotation_class' ){
 		$results_links_local->{$curr_field_val} =
 		  $self->{CORE}->get_interlink({mode => 'term_details',
-						arg => {acc => $curr_field_val},
-						optional => {full => 1}});
+						arg => {acc=>$curr_field_val}});
 	      }elsif( $curr_field eq 'bioentity' ){
 		$results_links_local->{$curr_field_val} =
 		  $self->{CORE}->get_interlink({mode => 'gp_details',
-						arg => {gp => $curr_field_val},
-						optional => {full => 1}});
+						arg => {gp=>$curr_field_val}});
 	      }else{
 		## All others for through the general abbs linker.
 		my($cdb, $ckey) =
@@ -358,29 +356,25 @@ sub mode_simple_search {
 				    arg => {'query' => $q,
 					    'golr_class'=> $gc,
 					    'page' => $page + 1},
-				    optional => {'frag' => 'nav_anchor',
-						 'full' => 1}});
+				    optional => {'frag' => 'nav_anchor'}});
     my $prev_page_url =
       $self->{CORE}->get_interlink({mode => 'simple_search',
 				    arg => {'query' => $q,
 					    'golr_class'=> $gc,
 					    'page' => $page - 1},
-				    optional => {'frag' => 'nav_anchor',
-						 'full' => 1}});
+				    optional => {'frag' => 'nav_anchor'}});
     my $first_page_url =
       $self->{CORE}->get_interlink({mode => 'simple_search',
 				    arg => {'query' => $q,
 					    'golr_class'=> $gc,
 					    'page' => 1},
-				    optional => {'frag' => 'nav_anchor',
-						 'full' => 1}});
+				    optional => {'frag' => 'nav_anchor'}});
     my $last_page_url =
       $self->{CORE}->get_interlink({mode => 'simple_search',
 				    arg => {'query' => $q,
 					    'golr_class'=> $gc,
 					    'page' => $gs->last_page()},
-				    optional => {'frag' => 'nav_anchor',
-						 'full' => 1}});
+				    optional => {'frag' => 'nav_anchor'}});
     $self->set_template_parameter('first_page_url', $first_page_url);
     $self->set_template_parameter('last_page_url', $last_page_url);
     $self->set_template_parameter('next_page_url', $next_page_url);

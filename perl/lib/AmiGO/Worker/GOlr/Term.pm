@@ -101,7 +101,8 @@ sub _term_accs_to_info {
     push @$retlist,
       {
        acc => $acc,
-       link => $self->get_interlink({mode=>'term_details', arg=>{acc=>$acc}})
+       link => $self->get_interlink({mode=>'term_details',
+				     arg=>{acc=>$acc}})
       };
   }
 
