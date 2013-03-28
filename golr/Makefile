@@ -10,7 +10,7 @@
 OWLTOOLS_MAX_MEMORY = 32G
 
 ## Bins.
-MAVEN_EXE = /local/src/java/apache-maven-3.0.4/bin/mvn
+MAVEN_EXE = ~/local/src/java/apache-maven-3.0.4/bin/mvn
 
 ## URLs.
 SOLR = http://localhost:8080/solr/ 
