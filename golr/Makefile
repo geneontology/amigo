@@ -147,5 +147,5 @@ load-full: owltools-build
 ###
 
 .PHONY: service-restart-nginx
-service-restart-nginx: owltools-build
+service-restart-nginx:
 	cd /tmp && sudo trash-put golr-rps-cache amigo2-rps-cache && sudo trash-empty&& sudo /etc/init.d/nginx restart
