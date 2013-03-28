@@ -120,32 +120,33 @@ golr-schema:
 	$(OWLTOOLS)/OWLTools-Runner/bin/owltools --solr-config $(SCHEMA_METADATA) --solr-schema-dump | ./tools/remove-schema-cruft.pl > ./solr/conf/schema.xml
 
 ###
-### Load the ontology stuff.
+### Loading.
 ###
 
+## Load the ontology stuff.
 .PHONY: load-ontology
 load-ontology: owltools-build
 	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-config $(ONTOLOGY_METADATA) --solr-load-ontology
 
-###
-### GAFs
-### A test load with the MGI GAF.
-### Column 16, etc.
-###
-
+## Test GAF.
 .PHONY: load-mgi-gaf
 load-mgi-gaf: owltools-build
 	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-load-panther $(PANTHER_FILES) --solr-load-gafs $(MGI_GAF)
 
+## Test GAF: A test load with the MGI GAF--column 16, etc.
 .PHONY: load-mgi-test-gaf
 load-mgi-test-gaf: owltools-build
 	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-load-panther $(PANTHER_FILES) --solr-load-gafs $(MGI_TEST_GAF)
 
-###
-### Full.
-### The full and final load.
-###
-
+## The full and final load.
 .PHONY: load-full
 load-full: owltools-build
 	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-load-ontology --solr-load-panther $(PANTHER_FILES) --solr-load-gafs $(ALL_GAFS)
+
+###
+### Services.
+###
+
+.PHONY: service-restart-nginx
+service-restart-nginx: owltools-build
+	cd /tmp && sudo trash-put golr-rps-cache amigo2-rps-cache && sudo trash-empty&& sudo /etc/init.d/nginx restart
