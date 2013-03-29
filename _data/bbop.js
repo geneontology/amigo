@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130328";
+bbop.version.release = "20130329";
 /* 
  * Package: json.js
  * 
@@ -7303,6 +7303,15 @@ bbop.golr.response.prototype.get_doc_label = function(doc_id,field_id,item_id){
 		    if( cmlabel ){
 			//print('closure map hit');
 			retval = cmlabel; // Hit!
+		    }else{
+			// If that didn't work, try again with
+			// "_list_map".
+			var lmlabel =
+			    _map_to_try(doc_id, field_id +'_list_map', item_id);
+			if( lmlabel ){
+			    //print('list map hit');
+			    retval = lmlabel; // Hit!
+			}
 		    }
 		}
 	    }
@@ -10764,7 +10773,7 @@ bbop.widget.display.results_table_by_class = function(cclass,
 	// See what kind of link we can create from what we got.
 	var ilink = linker.anchor({id: iid, label: ilabel, hilite: hl}, fid);
 	
-	//ll('processing: ' + [fid, iid, ilabel].join(', '));
+	ll('processing: ' + [fid, ilabel, iid].join(', '));
 	//ll('ilink: ' + ilink);
 
 	// See what we got, in order of how much we'd like to have it.

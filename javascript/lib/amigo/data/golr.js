@@ -33,7 +33,7 @@ bbop.core.namespace('amigo', 'data', 'golr');
 amigo.data.golr = {
    "bbop_bio" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "bioentity^8.0 bioentity_name^7.0 taxon^6.0 panther_family^5.0 type^4.0 source^3.0 regulates_closure^2.0",
+      "result_weights" : "bioentity^8.0 bioentity_name^7.0 taxon^6.0 panther_family^5.0 type^4.0 source^3.0 annotation_class_list^2.0",
       "filter_weights" : "source^7.0 type^6.0 panther_family_label^5.0 taxon_closure_label^4.0 isa_partof_closure_label^3.0 regulates_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//bio-config.yaml",
       "display_name" : "Gene/products",
@@ -222,6 +222,30 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
+            "description" : "Terms directly annotated to this bioentity.",
+            "display_name" : "Direct terms",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "annotation_class_list",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Terms directly annotated to this bioentity.",
+            "display_name" : "Direct terms",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "annotation_class_list_label",
+            "property" : []
+         },
+         {
+            "transform" : [],
             "description" : "Gene product synonyms.",
             "display_name" : "Synonyms",
             "indexed" : "true",
@@ -366,6 +390,18 @@ amigo.data.golr = {
             "id" : "phylo_graph",
             "property" : []
          },
+         "annotation_class_list_label" : {
+            "transform" : [],
+            "description" : "Terms directly annotated to this bioentity.",
+            "display_name" : "Direct terms",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "annotation_class_list_label",
+            "property" : []
+         },
          "bioentity_name" : {
             "transform" : [],
             "description" : "The full name of the gene product.",
@@ -424,6 +460,18 @@ amigo.data.golr = {
             "cardinality" : "multi",
             "type" : "string",
             "id" : "isa_partof_closure_label",
+            "property" : []
+         },
+         "annotation_class_list" : {
+            "transform" : [],
+            "description" : "Terms directly annotated to this bioentity.",
+            "display_name" : "Direct terms",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "annotation_class_list",
             "property" : []
          },
          "taxon" : {
@@ -486,18 +534,6 @@ amigo.data.golr = {
             "id" : "isa_partof_closure",
             "property" : []
          },
-         "taxon_label" : {
-            "transform" : [],
-            "description" : "Derived from C13 + ncbi_taxonomy.obo.",
-            "display_name" : "Taxon",
-            "indexed" : "true",
-            "searchable" : "true",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "taxon_label",
-            "property" : []
-         },
          "synonym" : {
             "transform" : [],
             "description" : "Gene product synonyms.",
@@ -508,6 +544,18 @@ amigo.data.golr = {
             "cardinality" : "multi",
             "type" : "string",
             "id" : "synonym",
+            "property" : []
+         },
+         "taxon_label" : {
+            "transform" : [],
+            "description" : "Derived from C13 + ncbi_taxonomy.obo.",
+            "display_name" : "Taxon",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "taxon_label",
             "property" : []
          },
          "type" : {

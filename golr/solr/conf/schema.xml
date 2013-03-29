@@ -23,6 +23,12 @@
     <!-- bbop_bio: Closure of ids/accs over regulates. -->
     <!-- bbop_ann: Closure of ids/accs over regulates. -->
     <field name="regulates_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- bbop_bio: Terms directly annotated to this bioentity. -->
+    <field name="annotation_class_list_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between annotation_class_(list|closure) and annotation_class_list_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="annotation_class_list_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bbop_bio: Derived from C13 + ncbi_taxonomy.obo. -->
     <!-- bbop_ann: Derived from C13 + ncbi_taxonomy.obo. -->
     <!-- bbop_ann_ev_agg: Derived from C13 + ncbi_taxonomy.obo. -->
@@ -73,6 +79,8 @@
     <field name="evidence_with" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- bbop_ont: JSON blob form of the local relation transitivity graph. -->
     <field name="transitivity_graph" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- bbop_bio: Terms directly annotated to this bioentity. -->
+    <field name="annotation_class_list" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- bbop_ont: Common term name. -->
     <!-- bbop_ann: Column 5 + ontology. -->
     <!-- bbop_ann_ev_agg: Column 5 + ontology. -->
@@ -107,8 +115,8 @@
     <field name="regulates_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
     <copyField source="regulates_closure_label" dest="regulates_closure_label_searchable"></copyField>
     <!-- Automatically created to capture mapping information -->
-    <!-- between regulates_closure and regulates_closure_label.-->
-    <!-- It is not indexed for searching, but may be useful to the client. -->
+    <!-- between regulates_(list|closure) and regulates_closure_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
     <field name="regulates_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bbop_bio: Gene/product ID. -->
     <!-- bbop_ann: Column 1 + columns 2. -->
@@ -127,8 +135,8 @@
     <field name="isa_partof_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
     <copyField source="isa_partof_closure_label" dest="isa_partof_closure_label_searchable"></copyField>
     <!-- Automatically created to capture mapping information -->
-    <!-- between isa_partof_closure and isa_partof_closure_label.-->
-    <!-- It is not indexed for searching, but may be useful to the client. -->
+    <!-- between isa_partof_(list|closure) and isa_partof_closure_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
     <field name="isa_partof_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bbop_bio: The full name of the gene product. -->
     <!-- bbop_ann: The full name of the gene product. -->
@@ -157,8 +165,8 @@
     <field name="taxon_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
     <copyField source="taxon_closure_label" dest="taxon_closure_label_searchable"></copyField>
     <!-- Automatically created to capture mapping information -->
-    <!-- between taxon_closure and taxon_closure_label.-->
-    <!-- It is not indexed for searching, but may be useful to the client. -->
+    <!-- between taxon_(list|closure) and taxon_closure_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
     <field name="taxon_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bbop_ann: ??? -->
     <field name="annotation_extension_class_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
@@ -166,8 +174,8 @@
     <field name="annotation_extension_class_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
     <copyField source="annotation_extension_class_closure_label" dest="annotation_extension_class_closure_label_searchable"></copyField>
     <!-- Automatically created to capture mapping information -->
-    <!-- between annotation_extension_class_closure and annotation_extension_class_closure_label.-->
-    <!-- It is not indexed for searching, but may be useful to the client. -->
+    <!-- between annotation_extension_class_(list|closure) and annotation_extension_class_closure_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
     <field name="annotation_extension_class_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bbop_ann: Column 16: extension class for the annotation. -->
     <field name="annotation_extension_class" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
