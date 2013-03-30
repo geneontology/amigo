@@ -10839,22 +10839,16 @@ bbop.widget.display.results_table_by_class = function(cclass,
 				   var out = null;
 				   if( field.has_handler() ){
 				       // Special handler output.
-				       var json_flist = doc[fid];
-				       each(json_flist,
-					    function(json_f){
-						var objo =
-						    bbop.json.parse(json_f); 
-						var reso =
-						    handler.dispatch(objo);
-						if( reso.success ){
-						    out = reso.results;
-						    tmp_buff.push(out);
-						}else{
-						    // Something noticable on
-						    // failure.
-						    tmp_buff.push('???');
-						}
-					    });
+				       var objo = bbop.json.parse(bit); 
+				       var reso = handler.dispatch(objo);
+				       if( reso.success ){
+					   out = reso.results;
+					   tmp_buff.push(out);
+				       }else{
+					   // Something noticable on
+					   // failure.
+					   tmp_buff.push('???');
+				       }
 				   }else{
 				       // Standard output.   
 				       out = _process_entry(fid, bit, doc);
