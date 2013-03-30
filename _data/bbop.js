@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130329";
+bbop.version.release = "20130330";
 /* 
  * Package: json.js
  * 
@@ -10839,18 +10839,22 @@ bbop.widget.display.results_table_by_class = function(cclass,
 				   var out = null;
 				   if( field.has_handler() ){
 				       // Special handler output.
-				       var json_f = doc[fid];
-				       var objo = bbop.json.parse(json_f); 
-				       var reso = handler.dispatch(objo);
-				       if( reso.success ){
-					   out = reso.results;
-					   tmp_buff.push(out);
-				       }else{
-					   // Something noticable on
-					   // failure.
-					   tmp_buff.push('???');
-				       }
-
+				       var json_flist = doc[fid];
+				       each(json_flist,
+					    function(json_f){
+						var objo =
+						    bbop.json.parse(json_f); 
+						var reso =
+						    handler.dispatch(objo);
+						if( reso.success ){
+						    out = reso.results;
+						    tmp_buff.push(out);
+						}else{
+						    // Something noticable on
+						    // failure.
+						    tmp_buff.push('???');
+						}
+					    });
 				   }else{
 				       // Standard output.   
 				       out = _process_entry(fid, bit, doc);

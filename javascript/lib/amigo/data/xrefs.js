@@ -449,32 +449,6 @@ amigo.data.xrefs = {
       "url_syntax" : null,
       "datatype" : null
    },
-   "uniprotkb-subcell" : {
-      "object" : "Identifier",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : "http://www.uniprot.org/locations/SL-0012",
-      "database" : "UniProt Knowledgebase Subcellular Location vocabulary",
-      "example_id" : "UniProtKB-SubCell:SL-0012",
-      "generic_url" : "http://www.uniprot.org/locations/",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "UniProtKB-SubCell",
-      "url_syntax" : "http://www.uniprot.org/locations/[example_id]",
-      "datatype" : null
-   },
-   "yeastfunc" : {
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : null,
-      "database" : "Yeast Function",
-      "generic_url" : "http://func.med.harvard.edu/yeast/",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "YeastFunc",
-      "url_syntax" : null,
-      "datatype" : null
-   },
    "pubmed" : {
       "object" : "Identifier",
       "name" : null,
@@ -761,20 +735,6 @@ amigo.data.xrefs = {
       "url_syntax" : "http://www.iuphar-db.org/DATABASE/ObjectDisplayForward?objectId=[example_id]",
       "datatype" : null
    },
-   "vega" : {
-      "object" : "Identifier",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : "http://vega.sanger.ac.uk/perl/searchview?species=all&idx=All&q=OTTHUMP00000000661",
-      "database" : "Vertebrate Genome Annotation database",
-      "example_id" : "VEGA:OTTHUMP00000000661",
-      "generic_url" : "http://vega.sanger.ac.uk/index.html",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "VEGA",
-      "url_syntax" : "http://vega.sanger.ac.uk/perl/searchview?species=all&idx=All&q=[example_id]",
-      "datatype" : null
-   },
    "ddb_ref" : {
       "object" : "Literature Reference Identifier",
       "name" : null,
@@ -842,21 +802,6 @@ amigo.data.xrefs = {
       "id" : null,
       "abbreviation" : "UM-BBD",
       "url_syntax" : null,
-      "datatype" : null
-   },
-   "wormbase" : {
-      "object" : "Gene identifier",
-      "name" : null,
-      "uri_prefix" : null,
-      "url_example" : "http://www.wormbase.org/db/get?class=Gene;name=WBGene00003001",
-      "database" : "WormBase database of nematode biology",
-      "local_id_syntax" : "^WB(Gene|Var)[0-9]{8}$",
-      "example_id" : "WB:WBGene00003001",
-      "generic_url" : "http://www.wormbase.org/",
-      "fullname" : null,
-      "abbreviation" : "WormBase",
-      "id" : null,
-      "url_syntax" : "http://www.wormbase.org/db/gene/gene?name=[example_id]",
       "datatype" : null
    },
    "corum" : {
@@ -1255,20 +1200,6 @@ amigo.data.xrefs = {
       "url_syntax" : "http://www.ncbi.nlm.nih.gov/entrez/viewer.fcgi?val=[example_id]",
       "datatype" : null
    },
-   "uniprotkb-kw" : {
-      "object" : "Identifier",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : "http://www.uniprot.org/keywords/KW-0812",
-      "database" : "UniProt Knowledgebase keywords",
-      "example_id" : "UniProtKB-KW:KW-0812",
-      "generic_url" : "http://www.uniprot.org/keywords/",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "UniProtKB-KW",
-      "url_syntax" : "http://www.uniprot.org/keywords/[example_id]",
-      "datatype" : null
-   },
    "ddb" : {
       "object" : "Identifier",
       "name" : null,
@@ -1650,23 +1581,6 @@ amigo.data.xrefs = {
       "url_syntax" : "http://umbbd.msi.umn.edu/servlets/rule.jsp?rule=[example_id]",
       "datatype" : null
    },
-   "uniprot" : {
-      "object" : "Accession",
-      "name" : null,
-      "uri_prefix" : null,
-      "url_example" : "http://www.uniprot.org/uniprot/P51587",
-      "description" : "A central repository of protein sequence and function created by joining the information contained in Swiss-Prot, TrEMBL, and PIR database",
-      "database" : "Universal Protein Knowledgebase",
-      "local_id_syntax" : "^[A-Z][0-9][A-Z0-9]{3}[0-9]((-([0-9]+)|:PRO_[0-9]{10}))?$",
-      "example_id" : "UniProtKB:P51587",
-      "generic_url" : "http://www.uniprot.org",
-      "fullname" : null,
-      "entity_type" : "PR:000000001 ! protein ",
-      "abbreviation" : "UniProt",
-      "id" : null,
-      "url_syntax" : "http://www.uniprot.org/uniprot/[example_id]",
-      "datatype" : null
-   },
    "pharmgkb" : {
       "uri_prefix" : null,
       "name" : null,
@@ -1735,20 +1649,6 @@ amigo.data.xrefs = {
       "url_syntax" : "http://www.aspergillusgenome.org/cgi-bin/locus.pl?dbid=[example_id]",
       "datatype" : null
    },
-   "vbrc" : {
-      "object" : "Identifier",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : "http://vbrc.org/query.asp?web_id=VBRC:F35742",
-      "database" : "Viral Bioinformatics Resource Center",
-      "example_id" : "VBRC:F35742",
-      "generic_url" : "http://vbrc.org",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "VBRC",
-      "url_syntax" : "http://vbrc.org/query.asp?web_id=VBRC:[example_id]",
-      "datatype" : null
-   },
    "psi-mi" : {
       "object" : "Interaction identifier",
       "uri_prefix" : null,
@@ -1790,21 +1690,6 @@ amigo.data.xrefs = {
       "id" : null,
       "abbreviation" : "GONUTS",
       "url_syntax" : "http://gowiki.tamu.edu/wiki/index.php/[example_id]",
-      "datatype" : null
-   },
-   "zfin" : {
-      "object" : "Identifier",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : "http://zfin.org/cgi-bin/ZFIN_jump?record=ZDB-GENE-990415-103",
-      "database" : "Zebrafish Information Network",
-      "local_id_syntax" : "^ZDB-(GENE|GEN|MRPHLNO)-[0-9]{6}-[0-9]+$",
-      "example_id" : "ZFIN:ZDB-GENE-990415-103",
-      "generic_url" : "http://zfin.org/",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "ZFIN",
-      "url_syntax" : "http://zfin.org/cgi-bin/ZFIN_jump?record=[example_id]",
       "datatype" : null
    },
    "protein_id" : {
@@ -1865,20 +1750,6 @@ amigo.data.xrefs = {
       "id" : null,
       "abbreviation" : "IUPHAR_GPCR",
       "url_syntax" : "http://www.iuphar-db.org/DATABASE/FamilyMenuForward?familyId=[example_id]",
-      "datatype" : null
-   },
-   "wormpep" : {
-      "object" : "Identifier",
-      "name" : null,
-      "uri_prefix" : null,
-      "url_example" : "http://www.wormbase.org/db/get?class=Protein;name=WP:CE15104",
-      "database" : "Wormpep database of proteins of C. elegans",
-      "example_id" : "WP:CE25104",
-      "generic_url" : "http://www.wormbase.org/",
-      "fullname" : null,
-      "abbreviation" : "Wormpep",
-      "id" : null,
-      "url_syntax" : "http://www.wormbase.org/db/get?class=Protein;name=WP:[example_id]",
       "datatype" : null
    },
    "jcvi" : {
@@ -2286,18 +2157,6 @@ amigo.data.xrefs = {
       "url_syntax" : "http://db.yeastgenome.org/cgi-bin/locus.pl?dbid=[example_id]",
       "datatype" : null
    },
-   "vida" : {
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : null,
-      "database" : "Virus Database at University College London",
-      "generic_url" : "http://www.biochem.ucl.ac.uk/bsm/virus_database/VIDA.html",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "VIDA",
-      "url_syntax" : null,
-      "datatype" : null
-   },
    "doi" : {
       "object" : "Identifier",
       "uri_prefix" : null,
@@ -2637,20 +2496,6 @@ amigo.data.xrefs = {
       "url_syntax" : "http://dictybase.org/gene/[example_id]",
       "datatype" : null
    },
-   "wb_ref" : {
-      "object" : "Literature Reference Identifier",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : "http://www.wormbase.org/db/misc/paper?name=WBPaper00004823",
-      "database" : "WormBase database of nematode biology",
-      "example_id" : "WB_REF:WBPaper00004823",
-      "generic_url" : "http://www.wormbase.org/",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "WB_REF",
-      "url_syntax" : "http://www.wormbase.org/db/misc/paper?name=[example_id]",
-      "datatype" : null
-   },
    "kegg_pathway" : {
       "object" : "Pathway",
       "uri_prefix" : null,
@@ -2889,20 +2734,6 @@ amigo.data.xrefs = {
       "id" : null,
       "abbreviation" : "PAINT_REF",
       "url_syntax" : "http://www.geneontology.org/gene-associations/submission/paint/[example_id]/[example_id].txt",
-      "datatype" : null
-   },
-   "sp_sl" : {
-      "object" : "Identifier",
-      "name" : null,
-      "uri_prefix" : null,
-      "url_example" : "http://www.uniprot.org/locations/SL-0012",
-      "database" : "UniProt Knowledgebase Subcellular Location vocabulary",
-      "example_id" : "UniProtKB-SubCell:SL-0012",
-      "generic_url" : "http://www.uniprot.org/locations/",
-      "fullname" : null,
-      "abbreviation" : "SP_SL",
-      "id" : null,
-      "url_syntax" : "http://www.uniprot.org/locations/[example_id]",
       "datatype" : null
    },
    "cas_gen" : {
@@ -3552,34 +3383,6 @@ amigo.data.xrefs = {
       "url_syntax" : "http://www.informatics.jax.org/accession/[example_id]",
       "datatype" : null
    },
-   "wikipedia" : {
-      "object" : "Page Reference Identifier",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : "http://en.wikipedia.org/wiki/Endoplasmic_reticulum",
-      "database" : "Wikipedia",
-      "example_id" : "Wikipedia:Endoplasmic_reticulum",
-      "generic_url" : "http://en.wikipedia.org/",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "Wikipedia",
-      "url_syntax" : "http://en.wikipedia.org/wiki/[example_id]",
-      "datatype" : null
-   },
-   "sp_kw" : {
-      "object" : "Identifier",
-      "name" : null,
-      "uri_prefix" : null,
-      "url_example" : "http://www.uniprot.org/keywords/KW-0812",
-      "database" : "UniProt Knowledgebase keywords",
-      "example_id" : "UniProtKB-KW:KW-0812",
-      "generic_url" : "http://www.uniprot.org/keywords/",
-      "fullname" : null,
-      "abbreviation" : "SP_KW",
-      "id" : null,
-      "url_syntax" : "http://www.uniprot.org/keywords/[example_id]",
-      "datatype" : null
-   },
    "subtilist" : {
       "object" : "Accession",
       "uri_prefix" : null,
@@ -3690,23 +3493,6 @@ amigo.data.xrefs = {
       "url_syntax" : "http://www.ebi.ac.uk/interpro/IEntry?ac=[example_id]",
       "datatype" : null
    },
-   "uniprotkb" : {
-      "object" : "Accession",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : "http://www.uniprot.org/uniprot/P51587",
-      "description" : "A central repository of protein sequence and function created by joining the information contained in Swiss-Prot, TrEMBL, and PIR database",
-      "database" : "Universal Protein Knowledgebase",
-      "local_id_syntax" : "^[A-Z][0-9][A-Z0-9]{3}[0-9]((-([0-9]+)|:PRO_[0-9]{10}))?$",
-      "example_id" : "UniProtKB:P51587",
-      "generic_url" : "http://www.uniprot.org",
-      "entity_type" : "PR:000000001 ! protein ",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "UniProtKB",
-      "url_syntax" : "http://www.uniprot.org/uniprot/[example_id]",
-      "datatype" : null
-   },
    "ensemblfungi" : {
       "object" : "Identifier",
       "uri_prefix" : null,
@@ -3745,21 +3531,6 @@ amigo.data.xrefs = {
       "id" : null,
       "abbreviation" : "PROW",
       "url_syntax" : null,
-      "datatype" : null
-   },
-   "wb" : {
-      "object" : "Gene identifier",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : "http://www.wormbase.org/db/get?class=Gene;name=WBGene00003001",
-      "database" : "WormBase database of nematode biology",
-      "local_id_syntax" : "^WB(Gene|Var)[0-9]{8}$",
-      "example_id" : "WB:WBGene00003001",
-      "generic_url" : "http://www.wormbase.org/",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "WB",
-      "url_syntax" : "http://www.wormbase.org/db/gene/gene?name=[example_id]",
       "datatype" : null
    },
    "mtbbase" : {
@@ -3890,20 +3661,6 @@ amigo.data.xrefs = {
       "id" : null,
       "abbreviation" : "SGD_REF",
       "url_syntax" : "http://db.yeastgenome.org/cgi-bin/reference/reference.pl?dbid=[example_id]",
-      "datatype" : null
-   },
-   "vmd" : {
-      "object" : "Gene identifier",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : "http://vmd.vbi.vt.edu/cgi-bin/browse/browserDetail_new.cgi?gene_id=109198",
-      "database" : "Virginia Bioinformatics Institute Microbial Database",
-      "example_id" : "VMD:109198",
-      "generic_url" : "http://phytophthora.vbi.vt.edu",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "VMD",
-      "url_syntax" : "http://vmd.vbi.vt.edu/cgi-bin/browse/browserDetail_new.cgi?gene_id=[example_id]",
       "datatype" : null
    },
    "rhea" : {
@@ -4095,20 +3852,6 @@ amigo.data.xrefs = {
       "url_syntax" : "http://www.reactome.org/cgi-bin/eventbrowser_st_id?ST_ID=[example_id]",
       "datatype" : null
    },
-   "wp" : {
-      "object" : "Identifier",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : "http://www.wormbase.org/db/get?class=Protein;name=WP:CE15104",
-      "database" : "Wormpep database of proteins of C. elegans",
-      "example_id" : "WP:CE25104",
-      "generic_url" : "http://www.wormbase.org/",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "WP",
-      "url_syntax" : "http://www.wormbase.org/db/get?class=Protein;name=WP:[example_id]",
-      "datatype" : null
-   },
    "subtilistg" : {
       "object" : "Gene symbol",
       "uri_prefix" : null,
@@ -4234,20 +3977,6 @@ amigo.data.xrefs = {
       "url_syntax" : null,
       "datatype" : null
    },
-   "vz" : {
-      "object" : "Page Reference Identifier",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : "http://viralzone.expasy.org/all_by_protein/957.html",
-      "database" : "ViralZone",
-      "example_id" : "VZ:957",
-      "generic_url" : "http://viralzone.expasy.org/",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "VZ",
-      "url_syntax" : "http://viralzone.expasy.org/all_by_protein/[example_id].html",
-      "datatype" : null
-   },
    "ncbi_gene" : {
       "object" : "Identifier",
       "uri_prefix" : null,
@@ -4307,7 +4036,7 @@ amigo.data.xrefs = {
       "object" : "Identifier",
       "uri_prefix" : null,
       "name" : null,
-      "url_example" : "http://www.grenoble.prabi.fr/obiwarehouse/unipathway/upa?upid=UPA00155",
+      "url_example" : null,
       "description" : "UniPathway is a a metabolic door to UniProtKB/Swiss-Prot, a curated resource of metabolic pathways for the UniProtKB/Swiss-Prot knowledgebase.",
       "database" : "UniPathway",
       "example_id" : "UniPathway:UPA00155",
@@ -4315,7 +4044,7 @@ amigo.data.xrefs = {
       "fullname" : null,
       "id" : null,
       "abbreviation" : "UniPathway",
-      "url_syntax" : "http://www.grenoble.prabi.fr/obiwarehouse/unipathway/upa?upid=[example_id]",
+      "url_syntax" : "http://www.gre",
       "datatype" : null
    }
 };
