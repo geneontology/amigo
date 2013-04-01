@@ -48,8 +48,8 @@ var loop = bbop.core.each;
 // Let's constrain things a bit for the sake of clarity.
 var our_sources_of_interest = [
     'dictyBase',
-    'EcoCyc',
-    'FlyBase',
+    //'EcoCyc',
+    'FB',
     'MGI',
     'PomBase',
     'RGD',
