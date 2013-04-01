@@ -1,0 +1,30 @@
+////
+//// Some unit testing for linker.js (even though its data is generated).
+////
+//// Usage:
+////    Command line: "rhino -f xrefs.js.tests"
+////    Interactive: "rhino -f xrefs.js.tests -f -"
+////
+
+// Load testing and correct environment.
+load('../../../../_data/bbop.js');
+var mr_t = new bbop.test();
+load('server.js');
+load('xrefs.js');
+
+///
+/// Start unit testing.
+///
+
+//(function(){
+
+// ...
+//mr_t.is_same_atom(l.url('GO:0022008'), 'http://amigo.geneontology.org/cgi-bin/amigo/term-details.cgi?term=GO:0022008', 'linker: go');
+// })();
+
+///
+/// End unit testing.
+///
+
+// Final report.
+mr_t.report();
