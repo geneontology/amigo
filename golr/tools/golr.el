@@ -48,7 +48,7 @@
   :group 'golr)
 
 (defcustom golr-transfer-schema
-  `(("lib" ("solr.war") ,golr-jetty-webapps-location)
+  `(("solr" ("solr.war") ,golr-jetty-webapps-location)
     ("jetty" ("jetty") "/etc/default/")
     ("jetty" ("jetty.conf" "jetty-rewrite.xml" "jetty.xml") "/etc/jetty/")
     ("jetty" ("no_access.html") ,(concat golr-jetty-webapps-location "root/"))
