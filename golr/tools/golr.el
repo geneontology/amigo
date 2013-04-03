@@ -79,12 +79,12 @@ system services. It is an ordered list of strings."
 
 (defun golr-shell-command (cmnd)
   "Standard shell command with printing."
-  (princ (concat "[Golr] " cmnd "\n"))
+  (princ (concat "[GOlr] " cmnd "\n"))
   (shell-command cmnd))
 
 (defun golr-sudo-prep ()
   "Warm-up sudo for other commands."
-  (princ "[Golr] Getting sudo password cached...")
+  (princ "[GOlr] Getting sudo password cached...")
   (shell-command (concat "echo \""
 			 (read-passwd "Password: ")
 			 "\" | sudo -S whoami")))

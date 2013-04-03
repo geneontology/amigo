@@ -33,6 +33,10 @@ ONTOLOGIES = \
  http://purl.obolibrary.org/obo/cl.owl \
  http://purl.obolibrary.org/obo/eco.owl \
  http://geneontology.org/ontology/extensions/gorel.owl
+## Next:
+# http://purl.obolibrary.org/obo/ma.owl \
+# http://purl.obolibrary.org/obo/emap.owl \
+# http://purl.obolibrary.org/obo/uberon/basic.owl
 
 ALL_GAFS = \
 	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Lmajor.gz \
