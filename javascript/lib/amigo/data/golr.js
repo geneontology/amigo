@@ -223,7 +223,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Terms directly annotated to this bioentity.",
-            "display_name" : "Direct terms",
+            "display_name" : "Annotations",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -235,7 +235,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Terms directly annotated to this bioentity.",
-            "display_name" : "Direct terms",
+            "display_name" : "Annotations",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -258,8 +258,8 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Family IDs that are associated with this entity.",
-            "display_name" : "Protein family",
+            "description" : "PANTHER family IDs that are associated with this entity.",
+            "display_name" : "PANTHER family",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -270,8 +270,8 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Families that are associated with this entity.",
-            "display_name" : "Family",
+            "description" : "PANTHER families that are associated with this entity.",
+            "display_name" : "PANTHER family",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -320,8 +320,8 @@ amigo.data.golr = {
          },
          "panther_family_label" : {
             "transform" : [],
-            "description" : "Families that are associated with this entity.",
-            "display_name" : "Family",
+            "description" : "PANTHER families that are associated with this entity.",
+            "display_name" : "PANTHER family",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -332,8 +332,8 @@ amigo.data.golr = {
          },
          "panther_family" : {
             "transform" : [],
-            "description" : "Family IDs that are associated with this entity.",
-            "display_name" : "Protein family",
+            "description" : "PANTHER family IDs that are associated with this entity.",
+            "display_name" : "PANTHER family",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -393,7 +393,7 @@ amigo.data.golr = {
          "annotation_class_list_label" : {
             "transform" : [],
             "description" : "Terms directly annotated to this bioentity.",
-            "display_name" : "Direct terms",
+            "display_name" : "Annotations",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -465,7 +465,7 @@ amigo.data.golr = {
          "annotation_class_list" : {
             "transform" : [],
             "description" : "Terms directly annotated to this bioentity.",
-            "display_name" : "Direct terms",
+            "display_name" : "Annotations",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -902,7 +902,7 @@ amigo.data.golr = {
          }
       },
       "document_category" : "annotation_evidence_aggregate",
-      "weight" : "10",
+      "weight" : "-10",
       "_strict" : 0,
       "id" : "bbop_ann_ev_agg",
       "_outfile" : "/home/sjcarbon/local/src/git/amigo/metadata//ann_ev_agg-config.yaml"
@@ -1147,7 +1147,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Column 5.",
-            "display_name" : "Annotation class",
+            "display_name" : "Annotation",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1159,7 +1159,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Column 5 + ontology.",
-            "display_name" : "Annotation class label",
+            "display_name" : "Annotation label",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1207,7 +1207,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "All evidence (evidence closure) for this annotation",
-            "display_name" : "Evidence type (inferred)",
+            "display_name" : "Evidence type",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1302,8 +1302,8 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Family IDs that are associated with this entity.",
-            "display_name" : "Protein family",
+            "description" : "PANTHER family IDs that are associated with this entity.",
+            "display_name" : "PANTHER family",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1314,8 +1314,8 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Families that are associated with this entity.",
-            "display_name" : "Family",
+            "description" : "PANTHER families that are associated with this entity.",
+            "display_name" : "PANTHER family",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1328,8 +1328,8 @@ amigo.data.golr = {
       "fields_hash" : {
          "panther_family_label" : {
             "transform" : [],
-            "description" : "Families that are associated with this entity.",
-            "display_name" : "Family",
+            "description" : "PANTHER families that are associated with this entity.",
+            "display_name" : "PANTHER family",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1461,7 +1461,7 @@ amigo.data.golr = {
          "annotation_class" : {
             "transform" : [],
             "description" : "Column 5.",
-            "display_name" : "Annotation class",
+            "display_name" : "Annotation",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1532,8 +1532,8 @@ amigo.data.golr = {
          },
          "panther_family" : {
             "transform" : [],
-            "description" : "Family IDs that are associated with this entity.",
-            "display_name" : "Protein family",
+            "description" : "PANTHER family IDs that are associated with this entity.",
+            "display_name" : "PANTHER family",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1689,7 +1689,7 @@ amigo.data.golr = {
          "annotation_class_label" : {
             "transform" : [],
             "description" : "Column 5 + ontology.",
-            "display_name" : "Annotation class label",
+            "display_name" : "Annotation label",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1701,7 +1701,7 @@ amigo.data.golr = {
          "evidence_type_closure" : {
             "transform" : [],
             "description" : "All evidence (evidence closure) for this annotation",
-            "display_name" : "Evidence type (inferred)",
+            "display_name" : "Evidence type",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1952,7 +1952,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
-            "display_name" : "Involved in (IDs)",
+            "display_name" : "Is-a/part-of",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1967,7 +1967,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of labels over isa and partof.",
-            "display_name" : "Involved in",
+            "display_name" : "Is-a/part-of",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1982,7 +1982,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates + involved in (IDs)",
+            "display_name" : "Is-a/part-of/regulates",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -2000,7 +2000,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates + involved in",
+            "display_name" : "Is-a/part-of/regulates",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -2176,7 +2176,7 @@ amigo.data.golr = {
          "isa_partof_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over isa and partof.",
-            "display_name" : "Involved in",
+            "display_name" : "Is-a/part-of",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -2234,7 +2234,7 @@ amigo.data.golr = {
          "regulates_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates + involved in",
+            "display_name" : "Is-a/part-of/regulates",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -2252,7 +2252,7 @@ amigo.data.golr = {
          "regulates_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates + involved in (IDs)",
+            "display_name" : "Is-a/part-of/regulates",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -2284,7 +2284,7 @@ amigo.data.golr = {
          "isa_partof_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
-            "display_name" : "Involved in (IDs)",
+            "display_name" : "Is-a/part-of",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",

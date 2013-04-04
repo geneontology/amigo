@@ -13301,7 +13301,8 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	//anchor.ui.setup_reset_button();
     	if( show_searchbox_p ){ // conditionally display search box stuff
     	    //anchor.ui.setup_query();
-    	    anchor.ui.setup_query('Search:&nbsp;',
+    	    //anchor.ui.setup_query('Search:&nbsp;',
+    	    anchor.ui.setup_query('Filter:&nbsp;',
 				  icon_clear_label,
 				  icon_clear_source);
 	}
