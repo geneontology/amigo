@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130330";
+bbop.version.release = "20130403";
 /* 
  * Package: json.js
  * 
@@ -10643,7 +10643,8 @@ bbop.widget.display.results_table_by_class = function(cclass,
 
     // Temp logger.
     var logger = new bbop.logger();
-    logger.DEBUG = true;
+    //logger.DEBUG = true;
+    logger.DEBUG = false;
     function ll(str){ logger.kvetch('TT: ' + str); }
 
     var each = bbop.core.each; // conveience

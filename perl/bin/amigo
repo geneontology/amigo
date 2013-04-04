@@ -34,7 +34,7 @@ my $dispatch_table =
    'phylo_graph/:gp'  => { app => $app, rm => 'phylo_graph', gp => 'gp'},
   ];
 CGI::Application::Dispatch->dispatch(
-				     debug => 1,
-				     #debug => 0,
+				     #debug => 1,
+				     debug => 0,
 				     table => $dispatch_table,
 				    );
