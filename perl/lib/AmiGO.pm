@@ -1374,8 +1374,15 @@ sub get_interlink {
      sub {
        die "interlink mode 'galaxy_by_tool' requires args" if ! defined $args;
        my $gtid = $args->{tool_id} || die 'needs tool_id argument';
+
+       ## This is by definition always an external URL, so make sure
+       ## that we override to nothing odd.
+       $optional_public_p = 0;
+       $optional_full_p = 0;
+
        $ilink = ''; # not really defined if we don't have it
        my $in_galaxy = $self->amigo_env('AMIGO_PUBLIC_GALAXY_URL');
+
        if( $in_galaxy ){ # we have our galaxy defined, so make the URL real.
 	 if( $in_galaxy =~ /\/$/ ){
 	   $ilink = $in_galaxy . 'tool_runner?tool_id=' . $gtid;
