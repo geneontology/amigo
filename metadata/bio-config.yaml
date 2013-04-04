@@ -117,13 +117,13 @@ fields:
     property: []
   - id: annotation_class_list
     description: "Terms directly annotated to this bioentity."
-    display_name: Direct terms 
+    display_name: Annotations 
     type: string
     cardinality: multi
     property: []
   - id: annotation_class_list_label
     description: "Terms directly annotated to this bioentity."
-    display_name: Direct terms
+    display_name: Annotations
     type: string
     cardinality: multi
     property: []
@@ -134,14 +134,14 @@ fields:
     cardinality: multi
     property: []
   - id: panther_family
-    description: Family IDs that are associated with this entity.
-    display_name: Protein family
+    description: PANTHER family IDs that are associated with this entity.
+    display_name: PANTHER family
     type: string
     searchable: true
     property: []
   - id: panther_family_label
-    description: Families that are associated with this entity.
-    display_name: Family
+    description: PANTHER families that are associated with this entity.
+    display_name: PANTHER family
     type: string
     searchable: true
     property: []

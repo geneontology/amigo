@@ -102,7 +102,7 @@ fields:
     cardinality: multi
   - id: isa_partof_closure
     description: "Closure of ids/accs over isa and partof."
-    display_name: Involved in (IDs)
+    display_name: Is-a/part-of
     type: string
     cardinality: multi
     property:
@@ -110,7 +110,7 @@ fields:
       - "BFO:0000050"
   - id: isa_partof_closure_label
     description: "Closure of labels over isa and partof."
-    display_name: Involved in
+    display_name: Is-a/part-of
     type: string
     cardinality: multi
     property:
@@ -119,7 +119,7 @@ fields:
     searchable: true
   - id: regulates_closure
     description: "Closure of ids/accs over regulates."
-    display_name: Regulates + involved in (IDs)
+    display_name: Is-a/part-of/regulates
     type: string
     cardinality: multi
     property:
@@ -130,7 +130,7 @@ fields:
       - "RO:0002213"
   - id: regulates_closure_label
     description: "Closure of labels over regulates."
-    display_name: Regulates + involved in
+    display_name: Is-a/part-of/regulates
     type: string
     cardinality: multi
     property:

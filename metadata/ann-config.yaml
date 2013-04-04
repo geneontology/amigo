@@ -156,12 +156,6 @@ fields:
 #     type: string
 #     cardinality: multi
 #     property: []
-#   - id: direct_annotation
-#     description: Direct terms associatied with GP.
-#     display_name: Direct annotations
-#     type: string
-#     cardinality: multi
-#     property: []
 #   - id: annotation_closure
 #     description: All terms associatied with GP.
 #     display_name: All annotations
@@ -216,12 +210,12 @@ fields:
     property: []
   - id: annotation_class
     description: Column 5.
-    display_name: Annotation class
+    display_name: Annotation
     type: string
     property: []
   - id: annotation_class_label
     description: "Column 5 + ontology."
-    display_name: Annotation class label
+    display_name: Annotation label
     type: string
     property: []
     searchable: true
@@ -258,7 +252,7 @@ fields:
     property: []
   - id: evidence_type_closure
     description: All evidence (evidence closure) for this annotation
-    display_name: Evidence type (inferred)
+    display_name: Evidence type
     type: string
     cardinality: multi
     property: []
@@ -307,14 +301,14 @@ fields:
     cardinality: multi
     property: []
   - id: panther_family
-    description: Family IDs that are associated with this entity.
-    display_name: Protein family
+    description: PANTHER family IDs that are associated with this entity.
+    display_name: PANTHER family
     type: string
     searchable: true
     property: []
   - id: panther_family_label
-    description: Families that are associated with this entity.
-    display_name: Family
+    description: PANTHER families that are associated with this entity.
+    display_name: PANTHER family
     type: string
     searchable: true
     property: []
