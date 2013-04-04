@@ -287,11 +287,6 @@ ul.dot { list-style-type: disc; margin-left: 20px; }
 
 #footer, #header { width: 100%; background: #e9effa; border-width: 3px 0 3px 0; border-color: #3875D7; border-style: solid; margin: 0; overflow: hidden; }
 
-#header {
-    background: url(../images/go-logo.png) #e9effa 0 0px no-repeat;
-    background-size: 225px;
-}
-
 #header h1 { font: italic 200% "trebuchet ms", "lucida grande", arial, sans-serif; margin: 0; padding: 15px 5px 5px 125px; color: #3875D7; text-align: left; }
 
 #header h1 a { color: #3875D7; border: none; }
@@ -624,3 +619,11 @@ div .mq_message {
     padding-left: 0.5em;
     padding-right: 0.5em;
 }
+
+.logo-img-left {
+    height: 50px;
+}
+.logo-img-right {
+    height: 50px;
+}
+
