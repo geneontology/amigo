@@ -46,6 +46,24 @@ amigo.linker = function (){
     }
     var sd = new amigo.data.server();
     this.app_base = sd.app_base();
+
+    // Categories for different special cases (internal links).
+    this.ont_category = {
+	'term': true,
+	'ontology_class': true,
+	'annotation_class': true,
+	'annotation_class_closure': true,
+	'annotation_class_list': true
+    };
+    this.bio_category = {
+        'gp': true,
+	'gene_product': true,
+	'bioentity': true
+    };
+    this.search_category = {
+        'search': true,
+	'live_search': true
+    };
 };
 
 /*
@@ -66,26 +84,21 @@ amigo.linker.prototype.url = function (id, xid){
 
     // AmiGO hard-coded link types.
     if( xid ){
-	if( xid == 'term' ||
-	    xid == 'annotation_class' ||
-	    xid == 'ontology_class' ){
-		//retval = 'amigo?mode=term&term=' + id;
-		retval = this.app_base + '/amigo/term/' + id;
-        }else if( xid == 'gp' ||
-		  xid == 'gene_product' ||
-		  xid == 'bioentity' ){
-	        //retval = 'amigo?mode=gene_product&gp=' + id;
-	        retval = this.app_base + '/amigo/gene_product/' + id;
-        }else if( xid == 'search' ||
-		  xid == 'live_search' ){
-		      if( id ){
-			  //retval = 'amigo?mode=search&bookmark=' + id;
-			  retval = this.app_base +'/amigo/search?bookmark='+ id;
-		      }else{
-			  //retval = 'amigo?mode=search';
-			  retval = this.app_base + '/amigo/search';
-		      }
-		  }
+	if( this.ont_category[xid] ){
+	    //retval = 'amigo?mode=term&term=' + id;
+	    retval = this.app_base + '/amigo/term/' + id;
+        }else if( this.bio_category[xid] ){
+	    //retval = 'amigo?mode=gene_product&gp=' + id;
+	    retval = this.app_base + '/amigo/gene_product/' + id;
+        }else if( this.search_category[xid] ){
+	    if( id ){
+		//retval = 'amigo?mode=search&bookmark=' + id;
+		retval = this.app_base +'/amigo/search?bookmark='+ id;
+	    }else{
+		//retval = 'amigo?mode=search';
+		retval = this.app_base + '/amigo/search';
+	    }
+	}
     }
 
     // Since we couldn't find anything with our explicit
@@ -152,21 +165,16 @@ amigo.linker.prototype.anchor = function(args, xid){
 	// First, see if it is one of the internal ones we know about
 	// and make something special for it.
 	if( xid ){
-	    if( xid == 'term' ||
-		xid == 'annotation_class' ||
-		xid == 'ontology_class' ){
-		    retval = '<a title="Go to the term details page for ' +
-			label +	'." href="' + url + '">' + hilite + '</a>';
-            }else if( xid == 'gp' ||
-		      xid == 'gene_product' ||
-		      xid == 'bioentity' ){
-		    retval = '<a title="Go to the gene product ' +
-			      'details page for ' + label +
-			      '." href="' + url + '">' + hilite + '</a>';
-            }else if( xid == 'search' ||
-		      xid == 'live_search' ){
-		    retval = '<a title="Reinstate bookmark for ' + label +
-			      '." href="' + url + '">' + hilite + '</a>';
+	    if( this.ont_category[xid] ){
+		retval = '<a title="Go to the term details page for ' +
+		    label + '." href="' + url + '">' + hilite + '</a>';
+            }else if( this.bio_category[xid] ){
+		retval = '<a title="Go to the gene product ' +
+		    'details page for ' + label +
+		    '." href="' + url + '">' + hilite + '</a>';
+            }else if( this.search_category[xid] ){
+		retval = '<a title="Reinstate bookmark for ' + label +
+		    '." href="' + url + '">' + hilite + '</a>';
 	    }
 	}
 
