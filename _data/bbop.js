@@ -10563,6 +10563,56 @@ bbop.widget.display.clickable_object = function(label, source, id){
     return obj;
 };
 /*
+ * Package: text_buttom_sim.js
+ * 
+ * Namespace: bbop.widget.display.text_button_sim
+ * 
+ * BBOP object to produce a clickable text span, that in conjunction with the local CSS, should make an awfully button looking creature.
+ * 
+ * It uses the class: "bbop-js-text-button-sim".
+ * 
+ * Note: this is a method, not a constructor.
+ */
+
+bbop.core.require('bbop', 'core');
+//bbop.core.require('bbop', 'logger');
+bbop.core.require('bbop', 'html');
+bbop.core.namespace('bbop', 'widget', 'display', 'text_button_sim');
+
+/*
+ * Method: text_button_sim
+ * 
+ * Generator for a text span for use for buttons.
+ * 
+ * Arguments:
+ *  label - *[optional]* the text to use for the span or (defaults to 'X')
+ *  title - *[optional]* the hover text (defaults to 'X')
+ *  id - *[optional]* the id for the object (defaults to generate_id: true)
+ * 
+ * Returns:
+ *  bbop.html.span
+ */
+bbop.widget.display.text_button_sim = function(label, title, id){
+    
+    // Default args.
+    if( ! label ){ label = 'X'; }
+    if( ! title ){ title = 'X'; }
+    
+    // Decide whether we'll use an incoming id or generate our own.
+    var args = {
+	'class': "bbop-js-text-button-sim",
+	'title': title
+    };
+    if( id ){
+	args['id'] = id;
+    }else{
+	args['generate_id'] = true;
+    }
+    
+    var obj = new bbop.html.span(label, args);    
+    return obj;
+};
+/*
  * Package: meta_results.js
  * 
  * Namespace: bbop.widget.display.meta_results
@@ -11090,19 +11140,22 @@ bbop.widget.display.filter_shield = function(){
 	var tbl = new bbop.html.table();
 	var button_hash = {};
 	var each = bbop.core.each; // conveience
+	var bgen = bbop.widget.display.text_button_sim;
 	each(filter_list,
  	     function(field){
 		 var fname = field[0];
 		 var fcount = field[1];
-		 
-		 var b_plus_txt = '<b>[&nbsp;+&nbsp;]</b>';
-		 var b_plus =
-		     new bbop.html.span(b_plus_txt,
-					{'generate_id': true});
-		 var b_minus_txt = '<b>[&nbsp;-&nbsp;]</b>';
-		 var b_minus =
-		     new bbop.html.span(b_minus_txt,
-					{'generate_id': true});
+
+		 var b_plus = new bgen('+', 'Add positive filter');
+		 var b_minus = new bgen('-', 'Add negative filter');
+		 // var b_plus_txt = '<b>[&nbsp;+&nbsp;]</b>';
+		 // var b_plus =
+		 //     new bbop.html.span(b_plus_txt,
+		 // 			{'generate_id': true});
+		 // var b_minus_txt = '<b>[&nbsp;-&nbsp;]</b>';
+		 // var b_minus =
+		 //     new bbop.html.span(b_minus_txt,
+		 // 			{'generate_id': true});
 		 button_hash[b_plus.get_id()] =
 		     [field_name, fname, fcount, '+'];
 		 button_hash[b_minus.get_id()] =
@@ -11879,13 +11932,10 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 
 	// First, we need to make the filter clear button for the top
 	// of the table.
-	var b_cf = new bbop.html.span('<b>X</b>',
-				      {'id': 'ui_clear_user_filter_span_id',
-				       'class': 'bbop-js-text-button-sim',
-				       'title': 'Clear all user filters'});
-	// 	    bbop.widget.display.clickable_object(icon_reset_label,
-	// 					 icon_reset_source,
-	// 					 ui_clear_user_filter_span_id);
+	var b_cf =
+	    new bbop.widget.display.text_button_sim('X', 
+						    'Clear all user filters',
+						    ui_clear_user_filter_span_id);
 
 	var in_query_filters = response.query_filters();
 	//var sticky_query_filters = manager.get_sticky_query_filters();
@@ -12075,7 +12125,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 		     // bug/problem.
 		     var redundant_count = 0;
 		     // Now go through and get filters and counts.
-		     var virtual_ff_index = 0; // only count when good
+		     var good_count = 0; // only count when good
+		     var overflow_p = false; // true when at 24 -> 25
 		     each(response.facet_field(in_field),
 			  function(ff_field, ff_index){
 				  
@@ -12083,85 +12134,89 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 			      // for information content.
 			      var f_name = ff_field[0];
 			      var f_count = ff_field[1];
-
+			      
 			      ll(in_field + ": " + f_name + ": " +
 			      	 [f_count,
 			      	  total_docs,
-			      	  virtual_ff_index,
+				  ff_index,
+				  good_count,
 				  redundant_count,
-			      	  curr_facet_limit].join(', '));
-
-			      // Test--only go if it's not redundant.
+			      	  real_facet_limit].join(', '));
+			      
+			      // TODO: The field is likely redundant
+			      // (BUG: not always true in closures),
+			      // so eliminate it.
 			      if( f_count == total_docs ){
-				  // ll("\tnothing here");
-				  //virtual_ff_index++;
+				  ll("\tnothing here");
 				  redundant_count++;
-			      }else{
+			      }else if( ff_index < real_facet_limit -1 ){
+				  ll("\tgood row");
+				  good_count++;
 
-				  // Only go for it if we have still below
-				  // the limit by one; otherwise, we'll
-				  // want to display the larger selection
-				  // shield.
-				  virtual_ff_index++;
-				  if( (virtual_ff_index + redundant_count)
-				      < curr_facet_limit ){
-				      ll("\tmake facet");
-
-				      // Create buttons and store them for later
-				      // activation with callbacks to
-				      // the manager.
-				      var b_plus =
-					  bbop.widget.display.clickable_object(
-					      ui_icon_positive_label,
-					      ui_icon_positive_source,
-					      null); // generate_id
-				      var b_minus =
-					  bbop.widget.display.clickable_object(
-					      ui_icon_negative_label,
-					      ui_icon_negative_source,
-					      null); // generate_id
-
-				      // Store in hash for later keying to
-				      // event.
-				      button_hash[b_plus.get_id()] =
-					  [in_field, f_name, f_count, '+'];
-				      button_hash[b_minus.get_id()] =
-					  [in_field, f_name, f_count, '-'];
-				      
-				      // // Add the label and buttons to the
-				      // // appropriate ul list.
-				      //facet_list_ul.add_to(
-				      // fstr,b_plus.to_string(),
-				      //   b_minus.to_string());
-				      // Add the label and buttons to the table.
-				      facet_list_tbl.add_to([f_name,
-							     '('+ f_count+ ')',
-							     b_plus.to_string(),
-							     b_minus.to_string()
-							    ]);
-				  }else{
-				      ll( "\tskip and make [more]");
-
-				      // Since this is the overflow item,
-				      // add a span that can be clicked on
-				      // to get the full filter list.
-				      //ll("Overflow for " + in_field);
-				      var b_over_txt = '<b>[more...]</b>';
-				      var b_over =
-					  new bbop.html.span(b_over_txt,
-							     {'generate_id':
-							      true});
-				      facet_list_tbl.add_to([b_over.to_string(),
-				  			     '', '']);
-				      overflow_hash[b_over.get_id()] = in_field;
-				  }
+				  // Create buttons and store them for later
+				  // activation with callbacks to
+				  // the manager.
+				  var b_plus =
+				      bbop.widget.display.clickable_object(
+					  ui_icon_positive_label,
+					  ui_icon_positive_source,
+					  null); // generate_id
+				  var b_minus =
+				      bbop.widget.display.clickable_object(
+					  ui_icon_negative_label,
+					  ui_icon_negative_source,
+					  null); // generate_id
+				  
+				  // Store in hash for later keying to
+				  // event.
+				  button_hash[b_plus.get_id()] =
+				      [in_field, f_name, f_count, '+'];
+				  button_hash[b_minus.get_id()] =
+				      [in_field, f_name, f_count, '-'];
+				  
+				  // // Add the label and buttons to the
+				  // // appropriate ul list.
+				  //facet_list_ul.add_to(
+				  // fstr,b_plus.to_string(),
+				  //   b_minus.to_string());
+				  // Add the label and buttons to the table.
+				  facet_list_tbl.add_to([f_name,
+							 '('+ f_count+ ')',
+							 b_plus.to_string(),
+							 b_minus.to_string()
+							]);
+			      }
+			
+			      // This must be logically separated from
+			      // the above since we still want to show
+			      // more even if all of the top 25 are
+			      // redundant.
+			      if( ff_index == real_facet_limit -1 ){
+				  // Add the more button if we get up to
+				  // this many facet rows. This should
+				  // only happen on the last possible
+				  // iteration.
+				  
+				  overflow_p = true;
+				  ll( "\tadd [more]");
+				  
+				  // Since this is the overflow item,
+				  // add a span that can be clicked on
+				  // to get the full filter list.
+				  //ll("Overflow for " + in_field);
+				  var bgn = bbop.widget.display.text_button_sim;
+				  var b_over =
+				      new bgn('more...',
+					      'Display the complete list');
+				  facet_list_tbl.add_to([b_over.to_string(),
+				  			 '', '']);
+				  overflow_hash[b_over.get_id()] = in_field;
 			      }
 			  });
 
 		     // There is a case when we have filtered out all
 		     // avilable filters (think db source).
-		     if( virtual_ff_index == 0 &&
-			 redundant_count != real_facet_limit ){
+		     if( good_count == 0 && ! overflow_p ){
 			 _nothing_to_see_here(in_field);
 		     }else{
 			 // Otherwise, now add the ul to the
@@ -12181,8 +12236,9 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 			 }
 			 if( warn_txt ){
 			     jQuery('#' + sect_id).append(
-				 "<small>" + redundant_count + " redundant " +
-				     warn_txt + " not shown" + "</small>");
+				 "<small> The top (" + redundant_count +
+				     ") redundant " + warn_txt + " not shown" +
+				     "</small>");
 							  
 			 }
 
@@ -13200,10 +13256,8 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 
     // Our argument default hash.
     function _button_wrapper(str, title){
-	if( ! title ){ title = ''; }
-	return '<span class="bbop-js-text-button-sim" title="' + 
-	    title + '"><b>' +
-	    str + '</b></span>';
+	var b = new bbop.widget.display.text_button_sim(str, title, '');
+	return b.to_string();
     }
     var default_hash =
     	{
