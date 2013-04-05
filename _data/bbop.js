@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130403";
+bbop.version.release = "20130404";
 /* 
  * Package: json.js
  * 
@@ -12017,12 +12017,21 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 
 	// We'll need this in a little bit for calculating when to
 	// display the "more" option for the field filters.
-	var curr_facet_limit = manager.get_facet_limit();
+	var real_facet_limit = manager.get_facet_limit();
+	var curr_facet_limit = real_facet_limit -1; // the facets we'll show
 
 	// We want this so we can filter out any facets that have the
 	// same count as the current response total--these facets are
 	// pretty much information free.
 	var total_docs = response.total_documents();
+
+	// A helper function for when no filters are
+	// displayed.
+	function _nothing_to_see_here(in_field){
+	    var section_id = filter_accordion_widget.get_section_id(in_field);
+	    jQuery('#' + section_id).empty();
+	    jQuery('#' + section_id).append('Nothing to filter.');
+	}
 
 	// Hash where we collect our button information.
 	// button_id -> [source, filter, count, polarity];
@@ -12039,20 +12048,11 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	each(response.facet_field_list(),
 	     function(in_field){
 
-		 // A helper function for when no filters are
-		 // displayed.
-		 function _nothing_to_see_here(){
-		     var section_id =
-			 filter_accordion_widget.get_section_id(in_field);
-		     jQuery('#' + section_id).empty();
-		     jQuery('#' + section_id).append('Nothing to filter.');
-		 }
-
 		 var facet_bd = response.facet_field(in_field);
 		 if( bbop.core.is_empty(facet_bd) ){
 		     
 		     // No filters means nothing in the box.
-		     _nothing_to_see_here();
+		     _nothing_to_see_here(in_field);
 
 		 }else{
 		     
@@ -12062,10 +12062,18 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 			 id: tbl_id
 			 //style: 'height: 30em;'
 		     };
-		     //var facet_list_ul=new bbop.html.list([],facet_list_ul_attrs);
+
 		     var facet_list_tbl =
 			 new bbop.html.table([], [], facet_list_tbl_attrs);
 		     
+		     ll("consider:" + in_field + ": " +
+			response.facet_field(in_field).length);
+
+		     // BUG/TODO:
+		     // Count the number of redundant (not shown)
+		     // facets so we can at least give a face to this
+		     // bug/problem.
+		     var redundant_count = 0;
 		     // Now go through and get filters and counts.
 		     var virtual_ff_index = 0; // only count when good
 		     each(response.facet_field(in_field),
@@ -12075,18 +12083,29 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 			      // for information content.
 			      var f_name = ff_field[0];
 			      var f_count = ff_field[1];
-			      //var fstr = f_name +" ("+ f_count +")";
-			      //ll("COLLECT: " + fstr);	  
+
+			      ll(in_field + ": " + f_name + ": " +
+			      	 [f_count,
+			      	  total_docs,
+			      	  virtual_ff_index,
+				  redundant_count,
+			      	  curr_facet_limit].join(', '));
 
 			      // Test--only go if it's not redundant.
-			      if( f_count != total_docs ){
+			      if( f_count == total_docs ){
+				  // ll("\tnothing here");
+				  //virtual_ff_index++;
+				  redundant_count++;
+			      }else{
 
 				  // Only go for it if we have still below
 				  // the limit by one; otherwise, we'll
 				  // want to display the larger selection
 				  // shield.
-				  if( virtual_ff_index < curr_facet_limit -1 ){
-				      virtual_ff_index++;
+				  virtual_ff_index++;
+				  if( (virtual_ff_index + redundant_count)
+				      < curr_facet_limit ){
+				      ll("\tmake facet");
 
 				      // Create buttons and store them for later
 				      // activation with callbacks to
@@ -12121,6 +12140,7 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 							     b_minus.to_string()
 							    ]);
 				  }else{
+				      ll( "\tskip and make [more]");
 
 				      // Since this is the overflow item,
 				      // add a span that can be clicked on
@@ -12140,8 +12160,9 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 
 		     // There is a case when we have filtered out all
 		     // avilable filters (think db source).
-		     if( virtual_ff_index == 0 ){
-			 _nothing_to_see_here();
+		     if( virtual_ff_index == 0 &&
+			 redundant_count != real_facet_limit ){
+			 _nothing_to_see_here(in_field);
 		     }else{
 			 // Otherwise, now add the ul to the
 			 // appropriate section of the accordion in
@@ -12149,6 +12170,23 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 			 var sect_id =
 			     filter_accordion_widget.get_section_id(in_field);
 			 jQuery('#' + sect_id).empty();
+
+			 // TODO/BUG:
+			 // Give warning to the redundant facets.
+			 var warn_txt = null;
+			 if( redundant_count == 1 ){
+			     warn_txt = "field is";
+			 }else if( redundant_count > 1 ){
+			     warn_txt = "fields are";
+			 }
+			 if( warn_txt ){
+			     jQuery('#' + sect_id).append(
+				 "<small>" + redundant_count + " redundant " +
+				     warn_txt + " not shown" + "</small>");
+							  
+			 }
+
+			 // Add facet table.
 			 var final_tbl_str = facet_list_tbl.to_string();
 			 jQuery('#' + sect_id).append(final_tbl_str);
 		     }

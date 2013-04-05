@@ -475,6 +475,10 @@ sub mode_software_list {
   my $foo = $self->{CORE}->amigo_env('AMIGO_CGI_PARTIAL_URL');
   $self->set_template_parameter('OLD_LOC', $foo);
 
+  ## Get Galaxy, and add a variable for it in the page.
+  $self->set_template_parameter('GO_GALAXY',
+				$self->{CORE}->amigo_env('AMIGO_PUBLIC_GALAXY_URL'));
+
   # ## DEBUG:
   # ## Let's try getting some random messages out.
   # $self->add_mq('warning', 'warning floats to middle');
