@@ -12135,22 +12135,22 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 			      var f_name = ff_field[0];
 			      var f_count = ff_field[1];
 			      
-			      ll(in_field + ": " + f_name + ": " +
-			      	 [f_count,
-			      	  total_docs,
-				  ff_index,
-				  good_count,
-				  redundant_count,
-			      	  real_facet_limit].join(', '));
+			      // ll(in_field + ": " + f_name + ": " +
+			      // 	 [f_count,
+			      // 	  total_docs,
+			      // 	  ff_index,
+			      // 	  good_count,
+			      // 	  redundant_count,
+			      // 	  real_facet_limit].join(', '));
 			      
 			      // TODO: The field is likely redundant
 			      // (BUG: not always true in closures),
 			      // so eliminate it.
 			      if( f_count == total_docs ){
-				  ll("\tnothing here");
+				  //ll("\tnothing here");
 				  redundant_count++;
 			      }else if( ff_index < real_facet_limit -1 ){
-				  ll("\tgood row");
+				  //ll("\tgood row");
 				  good_count++;
 
 				  // Create buttons and store them for later
@@ -12198,7 +12198,7 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 				  // iteration.
 				  
 				  overflow_p = true;
-				  ll( "\tadd [more]");
+				  //ll( "\tadd [more]");
 				  
 				  // Since this is the overflow item,
 				  // add a span that can be clicked on
