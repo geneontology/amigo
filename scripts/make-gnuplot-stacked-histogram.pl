@@ -58,7 +58,7 @@ my $pset =
    'set title "' . $title . '"',
    #'set style histogram columnstacked',
    'set style data histogram', #
-   'set style histogram rowstacked gap 1.2', #
+   'set style histogram rowstacked gap 1.25', #
    'set boxwidth 0.9', #
    'set style fill solid 1.0 border -1', #
    'set key invert reverse Left outside',
