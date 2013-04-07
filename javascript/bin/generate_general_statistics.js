@@ -52,7 +52,13 @@ gm_ann.add_query_filter('document_category', 'annotation', ['*']);
 // Get all the facets--everything.
 gm_ann.set_facet_limit(-1);
 
+// A setup for our data for gnuplot like:
+// http://gnuplot.sourceforge.net/demo/histograms.html
+//var columns = ['AXES'];
+//var rows = []; // first column will be label; like [[foo 1 2], [bar, 3, 4], ...]
+
 // We will want to filter ECO a bit.
+// The is for the ann-overview mode.
 var our_ev_of_interest = [
     'similarity evidence', // okay
     'experimental evidence', // okay
@@ -114,6 +120,8 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 			      return val_b - val_a;
 			  });
 	}
+	// Print a header row, then the rest.
+	print("AXES\tCount");
 	each(raw_data,
 	     function(line){
 		 print(line[0] + "\t" + line[1]);
@@ -146,36 +154,38 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 
 	// Cycle over the sources we want to look at while collecting
 	// data.
-	each(our_sources_of_interest,
+	print('AXES' + "\t" + our_ev_of_interest.join("\t"));
+	each([our_sources_of_interest[0],
+	      our_sources_of_interest[1]],
+	     //each(our_sources_of_interest,
 	     function(isrc){
     		 gm_ann.reset_query_filters();
     		 gm_ann.add_query_filter('source', isrc);
 		 
 		 // ll('isrc: ' + isrc);
-
+		 
 		 var resp = gm_ann.fetch();
 		 // The evidence facet.
 		 var facet_list = resp.facet_field_list();
 		 var ev_fasc_hash =
 		     resp.facet_counts()['evidence_type_closure'];
 	 
-		 // Recover the current source from the response.
-		 var fqs = resp.query_filters();
-		 var src = bbop.core.get_keys(fqs['source'])[0];
+		 // // Recover the current source from the response.
+		 //var fqs = resp.query_filters();
+		 //var src = bbop.core.get_keys(fqs['source'])[0];
 	 
 		 // ll('ev_fasc_hash: ' + bbop.core.dump(ev_fasc_hash));
 		 
 		 // Data row assembly.
-		 //var row_cache = [src];
+		 var row_cache = [isrc];
 		 bbop.core.each(our_ev_of_interest,
 				function(e){
 				    var ev_cnt = ev_fasc_hash[e] || 0;
-				    print(isrc + "\t" + e + "\t" + ev_cnt);
+				    //print(isrc + "\t" + e + "\t" + ev_cnt);
 				    //print("\n");
-				    //row_cache.push(ev_cnt);
+				    row_cache.push(ev_cnt);
 				});
-		 //print("\n");
-		 //agg_data_03.push(row_cache);
+		 print(row_cache.join("\t"));
 	     });
 	
 	//print(bbop.core.dump(agg_data_03));
