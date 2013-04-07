@@ -155,9 +155,9 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 	// Cycle over the sources we want to look at while collecting
 	// data.
 	print('AXES' + "\t" + our_ev_of_interest.join("\t"));
-	each([our_sources_of_interest[0],
-	      our_sources_of_interest[1]],
-	     //each(our_sources_of_interest,
+	// each([our_sources_of_interest[0],
+	//       our_sources_of_interest[1]],
+	each(our_sources_of_interest,
 	     function(isrc){
     		 gm_ann.reset_query_filters();
     		 gm_ann.add_query_filter('source', isrc);
