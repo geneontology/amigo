@@ -53,13 +53,13 @@ if( ! $output ){
 
 my $pset =
   [
-   'set term png size 1200, 400',
+   'set term png size 1200, 500',
    'set output "' . $output . '"',
    'set title "' . $title . '"',
    #'set style histogram columnstacked',
    'set style data histogram', #
    'set style histogram rowstacked gap 1.25', #
-   'set boxwidth 0.9', #
+   'set boxwidth 0.8', #
    'set style fill solid 1.0 border -1', #
    'set key invert reverse Left outside',
    #'set yrange [0:*]',
