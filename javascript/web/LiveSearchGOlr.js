@@ -41,6 +41,7 @@ function LiveSearchGOlrInit(){
 					 'ontology_class', ['*']);
 		manager.clear_buttons();
 		manager.add_button(id_download_button);
+		manager.add_button(id_term_label_galaxy_button);
 		manager.add_button(bookmark_button);
 	    }
 	},
@@ -51,6 +52,7 @@ function LiveSearchGOlrInit(){
 					 'bioentity',['*']);
 		manager.clear_buttons();
 		manager.add_button(id_download_button);
+		manager.add_button(id_symbol_galaxy_button);
 		manager.add_button(bookmark_button);
 	    }
 	},
@@ -127,14 +129,14 @@ function LiveSearchGOlrInit(){
 
     var id_download_button =
 	{
-	    label: 'Download IDs (up to 5000)',
+	    label: 'Download IDs (up to 7500)',
 	    diabled_p: false,
 	    text_p: false,
 	    icon: 'ui-icon-document',
 	    click_function_generator: function(manager){
 		return function(event){
 		    var raw_gdl =
-			search.get_download_url(['id'], {'rows': 5000});
+			search.get_download_url(['id'], {'rows': 7500});
 		    // Aaand encodeURI is a little overzealous on
 		    // our case, so we turn our %09, which it
 		    // turned into %2509, back into %09.
@@ -142,20 +144,20 @@ function LiveSearchGOlrInit(){
 		    new bbop.widget.dialog('Download: <a href="' + gdl +
 					   '" title="Download ID list."'+
 					   '>ID list</a> ' + 
-					   '(max. 5000 lines).');
+					   '(max. 7500 lines).');
 		};
 	    }
 	};
     var gaf_download_button =
 	{
-	    label: 'GAF chunk download (up to 5000)',
+	    label: 'GAF chunk download (up to 7500)',
 	    diabled_p: false,
 	    text_p: false,
 	    icon: 'ui-icon-document',
 	    click_function_generator: function(manager){
 		return function(event){
 		    var raw_gdl =
-			search.get_download_url(_gaf_fl, {'rows': 5000});
+			search.get_download_url(_gaf_fl, {'rows': 7500});
 		    // Aaand encodeURI is a little overzealous on
 		    // our case, so we turn our %09, which it
 		    // turned into %2509, back into %09.
@@ -163,13 +165,13 @@ function LiveSearchGOlrInit(){
 		    new bbop.widget.dialog('Download: <a href="' + gdl +
 					   '" title="Download GAF chunk."'+
 					   '>GAF chunk</a> ' + 
-					   '(max. 5000 lines).');
+					   '(max. 7500 lines).');
 		};
 	    }
 	};
     var gaf_galaxy_button =
 	{
-	    label: 'Send GAF chunk to Galaxy (up to 5000)',
+	    label: 'Send GAF chunk to Galaxy (up to 7500)',
 	    diabled_p: false,
 	    text_p: false,
 	    icon: 'ui-icon-mail-closed',
@@ -208,7 +210,121 @@ function LiveSearchGOlrInit(){
 
 			// See GAF download button for more info.
 			var raw_gdl =
-			    search.get_download_url(_gaf_fl, {'rows': 5000});
+			    search.get_download_url(_gaf_fl, {'rows': 7500});
+			var gdl = encodeURI(raw_gdl).replace(/\%2509/g, '%09');
+
+			var input_url =
+			    new bbop.html.input({name: 'URL',
+						 type: 'hidden',
+						 //value: raw_gdl});
+						 value: gdl});
+
+			var form =
+			    new bbop.html.tag('form',
+					      {
+						  id: 'galaxyform',
+						  name: 'galaxyform',
+						  method: 'POST',
+						  target: '_blank',
+						  action: global_galaxy_url
+					      },
+					      [input_su, input_um, input_url]
+					     );
+			
+			// Finally, bang out what we've constructed in
+			// a form.
+			new bbop.widget.dialog('Export to Galaxy: ' +
+					       form.to_string());
+		    }
+		};
+	    }
+	};
+    // Derivative of the GAF version, see there first for comments.
+    var id_term_label_galaxy_button =
+	{
+	    label: 'Send IDs and name to Galaxy (up to 7500)',
+	    diabled_p: false,
+	    text_p: false,
+	    icon: 'ui-icon-mail-closed',
+	    click_function_generator: function(manager){
+		return function(event){
+		    // If we have something, construct a form.
+		    if( ! global_galaxy_url || global_galaxy_url == "" ){
+			alert('Sorry: could not find a usable Galaxy.');
+		    }else{
+			// We have a galaxy, so let's try and kick out
+			// to it. Cribbing from Gannet.
+			var input_su =
+			    new bbop.html.input({name: 'submit',
+						 type: 'submit',
+						 value: 'IDs and names'});
+			var input_um =
+			    new bbop.html.input({name: 'URL_method',
+						 type: 'hidden',
+						 value: 'get'});
+
+			// See GAF download button for more info.
+			var raw_gdl =
+			    search.get_download_url(['id',
+						     'annotation_class_label'],
+						    {'rows': 7500});
+			var gdl = encodeURI(raw_gdl).replace(/\%2509/g, '%09');
+
+			var input_url =
+			    new bbop.html.input({name: 'URL',
+						 type: 'hidden',
+						 //value: raw_gdl});
+						 value: gdl});
+
+			var form =
+			    new bbop.html.tag('form',
+					      {
+						  id: 'galaxyform',
+						  name: 'galaxyform',
+						  method: 'POST',
+						  target: '_blank',
+						  action: global_galaxy_url
+					      },
+					      [input_su, input_um, input_url]
+					     );
+			
+			// Finally, bang out what we've constructed in
+			// a form.
+			new bbop.widget.dialog('Export to Galaxy: ' +
+					       form.to_string());
+		    }
+		};
+	    }
+	};
+    // Derivative of the GAF version, see there first for comments.
+    var id_symbol_galaxy_button =
+	{
+	    label: 'Send IDs and symbols to Galaxy (up to 7500)',
+	    diabled_p: false,
+	    text_p: false,
+	    icon: 'ui-icon-mail-closed',
+	    click_function_generator: function(manager){
+		return function(event){
+		    // If we have something, construct a form.
+		    if( ! global_galaxy_url || global_galaxy_url == "" ){
+			alert('Sorry: could not find a usable Galaxy.');
+		    }else{
+			// We have a galaxy, so let's try and kick out
+			// to it. Cribbing from Gannet.
+			var input_su =
+			    new bbop.html.input({name: 'submit',
+						 type: 'submit',
+						 value: 'IDs and symbols'});
+			var input_um =
+			    new bbop.html.input({name: 'URL_method',
+						 type: 'hidden',
+						 value: 'get'});
+
+			// See GAF download button for more info.
+			var raw_gdl =
+			    search.get_download_url(['id',
+						     'bioentity_label'],
+						    {'rows': 7500});
 			var gdl = encodeURI(raw_gdl).replace(/\%2509/g, '%09');
 
 			var input_url =
