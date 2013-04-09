@@ -448,9 +448,14 @@
            autowarmCount - the number of entries to prepopulate from
                and old cache.  
       -->
+    <!-- Default change. -SJC -->
+    <!-- <filterCache class="solr.FastLRUCache" -->
+    <!--              size="512" -->
+    <!--              initialSize="512" -->
+    <!--              autowarmCount="0"/> -->
     <filterCache class="solr.FastLRUCache"
-                 size="512"
-                 initialSize="512"
+                 size="4194304"
+                 initialSize="32768"
                  autowarmCount="0"/>
 
     <!-- Query Result Cache
@@ -459,9 +464,14 @@
          (DocList) based on a query, a sort, and the range of documents 
          requested.  
       -->
+    <!-- Default change. -SJC -->
+    <!-- <queryResultCache class="solr.LRUCache" -->
+    <!--                  size="512" -->
+    <!--                  initialSize="512" -->
+    <!--                  autowarmCount="0"/> -->
     <queryResultCache class="solr.LRUCache"
-                     size="512"
-                     initialSize="512"
+                     size="4194304"
+                     initialSize="32768"
                      autowarmCount="0"/>
    
     <!-- Document Cache
@@ -470,9 +480,14 @@
          document).  Since Lucene internal document ids are transient,
          this cache will not be autowarmed.  
       -->
+    <!-- Default change. -SJC -->
+    <!-- <documentCache class="solr.LRUCache" -->
+    <!--                size="512" -->
+    <!--                initialSize="512" -->
+    <!--                autowarmCount="0"/> -->
     <documentCache class="solr.LRUCache"
-                   size="512"
-                   initialSize="512"
+                   size="4194304"
+                   initialSize="32768"
                    autowarmCount="0"/>
     
     <!-- Field Value Cache
@@ -549,7 +564,9 @@
    <!-- Maximum number of documents to cache for any entry in the
         queryResultCache. 
      -->
-   <queryResultMaxDocsCached>200</queryResultMaxDocsCached>
+   <!-- Default change. -SJC -->
+   <!-- <queryResultMaxDocsCached>200</queryResultMaxDocsCached> -->
+   <queryResultMaxDocsCached>1000</queryResultMaxDocsCached>
 
    <!-- Query Related Event Listeners
 
