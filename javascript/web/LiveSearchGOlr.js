@@ -447,6 +447,7 @@ function LiveSearchGOlrInit(){
 	    alert('ERROR: Could not find class: ' + cid);
 	}else{
     	    search.set_personality(cid);
+	    search.lite(true);
 	    var run_fun = active_class['on_click'];
 	    run_fun(search);
     	    search.establish_display();
