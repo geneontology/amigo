@@ -27,7 +27,8 @@ VERBOSE=yes
 # Extra options to pass to the JVM         
 #JAVA_OPTIONS="-Xmx256m -Djava.awt.headless=true"
 #JAVA_OPTIONS="-Xmx256m -Djava.awt.headless=true -Dsolr.solr.home=/srv/solr"
-JAVA_OPTIONS="-Xmx32g -Djava.awt.headless=true -Dsolr.solr.home=/srv/solr"
+#JAVA_OPTIONS="-Xmx32g -Djava.awt.headless=true -Dsolr.solr.home=/srv/solr"
+JAVA_OPTIONS="-Xmx128g -Djava.awt.headless=true -Dsolr.solr.home=/srv/solr"
 
 # Home of Java installation.
 #JAVA_HOME=
