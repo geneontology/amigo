@@ -11,10 +11,11 @@
  *  : generate_general_statistics.js --ann-source
  *  : generate_general_statistics.js --ann-evidence
  *  : generate_general_statistics.js --ann-assigned-by
- *  : generate_general_statistics.js --ann-overview
+ *  : generate_general_statistics.js --ann-overview-source
+ *  : generate_general_statistics.js --ann-overview-assigned-by
  * 
  * WARNING: in all likelihood, usage will actually look like:
- *  : rhino -opt -1 ./generate_static_data.js --ann-source
+ *  : rhino -opt -1 ./generate_general_statistics.js --ann-source
  * This is because the static checking has a hard time with some of the 
  * code that we use (I suspect in the global namespace).
  */
@@ -58,7 +59,7 @@ gm_ann.set_facet_limit(-1);
 //var rows = []; // first column will be label; like [[foo 1 2], [bar, 3, 4], ...]
 
 // We will want to filter ECO a bit.
-// The is for the ann-overview mode.
+// The is for the ann-overview-* modes.
 var our_ev_of_interest = [
     'similarity evidence', // okay
     'experimental evidence', // okay
@@ -127,8 +128,18 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 		 print(line[0] + "\t" + line[1]);
 	     });
 	
-    }else if( arg == '--ann-overview' ){
+    }else if( arg == '--ann-overview-source' ||
+	      arg == '--ann-overview-assigned-by' ){
 	
+	var ffacet = null;
+	if( arg == '--ann-overview-source' ){
+	    ffacet = 'source';
+	}else if( arg == '--ann-overview-assigned-by' ){
+	    ffacet = 'assigned_by';	    
+	}else{
+	    throw new Error('borked!');
+	}
+
 	///
 	/// This is a more complicated collection that requires
 	/// multiple passes to get.
@@ -138,7 +149,7 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 	var resp = gm_ann.fetch();
 	//var count = resp.total_documents();
 	var facet_list = resp.facet_field_list();
-	var source_data = resp.facet_field('source');	
+	var source_data = resp.facet_field(ffacet);	
 	var our_sources_of_interest = [];
 	each(source_data,
 	     function(src_facet){
@@ -148,9 +159,6 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 	// Now setup what data we will want and a variable to catch it
 	// in a table-like form for graphing later.
 	var our_ev_of_interest_copy = bbop.core.clone(our_ev_of_interest);
-	//our_ev_of_interest_copy.unshift('Source');
-	//var agg_data_03 = [our_ev_of_interest_copy];
-	//var agg_data_03 = [];
 
 	// Cycle over the sources we want to look at while collecting
 	// data.
@@ -160,7 +168,7 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 	each(our_sources_of_interest,
 	     function(isrc){
     		 gm_ann.reset_query_filters();
-    		 gm_ann.add_query_filter('source', isrc);
+    		 gm_ann.add_query_filter(ffacet, isrc);
 		 
 		 // ll('isrc: ' + isrc);
 		 
@@ -169,10 +177,6 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 		 var facet_list = resp.facet_field_list();
 		 var ev_fasc_hash =
 		     resp.facet_counts()['evidence_type_closure'];
-	 
-		 // // Recover the current source from the response.
-		 //var fqs = resp.query_filters();
-		 //var src = bbop.core.get_keys(fqs['source'])[0];
 	 
 		 // ll('ev_fasc_hash: ' + bbop.core.dump(ev_fasc_hash));
 		 
