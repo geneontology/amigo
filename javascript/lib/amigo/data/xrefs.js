@@ -3965,6 +3965,20 @@ amigo.data.xrefs = {
       "url_syntax" : "http://www.ensemblgenomes.org/id/[example_ID]",
       "datatype" : null
    },
+   "cgd_locus" : {
+      "object" : "Gene name (gene symbol in mammalian nomenclature)",
+      "uri_prefix" : null,
+      "name" : null,
+      "url_example" : "http://www.candidagenome.org/cgi-bin/locus.pl?locus=HWP1",
+      "database" : "Candida Genome Database",
+      "example_id" : "CGD_LOCUS:HWP1",
+      "generic_url" : "http://www.candidagenome.org/",
+      "fullname" : null,
+      "id" : null,
+      "abbreviation" : "CGD_LOCUS",
+      "url_syntax" : "http://www.candidagenome.org/cgi-bin/locus.pl?locus=[example_id]",
+      "datatype" : null
+   },
    "jcvi_genprop" : {
       "object" : "Accession",
       "uri_prefix" : null,
@@ -3978,20 +3992,6 @@ amigo.data.xrefs = {
       "id" : null,
       "abbreviation" : "JCVI_GenProp",
       "url_syntax" : "http://cmr.jcvi.org/cgi-bin/CMR/shared/GenomePropDefinition.cgi?prop_acc=[example_id]",
-      "datatype" : null
-   },
-   "cgd_locus" : {
-      "object" : "Gene name (gene symbol in mammalian nomenclature)",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : "http://www.candidagenome.org/cgi-bin/locus.pl?locus=HWP1",
-      "database" : "Candida Genome Database",
-      "example_id" : "CGD_LOCUS:HWP1",
-      "generic_url" : "http://www.candidagenome.org/",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "CGD_LOCUS",
-      "url_syntax" : "http://www.candidagenome.org/cgi-bin/locus.pl?locus=[example_id]",
       "datatype" : null
    },
    "so" : {

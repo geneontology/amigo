@@ -34,7 +34,7 @@ amigo.data.golr = {
    "bbop_bio" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "bioentity^8.0 bioentity_name^7.0 taxon^6.0 panther_family^5.0 type^4.0 source^3.0 annotation_class_list^2.0",
-      "filter_weights" : "source^7.0 type^6.0 panther_family_label^5.0 taxon_closure_label^4.0 isa_partof_closure_label^3.0 regulates_closure_label^2.0",
+      "filter_weights" : "source^7.0 type^6.0 panther_family_label^5.0 annotation_class_list_label^3.5 taxon_closure_label^4.0 isa_partof_closure_label^3.0 regulates_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//bio-config.yaml",
       "display_name" : "Gene/products",
       "description" : "A description of bioentities file for GOlr.",
@@ -828,18 +828,6 @@ amigo.data.golr = {
             "id" : "bioentity",
             "property" : []
          },
-         "annotation_class_label" : {
-            "transform" : [],
-            "description" : "Column 5 + ontology.",
-            "display_name" : "Annotation class label",
-            "indexed" : "true",
-            "searchable" : "true",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "annotation_class_label",
-            "property" : []
-         },
          "taxon_label" : {
             "transform" : [],
             "description" : "Derived from C13 + ncbi_taxonomy.obo.",
@@ -850,6 +838,18 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "taxon_label",
+            "property" : []
+         },
+         "annotation_class_label" : {
+            "transform" : [],
+            "description" : "Column 5 + ontology.",
+            "display_name" : "Annotation class label",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_class_label",
             "property" : []
          },
          "evidence_type_closure" : {
@@ -910,7 +910,7 @@ amigo.data.golr = {
    "bbop_ann" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "bioentity^7.0 bioentity_name^5.0 annotation_class^4.7 annotation_extension_class_handler^4.5 source^4.0 taxon^3.0 evidence_type^2.5 evidence_with^2.0 panther_family^1.5 bioentity_isoform^0.5 reference^0.25",
-      "filter_weights" : "source^7.0 assigned_by^6.5 aspect^6.25 evidence_type_closure^6.0 panther_family_label^5.5 taxon_closure_label^5.0 isa_partof_closure_label^4.0 regulates_closure_label^3.0 annotation_extension_class_closure_label^2.0",
+      "filter_weights" : "source^7.0 assigned_by^6.5 aspect^6.25 evidence_type_closure^6.0 panther_family_label^5.5 taxon_closure_label^5.0 annotation_class_label^4.5 isa_partof_closure_label^4.0 regulates_closure_label^3.0 annotation_extension_class_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//ann-config.yaml",
       "display_name" : "Annotations",
       "description" : "A description of annotations for GOlr and AmiGO.",
@@ -1159,7 +1159,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Column 5 + ontology.",
-            "display_name" : "Annotation label",
+            "display_name" : "Annotation",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1689,7 +1689,7 @@ amigo.data.golr = {
          "annotation_class_label" : {
             "transform" : [],
             "description" : "Column 5 + ontology.",
-            "display_name" : "Annotation label",
+            "display_name" : "Annotation",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -2217,20 +2217,6 @@ amigo.data.golr = {
                "getIdentifier"
             ]
          },
-         "description" : {
-            "transform" : [],
-            "description" : "Term definition.",
-            "display_name" : "Definition",
-            "indexed" : "true",
-            "searchable" : "true",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "description",
-            "property" : [
-               "getDef"
-            ]
-         },
          "regulates_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
@@ -2247,6 +2233,20 @@ amigo.data.golr = {
                "RO:0002211",
                "RO:0002212",
                "RO:0002213"
+            ]
+         },
+         "description" : {
+            "transform" : [],
+            "description" : "Term definition.",
+            "display_name" : "Definition",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "description",
+            "property" : [
+               "getDef"
             ]
          },
          "regulates_closure" : {

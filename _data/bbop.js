@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130404";
+bbop.version.release = "20130411";
 /* 
  * Package: json.js
  * 
@@ -7365,7 +7365,7 @@ bbop.golr.response.prototype.get_doc_highlight = function(doc_id,field_id,item){
 
     // If we got a highlight object, see if the highlighted field is
     // there--search the different possibilities for what a highlight
-    // field may br called.
+    // field may be called.
     if( hilite_obj ){
 	
 	//print('here (field_id): ' + field_id);
@@ -7457,7 +7457,6 @@ bbop.golr.response.prototype.facet_field_list = function(){
  * : [["foo", 60], ...]
  * 
  * Arguments:
- *  n/a
  *  facet_name - name of the facet to examine
  * 
  * Returns:
@@ -7819,10 +7818,10 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
      * Function: lite
      * 
      * Limit the returns fields (the parameter "fl") to the ones
-     * defined in the set of fields defined in results, boost, and
-     * filter, plus score.
+     * defined in the set of fields defined in results, label fields
+     * if available (i.e. "_label"), and "score" and "id".
      * 
-     * The default is "true".
+     * The default is "false".
      * 
      * Parameters: 
      *  use_lite_p - *[optional]* true or false, none just returns current
@@ -7846,17 +7845,42 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 		    var field_collection = {};
 		    var loop = bbop.core.each;
 		    var union = bbop.core.merge;
-		    loop(['boost', 'result', 'filter'],
+		    var ccl = anchor._current_class;
+
+		    // Fill field_collection with the fields
+		    // in the given category.
+		    //loop(['boost', 'result', 'filter'],
+		    //loop(['result', 'filter'],
+		    loop(['result'],
 			 function(cat){
 			     field_collection = 
-				 union(field_collection,
-				       anchor._current_class.get_weights(cat));
+				 union(field_collection, ccl.get_weights(cat));
 			 });
 		    
+		    // Next, flatten into a list.
+		    var flist = bbop.core.get_keys(field_collection);
+
+		    // Now for all the fields in these categories, see
+		    // if we can find additional "special" labels to
+		    // go with them.
+		    loop(flist,
+		    	 function(flist_item){
+			     loop(['_label'],
+			     //loop(['_label', '_label_searchable'],
+		    		   function(field_suffix){
+				       var new_field = 
+					   flist_item + field_suffix;
+				       if( ccl.get_field(new_field) ){
+					   flist.push(new_field);
+				       }
+				   });
+			 });
+
+
 		    // Finally, set these fields (plus score) as the
 		    // new return fields.
-		    var flist = bbop.core.get_keys(field_collection);
 		    flist.push('score');
+		    flist.push('id');
 		    anchor.current_fl = flist.join('%2C');
 		    anchor.set('fl', anchor.current_fl);
 		}
@@ -9298,6 +9322,8 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 			   });
 
 	var final_qurl = qurl + filtered_things.join('&');
+	// Spaces can cause problems in URLs in some environments.
+	final_qurl = final_qurl.replace(/ /g, '%20');
 	ll('qurl: ' + final_qurl);
     	return final_qurl;
     };
@@ -10756,12 +10782,17 @@ bbop.widget.display.results_table_by_class = function(cclass,
 		//ll("T&S: tease: " + tease.to_string());
 		
 		// Setup the text for tease and full versions.
-		var more_b = new bbop.html.span('<b>[more...]</b>',
-						{'generate_id': true});
+		// var more_b = new bbop.html.span('<b>[more...]</b>',
+		// 				{'generate_id': true});
+		// var full = new bbop.html.span(retval,
+		// 			      {'generate_id': true});
+		// var less_b = new bbop.html.span('<b>[less]</b>',
+		// 				{'generate_id': true});
+		var bgen = bbop.widget.display.text_button_sim;
+		var more_b = new bgen('more...', 'Display the complete list');
 		var full = new bbop.html.span(retval,
 					      {'generate_id': true});
-		var less_b = new bbop.html.span('<b>[less]</b>',
-						{'generate_id': true});
+		var less_b = new bgen('less', 'Display the truncated list');
 		
 		// Store the different parts for later activation.
 		var tease_id = tease.get_id();
