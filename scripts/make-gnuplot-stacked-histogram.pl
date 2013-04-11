@@ -70,6 +70,7 @@ my $pset =
    ## Get a better initial color.
    'set style increment user',
    'set style line 1 lc rgb "#1E90FF"',
+   'set style line 3 lc rgb "red"',
    #'set tics scale 0.0',
    #'set ytics',
    #'set auto x',
