@@ -67,6 +67,9 @@ my $pset =
    #'set key autotitle columnheader',
    'set ylabel "'. $ylabel . '"',
    'set xlabel "' . $xlabel . '"',
+   ## Get a better initial color.
+   'set style increment user',
+   'set style line 1 lc rgb "#1E90FF"',
    #'set tics scale 0.0',
    #'set ytics',
    #'set auto x',
