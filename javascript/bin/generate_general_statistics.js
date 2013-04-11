@@ -66,9 +66,9 @@ var our_ev_of_interest = [
     'curator inference', // okay
     'author statement',
     'combinatorial evidence',
-    'genomic context evidence',
-    'biological system reconstruction',
-    'imported information'
+    'genomic context evidence'
+    //'biological system reconstruction',
+    //'imported information'
 ];
 	    
 // Get the flag for what we'll be doing.
