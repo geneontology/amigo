@@ -61,7 +61,8 @@ my $pset =
    'set style histogram rowstacked gap 1.25', #
    'set boxwidth 0.8', #
    'set style fill solid 1.0 border -1', #
-   'set key invert reverse Left outside',
+   #'set key invert reverse Left outside',
+   'set key invert reverse Left inside',
    #'set yrange [0:*]',
    #'set key autotitle columnheader',
    'set ylabel "'. $ylabel . '"',
