@@ -199,6 +199,7 @@ sub mode_advanced {
   my $input_term_data = $params->{term_data};
 
   # my $aid = AmiGO::Aid->new();
+  #$self->{CORE}->kvetch('input: ' . $input_term_data);
 
   ## Decode the incoming term data, depending on incoming data
   ## type. Completely overwrite the input_term_list if we can.

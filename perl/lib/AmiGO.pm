@@ -344,7 +344,8 @@ sub clean_term_list {
   my @ret_list = ();
 
   ## Fish out all of the good terms in the string.
-  my $regexp = $self->term_regexp_string();
+  #my $regexp = $self->term_regexp_string();
+  my $regexp = "[\:\_A-Za-z0-9]+\:[0-9]+";
   @ret_list = $in_str =~ /($regexp)/g;
 
   $self->kvetch("" . scalar(@ret_list));
