@@ -166,12 +166,14 @@ amigo.linker.prototype.anchor = function(args, xid){
 	// and make something special for it.
 	if( xid ){
 	    if( this.ont_category[xid] ){
-		retval = '<a title="Go to the term details page for ' +
-		    label + '." href="' + url + '">' + hilite + '</a>';
+		//retval = '<a title="Go to the term details page for ' +
+ 		retval = '<a title="' + id +
+		    ' (go to the term details page for ' +
+		    label + ')" href="' + url + '">' + hilite + '</a>';
             }else if( this.bio_category[xid] ){
-		retval = '<a title="Go to the gene product ' +
-		    'details page for ' + label +
-		    '." href="' + url + '">' + hilite + '</a>';
+ 		retval = '<a title="' + id +
+		    ' (go to the details page for ' + label +
+		    ')" href="' + url + '">' + hilite + '</a>';
             }else if( this.search_category[xid] ){
 		retval = '<a title="Reinstate bookmark for ' + label +
 		    '." href="' + url + '">' + hilite + '</a>';
@@ -181,8 +183,9 @@ amigo.linker.prototype.anchor = function(args, xid){
 	// If it wasn't in the special transformations, just make
 	// something generic.
 	if( ! retval ){
-	    retval = '<a title="Go to the page for ' + label +
-		'." href="' + url + '">' + hilite + '</a>';
+	    retval = '<a title="' + id +
+		' (go to the page for ' + label +
+		')" href="' + url + '">' + hilite + '</a>';
 	}
     }
 
