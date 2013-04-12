@@ -698,14 +698,17 @@ sub mode_golr_term_details {
   my $is_term_acc_p = $self->{CORE}->is_term_acc_p($input_term_id);
   my $acc_list_for_gpc_info = [];
   my $input_term_id_list = [];
+  my $exotic_p = undef;
   if( $is_term_acc_p ){
 
     $self->{CORE}->kvetch('Looks like a term acc: ' . $input_term_id);
+    $exotic_p = 0;
 
   }else{
 
     ## Looks exotic.
     $self->{CORE}->kvetch('Looks like an exotic acc: ' . $input_term_id);
+    $exotic_p = 1;
 
     ## Let's try and get a link for the exotic ID.
     my($edb, $eid) = $self->{CORE}->split_gene_product_acc($input_term_id);
@@ -729,6 +732,7 @@ sub mode_golr_term_details {
 		  ' For full information on this term,' .
 		  ' please refer to the originating resource.');
   }
+  $self->set_template_parameter('EXOTIC_P', $exotic_p);
 
   ###
   ### Get neighborhood below term.
@@ -813,12 +817,15 @@ sub mode_golr_term_details {
 							       term =>
 							       $input_term_id}}));
 
-  my $qg_term = AmiGO::External::QuickGO::Term->new();
-  $self->set_template_parameter('QUICKGO_TERM_LINK',
-				$qg_term->get_term_link($input_term_id));
+  ## Only need QuickGO for internal terms.
+  if( ! $exotic_p ){
+    my $qg_term = AmiGO::External::QuickGO::Term->new();
+    $self->set_template_parameter('QUICKGO_TERM_LINK',
+				  $qg_term->get_term_link($input_term_id));
 
-  $self->set_template_parameter('QUICKGO_ENGINE_P',
-				$self->{CORE}->amigo_env('AMIGO_GO_ONLY_GRAPHICS'));
+    $self->set_template_parameter('QUICKGO_ENGINE_P',
+				  $self->{CORE}->amigo_env('AMIGO_GO_ONLY_GRAPHICS'));
+  }
 
   ###
   ### GONUTs

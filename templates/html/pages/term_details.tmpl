@@ -194,7 +194,20 @@
      </div>
 
      <div id="display-qg">
-	[% # IF QUICKGO_ENGINE_P %]
+
+       [% # IF QUICKGO_ENGINE_P %]
+       [% IF EXOTIC_P %]
+	<p>
+	  <a class="override"
+	     href="[% VIZ_STATIC_LINK %]"
+	     title="Stand-alone graphic for [% TERM_INFO.acc %]">
+	    <img src="[% VIZ_STATIC_LINK %]"
+		 alt="Graph of [% TERM_INFO.acc %]" />
+	  </a>
+	</p>
+
+	[% ELSE %]
+
 	<p>
 	  View this term in
 	  <a href="[% QUICKGO_TERM_LINK %]"
@@ -209,12 +222,16 @@
 	  </a>
 	</p>
 
+	[% END %]
+
 	<p>
+	  [% IF ! EXOTIC_P %]
 	  <ul>
 	    <li><b>Additional external viewing options</b></li>
 	    <li><a href="[% OLSVIS_GO_LINK %]"
 		   title="View the graph in the OLSVis viewer">OLSVis (interactive)</a></li>
 	  </ul>
+	  [% END %]
 	  <ul>
 	    <li><b>Additional internal viewing options</b></li>
 	    <!-- TODO: do this with breadcrumbsy string (taken from REST URL) --> 
@@ -229,16 +246,6 @@
 	  </ul>
 	</p>       
 
-	[% # ELSE %]
-	<!-- <p> -->
-	<!--   <a class="override" -->
-	<!--      href="[% VIZ_STATIC_LINK %]" -->
-	<!--      title="Stand-alone graphic for [% TERM_INFO.acc %]"> -->
-	<!--     <img src="[% VIZ_STATIC_LINK %]" -->
-	<!-- 	 alt="Graph of [% TERM_INFO.acc %]" /> -->
-	<!--   </a> -->
-	<!-- </p> -->
-	[% # END %]
       </div>
 
      <div id="display-graph">
