@@ -225,13 +225,13 @@
 	[% END %]
 
 	<p>
-	  [% IF ! EXOTIC_P %]
+	  [% # IF ! EXOTIC_P %]
 	  <ul>
 	    <li><b>Additional external viewing options</b></li>
 	    <li><a href="[% OLSVIS_GO_LINK %]"
 		   title="View the graph in the OLSVis viewer">OLSVis (interactive)</a></li>
 	  </ul>
-	  [% END %]
+	  [% # END %]
 	  <ul>
 	    <li><b>Additional internal viewing options</b></li>
 	    <!-- TODO: do this with breadcrumbsy string (taken from REST URL) --> 
