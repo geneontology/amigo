@@ -808,7 +808,10 @@ sub mode_golr_term_details {
 				$self->{CORE}->get_interlink({mode=>'olsvis_go',
 							      arg =>
 							      {term =>
-							       $input_term_id}}));
+							       $input_term_id},
+							      optional =>
+							      {'full' => 0}}));
+
 
   $self->set_template_parameter('VIZ_QUICKGO_LINK',
 				$self->{CORE}->get_interlink({mode=>'visualize_simple',
