@@ -1,0 +1,11 @@
+#!/usr/bin/perl -w
+####
+#### A Solr/GOlr version of GOOSE.
+####
+
+BEGIN { require "config.pl"; }
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
+
+use AmiGO::WebApp::Grebe;
+my $grebe = AmiGO::WebApp::Grebe->new(PARAMS => {});
+$grebe->run();
