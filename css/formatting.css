@@ -646,6 +646,8 @@ div .mq_message {
 }
 .landing-navigation tr td a img {
     height: 36px;
+    float: left;
+    padding-right: .5em;
     /* border: 1px solid blue; */
 }
 .landing-navigation tr td {
