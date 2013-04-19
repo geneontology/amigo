@@ -1741,6 +1741,120 @@ amigo.data.golr = {
       "id" : "bbop_ann",
       "_outfile" : "/home/sjcarbon/local/src/git/amigo/metadata//ann-config.yaml"
    },
+   "bbop_general" : {
+      "searchable_extension" : "_searchable",
+      "result_weights" : "id^3.0 id_label^2.0 category^1.0",
+      "filter_weights" : "category^4.0 id^3.0",
+      "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//general-config.yaml",
+      "display_name" : "General",
+      "description" : "A generic search document to get a general overview of everything.",
+      "boost_weights" : "id^3.0 id_label^3.0 general_blob^3.0",
+      "fields" : [
+         {
+            "transform" : [],
+            "description" : "The ID for this entity.",
+            "display_name" : "ID",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "id",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "The label for this entity.",
+            "display_name" : "Label",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "id_label",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "The document category that this enitity belongs to.",
+            "display_name" : "Document category",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "category",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "A hidden searchable blob document to access this item.",
+            "display_name" : "Generic blob",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "general_blob",
+            "property" : []
+         }
+      ],
+      "fields_hash" : {
+         "id_label" : {
+            "transform" : [],
+            "description" : "The label for this entity.",
+            "display_name" : "Label",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "id_label",
+            "property" : []
+         },
+         "general_blob" : {
+            "transform" : [],
+            "description" : "A hidden searchable blob document to access this item.",
+            "display_name" : "Generic blob",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "general_blob",
+            "property" : []
+         },
+         "category" : {
+            "transform" : [],
+            "description" : "The document category that this enitity belongs to.",
+            "display_name" : "Document category",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "category",
+            "property" : []
+         },
+         "id" : {
+            "transform" : [],
+            "description" : "The ID for this entity.",
+            "display_name" : "ID",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "id",
+            "property" : []
+         }
+      },
+      "document_category" : "general",
+      "weight" : "0",
+      "_strict" : 0,
+      "id" : "bbop_general",
+      "_outfile" : "/home/sjcarbon/local/src/git/amigo/metadata//general-config.yaml"
+   },
    "bbop_ont" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "annotation_class^8.0 description^6.0 source^4.0 synonym^3.0 alternate_id^2.0",

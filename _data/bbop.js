@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130411";
+bbop.version.release = "20130415";
 /* 
  * Package: json.js
  * 
@@ -7819,7 +7819,8 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
      * 
      * Limit the returns fields (the parameter "fl") to the ones
      * defined in the set of fields defined in results, label fields
-     * if available (i.e. "_label"), and "score" and "id".
+     * if available (i.e. "_label", "_map" when "_label" is
+     * multi=valued), and "score" and "id".
      * 
      * The default is "false".
      * 
@@ -7870,8 +7871,18 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 		    		   function(field_suffix){
 				       var new_field = 
 					   flist_item + field_suffix;
-				       if( ccl.get_field(new_field) ){
+				       var nf_obj = ccl.get_field(new_field);
+				       if( nf_obj ){
 					   flist.push(new_field);
+
+					   // There appears to be the
+					   // thing label. If they are
+					   // both multi-valued, then
+					   // there will be a map as
+					   // well.
+					   if( nf_obj.is_multi() ){
+					       flist.push(flist_item + '_map');
+					   }
 				       }
 				   });
 			 });
@@ -9505,8 +9516,10 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	// Save current state.
 	anchor.push_excursion();
 
-	// Make the changes we want.
+	// Make the changes we want. First, physically set the
+	// "personality", then set pins for jump-in recovery.
 	anchor.set('personality', anchor.get_personality());
+	// TODO: Explicitly set pins.
 
 	// Get url.
 	var returl = anchor.get_query_url();
@@ -12938,6 +12951,21 @@ bbop.widget.search_box = function(golr_loc,
      */
     this.destroy = function(){
 	jQuery('#' + anchor._interface_id).autocomplete('destroy');
+    };
+
+    /*
+     * Function: content
+     * 
+     * Get the current text contents of the search box.
+     * 
+     * Arguments:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    this.content = function(){
+	return jQuery('#' + anchor._interface_id).val();
     };
 
 };

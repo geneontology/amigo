@@ -120,6 +120,7 @@ Group: AmiGO  {
       File: Gaffer.pm  (AmiGO/WebApp/Gaffer.pm)
       File: Gannet.pm  (AmiGO/WebApp/Gannet.pm)
       File: GOOSE.pm  (AmiGO/WebApp/GOOSE.pm)
+      File: Grebe.pm  (AmiGO/WebApp/Grebe.pm)
       File: HTMLClient  (AmiGO/WebApp/HTMLClient.pm)
       File: HTMLClientExp  (AmiGO/WebApp/HTMLClientExp.pm)
       File: Input  (AmiGO/WebApp/Input.pm)
