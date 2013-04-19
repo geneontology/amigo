@@ -31,7 +31,7 @@ var mr_t = new bbop.test();
      var t0 = h.dispatch(owlo);
      
      mr_t.is_true(t0.success, "ran okay");
-     mr_t.is_same_atom(t0.results, '<a title="Go to the page for regulates." href="http://purl.obolibrary.org/obo/RO_001234">regulates</a> &rarr; <a title="Go to the page for hp." href="http://purl.obolibrary.org/obo/BFO_0003456">hp</a> <a title="Go to the page for kidney." href="http://www.informatics.jax.org/accession/MGI:185963">kidney</a>', 'complicated output');
+     mr_t.is_same_atom(t0.results, '<a title="RO:001234 (go to the page for regulates)" href="http://purl.obolibrary.org/obo/RO_001234">regulates</a> &rarr; <a title="BFO:0003456 (go to the page for hp)" href="http://purl.obolibrary.org/obo/BFO_0003456">hp</a> <a title="MGI:MGI:185963 (go to the page for kidney)" href="http://www.informatics.jax.org/accession/MGI:185963">kidney</a>', 'complicated output');
 // })();
 
 ///
