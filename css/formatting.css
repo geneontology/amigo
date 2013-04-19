@@ -627,3 +627,27 @@ div .mq_message {
     height: 50px;
 }
 
+/*
+ * Pad out the lamding box to make it a little more appealing.
+ */
+.landing-navigation {
+    width: 80%;
+    
+    padding-left: 3em;
+    padding-right: 3em;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-bottom: 3em;
+}
+.landing-navigation td {
+    width: 50%;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+.landing-navigation tr td a img {
+    height: 36px;
+    /* border: 1px solid blue; */
+}
+.landing-navigation tr td {
+    border: 1px solid #3875D7;
+}

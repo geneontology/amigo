@@ -161,11 +161,11 @@ sub mode_landing {
       $self->{JS}->acquire_source('https://www.google.com/jsapi'),
       $self->{JS}->get_lib('LandingGraphs.js')
      ],
-     # javascript_init =>
-     # [
-     #  #'LandingGraphsInit();'
-     #  #'DataCallback();'
-     # ],
+     javascript_init =>
+     [
+      'LandingGraphsInit();'
+      #'DataCallback();'
+     ],
      content =>
      [
       'pages/landing.tmpl'
