@@ -9237,6 +9237,26 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	return retval;
     };
 
+    // // Helper function for get_query_url() and get_state_url(). Just
+    // // to make sure we're the same with both fq and sfq for the
+    // // bookmark generation.
+    // function _assemble_fq(filter, value, negative_p){
+    // 	var fq = {};
+
+    // 	// We need to alter at the filter level.
+    // 	if( negative_p ){
+    // 	    filter = '-' + filter;
+    // 	}
+
+    // 	// Make sure it is defined.
+    // 	if( ! bbop.core.is_defined(fq[filter]) ){
+    // 	    fq[filter] = [];
+    // 	}
+    // 	fq[filter].push(value);
+	
+    // 	return [filter, value];
+    // }
+
     /*
      * Function: get_query_url
      *
@@ -9292,7 +9312,6 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 		     fq[filter] = [];
 		 }
 		 fq[filter].push(value);
-		 //fq[filter] = value;
 	     });
 
 	// Add all of our different specialized hashes.
@@ -9519,8 +9538,30 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	// Make the changes we want. First, physically set the
 	// "personality", then set pins for jump-in recovery.
 	anchor.set('personality', anchor.get_personality());
-	// TODO: Explicitly set pins.
 
+	// Explicitly set sticky pins for later recovery.
+	// Do this pretty much exactly like we do for get_query_url().
+	var sticky_filters = anchor.get_sticky_query_filters();
+	var sfq = {};
+	bbop.core.each(sticky_filters,
+		       function(sticky_filter){
+
+			   var filter = sticky_filter['filter'];
+			   var value = sticky_filter['value'];
+			   var negative_p = sticky_filter['negative_p'];
+
+			   if( negative_p ){
+			       filter = '-' + filter;
+			   }
+
+			   // Make sure it is defined.
+			   if( ! bbop.core.is_defined(sfq[filter]) ){
+			       sfq[filter] = [];
+			   }
+			   sfq[filter].push(value);
+		       });
+	anchor.set('sfq', sfq);
+	
 	// Get url.
 	var returl = anchor.get_query_url();
 
@@ -9585,6 +9626,7 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	
 	// Now cycle through the the parameters again and invoke the
 	// appropriate functions to bring them in line.
+	var sticky_cache = {};
 	loop(in_params,
 	     function(ip){
 		 var key = ip[0];
@@ -9594,8 +9636,8 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 			 // Already did it, skip.
 		     }else if( key == 'q' ){
 			 anchor.set_query(val);
-		     }else if( key == 'fq' ){
-			 // Split the fq parameter.
+		     }else if( key == 'fq' || key == 'sfq' ){
+			 // Split the fq (or sfq) parameter.
 			 var fnv = bbop.core.first_split(':', val);
 			 var fname = fnv[0];
 			 var fval = fnv[1];
@@ -9625,8 +9667,22 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 			     // added by the assembler.
 			     fval = bbop.core.dequote(fval);
 
-			     // Add the query filter properly.
-			     anchor.add_query_filter(fname, fval, plist);
+			     // Make it sticky it it came in on "sfq".
+			     // Note if this is the sticky form.
+			     var skey = fname + '^' + fval;
+			     if( key == 'sfq' ){
+				 sticky_cache[skey] = true;
+				 plist.push('*');
+			     }
+
+			     // Add the query filter properly, but
+			     // only if we have not already added the
+			     // sticky form (prevent clobbering).
+			     if( ! bbop.core.is_defined(sticky_cache[skey]) ||
+				 key == 'sfq'){
+				 anchor.add_query_filter(fname, fval, plist);
+				 
+			     }
 			 }
 		     }else if( key == 'qf' ){
 			 // qf is handles a little strangly...
