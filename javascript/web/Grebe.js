@@ -165,12 +165,12 @@ function GrebeInit(){
 			  });
 
 		     //alert('clicked: ' + qid);
-		     alert('clicked: ' + mgr.get_query_url());
+		     //alert('clicked: ' + mgr.get_query_url());
 
-		     // // Jump to that search in AmiGO 2.
-		     // var state = mgr.get_state_url();
-		     // var pop = linker.url(state, 'search');
-		     // window.open(pop, '_blank');
+		     // Jump to that search in AmiGO 2.
+		     var state = mgr.get_state_url();
+		     var pop = linker.url(encodeURIComponent(state), 'search');
+		     window.open(pop, '_blank');
 		 });
 	 });
     

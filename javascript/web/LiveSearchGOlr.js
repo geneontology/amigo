@@ -550,7 +550,7 @@ function LiveSearchGOlrInit(){
 	var bookmark_probe = bbop.core.hashify(parm_list);
 	//alert(bbop.core.dump(bookmark_probe));
 
-	if( ! bookmark_probe['personality'] || // book mark is bad
+	if( ! bookmark_probe['personality'] || // bookmark is bad
 	    bookmark_probe['json.nl'] != 'arrarr' ||
 	    bookmark_probe['wt'] != 'json' ){ //||
 	    //! bookmark_probe['document_category'] ){

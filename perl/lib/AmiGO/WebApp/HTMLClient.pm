@@ -590,6 +590,7 @@ sub mode_live_search {
     # $bookmark = $self->{JS}->make_js($bookmark);
     $bookmark =~ s/\"/\\\"/g;
   }
+  $self->{CORE}->kvetch('bookmark: ' . $bookmark || '???');
 
   ## Page settings.
   $self->set_template_parameter('STANDARD_CSS', 'no');
