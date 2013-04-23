@@ -47,9 +47,14 @@
       widget_personality: bbop_ont
       widget_filter: ontology_class
 - question_id: q5
-  question: <strike>What are all the annotations for gene product Z?</strike>
+  question: What are all the annotations for gene product ||q5f1||
   personality: bbop_ann
   document_category: annotation
+  field_translations:
+    - field_id: q5f1
+      field_filter: bioentity
+      widget_personality: bbop_bio
+      widget_filter: bioentity
 - question_id: q6
   question: What are the gene products annotated to term ||q6f1|| but <em>not</em> term ||q6f2||? 
   personality: bbop_bio

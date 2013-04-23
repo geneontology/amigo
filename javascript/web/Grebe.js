@@ -3,22 +3,6 @@
 //// will probably leave DEBUG in.
 ////
 
-// var global_grebe_list = [
-//     {
-// 	'question_id': 'foo1', // can be generated
-// 	'personality': 'bbop_ann',
-// 	'document_category': 'annotation',
-// 	'field_translations': [
-// 	    {
-// 		'field_id': 'bar1', // can be generated
-// 		'field_filter': 'isa_partof_closure_label',
-// 		'widget_personality': 'bbop_ont',
-// 		'widget_filter': 'ontology_class'
-// 	    }
-// 	]
-//     }
-// ];
-
 //
 function GrebeInit(){
 
@@ -43,19 +27,21 @@ function GrebeInit(){
 
     // Auto complete argument sets.
     var _do_nothing = function(){};
-    var ont_args = {
-	'label_template':
-	'{{annotation_class_label}} ({{id}})',
-	'value_template': '{{annotation_class}}',
-	'list_select_callback': _do_nothing
-	//'list_select_callback': forward
-    };
-    var bio_args = {
-	'label_template':
-	'{{bioentity_label}} ({{id}}/{{taxon}})',
-	'value_template': '{{bioentity}}',
-	'list_select_callback': _do_nothing
-	//'list_select_callback': forward
+    var widget_args_templates = {
+	bbop_ont: {
+	    'label_template':
+	    '{{annotation_class_label}} ({{id}})',
+	    'value_template': '{{annotation_class}}',
+	    'list_select_callback': _do_nothing
+	    //'list_select_callback': forward
+	},
+	bbop_bio: {
+	    'label_template':
+	    '{{bioentity_label}} ({{id}}/{{taxon_label}})',
+	    'value_template': '{{bioentity}}',
+	    'list_select_callback': _do_nothing
+	    //'list_select_callback': forward
+	}
     };
 
     // The multi-level cache for the lists.
@@ -65,8 +51,6 @@ function GrebeInit(){
     // information to make a live manager to use. This will also
     // generate a list of independant managers that will listen and
     // act on the autocomplete input actions.
-    //var grebe_managers = [];
-    //each(global_grebe_list,
     each(global_grebe_questions,
 	 function(grebe_item){
 	    
@@ -89,10 +73,6 @@ function GrebeInit(){
 		 };
 	     }
 
-	     // // Check to see if that field exists in our document. If
-	     // // it does, pull it.
-	     // if( jQuery('#' + question_id ) ){
-
 	     // Now walk through and tie this manager to the
 	     // proper fields.
 	     each(field_translations,
@@ -107,17 +87,18 @@ function GrebeInit(){
 		      ll('ft: ' + field_id + ' ' + field_filter);
 		      ll('wt: ' + widget_personality + ' ' + widget_filter);
 
-		      // 
+		      // Sort out which widget args template we'll use.
+		      var widget_args =
+			  widget_args_templates[widget_personality];
+
+		      // Generate the autocomplete widget.
 		      var auto = new search_box(sd.golr_base(), gconf,
-						field_id, ont_args);
+						field_id, widget_args);
 		      auto.set_personality(widget_personality);
 		      auto.add_query_filter('document_category', widget_filter);
 
 		      // Ensure map and store these for processing on
 		      // click.
-		      // if(! is_defined(map[question_id]['field_translations']) ){
-		      // 	  map[question_id]['field_translations'] = [];
-		      // }
 		      map[question_id]['field_translations'].push(
 			  {
 			      'field_id': field_id,

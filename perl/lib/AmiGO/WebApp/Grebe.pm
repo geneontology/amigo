@@ -146,7 +146,7 @@ sub mode_grebe {
   ## Page settings.
   $self->set_template_parameter('page_title', 'AmiGO : Grebe');
   $self->set_template_parameter('content_title',
-				'Grebe: The AmiGO 2 Search Wizard');
+				'Grebe Search Wizard');
 
   ##
   my $prep =
