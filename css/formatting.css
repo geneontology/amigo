@@ -653,3 +653,9 @@ div .mq_message {
 .landing-navigation tr td {
     border: 1px solid #3875D7;
 }
+
+.grebe-action-icon {
+    cursor: pointer;
+    height: 25px;
+    vertical-align:middle;
+}

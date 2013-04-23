@@ -3,21 +3,21 @@
 //// will probably leave DEBUG in.
 ////
 
-var global_grebe_list = [
-    {
-	'question_id': 'foo1', // can be generated
-	'personality': 'bbop_ann',
-	'document_category': 'annotation',
-	'field_translations': [
-	    {
-		'field_id': 'bar1', // can be generated
-		'field_filter': 'isa_partof_closure_label',
-		'widget_personality': 'bbop_ont',
-		'widget_filter': 'ontology_class'
-	    }
-	]
-    }
-];
+// var global_grebe_list = [
+//     {
+// 	'question_id': 'foo1', // can be generated
+// 	'personality': 'bbop_ann',
+// 	'document_category': 'annotation',
+// 	'field_translations': [
+// 	    {
+// 		'field_id': 'bar1', // can be generated
+// 		'field_filter': 'isa_partof_closure_label',
+// 		'widget_personality': 'bbop_ont',
+// 		'widget_filter': 'ontology_class'
+// 	    }
+// 	]
+//     }
+// ];
 
 //
 function GrebeInit(){
@@ -26,15 +26,15 @@ function GrebeInit(){
     var logger = new bbop.logger();
     logger.DEBUG = true;
 
-    //ll('');
-    ll('GrebeInit start...');
-
     // Aliases.
     var each = bbop.core.each;
     var clone = bbop.core.clone;
     var is_defined = bbop.core.is_defined;
     var search_box = bbop.widget.search_box;
     function ll(str){ logger.kvetch(str); }
+
+    //ll('');
+    ll('GrebeInit start...');
 
     // Manager generation prep.
     var sd = new amigo.data.server(); // resource locations
@@ -158,10 +158,13 @@ function GrebeInit(){
 			      //var fid = ft['field_id'];
 			      var ffield = ft['field_filter'];
 			      var ac = ft['manager'];
-			      var fc = ac.content();
 			      ll('ffield: ' + ffield);
+			      ll('manager: ' + ac);
 			      ll('iid: ' + ac._interface_id);
+
+			      var fc = ac.content();
 			      ll('content: ' + fc);
+
 			      mgr.add_query_filter(ffield, fc);
 			  });
 
