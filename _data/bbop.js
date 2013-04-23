@@ -11651,7 +11651,7 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	if( add_meta_p ){	    
 	    ll('Add meta UI div');
 	    jQuery('#' + ui_meta_div_id).empty();
-	    jQuery('#' + ui_meta_div_id).append('No search yet performed...');
+	    jQuery('#' + ui_meta_div_id).append('Performing initial search...');
 	}
     };
 
