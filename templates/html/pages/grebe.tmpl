@@ -7,87 +7,60 @@
   [% IF galaxy_url && galaxy_url_external_p %]
   <input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
   [% END %]
-      
-      <h2>Find a search to start with</h2>
-      
-      <h3 id="information_click" class="first"><a href="#">Instructions</a></h3>
-      
-      <div id="information">
-
-	<h4>Grebe</h4>
-	<p>
-	  Freshwater diving bird.
-	</p>
-	<p>
-	  Fill in the necessary blank columns and hit the go icon at
-	  the end of the question.
-	</p>
-
-      </div>
-       
-      <h3 class="first">Find your query from the list:</h3>
-
-      <div>
-      <!-- <input type="submit" class="button" value="Query!" /> -->
-
-      <ul>
-	<li>
-	  <p id="foo1">
-	  <!-- What are the direct annotations to term Y? -->
-	  What are the direct annotations to term <input id="bar1" style="border:1px solid black;">?
-	  <img class="grebe-action-icon"
-	       height="25px"
-	       style="vertical-align:middle;"
-	       title="Jump to AmiGO 2 Search"
-	       alt="[search]"
-	       src="[% image_dir %]/info-jump.png" />
-	  </p>
-	</li>
-	<li>
-	  What are the direct and indirect annotations for term Y (and
-	  children)?
-	</li>
-	<li>
-	  What are the direct annotations for organism X to term Y?
-	</li>
-	<li>
-	  What are the direct and indirect annotations for organism X
-	  to term Y (and children)?
-	</li>
-	<li>
-	  What are all the annotations for gene product Z?
-	</li>
-	<li>
-	  What are gene products annotated to term A but not term B?
-	</li>
-	<li>
-	  What are gene products annotated to term A AND term B?
-	</li>
-      </ul>
-
-      </div>
-
-      <!-- <div style="" id="grebe_golr_example_list"> -->
-      <!-- 	[% IF golr_examples_list %] -->
-      <!-- 	<select id="grebe_golr_example_selection" -->
-      <!-- 		class="" -->
-      <!-- 		style="" -->
-      <!-- 		size="1"> -->
-      <!-- 	  [%    FOREACH ex = golr_examples_list %] -->
-      <!-- 	  [%       value = ex.solr %] -->
-      <!-- 	  [%       title = ex.title %] -->
-      <!-- 	  <option title='[% value %]'  -->
-      <!-- 		  value='[% value %]'>[% title %]</option> -->
-      <!-- 	  [%    END %] -->
-      <!-- 	</select> -->
-      <!-- 	[% ELSE %] -->
-      <!-- 	(The GO Solr wiki page could not be contacted so GOlr examples -->
-      <!-- 	are not available.) -->
-      <!-- 	[% END %] -->
-      <!-- </div> -->
-      
-      <hr class="clearL">
-	      
-    </div>
   
+  <h2>Ask Grebe</h2>
+  
+  <h3 id="information_click" class="first"><a href="#">Instructions</a></h3>
+  
+  <div id="information">
+    
+    <h4>Grebe</h4>
+    <p>
+      Freshwater diving bird.
+    </p>
+    <p>
+      Fill in the necessary blank columns and hit the go icon at
+      the end of the question.
+    </p>
+    
+  </div>
+  
+  <!-- <h3 class="first">Find your query from the list:</h3> -->
+  
+  <div>
+    <!-- <input type="submit" class="button" value="Query!" /> -->
+    
+    <ul>
+      <!-- <li> -->
+      <!-- 	<p id="foo1"> -->
+      <!-- 	  What are the direct annotations to term <input id="bar1" style="border:1px solid black;">? -->
+      <!-- 	  <img class="grebe-action-icon" -->
+      <!-- 	       height="25px" -->
+      <!-- 	       style="vertical-align:middle;" -->
+      <!-- 	       title="Jump to AmiGO 2 Search" -->
+      <!-- 	       alt="[search]" -->
+      <!-- 	       src="[% image_dir %]/info-jump.png" /> -->
+      <!-- 	</p> -->
+      <!-- </li> -->
+      [% IF questions %]
+      [%    eo = 0 %]
+      [%    FOREACH q = questions %]
+      [%       IF eo % 2 == 0 %]
+      <li class="even_row">
+      [%       ELSE %]
+      <li class="odd_row">
+	[%     END %]
+	[%     eo = eo + 1 %]
+	[%     q.question %]
+      </li>
+      [%    END %]
+      [% END %]
+    </ul>
+    
+  </div>
+  
+  <hr class="clearL">
+  
+</div>
+
 <!-- END: grebe.tmpl -->

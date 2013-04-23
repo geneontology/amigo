@@ -1,0 +1,60 @@
+####
+#### A list of questions for presentation in the search wizard (Grebe).
+####
+---
+- question_id: q1
+  question: What are the direct annotations to term ||q1f1||?
+  personality: bbop_ann
+  document_category: annotation
+  field_translations:
+    - field_id: q1f1
+      field_filter: annotation_class_label
+      widget_personality: bbop_ont
+      widget_filter: ontology_class
+- question_id: q2
+  question: What are the direct and indirect annotations to term ||q2f1||?
+  personality: bbop_ann
+  document_category: annotation
+  field_translations:
+    - field_id: q2f1
+      field_filter: isa_partof_closure_label
+      widget_personality: bbop_ont
+      widget_filter: ontology_class
+- question_id: q3
+  question:  What are the direct annotations for organism ||q3f1|| to term ||q3f2||?
+  personality: bbop_ann
+  document_category: annotation
+  field_translations:
+    - field_id: q3f1
+      field_filter: taxon_closure_label
+      widget_personality: bbop_ont
+      widget_filter: ontology_class
+    - field_id: q3f2
+      field_filter: annotation_class_label
+      widget_personality: bbop_ont
+      widget_filter: ontology_class
+- question_id: q4
+  question: What are the direct and indirect annotations for organism ||q4f1|| to term ||q4f2||?
+  personality: bbop_ann
+  document_category: annotation
+  field_translations:
+    - field_id: q4f1
+      field_filter: taxon_closure_label
+      widget_personality: bbop_ont
+      widget_filter: ontology_class
+    - field_id: q4f2
+      field_filter: isa_partof_closure_label
+      widget_personality: bbop_ont
+      widget_filter: ontology_class
+- question_id: q5
+  question: What are all the annotations for gene product Z? 
+  personality: bbop_ann
+  document_category: annotation
+- question_id: q6
+  question: What are gene products annotated to term A but not term B? 
+  personality: bbop_bio
+  document_category: bioentity
+- question_id: q7
+  question: What are gene products annotated to term A AND term B?
+  personality: bbop_bio
+  document_category: bioentity

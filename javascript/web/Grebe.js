@@ -5,12 +5,12 @@
 
 var global_grebe_list = [
     {
-	'question_id': 'foo1',
+	'question_id': 'foo1', // can be generated
 	'personality': 'bbop_ann',
 	'document_category': 'annotation',
 	'field_translations': [
 	    {
-		'field_id': 'bar1',
+		'field_id': 'bar1', // can be generated
 		'field_filter': 'isa_partof_closure_label',
 		'widget_personality': 'bbop_ont',
 		'widget_filter': 'ontology_class'
@@ -66,7 +66,8 @@ function GrebeInit(){
     // generate a list of independant managers that will listen and
     // act on the autocomplete input actions.
     //var grebe_managers = [];
-    each(global_grebe_list,
+    //each(global_grebe_list,
+    each(global_grebe_questions,
 	 function(grebe_item){
 	    
 	     // First, let's decompose the grebe list item into
@@ -74,7 +75,7 @@ function GrebeInit(){
 	     var question_id = grebe_item['question_id'];
 	     var document_category = grebe_item['document_category'];
 	     var personality = grebe_item['personality'];
-	     var field_translations = grebe_item['field_translations'];
+	     var field_translations = grebe_item['field_translations'] || [];
 
 	     ll('processing: ' + question_id);
 

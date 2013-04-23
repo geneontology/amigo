@@ -99,13 +99,54 @@ sub mode_grebe {
   my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy('general');
   $self->galaxy_settings($in_galaxy, $galaxy_external_p);
 
-  ## Get various examples from the wiki.
-  $self->set_template_parameter('golr_examples_list',
-				$self->_grebe_get_wiki_golr_examples());
+  # ## Get various examples from the wiki.
+  # $self->set_template_parameter('golr_examples_list',
+  # 				$self->_grebe_get_wiki_golr_examples());
+
+  ## Pull in our wizard questions from conf/grebe.yaml.
+  my $questions_loc =
+    $self->{CORE}->amigo_env('AMIGO_ROOT') . '/conf/grebe.yaml';
+  my $questions_info = LoadFile($questions_loc);
+  #$self->{CORE}->kvetch("_q_dump_:".Dumper($questions_info));
+
+  ## Convert the double-piped fields into actual input fields. Also,
+  ## tag the jump image onto the end.
+  foreach my $question_info (@$questions_info){
+
+    ## First, grab the question string and grab the field translations
+    ## and try and replace the double-piped strings with proper input
+    ## fields.
+    my $question_id = $question_info->{'question_id'};
+    my $question = $question_info->{'question'};
+    my $translations = $question_info->{'field_translations'} || [];
+    foreach my $trans (@$translations){
+
+      my $field_id = $trans->{'field_id'};
+
+      my $from = '||' . $field_id . '||';
+      my $to = '<input id="' . $field_id . '" style="border:1px solid black;">';
+
+      my $ind = index($question, $from);
+      substr($question, $ind, length($from)) = $to;
+      #$question =~ s/$from/$to/;
+    }
+    ## Make the cumulative switch.
+    $question_info->{'question'} = $question;
+
+    ## Finally, tag the jump image onto the end.
+    $question_info->{'question'} = '<span id="' .
+      $question_id . '">' .
+	$question_info->{'question'} . ' ' .
+	  '<img class="grebe-action-icon" height="25px" style="vertical-align:middle;" title="Jump to AmiGO 2 Search" alt="[search]" src="' . $self->{CORE}->amigo_env('AMIGO_IMAGE_URL') . '/info-jump.png" />' . '</span>';
+
+  }
+
+  $self->set_template_parameter('questions', $questions_info);
 
   ## Page settings.
   $self->set_template_parameter('page_title', 'AmiGO : Grebe');
-  $self->set_template_parameter('content_title', 'Grebe');
+  $self->set_template_parameter('content_title',
+				'Grebe: The AmiGO 2 Search Wizard');
 
   ##
   my $prep =
@@ -114,6 +155,10 @@ sub mode_grebe {
      [
       'standard', # basic GO-styles
       'com.jquery.jqamigo.custom',
+     ],
+     javascript =>
+     [
+      $self->{JS}->make_var('global_grebe_questions', $questions_info),
      ],
      javascript_library =>
      [
