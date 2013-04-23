@@ -46,13 +46,13 @@ function GrebeInit(){
     var ont_args = {
 	'label_template':
 	'{{annotation_class_label}} ({{id}})',
-	'value_template': '{{annotation_class_label}}',
+	'value_template': '{{annotation_class}}',
 	'list_select_callback': _do_nothing
 	//'list_select_callback': forward
     };
     var bio_args = {
 	'label_template':
-	'{{bioentity_label}} ({{id}}/{{taxon_label}})',
+	'{{bioentity_label}} ({{id}}/{{taxon}})',
 	'value_template': '{{bioentity}}',
 	'list_select_callback': _do_nothing
 	//'list_select_callback': forward
