@@ -612,6 +612,6 @@ function LiveSearchGOlrInit(){
 
     // DEBUGGING: A temporary external hook to help with dev and
     // debugging.
-    s = search;
+    //s = search;
 }
-var s;
+//var s;
