@@ -38,34 +38,29 @@
   <!-- <h3 class="first">Find your query from the list:</h3> -->
   
   <div>
-    <!-- <input type="submit" class="button" value="Query!" /> -->
-    
+
+    [% IF questions %]
     <ul>
-      <!-- <li> -->
-      <!-- 	<p id="foo1"> -->
-      <!-- 	  What are the direct annotations to term <input id="bar1" style="border:1px solid black;">? -->
-      <!-- 	  <img class="grebe-action-icon" -->
-      <!-- 	       height="25px" -->
-      <!-- 	       style="vertical-align:middle;" -->
-      <!-- 	       title="Jump to AmiGO 2 Search" -->
-      <!-- 	       alt="[search]" -->
-      <!-- 	       src="[% image_dir %]/info-jump.png" /> -->
-      <!-- 	</p> -->
-      <!-- </li> -->
-      [% IF questions %]
-      [%    eo = 0 %]
-      [%    FOREACH q = questions %]
-      [%       IF eo % 2 == 0 %]
-      <li class="even_row">
-      [%       ELSE %]
-      <li class="odd_row">
-	[%     END %]
-	[%     eo = eo + 1 %]
-	[%     q.question %]
+      [%  eo = 0 %]
+      [%  FOREACH q = questions %]
+      [%     IF q.group_label %]
+      [%        eo = 0 %]
+      <li class="crossed_row">
+	<h4>[% q.group_label %]</h4>
       </li>
-      [%    END %]
-      [% END %]
+      [%     ELSE %]
+      [%        IF eo % 2 == 0 %]
+      <li class="even_row">
+	[%      ELSE %]
+      <li class="odd_row">
+	[%      END %]
+	[%      eo = eo + 1 %]
+	[%      q.question %]
+      </li>
+      [%     END %]
+      [%  END %]
     </ul>
+    [% END %]
     
   </div>
   

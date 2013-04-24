@@ -118,27 +118,35 @@ sub mode_grebe {
     ## fields.
     my $question_id = $question_info->{'question_id'};
     my $question = $question_info->{'question'};
-    my $translations = $question_info->{'field_translations'} || [];
-    foreach my $trans (@$translations){
+    my $group_label = $question_info->{'group_label'} || undef;
 
-      my $field_id = $trans->{'field_id'};
+    ## We also have the group labels in there, so try and sort them
+    ## out, and leave untouched for final processing.
+    if( $group_label ){
+      ## No-op.
+    }else{
 
-      my $from = '||' . $field_id . '||';
-      my $to = '<input id="' . $field_id . '" style="border:1px solid black;">';
+      my $translations = $question_info->{'field_translations'} || [];
+      foreach my $trans (@$translations){
 
-      my $ind = index($question, $from);
-      substr($question, $ind, length($from)) = $to;
-      #$question =~ s/$from/$to/;
+	my $field_id = $trans->{'field_id'};
+
+	my $from = '||' . $field_id . '||';
+	my $to = '<input id="'. $field_id .'" style="border:1px solid black;">';
+
+	my $ind = index($question, $from);
+	substr($question, $ind, length($from)) = $to;
+	#$question =~ s/$from/$to/;
+      }
+      ## Make the cumulative switch.
+      $question_info->{'question'} = $question;
+
+      ## Finally, tag the jump image onto the end.
+      $question_info->{'question'} = '<span id="' .
+	$question_id . '">' .
+	  $question_info->{'question'} . ' ' .
+	    '<img class="grebe-action-icon" title="Jump to AmiGO 2 Search" alt="[search]" src="' . $self->{CORE}->amigo_env('AMIGO_IMAGE_URL') . '/info-jump.png" />' . '</span>';
     }
-    ## Make the cumulative switch.
-    $question_info->{'question'} = $question;
-
-    ## Finally, tag the jump image onto the end.
-    $question_info->{'question'} = '<span id="' .
-      $question_id . '">' .
-	$question_info->{'question'} . ' ' .
-	  '<img class="grebe-action-icon" title="Jump to AmiGO 2 Search" alt="[search]" src="' . $self->{CORE}->amigo_env('AMIGO_IMAGE_URL') . '/info-jump.png" />' . '</span>';
-
   }
 
   $self->set_template_parameter('questions', $questions_info);
