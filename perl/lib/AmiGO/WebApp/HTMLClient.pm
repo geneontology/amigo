@@ -158,7 +158,7 @@ sub mode_landing {
      ],
      javascript =>
      [
-      $self->{JS}->acquire_source('https://www.google.com/jsapi'),
+      #$self->{JS}->acquire_source('https://www.google.com/jsapi'),
       $self->{JS}->get_lib('LandingGraphs.js')
      ],
      javascript_init =>

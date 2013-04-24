@@ -10,7 +10,7 @@
     - field_id: q1f1
       field_filter: annotation_class
       widget_personality: bbop_ont
-      widget_filter: ontology_class
+      widget_document: ontology_class
 - question_id: q2
   question: What are the direct and indirect annotations to term ||q2f1||?
   personality: bbop_ann
@@ -19,7 +19,7 @@
     - field_id: q2f1
       field_filter: isa_partof_closure
       widget_personality: bbop_ont
-      widget_filter: ontology_class
+      widget_document: ontology_class
 - question_id: q3
   question:  What are the direct annotations for organism ||q3f1|| to term ||q3f2||?
   personality: bbop_ann
@@ -28,11 +28,13 @@
     - field_id: q3f1
       field_filter: taxon_closure
       widget_personality: bbop_ont
-      widget_filter: ontology_class
+      widget_document: ontology_class
+      widget_filters:
+        - 'source:ncbi_taxonomy'
     - field_id: q3f2
       field_filter: annotation_class
       widget_personality: bbop_ont
-      widget_filter: ontology_class
+      widget_document: ontology_class
 - question_id: q4
   question: What are the direct and indirect annotations for organism ||q4f1|| to term ||q4f2||?
   personality: bbop_ann
@@ -41,11 +43,13 @@
     - field_id: q4f1
       field_filter: taxon_closure
       widget_personality: bbop_ont
-      widget_filter: ontology_class
+      widget_document: ontology_class
+      widget_filters:
+        - 'source:ncbi_taxonomy'
     - field_id: q4f2
       field_filter: isa_partof_closure
       widget_personality: bbop_ont
-      widget_filter: ontology_class
+      widget_document: ontology_class
 - question_id: q5
   question: What are all the annotations for gene product ||q5f1||
   personality: bbop_ann
@@ -54,7 +58,7 @@
     - field_id: q5f1
       field_filter: bioentity
       widget_personality: bbop_bio
-      widget_filter: bioentity
+      widget_document: bioentity
 - question_id: q6
   question: What are the gene products annotated to term ||q6f1|| but <em>not</em> term ||q6f2||? 
   personality: bbop_bio
@@ -63,11 +67,11 @@
     - field_id: q6f1
       field_filter: isa_partof_closure
       widget_personality: bbop_ont
-      widget_filter: ontology_class
+      widget_document: ontology_class
     - field_id: q6f2
       field_filter: -isa_partof_closure
       widget_personality: bbop_ont
-      widget_filter: ontology_class
+      widget_document: ontology_class
 - question_id: q7
   question: What are the gene products annotated to term ||q7f1|| <em>and</em> term ||q7f2||?
   personality: bbop_bio
@@ -76,8 +80,8 @@
     - field_id: q7f1
       field_filter: isa_partof_closure
       widget_personality: bbop_ont
-      widget_filter: ontology_class
+      widget_document: ontology_class
     - field_id: q7f2
       field_filter: isa_partof_closure
       widget_personality: bbop_ont
-      widget_filter: ontology_class
+      widget_document: ontology_class

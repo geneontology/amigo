@@ -83,9 +83,14 @@ function GrebeInit(){
 		      var field_filter = field_translation['field_filter'];
 		      var widget_personality =
 			  field_translation['widget_personality'];
-		      var widget_filter = field_translation['widget_filter'];
+		      var widget_document =
+			  field_translation['widget_document'];
+		      var widget_filters =
+			  field_translation['widget_filters'] || [];
+
 		      ll('ft: ' + field_id + ' ' + field_filter);
-		      ll('wt: ' + widget_personality + ' ' + widget_filter);
+		      ll('wt: ' + widget_personality + ' ' + widget_document);
+		      ll('wf: ' + widget_filters.join(', '));
 
 		      // Sort out which widget args template we'll use.
 		      var widget_args =
@@ -95,7 +100,23 @@ function GrebeInit(){
 		      var auto = new search_box(sd.golr_base(), gconf,
 						field_id, widget_args);
 		      auto.set_personality(widget_personality);
-		      auto.add_query_filter('document_category', widget_filter);
+		      auto.add_query_filter('document_category',
+					    widget_document);
+		      // Cycle through the additional widget
+		      // restriction filters and add them.
+		      each(widget_filters,
+			   function(widget_filter){
+			       // First, break it.
+			       var filter_and_value = 
+				   bbop.core.first_split(':', widget_filter);
+			       var wfilter = filter_and_value[0];
+			       var wvalue = filter_and_value[1];
+
+			       // If tested, add the filter.
+			       if( is_defined(wfilter) && is_defined(wvalue) ){
+				   auto.add_query_filter(wfilter, wvalue);
+			       }
+			   });
 
 		      // Ensure map and store these for processing on
 		      // click.
