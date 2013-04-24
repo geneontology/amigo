@@ -652,6 +652,12 @@ div .mq_message {
 }
 .landing-navigation tr td {
     border: 1px solid #3875D7;
+    vertical-align: middle;
+}
+.landing-navigation tr td a {
+    display: block;
+    padding:5px;
+    border-bottom-style: none;
 }
 
 .grebe-action-icon {
