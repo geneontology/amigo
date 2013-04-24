@@ -22,16 +22,34 @@ function LiveSearchGOlrInit(){
     /// change on this page.
     ///
 
+    function _establish_buttons(personality, manager){
+	if( personality == 'bbop_ann' ){
+	    manager.clear_buttons();
+	    manager.add_button(gaf_download_button);
+	    manager.add_button(gaf_galaxy_button);
+	    manager.add_button(bookmark_button);
+	}else if( personality == 'bbop_ont' ){
+	    manager.clear_buttons();
+	    manager.add_button(id_download_button);
+	    manager.add_button(id_term_label_galaxy_button);
+	    manager.add_button(bookmark_button);
+	}else if( personality == 'bbop_bio' ){
+	    manager.clear_buttons();
+	    manager.add_button(id_download_button);
+	    manager.add_button(id_symbol_galaxy_button);
+	    manager.add_button(bookmark_button);
+	}else if( personality == 'bbop_ann_ev_agg' ){
+	    manager.clear_buttons();
+	}
+    }
+
     var active_classes = [
 	{
 	    id: 'bbop_ann', 
 	    on_click: function(manager){
 		manager.add_query_filter('document_category',
 					 'annotation', ['*']);
-		manager.clear_buttons();
-		manager.add_button(gaf_download_button);
-		manager.add_button(gaf_galaxy_button);
-		manager.add_button(bookmark_button);
+		_establish_buttons('bbop_ann', manager);
 	    }
 	},
 	{
@@ -39,10 +57,7 @@ function LiveSearchGOlrInit(){
 	    on_click: function(manager){
     		manager.add_query_filter('document_category',
 					 'ontology_class', ['*']);
-		manager.clear_buttons();
-		manager.add_button(id_download_button);
-		manager.add_button(id_term_label_galaxy_button);
-		manager.add_button(bookmark_button);
+		_establish_buttons('bbop_ont', manager);
 	    }
 	},
 	{
@@ -50,10 +65,7 @@ function LiveSearchGOlrInit(){
 	    on_click: function(manager){
     		manager.add_query_filter('document_category',
 					 'bioentity',['*']);
-		manager.clear_buttons();
-		manager.add_button(id_download_button);
-		manager.add_button(id_symbol_galaxy_button);
-		manager.add_button(bookmark_button);
+		_establish_buttons('bbop_bio', manager);
 	    }
 	},
 	{
@@ -61,7 +73,7 @@ function LiveSearchGOlrInit(){
 	    on_click: function(manager){
     		manager.add_query_filter('document_category',
     					 'annotation_evidence_aggregate',['*']);
-		manager.clear_buttons();
+		_establish_buttons('bbop_ann_ev_agg', manager);
 	    }
 	}
     ];
@@ -581,6 +593,10 @@ function LiveSearchGOlrInit(){
     	    search.establish_display();
 	    search.search();
 	    //ll("Post establish: " + search.get_query_url());
+
+	    // While we're here, make sure that the appropriate
+	    // buttons appear as well.
+	    _establish_buttons(search.get_personality(), search);
 	}
 
 	// Destroy the bookmark so we don't keep hitting it.
