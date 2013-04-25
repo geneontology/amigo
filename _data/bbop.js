@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130424";
+bbop.version.release = "20130425";
 /* 
  * Package: json.js
  * 
@@ -6582,7 +6582,7 @@ bbop.golr.conf_class = function (class_conf_struct){
      *  n/a
      * 
      * Returns:
-     *  string
+     * string
      */
     this.searchable_extension = function(){
     	//return this._class['searchable_extension'] || '_searchable';
@@ -6647,8 +6647,9 @@ bbop.golr.conf_class = function (class_conf_struct){
 	    throw new Error("Missing weight category: " + weight_category);
 	}else{
 	    // Only work it if there is something there more than "".
-	    if( this._class[weight_category] ){
-		var dfab = this._class[weight_category];
+	    var wcs = this._class[weight_category];
+	    if( wcs && wcs != "" && wcs != " " ){
+		var dfab = wcs;
 		var fields = dfab.split(/\s+/);
 		bbop.core.each(fields,
 			       function(item, i){

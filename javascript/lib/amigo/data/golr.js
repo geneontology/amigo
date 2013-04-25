@@ -1855,13 +1855,151 @@ amigo.data.golr = {
       "id" : "bbop_general",
       "_outfile" : "/home/sjcarbon/local/src/git/amigo/metadata//general-config.yaml"
    },
+   "bbop_term_ac" : {
+      "searchable_extension" : "_searchable",
+      "result_weights" : "annotation_class^8.0 synonym^3.0 alternate_id^2.0",
+      "filter_weights" : "",
+      "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//term-autocomplete-config.yaml",
+      "display_name" : "Term autocomplete",
+      "description" : "Easily find ontology classes in GO. For personality only--not a schema configuration.",
+      "boost_weights" : "annotation_class^1.0 annotation_class_label^1.0 synonym^1.0 alternate_id^1.0",
+      "fields" : [
+         {
+            "transform" : [],
+            "description" : "Term acc/ID.",
+            "display_name" : "Acc",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "id",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Term acc/ID.",
+            "display_name" : "Term",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_class",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Common term name.",
+            "display_name" : "Term",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_class_label",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Term synonyms.",
+            "display_name" : "Synonyms",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "synonym",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Alternate term id.",
+            "display_name" : "Alt ID",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "alternate_id",
+            "property" : []
+         }
+      ],
+      "fields_hash" : {
+         "synonym" : {
+            "transform" : [],
+            "description" : "Term synonyms.",
+            "display_name" : "Synonyms",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "synonym",
+            "property" : []
+         },
+         "annotation_class_label" : {
+            "transform" : [],
+            "description" : "Common term name.",
+            "display_name" : "Term",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_class_label",
+            "property" : []
+         },
+         "alternate_id" : {
+            "transform" : [],
+            "description" : "Alternate term id.",
+            "display_name" : "Alt ID",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "alternate_id",
+            "property" : []
+         },
+         "annotation_class" : {
+            "transform" : [],
+            "description" : "Term acc/ID.",
+            "display_name" : "Term",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_class",
+            "property" : []
+         },
+         "id" : {
+            "transform" : [],
+            "description" : "Term acc/ID.",
+            "display_name" : "Acc",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "id",
+            "property" : []
+         }
+      },
+      "document_category" : "ontology_class",
+      "weight" : "-10",
+      "_strict" : 0,
+      "id" : "bbop_term_ac",
+      "_outfile" : "/home/sjcarbon/local/src/git/amigo/metadata//term-autocomplete-config.yaml"
+   },
    "bbop_ont" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "annotation_class^8.0 description^6.0 source^4.0 synonym^3.0 alternate_id^2.0",
       "filter_weights" : "source^4.0 subset^3.0 isa_partof_closure_label^2.0 regulates_closure_label^1.0 is_obsolete^0.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//ont-config.yaml",
       "display_name" : "Ontology",
-      "description" : "Test mapping of ontology class for GO.",
+      "description" : "Ontology classes for GO.",
       "boost_weights" : "annotation_class^3.0 annotation_class_label^3.0 description^1.0 comment^0.5 synonym^1.0 alternate_id^1.0",
       "fields" : [
          {

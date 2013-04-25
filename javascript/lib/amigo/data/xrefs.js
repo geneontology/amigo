@@ -1313,6 +1313,22 @@ amigo.data.xrefs = {
       "url_syntax" : null,
       "datatype" : null
    },
+   "wbls" : {
+      "object" : "Identifier",
+      "uri_prefix" : null,
+      "name" : null,
+      "url_example" : null,
+      "database" : "C. elegans development",
+      "local_id_syntax" : "[0-9]{7}",
+      "example_id" : "WBls:0000010",
+      "generic_url" : null,
+      "entity_type" : "WBls:0000075 ! Nematoda Life Stage",
+      "fullname" : null,
+      "id" : null,
+      "abbreviation" : "WBls",
+      "url_syntax" : null,
+      "datatype" : null
+   },
    "mengo" : {
       "uri_prefix" : null,
       "name" : null,
@@ -4149,8 +4165,10 @@ amigo.data.xrefs = {
       "name" : null,
       "url_example" : null,
       "database" : "Dictyostelium discoideum anatomy",
+      "local_id_syntax" : "[0-9]{7}",
       "example_id" : "DDANAT:0000068",
       "generic_url" : "http://dictybase.org/Dicty_Info/dicty_anatomy_ontology.html",
+      "entity_type" : "UBERON:0001062 ! anatomical entity",
       "fullname" : null,
       "id" : null,
       "abbreviation" : "DDANAT",
