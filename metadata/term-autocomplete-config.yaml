@@ -1,0 +1,41 @@
+####
+#### The ontology description file for GOlr and AmiGO.
+####
+id: bbop_term_ac
+description: Easily find ontology classes in GO. For personality only--not a schema configuration.
+display_name: Term autocomplete
+document_category: ontology_class
+weight: -10
+boost_weights: annotation_class^1.0 annotation_class_label^1.0 synonym^1.0 alternate_id^1.0
+result_weights: annotation_class^8.0 synonym^3.0 alternate_id^2.0
+filter_weights:
+fields:
+  - id: id
+    description: Term acc/ID.
+    display_name: Acc
+    type: string
+    property: []
+  - id: annotation_class
+    description: Term acc/ID.
+    display_name: Term
+    type: string
+    property: []
+  - id: annotation_class_label
+    description: Common term name.
+    display_name: Term
+    type: string
+    property: []
+    searchable: true
+  - id: synonym
+    description: Term synonyms.
+    display_name: Synonyms
+    type: string
+    property: []
+    cardinality: multi
+    searchable: true
+  - id: alternate_id
+    description: Alternate term id.
+    display_name: Alt ID
+    type: string
+    property: []
+    cardinality: multi

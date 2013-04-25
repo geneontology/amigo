@@ -35,6 +35,13 @@ function GrebeInit(){
 	    'list_select_callback': _do_nothing
 	    //'list_select_callback': forward
 	},
+	bbop_term_ac: {
+	    'label_template':
+	    '{{annotation_class_label}} ({{id}})',
+	    'value_template': '{{annotation_class}}',
+	    'list_select_callback': _do_nothing
+	    //'list_select_callback': forward
+	},
 	bbop_bio: {
 	    'label_template':
 	    '{{bioentity_label}} ({{id}}/{{taxon_label}})',
@@ -102,6 +109,9 @@ function GrebeInit(){
 		      auto.set_personality(widget_personality);
 		      auto.add_query_filter('document_category',
 					    widget_document);
+		      // We don't need much here, just return the
+		      // minimal set.
+		      auto.lite(true);
 		      // Cycle through the additional widget
 		      // restriction filters and add them.
 		      each(widget_filters,
@@ -153,7 +163,7 @@ function GrebeInit(){
 		     // The primary filters.
 		     mgr.set_personality(prs);
 		     mgr.add_query_filter('document_category', dc, ['*']);
-		     
+
 		     // Unwind the map of names to autocompletes
 		     each(fts,
 			  function(ft){
