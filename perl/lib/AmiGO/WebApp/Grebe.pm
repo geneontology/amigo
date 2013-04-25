@@ -131,7 +131,7 @@ sub mode_grebe {
 
 	my $field_id = $trans->{'field_id'};
 
-	my $from = '||' . $field_id . '||';
+	my $from = '{{' . $field_id . '}}';
 	my $to = '<input id="'. $field_id .'" style="border:1px solid black;">';
 
 	my $ind = index($question, $from);
