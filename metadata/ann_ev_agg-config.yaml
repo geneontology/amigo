@@ -3,6 +3,7 @@
 #### AmiGO.
 ####
 id: bbop_ann_ev_agg
+schema_generating: true
 description: A description of annotation evidence aggregate for GOlr and AmiGO.
 display_name: Advanced
 document_category: annotation_evidence_aggregate

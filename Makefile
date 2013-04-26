@@ -10,6 +10,7 @@ TESTS = $(wildcard javascript/lib/amigo/*.js.tests) \
  $(wildcard javascript/lib/amigo/ui/*.js.tests) \
  $(wildcard javascript/lib/amigo/handler/*.js.tests)
 #BENCHMARKS = $(wildcard _benchmark/*.js)
+METADATA = $(wildcard metadata/*.yaml)
 JS = rhino # or smjs
 JSFLAGS = -opt -1
 #JSENGINES = node smjs rhino
@@ -135,3 +136,12 @@ refresh: tags bundle
 rollout:
 	./install -v -e -g
 	./scripts/blank-kvetch.pl
+
+###
+### Check the metadata using kwalify.
+###
+
+.PHONY: check_metadata $(METADATA)
+check_metadata: $(METADATA)
+$(METADATA):
+	kwalify -f ./scripts/schema.yaml $@

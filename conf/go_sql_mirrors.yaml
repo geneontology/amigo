@@ -7,7 +7,7 @@ bbop:
   location: in Berkeley, CA
   class: main
   login: go_select
-  password: amigoer
+  password: 
   database: go_latest
   host: spitz.lbl.gov
   type: lead_full
@@ -51,7 +51,7 @@ bbop_lite:
   location: in Berkeley, CA
   class: aux
   login: go_select
-  password: amigoer
+  password: 
   database: go_latest_lite
   host: spitz.lbl.gov
   type: lead_lite

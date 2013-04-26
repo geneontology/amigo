@@ -2,6 +2,7 @@
 #### The annotation description file for GOlr and AmiGO.
 ####
 id: bbop_ann
+schema_generating: true
 description: A description of annotations for GOlr and AmiGO.
 display_name: Annotations
 document_category: annotation

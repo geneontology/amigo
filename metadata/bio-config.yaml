@@ -2,6 +2,7 @@
 #### The bioentity description file for GOlr and AmiGO.
 ####
 id: bbop_bio
+schema_generating: true
 description: A description of bioentities file for GOlr.
 display_name: Gene/products
 document_category: bioentity

@@ -2,6 +2,7 @@
 #### The ontology description file for GOlr and AmiGO.
 ####
 id: bbop_ont
+schema_generating: true
 description: Ontology classes for GO.
 display_name: Ontology
 document_category: ontology_class

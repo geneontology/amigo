@@ -88,3 +88,14 @@
       field_filter: isa_partof_closure
       widget_personality: bbop_term_ac
       widget_document: ontology_class
+## Would need to have a protein family document to make this work.
+# - group_label: Protein family
+# - question_id: q8
+#   question: What are the gene products associated with the protein family {{q8f1}}?
+#   personality: bbop_bio
+#   document_category: bioentity
+#   field_translations:
+#     - field_id: q8f1
+#       field_filter: panther_family
+#       widget_personality: bbop_bio
+#       widget_document: ontology_class

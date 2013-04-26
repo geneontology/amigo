@@ -1,13 +1,16 @@
 ####
 #### Use kwalify and this schema to validate the config files.
 #### Examples:
-####    kwalify -f schema.yaml ont-config.yaml
-####    kwalify -f schema.yaml ann-config.yaml ann_ev_agg-config.yaml bio-config.yaml ont-config.yaml
+####    kwalify -f ./scripts/schema.yaml ./metadata/ont-config.yaml
+####    make check_metadata
 ####
 type: map
 mapping:
   "id":
     type: str
+    required: yes
+  "schema_generating":
+    type: bool
     required: yes
   "description":
     type: str
