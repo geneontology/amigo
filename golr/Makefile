@@ -25,6 +25,8 @@ SCHEMA_METADATA = \
  ../metadata/ont-config.yaml \
  ../metadata/bio-config.yaml \
  ../metadata/ann-config.yaml \
+ ../metadata/protein-family-config.yaml \
+ ../metadata/general-config.yaml \
  ../metadata/ann_ev_agg-config.yaml
 ONTOLOGY_METADATA = ../metadata/ont-config.yaml
 ONTOLOGIES = \

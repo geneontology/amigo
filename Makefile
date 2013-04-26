@@ -34,11 +34,20 @@ $(TESTS): bundle
 	cd $(@D) && $(JS) $(JSFLAGS) -f $(@F)
 
 ###
+### Check the metadata using kwalify.
+###
+
+.PHONY: check_metadata $(METADATA)
+check_metadata: $(METADATA)
+$(METADATA):
+	kwalify -f ./scripts/schema.yaml $@
+
+###
 ### Just the exit code results of the tests.
 ###
 
 .PHONY: pass
-pass:
+pass: check_metadata
 	make test | grep -i fail; test $$? -ne 0
 
 ###
@@ -136,12 +145,3 @@ refresh: tags bundle
 rollout:
 	./install -v -e -g
 	./scripts/blank-kvetch.pl
-
-###
-### Check the metadata using kwalify.
-###
-
-.PHONY: check_metadata $(METADATA)
-check_metadata: $(METADATA)
-$(METADATA):
-	kwalify -f ./scripts/schema.yaml $@

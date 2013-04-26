@@ -38,6 +38,7 @@ amigo.data.golr = {
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//bio-config.yaml",
       "display_name" : "Gene/products",
       "description" : "A description of bioentities file for GOlr.",
+      "schema_generating" : "true",
       "boost_weights" : "bioentity^2.0 bioentity_label^2.0 bioentity_name^1.0 isa_partof_closure_label^1.0 regulates_closure_label^1.0 panther_family^1.0 panther_family_label^1.0 taxon_closure_label^1.0",
       "fields" : [
          {
@@ -584,6 +585,7 @@ amigo.data.golr = {
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//ann_ev_agg-config.yaml",
       "display_name" : "Advanced",
       "description" : "A description of annotation evidence aggregate for GOlr and AmiGO.",
+      "schema_generating" : "true",
       "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 panther_family^1.0 panther_family_label^1.0 taxon_closure_label^1.0",
       "fields" : [
          {
@@ -914,6 +916,7 @@ amigo.data.golr = {
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//ann-config.yaml",
       "display_name" : "Annotations",
       "description" : "A description of annotations for GOlr and AmiGO.",
+      "schema_generating" : "true",
       "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 bioentity_name^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 reference^1.0 panther_family^1.0 panther_family_label^1.0 bioentity_isoform^1.0",
       "fields" : [
          {
@@ -1748,6 +1751,7 @@ amigo.data.golr = {
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//general-config.yaml",
       "display_name" : "General",
       "description" : "A generic search document to get a general overview of everything.",
+      "schema_generating" : "true",
       "boost_weights" : "id^3.0 id_label^3.0 general_blob^3.0",
       "fields" : [
          {
@@ -1788,7 +1792,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "A hidden searchable blob document to access this item.",
+            "description" : "A hidden searchable blob document to access this item. It should contain all the goodies that we want to search for, like species(?), synonyms, etc.",
             "display_name" : "Generic blob",
             "indexed" : "true",
             "searchable" : "true",
@@ -1814,7 +1818,7 @@ amigo.data.golr = {
          },
          "general_blob" : {
             "transform" : [],
-            "description" : "A hidden searchable blob document to access this item.",
+            "description" : "A hidden searchable blob document to access this item. It should contain all the goodies that we want to search for, like species(?), synonyms, etc.",
             "display_name" : "Generic blob",
             "indexed" : "true",
             "searchable" : "true",
@@ -1855,6 +1859,121 @@ amigo.data.golr = {
       "id" : "bbop_general",
       "_outfile" : "/home/sjcarbon/local/src/git/amigo/metadata//general-config.yaml"
    },
+   "bbop_family" : {
+      "searchable_extension" : "_searchable",
+      "result_weights" : "bioentity^8.0 bioentity_name^7.0 taxon^6.0 panther_family^5.0 type^4.0 source^3.0 annotation_class_list^2.0",
+      "filter_weights" : "source^7.0 type^6.0 panther_family_label^5.0 annotation_class_list_label^3.5 taxon_closure_label^4.0 isa_partof_closure_label^3.0 regulates_closure_label^2.0",
+      "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//protein-family-config.yaml",
+      "display_name" : "Protein families",
+      "description" : "Information about protein (PANTHER) families.",
+      "schema_generating" : "true",
+      "boost_weights" : "bioentity^2.0 bioentity_label^2.0 bioentity_name^1.0 isa_partof_closure_label^1.0 regulates_closure_label^1.0 panther_family^1.0 panther_family_label^1.0 taxon_closure_label^1.0",
+      "fields" : [
+         {
+            "transform" : [],
+            "description" : "Family ID.",
+            "display_name" : "Acc",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "id",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "PANTHER family IDs that are associated with this entity.",
+            "display_name" : "PANTHER family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "panther_family",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "PANTHER families that are associated with this entity.",
+            "display_name" : "PANTHER family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "panther_family_label",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "JSON blob form of the phylogenic tree.",
+            "display_name" : "This should not be displayed",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "phylo_graph",
+            "property" : []
+         }
+      ],
+      "fields_hash" : {
+         "phylo_graph" : {
+            "transform" : [],
+            "description" : "JSON blob form of the phylogenic tree.",
+            "display_name" : "This should not be displayed",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "phylo_graph",
+            "property" : []
+         },
+         "panther_family_label" : {
+            "transform" : [],
+            "description" : "PANTHER families that are associated with this entity.",
+            "display_name" : "PANTHER family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "panther_family_label",
+            "property" : []
+         },
+         "panther_family" : {
+            "transform" : [],
+            "description" : "PANTHER family IDs that are associated with this entity.",
+            "display_name" : "PANTHER family",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "panther_family",
+            "property" : []
+         },
+         "id" : {
+            "transform" : [],
+            "description" : "Family ID.",
+            "display_name" : "Acc",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "id",
+            "property" : []
+         }
+      },
+      "document_category" : "family",
+      "weight" : "5",
+      "_strict" : 0,
+      "id" : "bbop_family",
+      "_outfile" : "/home/sjcarbon/local/src/git/amigo/metadata//protein-family-config.yaml"
+   },
    "bbop_term_ac" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "annotation_class^8.0 synonym^3.0 alternate_id^2.0",
@@ -1862,6 +1981,7 @@ amigo.data.golr = {
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//term-autocomplete-config.yaml",
       "display_name" : "Term autocomplete",
       "description" : "Easily find ontology classes in GO. For personality only--not a schema configuration.",
+      "schema_generating" : "false",
       "boost_weights" : "annotation_class^1.0 annotation_class_label^1.0 synonym^1.0 alternate_id^1.0",
       "fields" : [
          {
@@ -2000,6 +2120,7 @@ amigo.data.golr = {
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//ont-config.yaml",
       "display_name" : "Ontology",
       "description" : "Ontology classes for GO.",
+      "schema_generating" : "true",
       "boost_weights" : "annotation_class^3.0 annotation_class_label^3.0 description^1.0 comment^0.5 synonym^1.0 alternate_id^1.0",
       "fields" : [
          {
