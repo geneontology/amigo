@@ -42,6 +42,13 @@ function GrebeInit(){
 	    'list_select_callback': _do_nothing
 	    //'list_select_callback': forward
 	},
+	bbop_family: {
+	    'label_template':
+	    '{{panther_family_label}} ({{panther_family}})',
+	    'value_template': '{{panther_family}}',
+	    'list_select_callback': _do_nothing
+	    //'list_select_callback': forward
+	},
 	bbop_bio: {
 	    'label_template':
 	    '{{bioentity_label}} ({{id}}/{{taxon_label}})',
