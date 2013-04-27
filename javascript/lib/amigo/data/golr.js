@@ -1862,7 +1862,7 @@ amigo.data.golr = {
    "bbop_family" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "panther_family^5.0 bioentity_list^4.0",
-      "filter_weights" : "bioentity_list^1.0",
+      "filter_weights" : "bioentity_list_label^1.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//protein-family-config.yaml",
       "display_name" : "Protein families",
       "description" : "Information about protein (PANTHER) families.",

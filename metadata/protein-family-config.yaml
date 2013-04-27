@@ -9,7 +9,7 @@ document_category: family
 weight: 5
 boost_weights: panther_family^2.0 panther_family_label^2.0 bioentity_list^1.0 bioentity_list_label^1.0
 result_weights: panther_family^5.0 bioentity_list^4.0
-filter_weights: bioentity_list^1.0
+filter_weights: bioentity_list_label^1.0
 fields:
   - id: id
     description: Family ID.
