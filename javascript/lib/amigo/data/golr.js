@@ -1861,13 +1861,13 @@ amigo.data.golr = {
    },
    "bbop_family" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "panther_family^5.0",
+      "result_weights" : "panther_family^5.0 bioentity_list^4.0",
       "filter_weights" : "bioentity_list^1.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//protein-family-config.yaml",
       "display_name" : "Protein families",
       "description" : "Information about protein (PANTHER) families.",
       "schema_generating" : "true",
-      "boost_weights" : "panther_family^1.0 panther_family_label^1.0",
+      "boost_weights" : "panther_family^2.0 panther_family_label^2.0 bioentity_list^1.0 bioentity_list_label^1.0",
       "fields" : [
          {
             "transform" : [],
