@@ -38,7 +38,8 @@ function LiveSearchGOlrInit(){
 	    manager.add_button(id_download_button);
 	    manager.add_button(id_symbol_galaxy_button);
 	    manager.add_button(bookmark_button);
-	}else if( personality == 'bbop_ann_ev_agg' ){
+	//}else if( personality == 'bbop_ann_ev_agg' ){
+	}else{
 	    manager.clear_buttons();
 	}
     }
@@ -66,6 +67,22 @@ function LiveSearchGOlrInit(){
     		manager.add_query_filter('document_category',
 					 'bioentity',['*']);
 		_establish_buttons('bbop_bio', manager);
+	    }
+	},
+	{
+	    id: 'bbop_family',
+	    on_click: function(manager){
+    		manager.add_query_filter('document_category',
+					 'family',['*']);
+		_establish_buttons('bbop_family', manager);
+	    }
+	},
+	{
+	    id: 'bbop_general',
+	    on_click: function(manager){
+    		manager.add_query_filter('document_category',
+					 'general',['*']);
+		_establish_buttons('bbop_general', manager);
 	    }
 	},
 	{

@@ -1861,13 +1861,13 @@ amigo.data.golr = {
    },
    "bbop_family" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "bioentity^8.0 bioentity_name^7.0 taxon^6.0 panther_family^5.0 type^4.0 source^3.0 annotation_class_list^2.0",
-      "filter_weights" : "source^7.0 type^6.0 panther_family_label^5.0 annotation_class_list_label^3.5 taxon_closure_label^4.0 isa_partof_closure_label^3.0 regulates_closure_label^2.0",
+      "result_weights" : "panther_family^5.0",
+      "filter_weights" : "bioentity_list^1.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//protein-family-config.yaml",
       "display_name" : "Protein families",
       "description" : "Information about protein (PANTHER) families.",
       "schema_generating" : "true",
-      "boost_weights" : "bioentity^2.0 bioentity_label^2.0 bioentity_name^1.0 isa_partof_closure_label^1.0 regulates_closure_label^1.0 panther_family^1.0 panther_family_label^1.0 taxon_closure_label^1.0",
+      "boost_weights" : "panther_family^1.0 panther_family_label^1.0",
       "fields" : [
          {
             "transform" : [],
@@ -1916,6 +1916,30 @@ amigo.data.golr = {
             "type" : "string",
             "id" : "phylo_graph",
             "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Gene/products annotated with this protein family.",
+            "display_name" : "Gene/products",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "bioentity_list",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Gene/products annotated with this protein family.",
+            "display_name" : "Gene/products",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "bioentity_list_label",
+            "property" : []
          }
       ],
       "fields_hash" : {
@@ -1953,6 +1977,30 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "panther_family",
+            "property" : []
+         },
+         "bioentity_list" : {
+            "transform" : [],
+            "description" : "Gene/products annotated with this protein family.",
+            "display_name" : "Gene/products",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "bioentity_list",
+            "property" : []
+         },
+         "bioentity_list_label" : {
+            "transform" : [],
+            "description" : "Gene/products annotated with this protein family.",
+            "display_name" : "Gene/products",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "bioentity_list_label",
             "property" : []
          },
          "id" : {

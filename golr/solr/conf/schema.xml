@@ -49,6 +49,12 @@
     <!--An easily searchable (TextField tokenized) version of id_label.-->
     <field name="id_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="id_label" dest="id_label_searchable"></copyField>
+    <!-- bbop_family: Gene/products annotated with this protein family. -->
+    <field name="bioentity_list_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between bioentity_(list|closure) and bioentity_list_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="bioentity_list_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bbop_bio: JSON blob form of the phylogenic tree. -->
     <!-- bbop_family: JSON blob form of the phylogenic tree. -->
     <field name="phylo_graph" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
@@ -73,6 +79,8 @@
     <!-- between taxon_(list|closure) and taxon_closure_label.-->
     <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
     <field name="taxon_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- bbop_family: Gene/products annotated with this protein family. -->
+    <field name="bioentity_list" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- bbop_ann: Column 16: extension class for the annotation. -->
     <field name="annotation_extension_class" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- bbop_bio: IDs derived from C13 + ncbi_taxonomy.obo. -->

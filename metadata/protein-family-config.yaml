@@ -7,9 +7,9 @@ description: Information about protein (PANTHER) families.
 display_name: Protein families
 document_category: family
 weight: 5
-boost_weights: bioentity^2.0 bioentity_label^2.0 bioentity_name^1.0 isa_partof_closure_label^1.0 regulates_closure_label^1.0 panther_family^1.0 panther_family_label^1.0 taxon_closure_label^1.0
-result_weights: bioentity^8.0 bioentity_name^7.0 taxon^6.0 panther_family^5.0 type^4.0 source^3.0 annotation_class_list^2.0
-filter_weights: source^7.0 type^6.0 panther_family_label^5.0 annotation_class_list_label^3.5 taxon_closure_label^4.0 isa_partof_closure_label^3.0 regulates_closure_label^2.0
+boost_weights: panther_family^1.0 panther_family_label^1.0
+result_weights: panther_family^5.0
+filter_weights: bioentity_list^1.0
 fields:
   - id: id
     description: Family ID.
@@ -46,4 +46,15 @@ fields:
   #   type: string
   #   cardinality: multi
   #   property: []
-  # - id: panther_family
+  - id: bioentity_list
+    description: "Gene/products annotated with this protein family."
+    display_name: Gene/products
+    type: string
+    cardinality: multi
+    property: []
+  - id: bioentity_list_label
+    description: "Gene/products annotated with this protein family."
+    display_name: Gene/products
+    type: string
+    cardinality: multi
+    property: []

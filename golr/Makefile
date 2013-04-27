@@ -17,7 +17,7 @@ SOLR = http://localhost:8080/solr/
 
 ## Paths.
 OWLTOOLS = ~/local/src/svn/owltools/
-PANTHER_FILES = ~/local/src/svn/geneontology.org/trunk/experimental/trees/panther_data/
+PANTHER_FILES_DIR = ~/local/src/svn/geneontology.org/trunk/experimental/trees/panther_data/
 BBOP_JS_ROOT = ~/local/src/git/bbop-js/
 
 ## Files.
@@ -136,17 +136,22 @@ load-ontology: owltools-build
 ## Test GAF.
 .PHONY: load-mgi-gaf
 load-mgi-gaf: owltools-build
-	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-load-panther $(PANTHER_FILES) --solr-load-gafs $(MGI_GAF)
+	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(MGI_GAF) --solr-load-panther
 
 ## Test GAF: A test load with the MGI GAF--column 16, etc.
 .PHONY: load-mgi-test-gaf
 load-mgi-test-gaf: owltools-build
-	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-load-panther $(PANTHER_FILES) --solr-load-gafs $(MGI_TEST_GAF)
+	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(MGI_TEST_GAF) --solr-load-panther
+
+## Test PANTHER: A test load with just PANTHER (no GAF info).
+.PHONY: load-just-panther
+load-just-panther: owltools-build
+	$(OWLTOOLS)/OWLTools-Runner/bin/owltools --solr-url $(SOLR) --read-panther $(PANTHER_FILES_DIR) --solr-load-panther
 
 ## The full and final load.
 .PHONY: load-full
 load-full: owltools-build
-	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-load-ontology --solr-load-panther $(PANTHER_FILES) --solr-load-gafs $(ALL_GAFS)
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-load-ontology --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(ALL_GAFS) --solr-load-panther
 
 ###
 ### Services.
