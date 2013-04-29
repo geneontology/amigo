@@ -243,6 +243,7 @@ sub mode_simple_search {
 
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile('simple_search');
+  $self->check_for_condition_files();
 
   ## Tally up if we have insufficient information to do a query.
   my $insufficient_info_p = 2;
@@ -465,6 +466,7 @@ sub mode_software_list {
 
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile();
+  $self->check_for_condition_files();
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'software_list');
@@ -504,6 +506,9 @@ sub mode_visualize {
   my $format = $params->{format};
   my $input_term_data_type = $params->{term_data_type};
   my $input_term_data = $params->{term_data};
+
+  ## ...and the message queue.
+  $self->check_for_condition_files();
 
   ## Cleanse input data of newlines.
   $input_term_data =~ s/\n/ /gso;
@@ -579,6 +584,9 @@ sub mode_live_search {
   my $bookmark = $params->{bookmark} || '';
   my $golr_class = $params->{golr_class} || '';
   my $query = $params->{query} || '';
+
+  ## ...and the message queue.
+  $self->check_for_condition_files();
 
   ## Try and come to terms with Galaxy.
   my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
@@ -1035,6 +1043,9 @@ sub mode_phylo_graph {
   $params->{gp} = $self->param('gp')
     if ! $params->{gp} && $self->param('gp');
   my $input_gp_id = $params->{gp};
+
+  ## ...and the message queue.
+  $self->check_for_condition_files();
 
   ## Input sanity check.
   if( ! $input_gp_id ){
