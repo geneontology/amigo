@@ -89,7 +89,7 @@ MGI_TEST_GAF = ./_test/mgi-limited.gaf
 ###
 
 all:
-	@echo "Not a valid target."
+	@echo "Not a valid target here. Please read the documentation."
 
 ###
 ### OWLTools operations.
