@@ -1,6 +1,11 @@
 ####
 #### The generic that will as as the general landing search.
 ####
+#### For GO, this is currently added in:
+#### GAFSolrDocumentLoader (gene products)
+#### PANTHERSolrDocumentLoader (panther families)
+#### TODO: (ontology terms) 
+####
 id: bbop_general
 schema_generating: true
 description: A generic search document to get a general overview of everything.
@@ -8,12 +13,12 @@ display_name: General
 document_category: general
 weight: 0
 boost_weights: id^3.0 id_label^3.0 general_blob^3.0
-result_weights: id^3.0 id_label^2.0 category^1.0
-filter_weights: category^4.0 id^3.0
+result_weights: id^3.0 category^1.0
+filter_weights: category^4.0
 fields:
   - id: id
-    description: The ID for this entity.
-    display_name: ID
+    description: The ID/label for this entity.
+    display_name: Entity
     type: string
     property: []
   - id: id_label
