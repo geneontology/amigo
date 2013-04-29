@@ -1746,8 +1746,8 @@ amigo.data.golr = {
    },
    "bbop_general" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "id^3.0 id_label^2.0 category^1.0",
-      "filter_weights" : "category^4.0 id^3.0",
+      "result_weights" : "id^3.0 category^1.0",
+      "filter_weights" : "category^4.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//general-config.yaml",
       "display_name" : "General",
       "description" : "A generic search document to get a general overview of everything.",
@@ -1756,8 +1756,8 @@ amigo.data.golr = {
       "fields" : [
          {
             "transform" : [],
-            "description" : "The ID for this entity.",
-            "display_name" : "ID",
+            "description" : "The ID/label for this entity.",
+            "display_name" : "Entity",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1842,8 +1842,8 @@ amigo.data.golr = {
          },
          "id" : {
             "transform" : [],
-            "description" : "The ID for this entity.",
-            "display_name" : "ID",
+            "description" : "The ID/label for this entity.",
+            "display_name" : "Entity",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
