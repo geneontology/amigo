@@ -65,7 +65,7 @@ function LiveSearchGOlrInit(){
 	    id: 'bbop_bio',
 	    on_click: function(manager){
     		manager.add_query_filter('document_category',
-					 'bioentity',['*']);
+					 'bioentity', ['*']);
 		_establish_buttons('bbop_bio', manager);
 	    }
 	},
@@ -73,7 +73,7 @@ function LiveSearchGOlrInit(){
 	    id: 'bbop_family',
 	    on_click: function(manager){
     		manager.add_query_filter('document_category',
-					 'family',['*']);
+					 'family', ['*']);
 		_establish_buttons('bbop_family', manager);
 	    }
 	},
@@ -81,7 +81,7 @@ function LiveSearchGOlrInit(){
 	    id: 'bbop_general',
 	    on_click: function(manager){
     		manager.add_query_filter('document_category',
-					 'general',['*']);
+					 'general', ['*']);
 		_establish_buttons('bbop_general', manager);
 	    }
 	},
@@ -458,14 +458,17 @@ function LiveSearchGOlrInit(){
     	    //cid = jQuery(this).val();
 	}
 
-    	// Make sure whatever sticky filters we had are completely
-    	// gone.
-	// TODO/BUG: make this more generic.
-    	search.remove_query_filter('document_category', 'annotation',['*']);
-    	search.remove_query_filter('document_category','ontology_class',['*']);
-    	search.remove_query_filter('document_category', 'bioentity',['*']);
-    	search.remove_query_filter('document_category',
-    				   'annotation_evidence_aggregate',['*']);
+    	// Make sure whatever document_category sticky filters we had
+    	// are completely gone.
+	loop(search.get_sticky_query_filters(),
+	     function(sqf_pair){
+		 var sqf_filter = sqf_pair['filter'];
+		 var sqf_value = sqf_pair['value'];
+		 if( sqf_filter && sqf_filter == 'document_category' ){
+    		     search.remove_query_filter('document_category',
+						sqf_value, ['*']);
+		 }
+	     });
 
 	// Find the click class in the set of active classes.
 	var active_class = _get_active_class(cid);
