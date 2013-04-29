@@ -214,6 +214,9 @@ sub mode_gannet {
   my $in_mirror = $params->{mirror};
   my $in_query = $params->{query};
 
+  ## ...and the message queue.
+  $self->check_for_condition_files();
+
   ## Try and come to terms with Galaxy.
   my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy('gannet');
   $self->galaxy_settings($in_galaxy, $galaxy_external_p);

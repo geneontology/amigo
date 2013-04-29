@@ -88,6 +88,9 @@ sub mode_bbop_js {
   $self->_common_params_settings($params);
   #$params->{STANDARD_CSS} = 'yes';
 
+  ## ...and the message queue.
+  $self->check_for_condition_files();
+
   ## Get various examples from the wiki.
   $self->set_template_parameter('bbop_js_examples_list',
 				$self->_bbop_js_get_session_examples());

@@ -81,38 +81,6 @@ sub setup {
 		  );
 }
 
-## Quick helper to read a file in as a string.
-sub _min_slurp {
-  my $infile = shift || die "need file here";
-  my $string = '';
-  open INFILE, $infile or die "Couldn't open file: $!";
-  while( <INFILE> ){ $string .= $_; }
-  close INFILE;
-  return $string;
-}
-
-##
-sub check_for_condition_files {
-
-  my $self = shift;
-
-  ## Okay, here we're going to add a little system of passing messages
-  ## globally through filesystem manipulation.
-  my $root_dir = $self->{CORE}->amigo_env('AMIGO_CGI_ROOT_DIR');
-  my @root_a_files = glob($root_dir . '/.amigo.*');
-  foreach my $afile (@root_a_files){
-    if( $afile =~ /\.amigo\.warning.*/ ){
-      my $cstr = _min_slurp($afile);
-      $self->add_mq('warning', $cstr) if $cstr;
-    }elsif( $afile =~ /\.amigo\.error.*/ ){
-      my $cstr = _min_slurp($afile);
-      $self->add_mq('error', $cstr) if $cstr;
-    }else{
-      ## Everything else is ignored.
-    }
-  }
-}
-
 ##
 sub mode_landing {
 
