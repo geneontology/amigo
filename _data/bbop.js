@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130429";
+bbop.version.release = "20130430";
 /* 
  * Package: json.js
  * 
@@ -12632,6 +12632,7 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj, interface_id,
 	{
 	    'topology_graph_field' : 'topology_graph',
 	    'transitivity_graph_field' : 'transitivity_graph',
+	    //'transitivity_graph_field' : 'regulates_transitivity_graph',
 	    'info_button_callback' : function(){},
 	    'base_icon_url' : null,
 	    'image_type' : 'gif',

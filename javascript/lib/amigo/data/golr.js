@@ -2483,13 +2483,27 @@ amigo.data.golr = {
             "required" : "false",
             "cardinality" : "single",
             "type" : "string",
-            "id" : "transitivity_graph",
+            "id" : "regulates_transitivity_graph",
             "property" : [
                "getLineageShuntGraphJSON"
             ]
          }
       ],
       "fields_hash" : {
+         "regulates_transitivity_graph" : {
+            "transform" : [],
+            "description" : "JSON blob form of the local relation transitivity graph.",
+            "display_name" : "This should not be displayed",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "regulates_transitivity_graph",
+            "property" : [
+               "getLineageShuntGraphJSON"
+            ]
+         },
          "source" : {
             "transform" : [],
             "description" : "Term namespace.",
@@ -2710,20 +2724,6 @@ amigo.data.golr = {
                "RO:0002211",
                "RO:0002212",
                "RO:0002213"
-            ]
-         },
-         "transitivity_graph" : {
-            "transform" : [],
-            "description" : "JSON blob form of the local relation transitivity graph.",
-            "display_name" : "This should not be displayed",
-            "indexed" : "false",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "transitivity_graph",
-            "property" : [
-               "getLineageShuntGraphJSON"
             ]
          },
          "isa_partof_closure" : {

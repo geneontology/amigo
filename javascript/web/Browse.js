@@ -36,6 +36,8 @@ function BrowseInit(){
 		     gconf, 
 		     'browser_id',
 		     {
+			 'transitivity_graph_field':
+			 'regulates_transitivity_graph',
 			 'base_icon_url': sd.image_base(),
 			 'info_icon': 'info',
 			 'current_icon': 'current_term',

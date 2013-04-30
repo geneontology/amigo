@@ -68,7 +68,8 @@ sub new {
 	 term_dbxrefs => $found_doc->{definition_xref} || [],
 	 dbxrefs => $found_doc->{database_xref} || [],
 	 topology_graph => $found_doc->{topology_graph},
-	 transitivity_graph => $found_doc->{transitivity_graph},
+	 regulates_transitivity_graph =>
+	 $found_doc->{regulates_transitivity_graph},
 
 	 ## Convert the dbxrefs into something usable/linkable.
 	 term_dbxref_links =>
@@ -80,7 +81,7 @@ sub new {
 	 chewable_graph =>
 	 AmiGO::ChewableGraph->new($found_doc->{id},
 				   $found_doc->{topology_graph},
-				   $found_doc->{transitivity_graph}),
+				   $found_doc->{regulates_transitivity_graph}),
 	};
     }
     $self->{AWGT_INFO}{$arg} = $intermediate;

@@ -147,8 +147,6 @@
     <!--An easily searchable (TextField tokenized) version of general_blob.-->
     <field name="general_blob_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="general_blob" dest="general_blob_searchable"></copyField>
-    <!-- bbop_ont: JSON blob form of the local relation transitivity graph. -->
-    <field name="transitivity_graph" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bbop_ont: Common term name. -->
     <!-- bbop_ann: Column 5 + ontology. -->
     <!-- bbop_ann_ev_agg: Column 5 + ontology. -->
@@ -172,6 +170,8 @@
     <!--An easily searchable (TextField tokenized) version of annotation_extension_class_label.-->
     <field name="annotation_extension_class_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
     <copyField source="annotation_extension_class_label" dest="annotation_extension_class_label_searchable"></copyField>
+    <!-- bbop_ont: JSON blob form of the local relation transitivity graph. -->
+    <field name="regulates_transitivity_graph" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bbop_ont: Closure of labels over regulates. -->
     <!-- bbop_bio: Closure of labels over regulates. -->
     <!-- bbop_ann: Closure of labels over regulates. -->

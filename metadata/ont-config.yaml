@@ -147,7 +147,7 @@ fields:
     type: string
     property: [getSegmentShuntGraphJSON]
     indexed: false
-  - id: transitivity_graph
+  - id: regulates_transitivity_graph
     description: JSON blob form of the local relation transitivity graph.
     display_name: This should not be displayed
     type: string
