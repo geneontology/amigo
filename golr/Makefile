@@ -141,34 +141,36 @@ message-load-stop:
 ## Load the ontology stuff.
 .PHONY: load-ontology
 load-ontology: owltools-build
-	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-config $(ONTOLOGY_METADATA) --solr-load-ontology
+	make message-load-start
+	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-config $(ONTOLOGY_METADATA) --solr-load-ontology --solr-load-ontology-general
+	make message-load-stop
 
 ## Test GAF.
 .PHONY: load-mgi-gaf
 load-mgi-gaf: owltools-build
 	make message-load-start
-	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(MGI_GAF) --solr-load-panther
+	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(MGI_GAF) --solr-load-panther --solr-load-panther-general
 	make message-load-stop
 
 ## Test GAF: A test load with the MGI GAF--column 16, etc.
 .PHONY: load-mgi-test-gaf
 load-mgi-test-gaf: owltools-build
 	make message-load-start
-	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(MGI_TEST_GAF) --solr-load-panther
+	$(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(MGI_TEST_GAF) --solr-load-panther --solr-load-panther-general
 	make message-load-stop
 
 ## Test PANTHER: A test load with just PANTHER (no GAF info).
 .PHONY: load-just-panther
 load-just-panther: owltools-build
 	make message-load-start
-	$(OWLTOOLS)/OWLTools-Runner/bin/owltools --solr-url $(SOLR) --read-panther $(PANTHER_FILES_DIR) --solr-load-panther
+	$(OWLTOOLS)/OWLTools-Runner/bin/owltools --solr-url $(SOLR) --read-panther $(PANTHER_FILES_DIR) --solr-load-panther --solr-load-panther-general
 	make message-load-stop
 
 ## The full and final load.
 .PHONY: load-full
 load-full: owltools-build
 	make message-load-start
-	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-load-ontology --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(ALL_GAFS) --solr-load-panther
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-load-ontology --solr-load-ontology-general --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(ALL_GAFS) --solr-load-panther --solr-load-panther-general
 	make message-load-stop
 
 ###

@@ -1746,18 +1746,18 @@ amigo.data.golr = {
    },
    "bbop_general" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "id^3.0 category^1.0",
+      "result_weights" : "entity^3.0 category^1.0",
       "filter_weights" : "category^4.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//general-config.yaml",
       "display_name" : "General",
       "description" : "A generic search document to get a general overview of everything.",
       "schema_generating" : "true",
-      "boost_weights" : "id^3.0 id_label^3.0 general_blob^3.0",
+      "boost_weights" : "entity^3.0 entity_label^3.0 general_blob^3.0",
       "fields" : [
          {
             "transform" : [],
-            "description" : "The ID/label for this entity.",
-            "display_name" : "Entity",
+            "description" : "The mangled internal ID for this entity.",
+            "display_name" : "Internal ID",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1768,14 +1768,26 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
+            "description" : "The ID/label for this entity.",
+            "display_name" : "Entity",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "entity",
+            "property" : []
+         },
+         {
+            "transform" : [],
             "description" : "The label for this entity.",
-            "display_name" : "Label",
+            "display_name" : "Enity label",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
             "cardinality" : "single",
             "type" : "string",
-            "id" : "id_label",
+            "id" : "entity_label",
             "property" : []
          },
          {
@@ -1804,16 +1816,28 @@ amigo.data.golr = {
          }
       ],
       "fields_hash" : {
-         "id_label" : {
+         "entity_label" : {
             "transform" : [],
             "description" : "The label for this entity.",
-            "display_name" : "Label",
+            "display_name" : "Enity label",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
             "cardinality" : "single",
             "type" : "string",
-            "id" : "id_label",
+            "id" : "entity_label",
+            "property" : []
+         },
+         "entity" : {
+            "transform" : [],
+            "description" : "The ID/label for this entity.",
+            "display_name" : "Entity",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "entity",
             "property" : []
          },
          "general_blob" : {
@@ -1842,8 +1866,8 @@ amigo.data.golr = {
          },
          "id" : {
             "transform" : [],
-            "description" : "The ID/label for this entity.",
-            "display_name" : "Entity",
+            "description" : "The mangled internal ID for this entity.",
+            "display_name" : "Internal ID",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",

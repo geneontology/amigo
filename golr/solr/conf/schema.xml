@@ -26,6 +26,8 @@
     <!--An easily searchable (TextField tokenized) version of synonym.-->
     <field name="synonym_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
     <copyField source="synonym" dest="synonym_searchable"></copyField>
+    <!-- bbop_general: The ID/label for this entity. -->
+    <field name="entity" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- bbop_ont: Database cross-reference. -->
     <!-- bbop_bio: Database cross-reference. -->
     <field name="database_xref" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
@@ -44,11 +46,6 @@
     <!--An easily searchable (TextField tokenized) version of description.-->
     <field name="description_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="description" dest="description_searchable"></copyField>
-    <!-- bbop_general: The label for this entity. -->
-    <field name="id_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of id_label.-->
-    <field name="id_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="id_label" dest="id_label_searchable"></copyField>
     <!-- bbop_family: Gene/products annotated with this protein family. -->
     <field name="bioentity_list_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- Automatically created to capture mapping information -->
@@ -68,6 +65,11 @@
     <!-- bbop_ann: Column 13: taxon. -->
     <!-- bbop_ann_ev_agg: Column 13: taxon. -->
     <field name="taxon" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- bbop_general: The label for this entity. -->
+    <field name="entity_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of entity_label.-->
+    <field name="entity_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="entity_label" dest="entity_label_searchable"></copyField>
     <!-- bbop_bio: Labels derived from C13 + ncbi_taxonomy.obo. -->
     <!-- bbop_ann: Labels derived from C13 + ncbi_taxonomy.obo. -->
     <!-- bbop_ann_ev_agg: Labels derived from C13 + ncbi_taxonomy.obo. -->
@@ -160,7 +162,7 @@
     <!-- bbop_bio: Gene/product ID. -->
     <!-- bbop_ann: A unique (and internal) combination of bioentity and ontology class. -->
     <!-- bbop_family: Family ID. -->
-    <!-- bbop_general: The ID for this entity. -->
+    <!-- bbop_general: The mangled internal ID for this entity. -->
     <!-- bbop_ann_ev_agg: Gene/product ID. -->
     <field name="id" type="string" required="true" multiValued="false" indexed="true" stored="true"></field>
     <!-- bbop_ont: Term subset. -->
