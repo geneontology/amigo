@@ -11451,10 +11451,17 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	if( ! icon_clear_source ){ icon_clear_source = ''; }
 	
 	// Tags and output to the page.
-	var query_label = new bbop.html.tag('label', {'for': ui_query_input_id},
+	// var query_label = new bbop.html.tag('label', {'for': ui_query_input_id},
+	// 				    label_str);
+	// var query_div = new bbop.html.input({'id': ui_query_input_id,
+	// 				     'class': 'golr-ui-input'});	
+	var query_label = new bbop.html.tag('span', {'for': ui_query_input_id},
 					    label_str);
-	var query_div = new bbop.html.input({'id': ui_query_input_id,
-					     'class': 'golr-ui-input'});	
+	var query_div = new bbop.html.tag('textarea',
+					  {'id': ui_query_input_id,
+					   //'rows': 2,
+					   'width': '80%',
+					   'class': 'golr-ui-input'});
 
 	// Figure out an icon or a label.
 	var clear_query_obj =
@@ -11464,7 +11471,9 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 
 	// Add to display.
 	jQuery('#' + ui_controls_section_id).append(query_label.to_string());
+	jQuery('#' +ui_controls_section_id).append("<br />");
 	jQuery('#' + ui_controls_section_id).append(query_div.to_string());
+	jQuery('#' +ui_controls_section_id).append("&nbsp;");
 	jQuery('#' +ui_controls_section_id).append(clear_query_obj.to_string());
     };
 
@@ -13511,7 +13520,7 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	if( show_searchbox_p ){ // conditionally display search box stuff
     	    //anchor.ui.setup_query();
     	    //anchor.ui.setup_query('Search:&nbsp;',
-    	    anchor.ui.setup_query('Filter:&nbsp;',
+    	    anchor.ui.setup_query('Free-text filtering',
 				  icon_clear_label,
 				  icon_clear_source);
 	}

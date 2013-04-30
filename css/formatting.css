@@ -554,9 +554,12 @@ class. */
  */
 
 /* Actually make the input box visible given all of the stuff above. */
+/* To some extent, this needs to be relative */
+/* to the size of .twocol-leftcolumn */
 .golr-ui-input {
     border: 1px;
     border-style: solid;
+    width: 25em;
 }
 
 /* Filter box issues. */
