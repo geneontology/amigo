@@ -10793,7 +10793,9 @@ bbop.widget.display.results_table_by_class = function(cclass,
     logger.DEBUG = false;
     function ll(str){ logger.kvetch('TT: ' + str); }
 
-    var each = bbop.core.each; // conveience
+    // Conveience aliases.
+    var each = bbop.core.each;
+    var is_defined = bbop.core.is_defined;
 
     // Only want to compile once.
     var ea_regexp = new RegExp("\<\/a\>", "i"); // detect an <a>
@@ -10990,16 +10992,28 @@ bbop.widget.display.results_table_by_class = function(cclass,
 				   // _handler.
 				   var out = null;
 				   if( field.has_handler() ){
+
 				       // Special handler output.
-				       var objo = bbop.json.parse(bit); 
-				       var reso = handler.dispatch(objo);
-				       if( reso.success ){
+				       var objo = null;
+				       var reso = null;
+				       try{
+					   objo = bbop.json.parse(bit);
+				           reso = handler.dispatch(objo);
+				       }catch (x){
+					   ll("handler failed to resolve: " +
+					      bit);
+				       }
+
+				       if( reso && reso.success ){
 					   out = reso.results;
 					   tmp_buff.push(out);
 				       }else{
 					   // Something noticable on
-					   // failure.
-					   tmp_buff.push('???');
+					   // failure...let's just push
+					   // the original blob for
+					   // now. Likely an upstream
+					   // problem.
+					   tmp_buff.push(bit + "?");
 				       }
 				   }else{
 				       // Standard output.   
