@@ -11013,7 +11013,7 @@ bbop.widget.display.results_table_by_class = function(cclass,
 					   // the original blob for
 					   // now. Likely an upstream
 					   // problem.
-					   tmp_buff.push(bit + "?");
+					   tmp_buff.push(bit + " (?)");
 				       }
 				   }else{
 				       // Standard output.   
