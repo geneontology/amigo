@@ -668,3 +668,20 @@ div .mq_message {
     height: 25px;
     vertical-align:middle;
 }
+
+/*
+ * Wrapper for the new compressed informational sections.
+ */
+.informational {
+}
+.informational h3 a {
+    border-bottom-style: dotted;
+    /* border-bottom-style: solid; */
+}
+.informational div {
+    background-color: #eeeeee;
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-top: .5em;
+    padding-bottom: .5em;
+}

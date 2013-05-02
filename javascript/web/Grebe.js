@@ -198,17 +198,17 @@ function GrebeInit(){
 	 });
     
     // Make unnecessary things roll up.
-    //bbop.core.each(["information", "mirrors", "solr_options"],
-    //bbop.core.each(["information", "mirrors"],
-    bbop.core.each(["information"],
-    		   function(eltid){
-    		       jQuery('#'+eltid).hide();
-    		       var elt = jQuery('#' + eltid + '_click');
-    		       elt.click(function(){
-    				     jQuery('#'+eltid).toggle("blind",{},250);
-    				     return false;
-    				 });
-    		   });
+    each(["inf01"],
+    	 function(eltid){
+	     var eheader = '#' + eltid + ' > div';
+	     var earea = '#' + eltid + ' > h3 > a';
+	     jQuery(eheader).hide();
+    	     var click_elt =
+		 jQuery(earea).click(function(){
+					 jQuery(eheader).toggle("blind",{},250);
+					 return false;
+				     });
+	 });
     
     ll('GrebeInit done.');
 }
