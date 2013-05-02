@@ -72,14 +72,14 @@ bundle:
 bundle-uncompressed:
 	./install -b -u
 
-###
-### Produce static statistics data files for landing page.
-###
+# ###
+# ### Produce static statistics data files for landing page.
+# ###
 
-.PHONY: data
+# .PHONY: data
 
-data:
-	cd ./javascript/bin/; rhino -opt -1 ./generate_static_data.js --ann-source >../../staging/ann-source.dat; rhino -opt -1 ./generate_static_data.js --ann-evidence >../../staging/ann-evidence.dat; rhino -opt -1 ./generate_static_data.js --ann-overview >../../staging/ann-overview.dat
+# data:
+# 	cd ./javascript/bin/; rhino -opt -1 ./generate_static_data.js --ann-source >../../staging/ann-source.dat; rhino -opt -1 ./generate_static_data.js --ann-evidence >../../staging/ann-evidence.dat; rhino -opt -1 ./generate_static_data.js --ann-overview >../../staging/ann-overview.dat
 
 ###
 ### Installation.
