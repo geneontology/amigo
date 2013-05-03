@@ -19,6 +19,10 @@ function LiveSearchGOlrInit(){
     // Make unnecessary things roll up.
     amigo.ui.rollup(["inf01"]);
 
+    // Use jQuery UI to tooltop-ify doc.
+    // TODO: advance jQuery/UI version so we can get tooltips
+    //jQuery(document).tooltip();
+
     ///
     /// A description of the active buttons and what to do when they
     /// are clicked. Very likely the only thing that you'd have to

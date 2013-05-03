@@ -693,3 +693,44 @@ div .mq_message {
     padding-top: .5em;
     padding-bottom: .5em;
 }
+
+/*
+ *
+ */
+.bbop_widget_spinner {
+}
+.bbop_widget_spinner_hidden {
+    visibility: hidden;
+    display: none;
+}
+
+/*
+ *
+ */
+.bbop_widget_message {
+    z-index: 100;
+    position: fixed;
+    /* width: 25em; */
+    /* margin-top: 3px; */
+    /* margin-right: 3px; */
+    margin-top: 1em;
+    margin-right: 1em;
+    /* width: 100%; */
+    top: 0%;
+    right: 0em;
+    font-weight: bold;
+    background-color: white;
+    padding: 0.5em;
+    padding-left: 1em;
+    padding-right: 1em;
+    /* color: blue; */
+}
+.bbop_widget_message_notice {
+    outline: blue solid 3px;
+}
+.bbop_widget_message_warning {
+    outline: yellow solid 3px;
+}
+.bbop_widget_message_error {
+    outline: red solid 3px;
+}
