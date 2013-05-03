@@ -15162,8 +15162,13 @@ bbop.core.namespace('bbop', 'widget', 'spinner');
  * : s.hide();
  * : s.show();
  * 
+ * Or, in a slightly different use case:
+ * 
+ * : var s = new bbop.widget.spinner("inf01", "http://localhost/amigo2/images/waiting_ajax.gif", {'timout': 5});
+ * : s.start_wait();
+ * 
  * The optional hash arguments look like:
- *  timeout - the number of seconds to wait before invoking <clear_waits>; 0 indicates waiting forever; defaults to 10
+ *  timeout - the number of seconds to wait before invoking <clear_waits>; 0 indicates waiting forever; defaults to 5
  *  visible_p - whether or not the spinner is visible on initialization; true|false; defaults to true
  *  classes - a string of space-separated classes that you want added to the spinner image
  * 
@@ -15188,7 +15193,7 @@ bbop.widget.spinner = function(host_elt_id, img_src, argument_hash){
 
     // Our argument default hash.
     var default_hash = {
-	'timeout': 10,
+	'timeout': 5,
 	'visible_p': true
     };
     var folding_hash = argument_hash || {};
@@ -15228,6 +15233,7 @@ bbop.widget.spinner = function(host_elt_id, img_src, argument_hash){
 
     // Counts and accounting.
     var current_waits = 0;
+    var timeout_queue = [];
 
     /*
      * Function: show
@@ -15243,6 +15249,17 @@ bbop.widget.spinner = function(host_elt_id, img_src, argument_hash){
     this.show = function(){
 	ll("show");
 	jQuery('#' + spinner_elt_id).removeClass('bbop_widget_spinner_hidden');	
+
+	// If the timeout is defined, push a timer onto
+	// the queue.
+	function _on_timeout(){
+	    anchor.finish_wait();
+	}
+	if( timeout > 0 ){
+	    setTimeout(_on_timeout, (timeout * 1000));
+	}
+	// myVar=setTimeout(function(){alert("Hello")},3000);
+	// clearTimeout(myVar);
     };
 
     /*
