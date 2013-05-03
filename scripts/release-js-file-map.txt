@@ -6,3 +6,4 @@ javascript/lib/amigo/data/golr.js
 javascript/lib/amigo/data/server.js
 javascript/lib/amigo/data/xrefs.js
 javascript/lib/amigo/data/statistics.js
+javascript/lib/amigo/ui/rollup.js

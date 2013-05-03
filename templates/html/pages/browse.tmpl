@@ -5,23 +5,17 @@
 <div class="block">
   <h2>Browse Ontologies</h2>
 
-  <div id="inf01" class="informational">
-
-    <h3 class="first"><a href="#">Information about Browse</a></h3>
-  
-    <div>
-      
-      <p>
-	TODO: Simple explanation for why this looks different.
-      </p>
-
-      <p>
-	More information
-	<a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual">here</a>.
-      </p>
-
-    </div>
-  </div>
+  [% rollup_id = "inf01" %]
+  [% rollup_anchor = "Information about Browse" %]
+  [% INCLUDE "common/info_rollup_start.tmpl" %]
+  <p>
+    TODO: Simple explanation for why this looks different.
+  </p>
+  <p>
+    More information
+    <a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual">here</a>.
+  </p>
+  [% INCLUDE "common/info_rollup_end.tmpl" %]
 
   <p>
     <label for="jumper">Look for term:</label>

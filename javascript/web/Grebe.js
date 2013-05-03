@@ -6,6 +6,9 @@
 //
 function GrebeInit(){
 
+    // Make unnecessary things roll up.
+    amigo.ui.rollup(["inf01"]);
+    
     // Per-manager logger.
     var logger = new bbop.logger();
     logger.DEBUG = true;
@@ -195,19 +198,6 @@ function GrebeInit(){
 		     var pop = linker.url(encodeURIComponent(state), 'search');
 		     window.open(pop, '_blank');
 		 });
-	 });
-    
-    // Make unnecessary things roll up.
-    each(["inf01"],
-    	 function(eltid){
-	     var eheader = '#' + eltid + ' > div';
-	     var earea = '#' + eltid + ' > h3 > a';
-	     jQuery(eheader).hide();
-    	     var click_elt =
-		 jQuery(earea).click(function(){
-					 jQuery(eheader).toggle("blind",{},250);
-					 return false;
-				     });
 	 });
     
     ll('GrebeInit done.');

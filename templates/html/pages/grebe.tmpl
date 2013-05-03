@@ -10,33 +10,28 @@
   
   <h2>Ask Grebe</h2>
 
-  <div id="inf01" class="informational">
-
-    <h3 class="first"><a href="#">Information about Grebe</a></h3>
-  
-    <div>
-      
-      <dl>
-	<dt>Grebe /'gri:b/, n.</dt> 
-	<dd>
-	  <p>
-	    1: A small compact-bodied freshwater diving bird that builds
-	    floating nests; similar to loons but smaller and with lobate
-	    rather than webbed feet.
-	  </p>
-	  <p>
-	    2: A simple fill-in-the-blank wizard interface to AmiGO 2
-	    users that are either unfamiliar with how to search in AmiGO
-	    2 or for users that want to simplify common queries. To use,
-	    fill in the necessary blank columns with IDs, selecting from
-	    the autocomplete results; hit the go icon at the end of the
-	    question when done.
-	  </p>
-	</dd>
-      </dl>
-      
-    </div>
-  </div>
+  [% rollup_id = "inf01" %]
+  [% rollup_anchor = "Information about Grebe" %]
+  [% INCLUDE "common/info_rollup_start.tmpl" %]
+  <dl>
+    <dt>Grebe /'gri:b/, n.</dt> 
+    <dd>
+      <p>
+	1: A small compact-bodied freshwater diving bird that builds
+	floating nests; similar to loons but smaller and with lobate
+	rather than webbed feet.
+      </p>
+      <p>
+	2: A simple fill-in-the-blank wizard interface to AmiGO 2
+	users that are either unfamiliar with how to search in AmiGO
+	2 or for users that want to simplify common queries. To use,
+	fill in the necessary blank columns with IDs, selecting from
+	the autocomplete results; hit the go icon at the end of the
+	question when done.
+      </p>
+    </dd>
+  </dl>
+  [% INCLUDE "common/info_rollup_end.tmpl" %]
   
   <!-- <h3 class="first">Find your query from the list:</h3> -->
   

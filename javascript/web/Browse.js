@@ -5,6 +5,9 @@
 
 function BrowseInit(){
     
+    // Make unnecessary things roll up.
+    amigo.ui.rollup(["inf01"]);
+
     ///
     /// General setup--resource locations.
     /// Solr server, GOlr config, etc.
@@ -121,17 +124,4 @@ function BrowseInit(){
 			    });
     auto.set_personality('bbop_ont'); // profile in gconf
     auto.add_query_filter('document_category', 'ontology_class');
-
-    // Make unnecessary things roll up.
-    loop(["inf01"],
-    	 function(eltid){
-	     var eheader = '#' + eltid + ' > div';
-	     var earea = '#' + eltid + ' > h3 > a';
-	     jQuery(eheader).hide();
-    	     var click_elt =
-		 jQuery(earea).click(function(){
-					 jQuery(eheader).toggle("blind",{},250);
-					 return false;
-				     });
-	 });
 }

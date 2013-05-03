@@ -16,6 +16,9 @@ function LiveSearchGOlrInit(){
     ll('LiveSearchGOlr.js');
     ll('LiveSearchGOlrInit start...');
 
+    // Make unnecessary things roll up.
+    amigo.ui.rollup(["inf01"]);
+
     ///
     /// A description of the active buttons and what to do when they
     /// are clicked. Very likely the only thing that you'd have to

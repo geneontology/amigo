@@ -6,8 +6,12 @@
 
 <div class="block">
 
-  <h2>Searches in AmiGO</h2>
+  <h2>Search GO data</h2>
+
   
+  [% rollup_id = "inf01" %]
+  [% rollup_anchor = "Information about Search" %]
+  [% INCLUDE "common/info_rollup_start.tmpl" %]
   <p>
     Live Search will return results from the Gene Ontology as you
     type. No results will be returned until the search input is at
@@ -23,6 +27,7 @@
     href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Search">search</a>
     documentation.
   </p>
+  [% INCLUDE "common/info_rollup_end.tmpl" %]
   
   <p>
     Select a search template:
@@ -63,11 +68,11 @@
   <!-- 	 title="Explanation of query syntax" -->
   <!-- 	 href="http://lucene.apache.org/java/1_4_3/queryparsersyntax.html">query syntax</a> documentation. -->
   
-</div>
+<!-- </div> -->
 
 <!-- Display tabbing. -->
-<div id="display-tabs" class="block">
-  <h2>Search</h2>
+<!-- <div id="display-tabs" class="block"> -->
+  <!-- <h2>Search</h2> -->
   
   <!-- <ul> -->
   <!--   <li> -->
