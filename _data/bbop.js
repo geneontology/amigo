@@ -11164,12 +11164,19 @@ bbop.widget.display.filter_shield = function(){
     var is_open_p = false;
     var parea = new bbop.html.tag('div', {'generate_id': true});
     var pmsg = new bbop.html.tag('div', {'generate_id': true}, "Waiting...");
-    var pbar = new bbop.html.tag('div', {'generate_id': true});
+    var pbar = new bbop.html.tag('div', 
+    				 {
+    				     'generate_id': true,
+    				     'style': 'padding:1em;',
+    				     'class': 'ui-poll-loading-left'
+    				 },
+    				 "");
+    //var pbar = new bbop.html.tag('div', {'generate_id': true});
     parea.add_to(pmsg);
     parea.add_to(pbar);
     var div = new bbop.html.tag('div', {'generate_id': true}, parea);
     var pmsg_id = pmsg.get_id();
-    var pbar_id = pbar.get_id();
+    //var pbar_id = pbar.get_id();
     var div_id = div.get_id();
     var diargs = {
 	modal: true,
@@ -11210,8 +11217,8 @@ bbop.widget.display.filter_shield = function(){
 
 	// Start the progress bar in the dialog
 	//var progress_val = 10;
-	jQuery('#' + pbar_id).empty();
-	jQuery('#' + pbar_id).progressbar({value: 10});
+	//jQuery('#' + pbar_id).empty();
+	//jQuery('#' + pbar_id).progressbar({value: 10});
 	// var progression_id = null;
 	// function progression(){
 	//     var success_p = false;
