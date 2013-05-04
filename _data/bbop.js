@@ -11409,6 +11409,30 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     var ui_icon_remove_label = '';
     var ui_icon_remove_source = '';
 
+    // The spinner, if it exists, needs to be accessible by everybody
+    // and safe to use.
+    var spinner = null;
+    function _spinner_gen(elt_id){
+	var spinner_args = {
+	    timeout: 5,
+	    classes: 'bbop-widget-search_pane-spinner',
+	    visible_p: false
+	};
+	spinner = new bbop.widget.spinner(elt_id,
+					  ui_spinner_search_source,
+					  spinner_args);
+    }
+    function _spin_up(){
+	if( spinner ){
+	    spinner.start_wait();
+	}
+    }
+    function _spin_down(){
+	if( spinner ){
+	    spinner.finish_wait();
+	}
+    }
+
     // Additional id hooks for easy callbacks. While these are not as
     // easily changable as the above, we use them often enough and
     // across functions to have a hook.
@@ -11616,8 +11640,12 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
      * results rendering, see .draw_results. While there is a meta
      * block supplied, its use is optional.
      * 
+     * Argument hash entries:
+     *  meta - draw the meta-results; defaults to false
+     *  spinner_source - the source of the image to use for the activity spinner
+     * 
      * Parameters:
-     *  hash; the only option is {'meta': true}.
+     *  hash; see above for details
      *
      * Returns:
      *  n/a
@@ -11631,6 +11659,13 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	if( args && args['meta'] && args['meta'] == true ){
 	    add_meta_p = true;
 	}
+	// Get the spinner source and set it globally, if there is
+	// one.
+	var add_spinner_p = false;
+	if( args && args['spinner_source'] && args['spinner_source'] != '' ){
+	    ui_spinner_search_source = args['spinner_source'];
+	    add_spinner_p = true;
+	}
 
 	// <div id="results_block" class="block">
 	// <h2>Found entities</h2>
@@ -11640,7 +11675,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	var block = new bbop.html.tag('div', {'class': 'block'});
 
 	// Add header section.
-	var header = new bbop.html.tag('h2', {}, 'Found entities');
+	var header = new bbop.html.tag('h2', {generate_id: true},
+				       'Found entities&nbsp;');
 	block.add_to(header);
 
 	// If wanted, add meta to display queue.
@@ -11654,6 +11690,12 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	block.add_to(results);
 
 	jQuery('#' + ui_results_section_id).append(block.to_string());
+
+	// Now that the block is added, we can add the spinner to our
+	// larger context. Safe access functions defined elsewhere.
+	if( add_spinner_p ){
+	    _spinner_gen(header.get_id());
+	}
 
 	// If wanted, add initial render of meta.
 	if( add_meta_p ){	    
@@ -13545,7 +13587,8 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 				      icon_negative_source,
 				      spinner_shield_source);
 	}
-    	anchor.ui.setup_results({'meta': show_pager_p});
+    	anchor.ui.setup_results({'meta': show_pager_p,
+				 'spinner_source': spinner_search_source});
 	
     	// // Start the ball with a reset event.
     	//anchor.reset();
@@ -15178,7 +15221,8 @@ bbop.widget.spinner = function(host_elt_id, img_src, argument_hash){
     // Our argument default hash.
     var default_hash = {
 	'timeout': 5,
-	'visible_p': true
+	'visible_p': true,
+	'classes': ''
     };
     var folding_hash = argument_hash || {};
     var arg_hash = bbop.core.fold(default_hash, folding_hash);
@@ -15198,6 +15242,9 @@ bbop.widget.spinner = function(host_elt_id, img_src, argument_hash){
     if( ! visible_p ){
 	spinner_classes.push('bbop_widget_spinner_hidden');
     }
+    if( classes && classes != '' ){
+	spinner_classes.push(classes);
+    }
 
     // Create new element.
     var spinner_elt =
@@ -15205,7 +15252,7 @@ bbop.widget.spinner = function(host_elt_id, img_src, argument_hash){
 			     'src': img_src,
 			     'title': "Please wait...",
 			     'class': spinner_classes.join(' '),
-			     'alt': "[Waiting...]"});
+			     'alt': "(waiting...)"});
     var spinner_elt_id = spinner_elt.get_id();
 
     // Append img to end of given element.

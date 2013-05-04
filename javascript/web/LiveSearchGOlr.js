@@ -431,8 +431,8 @@ function LiveSearchGOlrInit(){
     	'show_searchbox_p' : true,
     	'show_filterbox_p' : true,
     	'show_pager_p' : true,
-    	'spinner_search_source' : '',
-    	//'spinner_search_source' : sd.image_base() + '/waiting_ajax.gif',
+    	//'spinner_search_source' : '',
+    	'spinner_search_source' : sd.image_base() + '/waiting_ajax.gif',
     	'spinner_shield_source' : sd.image_base() + '/waiting_poll.gif'
 	//
     	//'icon_clear_label' : _button_wrapper('X', 'Clear text from query'),
