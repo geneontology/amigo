@@ -11144,12 +11144,12 @@ bbop.core.namespace('bbop', 'widget', 'display', 'filter_shield');
  * <bbop.widget.display.live_search>
  * 
  * Arguments:
- *  n/a
+ *  spinner_src - *[optional]* optional source of a spinner image to use
  * 
  * Returns:
  *  self
  */
-bbop.widget.display.filter_shield = function(){
+bbop.widget.display.filter_shield = function(spinner_src){
 
     this._is_a = 'bbop.widget.display.filter_shield';
 
@@ -11164,16 +11164,8 @@ bbop.widget.display.filter_shield = function(){
     var is_open_p = false;
     var parea = new bbop.html.tag('div', {'generate_id': true});
     var pmsg = new bbop.html.tag('div', {'generate_id': true}, "Waiting...");
-    var pbar = new bbop.html.tag('div', 
-    				 {
-    				     'generate_id': true,
-    				     'style': 'padding:1em;',
-    				     'class': 'ui-poll-loading-left'
-    				 },
-    				 "");
-    //var pbar = new bbop.html.tag('div', {'generate_id': true});
     parea.add_to(pmsg);
-    parea.add_to(pbar);
+
     var div = new bbop.html.tag('div', {'generate_id': true}, parea);
     var pmsg_id = pmsg.get_id();
     //var pbar_id = pbar.get_id();
@@ -11212,29 +11204,16 @@ bbop.widget.display.filter_shield = function(){
 	// Append div to body.
 	jQuery('body').append(div.to_string());	
 
+	// If we have an image source specified, go ahead and add it to
+	// the waiting display before popping it open.
+	if( spinner_src && spinner_src != '' ){
+	    var s = new bbop.widget.spinner(parea.get_id(), spinner_src);
+	}
+	// var f = new bbop.widget.display.filter_shield("http://localhost/amigo2/images/waiting_ajax.gif");
+	// f.start_wait();
+
 	// Pop open the dialog.
 	var dia = jQuery('#' + div_id).dialog(diargs);
-
-	// Start the progress bar in the dialog
-	//var progress_val = 10;
-	//jQuery('#' + pbar_id).empty();
-	//jQuery('#' + pbar_id).progressbar({value: 10});
-	// var progression_id = null;
-	// function progression(){
-	//     var success_p = false;
-	//     if( jQuery('#' + pbar_id) ){
-	// 	if( progress_val < 100 ){
-	// 	    progress_val += 10;
-	// 	    jQuery('#' + pbar_id).progressbar("value", progress_val);
-	// 	    success_p = true;
-	// 	}
-	//     }
-	//     if( ! success_p && progression_id ){
-	// 	window.clearInterval(progression_id);
-	// 	ll("waiting spinner interrupt");
-	//     }
-	// }
-	// progression_id = window.setInterval(progression, 100);
     };
 
     /*
@@ -11270,14 +11249,6 @@ bbop.widget.display.filter_shield = function(){
 
 		 var b_plus = new bgen('+', 'Add positive filter');
 		 var b_minus = new bgen('-', 'Add negative filter');
-		 // var b_plus_txt = '<b>[&nbsp;+&nbsp;]</b>';
-		 // var b_plus =
-		 //     new bbop.html.span(b_plus_txt,
-		 // 			{'generate_id': true});
-		 // var b_minus_txt = '<b>[&nbsp;-&nbsp;]</b>';
-		 // var b_minus =
-		 //     new bbop.html.span(b_minus_txt,
-		 // 			{'generate_id': true});
 		 button_hash[b_plus.get_id()] =
 		     [field_name, fname, fcount, '+'];
 		 button_hash[b_minus.get_id()] =
@@ -11429,6 +11400,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     var ui_clear_user_filter_span_id = mangle + 'clear-user-filter-id';
 
     // Globally declared (or not) icons.
+    var ui_spinner_search_source = '';
+    var ui_spinner_shield_source = '';
     var ui_icon_positive_label = '';
     var ui_icon_positive_source = '';
     var ui_icon_negative_label = '';
@@ -11580,17 +11553,21 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
      *  icon_positive_source - *[optional]* string to define the src of img 
      *  icon_negative_label - *[optional]* string or bbop.html for positive icon
      *  icon_negative_source - *[optional]* string to define the src of img 
+     *  spinner_shield_source - *[optional]* string to define the src of img 
      *
      * Returns: 
      *  n/a
      */
     this.setup_accordion = function(icon_positive_label, icon_positive_source,
-				    icon_negative_label, icon_negative_source){
+				    icon_negative_label, icon_negative_source,
+				    spinner_shield_source){
 	
 	ll('setup_accordion UI for class configuration: ' +
 	   this.class_conf.id());
 
 	// Set the class variables for use when we do the redraws.
+	if( spinner_shield_source ){
+	    ui_spinner_shield_source = spinner_shield_source; }
 	if( icon_positive_label ){
 	    ui_icon_positive_label = icon_positive_label; }
 	if( icon_positive_source ){
@@ -12450,8 +12427,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 
 			 // Create the shield and pop-up the
 			 // placeholder.
-			 var filter_shield =
-			     new bbop.widget.display.filter_shield();
+			 var fs = bbop.widget.display.filter_shield;
+			 var filter_shield = new fs(ui_spinner_shield_source); 
 			 filter_shield.start_wait();
 
 			 // Open the populated shield.
@@ -13349,6 +13326,8 @@ bbop.core.namespace('bbop', 'widget', 'search_pane');
  *  show_searchbox_p - show the search query box (default true)
  *  show_filterbox_p - show currents filters and accordion (default true)
  *  show_pager_p - show the results pager (default true)
+ *  spinner_search_source - source for the spinner used during typical searching
+ *  spinner_shield_source - source for the spinner used shield waiting
  *  icon_clear_label - (default: text button based on 'X')
  *  icon_clear_source - (default: '')
  *  icon_reset_label - (default: text button based on 'X')
@@ -13412,6 +13391,8 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	    'show_searchbox_p' : true,
     	    'show_filterbox_p' : true,
     	    'show_pager_p' : true,
+    	    'spinner_search_source' : '',
+    	    'spinner_shield_source' : '',
 	    'icon_clear_label': _button_wrapper('X', 'Clear text from query'),
 	    'icon_clear_source': '',
 	    'icon_reset_label': _button_wrapper('!','Reset user query filters'),
@@ -13433,6 +13414,8 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     var show_searchbox_p = arg_hash['show_searchbox_p'];
     var show_filterbox_p = arg_hash['show_filterbox_p'];
     var show_pager_p = arg_hash['show_pager_p'];
+    var spinner_search_source = arg_hash['spinner_search_source'];
+    var spinner_shield_source = arg_hash['spinner_shield_source'];
     var icon_clear_label = arg_hash['icon_clear_label'];
     var icon_clear_source = arg_hash['icon_clear_source'];
     var icon_reset_label = arg_hash['icon_reset_label'];
@@ -13559,7 +13542,8 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	    anchor.ui.setup_accordion(icon_positive_label,
 				      icon_positive_source,
 				      icon_negative_label,
-				      icon_negative_source);
+				      icon_negative_source,
+				      spinner_shield_source);
 	}
     	anchor.ui.setup_results({'meta': show_pager_p});
 	
@@ -15221,7 +15205,7 @@ bbop.widget.spinner = function(host_elt_id, img_src, argument_hash){
 			     'src': img_src,
 			     'title': "Please wait...",
 			     'class': spinner_classes.join(' '),
-			     'alt': "[Wait spinner]"});
+			     'alt': "[Waiting...]"});
     var spinner_elt_id = spinner_elt.get_id();
 
     // Append img to end of given element.
@@ -15258,8 +15242,8 @@ bbop.widget.spinner = function(host_elt_id, img_src, argument_hash){
 	if( timeout > 0 ){
 	    setTimeout(_on_timeout, (timeout * 1000));
 	}
-	// myVar=setTimeout(function(){alert("Hello")},3000);
-	// clearTimeout(myVar);
+	// foo=setTimeout(function(){}, 1000);
+	// clearTimeout(foo);
     };
 
     /*

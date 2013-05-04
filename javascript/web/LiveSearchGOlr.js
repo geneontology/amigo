@@ -430,7 +430,11 @@ function LiveSearchGOlrInit(){
     	'show_global_reset_p' : true,
     	'show_searchbox_p' : true,
     	'show_filterbox_p' : true,
-    	'show_pager_p' : true
+    	'show_pager_p' : true,
+    	'spinner_search_source' : '',
+    	//'spinner_search_source' : sd.image_base() + '/waiting_ajax.gif',
+    	'spinner_shield_source' : sd.image_base() + '/waiting_poll.gif'
+	//
     	//'icon_clear_label' : _button_wrapper('X', 'Clear text from query'),
     	//'icon_clear_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',
     	//'icon_reset_label' : '&nbsp;<b>[reset all user filters]</b>',
