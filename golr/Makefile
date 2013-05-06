@@ -177,6 +177,13 @@ load-full: owltools-build
 	OWLTOOLS_ROOT_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR_URL) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-load-ontology --solr-load-ontology-general --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(ALL_GAFS) --solr-load-panther --solr-load-panther-general
 	make message-load-clear
 
+## An option optimizing step.
+.PHONY: load-optimize
+load-optimize:
+	../scripts/global-message.pl -w "GOlr is currently being optimized--expect slowed interactivity and reduced performance."
+	$(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --solr-optimize
+	../scripts/global-message.pl -c
+
 ###
 ### Services.
 ###
