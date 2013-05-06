@@ -20,9 +20,9 @@ MAVEN_EXE ?= ~/local/src/java/apache-maven-3.0.4/bin/mvn
 SOLR_URL ?= http://localhost:8080/solr/ 
 
 ## Paths.
-OWLTOOLS_ROOT = ~/local/src/svn/owltools/
-BBOP_JS_ROOT = ~/local/src/git/bbop-js/
-PANTHER_FILES_DIR = ~/local/src/svn/geneontology.org/trunk/experimental/trees/panther_data/
+OWLTOOLS_ROOT ?= ~/local/src/svn/owltools/
+BBOP_JS_ROOT ?= ~/local/src/git/bbop-js/
+PANTHER_FILES_DIR ?= ~/local/src/svn/geneontology.org/trunk/experimental/trees/panther_data/
 
 ## File lists.
 SCHEMA_METADATA = \
