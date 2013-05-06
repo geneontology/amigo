@@ -11911,17 +11911,41 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	}
     };
 
+    // Detect whether or not a keyboard event is ignorable.
+    function _ignorable_event(event){
+
+	var retval = false;
+
+	if( event ){
+	    var kc = event.keyCode;
+	    if( kc ){
+		if( kc == 39 || // right
+                    kc == 37 || // left
+                    kc == 32 || // space
+                    kc == 20 || // ctl?
+                    kc == 17 || // ctl?
+                    kc == 16 || // shift
+                    //kc ==  8 || // delete
+                    kc ==  0 ){ // super
+			ll('ignorable key event: ' + kc);
+			retval = true;
+		    }
+            }
+	}
+	return retval;
+    }
+
     /*
-     * Function: reset_query
+     * Function: draw_query
      *
-     * Setup and draw the query widget. This function makes it active
+     * Draw the query widget. This function makes it active
      * as well.
      * 
-     * Due to the nature of this, it is only reset when called.
+     * Clicking the reset button will reset the query to ''.
      * 
      * NOTE: Since this is part of the "persistant" interface (i.e. it
      * does not get wiped after every call), we make sure to clear the
-     * event listeners when we retry the function to prevent them fomr
+     * event listeners when we redraw the function to prevent them from
      * building up.
      * 
      * Parameters:
@@ -11931,48 +11955,17 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
      * Returns:
      *  n/a
      */
-    this.reset_query = function(response, manager){
+    this.draw_query = function(response, manager){
 
-    	ll('reset_query for: ' + ui_query_input_id);
-
-	// Reset UI. If the default and fundamental are different, be
-	// sticky onto default and render that instead.
-	//if( manager.get_default_query() != manager.get_fundamental_query() ){
-	//   jQuery('#' + ui_query_input_id).val(manager.get_default_query());
-	//}else{
-	//   jQuery('#' + ui_query_input_id).val('');	    
-	//}
-
-	// Reset manager back to the default.
-	manager.reset_query();
+    	ll('draw_query for: ' + ui_query_input_id);
 
 	// Add a smartish listener.
 	jQuery('#' + ui_query_input_id).unbind('keyup');
 	jQuery('#' + ui_query_input_id).keyup(
 	    function(event){
 
-		// First, extract the exact event, we might want to
-		// filter it...
-		var ignorable_event_p = false;
-		if( event ){
-		    var kc = event.keyCode;
-		    if( kc ){
-			if( kc == 39 || // right
-                            kc == 37 || // left
-                            kc == 32 || // space
-                            kc == 20 || // ctl?
-                            kc == 17 || // ctl?
-                            kc == 16 || // shift
-                            //kc ==  8 || // delete
-                            kc ==  0 ){ // super
-				ll('ignorable key event: ' + kc);
-				ignorable_event_p = true;
-			    }
-                    }
-		}
-
 		// If we're left with a legitimate event, handle it.
-		if( ! ignorable_event_p ){
+		if( ! _ignorable_event(event) ){
 
 		    // Can't ignore it anymore, so it goes into the
 		    // manager for testing.
@@ -11999,10 +11992,36 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	jQuery('#' + ui_clear_query_span_id).unbind('click');
 	jQuery('#' + ui_clear_query_span_id).click(
 	    function(){
-		jQuery('#' + ui_query_input_id).val('');
 		manager.reset_query();
+		//anchor.set_query_field(manager.get_query());
+		anchor.set_query_field('');
 		manager.search();
 	    });
+    };
+
+    /*
+     * Function: reset_query
+     *
+     * Simply reset the query and then redraw (rebind) the query.
+     * 
+     * Parameters:
+     *  response - the <bbop.golr.response> returned from the server
+     *  manager - <bbop.golr.manager> that we initially registered with
+     *
+     * Returns:
+     *  n/a
+     * 
+     * See:
+     *  <draw_query>
+     */
+    this.reset_query = function(response, manager){
+
+    	ll('reset_query for: ' + ui_query_input_id);
+
+	// Reset manager back to the default.
+	manager.reset_query();
+
+	anchor.draw_query(response, manager);
     };
 
     /*
@@ -13515,10 +13534,6 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	if( show_searchbox_p ){ // conditionally display search box stuff
     	    anchor.register('reset', 'reset_query', anchor.ui.reset_query, -1);
 	}
-    	// if( show_global_reset_p ){ // conditionally show global reset button
-    	//     anchor.register('reset', 'global_reset_button',
-    	//     		    anchor.ui.reset_global_reset_button, -1);
-    	// }
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.register('reset', 'sticky_first',
     			    anchor.ui.draw_sticky_filters, -1);
@@ -13546,6 +13561,13 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	anchor.register('reset', 'initial_reset', _initial_runner, -100);
 
     	// Things to do on every search event.
+    	if( show_searchbox_p ){ // conditionally display search box stuff
+	    // TODO: I worry a little about this being rebound after
+	    // every keyboard event, but rationally, considering the
+	    // rebinds and redraws that are happening down in the
+	    // accordion, that seems a little silly.
+    	    anchor.register('search', 'draw_query', anchor.ui.draw_query, -1);
+	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.register('search','sticky_filters_std',
     			    anchor.ui.draw_sticky_filters);

@@ -614,17 +614,16 @@ function LiveSearchGOlrInit(){
 	    ll("Post-bookmark personality: " + search.get_personality());
 	    ll("Post bookmark: " + search.get_query_url());
 
-	    // // BUG/TODO: Make likely sticky things sticky.
-	    // var dc = bookmark_probe['document_category'];
-	    // if( dc ){
-	    // 	search.add_query_filter('document_category', dc, ['*']);
-	    // }
-	    
 	    // Establish the display with what we have.
     	    search.establish_display();
 	    search.search();
 	    //ll("Post establish: " + search.get_query_url());
 
+	    // Make sure the text query is there and proper.
+	    // Remember, we don't refresh it off of search like the others
+	    // because it needs persistance for the UI.
+	    search.set_query_field_text(search.get_query());
+	    
 	    // While we're here, make sure that the appropriate
 	    // buttons appear as well.
 	    _establish_buttons(search.get_personality(), search);
@@ -643,6 +642,6 @@ function LiveSearchGOlrInit(){
 
     // DEBUGGING: A temporary external hook to help with dev and
     // debugging.
-    //s = search;
+    s = search;
 }
-//var s;
+var s;
