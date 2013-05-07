@@ -39,7 +39,7 @@ amigo.data.golr = {
       "display_name" : "Gene/products",
       "description" : "A description of bioentities file for GOlr.",
       "schema_generating" : "true",
-      "boost_weights" : "bioentity^2.0 bioentity_label^2.0 bioentity_name^1.0 isa_partof_closure_label^1.0 regulates_closure_label^1.0 panther_family^1.0 panther_family_label^1.0 taxon_closure_label^1.0",
+      "boost_weights" : "bioentity^2.0 bioentity_label^2.0 bioentity_name^1.0 bioentity_internal_id^1.0 isa_partof_closure_label^1.0 regulates_closure_label^1.0 panther_family^1.0 panther_family_label^1.0 taxon_closure_label^1.0",
       "fields" : [
          {
             "transform" : [],
