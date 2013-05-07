@@ -33,11 +33,16 @@ sub new {
     my $found_doc = $self->{AEJS_GOLR_DOC}->get_by_id($arg);
 
     my $intermediate = undef;
+
     if( $found_doc ){
+
+      ## Need to split this ID.
+      my($bdb, $bid) = $self->split_gene_product_acc($found_doc->{bioentity});
+
       $intermediate =
 	{
 	 acc => $found_doc->{id},
-	 id => $found_doc->{id},
+	 id => $found_doc->{bioentity},
 	 internal_id => $found_doc->{bioentity_internal_id},
 	 name => $found_doc->{bioentity_name},
 	 label => $found_doc->{bioentity_label},
@@ -51,7 +56,7 @@ sub new {
 	 $self->get_interlink({mode=>'gp_details',
 			       arg=>{gp=>$found_doc->{id}}}),
 	 db_link =>
-	 $self->database_link($found_doc->{source}, $found_doc->{id}),
+	 $self->database_link($bdb, $bid),
 	 #descriptive_name => $found_doc->{descriptive_name},
 	 #comment => $found_doc->{comment},
 	 #synonyms => [],
