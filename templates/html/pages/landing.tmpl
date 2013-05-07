@@ -2,7 +2,19 @@
 
 <div style="text-align:center">
 
-[% INCLUDE common/landing_search_form.tmpl %]
+  <div style="width: 50%; padding-left: 25%;">
+    
+    [% rollup_id = "gsf01" %]
+    [% rollup_anchor = "More information about this autocomplete" %]
+    [% INCLUDE "common/info_rollup_start.tmpl" %]
+
+    [% INCLUDE "common/autocomplete_explanation.tmpl" %]
+
+    [% INCLUDE "common/info_rollup_end.tmpl" %]
+  
+  </div>
+
+  [% INCLUDE common/landing_search_form.tmpl %]
 
 </div>
 
@@ -18,11 +30,11 @@
     <table class="landing-navigation">
       <tr>
 	<td>
-	  <a href="amigo/search">
+	  <a href="search">
 	    <img src="[% image_dir %]/magnifying-glass.png"
 		 title="Go to the Search page."
 		 alt="[Search]" />
-	    Search the Gene Ontology data for
+	    <em>Search</em> the Gene Ontology data for
 	    annotations, gene products, and terms.
 	  </a>
 	</td>
@@ -31,7 +43,7 @@
 	    <img src="[% image_dir %]/galaxy-icon.png"
 		 title="Go to the GO Galaxy page."
 		 alt="[GO Galaxy]" />
-	    Perform analyses using GO Galaxy.
+	    Perform <em>analyses</em> using GO Galaxy.
 	  </a>
 	</td>
 	</td>
@@ -42,7 +54,7 @@
 	    <img src="[% image_dir %]/wand.png"
 		 title="Go to the Search Wizard page."
 		 alt="[Search Wizard]" />
-	    Use the Search Wizard to get started in exploring the Gene
+	    Use the Search Wizard to <em>get started</em> in exploring the Gene
 	    Ontology data.
 	  </a>
 	</td>
@@ -51,7 +63,7 @@
 	    <img src="[% image_dir %]/stats-generic.png"
 		 title="Go to the statistics page."
 		 alt="[Statistics]" />
-	    View the most recent statistics for the Gene Ontology data.
+	    View the most recent <em>statistics</em> for the Gene Ontology data.
 	  </a>
 	</td>
       </tr>

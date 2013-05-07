@@ -5,29 +5,35 @@
   <!-- <label for="query">Search GO</label> -->
   <br />
   <input type="text"
+	 title="Hint: add a space after completing a word to narrow the search."
 	 class="textBox"
 	 name="query"
 	 size="35"
-	   value="[% query %]"
-	 id="query" />
+	 value="[% query %]"
+	 id="gsf-query" />
+  
   <br />
-
-  [% FOREACH infi IN landing_search_form_info %]
-  <input type="radio"
-	 name="golr_class"
-  [%    IF golr_class == infi.id %]
-	 value="[% infi.id %]" checked="yes" />
-  [%    ELSE %]
-	 value="[% infi.id %]" />
-  [%    END %]
-  [% infi.display_name %]
-  &nbsp;&nbsp;
-  [% END %]
-  <br />
-
+  
   <input type="submit"
+	 title="Search for annotations with the inputted text."
 	 class="button" 
 	 value="Search" />
+  
+  <br />
+  
+  [% # FOREACH infi IN landing_search_form_info %]
+  <!-- <input type="radio" -->
+  <!-- 	 name="golr_class" -->
+  [% #    IF golr_class == infi.id %]
+  <!-- value="[% infi.id %]" checked="yes" /> -->
+  [% #    ELSE %]
+  <!-- value="[% infi.id %]" /> -->
+  [% #    END %]
+  [% # infi.display_name %]
+  <!-- &nbsp;&nbsp; -->
+  [% # END %]
+  <!-- <br /> -->
+  
 </form>
 
 <!-- End: landing_search_form.tmpl -->

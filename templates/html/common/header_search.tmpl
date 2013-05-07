@@ -1,30 +1,32 @@
 <!-- START template: header_search.tmpl -->
 <!-- page_name          = [% page_name %] -->
-<!-- image_dir          = [% image_dir %] -->
-<!-- show_blast         = [% show_blast %] -->
-<!-- bookmark           = [% bookmark %] -->
-<!-- session_id         = [% session_id %] -->
-<!-- session_id_for_url = [% session_id_for_url %] -->
 
-<div id="menuSearchForm">
-  <form action="[% public_base %]/search.cgi" id="bar-form" method="GET">
+<div id="gsf01">
+  <form action="[% base %]/amigo/search" id="query-form" method="GET">
     <p>
-      <label for="bar-query">Search GO</label><input class="textBox" type="text" name="search_query" size="25" value="[% HTML.escape(query) %]" id="bar-query">
-      [% IF !search_constraint || search_constraint == 'term' %]
-      <input type="radio" name="search_constraint" value="term" class="radio" checked id="term"> <label for="term">terms</label>
-      <input type="radio" name="search_constraint" value="gp" class="radio" id="gp"> <label for="gp">genes or proteins</label>
-      [% ELSE %]
-      <input type="radio" name="search_constraint" value="term" class="radio" id="term"><label for="term">GO terms</label>
-      <input type="radio" name="search_constraint" value="gp" class="radio" checked id="gp"><label for="gp">genes or proteins</label>
-      [% END %]
-      <input type="checkbox" id="bar-exact_match" name="exact_match" value="1" class="cbox"><label for="exact_match">exact match</label>
-      [% IF session_id %]
-      <input type="hidden" name="session_id" value="[% session_id %]">
-      [% END %]
-      <input type="hidden" name="action" value="new-search">
-      <input type="submit" class="button">
+      <label for="bar-query">Quick search GO </label>
+      <input type="text"
+	     title="Hint: add a space after completing a word to narrow the search."
+	     class="textBox"
+	     name="bar-query"
+	     size="35"
+	     value=""
+	     id="gsf-query" />
+      
+      <input type="submit"
+	     title="Search for annotations with the inputted text."
+	     class="button" 
+	     value="Search" />
+      
+      [% rollup_id = "gsf01" %]
+      [% rollup_anchor = "Information about this autocomplete" %]
+      [% INCLUDE "common/info_rollup_start.tmpl" %]
+      
+      [% INCLUDE "common/autocomplete_explanation.tmpl" %]
+      
+      [% INCLUDE "common/info_rollup_end.tmpl" %]
+      
     </p>
   </form>
 </div>
-
 <!-- END template: header_search.tmpl -->

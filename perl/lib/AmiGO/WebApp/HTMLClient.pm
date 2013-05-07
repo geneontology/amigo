@@ -127,10 +127,12 @@ sub mode_landing {
      javascript =>
      [
       #$self->{JS}->acquire_source('https://www.google.com/jsapi'),
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('LandingGraphs.js')
      ],
      javascript_init =>
      [
+      'GeneralSearchForwardingInit();',
       'LandingGraphsInit();'
       #'DataCallback();'
      ],
@@ -187,10 +189,12 @@ sub mode_browse {
      ],
      javascript =>
      [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('Browse.js')
      ],
      javascript_init =>
      [
+      'GeneralSearchForwardingInit();',
       'BrowseInit();'
      ],
      content =>
@@ -456,7 +460,41 @@ sub mode_software_list {
   # $self->add_mq('error', 'error floats to top');
   # $self->add_mq('notice', 'Part2: Hello, World!');
 
-  $self->add_template_content('pages/software_list.tmpl');
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      # 'standard', # basic GO-styles
+      # 'bbop.amigo.ui.autocomplete'
+      'standard', # basic GO-styles
+      'com.jquery.jqamigo.custom',
+      #'com.jquery.tablesorter',
+      #'bbop.amigo.ui.widgets'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.jquery-ui',
+      'com.jquery.tablesorter',
+      'bbop',
+      'amigo'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js')
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();'
+     ],
+     content =>
+     [
+      'pages/software_list.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
   return $self->generate_template_page();
 }
 
@@ -845,6 +883,14 @@ sub mode_golr_term_details {
   ### TODO: We see this a lot--should this be abstracted out too? No?
   ###
 
+  ## Page settings.
+  $self->set_template_parameter('page_title',
+				'AmiGO: Term Details for "' .
+				$term_info_hash->{$input_term_id}{'name'} .
+				'" (' .	$input_term_id . ')');
+  $self->set_template_parameter('content_title',
+				$term_info_hash->{$input_term_id}{'name'});
+
   ## Our AmiGO services CSS.
   my $prep =
     {
@@ -867,29 +913,26 @@ sub mode_golr_term_details {
      ],
      javascript =>
      [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('TermDetails.js'),
       # $self->{JS}->make_var('global_count_data', $gpc_info),
       # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
       # $self->{JS}->make_var('global_acc_to_rand', $acc_to_rand),
       $self->{JS}->make_var('global_acc', $input_term_id),
       $self->{JS}->make_var('global_label',
 			    $term_info_hash->{$input_term_id}{'name'})
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();',
+      'TermDetailsInit();'
+     ],
+     content =>
+     [
+      'pages/term_details.tmpl'
      ]
     };
   $self->add_template_bulk($prep);
-
-  ## Page settings.
-  $self->set_template_parameter('page_title',
-				'AmiGO: Term Details for "' .
-				$term_info_hash->{$input_term_id}{'name'} .
-				'" (' .	$input_term_id . ')');
-  $self->set_template_parameter('content_title',
-				$term_info_hash->{$input_term_id}{'name'});
-
-  ## Initialize javascript app.
-  $self->add_template_javascript($self->{JS}->get_lib('TermDetails.js'));
-  $self->add_template_javascript($self->{JS}->initializer_jquery('TermDetailsInit();'));
-
-  $self->add_template_content('pages/term_details.tmpl');
 
   return $self->generate_template_page();
 }
@@ -950,6 +993,19 @@ sub mode_golr_gene_product_details {
   ### Standard setup.
   ###
 
+  ## Page settings.
+  $self->set_template_parameter('page_title',
+				'AmiGO: Gene Product Details for ' .
+				$input_gp_id);
+  ## Figure out the best title we can.
+  my $best_title = $input_gp_id; # start with the worst as a default
+  if ( $gp_info_hash->{$input_gp_id}{'name'} ){
+    $best_title = $gp_info_hash->{$input_gp_id}{'name'};
+  }elsif( $gp_info_hash->{$input_gp_id}{'label'} ){
+    $best_title = $gp_info_hash->{$input_gp_id}{'label'};
+  }
+  $self->set_template_parameter('content_title', $best_title);
+
   ## Our AmiGO services CSS.
   my $prep =
     {
@@ -967,32 +1023,24 @@ sub mode_golr_gene_product_details {
      ],
      javascript =>
      [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('GPDetails.js'),
       # $self->{JS}->make_var('global_count_data', $gpc_info),
       # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
       # $self->{JS}->make_var('global_acc_to_rand', $acc_to_rand),
       $self->{JS}->make_var('global_acc', $input_gp_id)
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();',
+      'GPDetailsInit();'
+     ],
+     content =>
+     [
+      'pages/gene_product_details.tmpl'
      ]
     };
   $self->add_template_bulk($prep);
-
-  ## Page seetings.
-  $self->set_template_parameter('page_title',
-				'AmiGO: Gene Product Details for ' .
-				$input_gp_id);
-  ## Figure out the best title we can.
-  my $best_title = $input_gp_id; # start with the worst as a default
-  if ( $gp_info_hash->{$input_gp_id}{'name'} ){
-    $best_title = $gp_info_hash->{$input_gp_id}{'name'};
-  }elsif( $gp_info_hash->{$input_gp_id}{'label'} ){
-    $best_title = $gp_info_hash->{$input_gp_id}{'label'};
-  }
-  $self->set_template_parameter('content_title', $best_title);
-
-  ## Initialize javascript app.
-  $self->add_template_javascript($self->{JS}->get_lib('GPDetails.js'));
-  $self->add_template_javascript($self->{JS}->initializer_jquery('GPDetailsInit();'));
-
-  $self->add_template_content('pages/gene_product_details.tmpl');
 
   return $self->generate_template_page();
 }
@@ -1064,6 +1112,7 @@ sub mode_phylo_graph {
      ],
      javascript =>
      [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       # $self->{JS}->make_var('global_count_data', $gpc_info),
       # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
       # $self->{JS}->make_var('global_acc_to_rand', $acc_to_rand),
