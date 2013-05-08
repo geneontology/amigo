@@ -884,6 +884,7 @@ sub mode_golr_term_details {
   ###
 
   ## Page settings.
+  $self->set_template_parameter('page_name', 'term');
   $self->set_template_parameter('page_title',
 				'AmiGO: Term Details for "' .
 				$term_info_hash->{$input_term_id}{'name'} .
@@ -994,6 +995,7 @@ sub mode_golr_gene_product_details {
   ###
 
   ## Page settings.
+  $self->set_template_parameter('page_name', 'gene_product');
   $self->set_template_parameter('page_title',
 				'AmiGO: Gene Product Details for ' .
 				$input_gp_id);

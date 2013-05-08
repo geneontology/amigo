@@ -7,7 +7,7 @@
  * This requires jQuery and an HTML format like:
  * 
  * : <div id="ID_TEXT" class="informational">
- * :  <h3><a href="#">ANCHOR_TEXT</a></h3>
+ * :  <span class="amigo-ui-rollup">ANCHOR_TEXT<a href="#"><img src="?" /></span></a>
  * :  <div>
  * :   ABC
  * :  </div>
@@ -50,7 +50,8 @@ amigo.ui.rollup = function(elt_ids){
     each(elt_ids,
     	 function(eltid){
 	     var eheader = '#' + eltid + ' > div';
-	     var earea = '#' + eltid + ' > h3 > a';
+	     var earea = '#' + eltid + ' > span > a';
+	     //var earea = '#' + eltid + ' > img > a';
 	     jQuery(eheader).hide();
     	     var click_elt =
 		 jQuery(earea).click(function(){

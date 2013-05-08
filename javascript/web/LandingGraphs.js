@@ -15,6 +15,6 @@ function LandingGraphsInit(){
 	logger.kvetch(str);
     }
     
-    // // Make unnecessary things roll up.
-    // amigo.ui.rollup(["inf01"]);
+    // Make unnecessary things roll up.
+    amigo.ui.rollup(["inf01"]);
 }

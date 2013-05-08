@@ -15,9 +15,21 @@ function GeneralSearchForwardingInit(){
 	logger.kvetch(str);
     }
     
-    // Make unnecessary things roll up.
-    amigo.ui.rollup(["gsf01"]);
-
+    // Make unnecessary things roll up, need custom code since the
+    // header search is a strange space.
+    var eltid = 'gsf01';
+    //var einfo = '#' + eltid + ' > div';
+    var einfo = '#' + eltid + '-info';
+    var earea = '#' + eltid + ' > span > a > img';
+    if( jQuery(einfo) && jQuery(einfo).length && jQuery(einfo).length > 0 ){
+	jQuery(einfo).hide();
+	var click_elt =
+	    jQuery(earea).click(function(){
+				    jQuery(einfo).toggle("blind",{},250);
+				    return false;
+				});
+    }
+    
     // Setup the annotation profile and make the annotation document
     // category and the current acc sticky in the filters.
     var sd = new amigo.data.server(); // resource locations

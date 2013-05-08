@@ -309,7 +309,13 @@ ul.dot { list-style-type: disc; margin-left: 20px; }
 
 #results h3 { margin: 10px 0 5px 0; padding: 0; border: 0 }
 
-#searchbar { color: #fff; background: #3875D7; padding: 3px; margin: 0; text-align: center; }
+#searchbar {
+    color: #fff;
+    background: #3875D7;
+    padding: 3px;
+    margin: 0;
+    text-align: center;
+}
 
 #searchbar ul, #searchbar div { margin: 0 }
 
@@ -323,13 +329,28 @@ ul.dot { list-style-type: disc; margin-left: 20px; }
 
 #searchbar li.here { border: 1px solid #006; background: #e9effa; color: #006; }
 
-#searchbar p { font-size: 90%; color: #000; background: #cddcf3; padding: 1px; border: 1px solid #000; margin: 3px 5px; }
+#searchbar p {
+    font-size: 90%;
+    color: #000;
+    background: #cddcf3;
+    padding: 1px;
+    padding-left: 1em;
+    padding-right: 1em;
+    border: 1px solid #000;
+    margin: 3px 5px;
+}
 
 #searchbar .button { font-size: 90%; margin: 3px 5px; }
 
 
 /*  searchbarlabs is the same as above except a different color */
-#searchbarlabs { color: #fff; background: #7538D7; padding: 3px; margin: 0; text-align: center; }
+#searchbarlabs {
+    color: #fff;
+    background: #7538D7;
+    padding: 3px;
+    margin: 0;
+    text-align: center;
+}
 
 #searchbarlabs ul, #searchbarlabs div { margin: 0 }
 
@@ -343,7 +364,16 @@ ul.dot { list-style-type: disc; margin-left: 20px; }
 
 #searchbarlabs li.here { border: 1px solid #006; background: #e9effa; color: #006; }
 
-#searchbarlabs p { font-size: 90%; color: #000; background: #cddcf3; padding: 1px; border: 1px solid #000; margin: 3px 5px; }
+#searchbarlabs p {
+    font-size: 90%;
+    color: #000;
+    background: #cddcf3;
+    padding: 1px;
+    padding-left: 1em;
+    padding-right: 1em;
+    border: 1px solid #000;
+    margin: 3px 5px;
+}
 
 #searchbarlabs .button { font-size: 90%; margin: 3px 5px; }
 
@@ -742,3 +772,17 @@ div .mq_message {
 .bbop_widget_message_error {
     outline: red solid 3px;
 }
+
+
+/*
+ * Some work on the ubiquitous search header.
+ */
+.autocomplete-explanation-info {
+    text-align: left;
+}
+/* .search-header-rollup-info p { */
+/*     margin-left: 3em; */
+/*     margin-right: 3em; */
+/*     padding-left: 1em; */
+/*     padding-right: 1em; */
+/* } */
