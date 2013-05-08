@@ -17,22 +17,19 @@ function TermDetailsInit(){
     ll('TermDetails.js');
     ll('TermDetailsInit start...');
 
-    ///
-    /// Go ahead and drop in the table sorter. Easy!
-    ///
+    // Use jQuery UI to tooltip-ify doc.
+    jQuery('.bbop-js-tooltip').tooltip();
+
+    // Go ahead and drop in the table sorter. Easy!
     jQuery("#all-table-above").tablesorter(); 
     jQuery("#all-table-below").tablesorter(); 
 
-    ///
-    /// Tabify the layout if we can (may be in a non-tabby version).
-    ///
-
+    // Tabify the layout if we can (may be in a non-tabby version).
     var dtabs = jQuery("#display-tabs");
     if( dtabs ){
 	ll('Apply tabs...');
 	jQuery("#display-tabs").tabs();
-	//dtabs.tabs();
-	jQuery("#display-tabs").tabs('select', 0);
+	jQuery("#display-tabs").tabs('option', 'active', 0);
     }
 
     // Ready the configuration that we'll use.

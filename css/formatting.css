@@ -544,6 +544,12 @@ class. */
 .twocol-leftcolumn .ui-accordion-header a {
     border-bottom-style: none; /* was dotted */
 }
+.ui-accordion div {
+    /* margin-top: none; */
+    /* margin-bottom: none; */
+    margin-top: 0;
+    margin-bottom: 0;
+}
 
 .twocol-content {
     /* margin-left: 25em; */
@@ -786,3 +792,8 @@ div .mq_message {
 /*     padding-left: 1em; */
 /*     padding-right: 1em; */
 /* } */
+
+/*
+ * Reserved for tooltip stuff (that we farm out).
+ */
+.bbop-js-tooltip {}

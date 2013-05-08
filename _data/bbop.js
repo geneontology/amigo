@@ -3595,9 +3595,11 @@ bbop.html.accordion.prototype.add_to =
     }
 
     // Add header section.
+    //var h3 = new bbop.html.tag('h3', {title: section_desc});
     var h3 = new bbop.html.tag('h3');
     var anc = null;
     if( section_desc ){
+	// anc = new bbop.html.tag('a', {href: '#'}, section_label);
 	anc = new bbop.html.tag('a', {href: '#', title: section_desc},
 				section_label);
     }else{
@@ -11602,8 +11604,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	    ui_icon_negative_source = icon_negative_source; }
 
 	var filter_accordion_attrs = {
-	    id: accordion_div_id,
-	    style: 'width: 25em;'
+	    id: accordion_div_id//,
+	    //style: 'width: 25em;'
 	};
 	filter_accordion_widget = // heavy lifting by special widget
 	    new bbop.html.accordion([], filter_accordion_attrs, true);
@@ -11628,9 +11630,13 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	jQuery('#' + ui_controls_section_id).append(accordion_str);
 
 	// Add the jQuery accordioning.
-	jQuery("#" + accordion_div_id).accordion({ clearStyle: true,
-						   collapsible: true,
-						   active: false });
+	var jqacc_attrs = {
+	    clearStyle: true,
+	    heightStyle: 'content',
+	    collapsible: true,
+	    active: false
+	};
+	jQuery("#" + accordion_div_id).accordion(jqacc_attrs);
     };
 
     /*

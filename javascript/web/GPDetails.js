@@ -18,16 +18,15 @@ function GPDetailsInit(){
     ll('GPDetails.js');
     ll('GPDetailsInit start...');
 
-    ///
-    /// Tabify the layout if we can (may be in a non-tabby version).
-    ///
+    // Use jQuery UI to tooltip-ify doc.
+    jQuery('.bbop-js-tooltip').tooltip();
 
+    // Tabify the layout if we can (may be in a non-tabby version).
     var dtabs = jQuery("#display-tabs");
     if( dtabs ){
 	ll('Apply tabs...');
 	jQuery("#display-tabs").tabs();
-	//dtabs.tabs();
-	jQuery("#display-tabs").tabs('select', 0);
+	jQuery("#display-tabs").tabs('option', 'active', 0);
     }
     
     // Ready the configuration that we'll use.

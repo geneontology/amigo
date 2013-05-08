@@ -8,6 +8,9 @@ function BrowseInit(){
     // Make unnecessary things roll up.
     amigo.ui.rollup(["inf01"]);
 
+    // Use jQuery UI to tooltip-ify doc.
+    jQuery('.bbop-js-tooltip').tooltip();
+
     ///
     /// General setup--resource locations.
     /// Solr server, GOlr config, etc.

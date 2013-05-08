@@ -57,7 +57,8 @@ my $sig2path =
    ## JQuery. I think this is layout 1.2, aimed for 1.3
    ## and 1.7.
    'com.jquery' =>
-   'com/jquery-1.8.0.min.js',
+   'com/jquery-1.9.1.min.js',
+   #'com/jquery-1.8.0.min.js',
    #'com/jquery-1.8.0.js',
    #'com/jquery-1.5.1.min.js',
    #'com/jquery-1.6.1.min.js',
@@ -67,7 +68,8 @@ my $sig2path =
 
    ## UI plugin; we'll likely be using this a bit.
    'com.jquery-ui' =>
-   'com/jquery-ui-1.8.23.custom.min.js',
+   'com/jquery-ui-1.10.3.custom.min.js',
+   #'com/jquery-ui-1.8.23.custom.min.js',
    #'com/jquery-ui-1.8.13.custom.min.js',
 
    ## And plugin for trees.
