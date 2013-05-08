@@ -122,11 +122,11 @@ golr-install:
 
 .PHONY: golr-purge
 golr-purge:
-	OWLTOOLS_ROOT_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --solr-purge
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --solr-purge
 
 .PHONY: golr-schema
 golr-schema:
-	OWLTOOLS_ROOT_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-config $(SCHEMA_METADATA) --solr-schema-dump | ./tools/remove-schema-cruft.pl > ./solr/conf/schema.xml
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-config $(SCHEMA_METADATA) --solr-schema-dump | ./tools/remove-schema-cruft.pl > ./solr/conf/schema.xml
 
 ###
 ### Loading.
@@ -146,35 +146,35 @@ message-load-clear:
 .PHONY: load-ontology
 load-ontology: owltools-build
 	make message-load-start
-	OWLTOOLS_ROOT_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR_URL) --solr-config $(ONTOLOGY_METADATA) --solr-load-ontology --solr-load-ontology-general
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR_URL) --solr-config $(ONTOLOGY_METADATA) --solr-load-ontology --solr-load-ontology-general
 	make message-load-clear
 
 ## Test GAF.
 .PHONY: load-mgi-gaf
 load-mgi-gaf: owltools-build
 	make message-load-start
-	OWLTOOLS_ROOT_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR_URL) --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(MGI_GAF) --solr-load-panther --solr-load-panther-general
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR_URL) --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(MGI_GAF) --solr-load-panther --solr-load-panther-general
 	make message-load-clear
 
 ## Test GAF: A test load with the MGI GAF--column 16, etc.
 .PHONY: load-mgi-test-gaf
 load-mgi-test-gaf: owltools-build
 	make message-load-start
-	OWLTOOLS_ROOT_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR_URL) --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(MGI_TEST_GAF) --solr-load-panther --solr-load-panther-general
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR_URL) --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(MGI_TEST_GAF) --solr-load-panther --solr-load-panther-general
 	make message-load-clear
 
 ## Test PANTHER: A test load with just PANTHER (no GAF info).
 .PHONY: load-just-panther
 load-just-panther: owltools-build
 	make message-load-start
-	OWLTOOLS_ROOT_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --read-panther $(PANTHER_FILES_DIR) --solr-load-panther --solr-load-panther-general
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --read-panther $(PANTHER_FILES_DIR) --solr-load-panther --solr-load-panther-general
 	make message-load-clear
 
 ## The full and final load.
 .PHONY: load-full
 load-full: owltools-build
 	make message-load-start
-	OWLTOOLS_ROOT_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR_URL) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-load-ontology --solr-load-ontology-general --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(ALL_GAFS) --solr-load-panther --solr-load-panther-general
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --merge-support-ontologies --reasoner elk --solr-url $(SOLR_URL) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-load-ontology --solr-load-ontology-general --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(ALL_GAFS) --solr-load-panther --solr-load-panther-general
 	make message-load-clear
 
 ## An option optimizing step.
