@@ -10901,7 +10901,22 @@ bbop.widget.display.results_table_by_class = function(cclass,
 	     // Get the headers into a presentable state.
 	     var field = cclass.get_field(fid);
 	     if( ! field ){ throw new Error('conf error: not found:' + fid); }
-	     headers_display.push(field.display_name());
+	     //headers_display.push(field.display_name());
+	     var fdname = field.display_name();
+	     var fdesc = field.description() || '???';
+	     var head_span_attrs = {
+		 // TODO/NOTE: to make the tooltip work properly, since the
+		 // table headers are being created each time,
+		 // the tooltop initiator would have to be called after
+		 // each pass...I don't know that I want to do that.
+		 //'class': 'bbop-js-hoverable bbop-js-tooltip',
+		 'class': 'bbop-js-hoverable',
+		 'title': fdesc
+	     };
+	     // More aggressive link version.
+	     //var head_span = new bbop.html.anchor(fdname, head_span_attrs);
+	     var head_span = new bbop.html.span(fdname, head_span_attrs);
+	     headers_display.push(head_span.to_string());
 	 });
 
     // Some of what we'll do for each field in each doc (see below).

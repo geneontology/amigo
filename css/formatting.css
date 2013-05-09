@@ -797,3 +797,11 @@ div .mq_message {
  * Reserved for tooltip stuff (that we farm out).
  */
 .bbop-js-tooltip {}
+
+/*
+ * Hints to make things that we might want to hover
+ * over catch the eye better.
+ */
+.bbop-js-hoverable {
+    cursor: pointer;
+}
