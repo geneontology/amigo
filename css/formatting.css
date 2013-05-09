@@ -699,6 +699,7 @@ div .mq_message {
 }
 .landing-navigation tr td {
     border: 1px solid #3875D7;
+    background-color: #e9effa;
     vertical-align: middle;
 }
 .landing-navigation tr td a {
