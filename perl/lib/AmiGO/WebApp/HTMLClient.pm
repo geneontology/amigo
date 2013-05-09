@@ -92,7 +92,7 @@ sub mode_landing {
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'landing');
-  $self->set_template_parameter('page_title', 'AmiGO: Welcome');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Welcome');
   $self->set_template_parameter('content_title', 'AmiGO 2');
 
   ## Extract the landing page search order from AMIGO_LAYOUT_LANDING.
@@ -158,7 +158,7 @@ sub mode_browse {
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'browse');
-  $self->set_template_parameter('page_title', 'AmiGO: Browse');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Browse');
   $self->set_template_parameter('content_title', 'Browse');
 
   ## Get the layout info to describe which buttons should be
@@ -376,7 +376,7 @@ sub mode_simple_search {
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'simple_search');
-  $self->set_template_parameter('page_title', 'AmiGO: Simple Search');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Simple Search');
   $self->set_template_parameter('content_title', 'Simple Search');
 
   ## Grab the config info for the simple search form construction.
@@ -442,8 +442,8 @@ sub mode_software_list {
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'software_list');
-  $self->set_template_parameter('page_title', 'AmiGO: Software List');
-  $self->set_template_parameter('content_title', 'Software List');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Tools and Resources');
+  $self->set_template_parameter('content_title', 'Tools and Resources');
 
   ## Where would the ancient demos page hide...?
   my $foo = $self->{CORE}->amigo_env('AMIGO_CGI_PARTIAL_URL');
@@ -525,7 +525,7 @@ sub mode_visualize {
 
     ##
     $self->set_template_parameter('amigo_mode', 'visualize');
-    $self->set_template_parameter('page_title', 'AmiGO: Visualize');
+    $self->set_template_parameter('page_title', 'AmiGO 2: Visualize');
     $self->set_template_parameter('content_title', 'Visualize');
     $self->add_template_content('pages/visualize.tmpl');
     $output = $self->generate_template_page();
@@ -608,7 +608,7 @@ sub mode_live_search {
 
   ## Page settings.
   $self->set_template_parameter('STANDARD_CSS', 'no');
-  $self->set_template_parameter('page_title', 'AmiGO: Search');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Search');
   $self->set_template_parameter('page_name', 'live_search');
   $self->set_template_parameter('content_title', 'Search');
 
@@ -886,7 +886,7 @@ sub mode_golr_term_details {
   ## Page settings.
   $self->set_template_parameter('page_name', 'term');
   $self->set_template_parameter('page_title',
-				'AmiGO: Term Details for "' .
+				'AmiGO 2: Term Details for "' .
 				$term_info_hash->{$input_term_id}{'name'} .
 				'" (' .	$input_term_id . ')');
   $self->set_template_parameter('content_title',
@@ -997,7 +997,7 @@ sub mode_golr_gene_product_details {
   ## Page settings.
   $self->set_template_parameter('page_name', 'gene_product');
   $self->set_template_parameter('page_title',
-				'AmiGO: Gene Product Details for ' .
+				'AmiGO 2: Gene Product Details for ' .
 				$input_gp_id);
   ## Figure out the best title we can.
   my $best_title = $input_gp_id; # start with the worst as a default
@@ -1125,7 +1125,7 @@ sub mode_phylo_graph {
 
   ## Page seetings.
   $self->set_template_parameter('page_title',
-				'AmiGO: PANTHER Tree for ' .
+				'AmiGO 2: PANTHER Tree for ' .
 				$input_gp_id);
   $self->set_template_parameter('content_title',
 				$gp_info_hash->{$input_gp_id}{'name'});
