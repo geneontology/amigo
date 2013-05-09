@@ -27,71 +27,125 @@
 <!-- <div class="block">   -->
 <!--   <div> -->
 
-    <table class="landing-navigation">
-      <tr>
-	<td>
-	  <a href="search">
-	    <img src="[% image_dir %]/magnifying-glass.png"
-		 title="Go to the Search page."
-		 alt="[Search]" />
-	    <em>Search</em> the Gene Ontology data for
-	    annotations, gene products, and terms.
+<table class="landing-navigation">
+
+  <!-- row 1 -->
+  <tr>
+    <td>
+      <a href="search">
+	<img src="[% image_dir %]/magnifying-glass.50.png"
+	     title="Go to the Search page."
+	     alt="[Search]" />
+	<em>Search</em> the Gene Ontology data for
+	annotations, gene products, and terms.
 	  </a>
+    </td>
+    <td>
+      <a href="[% base %]/grebe">
+	<img src="[% image_dir %]/grebe.50.png"
+	     title="Go to the Search Wizard page."
+	     alt="[Search Wizard]" />
+	Use the Grebe Search Wizard to <em>get started</em> in exploring
+	the Gene Ontology data.
+      </a>
 	</td>
-	<td>
-	  <a href="http://galaxy.geneontology.org/">
-	    <img src="[% image_dir %]/galaxy-icon.png"
-		 title="Go to the GO Galaxy page."
-		 alt="[GO Galaxy]" />
-	    Perform <em>analyses</em> using GO Galaxy.
+    <td>
+      <a href="http://galaxy.geneontology.org/">
+	<img src="[% image_dir %]/galaxy-icon.png"
+	     title="Go to the GO Galaxy page."
+	     alt="[GO Galaxy]" />
+	Perform <em>analyses</em> with GO data using the GO Galaxy
+	instance.
+      </a>
+    </td>
+  </tr>
+
+  <!-- row 2 -->
+  <tr>
+    <td>
+      <a href="browse">
+	<img src="[% image_dir %]/browse-icon.50.png"
+	     title="Go to the Browse page."
+	     alt="[Browse]" />
+	Interactively <em>browse the graph</em> of the Gene
+	Ontology term data in.
+      </a>
+    </td>
+    <td>
+      <a href="visualize">
+	<img src="[% image_dir %]/dot-graph.50.png"
+	     title="Go to the Vizualize page."
+	     alt="[Visualize]" />
+	Freely <em>make</em> your own ontology graph,
+	including label and color changes.
+      </a>
+    </td>
+    <td>
+      <a href="http://beta.geneontology.org/page/current-go-statistics">
+	<img src="[% image_dir %]/stats-generic.50.png"
+	     title="Go to the statistics page."
+	     alt="[Statistics]" />
+	View the most recent <em>statistics</em> about the Gene Ontology data.
+      </a>
+    </td>
+  </tr>
+
+  <!-- row 3 -->
+  <tr>
+    <td>
+      <a href="[% base %]/goose">
+	<img src="[% image_dir %]/goose-1.50.png"
+	     title="Go to GOOSE."
+	     alt="[GOOSE]" />
+	Use GOOSE to query
+	a GO database with <em>SQL</em> or edit one of the templates.
+      </a>
+    </td>
+    <td>
+      <a href="[% base %]/gannet">
+	<img src="[% image_dir %]/gannet-1.50.png"
+	     title="Go to Gannet."
+	     alt="[Gannet]" />
+	Use Gannet to query the GO <em>Solr</em> data store directly
+	or edit one of the templates.
 	  </a>
-	</td>
-	</td>
-      </tr>
-      <tr>
-	<td>
-	  <a href="[% base %]/grebe">
-	    <img src="[% image_dir %]/wand.png"
-		 title="Go to the Search Wizard page."
-		 alt="[Search Wizard]" />
-	    Use the Search Wizard to <em>get started</em> in exploring the Gene
-	    Ontology data.
-	  </a>
-	</td>
-	<td>
-	  <a href="http://beta.geneontology.org/page/current-go-statistics">
-	    <img src="[% image_dir %]/stats-generic.png"
-		 title="Go to the statistics page."
-		 alt="[Statistics]" />
-	    View the most recent <em>statistics</em> for the Gene Ontology data.
-	  </a>
-	</td>
-      </tr>
-    </table>
+    </td>
+    <td>
+      <a href="[% base %]/repl">
+	<img src="[% image_dir %]/repl-icon.50.png"
+	     title="Go to the REPL."
+	     alt="[REPL]" />
+	Use the REPL <em>JavaScript</em> environment using
+	against the GO data store. 
+      </a>
+    </td>
+  </tr>
+
+</table>
 
     <div class="clearall"></div>
 <!--   </div> -->
 <!-- </div> -->
 
-<div class="block">
+<!-- <div class="block"> -->
 
-  <h2>About AmiGO 2</h2>
+<!--   <h2>About AmiGO 2</h2> -->
 
-  <p>
-    AmiGO 2 is currently a development project to create the next
-    generation of AmiGO--a set of official web-based set of tools
-    for searching and browsing the Gene Ontology data.
-    See the
-    <a href="http://wiki.geneontology.org/index.php/AmiGO_Labs">AmiGO Labs</a>
-    page for the usual caveats about beta software.
-  </p>
+<!--   <p> -->
+<!--     AmiGO 2 is currently a development project to create the next -->
+<!--     generation of AmiGO--a set of official web-based set of tools -->
+<!--     for searching and browsing the Gene Ontology data. -->
+<!--     See the -->
+<!--     <a href="http://wiki.geneontology.org/index.php/AmiGO_Labs">AmiGO Labs</a> -->
+<!--     page for the usual caveats about beta software. -->
+<!--   </p> -->
 
-  <p>
-    More information about AmiGO 2
-    <a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual">here</a>.
-  </p>
+<!--   <p> -->
+<!--     More information about AmiGO 2 -->
+<!--     <a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual">here</a>. -->
+<!--   </p> -->
   
-</div>
+<!-- </div> -->
 
 <!--   <h2 id="current-stats">Current Gene Ontology annotation information</h2> -->
 <!--   <div> -->
