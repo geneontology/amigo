@@ -1,0 +1,15 @@
+<!-- Begin: load_detail_list.tmpl -->
+<ul>
+  [% i = 0 %]
+  [% FOREACH item IN load_detail_list %]
+  [%    IF i % 2 == 0 %]
+  <li class="even_row">
+  [%    ELSE %]
+  <li class="odd_row">
+  [%    END %]
+  [% i = i + 1 %]
+    [% item.time %] <a href="[% item.file %]">[% item.file %]</a>
+  </li>
+  [% END %]
+</ul>
+<!-- End: load_detail_list.tmpl -->

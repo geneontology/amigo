@@ -11,7 +11,7 @@ use Config::YAML;
 use File::Basename;
 use File::Find;
 use Cwd;
-use Data::Dumper;
+use Date::Parse;
 use Clone;
 use vars qw(
 	     $opt_h
@@ -205,6 +205,44 @@ $env_conf{AMIGO_SCRATCH_DIR} =
   $env_conf{AMIGO_CGI_ROOT_DIR} . '/sessions/scratch';
 safe_make_dir( $env_conf{AMIGO_SCRATCH_DIR} );
 make_permissive( $env_conf{AMIGO_SCRATCH_DIR} );
+
+## Finally, check to see if we can find the GOlr timestamp file and
+## see if we can get a little early info from it--the latest file
+## mentioned.
+$env_conf{GOLR_TIMESTAMP_LAST} = '???';
+my $glog = $env_conf{GOLR_TIMESTAMP_LOCATION};
+if( $glog && -f $glog ){
+
+  ## We don't wildly care if we can get this optional information or
+  ## not, so wrap it away.
+  eval {
+
+    ## Unfortunately, since we can't use full AmiGO directly yet,
+    ## we'll steal a bit of non-environment functionality all nasty
+    ## like.
+    # use AmiGO;
+    # my $core = AmiGO->new();
+    my $ts_details = AmiGO::golr_timestamp_log(undef, $glog);
+    if( $ts_details ){
+
+      ## Get the best latest.
+      my $latest = '';
+      foreach my $tsi (@$ts_details){
+	my $ts = $tsi->{time};
+
+	if( ($ts cmp $latest) == 1 ){
+	  $latest = $ts;
+	}
+      }
+
+      ## If a latest was found, make that the new timestamp for the
+      ## configurations files.
+      if( $latest ){
+	$env_conf{GOLR_TIMESTAMP_LAST} = $latest;
+      }
+    }
+  };
+}
 
 ll("Finish setting up the installation environment.");
 

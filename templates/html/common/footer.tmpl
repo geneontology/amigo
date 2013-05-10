@@ -19,11 +19,14 @@
 
   <p>
     [% # Remove confusing database date. %]
-    [% UNLESS is_goose_p %]
-    GO database release [% release_date %]
+    [% IF is_goose_p %]
     <!-- GO database release [% release_name %] ([% release_type %]) -->
-    <br>
+    GO database release [% release_date %]
+    [% ELSE %]
+    Last file loaded on [% last_load_date %],
+    see <a href="load_details">full details</a>
     [% END %]
+    <br>
     <a href="http://www.geneontology.org/GO.cite.shtml#data" title="How to cite AmiGO data">Cite this data</a> &bull; <a href="http://www.geneontology.org/GO.cite.shtml" title="Terms of use for the GO project">Terms of use</a> &bull; <a href="http://www.geneontology.org/GO.contacts.shtml" title="Contact the GO helpdesk">GO helpdesk</a>
  <!--
      How can we improve AmiGO? <a href="http://www.geneontology.org/amigo/suggest.shtml" title="Send us your AmiGO suggestions">Send us your suggestions</a> -->

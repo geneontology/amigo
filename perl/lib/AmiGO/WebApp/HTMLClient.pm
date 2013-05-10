@@ -69,6 +69,7 @@ sub setup {
 		   'gene_product'        => 'mode_golr_gene_product_details',
 		   'visualize'           => 'mode_visualize',
 		   'software_list'       => 'mode_software_list',
+		   'load_details'        => 'mode_load_details',
 		   ## ???
 		   'phylo_graph'         => 'mode_phylo_graph',
 		   ## Old--need to be removed once okayed.
@@ -491,6 +492,91 @@ sub mode_software_list {
      content =>
      [
       'pages/software_list.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page();
+}
+
+
+##
+sub mode_load_details {
+
+  my $self = shift;
+
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile();
+  $self->check_for_condition_files();
+
+  ## Load in the GOlr timestamp details.
+  my $glog = $self->{CORE}->amigo_env('GOLR_TIMESTAMP_LOCATION');
+  my $ts_details = $self->{CORE}->golr_timestamp_log($glog);
+  if( $ts_details && scalar(@$ts_details) ){
+    $self->set_template_parameter('TS_DETAILS_P', 1);
+
+    ## We have something, now let's sort out the ontology and GAF sections.
+    my $ts_ont = [];
+    my $ts_gaf = [];
+    foreach my $item (@$ts_details){
+      if( $item->{type} eq 'ontology' ){
+	push @$ts_ont, $item;
+      }elsif( $item->{type} eq 'gaf' ){
+	push @$ts_gaf, $item;
+      }else{
+	## Not covering anything else yet.
+      }
+    }
+
+    #die "ARGH! " . scalar(@$ts_gaf);
+
+    $self->set_template_parameter('TS_DETAILS_ONT', $ts_ont);
+    $self->set_template_parameter('TS_DETAILS_GAF', $ts_gaf);
+
+  }else{
+    $self->set_template_parameter('TS_DETAILS_P', 0);
+  }
+
+  ## Page settings.
+  $self->set_template_parameter('page_name', 'load_details');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Load Details');
+  $self->set_template_parameter('content_title', 'Load Details');
+
+  ## Get Galaxy, and add a variable for it in the page.
+  $self->set_template_parameter('GO_GALAXY',
+				$self->{CORE}->amigo_env('AMIGO_PUBLIC_GALAXY_URL'));
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      # 'standard', # basic GO-styles
+      # 'bbop.amigo.ui.autocomplete'
+      'standard', # basic GO-styles
+      'com.jquery.jqamigo.custom',
+      #'com.jquery.tablesorter',
+      #'bbop.amigo.ui.widgets'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.jquery-ui',
+      #'com.jquery.tablesorter',
+      'bbop',
+      'amigo'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js')
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();'
+     ],
+     content =>
+     [
+      'pages/load_details.tmpl'
      ]
     };
   $self->add_template_bulk($prep);

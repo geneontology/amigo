@@ -1487,6 +1487,52 @@ sub _read_json_file {
 }
 
 
+=item golr_timestamp_log
+
+Takes the full path of a GOlr timestamp log file. Why not just read
+the variable directly? In some cases we'll want to use this helper
+before the AmiGO environment is actually setup.
+
+Return aref of hrefs of the OWLTools-produced GOlr load timestamp file.
+
+If no suitable file was found, or the structure was significantly off,
+undef will be returned.
+
+=cut
+sub golr_timestamp_log {
+
+  my $self = shift;
+  my $glog = shift || die "need a full file argument: $!";
+  #my $glog = $self->amigo_env('GOLR_TIMESTAMP_LOCATION');
+  my $ret_aref = undef;
+
+  if( $glog && -f $glog ){
+    eval {
+      open(GLOGFILE, '<', $glog);# or die "Cannot open open $glog: $!";
+      $ret_aref = [];
+      while( <GLOGFILE> ){
+	## TSV.
+	my @fields = split /\t/, $_;
+	if( scalar(@fields) == 3 ){
+	  ## line okay.
+	  push @$ret_aref,
+	    {
+	     type => $fields[0],
+	     time => $fields[1],
+	     file => $fields[2],
+	    };
+	}
+      }
+      close GLOGFILE;
+    };
+  }else{
+    #die "ARGH!: $glog";
+  }
+
+  return $ret_aref;
+}
+
+
 =item golr_configuration
 
 Return href of the GOlr configuration from the installation.

@@ -621,6 +621,7 @@ sub _common_params_settings {
     $self->{CORE}->amigo_env('AMIGO_TROUBLE_MESSAGE') || '';
   $params->{show_goose_links} =
     $self->{CORE}->amigo_env('AMIGO_SHOW_GOOSE_LINKS') || 0;
+  $params->{last_load_date} = $self->{CORE}->amigo_env('GOLR_TIMESTAMP_LAST');
   #$params->{release_name} = $self->{CORE}->release_name();
   #$params->{release_type} = $self->{CORE}->release_type();
   $params->{release_date} = $params->{release_name};
