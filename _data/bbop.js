@@ -12814,7 +12814,7 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj, interface_id,
 			  if(anchor._current_acc == nid){
 			      nav_b = new bbop.html.span('[' + nid + ']');
 			  }else{
-			      nav_b = new bbop.html.span('<a>[' + nid + ']</a>',
+			      nav_b = new bbop.html.span('<a title="Reorient neighborhood onto this node (' + nid + ').">[' + nid + ']</a>',
 							 {'generate_id': true});
 			      nav_button_hash[nav_b.get_id()] = nid;
 			  }
