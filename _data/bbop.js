@@ -13284,10 +13284,11 @@ bbop.widget.term_shield = function(golr_loc, golr_conf_obj, in_argument_hash){
 		     // 
 		     var field = cclass.get_field(fid);
 		     var val = doc[fid];
-		     //var link = linker.anchor({id: val}, 'term');
 		     var link = null;
 		     if( val ){
-			 link = linker.anchor({id: val});
+			 //link = linker.anchor({id: val});
+			 //link = linker.anchor({id: val}, 'term');
+			 link = linker.anchor({id: val}, fid);
 			 if( link ){ val = link; }
 		     }else{
 			 val = 'n/a';
