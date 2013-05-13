@@ -44,8 +44,15 @@ amigo.linker = function (){
     if( ! amigo.data.server ){
 	throw new Error('we are missing access to amigo.data.server!');
     }
+    // Easy app base.
     var sd = new amigo.data.server();
     this.app_base = sd.app_base();
+    // Internal term matcher.
+    this.term_regexp = null;
+    var internal_regexp_str = sd.term_regexp();    
+    if( internal_regexp_str ){
+	this.term_regexp = new RegExp(internal_regexp_str);
+    }
 
     // Categories for different special cases (internal links).
     this.ont_category = {
@@ -161,15 +168,31 @@ amigo.linker.prototype.anchor = function(args, xid){
     // See if the URL is legit. If it is, make something for it.
     var url = this.url(id, xid);
     if( url ){
-	
+
 	// First, see if it is one of the internal ones we know about
 	// and make something special for it.
 	if( xid ){
 	    if( this.ont_category[xid] ){
+
+		// Possible internal/external detection here.
+		// var class_str = ' class="amigo-ui-term-internal" ';
+		var class_str = '';
+		var title_str = 'title="' + // internal default
+		    id + ' (go to the term details page for ' +
+		    label + ')"';
+		if( this.term_regexp ){
+		    if( this.term_regexp.test(id) ){
+		    }else{
+			class_str = ' class="amigo-ui-term-external" ';
+			title_str = ' title="' +
+			    id + ' (is an external term; ' +
+			    'click to view our internal information for ' +
+			    label + ')" ';
+		    }
+		}
+
 		//retval = '<a title="Go to the term details page for ' +
- 		retval = '<a title="' + id +
-		    ' (go to the term details page for ' +
-		    label + ')" href="' + url + '">' + hilite + '</a>';
+ 		retval = '<a ' + class_str + title_str + ' href="' + url + '">' + hilite + '</a>';
             }else if( this.bio_category[xid] ){
  		retval = '<a title="' + id +
 		    ' (go to the details page for ' + label +

@@ -806,3 +806,17 @@ div .mq_message {
 .bbop-js-hoverable {
     cursor: pointer;
 }
+
+/*
+ * Hints from AmiGO 2 for internal and external terms in anchors.
+ * May be added in amigo.linker.
+ */
+.amigo-ui-term-internal {
+    /* background-color: green; */
+}
+.amigo-ui-term-external {
+    background-color: #ffffab;
+    border: 1px solid #ffa000;
+    /* background-color: #ddddcc; */
+    /* outline: solid 1px yellow; */
+}
