@@ -616,9 +616,6 @@ sub _common_params_settings {
   $params->{public_base} =
     $self->{CORE}->amigo_env('AMIGO_PUBLIC_CGI_URL');
   $params->{BETA} = $self->{CORE}->amigo_env('AMIGO_BETA') || 0;
-  $params->{TROUBLE} = $self->{CORE}->amigo_env('AMIGO_TROUBLE_SWITCH') || 0;
-  $params->{TROUBLE_MESSAGE} =
-    $self->{CORE}->amigo_env('AMIGO_TROUBLE_MESSAGE') || '';
   $params->{show_goose_links} =
     $self->{CORE}->amigo_env('AMIGO_SHOW_GOOSE_LINKS') || 0;
   $params->{last_load_date} = $self->{CORE}->amigo_env('GOLR_TIMESTAMP_LAST');

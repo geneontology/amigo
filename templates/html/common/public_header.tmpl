@@ -17,9 +17,7 @@
 
 [% UNLESS page_name == 'goose' %]
 
-[% IF TROUBLE == 1 %]
-<div id="searchbartrouble">
-[% ELSIF BETA == 1 %]
+[% IF BETA == 1 %]
 <div id="searchbarlabs">
 [% ELSE %]
 <div id="searchbar">
@@ -148,9 +146,6 @@
       You are using AmiGO Labs
   </a>
 </h2>
-[% END %]
-[% IF TROUBLE == 1 %]
-[%    TROUBLE_MESSAGE %]
 [% END %]
 
 <!-- End: public_header.tmpl -->

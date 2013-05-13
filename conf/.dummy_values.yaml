@@ -59,14 +59,6 @@ AMIGO_TERM_REGEXP:
   comment: The regular expressions to identify ontology ids.
   type: string
   value: 'all|GO:[0-9]{7}'
-AMIGO_TROUBLE_MESSAGE:
-  comment: Message to present when AmiGO\'s TROUBLE switch is true.
-  type: string
-  value: "<h2 style=\"text-align: center;\"> AmiGO is currently experiencing some difficulty.<br /> You may want to temporarily try <a href=\"http://amigo.berkeleybop.org/cgi-bin/amigo/go.cgi\" title=\"Go to AmiGO Labs\">AmiGO Labs</a> instead.</h2>\n"
-AMIGO_TROUBLE_SWITCH:
-  comment: Mark the AmiGO site as TROUBLED (triggers some changes).
-  type: boolean
-  value: 0
 AMIGO_VERBOSE:
   comment: Log verbose AmiGO debugging messages.
   type: boolean

@@ -120,22 +120,6 @@ AMIGO_VERBOSE:
   comment: Log verbose AmiGO debugging messages.
   type: boolean
 
-AMIGO_TROUBLE_SWITCH:
-  value: 0
-  comment: Mark the AmiGO site as TROUBLED (triggers some changes).
-  type: boolean
-
-AMIGO_TROUBLE_MESSAGE:
-  value: >
-    <h2 style="text-align: center;">
-    AmiGO is currently experiencing some difficulty.<br />
-    You may want to temporarily try <a
-    href="http://amigo.berkeleybop.org/cgi-bin/amigo/go.cgi"
-    title="Go to AmiGO Labs">AmiGO Labs</a>
-    instead.</h2>
-  comment: "Message to present when AmiGO\'s TROUBLE switch is true."
-  type: string
-
 AMIGO_BETA:
   value: 0
   comment: >
