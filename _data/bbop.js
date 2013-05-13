@@ -11431,7 +11431,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     var spinner = null;
     function _spinner_gen(elt_id){
 	var spinner_args = {
-	    timeout: 5,
+	    //timeout: 5,
+	    timeout: 500,
 	    classes: 'bbop-widget-search_pane-spinner',
 	    visible_p: false
 	};
@@ -11492,11 +11493,14 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	// 				     'class': 'golr-ui-input'});	
 	var query_label = new bbop.html.tag('span', {'for': ui_query_input_id},
 					    label_str);
-	var query_div = new bbop.html.tag('textarea',
-					  {'id': ui_query_input_id,
-					   //'rows': 2,
-					   'width': '80%',
-					   'class': 'golr-ui-input'});
+	var fa_args = {
+	    'id': ui_query_input_id,
+	    //'rows': 2,
+	    'width': '80%',
+	    //'class': 'golr-ui-input bbop-js-search-loading'
+	    'class': 'golr-ui-input'
+	};
+	var query_div = new bbop.html.tag('textarea', fa_args);
 
 	// Figure out an icon or a label.
 	var clear_query_obj =
@@ -11696,8 +11700,11 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	var block = new bbop.html.tag('div', {'class': 'block'});
 
 	// Add header section.
-	var header = new bbop.html.tag('h2', {generate_id: true},
-				       'Found entities&nbsp;');
+	var hargs = {
+	    generate_id: true,
+	    'classes': 'bbop-widget-search_pane-spinner-element'
+	};
+	var header = new bbop.html.tag('h2', hargs, 'Found entities&nbsp;');
 	block.add_to(header);
 
 	// If wanted, add meta to display queue.
@@ -11722,7 +11729,16 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	if( add_meta_p ){	    
 	    ll('Add meta UI div');
 	    jQuery('#' + ui_meta_div_id).empty();
-	    jQuery('#' + ui_meta_div_id).append('Performing initial search...');
+	    var init_str = 'Performing initial search, please wait...';
+	    jQuery('#' + ui_meta_div_id).append(init_str);
+
+	    // Optionally, if we have defined the image source, add
+	    // the image to the initial waiting.
+	    if( ui_spinner_search_source && ui_spinner_search_source != '' ){
+		var init_spin_str = '<br /><img src="' +
+		    ui_spinner_search_source + '" alt="[waiting]" />';
+		jQuery('#' + ui_meta_div_id).append(init_spin_str);
+	    }
 	}
     };
 
@@ -11877,6 +11893,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 		function(){
 		    // Cheat and trust reset by proxy to work.
 		    manager.page_first(); 
+		    // We are now searching--show it.
+		    _spin_up();
 		});
 	    
 	    // Previous page button.
@@ -11888,6 +11906,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	    jQuery('#' + b_back.get_id()).button(b_back_props).click(
 		function(){
 		    manager.page_previous();
+		    // We are now searching--show it.
+		    _spin_up();
 		});
 	    
 	    // Next page button.
@@ -11899,6 +11919,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	    jQuery('#' + b_forward.get_id()).button(b_forward_props).click(
 		function(){
 		    manager.page_next();
+		    // We are now searching--show it.
+		    _spin_up();
 		});
 	    
 	    // Last page button.
@@ -11911,6 +11933,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 		function(){
 		    // A little trickier.
 		    manager.page_last(total_c);
+		    // We are now searching--show it.
+		    _spin_up();
 		});
 	    
 	    ///
@@ -12002,6 +12026,9 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 			// confused by our switch).
 			manager.set_comfy_query(input_text);
 			manager.search();
+
+			// We are now searching--show it.
+			_spin_up();
 		    }else{
 			ll('rolling back query: ' + tmp_q);		    
 			manager.set_query(tmp_q);
@@ -12017,6 +12044,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 		//anchor.set_query_field(manager.get_query());
 		anchor.set_query_field('');
 		manager.search();
+		// We are now searching--show it.
+		_spin_up();
 	    });
     };
 
@@ -12197,6 +12226,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 		function(){
        		    manager.reset_query_filters();
        		    manager.search();
+		    // We are now searching--show it.
+		    _spin_up();
 		}		
 	    );
 
@@ -12228,6 +12259,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 			     // 				 [polstr, '*']);
 			     manager.remove_query_filter(field, value);
 			     manager.search();
+			     // We are now searching--show it.
+			     _spin_up();
 			 });
 		 });
 	}
@@ -12478,6 +12511,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 		    manager.add_query_filter(call_field, call_filter,
 			  		     [call_polarity]);
 		    manager.search();
+		    // We are now searching--show it.
+		    _spin_up();
 		});
 	}
 
@@ -12574,6 +12609,13 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 							       urtdi);
 	    //jQuery('#' + urtdi).append(bbop.core.to_string(final_table));
 	}
+
+	// Our search obviously came back.
+	_spin_down();
+
+	// // TODO/DEBUG:
+	// // Just want to get an idea what it looks like in place.
+	// _spin_up();
     };
 
     /*
@@ -12591,6 +12633,7 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     this.draw_error = function(error_message, manager){
 	ll("draw_error: " + error_message);
 	alert("Runtime error: " + error_message);
+	_spin_down();
     };
 
     /*

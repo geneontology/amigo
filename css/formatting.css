@@ -108,7 +108,8 @@ h3.toggle { border-top: none; font-size: 90%; }
 
 .treeview a:hover, .treeview a:active { color: #006; background: #cddcf3; border: 1px solid #3875d7; }
 
-.treeview img, .block img { margin: 0 0 -3px 0; padding: 2px; border: 1px solid #fff; }
+.treeview img { margin: 0 0 -3px 0; padding: 2px; border: 1px solid #fff; }
+/* .treeview img, .block img { margin: 0 0 -3px 0; padding: 2px; border: 1px solid #fff; } */
 
 .treeview a.img, .block a.img { background: #fff; border: none; }
 
@@ -745,7 +746,7 @@ div .mq_message {
  *
  */
 .bbop-widget-search_pane-spinner {
-    height: 10px;
+    height: 18px;
 }
 
 
@@ -806,6 +807,13 @@ div .mq_message {
 .bbop-js-hoverable {
     cursor: pointer;
 }
+
+/*
+ * BBOP-JS search_pane analog to jQuery's ".ui-autocomplete-loading".
+ */
+/* .bbop-js-search-loading { */
+/*     background: white url('../images/waiting_ajax.gif') right center no-repeat; */
+/* } */
 
 /*
  * Hints from AmiGO 2 for internal and external terms in anchors.
