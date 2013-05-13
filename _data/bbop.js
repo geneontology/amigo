@@ -11433,7 +11433,7 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	var spinner_args = {
 	    //timeout: 5,
 	    timeout: 500,
-	    classes: 'bbop-widget-search_pane-spinner',
+	    //classes: 'bbop-widget-search_pane-spinner',
 	    visible_p: false
 	};
 	spinner = new bbop.widget.spinner(elt_id,
@@ -11735,8 +11735,9 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	    // Optionally, if we have defined the image source, add
 	    // the image to the initial waiting.
 	    if( ui_spinner_search_source && ui_spinner_search_source != '' ){
-		var init_spin_str = '<br /><img src="' +
-		    ui_spinner_search_source + '" alt="[waiting]" />';
+		var init_spin_str = '&nbsp;<img src="' +
+		    ui_spinner_search_source + '" alt="[waiting]" ' +
+		    'class="bbop_widget_spinner"/>';
 		jQuery('#' + ui_meta_div_id).append(init_spin_str);
 	    }
 	}

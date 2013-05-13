@@ -736,6 +736,7 @@ div .mq_message {
  *
  */
 .bbop_widget_spinner {
+    height: 18px;
 }
 .bbop_widget_spinner_hidden {
     visibility: hidden;
@@ -745,10 +746,8 @@ div .mq_message {
 /*
  *
  */
-.bbop-widget-search_pane-spinner {
-    height: 18px;
-}
-
+/* .bbop-widget-search_pane-spinner { */
+/* } */
 
 /*
  *
