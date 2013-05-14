@@ -18,7 +18,8 @@ function TermDetailsInit(){
     ll('TermDetailsInit start...');
 
     // Use jQuery UI to tooltip-ify doc.
-    jQuery('.bbop-js-tooltip').tooltip();
+    var tt_args = {'position': {'my': 'left bottom', 'at': 'right top'}};
+    jQuery('.bbop-js-tooltip').tooltip(tt_args);
 
     // Go ahead and drop in the table sorter. Easy!
     jQuery("#all-table-above").tablesorter(); 

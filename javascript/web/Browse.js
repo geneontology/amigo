@@ -9,7 +9,8 @@ function BrowseInit(){
     amigo.ui.rollup(["inf01"]);
 
     // Use jQuery UI to tooltip-ify doc.
-    jQuery('.bbop-js-tooltip').tooltip();
+    var tt_args = {'position': {'my': 'left bottom', 'at': 'right top'}};
+    jQuery('.bbop-js-tooltip').tooltip(tt_args);
 
     ///
     /// General setup--resource locations.
