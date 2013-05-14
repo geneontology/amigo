@@ -9,11 +9,29 @@
   [% rollup_anchor = "Information about Browse" %]
   [% INCLUDE "common/info_rollup_start.tmpl" %]
   <p>
-    TODO: Simple explanation for why this looks different.
+    Unlike some ontology browsers, which give a direct topological
+    view of the graph relations of terms, this browser shows the
+    logical relations of the term in question to its ancestors and
+    children.
   </p>
   <p>
-    More information
-    <a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual">here</a>.
+    For example, if you were to select the term "neurogenesis"
+    (GO:0022008), you would see the current term in question with a
+    yellow triangle next to it. The current term's ancestors back to
+    the root would be arrayed above, with their relationship to the
+    current term next to it (e.g. "neurogenesis" is "part_of"
+    "developmental process"). Below the current term is the current
+    terms children, with a similar relationship next to them.
+  </p>
+  <p>
+    You may switch the top-level ontology by clicking one of the
+    top-level term buttons, or you may jump directly to a term by
+    typing some identifying text into the input field and selecting
+    the term from the dropdown.
+  </p>
+  <p>
+    More information can be found in the
+    <a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual">manual</a>.
   </p>
   [% INCLUDE "common/info_rollup_end.tmpl" %]
 
