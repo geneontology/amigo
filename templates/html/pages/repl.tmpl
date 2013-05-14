@@ -6,16 +6,25 @@
 
   <h2>GOlr/BBOP JS REPL</h2>
 
+  [% rollup_id = "inf01" %]
+  [% rollup_anchor = "Information about REPL" %]
+  [% INCLUDE "common/info_rollup_start.tmpl" %]
   <p>
     REPL (read, evaluate, and print loop) environments are ideal for
     prototyping, exploring, and learning.
   </p>
-
-  <p>This REPL environment for the Gene Ontology GOlr data using BBOP
-  JS makes use of the a simplified environment described
+  <p>
+    This REPL environment for the Gene Ontology GOlr data using BBOP
+    JS makes use of the a simplified environment described
     <a href="http://wiki.geneontology.org/index.php/Example_GOlr_Sessions#Startup_code_for_REPL_environment.">here</a>. The cost of this easier environment is that
-  some things are now a little bit more GO-specific (but don't worry,
-  you still have access to the full stack).</p>
+    some things are now a little bit more GO-specific (but don't worry,
+    you still have access to the full stack).
+  </p>
+  <p>
+    The current online beta API documentation can be found
+    <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/index.html">here</a>.
+  </p>
+  [% INCLUDE "common/info_rollup_end.tmpl" %]
 
   <!-- <div class="contents"> -->
   <div>
@@ -28,10 +37,6 @@
 	</td>
 	<td width="100%">
 	  <div class="block">
-	    <p>
-	      The beta API documentation can be current found
-	      <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/index.html">here</a>.
-	    </p>
 	    <p> Example interactions scraped from the wiki
 	      <a href="http://wiki.geneontology.org/index.php/Example_GOlr_Sessions">sessions example</a> page:
 	    </p>

@@ -14,16 +14,9 @@ use Data::Dumper;
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
 
-use AmiGO::Sanitize;
 use AmiGO::WebApp::Input;
 
-#use AmiGO::External::HTML::Wiki::LEAD;
-#use AmiGO::External::HTML::Wiki::GOLD;
 use AmiGO::External::HTML::Wiki::GOlr;
-#use AmiGO::External::LEAD::Status;
-#use AmiGO::External::LEAD::Query;
-#use AmiGO::External::GOLD::Status;
-#use AmiGO::External::GOLD::Query;
 use AmiGO::External::JSON::Solr::GOlr::Status;
 use AmiGO::External::JSON::Solr::GOlr::SafeQuery;
 
@@ -124,19 +117,12 @@ sub _gannet_get_mirror_status {
 
   ## Get the right status worker.
   my $status = undef;
-  # if( $mirror_props->{type} =~ /lead/ ){
-  #   $status = AmiGO::External::LEAD::Status->new($mirror_props);
-  # }elsif( $mirror_props->{type} =~ /gold/ ){
-  #   $status = AmiGO::External::GOLD::Status->new($mirror_props);
-  # }elsif( $mirror_props->{type} =~ /solr/ ){
   if( $mirror_props->{type} =~ /solr/ ){
     ## Solr behaves a little differently.
     $status =
       AmiGO::External::JSON::Solr::GOlr::Status->new($mirror_props->{database});
   }else{
     $self->{CORE}->kvetch("_unknown database_");
-    #$tmpl_args->{message} = "_unknown database_";
-    #return $self->mode_generic_message($tmpl_args);
   }
 
   ## If we got a status, see if it's alive.
@@ -553,23 +539,23 @@ sub mode_gannet {
 	'com.jquery',
 	'com.jquery-ui',
 	'bbop',
-	#'amigo',
-	'Gannet'
+	'amigo'
+       ],
+       javascript =>
+       [
+	$self->{JS}->get_lib('Gannet.js')
+       ],
+       javascript_init =>
+       [
+	'GannetInit();'
+       ],
+       content =>
+       [
+	'pages/gannet.tmpl'
        ]
       };
     $self->add_template_bulk($prep);
 
-    ## Initialize javascript app.
-    my $jsinit ='GannetInit();';
-    $self->add_template_javascript($self->{JS}->initializer_jquery($jsinit));
-
-    ## BUG?: Juggle onto absolute version of header template.
-    #$self->set_template_parameter('page_name', 'amigo'); # menu bar okay
-    #$self->set_template_parameter('is_gannet_p', '1'); # ...but we are gannet
-    #$self->set_template_parameter('page_name', 'gannet'); # rm menu bar
-    #$self->add_template_content('common/header.tmpl');
-    $self->add_template_content('pages/gannet.tmpl');
-    #$output = $self->generate_template_page({header=>0});
     $output = $self->generate_template_page();
   }
   return $output;

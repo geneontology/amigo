@@ -15,6 +15,9 @@ function GannetInit(){
     //ll('');
     ll('GannetInit start...');
 
+    // Make unnecessary things roll up.
+    amigo.ui.rollup(["inf01", "inf02"]);
+
     // GOlr: Enter things from pulldown into textarea on change.
     jQuery("#" + "gannet_golr_example_selection").change(
 	function(){
@@ -23,18 +26,6 @@ function GannetInit(){
 	    jQuery("#" + "query").val(semi_solr);
 	});
 
-    // Make unnecessary things roll up.
-    //bbop.core.each(["information", "mirrors", "solr_options"],
-    bbop.core.each(["information", "mirrors"],
-		   function(eltid){
-		       jQuery('#'+eltid).hide();
-		       var elt = jQuery('#' + eltid + '_click');
-		       elt.click(function(){
-				     jQuery('#'+eltid).toggle("blind",{},250);
-				     return false;
-				 });
-		   });
-    
     // TODO: scan and add things to the page.
     // Check to see if a results-only id shows up.
     var results_ping = jQuery("#" + "results_generated");

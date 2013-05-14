@@ -15,45 +15,41 @@
       
       <h2>Directly query GO data</h2>
       
-      <h3 id="information_click" class="first"><a href="#">Information</a></h3>
-      
-      <div id="information">
-
-	<h4>GO Solr (GOlr)</h4>
-	<p>
-	  See some GOlr  <a href="http://wiki.geneontology.org/index.php/Example_Solr_Queries">examples</a> and preliminary <a href="http://geneontology.svn.sourceforge.net/viewvc/geneontology/java/gold/solr/conf/schema.xml?content-type=text%2Fplain">schema</a> information.
-	</p>
-
-	<h4>Mirrors</h4>
-	<p>
-	  Select a mirror you believe will perform well for your needs
-	</p>
-
-      </div>
+      [% rollup_id = "inf01" %]
+      [% rollup_anchor = "Information about Gannet" %]
+      [% INCLUDE "common/info_rollup_start.tmpl" %]
+      <h4>GO Solr (GOlr)</h4>
+      <p>
+	See some GOlr  <a href="http://wiki.geneontology.org/index.php/Example_Solr_Queries">examples</a> and preliminary <a href="http://geneontology.svn.sourceforge.net/viewvc/geneontology/java/gold/solr/conf/schema.xml?content-type=text%2Fplain">schema</a> information.
+      </p>
+      <h4>Mirrors</h4>
+      <p>
+	Select a mirror you believe will perform well for your needs
+      </p>
+      [% INCLUDE "common/info_rollup_end.tmpl" %]
        
-      <h3 id="mirrors_click" class="first"><a href="#">Available mirrors</a></h3>
-      
-      <div id="mirrors">
+      [% rollup_id = "inf02" %]
+      [% rollup_anchor = "Available mirrors" %]
+      [% INCLUDE "common/info_rollup_start.tmpl" %]
+      <ul>
+	[% FOREACH mirror = all_mirrors %]
+
+	<li>
+	  <input type="radio" 
+		 name="mirror" 
+		 value="[% mirror %]" 
+		 [% IF my_mirror == mirror %]checked[% END %]
+		 class="cbox">
+	  <b>
+	    <!-- [% IF mirror_info.$mirror.is_alive_p == 0 %][UNAVAILABLE][% END %] -->
+	    [% mirror_info.$mirror.label %]
+	  </b>:
+	  Use the [% IF mirror_info.$mirror.type.search('solr') %]Solr[% ELSIF mirror_info.$mirror.type.search('lead') %]LEAD[% ELSIF mirror_info.$mirror.type.search('gold') %]GOLD[% ELSE %]???[% END %] [% IF mirror_info.$mirror.type.search('full') %]full[% ELSIF mirror_info.$mirror.type.search('lite') %]lite[% END %] [% IF mirror_info.$mirror.class.search('main') %]main[% ELSIF mirror_info.$mirror.class.search('aux') %]auxiliary[% ELSIF mirror_info.$mirror.class.search('exp') %]experimental[% END %] mirror [% mirror_info.$mirror.location %].
+	</li>
 	
-	<ul>
-	  [% FOREACH mirror = all_mirrors %]
-
-	  <li>
-	    <input type="radio" 
-		   name="mirror" 
-		   value="[% mirror %]" 
-		   [% IF my_mirror == mirror %]checked[% END %]
-		   class="cbox">
-	    <b>
-	      <!-- [% IF mirror_info.$mirror.is_alive_p == 0 %][UNAVAILABLE][% END %] -->
-	      [% mirror_info.$mirror.label %]
-	    </b>:
-	    Use the [% IF mirror_info.$mirror.type.search('solr') %]Solr[% ELSIF mirror_info.$mirror.type.search('lead') %]LEAD[% ELSIF mirror_info.$mirror.type.search('gold') %]GOLD[% ELSE %]???[% END %] [% IF mirror_info.$mirror.type.search('full') %]full[% ELSIF mirror_info.$mirror.type.search('lite') %]lite[% END %] [% IF mirror_info.$mirror.class.search('main') %]main[% ELSIF mirror_info.$mirror.class.search('aux') %]auxiliary[% ELSIF mirror_info.$mirror.class.search('exp') %]experimental[% END %] mirror [% mirror_info.$mirror.location %].
-	  </li>
-
-	  [% END %]	  
-	</ul>	      
-      </div>
+	[% END %]	  
+      </ul>	      
+      [% INCLUDE "common/info_rollup_end.tmpl" %]
 
       <h3 class="first">Enter your query (currently a <em>[% IF database_type.search('solr') %]Solr[% ELSIF database_type.search('lead') %]LEAD[% ELSIF database_type.search('gold') %]GOLD[% ELSE %]???[% END %]</em> database):</h3>
 

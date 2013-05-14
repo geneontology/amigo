@@ -114,26 +114,23 @@ sub mode_bbop_js {
       'com.jquery-ui',
       'com.jquery.jstree',
       'bbop',
-      'amigo',
+      'amigo'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('REPL.js')
+     ],
+     javascript_init =>
+     [
+      'REPLInit();'
+     ],
+     content =>
+     [
+      'pages/repl.tmpl'
      ]
     };
   $self->add_template_bulk($prep);
 
-  ## Initialize javascript app.
-  my $jsinit ='REPLInit();';
-  $self->add_template_javascript($self->{JS}->initializer_jquery($jsinit));
-
-  ## BUG?: Juggle onto absolute version of header template.
-  #$self->set_template_parameter('page_name', 'amigo'); # menu bar okay
-  #$self->set_template_parameter('is_bbop_js_p', '1'); # ...but we are bbop_js
-  #$self->set_template_parameter('page_name', 'bbop_js'); # rm menu bar
-  #$self->add_template_content('common/header.tmpl');
-  $self->add_template_content('pages/repl.tmpl');
-  #$output = $self->generate_template_page({header=>0});
   $output = $self->generate_template_page();
 
   return $output;

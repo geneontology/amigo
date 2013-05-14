@@ -15,6 +15,9 @@ function GOOSEInit(){
     //ll('');
     ll('GOOSEInit start...');
 
+    // Make unnecessary things roll up.
+    amigo.ui.rollup(["inf01", "inf02", "inf03"]);
+
     // LEAD: Enter things from pulldown into textarea on change.
     jQuery("#" + "goose_lead_example_selection").change(
 	function(){
@@ -22,24 +25,6 @@ function GOOSEInit(){
 	    jQuery("#" + "query").val(sql);
 	});
 
-    // // GOLD: Enter things from pulldown into textarea on change.
-    // jQuery("#" + "goose_gold_example_selection").change(
-    // 	function(){
-    // 	    var sql = jQuery(this).val();
-    // 	    jQuery("#" + "query").val(sql);
-    // 	});
-
-    // Make unnecessary things roll up.
-    bbop.core.each(["information", "mirrors", "sql_options"],
-		   function(eltid){
-		       jQuery('#'+eltid).hide();
-		       var elt = jQuery('#' + eltid + '_click');
-		       elt.click(function(){
-				     jQuery('#'+eltid).toggle("blind",{},250);
-				     return false;
-				 });
-		   });
-    
     // TODO: scan and add things to the page.
     // Check to see if a results-only id shows up.
     var results_ping = jQuery("#" + "results_generated");

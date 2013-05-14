@@ -5,10 +5,16 @@
 
     <h2>Vizualize an Arbitrary GO Graph</h2>
     
-    <p> This is a simple interface to the visualizations in
+    [% rollup_id = "inf01" %]
+    [% rollup_anchor = "Information about Visualize" %]
+    [% INCLUDE "common/info_rollup_start.tmpl" %]
+    <p>
+      This is a simple interface to the visualizations in
       AmiGO. Type in your GO IDs (in the form GO:xxxxxxx) or use the
-       <a title="AmiGO Visualize documentation" href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Visualize">advanced format</a>
-        for more control.</p>
+      <a title="AmiGO Visualize documentation" href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Visualize">advanced format</a>
+      for more control.
+    </p>
+    [% INCLUDE "common/info_rollup_end.tmpl" %]
 
     <p>
       <b>Caution</b>: The static image may be very large and

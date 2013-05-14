@@ -13,62 +13,52 @@
       <input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
       [% END %]
       
-      <h2>Directly query GO data</h2>
+      <h2>Directly query GO data using SQL</h2>
       
-      <h3 id="information_click" class="first"><a href="#">Information</a></h3>
-      
-      <div id="information">
+      [% rollup_id = "inf01" %]
+      [% rollup_anchor = "Information about GOOSE" %]
+      [% INCLUDE "common/info_rollup_start.tmpl" %]
+      <h4>General SQL</h4>
+      <p>
+	If your query takes a long time or returns a blank screen,
+	you may want to try the download option. If your query is
+	long-running or fails, you may also want to try a "lite"
+	database from the mirror selection.
+      </p>	
+      <h4>LEAD SQL</h4>
+      <p>
+	See some LEAD SQL <a href="http://wiki.geneontology.org/index.php/Example_LEAD_Queries">examples</a> and learn more about the LEAD <a href="http://www.geneontology.org/GO.database.shtml" title="LEAD database schema documentation">schema</a>.
+      </p>
+      <h4>Mirrors</h4>
+      <p>
+	Select a mirror you believe will perform well for your needs
+      </p>
+      [% INCLUDE "common/info_rollup_end.tmpl" %]
 
-	<h4>General SQL</h4>
-	<p>
-	  If your query takes a long time or returns a blank screen,
-	  you may want to try the download option. If your query is
-	  long-running or fails, you may also want to try a "lite"
-	  database from the mirror selection.
-	</p>
+      [% rollup_id = "inf02" %]
+      [% rollup_anchor = "Available mirrors" %]
+      [% INCLUDE "common/info_rollup_start.tmpl" %]
+      <ul>
+	[% FOREACH mirror = all_mirrors %]
 	
-	<h4>LEAD SQL</h4>
-	<p>
-	  See some LEAD SQL <a href="http://wiki.geneontology.org/index.php/Example_LEAD_Queries">examples</a> and learn more about the LEAD <a href="http://www.geneontology.org/GO.database.shtml" title="LEAD database schema documentation">schema</a>.
-	</p>
-
-	<h4>Mirrors</h4>
-	<p>
-	  Select a mirror you believe will perform well for your needs
-	</p>
-
-      </div>
-      
-      <!-- <h4>GOLD SQL</h4> -->
-      <!-- <p> -->
-      <!--   See some GOLD SQL <a href="http://wiki.geneontology.org/index.php/Example_GOLD_Queries">examples</a> and learn more about the experimental GOLD <a href="http://www.geneontology.org/GO.gold.schema.shtml" title="GOLD database schema documentation">schema</a>.<br /> -->
-      <!-- </p> -->
-      
-      <h3 id="mirrors_click" class="first"><a href="#">Available mirrors</a></h3>
-      
-      <div id="mirrors">
+	<li>
+	  <input type="radio" 
+		 name="mirror" 
+	       value="[% mirror %]" 
+		 [% IF my_mirror == mirror %]checked[% END %]
+		 class="cbox">
+	  <b>
+	    <!-- [% IF mirror_info.$mirror.is_alive_p == 0 %][UNAVAILABLE][% END %] -->
+	    [% mirror_info.$mirror.label %]
+	  </b>:
+	  Use the [% IF mirror_info.$mirror.type.search('solr') %]Solr[% ELSIF mirror_info.$mirror.type.search('lead') %]LEAD[% ELSIF mirror_info.$mirror.type.search('gold') %]GOLD[% ELSE %]???[% END %] [% IF mirror_info.$mirror.type.search('full') %]full[% ELSIF mirror_info.$mirror.type.search('lite') %]lite[% END %] [% IF mirror_info.$mirror.class.search('main') %]main[% ELSIF mirror_info.$mirror.class.search('aux') %]auxiliary[% ELSIF mirror_info.$mirror.class.search('exp') %]experimental[% END %] mirror [% mirror_info.$mirror.location %].
+	</li>
 	
-	<ul>
-	  [% FOREACH mirror = all_mirrors %]
-	  
-	  <li>
-	    <input type="radio" 
-		   name="mirror" 
-		   value="[% mirror %]" 
-		   [% IF my_mirror == mirror %]checked[% END %]
-		   class="cbox">
-	    <b>
-	      <!-- [% IF mirror_info.$mirror.is_alive_p == 0 %][UNAVAILABLE][% END %] -->
-	      [% mirror_info.$mirror.label %]
-	    </b>:
-	    Use the [% IF mirror_info.$mirror.type.search('solr') %]Solr[% ELSIF mirror_info.$mirror.type.search('lead') %]LEAD[% ELSIF mirror_info.$mirror.type.search('gold') %]GOLD[% ELSE %]???[% END %] [% IF mirror_info.$mirror.type.search('full') %]full[% ELSIF mirror_info.$mirror.type.search('lite') %]lite[% END %] [% IF mirror_info.$mirror.class.search('main') %]main[% ELSIF mirror_info.$mirror.class.search('aux') %]auxiliary[% ELSIF mirror_info.$mirror.class.search('exp') %]experimental[% END %] mirror [% mirror_info.$mirror.location %].
-	  </li>
-	  
-	  [% END %]	  
-	</ul>	      
-      </div>
-      
-      <h3 class="first">Enter your query (currently a <em>[% IF database_type.search('solr') %]Solr[% ELSIF database_type.search('lead') %]LEAD[% ELSIF database_type.search('gold') %]GOLD[% ELSE %]???[% END %]</em> database):</h3>
+	[% END %]	  
+      </ul>	      
+      [% INCLUDE "common/info_rollup_end.tmpl" %]
+  
+      <h3 class="first">Enter your query:</h3>
       
       <div>
 	<textarea id="query"
@@ -76,15 +66,14 @@
 		  cols="80"
 		  rows="5">[% query %]</textarea>
       </div>
-
-      <h3 id="sql_options_click" class="first"><a href="#">SQL options</h3></a>
-      
-      <div id="sql_options">
-	
-	<p>
-	  Options only for use when making queries against an SQL database.
-	</p>
-
+    
+      [% rollup_id = "inf03" %]
+      [% rollup_anchor = "SQL options" %]
+      [% INCLUDE "common/info_rollup_start.tmpl" %]
+      <p>
+	Options only for use when making queries against an SQL database.
+      </p>
+      <p>
 	Limit the number of results returned:
 	<select name="limit" size="1">
 	  <option
@@ -113,15 +102,12 @@
 	     [% IF limit == 0 %]selected[% END %]
 	     class="">unlimited</option>
 	</select>
-
-	<br />
-
-	<div>
-          Download results directly in a text format
-	  <input class="cbox" type="checkbox" name="format" value="text" />
-	</div>
-	
-      </div>
+      </p>
+      <p>
+        Download results directly in a text format
+	<input class="cbox" type="checkbox" name="format" value="text" />
+      </p>	
+      [% INCLUDE "common/info_rollup_end.tmpl" %]
 
 	<div style="" id="goose_lead_example_list">
 	  [% IF lead_examples_list %]

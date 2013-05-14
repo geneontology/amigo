@@ -613,7 +613,13 @@ sub mode_visualize {
     $self->set_template_parameter('amigo_mode', 'visualize');
     $self->set_template_parameter('page_title', 'AmiGO 2: Visualize');
     $self->set_template_parameter('content_title', 'Visualize');
-    $self->add_template_content('pages/visualize.tmpl');
+    my $prep =
+      {
+       javascript_library => ['com.jquery', 'com.jquery-ui', 'bbop', 'amigo'],
+       javascript_init => ['amigo.ui.rollup(["inf01"]);'],
+       content => ['pages/visualize.tmpl']
+      };
+    $self->add_template_bulk($prep);
     $output = $self->generate_template_page();
 
   }else{
