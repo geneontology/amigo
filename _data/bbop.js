@@ -11561,12 +11561,26 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 						 icon_clear_source,
 						 ui_clear_query_span_id);
 
+	// Container div.
+	var sel_div_attrs = {
+	    'generate_id': true//,
+	    //'style': '',
+	    //'class': 'bbop-js-search-pane-results-count'
+	};
+	var sel_div = new bbop.html.tag('div', sel_div_attrs);
+
 	// Add to display.
-	jQuery('#' + ui_controls_section_id).append(query_label.to_string());
-	jQuery('#' +ui_controls_section_id).append("<br />");
-	jQuery('#' + ui_controls_section_id).append(query_div.to_string());
-	jQuery('#' +ui_controls_section_id).append("&nbsp;");
-	jQuery('#' +ui_controls_section_id).append(clear_query_obj.to_string());
+	// sel_div.add_to(query_label.to_string());
+	// sel_div.add_to("&nbsp;");
+	// sel_div.add_to(clear_query_obj.to_string());
+	// sel_div.add_to("<br />");
+	// sel_div.add_to(query_div.to_string());
+	sel_div.add_to(query_label.to_string());
+	sel_div.add_to("<br />");
+	sel_div.add_to(query_div.to_string());
+	sel_div.add_to("&nbsp;");
+	sel_div.add_to(clear_query_obj.to_string());
+	jQuery('#' + ui_controls_section_id).append(sel_div.to_string());
     };
 
     /*
