@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130514";
+bbop.version.release = "20130515";
 /* 
  * Package: json.js
  * 
@@ -11436,7 +11436,7 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 
     // Mangle everything around this unique id so we don't collide
     // with other instances on the same page.
-    var mangle = ui_div_id + '_ui_element_';
+    var mangle = ui_div_id + '_ui_element_' + bbop.core.uuid() + '_';
 
     // Render a control section into HTML. This includes the accordion
     // and current filter sections.
@@ -11461,7 +11461,7 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     var ui_meta_div_id = mangle + 'meta-id';
     var ui_user_button_div_id = mangle + 'user-button-id';
     var ui_results_table_div_id = mangle + 'results-table-id';
-    var ui_count_slider_div_id = mangle + 'count_slider-id';
+    var ui_count_control_div_id = mangle + 'count_control-id';
     var ui_sticky_filters_div_id = mangle + 'sticky_filters-id';
     var ui_current_filters_div_id = mangle + 'current_filters-id';
     var ui_query_input_id = mangle + 'query-id';
@@ -11484,7 +11484,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     function _spinner_gen(elt_id){
 	var spinner_args = {
 	    //timeout: 5,
-	    timeout: 500,
+	    //timeout: 500,
+	    timeout: 10,
 	    //classes: 'bbop-widget-search_pane-spinner',
 	    visible_p: false
 	};
@@ -11569,82 +11570,58 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     };
 
     /*
-     * Function: setup_count_slider
+     * Function: setup_count_control
      *
-     * Setup the results count slider for later use. This is a kind
+     * Setup the results count control for later use. This is a kind
      * of semi-permanent structure like the accordion.
      * 
      * Parameters:
-     *  manager - <bbop.golr.manager> that we initially registered with
+     *  n/a
      *
      * Returns:
      *  n/a
      */
-    this.setup_count_slider = function(manager){
-	ll('setup_count_slider for: ' + ui_query_input_id);
+    this.setup_count_control = function(manager){
+	ll('setup_count_control for: ' + ui_query_input_id);
 	
-	// Create input (the current order is important for proper
+	// Create inputs (the current order is important for proper
 	// for/id creation).
-	var sel_input_attrs = {
-	    'generate_id': true,
-	    'size': '3'
+	var cinputs = [];
+	each([10, 25, 50, 100],
+	     function(num, cindex){
+		 // Create and store the option.
+		 var sel_input_attrs = {
+		     'generate_id': true,
+		     'value': num
+		 };
+		 var sel_input =
+		     new bbop.html.tag('option', sel_input_attrs, num);
+		 var sel_input_id = sel_input.get_id();
+		 cinputs.push(sel_input);
+	     });
+	// Option container div.
+	var sel_attrs = {
+	    'id': ui_count_control_div_id
 	};
-	var sel_input = new bbop.html.input(sel_input_attrs);
-	var sel_input_id = '#' + sel_input.get_id();
-	// Create label.
-	var sel_label_attrs = {
-	    'generate_id': true,
-	    'for': sel_input_id
-	};
-	var sel_label = new bbop.html.tag('label', sel_label_attrs,
-					  'Results count&nbsp;');
-	var sel_label_id = '#' + sel_label.get_id();
-	// Create slider space.
-	var sel_slider_attrs = {
-	    'id': ui_count_slider_div_id,
-	    //'generate_id': true,
-	    'style': 'width: 40%; margin-left: 0.5em; float: left;'
-	};
-	var sel_slider = new bbop.html.tag('div', sel_slider_attrs);
-	var sel_slider_id = '#' + sel_slider.get_id();
-	
-	// Attach elements to doc to create coherent UI layout.
-	var sel_info_attrs = {
-	    'style': 'width: 50%; float: left;'
-	};
-	var sel_info = new bbop.html.tag('div', sel_info_attrs);
-	sel_info.add_to(sel_label);
-	sel_info.add_to(sel_input);
+	var sel = new bbop.html.tag('select', sel_attrs, cinputs);
+
+	// Create a text label.
+	var sel_label = new bbop.html.tag('label', {},
+					  'Results count&nbsp;&nbsp;');
+
+	// Container div.
 	var sel_div_attrs = {
-	    //'style': 'width: 50%; float: left;'
-	    'style': 'clear: both;'
+	    'generate_id': true,
+	    'style': '',
+	    'class': 'bbop-js-search-pane-results-count'
+	    //'style': 'font-size: 75%;'
 	};
 	var sel_div = new bbop.html.tag('div', sel_div_attrs);
-	sel_div.add_to(sel_info);
-	sel_div.add_to(sel_slider);
+
+	// Assemble these elements into the UI.
+	sel_div.add_to(sel_label);
+	sel_div.add_to(sel);
 	jQuery('#' + ui_controls_section_id).append(sel_div.to_string());
-	
-	jQuery(sel_input_id).prop('disabled', true);
-	
-	// jQuery UI to instantiate the elements and make them
-	// active.
-	var slider_attrs = {
-	    value: 10,
-	    min: 10,
-	    max: 100,
-	    step: 10,
-	    slide: function(event, ui) {
-		jQuery(sel_input_id).val(ui.value);
-		manager.set_results_count(ui.value);
-		manager.search();
-		// We are now searching--show it.
-		_spin_up();
-	    }
-	};
-	jQuery(sel_slider_id).slider(slider_attrs);
-	
-	// Init the input with the default value of the slider.
-	jQuery(sel_input_id).val(jQuery(sel_slider_id).slider("value"));
     };
 
     /*
@@ -12186,10 +12163,12 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     };
 
     /*
-     * Function: draw_count_slider
+     * Function: draw_count_control
      *
-     * (Re)draw the count slider with the current information in the
-     * manager.
+     * (Re)draw the count control with the current information in the
+     * manager. This also tries to set the selector to the response
+     * number (to keep things in sync), unbinds any current "change"
+     * event, and adds a new change event.
      * 
      * Parameters:
      *  response - the <bbop.golr.response> returned from the server
@@ -12198,13 +12177,35 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
      * Returns:
      *  n/a
      */
-    this.draw_count_slider = function(response, manager){
+    this.draw_count_control = function(response, manager){
 
-    	ll('draw_count_slider for: ' + ui_query_input_id);
+    	ll('draw_count_control for: ' + ui_query_input_id);
 
-	// Keep this aligned with what is actually going on.
-	var rc = manager.get_results_count();
-	jQuery('#' + ui_count_slider_div_id).slider("value", rc);
+	// First, unbind so we don't accidentally trigger with any
+	// changes and don't pile up event handlers.
+	jQuery('#' + ui_count_control_div_id).unbind('change');
+
+	// Next, pull out the number of rows requested.
+	var step = response.row_step();
+
+	// Set the value to the number.
+	jQuery('#' + ui_count_control_div_id).val(step);
+
+	// Finally, reactivate the event handler on the select.
+	jQuery('#' + ui_count_control_div_id).change(
+	    function(event, ui){
+		var sv = jQuery('#' + ui_count_control_div_id).val();
+		if( bbop.core.is_defined(sv) ){
+		    // Convert to a number.
+		    var si = parseInt(sv);
+
+		    // Set manager and to the search.
+		    manager.set_results_count(si);
+		    manager.search();
+		    // We are now searching--show it.
+		    _spin_up();
+		}
+	    });
     };
 
     /*
@@ -13801,7 +13802,7 @@ bbop.core.namespace('bbop', 'widget', 'search_pane');
  * The optional hash arguments look like:
  * 
  *  show_searchbox_p - show the search query box (default true)
- *  show_count_slider_p - show a slider to adjust the results count
+ *  show_count_control_p - show a control to adjust the results count
  *  show_filterbox_p - show currents filters and accordion (default true)
  *  show_pager_p - show the results pager (default true)
  *  spinner_search_source - source for the spinner used during typical searching
@@ -13867,7 +13868,7 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	{
     	    //'layout_type' : 'two-column',
     	    'show_searchbox_p' : true,
-    	    'show_count_slider_p' : true,
+    	    'show_count_control_p' : true,
     	    'show_filterbox_p' : true,
     	    'show_pager_p' : true,
     	    'spinner_search_source' : '',
@@ -13891,7 +13892,7 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     //var image_type = arg_hash['image_type'];
     //var layout_type = arg_hash['layout_type'];
     var show_searchbox_p = arg_hash['show_searchbox_p'];
-    var show_count_slider_p = arg_hash['show_count_slider_p'];
+    var show_count_control_p = arg_hash['show_count_control_p'];
     var show_filterbox_p = arg_hash['show_filterbox_p'];
     var show_pager_p = arg_hash['show_pager_p'];
     var spinner_search_source = arg_hash['spinner_search_source'];
@@ -13956,9 +13957,9 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	if( show_searchbox_p ){ // conditionally display search box stuff
     	    anchor.register('reset', 'reset_query', anchor.ui.reset_query, -1);
 	}
-    	if( show_count_slider_p ){
-    	    anchor.register('reset', 'draw_count_slider',
-			    anchor.ui.draw_count_slider);
+    	if( show_count_control_p ){
+    	    anchor.register('reset', 'draw_count_control',
+			    anchor.ui.draw_count_control);
 	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.register('reset', 'sticky_first',
@@ -13997,9 +13998,9 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	    // accordion, that seems a little silly.
     	    anchor.register('search', 'draw_query', anchor.ui.draw_query, -1);
 	}
-    	if( show_count_slider_p ){
-    	    anchor.register('search', 'draw_count_slider',
-			    anchor.ui.draw_count_slider);
+    	if( show_count_control_p ){
+    	    anchor.register('search', 'draw_count_control',
+			    anchor.ui.draw_count_control);
 	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.register('search','sticky_filters_std',
@@ -14022,8 +14023,8 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 				  icon_clear_label,
 				  icon_clear_source);
 	}
-    	if( show_count_slider_p ){
-    	    anchor.ui.setup_count_slider(anchor);
+    	if( show_count_control_p ){
+    	    anchor.ui.setup_count_control(anchor);
 	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.ui.setup_sticky_filters();

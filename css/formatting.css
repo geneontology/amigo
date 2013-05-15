@@ -780,7 +780,6 @@ div .mq_message {
     outline: red solid 3px;
 }
 
-
 /*
  * Some work on the ubiquitous search header.
  */
@@ -826,4 +825,15 @@ div .mq_message {
     border: 1px solid #ffa000;
     /* background-color: #ddddcc; */
     /* outline: solid 1px yellow; */
+}
+
+/*
+ * BBOP-JS search_pane results count div handle.
+ * Want to make this low priority item rather smaller...
+ */
+.bbop-js-search-pane-results-count {
+    font-size: 85%;
+}
+.bbop-js-search-pane-results-count select {
+    font-size: 85%;
 }
