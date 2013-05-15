@@ -11539,48 +11539,44 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	if( ! icon_clear_label ){ icon_clear_label = ''; }
 	if( ! icon_clear_source ){ icon_clear_source = ''; }
 	
-	// Tags and output to the page.
-	// var query_label = new bbop.html.tag('label', {'for': ui_query_input_id},
-	// 				    label_str);
-	// var query_div = new bbop.html.input({'id': ui_query_input_id,
-	// 				     'class': 'golr-ui-input'});	
-	var query_label = new bbop.html.tag('span', {'for': ui_query_input_id},
-					    label_str);
-	var fa_args = {
-	    'id': ui_query_input_id,
-	    //'rows': 2,
-	    'width': '80%',
-	    //'class': 'golr-ui-input bbop-js-search-loading'
-	    'class': 'golr-ui-input'
+	// The incoming label.
+	var query_label_attrs = {
+	    'class': 'bbop-js-search-pane-query-label'
 	};
-	var query_div = new bbop.html.tag('textarea', fa_args);
+	var query_label_div =
+	    new bbop.html.tag('div', query_label_attrs, label_str);
+
+	// The text area.
+	var ta_args = {
+	    'id': ui_query_input_id,
+	    'class': 'bbop-js-search-pane-textarea'
+	};
+	var query_area = new bbop.html.tag('textarea', ta_args);
 
 	// Figure out an icon or a label.
 	var clear_query_obj =
 	    bbop.widget.display.clickable_object(icon_clear_label,
 						 icon_clear_source,
 						 ui_clear_query_span_id);
-
-	// Container div.
-	var sel_div_attrs = {
-	    'generate_id': true//,
-	    //'style': '',
-	    //'class': 'bbop-js-search-pane-results-count'
+	// And a div to put it in.
+	var clear_div_attrs = {
+	    'class': 'bbop-js-search-pane-clear-button',
+	    'generate_id': true
 	};
-	var sel_div = new bbop.html.tag('div', sel_div_attrs);
+	var clear_div =
+	    new bbop.html.tag('div', clear_div_attrs, clear_query_obj);	
+
+	// General container div.
+	var gen_div_attrs = {
+	    'generate_id': true
+	};
+	var gen_div = new bbop.html.tag('div', gen_div_attrs);
 
 	// Add to display.
-	// sel_div.add_to(query_label.to_string());
-	// sel_div.add_to("&nbsp;");
-	// sel_div.add_to(clear_query_obj.to_string());
-	// sel_div.add_to("<br />");
-	// sel_div.add_to(query_div.to_string());
-	sel_div.add_to(query_label.to_string());
-	sel_div.add_to("<br />");
-	sel_div.add_to(query_div.to_string());
-	sel_div.add_to("&nbsp;");
-	sel_div.add_to(clear_query_obj.to_string());
-	jQuery('#' + ui_controls_section_id).append(sel_div.to_string());
+	query_label_div.add_to(clear_div.to_string());
+	gen_div.add_to(query_label_div.to_string());
+	gen_div.add_to(query_area.to_string());
+	jQuery('#' + ui_controls_section_id).append(gen_div.to_string());
     };
 
     /*
@@ -11626,9 +11622,7 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	// Container div.
 	var sel_div_attrs = {
 	    'generate_id': true,
-	    'style': '',
 	    'class': 'bbop-js-search-pane-results-count'
-	    //'style': 'font-size: 75%;'
 	};
 	var sel_div = new bbop.html.tag('div', sel_div_attrs);
 
@@ -11660,7 +11654,7 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 
 	var sticky_filters_attrs = {
 	    'id': ui_sticky_filters_div_id,
-	    'style': 'clear: both;'
+	    'class': 'bbop-js-search-pane-sticky-filters'
 	};
 	var sticky_filters_div =
 	    new bbop.html.tag('div', sticky_filters_attrs,
@@ -11749,8 +11743,7 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	    ui_icon_negative_source = icon_negative_source; }
 
 	var filter_accordion_attrs = {
-	    id: accordion_div_id//,
-	    //style: 'width: 25em;'
+	    id: accordion_div_id
 	};
 	filter_accordion_widget = // heavy lifting by special widget
 	    new bbop.html.accordion([], filter_accordion_attrs, true);
@@ -12506,7 +12499,6 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 		     var tbl_id = mangle + 'filter-list-' + in_field;
 		     var facet_list_tbl_attrs = {
 			 id: tbl_id
-			 //style: 'height: 30em;'
 		     };
 
 		     var facet_list_tbl =

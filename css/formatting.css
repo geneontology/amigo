@@ -590,15 +590,6 @@ class. */
  * Some stuff for GOlr
  */
 
-/* Actually make the input box visible given all of the stuff above. */
-/* To some extent, this needs to be relative */
-/* to the size of .twocol-leftcolumn */
-.golr-ui-input {
-    border: 1px;
-    border-style: solid;
-    width: 25em;
-}
-
 /* Filter box issues. */
 .golr-embiggen {
     height: 40em;
@@ -666,6 +657,8 @@ div .mq_message {
     border-width: 1px;
     padding-left: 0.5em;
     padding-right: 0.5em;
+    /* padding-top: 0em; */
+    /* padding-bottom: 0em; */
 }
 
 .logo-img-left {
@@ -746,12 +739,6 @@ div .mq_message {
 /*
  *
  */
-/* .bbop-widget-search_pane-spinner { */
-/* } */
-
-/*
- *
- */
 .bbop_widget_message {
     z-index: 100;
     position: fixed;
@@ -807,13 +794,6 @@ div .mq_message {
 }
 
 /*
- * BBOP-JS search_pane analog to jQuery's ".ui-autocomplete-loading".
- */
-/* .bbop-js-search-loading { */
-/*     background: white url('../images/waiting_ajax.gif') right center no-repeat; */
-/* } */
-
-/*
  * Hints from AmiGO 2 for internal and external terms in anchors.
  * May be added in amigo.linker.
  */
@@ -827,13 +807,38 @@ div .mq_message {
     /* outline: solid 1px yellow; */
 }
 
+/* Actually make the input box visible given all of the stuff above. */
+/* To some extent, this needs to be relative */
+/* to the size of .twocol-leftcolumn */
+.bbop-js-search-pane-textarea {
+    border: 1px;
+    border-style: solid;
+    /* width: 24em; */
+    width: 100%;
+}
 /*
  * BBOP-JS search_pane results count div handle.
  * Want to make this low priority item rather smaller...
  */
+.bbop-js-search-pane-sticky-filters {
+    clear: both;
+}
 .bbop-js-search-pane-results-count {
     font-size: 85%;
 }
 .bbop-js-search-pane-results-count select {
     font-size: 85%;
+}
+.bbop-js-search-pane-query-label {
+    /* position: relative; */
+    /* top: 5px; */
+}
+.bbop-js-search-pane-query-label div {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+.bbop-js-search-pane-clear-button {
+    float: right;
+    /* margin-top: 0px; */
+    /* margin-bottom: 0px; */
 }
