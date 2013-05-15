@@ -7732,6 +7732,8 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
     //this.default_rows = 100;
     this.default_rows = 10;
     this.default_start = 0;
+    this.current_rows = this.default_rows;
+    this.current_start = this.default_start;
 
     // There is a reason for this...TODO: later (25+)
     this.default_facet_limit = 25;
@@ -7757,8 +7759,8 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	    indent: 'on',
 	    wt: 'json',
 	    //version: '2.2',
-	    rows: anchor.default_rows,
-	    start: anchor.default_start, // Solr is offset indexing
+	    rows: anchor.current_rows,
+	    start: anchor.current_start, // Solr is offset indexing
 	    //fl: '*%2Cscore',
 	    fl: anchor.default_fl,
     
@@ -8056,6 +8058,57 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	}
 
 	return retval;
+    };
+
+    /*
+     * Function: get_results_count
+     * 
+     * Get the current number of results that will be returned.
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns: 
+     *  integer
+     */
+    this.get_results_count = function(field){
+	return anchor.get('rows');
+    };
+
+    /*
+     * Function: set_results_count
+     * 
+     * Change the number of result documents returned per call.
+     * The default is likely 10.
+     * 
+     * Parameters: 
+     *  count - (integer) set the global results count
+     *
+     * Returns:
+     *  the count set
+     */
+    this.set_results_count = function(count){
+	anchor.set('rows', count);
+	anchor.current_rows = count;
+	return anchor.current_rows;
+    };
+
+    /*
+     * Function: reset_results_count
+     * 
+     * Reset the number of documents to their original setting, likely
+     * 10.
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns:
+     *  the new count
+     */
+    this.reset_results_count = function(){
+	anchor.set('rows', anchor.default_rows);
+	anchor.current_rows = anchor.default_rows;
+	return anchor.current_rows;
     };
 
     /*
@@ -9873,8 +9926,8 @@ bbop.golr.manager.prototype.update = function(callback_type, rows, start){
     // the defaults if rows and offset are not explicitly
     // defined.
     if( ! bbop.core.is_defined(rows) || ! bbop.core.is_defined(start) ){
-    	this.set('rows', this.default_rows);
-    	this.set('start', this.default_start);
+    	this.set('rows', this.current_rows);
+    	this.set('start', this.current_start);
     }
     
     // Our bookkeeping--increment packet.
@@ -10758,8 +10811,6 @@ bbop.widget.display.meta_results.prototype = new bbop.html.tag;
  * 
  * Namespace: bbop.widget.display.results_table_by_class_conf
  * 
- * Reusable HTML drop of Solr meta results.
- * 
  * Subclass of <bbop.html.tag>.
  */
 
@@ -11410,6 +11461,7 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     var ui_meta_div_id = mangle + 'meta-id';
     var ui_user_button_div_id = mangle + 'user-button-id';
     var ui_results_table_div_id = mangle + 'results-table-id';
+    var ui_count_slider_div_id = mangle + 'count_slider-id';
     var ui_sticky_filters_div_id = mangle + 'sticky_filters-id';
     var ui_current_filters_div_id = mangle + 'current_filters-id';
     var ui_query_input_id = mangle + 'query-id';
@@ -11517,6 +11569,85 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     };
 
     /*
+     * Function: setup_count_slider
+     *
+     * Setup the results count slider for later use. This is a kind
+     * of semi-permanent structure like the accordion.
+     * 
+     * Parameters:
+     *  manager - <bbop.golr.manager> that we initially registered with
+     *
+     * Returns:
+     *  n/a
+     */
+    this.setup_count_slider = function(manager){
+	ll('setup_count_slider for: ' + ui_query_input_id);
+	
+	// Create input (the current order is important for proper
+	// for/id creation).
+	var sel_input_attrs = {
+	    'generate_id': true,
+	    'size': '3'
+	};
+	var sel_input = new bbop.html.input(sel_input_attrs);
+	var sel_input_id = '#' + sel_input.get_id();
+	// Create label.
+	var sel_label_attrs = {
+	    'generate_id': true,
+	    'for': sel_input_id
+	};
+	var sel_label = new bbop.html.tag('label', sel_label_attrs,
+					  'Results count&nbsp;');
+	var sel_label_id = '#' + sel_label.get_id();
+	// Create slider space.
+	var sel_slider_attrs = {
+	    'id': ui_count_slider_div_id,
+	    //'generate_id': true,
+	    'style': 'width: 40%; margin-left: 0.5em; float: left;'
+	};
+	var sel_slider = new bbop.html.tag('div', sel_slider_attrs);
+	var sel_slider_id = '#' + sel_slider.get_id();
+	
+	// Attach elements to doc to create coherent UI layout.
+	var sel_info_attrs = {
+	    'style': 'width: 50%; float: left;'
+	};
+	var sel_info = new bbop.html.tag('div', sel_info_attrs);
+	sel_info.add_to(sel_label);
+	sel_info.add_to(sel_input);
+	var sel_div_attrs = {
+	    //'style': 'width: 50%; float: left;'
+	    'style': 'clear: both;'
+	};
+	var sel_div = new bbop.html.tag('div', sel_div_attrs);
+	sel_div.add_to(sel_info);
+	sel_div.add_to(sel_slider);
+	jQuery('#' + ui_controls_section_id).append(sel_div.to_string());
+	
+	jQuery(sel_input_id).prop('disabled', true);
+	
+	// jQuery UI to instantiate the elements and make them
+	// active.
+	var slider_attrs = {
+	    value: 10,
+	    min: 10,
+	    max: 100,
+	    step: 10,
+	    slide: function(event, ui) {
+		jQuery(sel_input_id).val(ui.value);
+		manager.set_results_count(ui.value);
+		manager.search();
+		// We are now searching--show it.
+		_spin_up();
+	    }
+	};
+	jQuery(sel_slider_id).slider(slider_attrs);
+	
+	// Init the input with the default value of the slider.
+	jQuery(sel_input_id).val(jQuery(sel_slider_id).slider("value"));
+    };
+
+    /*
      * Function: setup_sticky_filters
      *
      * Setup sticky filters display under contructed tags for later
@@ -11536,8 +11667,12 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	ll('setup_sticky_filters UI for class configuration: ' +
 	   this.class_conf.id());
 
+	var sticky_filters_attrs = {
+	    'id': ui_sticky_filters_div_id,
+	    'style': 'clear: both;'
+	};
 	var sticky_filters_div =
-	    new bbop.html.tag('div', {'id': ui_sticky_filters_div_id},
+	    new bbop.html.tag('div', sticky_filters_attrs,
 			      "No applied sticky filters.");
 
 	// Add the output to the page.
@@ -12048,6 +12183,28 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 		// We are now searching--show it.
 		_spin_up();
 	    });
+    };
+
+    /*
+     * Function: draw_count_slider
+     *
+     * (Re)draw the count slider with the current information in the
+     * manager.
+     * 
+     * Parameters:
+     *  response - the <bbop.golr.response> returned from the server
+     *  manager - <bbop.golr.manager> that we initially registered with
+     *
+     * Returns:
+     *  n/a
+     */
+    this.draw_count_slider = function(response, manager){
+
+    	ll('draw_count_slider for: ' + ui_query_input_id);
+
+	// Keep this aligned with what is actually going on.
+	var rc = manager.get_results_count();
+	jQuery('#' + ui_count_slider_div_id).slider("value", rc);
     };
 
     /*
@@ -13418,6 +13575,187 @@ bbop.widget.term_shield = function(golr_loc, golr_conf_obj, in_argument_hash){
 };
 bbop.core.extend(bbop.widget.term_shield, bbop.golr.manager.jquery);
 /*
+ * Package: select_shield.js
+ * 
+ * Namespace: bbop.widget.select_shield
+ * 
+ * BBOP object to produce a self-constructing/self-destructing
+ * document selection popup.
+ * 
+ * The use case for this is when a user is browsing through results
+ * and wants to grab a small subset to work with elsewhere (Galaxy,
+ * GAF download, etc.). For this, the widget also takes button
+ * arguments.
+ * 
+ * Currently, due to limits with GET and HTTP, we're goin to limit
+ * this to 100 selectables at this point. Maybe we can revisit with
+ * POST or something later, but hopefully there aren't many cases
+ * where a user will want to manually select that many terms.
+ * 
+ * This is a completely self-contained UI and manager.
+ */
+
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'logger');
+bbop.core.require('bbop', 'html');
+bbop.core.require('bbop', 'golr', 'manager', 'jquery');
+bbop.core.namespace('bbop', 'widget', 'select_shield');
+
+/*
+ * Constructor: select_shield
+ * 
+ * Contructor for the bbop.widget.select_shield object.
+ * 
+ * This is (sometimes) a specialized (and widgetized) subclass of
+ * <bbop.golr.manager.jquery>.
+ * 
+ * To actually do much useful, you should set the personality of the
+ * widget.
+ * 
+ * The optional hash arguments look like:
+ * 
+ *  linker - a "linker" object
+ *  width - defaults to 700
+ * 
+ * Arguments:
+ *  golr_loc - string url to GOlr server; not needed if local
+ *  golr_conf_obj - a <bbop.golr.conf> object
+ *  in_argument_hash - *[optional]* optional hash of optional arguments
+ * 
+ * Returns:
+ *  self
+ */
+bbop.widget.select_shield = function(golr_loc, golr_conf_obj, in_argument_hash){
+    
+    bbop.golr.manager.jquery.call(this, golr_loc, golr_conf_obj);
+    this._is_a = 'bbop.widget.select_shield';
+
+    var anchor = this;
+
+    // Per-UI logger.
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch('W (select_shield): ' + str); }
+
+    // Our argument default hash.
+    var default_hash = {
+	'linker_function': function(){},
+	'width': 700
+    };
+    var folding_hash = in_argument_hash || {};
+    var arg_hash = bbop.core.fold(default_hash, folding_hash);
+    var width = arg_hash['width'];
+    var linker = arg_hash['linker_function'];
+
+    // Draw a locally help Solr response doc.
+    function _draw_local_doc(doc){
+	
+	//ll(doc['id']);
+
+	var personality = anchor.get_personality();
+	var cclass = golr_conf_obj.get_class(personality);
+
+	var txt = 'Nothing here...';
+	if( doc && cclass ){
+
+	    var tbl = new bbop.html.table();
+	    var results_order = cclass.field_order_by_weight('result');
+	    var each = bbop.core.each; // conveience
+	    each(results_order,
+		 function(fid){
+		     // 
+		     var field = cclass.get_field(fid);
+		     var val = doc[fid];
+
+		     // Determine if we have a list that we're working
+		     // with or not.
+		     if( field.is_multi() ){
+
+			 val = val.join(', ');
+			 
+		     }else{
+
+			 // When handling just the single value, see
+			 // if we can link out the value.
+			 var link = null;
+			 if( val ){
+			     //link = linker.anchor({id: val});
+			     //link = linker.anchor({id: val}, 'term');
+			     link = linker.anchor({id: val}, fid);
+			     if( link ){ val = link; }
+			 }else{
+			     val = 'n/a';
+			 }
+		     }
+
+		     tbl.add_to([field.display_name(), val]);
+		 });
+	    txt = tbl.to_string();
+	}
+
+	// Create div.
+	var div = new bbop.html.tag('div', {'generate_id': true});
+	var div_id = div.get_id();
+
+	// Append div to body.
+	jQuery('body').append(div.to_string());
+
+	// Add text to div.
+	jQuery('#' + div_id).append(txt);
+
+	// Modal dialogify div; include self-destruct.
+	var diargs = {
+	    modal: true,
+	    draggable: false,
+	    width: width,
+	    close:
+	    function(){
+		// TODO: Could maybe use .dialog('destroy') instead?
+		jQuery('#' + div_id).remove();
+	    }	    
+	};
+	var dia = jQuery('#' + div_id).dialog(diargs);
+    }
+
+    // Get a doc by id from a remote server then display it when it
+    // gets local.
+    // TODO: spinner?
+    function _draw_remote_id(id_string){
+	function _process_resp(resp){
+	    var doc = resp.get_doc(0);
+	    _draw_local_doc(doc);
+	}
+	anchor.register('search', 'do', _process_resp);
+	anchor.set_id(id_string);
+	//ll('FOO: ' + id_string);
+	anchor.search();
+    }
+
+    /*
+     * Function: draw
+     * 
+     * Render a temporary modal information shield. 
+     * 
+     * Arguments:
+     *  item - either a document id or a Solr-returned document
+     * 
+     * Returns:
+     *  n/a
+     */
+    this.draw = function(item){
+    // Call the render directly if we already have a document,
+    // otherwise, if it seems like a string (potential id), do a
+    // callback on it and pull the doc out.
+	if( bbop.core.what_is(item) == 'string' ){
+	    _draw_remote_id(item);
+	}else{
+	    _draw_local_doc(item);
+	}
+    };
+    
+};
+bbop.core.extend(bbop.widget.select_shield, bbop.golr.manager.jquery);
+/*
  * Package: search_pane.js
  * 
  * Namespace: bbop.widget.search_pane
@@ -13463,6 +13801,7 @@ bbop.core.namespace('bbop', 'widget', 'search_pane');
  * The optional hash arguments look like:
  * 
  *  show_searchbox_p - show the search query box (default true)
+ *  show_count_slider_p - show a slider to adjust the results count
  *  show_filterbox_p - show currents filters and accordion (default true)
  *  show_pager_p - show the results pager (default true)
  *  spinner_search_source - source for the spinner used during typical searching
@@ -13528,6 +13867,7 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	{
     	    //'layout_type' : 'two-column',
     	    'show_searchbox_p' : true,
+    	    'show_count_slider_p' : true,
     	    'show_filterbox_p' : true,
     	    'show_pager_p' : true,
     	    'spinner_search_source' : '',
@@ -13551,6 +13891,7 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     //var image_type = arg_hash['image_type'];
     //var layout_type = arg_hash['layout_type'];
     var show_searchbox_p = arg_hash['show_searchbox_p'];
+    var show_count_slider_p = arg_hash['show_count_slider_p'];
     var show_filterbox_p = arg_hash['show_filterbox_p'];
     var show_pager_p = arg_hash['show_pager_p'];
     var spinner_search_source = arg_hash['spinner_search_source'];
@@ -13607,10 +13948,17 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	// initial setup.
 	anchor.ui.set_buttons(anchor.user_buttons);
 
-    	// Things to do on every reset event. Essentially re-draw
-    	// everything.
+	///
+    	/// Things to do on every reset event. Essentially re-draw
+    	/// everything.
+	///
+
     	if( show_searchbox_p ){ // conditionally display search box stuff
     	    anchor.register('reset', 'reset_query', anchor.ui.reset_query, -1);
+	}
+    	if( show_count_slider_p ){
+    	    anchor.register('reset', 'draw_count_slider',
+			    anchor.ui.draw_count_slider);
 	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.register('reset', 'sticky_first',
@@ -13638,13 +13986,20 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	}
     	anchor.register('reset', 'initial_reset', _initial_runner, -100);
 
-    	// Things to do on every search event.
+	///
+    	/// Things to do on every search event.
+	///
+
     	if( show_searchbox_p ){ // conditionally display search box stuff
 	    // TODO: I worry a little about this being rebound after
 	    // every keyboard event, but rationally, considering the
 	    // rebinds and redraws that are happening down in the
 	    // accordion, that seems a little silly.
     	    anchor.register('search', 'draw_query', anchor.ui.draw_query, -1);
+	}
+    	if( show_count_slider_p ){
+    	    anchor.register('search', 'draw_count_slider',
+			    anchor.ui.draw_count_slider);
 	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.register('search','sticky_filters_std',
@@ -13662,23 +14017,16 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	anchor.register('error', 'results_unusual', anchor.ui.draw_error);	
 	
     	// Setup the gross frames for the filters and results.
-    	//anchor.ui.setup_reset_button();
     	if( show_searchbox_p ){ // conditionally display search box stuff
-    	    //anchor.ui.setup_query();
-    	    //anchor.ui.setup_query('Search:&nbsp;',
     	    anchor.ui.setup_query('Free-text filtering',
 				  icon_clear_label,
 				  icon_clear_source);
 	}
-    	// if( show_global_reset_p ){ // conditionally show global reset button
-	//     //anchor.ui.setup_global_reset_button();
-	//     anchor.ui.setup_global_reset_button(icon_reset_label,
-	// 					icon_reset_source);
-	// }
+    	if( show_count_slider_p ){
+    	    anchor.ui.setup_count_slider(anchor);
+	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.ui.setup_sticky_filters();
-    	    //anchor.ui.setup_current_filters();
-    	    //anchor.ui.setup_accordion();
     	    anchor.ui.setup_current_filters(icon_remove_label,
 					    icon_remove_source);
     	    anchor.ui.setup_accordion(icon_positive_label,
@@ -13746,7 +14094,8 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     /*
      * Function: set_query_field_text
      * 
-     * Push text into the search box.
+     * Push text into the search box. Does not affect the state of the
+     * manager in any way.
      * 
      * NOTE: Does not function until the display is established.
      * 
