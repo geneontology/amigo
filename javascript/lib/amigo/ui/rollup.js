@@ -6,8 +6,8 @@
  * BBOP method to roll an information are up to save real estate.
  * This requires jQuery and an HTML format like:
  * 
- * : <div id="ID_TEXT" class="informational">
- * :  <span class="amigo-ui-rollup">ANCHOR_TEXT<a href="#"><img src="?" /></span></a>
+ * : <div id="ID_TEXT" class="SOME_CLASS_FOR_YOUR_STYLING">
+ * :  <span class="ANOTHERONE">ANCHOR_TEXT<a href="#"><img src="?" /></span></a>
  * :  <div>
  * :   ABC
  * :  </div>

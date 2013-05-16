@@ -10960,8 +10960,8 @@ bbop.widget.display.results_table_by_class = function(cclass,
 		 // table headers are being created each time,
 		 // the tooltop initiator would have to be called after
 		 // each pass...I don't know that I want to do that.
-		 //'class': 'bbop-js-hoverable bbop-js-tooltip',
-		 'class': 'bbop-js-hoverable',
+		 //'class': 'bbop-js-ui-hoverable bbop-js-ui-tooltip',
+		 'class': 'bbop-js-ui-hoverable',
 		 'title': fdesc
 	     };
 	     // More aggressive link version.
@@ -11856,7 +11856,7 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	    if( ui_spinner_search_source && ui_spinner_search_source != '' ){
 		var init_spin_str = '&nbsp;<img src="' +
 		    ui_spinner_search_source + '" alt="[waiting]" ' +
-		    'class="bbop_widget_spinner"/>';
+		    'class="bbop-js-spinner"/>';
 		jQuery('#' + ui_meta_div_id).append(init_spin_str);
 	    }
 	}
@@ -15622,10 +15622,10 @@ bbop.widget.phylo_old.renderer = function (element_id, info_box_p){
  * have a set timeout to deal with annoying servers and exotic race
  * conditions.
  * 
- * The class of the spinner image is "bbop_widget_spinner".
+ * The class of the spinner image is "bbop-widget-spinner".
  * 
  * Visibility is controlled by the application and removal of
- * "bbop_widget_spinner_hidden".
+ * "bbop-js-spinner-hidden".
  * 
  * This is a completely self-contained UI.
  */
@@ -15694,9 +15694,9 @@ bbop.widget.spinner = function(host_elt_id, img_src, argument_hash){
 
     // Use the incoming arguments to help determine the default
     // classes on the element.'
-    var spinner_classes = ['bbop_widget_spinner'];
+    var spinner_classes = ['bbop-js-spinner'];
     if( ! visible_p ){
-	spinner_classes.push('bbop_widget_spinner_hidden');
+	spinner_classes.push('bbop-js-spinner-hidden');
     }
     if( classes && classes != '' ){
 	spinner_classes.push(classes);
@@ -15735,7 +15735,7 @@ bbop.widget.spinner = function(host_elt_id, img_src, argument_hash){
      */
     this.show = function(){
 	ll("show");
-	jQuery('#' + spinner_elt_id).removeClass('bbop_widget_spinner_hidden');	
+	jQuery('#' + spinner_elt_id).removeClass('bbop-js-spinner-hidden');	
 
 	// If the timeout is defined, push a timer onto
 	// the queue.
@@ -15762,7 +15762,7 @@ bbop.widget.spinner = function(host_elt_id, img_src, argument_hash){
      */
     this.hide = function(){
 	ll("hide");
-	jQuery('#' + spinner_elt_id).addClass('bbop_widget_spinner_hidden');	
+	jQuery('#' + spinner_elt_id).addClass('bbop-js-spinner-hidden');	
     };
 
     /*
@@ -15847,12 +15847,12 @@ bbop.widget.spinner = function(host_elt_id, img_src, argument_hash){
  * Note that this is a steal of some older code. We'll probably have
  * to clean this up a bit at some point.
  * 
- * These messages make use of the classes "bbop_widget_message" and
- * "bbop_widget_message_for_CTYPE", where CTYPE is one of "error",
+ * These messages make use of the classes "bbop-js-message" and
+ * "bbop-js-message-CTYPE", where CTYPE is one of "error",
  * "warning", or "notice".
  * 
  * Initial placement and the likes should be manipulated through
- * "bbop_widget_message"--the created divs are append to the end of
+ * "bbop-js-message"--the created divs are append to the end of
  * the body and will not be particularly useful unless styled.
  * 
  * This is a completely self-contained UI.
@@ -15892,8 +15892,8 @@ bbop.widget.message = function(){
     // Generate tags.
     function _generate_element(ctype, str){
 
-	var message_classes = ['bbop_widget_message',
-			       'bbop_widget_message_' + ctype];
+	var message_classes = ['bbop-js-message',
+			       'bbop-js-message-' + ctype];
 
 	var message_elt =
 	    new bbop.html.tag('div',

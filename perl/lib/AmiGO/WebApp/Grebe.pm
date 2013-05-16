@@ -145,7 +145,7 @@ sub mode_grebe {
       $question_info->{'question'} = '<span id="' .
 	$question_id . '">' .
 	  $question_info->{'question'} . ' ' .
-	    '<img class="grebe-action-icon" title="Jump to AmiGO 2 Search" alt="[search]" src="' . $self->{CORE}->amigo_env('AMIGO_IMAGE_URL') . '/info-jump.png" />' . '</span>';
+	    '<img class="amigo-grebe-action-icon" title="Jump to AmiGO 2 Search" alt="[search]" src="' . $self->{CORE}->amigo_env('AMIGO_IMAGE_URL') . '/info-jump.png" />' . '</span>';
     }
   }
 
