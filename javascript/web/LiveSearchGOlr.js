@@ -31,16 +31,19 @@ function LiveSearchGOlrInit(){
     function _establish_buttons(personality, manager){
 	if( personality == 'bbop_ann' ){
 	    manager.clear_buttons();
+	    //manager.add_button(select_results_button);
 	    manager.add_button(gaf_download_button);
 	    manager.add_button(gaf_galaxy_button);
 	    manager.add_button(bookmark_button);
 	}else if( personality == 'bbop_ont' ){
 	    manager.clear_buttons();
+	    //manager.add_button(select_results_button);
 	    manager.add_button(id_download_button);
 	    manager.add_button(id_term_label_galaxy_button);
 	    manager.add_button(bookmark_button);
 	}else if( personality == 'bbop_bio' ){
 	    manager.clear_buttons();
+	    //manager.add_button(select_results_button);
 	    manager.add_button(id_download_button);
 	    manager.add_button(id_symbol_galaxy_button);
 	    manager.add_button(bookmark_button);
@@ -141,10 +144,10 @@ function LiveSearchGOlrInit(){
     /// Defined some useful buttons.
     ///
 
+    // Define the rows that we'll use to create a psuedo-GAF.
     var _gaf_fl = [
 	'source', // c1
-	//'bioentity', // c2
-	'bioentity_internal_id', // c2
+	'bioentity_internal_id', // c2; not bioentity
 	'bioentity_label', // c3
 	'qualifier', // c4
 	'annotation_class', // c5
@@ -172,11 +175,7 @@ function LiveSearchGOlrInit(){
 		return function(event){
 		    var raw_gdl =
 			search.get_download_url(['id'], {'rows': 7500});
-		    // Aaand encodeURI is a little overzealous on
-		    // our case, so we turn our %09, which it
-		    // turned into %2509, back into %09.
-		    var gdl = encodeURI(raw_gdl).replace(/\%2509/g, '%09');
-		    new bbop.widget.dialog('Download: <a href="' + gdl +
+		    new bbop.widget.dialog('Download: <a href="' + raw_gdl +
 					   '" title="Download ID list."'+
 					   '>ID list</a> ' + 
 					   '(max. 7500 lines).');
@@ -193,11 +192,7 @@ function LiveSearchGOlrInit(){
 		return function(event){
 		    var raw_gdl =
 			search.get_download_url(_gaf_fl, {'rows': 7500});
-		    // Aaand encodeURI is a little overzealous on
-		    // our case, so we turn our %09, which it
-		    // turned into %2509, back into %09.
-		    var gdl = encodeURI(raw_gdl).replace(/\%2509/g, '%09');
-		    new bbop.widget.dialog('Download: <a href="' + gdl +
+		    new bbop.widget.dialog('Download: <a href="' + raw_gdl +
 					   '" title="Download GAF chunk."'+
 					   '>GAF chunk</a> ' + 
 					   '(max. 7500 lines).');
@@ -246,13 +241,10 @@ function LiveSearchGOlrInit(){
 			// See GAF download button for more info.
 			var raw_gdl =
 			    search.get_download_url(_gaf_fl, {'rows': 7500});
-			var gdl = encodeURI(raw_gdl).replace(/\%2509/g, '%09');
-
 			var input_url =
 			    new bbop.html.input({name: 'URL',
 						 type: 'hidden',
-						 //value: raw_gdl});
-						 value: gdl});
+						 value: raw_gdl});
 
 			var form =
 			    new bbop.html.tag('form',
@@ -303,13 +295,10 @@ function LiveSearchGOlrInit(){
 			    search.get_download_url(['id',
 						     'annotation_class_label'],
 						    {'rows': 7500});
-			var gdl = encodeURI(raw_gdl).replace(/\%2509/g, '%09');
-
 			var input_url =
 			    new bbop.html.input({name: 'URL',
 						 type: 'hidden',
-						 //value: raw_gdl});
-						 value: gdl});
+						 value: raw_gdl});
 
 			var form =
 			    new bbop.html.tag('form',
@@ -360,13 +349,10 @@ function LiveSearchGOlrInit(){
 			    search.get_download_url(['id',
 						     'bioentity_label'],
 						    {'rows': 7500});
-			var gdl = encodeURI(raw_gdl).replace(/\%2509/g, '%09');
-
 			var input_url =
 			    new bbop.html.input({name: 'URL',
 						 type: 'hidden',
-						 //value: raw_gdl});
-						 value: gdl});
+						 value: raw_gdl});
 
 			var form =
 			    new bbop.html.tag('form',
@@ -398,10 +384,12 @@ function LiveSearchGOlrInit(){
 		return function(event){
 		    //alert('GAF download: ' + manager.get_query_url());
 		    //alert('URL: ' + search.get_query_url());
-		    var raw_bookmark =
-			encodeURIComponent(search.get_state_url());
+		    var raw_bookmark = search.get_state_url();
 		    var a_args = {
-			id: raw_bookmark,
+			// Since we're using the whole URI as a
+			// parameter, we use the heavy hitter on top
+			// of the already encoded URI.
+			id: encodeURIComponent(raw_bookmark),
 			label: 'this search'
 		    };
 		    new bbop.widget.dialog('Bookmark for: ' +
@@ -409,6 +397,30 @@ function LiveSearchGOlrInit(){
 		};
 	    }
 	};
+    // // Define a button to launch the results selection widget.
+    // // Two sub-buttons: download and send to galaxy.
+    // // TODO: Would need the functionality in the manager where
+    // // the download options would be able to take a list of IDs as
+    // // arguments.
+    // var select_results_button =
+    // 	{
+    // 	    label: 'Select individual items from the current results page',
+    // 	    diabled_p: false,
+    // 	    text_p: false,
+    // 	    //icon: 'ui-icon-scissors',
+    // 	    //icon: 'ui-icon-cart',
+    // 	    icon: 'ui-icon-check',
+    // 	    click_function_generator: function(manager){
+    // 		return function(event){
+    // 		    var raw_gdl =
+    // 			search.get_download_url(_gaf_fl, {'rows': 7500});
+    // 		    new bbop.widget.dialog('Download: <a href="' + raw_gdl +
+    // 					   '" title="Download GAF chunk."'+
+    // 					   '>GAF chunk</a> ' + 
+    // 					   '(max. 7500 lines).');
+    // 		};
+    // 	    }
+    // 	};
 
     ///
     /// Ready widget.
