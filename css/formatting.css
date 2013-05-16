@@ -727,6 +727,14 @@ div .mq_message {
     /* padding-top: 0em; */
     /* padding-bottom: 0em; */
 }
+.bbop-js-text-button-sim-inactive {
+    background-color: #e3efff;
+    /* border-style: solid; */
+    border-color: #0845a7;
+    /* border-width: 1px; */
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
 
 /*
  * bbop.widget.spinner classes.

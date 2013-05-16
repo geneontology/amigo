@@ -13020,10 +13020,17 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj, interface_id,
 			  // it if we're current.
 			  var nav_b = null;
 			  if(anchor._current_acc == nid){
-			      nav_b = new bbop.html.span('[' + nid + ']');
+			      var inact_attrs = {
+				  'class': 'bbop-js-text-button-sim-inactive',
+				  'title': 'Current term.'
+			      };
+			      nav_b = new bbop.html.span(nid, inact_attrs);
 			  }else{
-			      nav_b = new bbop.html.span('<a title="Reorient neighborhood onto this node (' + nid + ').">[' + nid + ']</a>',
-							 {'generate_id': true});
+			      var tbs = bbop.widget.display.text_button_sim;
+			      var bttn_title =
+				  'Reorient neighborhood onto this node (' +
+				  nid + ').';
+			      nav_b = new tbs(nid, bttn_title);
 			      nav_button_hash[nav_b.get_id()] = nid;
 			  }
 
@@ -13497,8 +13504,12 @@ bbop.widget.term_shield = function(golr_loc, golr_conf_obj, in_argument_hash){
 		     // with or not.
 		     if( field.is_multi() ){
 
-			 val = val.join(', ');
-			 
+			 if( val ){
+			     val = val.join(', ');
+			 }else{
+			     val = 'n/a';
+			 }
+
 		     }else{
 
 			 // When handling just the single value, see
