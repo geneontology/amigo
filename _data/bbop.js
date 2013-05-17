@@ -8966,14 +8966,44 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
      *
      * Returns:
      *  the current setting of query ('q')
+     * 
+     * Also see:
+     *  <set_ids>
      */
     this.set_id = function(new_id){
-	var nid = new_id;
-	// Quote it if it doesn't already have them.
-	if( new_id.charAt(0) != '"' && new_id.charAt(new_id.length -1) != '"' ){
-	    nid = '"' + new_id + '"';	    
-	}
-	anchor.query = 'id:' + new_id;
+	anchor.query = 'id:' + bbop.core.ensure(new_id, '"');
+	return anchor.query;
+    };
+
+    /*
+     * Function: set_ids
+     *
+     * Like <set_id>, a limited setter. It removes whatever else is on
+     * query and replaces it with something like:
+     * 
+     * This is for when you want to lock into a set of documents. All
+     * other query operations behave as they should around it.
+     * 
+     * Parameters: 
+     *  id_list - a list of ids to search for
+     *
+     * Returns:
+     *  the current setting of query ('q')
+     * 
+     * Also see:
+     *  <set_ids>
+     */
+    this.set_ids = function(id_list){
+
+	var fixed_list = [];
+	bbop.core.each(id_list,
+		       function(item){
+			   fixed_list.push(bbop.core.ensure(item, '"'));
+		       });
+
+	var base_id_list = '(' + fixed_list.join(' OR ') + ')';
+
+	anchor.query = 'id:' + base_id_list;
 	return anchor.query;
     };
 
@@ -9496,12 +9526,16 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
      * searching uses. The idea where is to create a TSV file for
      * downloading and consumption.
      * 
+     * Instead of downloading all of the results, a limited listed set
+     * can be downloaded using entity_list, which identifies documents by id.
+     * 
      * The optional argument hash looks like:
      *  rows - the number of rows to return; defaults to: 1000
      *  encapsulator - how to enclose whitespace fields; defaults to: ""
      *  separator - separator between fields; defaults to: "%09" (tab)
      *  header - whether or not to show headers; defaults to: "false"
      *  mv_separator - separator for multi-valued fields; defaults to: "|"
+     *  entity_list - list of specific download items in results; default null
      * 
      * Parameters:
      *  field_list - a list of fields to return
@@ -9525,7 +9559,8 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 		encapsulator : '',
 		separator : "%09",
 		header : 'false',
-		mv_separator : "|"
+		mv_separator : "|",
+		entity_list : []
 	    };
 	var arg_hash = bbop.core.fold(default_hash, in_arg_hash);
 
@@ -9538,6 +9573,17 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	anchor.set('csv.separator', arg_hash['separator']);
 	anchor.set('csv.header', arg_hash['header']);
 	anchor.set('csv.mv.separator', arg_hash['mv_separator']);
+
+	// A little more tricky, jimmy the entity list into the query
+	// if it's viable.
+	var entity_list = arg_hash['mv_separator'];
+	if( bbop.core.is_defined(entity_list) &&
+	    bbop.core.is_array(entity_list) &&
+	    entity_list.length > 0 ){
+	
+	
+
+	}
 
 	// Get url.
 	var returl = anchor.get_query_url();
