@@ -141,6 +141,12 @@ function LiveSearchGOlrInit(){
     /// Defined some useful buttons.
     ///
 
+    // Global download properties.
+    var _dl_props = {
+	'entity_list': null,
+	'rows': 7500
+    };
+
     // Define the rows that we'll use to create a psuedo-GAF.
     var _gaf_fl = [
 	'source', // c1
@@ -170,8 +176,8 @@ function LiveSearchGOlrInit(){
 	    icon: 'ui-icon-document',
 	    click_function_generator: function(manager){
 		return function(event){
-		    var raw_gdl =
-			search.get_download_url(['id'], {'rows': 7500});
+		    _dl_props['entity_list'] = search.get_selected_items();
+		    var raw_gdl = search.get_download_url(['id'], _dl_props);
 		    new bbop.widget.dialog('Download: <a href="' + raw_gdl +
 					   '" title="Download ID list."'+
 					   '>ID list</a> ' + 
@@ -187,8 +193,8 @@ function LiveSearchGOlrInit(){
 	    icon: 'ui-icon-document',
 	    click_function_generator: function(manager){
 		return function(event){
-		    var raw_gdl =
-			search.get_download_url(_gaf_fl, {'rows': 7500});
+		    _dl_props['entity_list'] = search.get_selected_items();
+		    var raw_gdl = search.get_download_url(_gaf_fl, _dl_props);
 		    new bbop.widget.dialog('Download: <a href="' + raw_gdl +
 					   '" title="Download GAF chunk."'+
 					   '>GAF chunk</a> ' + 
@@ -236,8 +242,9 @@ function LiveSearchGOlrInit(){
 						 value: 'get'});
 
 			// See GAF download button for more info.
+			_dl_props['entity_list'] = search.get_selected_items();
 			var raw_gdl =
-			    search.get_download_url(_gaf_fl, {'rows': 7500});
+			    search.get_download_url(_gaf_fl, _dl_props);
 			var input_url =
 			    new bbop.html.input({name: 'URL',
 						 type: 'hidden',
@@ -288,10 +295,11 @@ function LiveSearchGOlrInit(){
 						 value: 'get'});
 
 			// See GAF download button for more info.
+			_dl_props['entity_list'] = search.get_selected_items();
 			var raw_gdl =
 			    search.get_download_url(['id',
 						     'annotation_class_label'],
-						    {'rows': 7500});
+						    _dl_props);
 			var input_url =
 			    new bbop.html.input({name: 'URL',
 						 type: 'hidden',
@@ -342,10 +350,10 @@ function LiveSearchGOlrInit(){
 						 value: 'get'});
 
 			// See GAF download button for more info.
+			_dl_props['entity_list'] = search.get_selected_items();
 			var raw_gdl =
-			    search.get_download_url(['id',
-						     'bioentity_label'],
-						    {'rows': 7500});
+			    search.get_download_url(['id', 'bioentity_label'],
+						    _dl_props);
 			var input_url =
 			    new bbop.html.input({name: 'URL',
 						 type: 'hidden',
