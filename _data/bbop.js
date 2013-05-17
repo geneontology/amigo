@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130516";
+bbop.version.release = "20130517";
 /* 
  * Package: json.js
  * 
@@ -8981,6 +8981,9 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
      * Like <set_id>, a limited setter. It removes whatever else is on
      * query and replaces it with something like:
      * 
+     * : gm.get_download_url(['id', 'score'], {'entity_list':['GO:1', 'GO:2']})
+     * : http://golr.berkeleybop.org/select?defType=edismax&qt=standard&indent=on&wt=csv&rows=1000&start=0&fl=id,score&facet=true&facet.mincount=1&facet.sort=count&json.nl=arrarr&facet.limit=25&csv.encapsulator=&csv.separator=%09&csv.header=false&csv.mv.separator=%7C&q=id:(%22GO:1%22%20OR%20%22GO:2%22)
+     * 
      * This is for when you want to lock into a set of documents. All
      * other query operations behave as they should around it.
      * 
@@ -9576,13 +9579,11 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 
 	// A little more tricky, jimmy the entity list into the query
 	// if it's viable.
-	var entity_list = arg_hash['mv_separator'];
+	var entity_list = arg_hash['entity_list'];
 	if( bbop.core.is_defined(entity_list) &&
 	    bbop.core.is_array(entity_list) &&
 	    entity_list.length > 0 ){
-	
-	
-
+		anchor.set_ids(entity_list);
 	}
 
 	// Get url.
@@ -10872,6 +10873,7 @@ bbop.core.namespace('bbop', 'widget', 'display', 'results_table_by_class_conf');
  *  golr_resp - a <bbop.golr.response>
  *  linker - a linker object; see <amigo.linker> for more details
  *  elt_id - the element id to attach it to
+ *  selectable_p - *[optional]* whether to create checkboxes (default true)
  *
  * Returns:
  *  <bbop.html.table> filled with results
@@ -10879,7 +10881,8 @@ bbop.core.namespace('bbop', 'widget', 'display', 'results_table_by_class_conf');
 bbop.widget.display.results_table_by_class = function(cclass,
 						      golr_resp,
 						      linker,
-						      elt_id){
+						      elt_id,
+						      selectable_p){
     //bbop.html.tag.call(this, 'div');
     //var amigo = new bbop.amigo();
 
@@ -10896,6 +10899,52 @@ bbop.widget.display.results_table_by_class = function(cclass,
     // Only want to compile once.
     var ea_regexp = new RegExp("\<\/a\>", "i"); // detect an <a>
     var br_regexp = new RegExp("\<br\ \/\>", "i"); // detect a <br />
+
+    // Sort out whether we want to display checkboxes. Also, give life
+    // to the necessary variables if they will be called upon.
+    var add_selectable_p = false;
+    var select_column_id = null;
+    var select_item_name = null;
+    if( is_defined(selectable_p) && selectable_p == true ){
+	add_selectable_p = true;
+
+	// Special id and names for optional select column.
+	var local_mangle = bbop.core.uuid();
+	select_column_id = 'rtbcc_select_' + local_mangle;
+	select_item_name = 'rtbcc_select_name_' + local_mangle;
+    }
+
+    /*
+     * Function: item_name
+     *
+     * Return a string of the name attribute used by the checkboxes if
+     * we selected for checkboxes to be displayed.
+     * 
+     * Parameters:
+     *  n/a
+     *
+     * Returns:
+     *  string or null if displaying checkboxes was false
+     */
+    this.item_name = function(){	
+	return select_item_name;
+    };
+
+    /*
+     * Function: toggle_id
+     *
+     * Return a string of the id of the checkbox in the header if we
+     * selected for checkboxes to be displayed.
+     * 
+     * Parameters:
+     *  n/a
+     *
+     * Returns:
+     *  string or null if displaying checkboxes was false
+     */
+    this.toggle_id = function(){	
+	return select_column_id;
+    };
 
     // Now take what we have, and wrap around some expansion code
     // if it looks like it is too long.
@@ -10981,12 +11030,43 @@ bbop.widget.display.results_table_by_class = function(cclass,
 	return retval;
     }
 
+    // Create a locally mangled checkbox.
+    function _create_select_box(val, id, name){
+	if( ! is_defined(name) ){
+	    name = select_item_name;	    
+	}
+	
+	var input_attrs = {
+	    'value': val,
+	    'name': name,
+	    'type': 'checkbox'
+	};
+	if( is_defined(id) ){
+	    input_attrs['id'] = id;
+	}
+	var input = new bbop.html.input(input_attrs);
+	return input;
+    }
+
+    ///
+    /// Render the headers.
+    ///
+
     // Start with score, and add the others by order of the class
     // results_weights field.
     // var headers = ['score'];
     // var headers_display = ['Score'];
     var headers = [];
     var headers_display = [];
+    if( add_selectable_p ){
+	// Hint for later.
+	headers.push(select_column_id);
+
+	// Header select for selecting all.
+	var hinp = _create_select_box('', select_column_id, '');
+	//headers_display.push('All ' + hinp.to_string());
+	headers_display.push(hinp.to_string());
+    }
     var results_order = cclass.field_order_by_weight('result');
     each(results_order,
 	 function(fid){
@@ -11012,6 +11092,10 @@ bbop.widget.display.results_table_by_class = function(cclass,
 	     var head_span = new bbop.html.span(fdname, head_span_attrs);
 	     headers_display.push(head_span.to_string());
 	 });
+
+    ///
+    /// Render the documents.
+    ///
 
     // Some of what we'll do for each field in each doc (see below).
     // var ext = cclass.searchable_extension();
@@ -11067,8 +11151,16 @@ bbop.widget.display.results_table_by_class = function(cclass,
 	     var entry_buff = [];
 	     each(headers,
 		  function(fid){
-		      // Remember: score is a special--non-explicit--case.
-		      if( fid == 'score' ){
+		      // Detect out use of the special selectable
+		      // column and add a special checkbox there.
+		      if( fid == select_column_id ){
+			  // Also
+			  var did = doc['id'];
+			  var dinp = _create_select_box(did);
+			  entry_buff.push(dinp.to_string());
+		      }else if( fid == 'score' ){
+			  // Remember: score is also
+			  // special--non-explicit--case.
 			  var score = doc['score'] || 0.0;
 			  score = bbop.core.to_string(100.0 * score);
 			  entry_buff.push(bbop.core.crop(score, 4) + '%');
@@ -11174,9 +11266,9 @@ bbop.widget.display.results_table_by_class = function(cclass,
 		    });
 	    });
 
-	return final_table;
+	//return final_table;
 };
-bbop.widget.display.results_table_by_class.prototype = new bbop.html.tag;
+//bbop.widget.display.results_table_by_class.prototype = new bbop.html.tag;
 /*
  * Package: two_column_layout.js
  * 
@@ -11493,6 +11585,12 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     var results_div = new bbop.html.tag('div', {'id': ui_results_section_id});
     //jQuery('#' + ui_div_id).append(results_div.to_string());
 
+    // A dynamic handle (set when rendering results) of the select
+    // column control id and item group name.
+    var ui_results_selection_control_id = null;
+    var ui_results_selection_item_name = null;
+    var show_checkboxes_p = false;
+
     // Add the sections to a two column layout and add that into the
     // main ui div.
     var two_col_div =
@@ -11556,6 +11654,49 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     // *_setup and *_draw).
     var filter_accordion_widget = null;
     //var current_filters_div = null;
+
+    /*
+     * Function: show_checkboxes_p
+     *
+     * External function to show the item checkboxes in the use interface.
+     * 
+     * Parameters:
+     *  new_setting - *[optional]* show or not; defaults to false
+     *
+     * Returns:
+     *  true/false--the current state of showing the select boxes
+     */
+    this.show_checkboxes_p = function(new_setting){
+	if( bbop.core.is_defined(new_setting) ){
+	    if( new_setting ){
+		show_checkboxes_p = true;
+	    }else{
+		show_checkboxes_p = false;		
+	    }
+	}
+
+	return show_checkboxes_p;
+    };
+
+    /*
+     * Function: selected_name
+     *
+     * External function to show give the name of the input name group
+     * for the selectable items in the checkboxes (if they are being
+     * used). Null otherwise.
+     * 
+     * Keep in mind that this variable changes every times that the
+     * results table refreshes.
+     * 
+     * Parameters:
+     *  n/a
+     *
+     * Returns:
+     *  string or null
+     */
+    this.selected_name = function(){
+	return ui_results_selection_item_name;
+    };
 
     /*
      * Function: setup_query
@@ -12810,20 +12951,46 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	// Display product when not empty.
 	var docs = response.documents();
 	if( ! bbop.core.is_empty(docs) ){
-	    var final_table =
-		new bbop.widget.display.results_table_by_class(anchor.class_conf,
-							       response,
-							       linker,
-							       urtdi);
-	    //jQuery('#' + urtdi).append(bbop.core.to_string(final_table));
+	    var final_table = new bbop.widget.display.results_table_by_class(
+		anchor.class_conf,
+		response,
+		linker,
+		urtdi,
+		show_checkboxes_p);
+
+	    // Capture the current name state of the control and
+	    // group.
+	    ui_results_selection_control_id = final_table.toggle_id();
+	    ui_results_selection_item_name = final_table.item_name();
+
+	    // Since we already added to the DOM in the final_table
+	    // instantiation above, go ahead and locally add the group
+	    // toggle if the checkboxes are defined.
+	    if( ui_results_selection_control_id &&
+		ui_results_selection_item_name ){
+		    jQuery('#' + ui_results_selection_control_id).click(
+			function(){
+			    var cstr = 'input[id=' +
+				ui_results_selection_control_id +
+				']';
+			    var nstr = 'input[name=' +
+				ui_results_selection_item_name +
+				']';
+			    if( jQuery(cstr).prop('checked') ){
+				jQuery(nstr).prop('checked', true);
+			    }else{
+				jQuery(nstr).prop('checked', false);
+			    }
+			});
+	    }
 	}
 
 	// Our search obviously came back.
 	_spin_down();
 
-	// // TODO/DEBUG:
-	// // Just want to get an idea what it looks like in place.
-	// _spin_up();
+	// If it looks like we enabled the checkboxes, go ahead and
+	// activate the group toggle for them.
+	
     };
 
     /*
@@ -13667,30 +13834,14 @@ bbop.core.namespace('bbop', 'widget', 'select_shield');
  * 
  * Contructor for the bbop.widget.select_shield object.
  * 
- * This is (sometimes) a specialized (and widgetized) subclass of
- * <bbop.golr.manager.jquery>.
- * 
- * To actually do much useful, you should set the personality of the
- * widget.
- * 
- * The optional hash arguments look like:
- * 
- *  linker - a "linker" object
- *  width - defaults to 700
- * 
  * Arguments:
- *  golr_loc - string url to GOlr server; not needed if local
- *  golr_conf_obj - a <bbop.golr.conf> object
- *  in_argument_hash - *[optional]* optional hash of optional arguments
+ *  n/a
  * 
  * Returns:
  *  self
  */
-bbop.widget.select_shield = function(golr_loc, golr_conf_obj, in_argument_hash){
+bbop.widget.select_shield = function(response, manager, button_list){
     
-    bbop.golr.manager.jquery.call(this, golr_loc, golr_conf_obj);
-    this._is_a = 'bbop.widget.select_shield';
-
     var anchor = this;
 
     // Per-UI logger.
@@ -13698,15 +13849,15 @@ bbop.widget.select_shield = function(golr_loc, golr_conf_obj, in_argument_hash){
     logger.DEBUG = true;
     function ll(str){ logger.kvetch('W (select_shield): ' + str); }
 
-    // Our argument default hash.
-    var default_hash = {
-	'linker_function': function(){},
-	'width': 700
-    };
-    var folding_hash = in_argument_hash || {};
-    var arg_hash = bbop.core.fold(default_hash, folding_hash);
-    var width = arg_hash['width'];
-    var linker = arg_hash['linker_function'];
+    // // Our argument default hash.
+    // var default_hash = {
+    // 	'linker_function': function(){},
+    // 	'width': 700
+    // };
+    // var folding_hash = in_argument_hash || {};
+    // var arg_hash = bbop.core.fold(default_hash, folding_hash);
+    // var width = arg_hash['width'];
+    // var linker = arg_hash['linker_function'];
 
     // Draw a locally help Solr response doc.
     function _draw_local_doc(doc){
@@ -13865,6 +14016,7 @@ bbop.core.namespace('bbop', 'widget', 'search_pane');
  *  show_count_control_p - show a control to adjust the results count
  *  show_filterbox_p - show currents filters and accordion (default true)
  *  show_pager_p - show the results pager (default true)
+ *  show_checkboxes_p - show/enable the item select checkboxes (default true)
  *  spinner_search_source - source for the spinner used during typical searching
  *  spinner_shield_source - source for the spinner used shield waiting
  *  icon_clear_label - (default: text button based on 'X')
@@ -13931,6 +14083,7 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	    'show_count_control_p' : true,
     	    'show_filterbox_p' : true,
     	    'show_pager_p' : true,
+    	    'show_checkboxes_p' : true,
     	    'spinner_search_source' : '',
     	    'spinner_shield_source' : '',
 	    'icon_clear_label': _button_wrapper('X', 'Clear text from query'),
@@ -13955,6 +14108,7 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     var show_count_control_p = arg_hash['show_count_control_p'];
     var show_filterbox_p = arg_hash['show_filterbox_p'];
     var show_pager_p = arg_hash['show_pager_p'];
+    var show_checkboxes_p = arg_hash['show_checkboxes_p'];
     var spinner_search_source = arg_hash['spinner_search_source'];
     var spinner_shield_source = arg_hash['spinner_shield_source'];
     var icon_clear_label = arg_hash['icon_clear_label'];
@@ -14008,6 +14162,11 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	// Try to add any buttons that we have loafing around into the
 	// initial setup.
 	anchor.ui.set_buttons(anchor.user_buttons);
+
+	// IF want to show the checkboxes, get them in now.
+	if( show_checkboxes_p ){
+	    anchor.ui.show_checkboxes_p(true);
+	}
 
 	///
     	/// Things to do on every reset event. Essentially re-draw
@@ -14104,6 +14263,57 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 
 	// The display has been established.
 	anchor.established_p = true;
+    };
+
+    /*
+     * Function: get_selected_items
+     * 
+     * The idea is to return a list of the items selected (with
+     * checkboxes) in the display. This means that there are three
+     * possibilities. 1) We are not using checkboxes or the display
+     * has not been established, so we return null; 2) no or all items
+     * have been selected, so we get back an empty list (all == none
+     * in our view); 3) a subset list of strings (ids).
+     * 
+     * NOTE: Naturally, does not function until the display is established.
+     * 
+     * Parameters:
+     *  n/a
+     *
+     * Returns
+     *  string list or null
+     */
+    this.get_selected_items = function(){
+	var retval = null;
+
+	// 
+	var gname = anchor.ui.selected_name();
+	if( gname ){
+	    retval = [];
+
+	    // Cycle through and pull out the values of the checked
+	    // ones.
+	    var total_count = 0;
+	    var nstr = 'input[name=' + gname + ']';
+	    jQuery(nstr).each(
+		function(){
+		    if( this.checked ){
+			var val = jQuery(this).val();
+			retval.push(val);
+		    }
+		    total_count++;
+		});
+
+	    // If we are selecting all of the items on this page, that
+	    // is the same as not selecting any in our world, so reset
+	    // and warn.
+	    if( total_count > 0 && total_count == retval.length ){
+		alert('You can "select" all of the items on a results page by not selecting any (all being the default). This will also get your results processed faster and cause significantly less overhead on the servers.');
+		retval = [];
+	    }	    
+	}
+
+	return retval;
     };
 
     /*
