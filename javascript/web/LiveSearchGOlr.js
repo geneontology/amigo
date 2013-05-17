@@ -31,19 +31,16 @@ function LiveSearchGOlrInit(){
     function _establish_buttons(personality, manager){
 	if( personality == 'bbop_ann' ){
 	    manager.clear_buttons();
-	    manager.add_button(select_results_button);
 	    manager.add_button(gaf_download_button);
 	    manager.add_button(gaf_galaxy_button);
 	    manager.add_button(bookmark_button);
 	}else if( personality == 'bbop_ont' ){
 	    manager.clear_buttons();
-	    manager.add_button(select_results_button);
 	    manager.add_button(id_download_button);
 	    manager.add_button(id_term_label_galaxy_button);
 	    manager.add_button(bookmark_button);
 	}else if( personality == 'bbop_bio' ){
 	    manager.clear_buttons();
-	    manager.add_button(select_results_button);
 	    manager.add_button(id_download_button);
 	    manager.add_button(id_symbol_galaxy_button);
 	    manager.add_button(bookmark_button);
@@ -397,30 +394,6 @@ function LiveSearchGOlrInit(){
 		};
 	    }
 	};
-    // Define a button to launch the results selection widget.
-    // Two sub-buttons: download and send to galaxy.
-    // TODO: Would need the functionality in the manager where
-    // the download options would be able to take a list of IDs as
-    // arguments.
-    var select_results_button =
-    	{
-    	    label:'TODO: Select individual items from the current results page',
-    	    diabled_p: false,
-    	    text_p: false,
-    	    //icon: 'ui-icon-scissors',
-    	    //icon: 'ui-icon-cart',
-    	    icon: 'ui-icon-check',
-    	    click_function_generator: function(manager){
-    		return function(event){
-    		    var raw_gdl =
-    			search.get_download_url(_gaf_fl, {'rows': 7500});
-    		    new bbop.widget.dialog('Download: <a href="' + raw_gdl +
-    					   '" title="Download GAF chunk."'+
-    					   '>GAF chunk</a> ' + 
-    					   '(max. 7500 lines).');
-    		};
-    	    }
-    	};
 
     ///
     /// Ready widget.
@@ -442,6 +415,8 @@ function LiveSearchGOlrInit(){
     	'show_searchbox_p' : true,
     	'show_filterbox_p' : true,
     	'show_pager_p' : true,
+    	'show_checkboxes_p' : true,
+    	//'show_checkboxes_p' : false,
     	//'spinner_search_source' : '',
     	'spinner_search_source' : sd.image_base() + '/waiting_ajax.gif',
     	'spinner_shield_source' : sd.image_base() + '/waiting_poll.gif'
