@@ -31,6 +31,7 @@ function LiveSearchGOlrInit(){
     function _establish_buttons(personality, manager){
 	if( personality == 'bbop_ann' ){
 	    manager.clear_buttons();
+	    //manager.add_button(facet_matrix_button);
 	    manager.add_button(gaf_download_button);
 	    manager.add_button(gaf_galaxy_button);
 	    manager.add_button(bookmark_button);
@@ -168,6 +169,19 @@ function LiveSearchGOlrInit(){
 	'bioentity_isoform' // c17
     ];
 
+    var facet_matrix_button =
+	{
+	    label: 'TODO: Matrix to compare document counts for two facets.',
+	    diabled_p: false,
+	    text_p: false,
+	    //icon: 'ui-icon-caret-2-e-w',
+	    icon: 'ui-icon-calculator',
+	    click_function_generator: function(manager){
+		return function(event){
+		    new bbop.widget.dialog('TODO: Matrix to compare document counts for two facets.');
+		};
+	    }
+	};
     var id_download_button =
 	{
 	    label: 'Download IDs (up to 7500)',
