@@ -92,8 +92,8 @@ function stage_01(term_accs){
 	// Who was this?
 	var qval = resp.parameter('q');
 	var two_part = bbop.core.first_split(':', qval);
-	var acc = two_part[1];
-	ll('Lookings at info for: ' + acc);
+	var acc = bbop.core.dequote(two_part[1]);
+	ll('Looking at info for: ' + acc);
 	term_info[acc] = {
 	    id : acc,
 	    name: acc,
