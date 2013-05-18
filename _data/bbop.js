@@ -13817,7 +13817,7 @@ bbop.core.extend(bbop.widget.term_shield, bbop.golr.manager.jquery);
  * 
  * A simple invocation could be:
  * 
- * : new bbop.widget.list_select_shield({title: 'foo', blurb: 'explanation', list_of_lists: [[['a', 'b'], ['c', 'd']], [[1, 2]]], title_list: ['title 1', 'title 2'], action: function(selected_args){ alert(selected_args.join(', '));}})
+ * : new bbop.widget.list_select_shield({title: 'foo', blurb: 'explanation', list_of_lists: [[['a', 'b'], ['c', 'd', true]], [[1, 2], [3, 4]]], title_list: ['title 1', 'title 2'], action: function(selected_args){ alert(selected_args.join(', '));}})
  * 
  * This is a completely self-contained UI and manager.
  */
@@ -13840,7 +13840,10 @@ bbop.core.namespace('bbop', 'widget', 'list_select_shield');
  * action (by function argument) to act on the list selections.
  * 
  * The "list_of_lists" argument is a list of lists structured like:
- * : [[[label, value], ...], ...]
+ * : [[[label, value, nil|true|false], ...], ...]
+ * 
+ * Items that are true will appear as pre-checked when the lists come
+ * up.
  * 
  * The "action" argument is a function that takes a list of selected
  * values.
@@ -13891,20 +13894,25 @@ bbop.widget.list_select_shield = function(in_argument_hash){
     var action = arg_hash['action'];
     var width = arg_hash['width'];
 
-    // 
+    // Cache the group names as we go so we can pull them out later
+    // when we scan for checked items.
+    var group_cache = [];
     function _draw_radio_list(list){
 
 	var list_cache = [];
 	var rdo_grp = 'bbop_js_lss_' + uuid();
+	group_cache.push(rdo_grp);
 
 	each(list,
 	     function(item){
 
 		 var lbl = item[0];
 		 var val = item[1];
+		 var ckt = item[2] || false;
 
 		 //ll('lbl: ' + lbl);
 		 //ll('val: ' + val);
+		 //ll('ckt: ' + ckt);
 
 		 // Radio button.	 
 		 var rdo_attrs = {
@@ -13913,6 +13921,9 @@ bbop.widget.list_select_shield = function(in_argument_hash){
 		     'type': 'radio',
 		     'value': val
 		 };
+		 if( ckt ){
+		     rdo_attrs['checked'] = 'checked';
+		 }
 		 var rdo = new bbop.html.input(rdo_attrs);
 		 //ll('rdo: ' + rdo.to_string());
 
@@ -13974,10 +13985,27 @@ bbop.widget.list_select_shield = function(in_argument_hash){
     jQuery('#' + div_id).append(cont.to_string());
 
     // Since we've technically added the button, back it clickable
+    // Note that this is very much radio button specific.
     jQuery('#' + cont.get_id()).click(
 	function(){
-	    // BUG/TODO: Jimmy values out from above.
-	    var selected = ['TODO', 'BUG'];
+	    // Jimmy values out from above by cycling over the
+	    // collected groups.
+	    var selected = [];
+	    each(group_cache,
+		 function(gname){
+		     var find_str = 'input[name=' + gname + ']';
+		     var val = null;
+		     jQuery(find_str).each(
+			 function(){
+			     if( this.checked ){
+				 val = jQuery(this).val();
+			     }
+			     // }else{
+			     // 	 selected.push(null);
+			     //}
+			 });
+		     selected.push(val);
+		 });
 
 	    // Calls those values with our action function.
 	    action(selected);

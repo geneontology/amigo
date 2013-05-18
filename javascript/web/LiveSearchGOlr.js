@@ -16,6 +16,9 @@ function LiveSearchGOlrInit(){
     ll('LiveSearchGOlr.js');
     ll('LiveSearchGOlrInit start...');
 
+    // Aliases.
+    var loop = bbop.core.each;
+
     // Make unnecessary things roll up.
     amigo.ui.rollup(["inf01"]);
 
@@ -31,7 +34,7 @@ function LiveSearchGOlrInit(){
     function _establish_buttons(personality, manager){
 	if( personality == 'bbop_ann' ){
 	    manager.clear_buttons();
-	    //manager.add_button(facet_matrix_button);
+	    manager.add_button(facet_matrix_button);
 	    manager.add_button(gaf_download_button);
 	    manager.add_button(gaf_galaxy_button);
 	    manager.add_button(bookmark_button);
@@ -171,14 +174,44 @@ function LiveSearchGOlrInit(){
 
     var facet_matrix_button =
 	{
-	    label: 'TODO: Matrix to compare document counts for two facets.',
+	    label: 'Use a matrix to compare document counts for two facets.',
 	    diabled_p: false,
 	    text_p: false,
 	    //icon: 'ui-icon-caret-2-e-w',
 	    icon: 'ui-icon-calculator',
 	    click_function_generator: function(manager){
 		return function(event){
-		    new bbop.widget.dialog('TODO: Matrix to compare document counts for two facets.');
+
+		    // 
+		    var pers = search.get_personality();
+		    var class_conf = gconf.get_class(pers);
+		    if( class_conf ){
+
+			var filter_list = 
+			    class_conf.field_order_by_weight('filter');
+
+			//
+			var facet_list_1 = [];
+			loop(filter_list,
+			     function(filter_id, findex){
+				 var cf = class_conf.get_field(filter_id);
+				 var cname = cf.display_name();
+				 var cid = cf.id();
+				 var pset = [cname, cid];
+
+				 // Make sure the first one is
+				 // checked.
+				 if( findex == 0 ){ pset.push(true); }
+
+				 facet_list_1.push(pset);
+			     });
+			
+			// We need two though.
+			var facet_list_2 = bbop.core.clone(facet_list_1);
+
+			// Stub sender.
+			new bbop.widget.list_select_shield({title: 'Select facets to compare', blurb: 'A better explanation of this.', list_of_lists: [facet_list_1, facet_list_2], title_list: ['Facet 1', 'Facet 2'], action: function(selected_args){ alert("Jump using: " + selected_args.join(', ') + ' and ' + encodeURIComponent(manager.get_state_url()));}});
+		    }
 		};
 	    }
 	};
@@ -509,7 +542,6 @@ function LiveSearchGOlrInit(){
     // Turn the radio row into a jQuery button set and make them
     // active to clicks.
     jQuery("#search_radio").buttonset();
-    var loop = bbop.core.each;
     loop(active_classes,
     	 function(active_class){
 	     var cclass_id = active_class['id'];
