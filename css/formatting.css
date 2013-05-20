@@ -735,6 +735,9 @@ div .mq_message {
     padding-left: 0.5em;
     padding-right: 0.5em;
 }
+.bbop-js-text-button-sim:hover {
+    background-color: #d0ffee;
+}
 
 /*
  * bbop.widget.spinner classes.
