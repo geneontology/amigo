@@ -740,6 +740,14 @@ div .mq_message {
 }
 
 /*
+ * Get a span to the right side of a div.
+ * General purpose class to help when creating pop-up dialogs.
+ */
+.bbop-js-ui-dialog-button-right span {
+    float: right;
+}
+
+/*
  * bbop.widget.spinner classes.
  */
 .bbop-js-spinner {
