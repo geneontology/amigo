@@ -210,7 +210,18 @@ function LiveSearchGOlrInit(){
 			var facet_list_2 = bbop.core.clone(facet_list_1);
 
 			// Stub sender.
-			new bbop.widget.list_select_shield({title: 'Select facets to compare', blurb: 'A better explanation of this.', list_of_lists: [facet_list_1, facet_list_2], title_list: ['Facet 1', 'Facet 2'], action: function(selected_args){ alert("Jump using: " + selected_args.join(', ') + ' and ' + encodeURIComponent(manager.get_state_url()));}});
+			var lss_args = {
+			    title: 'Select facets to compare',
+			    blurb: 'This dialog will launch you into a tool in another window where you can examine the document counts for two selected facets in a matrix (grid) view.',
+			    list_of_lists: [facet_list_1, facet_list_2],
+			    title_list: ['Facet 1', 'Facet 2'],
+			    action: function(selected_args){
+				var jmp_state = manager.get_state_url();
+				alert("Jump using: " +
+				      selected_args.join(', ') + ' and ' +
+				      encodeURIComponent(jmp_state));
+			    }};
+			new bbop.widget.list_select_shield(lss_args);
 		    }
 		};
 	    }
