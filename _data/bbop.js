@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130517";
+bbop.version.release = "20130520";
 /* 
  * Package: json.js
  * 
@@ -10788,15 +10788,17 @@ bbop.core.namespace('bbop', 'widget', 'display', 'text_button_sim');
  *  label - *[optional]* the text to use for the span or (defaults to 'X')
  *  title - *[optional]* the hover text (defaults to 'X')
  *  id - *[optional]* the id for the object (defaults to generate_id: true)
+ *  add_attrs - *[optional]* more attributes to be folded in to the span as hash
  * 
  * Returns:
  *  bbop.html.span
  */
-bbop.widget.display.text_button_sim = function(label, title, id){
+bbop.widget.display.text_button_sim = function(label, title, id, add_attrs){
     
     // Default args.
     if( ! label ){ label = 'X'; }
     if( ! title ){ title = 'X'; }
+    if( ! add_attrs ){ add_attrs = {}; }
     
     // Decide whether we'll use an incoming id or generate our own.
     var args = {
@@ -10808,7 +10810,10 @@ bbop.widget.display.text_button_sim = function(label, title, id){
     }else{
 	args['generate_id'] = true;
     }
-    
+
+    // Addtional optional atrributes and overrides.    
+    args = bbop.core.merge(args, add_attrs);
+
     var obj = new bbop.html.span(label, args);    
     return obj;
 };
@@ -13979,14 +13984,26 @@ bbop.widget.list_select_shield = function(in_argument_hash){
     jQuery('#' + div_id).append(tbl.to_string());
 
     // Finally, add a clickable button to that calls the action
-    // function.
-    var cont = new bbop.widget.display.text_button_sim('continue',
-						       'Click to continue');
-    jQuery('#' + div_id).append(cont.to_string());
+    // function. (Itself embedded in a container div to help move it
+    // around.)
+    var cont_div_attrs = {
+	'class': 'bbop-js-ui-dialog-button-right',
+	'generate_id': true
+    };
+    var cont_div = new bbop.html.tag('div', cont_div_attrs);
+    var cont_btn_attrs = {
+	//'class': 'bbop-js-ui-dialog-button-right'
+    };
+    var cont_btn = new bbop.widget.display.text_button_sim('Continue',
+							   'Click to continue',
+							   null,
+							   cont_btn_attrs);
+    cont_div.add_to(cont_btn);
+    jQuery('#' + div_id).append(cont_div.to_string());
 
     // Since we've technically added the button, back it clickable
     // Note that this is very much radio button specific.
-    jQuery('#' + cont.get_id()).click(
+    jQuery('#' + cont_btn.get_id()).click(
 	function(){
 	    // Jimmy values out from above by cycling over the
 	    // collected groups.
