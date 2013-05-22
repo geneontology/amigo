@@ -174,7 +174,7 @@ function LiveSearchGOlrInit(){
 
     var facet_matrix_button =
 	{
-	    label: 'Use a matrix to compare document counts for two facets.',
+	    label: 'Use a matrix to compare document counts for two facets (limit 50 on each axis).',
 	    diabled_p: false,
 	    text_p: false,
 	    //icon: 'ui-icon-caret-2-e-w',
@@ -225,9 +225,6 @@ function LiveSearchGOlrInit(){
 				     'facet2=' + f2,
 				     'manager=' + mngr].join('&');
 				window.open(jump_url, '_blank');
-				// alert("Jump using: " +
-				//       selected_args.join(', ') + ' and ' +
-				//       encodeURIComponent(jmp_state));
 			    }};
 			new bbop.widget.list_select_shield(lss_args);
 		    }
@@ -244,10 +241,11 @@ function LiveSearchGOlrInit(){
 		return function(event){
 		    _dl_props['entity_list'] = search.get_selected_items();
 		    var raw_gdl = search.get_download_url(['id'], _dl_props);
-		    new bbop.widget.dialog('Download: <a href="' + raw_gdl +
-					   '" title="Download ID list."'+
-					   '>ID list</a> ' + 
-					   '(max. 7500 lines).');
+		    window.open(raw_gdl, '_blank');
+		    // new bbop.widget.dialog('Download: <a href="' + raw_gdl +
+		    // 			   '" title="Download ID list."'+
+		    // 			   '>ID list</a> ' + 
+		    // 			   '(max. 7500 lines).');
 		};
 	    }
 	};
@@ -261,10 +259,11 @@ function LiveSearchGOlrInit(){
 		return function(event){
 		    _dl_props['entity_list'] = search.get_selected_items();
 		    var raw_gdl = search.get_download_url(_gaf_fl, _dl_props);
-		    new bbop.widget.dialog('Download: <a href="' + raw_gdl +
-					   '" title="Download GAF chunk."'+
-					   '>GAF chunk</a> ' + 
-					   '(max. 7500 lines).');
+		    window.open(raw_gdl, '_blank');
+		    // new bbop.widget.dialog('Download: <a href="' + raw_gdl +
+		    // 			   '" title="Download GAF chunk."'+
+		    // 			   '>GAF chunk</a> ' + 
+		    // 			   '(max. 7500 lines).');
 		};
 	    }
 	};
@@ -463,8 +462,7 @@ function LiveSearchGOlrInit(){
 			id: encodeURIComponent(raw_bookmark),
 			label: 'this search'
 		    };
-		    new bbop.widget.dialog('Bookmark for: ' +
-					   linker.anchor(a_args, 'search'));
+		    new bbop.widget.dialog('<p>Bookmark for: ' + linker.anchor(a_args, 'search') + '</p><p>Please be aware that this bookmark does not save properties like currently selected items.</p>');
 		};
 	    }
 	};
