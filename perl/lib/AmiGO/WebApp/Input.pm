@@ -115,6 +115,10 @@ sub input_profile {
     $self->_add_named_terms_string();
     $self->_add_species();
     $self->_add_simple_argument('graph_type', 'all', ['all', 'no_regulates']);
+  }elsif( $profile_name eq 'facet_matrix' ){
+    $self->_add_simple_argument('facet1', '');
+    $self->_add_simple_argument('facet2', '');
+    $self->_add_simple_argument('manager', '');
   }elsif( $profile_name eq 'nmatrix' ){
     $self->_add_named_terms_string('term_set_1');
     $self->_add_named_terms_string('term_set_2');

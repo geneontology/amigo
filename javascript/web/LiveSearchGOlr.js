@@ -216,10 +216,18 @@ function LiveSearchGOlrInit(){
 			    list_of_lists: [facet_list_1, facet_list_2],
 			    title_list: ['Facet 1', 'Facet 2'],
 			    action: function(selected_args){
+				var f1 = selected_args[0] || '';
+				var f2 = selected_args[1] || '';
 				var jmp_state = manager.get_state_url();
-				alert("Jump using: " +
-				      selected_args.join(', ') + ' and ' +
-				      encodeURIComponent(jmp_state));
+				var mngr = encodeURIComponent(jmp_state);
+				var jump_url = sd.app_base() + '/facet_matrix?'+
+				    ['facet1=' + f1,
+				     'facet2=' + f2,
+				     'manager=' + mngr].join('&');
+				window.open(jump_url, '_blank');
+				// alert("Jump using: " +
+				//       selected_args.join(', ') + ' and ' +
+				//       encodeURIComponent(jmp_state));
 			    }};
 			new bbop.widget.list_select_shield(lss_args);
 		    }

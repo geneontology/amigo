@@ -374,6 +374,7 @@ if( ! $opt_b ){
 	  aserve_exp
 	  pgraph
 	  matrix
+	  facet_matrix
        );
   }
 

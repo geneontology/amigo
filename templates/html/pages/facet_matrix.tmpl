@@ -1,0 +1,68 @@
+<!-- Start: facet_matrix.tmpl -->
+
+[% INCLUDE common/noscript_js_necessary.tmpl %]
+
+<div class="block">
+  <h2>Compare Facets</h2>
+
+  [% rollup_id = "inf01" %]
+  [% rollup_anchor = "Information about Facet Matrix" %]
+  [% INCLUDE "common/info_rollup_start.tmpl" %]
+  <p>
+    This tool is used for quick visual inspection of two facets'
+    document counts against each other.
+  </p>
+  <p>
+    There is no way to access this page directly, but it can be
+    launched from the Search page on some templates using the matrix button.
+  </p>
+  <p>
+    There is currently a limit of 50 facets on each axis.
+  </p>
+  [% INCLUDE "common/info_rollup_end.tmpl" %]
+
+  <!-- Put incoming bookmark info and incoming face-->
+  <div id="facet_matrix_info">Loading data...</div>
+
+  <!-- <div id="input"> -->
+  <!--   <textarea id="input-terms" rows="5" cols="80"></textarea> -->
+  <!--   <br /> -->
+  <!--   Taxon: -->
+  <!--   <input type="radio" name="taxon" value="none" checked="yes">All</input> -->
+  <!--   <input type="radio" name="taxon" value="pombe">pombe</input> -->
+  <!--   <br /> -->
+  <!--   Coloration: -->
+  <!--   <input type="radio" name="color" value="dark" checked="yes">dark shades</input> -->
+  <!--   <input type="radio" name="color" value="step">step colors</input> -->
+  <!--   <br /> -->
+  <!--   <input id="button" type="button" value="Process" /> -->
+  <!-- </div> -->
+  
+  <div id="progress-widget"><div id="progress-label" class="amigo-ui-progress-label">Loading...</div></div>
+  
+  <!-- <div id="order-selector"> -->
+  <!--   <p>Order: -->
+  <!--     <select id="order"> -->
+  <!--       <\!-- <option value="name">by term name</option> -\-> -->
+  <!--       <\!-- <option value="source">by ontology</option> -\-> -->
+  <!--       <option value="id">by term id</option> -->
+  <!--       <\!-- <option value="count">by co-annotation count</option> -\-> -->
+  <!--       <option value="index" selected="selected">by input index</option> -->
+  <!--     </select> -->
+  <!--   </p> -->
+  <!-- </div> -->
+
+  <h4 id="facet_matrix_results_a_head"></h4>
+  <div id="facet_matrix_results_a_div"></div>
+  
+  <!-- <br /> -->
+  <!-- <h4 id="facet_matrix_results_b_head"></h4> -->
+  <!-- <div id="facet_matrix_results_b_div"></div> -->
+  
+  <!-- The cell info hover. -->
+  <!-- <div id="facet_matrix_cell_info" style="position:absolute; background-color:#aabbbb; border-style:solid; border-width:1px; border-color:black; text-align:left; padding: 1.5em;"></div> -->
+
+  <div class="clearboth"></div>
+</div>
+
+<!-- End: facet_matrix.tmpl -->

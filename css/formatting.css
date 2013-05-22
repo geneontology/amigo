@@ -646,6 +646,11 @@ div .mq_message {
     background: white url('../images/waiting_poll.gif') left center no-repeat;
 }
 
+/* /\* Hint for jQuery UI progressbar. *\/ */
+/* .ui-progressbar { */
+/*     position: relative; */
+/* } */
+
 .logo-img-left {
     height: 50px;
 }
@@ -777,6 +782,15 @@ div .mq_message {
     border: 1px solid #ffa000;
     /* background-color: #ddddcc; */
     /* outline: solid 1px yellow; */
+}
+
+.amigo-ui-progress-label {
+    position: absolute;
+    left: 50%;
+    //margin-bottom: 50%;
+    //top: 4px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #fff;
 }
 
 /*
