@@ -113,6 +113,7 @@ release: bundle docs
 
 ###
 ### Ctags file for development.
+### Only sensible when used in a dev environment with bbop-js nearby.
 ###
 
 .PHONY: tags
@@ -124,6 +125,7 @@ tags:
 ###
 ### Refresh the bundle in BBOP JS and install.
 ### Copy the bundle over for easy use by our tests.
+### Only sensible when used in a dev environment with bbop-js nearby.
 ###
 
 .PHONY: refresh

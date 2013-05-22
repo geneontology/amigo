@@ -402,7 +402,7 @@ if( ! $opt_b ){
   force_copy(Cwd::cwd() . '/css', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
   force_copy(Cwd::cwd() . '/images', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
   ## The BBOPJS bundle.
-  force_copy($env_conf{GO_BBOPJS_LOCATION} . '/bbop.js',
+  force_copy($env_conf{GO_BBOPJS_LOCATION},
 	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
   ## Our AmiGO bundle.
   force_copy(Cwd::cwd() . '/javascript/staging/amigo.js',

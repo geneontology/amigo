@@ -28,7 +28,7 @@ GO_BBOPJS_LOCATION:
   comment: >
     If this is not redefined to a new location (e.g. the BBOP-JS staging/ directory, it will use the bbop.js bundle packaged with AmiGO 2 (the one used in the unit tests) in the _data/ directory.
   type: directory
-  value: ./_data
+  value: ./_data/bbop.js
 
 GOLR_TIMESTAMP_LOCATION:
   comment: >
