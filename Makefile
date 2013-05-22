@@ -99,7 +99,6 @@ install-uncompressed: docs
 ###
 
 .PHONY: dummy
-
 dummy:
 	cp conf/.dummy_values.yaml conf/amigo.yaml
 
