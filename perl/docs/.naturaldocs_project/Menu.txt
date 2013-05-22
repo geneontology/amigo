@@ -117,6 +117,7 @@ Group: AmiGO  {
 
    Group: WebApp  {
 
+      File: FacetMatrix.pm  (AmiGO/WebApp/FacetMatrix.pm)
       File: Gaffer.pm  (AmiGO/WebApp/Gaffer.pm)
       File: Gannet.pm  (AmiGO/WebApp/Gannet.pm)
       File: GOOSE.pm  (AmiGO/WebApp/GOOSE.pm)
