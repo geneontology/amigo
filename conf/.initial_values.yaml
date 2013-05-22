@@ -102,7 +102,7 @@ AMIGO_SHOW_GOOSE_LINKS:
 
 AMIGO_TERM_REGEXP:
   value: all|GO:[0-9]{7}
-  comment: The regular expressions to identify ontology ids.
+  comment: The regular expressions to identify internal ontology ids.
   type: string
 
 AMIGO_LAYOUT_LANDING:
@@ -111,7 +111,7 @@ AMIGO_LAYOUT_LANDING:
   value: bbop_ont bbop_bio
 
 AMIGO_LAYOUT_SEARCH:
-  comment: A whitespace separated list of class IDs to use for live search tabs on the search page.
+  comment: A whitespace separated list of class IDs to use for live search tabs on the search page. NOT CURRENTLY USED.
   type: string
   value: bbop_ann bbop_ont bbop_bio bbop_ann_ev_agg
 
