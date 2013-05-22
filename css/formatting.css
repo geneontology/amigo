@@ -787,11 +787,18 @@ div .mq_message {
 .amigo-ui-progress-label {
     position: absolute;
     left: 50%;
-    //margin-bottom: 50%;
-    //top: 4px;
+    /* margin-top: 0; */
+    /* top: 4px; */
     font-weight: bold;
     text-shadow: 1px 1px 0 #fff;
 }
+
+/* A special fix on some pages to prevent the usual margins from
+ * throwing off some UI elements (see the progress bar in Facet Matrix).
+ */
+.amigo-ui-margin-top-zero { margin-top: 0; }
+.amigo-ui-margin-top-zero div { margin-top: 0; }
+.amigo-ui-margin-top-zero div div { margin-top: 0; }
 
 /*
  * Reserved for tooltip stuff (that we farm out).
