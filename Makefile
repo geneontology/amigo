@@ -95,6 +95,14 @@ install-uncompressed: docs
 	./install -v -e -g -u
 
 ###
+### Copy in the standard inital values for installation.
+###
+
+.PHONY: initialize
+initialize:
+	cp conf/.initial_values.yaml conf/amigo.yaml
+
+###
 ### Copy in some dummy values for use with testing.
 ###
 
