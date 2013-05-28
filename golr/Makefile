@@ -29,15 +29,15 @@ PANTHER_FILES_DIR ?= ~/local/src/svn/geneontology.org/trunk/experimental/trees/p
 SOLR_LOAD_LOG ?= /tmp/golr_timestamp.log
 
 ## File lists.
-SCHEMA_METADATA = \
+SCHEMA_METADATA ?= \
  ../metadata/ont-config.yaml \
  ../metadata/bio-config.yaml \
  ../metadata/ann-config.yaml \
  ../metadata/protein-family-config.yaml \
  ../metadata/general-config.yaml \
  ../metadata/ann_ev_agg-config.yaml
-ONTOLOGY_METADATA = ../metadata/ont-config.yaml
-ONTOLOGIES = \
+ONTOLOGY_METADATA ?= ../metadata/ont-config.yaml
+ONTOLOGIES ?= \
  http://purl.obolibrary.org/obo/go.owl \
  http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl \
  http://purl.obolibrary.org/obo/cl.owl \
@@ -48,7 +48,7 @@ ONTOLOGIES = \
 # http://purl.obolibrary.org/obo/emap.owl \
 # http://purl.obolibrary.org/obo/uberon/basic.owl
 
-ALL_GAFS = \
+ALL_GAFS ?= \
 	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Lmajor.gz \
 	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Pfalciparum.gz \
 	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Spombe.gz  \
