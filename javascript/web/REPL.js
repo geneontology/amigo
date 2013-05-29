@@ -53,7 +53,7 @@ function REPLInit(){
 	"go.register('search', 's', callback);",
 
 	// Add GO-specific methods to our manager.
-	"bbop.golr.manager.prototype.gaf_url = function(){ return this.get_download_url(['source', 'bioentity_label', 'annotation_class', 'reference', 'evidence_type', 'evidence_with', 'taxon', 'date', 'annotation_extension_class', 'bioentity']); };",
+	"bbop.golr.manager.prototype.gaf_url = function(){ return this.get_download_url(['source', 'bioentity_internal_id', 'bioentity_label', 'qualifier', 'annotation_class', 'reference', 'evidence_type', 'evidence_with', 'aspect', 'bioentity_name', 'synonym', 'type', 'taxon', 'date', 'assigned_by', 'annotation_extension_class', 'bioentity_isoform']); };",
 	"bbop.golr.manager.prototype.doc_type = function(t){ return this.add_query_filter('document_type', t); };",
 
 	// jQuery helpers.
