@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130522";
+bbop.version.release = "20130530";
 /* 
  * Package: json.js
  * 
@@ -3233,101 +3233,6 @@ bbop.registry = function(evt_list){
 	}
     };
 };
-/*
- * Package: handler.js
- * 
- * Namespace: bbop.handler
- * 
- * BBOP object to try and alleviate some of the issues with displaying
- * complext fields. The idea behind a handler is that 
- * 
- * Anatomy of a bbop.handler argument.
- * 
- * : {handler:"bbop.handler.foo", WHATEVER}
- * 
- * WARNING: Since I don't have time to play with the ever increasingly
- * frustrating NodeJS right now, it's unknown whether or not this
- * would work properly.
- */
-
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.namespace('bbop', 'handler');
-
-/*
- * Constructor: handler
- * 
- * Contructor for the bbop.handler object. NOTE: during processing,
- * binary operators with a single argument cease to exist as they will
- * never make it to output.
- * 
- * Arguments:
- *  default_conjuntion - *[optional]* "and" or "or"; defaults to "and"
- * 
- * Returns:
- *  bbop handler object
- */
-bbop.handler = function(){
-    this._is_a = 'bbop.handler';
-
-    // Add logging.
-    var logger = new bbop.logger();
-    logger.DEBUG = true;
-    //logger.DEBUG = false;
-    function ll(str){ logger.kvetch(str); }
-
-    var handler_anchor = this;
-
-    /*
-     * Function: dispatch
-     * 
-     * TODO
-     * 
-     * Parameters:
-     *  bbop.handler argument object (see above)
-     * 
-     * Returns:
-     *  {success: (true or false), results: ???};
-     */
-    this.dispatch = function(object_to_dispatch){
-	var status = false;
-	var retval = null;
-
-	// First, check that the incoming thing is an object and
-	// grossly correct.
-	if( bbop.core.what_is(object_to_dispatch) != 'object' ){
-	    ll("ERROR: argument not an object");
-	}else if( ! bbop.core.is_defined(object_to_dispatch['handler']) ){
-	    ll("ERROR: handler not defined");
-	}else{
-	    
-	    // Make sure that the handler argument is defined and a
-	    // string.
-	    var handler_string = object_to_dispatch['handler'];
-	    if( bbop.core.what_is(handler_string) != 'string' ||
-		handler_string.length < 1 ){
-		    ll("ERROR: no string argument apparent. ");
-		}else{
-		    
-		    // Okay, now try running the function defined in
-		    // handler with the dispatch object.
-		    try{
-			//retval = eval(handler_string + ';')(object_to_dispatch);
-			retval = eval(handler_string)(object_to_dispatch);
-			status = true;
-		    }catch (x){
-			// Note the error.
-			ll("ERROR on: " + handler_string + " with " +
-			   bbop.core.dump(object_to_dispatch));
-			status = false;
-			retval = "";
-		    }
-		}
-	}
-	
-	return {success: status, results: retval};
-    };
-};
 /* 
  * Package: html.js
  * 
@@ -4315,6 +4220,108 @@ bbop.html.span.prototype.empty = function(){
  */
 bbop.html.span.prototype.get_id = function(){
     return this._span_stack.get_id();
+};
+/* 
+ * Package: linker.js
+ * 
+ * Namespace: bbop.linker
+ * 
+ * This package contains a "useable", but utterly worthless reference
+ * implementation of a linker.
+ */
+
+bbop.core.namespace('bbop', 'linker');
+
+/*
+ * Constructor: linker
+ *
+ * Partial version for this library; revision (major/minor version numbers)
+ * information.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  n/a
+ */
+bbop.linker = function(){
+    this._is_a = 'bbop.linker';
+};
+
+/*
+ * Function: url
+ * 
+ * Return a url string.
+ * 
+ * Arguments:
+ *  args - id
+ *  xid - *[optional]* an internal transformation id (context)
+ * 
+ * Returns:
+ *  null -- always "fails""
+ */
+bbop.linker.prototype.url = function(id, xid){
+    return null;
+};
+
+/*
+ * Function: anchor
+ * 
+ * Return an html anchor string.
+ * 
+ * Arguments:
+ *  args - id
+ *  xid - *[optional]* an internal transformation id (context)
+ * 
+ * Returns:
+ *  null -- always "fails""
+ */
+bbop.linker.prototype.anchor = function(id, xid){
+    return null;
+};
+/* 
+ * Package: handler.js
+ * 
+ * Namespace: bbop.handler
+ * 
+ * This package contains a "useable", but utterly worthless reference
+ * implementation of a handler.
+ */
+
+bbop.core.namespace('bbop', 'handler');
+
+/*
+ * Constructor: handler
+ *
+ * Partial version for this library; revision (major/minor version numbers)
+ * information.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  n/a
+ */
+bbop.handler = function(){
+    this._is_a = 'bbop.handler';
+};
+
+/*
+ * Function: url
+ * 
+ * Return a url string.
+ * 
+ * Arguments:
+ *  data - the incoming thing to be handled
+ *  name - the field name to be processed
+ *  context - *[optional]* a string to add extra context to the call
+ *  fallback - *[optional]* a fallback function to call in case nothing is found
+ * 
+ * Returns:
+ *  null
+ */
+bbop.handler.prototype.dispatch = function(data, name, context, fallback){
+    return null;
 };
 /* 
  * Package: model.js
@@ -6427,25 +6434,6 @@ bbop.golr.conf_field = function (field_conf_struct){
     this.is_multi = function(){
 	var retval = false;
 	if( this._field['cardinality'] == 'multi' ){
-	    retval = true;	
-	}
-	return retval;
-    };
-
-    /*
-     * Function: has_handler
-     * 
-     * Giving meaning to the "_handler" extension, reports whether or
-     * not this field should use a special handler instead of the
-     * standard.
-     * 
-     * Returns:
-     *  Boolean.
-     */
-    this.has_handler = function(){
-	var retval = false;
-	var fid = this._field['id'];
-	if( fid && fid.substring(fid.length - 8) == '_handler' ){
 	    retval = true;	
 	}
 	return retval;
@@ -10882,6 +10870,7 @@ bbop.core.namespace('bbop', 'widget', 'display', 'results_table_by_class_conf');
  *  class_conf - a <bbop.golr.conf_class>
  *  golr_resp - a <bbop.golr.response>
  *  linker - a linker object; see <amigo.linker> for more details
+ *  handler - a handler object; see <amigo.handler> for more details
  *  elt_id - the element id to attach it to
  *  selectable_p - *[optional]* whether to create checkboxes (default true)
  *
@@ -10891,6 +10880,7 @@ bbop.core.namespace('bbop', 'widget', 'display', 'results_table_by_class_conf');
 bbop.widget.display.results_table_by_class = function(cclass,
 						      golr_resp,
 						      linker,
+						      handler,
 						      elt_id,
 						      selectable_p){
     //bbop.html.tag.call(this, 'div');
@@ -10905,6 +10895,9 @@ bbop.widget.display.results_table_by_class = function(cclass,
     // Conveience aliases.
     var each = bbop.core.each;
     var is_defined = bbop.core.is_defined;
+
+    // The context we'll deliver to
+    var display_context = 'bbop.widgets.search_pane';
 
     // Only want to compile once.
     var ea_regexp = new RegExp("\<\/a\>", "i"); // detect an <a>
@@ -11109,7 +11102,7 @@ bbop.widget.display.results_table_by_class = function(cclass,
 
     // Some of what we'll do for each field in each doc (see below).
     // var ext = cclass.searchable_extension();
-    var handler = new bbop.handler(); // may use a special handler
+    //var handler = new bbop.handler(); // may use a special handler
     function _process_entry(fid, iid, doc){
 
 	var retval = '';
@@ -11201,33 +11194,14 @@ bbop.widget.display.results_table_by_class = function(cclass,
 
 				   // The major difference that we'll have here
 				   // is between standard fields and special
-				   // hander fields, as defined by
-				   // _handler.
-				   var out = null;
-				   if( field.has_handler() ){
-
-				       // Special handler output.
-				       var objo = null;
-				       var reso = null;
-				       try{
-					   objo = bbop.json.parse(bit);
-				           reso = handler.dispatch(objo);
-				       }catch (x){
-					   ll("handler failed to resolve: " +
-					      bit);
-				       }
-
-				       if( reso && reso.success ){
-					   out = reso.results;
-					   tmp_buff.push(out);
-				       }else{
-					   // Something noticable on
-					   // failure...let's just push
-					   // the original blob for
-					   // now. Likely an upstream
-					   // problem.
-					   tmp_buff.push(bit + " (?)");
-				       }
+				   // handler fields. If the handler
+				   // resolves to null, fall back onto
+				   // standard.
+				   var out = handler.dispatch(bit, fid,
+							      display_context);
+				   if( is_defined(out) && out != null ){
+				       // Handler success.
+				       tmp_buff.push(out);
 				   }else{
 				       // Standard output.   
 				       out = _process_entry(fid, bit, doc);
@@ -11569,6 +11543,10 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     // The class configuration we'll be using to hint and build.
     this.interface_id = interface_id;
     this.class_conf = conf_class;
+
+    // Somebody will probably set these externally at some point.
+    this.linker = new bbop.linker();
+    this.handler = new bbop.handler();
    
     // We need strong control of the displayed buttons since we're
     // going to make them a dynamic (post-setup) resource.
@@ -11686,6 +11664,56 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	}
 
 	return show_checkboxes_p;
+    };
+
+    /*
+     * Function: set_linker
+     *
+     * Set the linker to be used when creating links.
+     * If not set, a null function is used.
+     * 
+     * Parameters:
+     *  linker - the linker function to be used
+     *
+     * Returns:
+     *  true/false on whether it was properly set
+     */
+    this.set_linker = function(linker){
+
+	var retval = false;
+
+	if( bbop.core.is_defined(linker) &&
+	    bbop.core.what_is(linker) == 'function' ){
+		anchor.linker = linker;
+		retval = true;
+	}
+
+	return retval;
+    };
+
+    /*
+     * Function: set_handler
+     *
+     * Set the handler to be used when dealing with displaying special fields.
+     * If not set, a null function is used.
+     * 
+     * Parameters:
+     *  handler - the handler function to be used
+     *
+     * Returns:
+     *  true/false on whether it was properly set
+     */
+    this.set_handler = function(handler){
+
+	var retval = false;
+
+	if( bbop.core.is_defined(handler) &&
+	    bbop.core.what_is(handler) == 'function' ){
+		anchor.handler = handler;
+		retval = true;
+	}
+
+	return retval;
     };
 
     /*
@@ -12946,8 +12974,6 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
      */
     this.draw_results = function(response, manager){
 	
-	var linker = new amigo.linker();
-
 	ll('draw_results for: ' + ui_results_table_div_id);
 
 	//ll('final_table a: ' + final_table._is_a);
@@ -12964,7 +12990,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	    var final_table = new bbop.widget.display.results_table_by_class(
 		anchor.class_conf,
 		response,
-		linker,
+		anchor.linker,
+		anchor.handler,
 		urtdi,
 		show_checkboxes_p);
 
@@ -14090,7 +14117,8 @@ bbop.core.namespace('bbop', 'widget', 'search_pane');
  * 
  * The optional hash arguments look like:
  * 
- *  show_searchbox_p - show the search query box (default true)
+ *  linker - the linker to be used; null function otherwise
+ *  handler - special field handler to be used; null function otherwise
  *  show_count_control_p - show a control to adjust the results count
  *  show_filterbox_p - show currents filters and accordion (default true)
  *  show_pager_p - show the results pager (default true)
@@ -14157,6 +14185,8 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     var default_hash =
     	{
     	    //'layout_type' : 'two-column',
+	    'linker': new bbop.linker(),
+	    'handler': new bbop.handler(),
     	    'show_searchbox_p' : true,
     	    'show_count_control_p' : true,
     	    'show_filterbox_p' : true,
@@ -14182,6 +14212,8 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     //var base_icon_url = arg_hash['base_icon_url'];
     //var image_type = arg_hash['image_type'];
     //var layout_type = arg_hash['layout_type'];
+    var linker = arg_hash['linker'];
+    var handler = arg_hash['handler'];
     var show_searchbox_p = arg_hash['show_searchbox_p'];
     var show_count_control_p = arg_hash['show_count_control_p'];
     var show_filterbox_p = arg_hash['show_filterbox_p'];
@@ -14236,6 +14268,9 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	///
 	
 	anchor.ui = new bbop.widget.display.live_search(interface_id, cclass);
+	// And add the correct handlers.
+	anchor.ui.set_linker(linker);
+	anchor.ui.set_handler(handler);
 
 	// Try to add any buttons that we have loafing around into the
 	// initial setup.

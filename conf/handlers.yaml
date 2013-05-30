@@ -4,10 +4,8 @@
 ####
 ## These first two are for testing (see amigo/handler.js.tests).
 ## Do /not/ erase these!
-- field: echo_test_field_01
-  context: echo_test_context_01
-  function: amigo.handler.echo
-- field: echo_test_field_01
-  function: amigo.handler.echo
+- field: annotation_extension_json
+  context: bbop.widgets.search_pane
+  function: amigo.handler.owl_class_expression
 ## Actively used handlers.
 ## Please edit from here down.
