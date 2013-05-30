@@ -48,6 +48,7 @@ Format: 1.51
 
 Group: Data  {
 
+   File: dispatch.js  (data/dispatch.js)
    File: golr.js  (data/golr.js)
    File: server.js  (data/server.js)
    File: statistics.js  (data/statistics.js)
@@ -55,6 +56,8 @@ Group: Data  {
    }  # Group: Data
 
 File: api.js  (api.js)
+File: echo.js  (handler/echo.js)
+File: handler.js  (handler.js)
 File: linker.js  (linker.js)
 File: owl_class_expression.js  (handler/owl_class_expression.js)
 File: rollup.js  (ui/rollup.js)
