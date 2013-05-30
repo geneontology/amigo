@@ -11,6 +11,7 @@ use Config::YAML;
 use File::Basename;
 use File::Find;
 use Cwd;
+use Data::Dumper;
 use Date::Parse;
 use Clone;
 use vars qw(
@@ -280,6 +281,18 @@ ll("YAML config files found: " . join(', ', @yaml_confs));
 my $golr_data_fname = 'javascript/lib/amigo/data/golr.js';
 golr_config_to_meta_js($golr_data_fname, \@yaml_confs);
 ll("Created GOlr JavaScript data file: \"$golr_data_fname\".");
+#die "HERE!";
+
+###
+### Dump the YAML handler config into a representation that we can use
+### (amigo.data.dispatch).
+###
+
+## Slurp all *config.yaml files at this location.
+my $handlers_yaml_path = $env_conf{AMIGO_ROOT} . '/conf/handlers.yaml';
+my $dispatch_data_fname = 'javascript/lib/amigo/data/dispatch.js';
+handlers_yaml_to_dispatch_js($dispatch_data_fname, $handlers_yaml_path);
+ll("Created handlers data file: \"$dispatch_data_fname\".");
 #die "HERE!";
 
 ###
@@ -770,6 +783,105 @@ bbop.core.namespace('amigo', 'data', 'golr');
  * This should be consumed directly by <bbop.golr.conf>.
  */
 amigo.data.golr = $js_str;
+EOJS
+
+  ## Close file.
+  close(FILE);
+  make_readable($js_file_str);
+}
+
+## file: <local_js_tree>/lib/amigo/data/dispatch.js
+sub handlers_yaml_to_dispatch_js {
+
+  my $js_file_str = shift || die "need a js file string or something";
+  my $yaml_conf = shift || die "need a yaml conf";
+  my $rethash = {};
+
+  ## 
+  use lib getcwd() . '/perl/lib';
+
+  ## Bring in necessaries.
+  use AmiGO::JavaScript;
+  #use JSON::PP;
+  use JSON::XS;
+  use YAML;
+
+  my $core = AmiGO::JavaScript->new();
+
+  ## Read the config and pull the handlers.
+  my $conf_list = YAML::LoadFile($yaml_conf);
+
+  foreach my $list_elt (@$conf_list){
+    my $field = $list_elt->{field} || undef;
+    my $context = $list_elt->{context} || undef;
+    my $func = $list_elt->{function} || undef;
+
+    ## These are required--bad form otherwise.
+    if( ! $field || ! $func ){
+      die $yaml_conf . " not correct--please fix and retry";
+    }
+
+    ##
+    if( ! $rethash->{$field} ){
+      $rethash->{$field} = {};
+    }
+    if( ! $context ){
+      $rethash->{$field}{default} = $func;
+    }else{
+      if( ! $rethash->{$field}{context} ){
+	$rethash->{$field}{context} = {};
+      }
+      $rethash->{$field}{context}{$context} = $func;
+    }
+  }
+
+  ###
+  ### Conf to JS.
+  ###
+
+  my $js = JSON::XS->new()->pretty(1);
+  #$js->allow_bignum(1); # if needed, go back to ::PP
+  my $js_str = $js->encode($rethash);
+  chomp $js_str;
+
+  ## If the file is already there, blow it away.
+  unlink $js_file_str if -f $js_file_str;
+  open(FILE, ">$js_file_str") or die "cannot open $js_file_str: $!";
+
+  ## 
+  print FILE <<EOJS;
+/* 
+ * Package: dispatch.js
+ * 
+ * Namespace: amigo.data.dispatch
+ * 
+ * This package was automatically created during an AmiGO 2 installation
+ * from the YAML configuration files that AmiGO pulls in.
+ *
+ * The mapping file for data fields and contexts to functions, often
+ * used for displays. See the package <handler.js> for the API to interact
+ * with this data file.
+ *
+ * NOTE: This file is generated dynamically at installation time.
+ * Hard to work with unit tests--hope it's not too bad. You have to
+ * occasionally copy back to keep the unit tests sane.
+ *
+ * NOTE: This file has a slightly different latout from the YAML
+ * configuration file.
+ */
+
+// All of the server/instance-specific meta-data.
+bbop.core.require('bbop', 'core');
+bbop.core.namespace('amigo', 'data', 'dispatch');
+
+/*
+ * Variable: dispatch
+ * 
+ * The configuration for the data.
+ * Essentially a JSONification of the YAML file.
+ * This should be consumed directly by <amigo.handler>.
+ */
+amigo.data.dispatch = $js_str;
 EOJS
 
   ## Close file.

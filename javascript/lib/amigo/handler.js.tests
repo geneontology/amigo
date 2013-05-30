@@ -23,7 +23,6 @@ var amigo;
 // Try it trivially with play data.
 (function(){
 
-
      // Override the real data that might be in this environment.
      // Like:
      // - field: echo_test_field_01
