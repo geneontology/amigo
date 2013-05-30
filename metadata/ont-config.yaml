@@ -141,13 +141,13 @@ fields:
       - "RO:0002212"
       - "RO:0002213"
     searchable: true
-  - id: topology_graph
+  - id: topology_graph_json
     description: JSON blob form of the local stepwise topology graph.
     display_name: This should not be displayed
     type: string
     property: [getSegmentShuntGraphJSON]
     indexed: false
-  - id: regulates_transitivity_graph
+  - id: regulates_transitivity_graph_json
     description: JSON blob form of the local relation transitivity graph.
     display_name: This should not be displayed
     type: string

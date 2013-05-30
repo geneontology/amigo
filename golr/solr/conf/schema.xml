@@ -41,6 +41,9 @@
     <!-- bbop_ann: Column 8: with/from. -->
     <!-- bbop_ann_ev_agg: All column 8s for this term/gene product pair -->
     <field name="evidence_with" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- bbop_bio: JSON blob form of the phylogenic tree. -->
+    <!-- bbop_family: JSON blob form of the phylogenic tree. -->
+    <field name="phylo_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bbop_ont: Term definition. -->
     <field name="description" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of description.-->
@@ -52,15 +55,14 @@
     <!-- between bioentity_(list|closure) and bioentity_list_label.-->
     <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
     <field name="bioentity_list_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- bbop_bio: JSON blob form of the phylogenic tree. -->
-    <!-- bbop_family: JSON blob form of the phylogenic tree. -->
-    <field name="phylo_graph" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bbop_bio: The full name of the gene product. -->
     <!-- bbop_ann: The full name of the gene product. -->
     <field name="bioentity_name" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of bioentity_name.-->
     <field name="bioentity_name_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="bioentity_name" dest="bioentity_name_searchable"></copyField>
+    <!-- bbop_ann: A special JSON blob for GAF column 16. -->
+    <field name="annotation_extension_json" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- bbop_bio: Column 13: taxon. -->
     <!-- bbop_ann: Column 13: taxon. -->
     <!-- bbop_ann_ev_agg: Column 13: taxon. -->
@@ -89,14 +91,14 @@
     <!-- bbop_ann: IDs derived from C13 + ncbi_taxonomy.obo. -->
     <!-- bbop_ann_ev_agg: IDs derived from C13 + ncbi_taxonomy.obo. -->
     <field name="taxon_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- bbop_ont: JSON blob form of the local relation transitivity graph. -->
+    <field name="regulates_transitivity_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bbop_general: The document category that this enitity belongs to. -->
     <field name="category" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- bbop_ann: Column 9: Ontology aspect. -->
     <field name="aspect" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- bbop_ont: Term that replaces this term. -->
     <field name="replaced_by" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- bbop_ann: A special special display for GAF column 16. -->
-    <field name="annotation_extension_class_handler" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- bbop_ont: Term comment. -->
     <field name="comment" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of comment.-->
@@ -170,8 +172,6 @@
     <!--An easily searchable (TextField tokenized) version of annotation_extension_class_label.-->
     <field name="annotation_extension_class_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
     <copyField source="annotation_extension_class_label" dest="annotation_extension_class_label_searchable"></copyField>
-    <!-- bbop_ont: JSON blob form of the local relation transitivity graph. -->
-    <field name="regulates_transitivity_graph" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bbop_ont: Closure of labels over regulates. -->
     <!-- bbop_bio: Closure of labels over regulates. -->
     <!-- bbop_ann: Closure of labels over regulates. -->
@@ -231,7 +231,7 @@
     <!-- bbop_ann: Column 1: database source. -->
     <field name="source" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- bbop_ont: JSON blob form of the local stepwise topology graph. -->
-    <field name="topology_graph" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <field name="topology_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bbop_ann: All evidence (evidence closure) for this annotation -->
     <!-- bbop_ann_ev_agg: All evidence for this term/gene product pair -->
     <field name="evidence_type_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>

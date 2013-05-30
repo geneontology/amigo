@@ -28,7 +28,7 @@ fields:
     type: string
     searchable: true
     property: []
-  - id: phylo_graph
+  - id: phylo_graph_json
     description: JSON blob form of the phylogenic tree.
     display_name: This should not be displayed
     type: string
