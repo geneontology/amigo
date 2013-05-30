@@ -471,15 +471,10 @@ function LiveSearchGOlrInit(){
     /// Ready widget.
     ///
 
-    // Setup the annotation profile and make the annotation document
-    // category and the current acc sticky in the filters.
-    // function _button_wrapper(str, title){
-    // 	if( ! title ){ title = ''; }
-    // 	return '<span class="bbop-js-text-button-sim" title="' + 
-    // 	    title + '"><b>' +
-    // 	    str + '</b></span>';
-    // }
+    var handler = new amigo.handler();
     var hargs = {
+	'linker': linker,
+	'handler': handler,
 	'base_icon_url' : null,
     	'image_type' : 'gif',
     	'layout_type' : 'two-column',

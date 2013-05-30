@@ -6,14 +6,8 @@
  * Generic AmiGO link generator, fed by <amigo.data.server> for local
  * links and <amigo.data.xrefs> for non-local links.
  * 
- * TODO: maybe this should actually be under bbop.html so we could
- * make use of the anchor tag stuff?
- * 
  * NOTE: A lot of this is lifted from the (defunct) amigo.js
  * package. However, the future should be here.
- * 
- * NOTE: This should pull data from something like amigo.data.xrefs
- * instead.
  */
 
 // Setup the internal requirements.

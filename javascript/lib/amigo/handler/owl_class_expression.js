@@ -18,8 +18,7 @@ bbop.core.namespace('amigo', 'handler', 'owl_class_expression');
  * 
  * Example incoming data:
  * 
- * : { handler: "amigo.handler.owl_class_expression",
- * :   relationship: {
+ * : { relationship: {
  * :     relation: [{id: "RO:001234", label: "regulates"},
  * :                {id:"BFO:0003456", label: "hp"}], 
  * :     id: "MGI:MGI:185963",
