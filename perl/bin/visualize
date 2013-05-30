@@ -261,7 +261,7 @@ sub mode_advanced {
 
       ## Pull out the raw graph info out.
       my $tinfo_item = $tinfo_hash->{$acc};
-      my $topo_graph_raw = $tinfo_item->{topology_graph};
+      my $topo_graph_raw = $tinfo_item->{topology_graph_json};
       my $topo_graph = $self->{CORE}->_read_json_string($topo_graph_raw);
 
       ## Also, use the chewable graph as a filter to eliminate excess

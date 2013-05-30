@@ -50,7 +50,7 @@ sub new {
 	 source => $found_doc->{source},
 	 taxon => $found_doc->{taxon},
 	 taxon_readable => $found_doc->{taxon_label},
-	 phylo_graph => $found_doc->{phylo_graph},
+	 phylo_graph_json => $found_doc->{phylo_graph_json},
 	 #ontology_readable => $self->{A_AID}->readable($found_doc->{source}),
 	 gp_link =>
 	 $self->get_interlink({mode=>'gp_details',
