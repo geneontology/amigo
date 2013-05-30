@@ -1,0 +1,96 @@
+////
+//// Some unit testing for handler.js (even though its data is generated).
+////
+//// Usage:
+////    Command line: "rhino -f handler.js.tests"
+////    Interactive: "rhino -f handler.js.tests -f -"
+////
+
+// Load testing and correct environment.
+load('../../../_data/bbop.js');
+//load('data/dispatch.js');
+var mr_t = new bbop.test();
+load('handler.js');
+load('handler/echo.js');
+
+///
+/// Start unit testing.
+///
+
+//
+var amigo;
+
+// Try it trivially with play data.
+(function(){
+
+
+     // Override the real data that might be in this environment.
+     // Like:
+     // - field: echo_test_field_01
+     //   context: echo_test_context_01
+     //   function: amigo.handler.echo
+     // - field: echo_test_field_01
+     //   function: amigo.handler.echo
+     var is_def = bbop.core.is_defined;
+     if( ! is_def(amigo) ){ amigo = {}; }
+     if( ! is_def(amigo.data) ){	amigo.data = {}; }
+     if( ! is_def(amigo.data.dispatch) ){ amigo.data.dispatch = {}; }
+     amigo.data.dispatch = {
+	 'echo_test_field_01': {
+	 default: 'amigo.handler.echo',
+	     context: {
+		 'echo_test_context_01':  'amigo.handler.echo'
+	     }
+	 }
+     };
+
+     var h = new amigo.handler();
+
+     mr_t.is_same_atom(h.entries, 0, 'handler: nothing yet');
+
+     // Start with one.
+     mr_t.is_same_atom(h.dispatch('foo', 'echo_test_field_01'), '"foo"',
+		       'handler: simple general echo');
+     mr_t.is_same_atom(h.entries, 1, 'handler: one new entry');
+
+     // Use a more specific handler.
+     mr_t.is_same_atom(h.dispatch('bib',
+				  'echo_test_field_01',
+				  'echo_test_context_01'), '"bib"',
+		       'handler: technically new');
+     mr_t.is_same_atom(h.entries, 2, 'handler: another new handler');
+
+     // Reuse the earlier handler.
+     mr_t.is_same_atom(h.dispatch('bar', 'echo_test_field_01'), '"bar"',
+		       'handler: simple general echo (again)');
+     mr_t.is_same_atom(h.entries, 2, 'handler: count to 2');
+
+     // Try on something that isn't there.
+     mr_t.is_same_atom(h.dispatch('bar', 'nope', 'nada'), null,
+		       'handler: unmappable');
+     mr_t.is_same_atom(h.entries, 3, 'handler: count to 3');
+
+     // Same thing, but this time give a fallback. Fallback will be ignored
+     // since we already put in a dispatch profile (this behavior is
+     // specific to the amigo handler).
+     mr_t.is_same_atom(h.dispatch('bar', 'nope', 'nada',
+				  function(){return 1;}), null,
+		       'handler: unmappable to fallback');
+     mr_t.is_same_atom(h.entries, 3, 'handler: count still 3');
+
+     // Again, but start with a fallback.
+     mr_t.is_same_atom(h.dispatch('bar', 'nuff', null,
+				  function(){return 1;}), 1,
+		       'handler: map to fallback');
+     mr_t.is_same_atom(h.entries, 4, 'handler: count to 4');
+     mr_t.is_same_atom(h.dispatch('bar', 'nuff'), 1,
+		       'handler: reuse fallback map');
+
+ })();
+
+///
+/// End unit testing.
+///
+
+// Final report.
+mr_t.report();
