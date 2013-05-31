@@ -1361,7 +1361,7 @@ bbop.version.revision = "0.9";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130530";
+bbop.version.release = "20130531";
 /* 
  * Package: json.js
  * 
@@ -10806,49 +10806,6 @@ bbop.widget.display.text_button_sim = function(label, title, id, add_attrs){
     return obj;
 };
 /*
- * Package: meta_results.js
- * 
- * Namespace: bbop.widget.display.meta_results
- * 
- * Reusable HTML drop of Solr meta results.
- * 
- * Subclass of <bbop.html.tag>.
- */
-
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'html');
-bbop.core.namespace('bbop', 'widget', 'display', 'meta_results');
-
-/*
- * Constructor: meta_results
- *
- * Draw a typical meta results section for the response data.
- * 
- * Parameters:
- *  total - integer
- *  first - integer
- *  last - integer
- * 
- * Returns:
- *  <bbop.html.tag> subclass
- */
-bbop.widget.display.meta_results = function (total, first, last){
-    bbop.html.tag.call(this, 'div');
-
-    // Add number slots.
-    // this.add_to('Total: ' + total + '; ');
-    // this.add_to('First: ' + first + '&nbsp;&nbsp;&nbsp;');
-    // this.add_to('Last: ' + last + '<br />');
-    this.add_to('Total: ' + total +
-		'; showing ' +first +
-		' to ' + last + '<br />');
-
-    // // Add button slots.
-    // this.add_to('<button />');
-    ////<a id="for_paging_id_f0ccpl4zp0" href="#results_block">forward -&gt;</a>
-};
-bbop.widget.display.meta_results.prototype = new bbop.html.tag;
-/*
  * Package: results_table_by_class_conf.js
  * 
  * Namespace: bbop.widget.display.results_table_by_class_conf
@@ -11512,7 +11469,6 @@ bbop.widget.display.filter_shield = function(spinner_src){
 bbop.core.require('bbop', 'core');
 bbop.core.require('bbop', 'logger');
 bbop.core.require('bbop', 'widget', 'display', 'clickable_object');
-bbop.core.require('bbop', 'widget', 'display', 'meta_results');
 bbop.core.require('bbop', 'widget', 'display', 'results_table_by_class_conf');
 bbop.core.require('bbop', 'widget', 'display', 'two_column_layout');
 bbop.core.namespace('bbop', 'widget', 'live_search');
@@ -11799,58 +11755,58 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	jQuery('#' + ui_controls_section_id).append(gen_div.to_string());
     };
 
-    /*
-     * Function: setup_count_control
-     *
-     * Setup the results count control for later use. This is a kind
-     * of semi-permanent structure like the accordion.
-     * 
-     * Parameters:
-     *  n/a
-     *
-     * Returns:
-     *  n/a
-     */
-    this.setup_count_control = function(manager){
-	ll('setup_count_control for: ' + ui_query_input_id);
+    // /*
+    //  * Function: setup_count_control
+    //  *
+    //  * Setup the results count control for later use. This is a kind
+    //  * of semi-permanent structure like the accordion.
+    //  * 
+    //  * Parameters:
+    //  *  n/a
+    //  *
+    //  * Returns:
+    //  *  n/a
+    //  */
+    // this.setup_count_control = function(manager){
+    // 	ll('setup_count_control for: ' + ui_query_input_id);
 	
-	// Create inputs (the current order is important for proper
-	// for/id creation).
-	var cinputs = [];
-	each([10, 25, 50, 100],
-	     function(num, cindex){
-		 // Create and store the option.
-		 var sel_input_attrs = {
-		     'generate_id': true,
-		     'value': num
-		 };
-		 var sel_input =
-		     new bbop.html.tag('option', sel_input_attrs, num);
-		 var sel_input_id = sel_input.get_id();
-		 cinputs.push(sel_input);
-	     });
-	// Option container div.
-	var sel_attrs = {
-	    'id': ui_count_control_div_id
-	};
-	var sel = new bbop.html.tag('select', sel_attrs, cinputs);
+    // 	// Create inputs (the current order is important for proper
+    // 	// for/id creation).
+    // 	var cinputs = [];
+    // 	each([10, 25, 50, 100],
+    // 	     function(num, cindex){
+    // 		 // Create and store the option.
+    // 		 var sel_input_attrs = {
+    // 		     'generate_id': true,
+    // 		     'value': num
+    // 		 };
+    // 		 var sel_input =
+    // 		     new bbop.html.tag('option', sel_input_attrs, num);
+    // 		 var sel_input_id = sel_input.get_id();
+    // 		 cinputs.push(sel_input);
+    // 	     });
+    // 	// Option container div.
+    // 	var sel_attrs = {
+    // 	    'id': ui_count_control_div_id
+    // 	};
+    // 	var sel = new bbop.html.tag('select', sel_attrs, cinputs);
 
-	// Create a text label.
-	var sel_label = new bbop.html.tag('label', {},
-					  'Results count&nbsp;&nbsp;');
+    // 	// Create a text label.
+    // 	var sel_label = new bbop.html.tag('label', {},
+    // 					  'Results count&nbsp;&nbsp;');
 
-	// Container div.
-	var sel_div_attrs = {
-	    'generate_id': true,
-	    'class': 'bbop-js-search-pane-results-count'
-	};
-	var sel_div = new bbop.html.tag('div', sel_div_attrs);
+    // 	// Container div.
+    // 	var sel_div_attrs = {
+    // 	    'generate_id': true,
+    // 	    'class': 'bbop-js-search-pane-results-count'
+    // 	};
+    // 	var sel_div = new bbop.html.tag('div', sel_div_attrs);
 
-	// Assemble these elements into the UI.
-	sel_div.add_to(sel_label);
-	sel_div.add_to(sel);
-	jQuery('#' + ui_controls_section_id).append(sel_div.to_string());
-    };
+    // 	// Assemble these elements into the UI.
+    // 	sel_div.add_to(sel_label);
+    // 	sel_div.add_to(sel);
+    // 	jQuery('#' + ui_controls_section_id).append(sel_div.to_string());
+    // };
 
     /*
      * Function: setup_sticky_filters
@@ -12145,7 +12101,12 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     /*
      * Function: draw_meta
      *
-     * Draw meta results.
+     * Draw meta results. Includes selector for drop down.
+     * 
+     * (Re)draw the count control with the current information in the
+     * manager. This also tries to set the selector to the response
+     * number (to keep things in sync), unbinds any current "change"
+     * event, and adds a new change event.
      * 
      * Parameters:
      *  response - the <bbop.golr.response> returned from the server
@@ -12169,33 +12130,126 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 
 	// Draw meta; the current numbers and page--the same for
 	// every type of return.
-	var dmeta = null;
+	jQuery('#' + ui_meta_div_id).empty();
 	if( total_c == 0 ){
-	    //// Adjust since we're off by one.
-	    //dmeta = new bbop.widget.display.meta_results(0, 0, 0);
-	    jQuery('#' + ui_meta_div_id).empty();
 	    jQuery('#' + ui_meta_div_id).append('No results found.');
 	}else{
-	    dmeta =
-		new bbop.widget.display.meta_results(total_c, first_d, last_d);
 
-	    jQuery('#' + ui_meta_div_id).empty();
-	    jQuery('#' + ui_meta_div_id).append(dmeta.to_string());
+	    // A div for the literal meta results and the count
+	    // selector next to them.
+	    var mdiv_attrs = {
+	    };
+	    var mdiv = new bbop.html.tag('div', mdiv_attrs);
+
+	    // The literal return metadata.
+	    var dmeta_attrs = {
+		'class': 'bbop-js-search-pane-meta'
+	    };
+	    var dmeta = new bbop.html.tag('div', dmeta_attrs);
+	    dmeta.add_to('Total: ' + total_c +
+			 '; showing ' + first_d +
+			 '-' + last_d);
+	    mdiv.add_to(dmeta);
 
 	    ///
-	    /// Section 2: the paging buttons.
+	    /// Section 2: results count.
+	    ///
+
+	    // Create inputs (the current order is important for proper
+	    // for/id creation).
+	    var cinputs = [];
+	    each([10, 25, 50, 100],
+		 function(num, cindex){
+		     // Create and store the option.
+		     var sel_input_attrs = {
+			 'generate_id': true,
+			 'value': num
+		     };
+		     var sel_input =
+			 new bbop.html.tag('option', sel_input_attrs, num);
+		     var sel_input_id = sel_input.get_id();
+		     cinputs.push(sel_input);
+		 });
+	    // Option container div.
+	    var sel_attrs = {
+		'id': ui_count_control_div_id
+	    };
+	    var sel = new bbop.html.tag('select', sel_attrs, cinputs);
+	    
+	    // Create a text label.
+	    var sel_label = new bbop.html.tag('label', {},
+					      'Results count&nbsp;&nbsp;');
+	    
+	    // Container div.
+	    var sel_div_attrs = {
+		'generate_id': true,
+		'class': 'bbop-js-search-pane-results-count'
+	    };
+	    var sel_div = new bbop.html.tag('div', sel_div_attrs);
+	    
+	    // Assemble these elements into the UI.
+	    sel_div.add_to(sel_label);
+	    sel_div.add_to(sel);
+	    mdiv.add_to(sel_div);
+
+	    // Render out the last two sections.
+	    jQuery('#' + ui_meta_div_id).append(mdiv.to_string());
+	    
+	    ///
+	    /// Section 3: results count activity, setting.
+	    ///
+
+	    // First, unbind so we don't accidentally trigger with any
+	    // changes and don't pile up event handlers.
+	    jQuery('#' + ui_count_control_div_id).unbind('change');
+
+	    // Next, pull out the number of rows requested.
+	    var step = response.row_step();
+	    
+	    // Set the value to the number.
+	    jQuery('#' + ui_count_control_div_id).val(step);
+	    
+	    // Finally, reactivate the event handler on the select.
+	    jQuery('#' + ui_count_control_div_id).change(
+		function(event, ui){
+		    var sv = jQuery('#' + ui_count_control_div_id).val();
+		    if( bbop.core.is_defined(sv) ){
+			// Convert to a number.
+			var si = parseInt(sv);
+			
+			// Set manager and to the search.
+			manager.set_results_count(si);
+			manager.search();
+			// We are now searching--show it.
+			_spin_up();
+		    }
+		});
+
+	    ///
+	    /// Section 4: the paging buttons.
 	    ///
 	    
+	    var bdiv_attrs = {
+		'generate_id': true
+	    };
+	    var bdiv = new bbop.html.tag('div', bdiv_attrs);
+	    jQuery('#' + ui_meta_div_id).append(bdiv.to_string());
+	    var bdiv_id = bdiv.get_id();
+
 	    // Now add the raw buttons to the interface, and after this,
 	    // activation and adding events.
 	    var b_first = new bbop.html.button('First', {'generate_id': true});
-	    jQuery('#' + ui_meta_div_id).append(b_first.to_string());
+	    //jQuery('#' + ui_meta_div_id).append(b_first.to_string());
+	    jQuery('#' + bdiv_id).append(b_first.to_string());
 	    var b_back = new bbop.html.button('Prev', {'generate_id': true});
-	    jQuery('#' + ui_meta_div_id).append(b_back.to_string());
+	    //jQuery('#' + ui_meta_div_id).append(b_back.to_string());
+	    jQuery('#' + bdiv_id).append(b_back.to_string());
 	    var b_forward = new bbop.html.button('Next', {'generate_id': true});
-	    jQuery('#' + ui_meta_div_id).append(b_forward.to_string());
+	    //jQuery('#' + ui_meta_div_id).append(b_forward.to_string());
+	    jQuery('#' + bdiv_id).append(b_forward.to_string());
 	    var b_last = new bbop.html.button('Last', {'generate_id': true});
-	    jQuery('#' + ui_meta_div_id).append(b_last.to_string());
+	    //jQuery('#' + ui_meta_div_id).append(b_last.to_string());
+	    jQuery('#' + bdiv_id).append(b_last.to_string());
 
 	    // Do the math about what buttons to activate.
 	    var b_first_disabled_p = false;
@@ -12278,18 +12332,20 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 		});
 	    
 	    ///
-	    /// Section 3: the button_definition buttons.
+	    /// Section 5: the button_definition buttons.
 	    ///
 
 	    // Spacer.	    
-	    jQuery('#' + ui_meta_div_id).append('&nbsp;&nbsp;&nbsp;' +
-						'&nbsp;&nbsp;&nbsp;');
+	    // jQuery('#' + ui_meta_div_id).append('&nbsp;&nbsp;&nbsp;' +
+	    // 					'&nbsp;&nbsp;&nbsp;');
+	    jQuery('#'+ bdiv_id).append('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
 
 	    // (R)establish the user button div to the end of the meta
 	    // retults.
 	    var ubuttons = new bbop.html.tag('span',
 					     {'id': ui_user_button_div_id});
-	    jQuery('#' + ui_meta_div_id).append(ubuttons.to_string());
+	    //jQuery('#' + ui_meta_div_id).append(ubuttons.to_string());
+	    jQuery('#' + bdiv_id).append(ubuttons.to_string());
 
 	    // Add all of the defined buttons after the spacing.
 	    anchor.draw_user_buttons(manager);
@@ -12386,52 +12442,6 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 		manager.search();
 		// We are now searching--show it.
 		_spin_up();
-	    });
-    };
-
-    /*
-     * Function: draw_count_control
-     *
-     * (Re)draw the count control with the current information in the
-     * manager. This also tries to set the selector to the response
-     * number (to keep things in sync), unbinds any current "change"
-     * event, and adds a new change event.
-     * 
-     * Parameters:
-     *  response - the <bbop.golr.response> returned from the server
-     *  manager - <bbop.golr.manager> that we initially registered with
-     *
-     * Returns:
-     *  n/a
-     */
-    this.draw_count_control = function(response, manager){
-
-    	ll('draw_count_control for: ' + ui_query_input_id);
-
-	// First, unbind so we don't accidentally trigger with any
-	// changes and don't pile up event handlers.
-	jQuery('#' + ui_count_control_div_id).unbind('change');
-
-	// Next, pull out the number of rows requested.
-	var step = response.row_step();
-
-	// Set the value to the number.
-	jQuery('#' + ui_count_control_div_id).val(step);
-
-	// Finally, reactivate the event handler on the select.
-	jQuery('#' + ui_count_control_div_id).change(
-	    function(event, ui){
-		var sv = jQuery('#' + ui_count_control_div_id).val();
-		if( bbop.core.is_defined(sv) ){
-		    // Convert to a number.
-		    var si = parseInt(sv);
-
-		    // Set manager and to the search.
-		    manager.set_results_count(si);
-		    manager.search();
-		    // We are now searching--show it.
-		    _spin_up();
-		}
 	    });
     };
 
@@ -14096,8 +14106,6 @@ bbop.widget.list_select_shield = function(in_argument_hash){
 
 bbop.core.require('bbop', 'core');
 bbop.core.require('bbop', 'logger');
-//bbop.core.require('bbop', 'model');
-//bbop.core.require('bbop', 'model', 'graph', 'bracket');
 bbop.core.require('bbop', 'html');
 bbop.core.require('bbop', 'golr', 'manager', 'jquery');
 bbop.core.namespace('bbop', 'widget', 'search_pane');
@@ -14117,7 +14125,6 @@ bbop.core.namespace('bbop', 'widget', 'search_pane');
  * 
  *  linker - the linker to be used; null function otherwise
  *  handler - special field handler to be used; null function otherwise
- *  show_count_control_p - show a control to adjust the results count
  *  show_filterbox_p - show currents filters and accordion (default true)
  *  show_pager_p - show the results pager (default true)
  *  show_checkboxes_p - show/enable the item select checkboxes (default true)
@@ -14186,7 +14193,6 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	    'linker': new bbop.linker(),
 	    'handler': new bbop.handler(),
     	    'show_searchbox_p' : true,
-    	    'show_count_control_p' : true,
     	    'show_filterbox_p' : true,
     	    'show_pager_p' : true,
     	    'show_checkboxes_p' : true,
@@ -14213,7 +14219,6 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     var linker = arg_hash['linker'];
     var handler = arg_hash['handler'];
     var show_searchbox_p = arg_hash['show_searchbox_p'];
-    var show_count_control_p = arg_hash['show_count_control_p'];
     var show_filterbox_p = arg_hash['show_filterbox_p'];
     var show_pager_p = arg_hash['show_pager_p'];
     var show_checkboxes_p = arg_hash['show_checkboxes_p'];
@@ -14287,10 +14292,6 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	if( show_searchbox_p ){ // conditionally display search box stuff
     	    anchor.register('reset', 'reset_query', anchor.ui.reset_query, -1);
 	}
-    	if( show_count_control_p ){
-    	    anchor.register('reset', 'draw_count_control',
-			    anchor.ui.draw_count_control);
-	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.register('reset', 'sticky_first',
     			    anchor.ui.draw_sticky_filters, -1);
@@ -14328,10 +14329,6 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
 	    // accordion, that seems a little silly.
     	    anchor.register('search', 'draw_query', anchor.ui.draw_query, -1);
 	}
-    	if( show_count_control_p ){
-    	    anchor.register('search', 'draw_count_control',
-			    anchor.ui.draw_count_control);
-	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.register('search','sticky_filters_std',
     			    anchor.ui.draw_sticky_filters);
@@ -14352,9 +14349,6 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	    anchor.ui.setup_query('Free-text filtering',
 				  icon_clear_label,
 				  icon_clear_source);
-	}
-    	if( show_count_control_p ){
-    	    anchor.ui.setup_count_control(anchor);
 	}
     	if( show_filterbox_p ){ // conditionally display filter stuff
     	    anchor.ui.setup_sticky_filters();

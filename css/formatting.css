@@ -860,8 +860,14 @@ div .mq_message {
 .bbop-js-search-pane-sticky-filters {
     clear: both;
 }
+.bbop-js-search-pane-meta {
+    /* font-size: 85%; */
+    display: inline-block;
+    padding-right: 2em;
+}
 .bbop-js-search-pane-results-count {
-    font-size: 85%;
+    /* font-size: 85%; */
+    display: inline-block;
 }
 .bbop-js-search-pane-results-count select {
     font-size: 85%;
