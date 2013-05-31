@@ -1105,6 +1105,35 @@ sub _fuse_hash {
 }
 
 
+## Fuse a hash into a URL.
+sub _fuse_arguments {
+
+  my $self = shift;
+  my $in_hash = shift || {};
+  my $retstr = '';
+
+  my $hash = $in_hash;
+  my @buf = ();
+  foreach my $i (keys %$hash){
+
+    ##
+    if( ref($hash->{$i}) eq 'ARRAY' ){
+      foreach my $a (@{$hash->{$i}}){
+	push @buf, $i . '=' . $a;
+      }
+    }else{
+      push @buf, $i . '=' . $hash->{$i};
+    }
+  }
+
+  ##
+  my $tstr = join('&', @buf);
+  $retstr = $tstr;
+
+  return $retstr;
+}
+
+
 =item get_interlink
 
 TODO: how would this play properly with a templating system?
@@ -1248,9 +1277,9 @@ sub get_interlink {
 		  #term_data => $data, # going through hash, not uri
 		 },
 		};
-
        $ilink = $self->_fuse_hash($ihash);
-       #$ilink = $self->uri_safe( _fuse_hash($ihash));
+       # $ilink = 'amigo/visualize/' .
+       # 	 $self->_fuse_arguments($ihash->{arguments});
      },
 
      ## Takes an array ref of term ids.
