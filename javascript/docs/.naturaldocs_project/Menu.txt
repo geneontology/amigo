@@ -56,10 +56,10 @@ Group: Data  {
    }  # Group: Data
 
 File: api.js  (api.js)
-File: echo.js  (handler/echo.js)
+File: echo.js  (handlers/echo.js)
 File: handler.js  (handler.js)
 File: linker.js  (linker.js)
-File: owl_class_expression.js  (handler/owl_class_expression.js)
+File: owl_class_expression.js  (handlers/owl_class_expression.js)
 File: rollup.js  (ui/rollup.js)
 File: version.js  (version.js)
 
