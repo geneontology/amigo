@@ -8,20 +8,44 @@
 
 // Load testing and correct environment.
 load('../../../_data/bbop.js');
-//load('data/dispatch.js');
 var mr_t = new bbop.test();
 load('handler.js');
-load('handler/echo.js');
 
 ///
 /// Start unit testing.
 ///
 
-//
-var amigo;
+// Try it with the real stuff.
+(function(){
+
+     load('data/server.js');
+     load('data/xrefs.js');
+     load('linker.js');
+     load('data/dispatch.js');
+     load('handlers/owl_class_expression.js');
+
+     var h = new amigo.handler();
+
+     mr_t.is_same_atom(h.entries, 0, 'handler: nothing yet');
+
+     // ...
+     var aej = '{"relationship": {"relation": [{"id": "RO:0002315", "label": "results_in_acquisition_of_features_of"}], "id": "CL:0000136", "label": "fat cell"}}';
+     //bbop.core.dump(h.string_to_function_map)
+     var correct = '<a title="RO:0002315 (go to the page for results_in_acquisition_of_features_of)" href="http://purl.obolibrary.org/obo/RO_0002315">results_in_acquisition_of_features_of</a> <a title="CL:0000136 (go to the page for fat cell)" href="http://purl.obolibrary.org/obo/CL_0000136">fat cell</a>';
+     mr_t.is_same_atom(h.dispatch(aej, 'annotation_extension_json',
+				  'bbop.widgets.search_pane'),
+		       correct, "got complicated rendering");
+
+     mr_t.is_same_atom(h.entries, 1, 'handler: one new hard entry');
+     
+ })();
 
 // Try it trivially with play data.
+//
+var amigo;
 (function(){
+
+     load('handlers/echo.js');
 
      // Override the real data that might be in this environment.
      // Like:
@@ -36,9 +60,9 @@ var amigo;
      if( ! is_def(amigo.data.dispatch) ){ amigo.data.dispatch = {}; }
      amigo.data.dispatch = {
 	 'echo_test_field_01': {
-	 default: 'amigo.handler.echo',
+	 default: 'amigo.handlers.echo',
 	     context: {
-		 'echo_test_context_01':  'amigo.handler.echo'
+		 'echo_test_context_01':  'amigo.handlers.echo'
 	     }
 	 }
      };

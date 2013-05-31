@@ -1,7 +1,7 @@
 /* 
  * Package: owl_class_expression.js
  * 
- * Namespace: amigo.handler.owl_class_expression
+ * Namespace: amigo.handlers.owl_class_expression
  * 
  * Static function handler for displaying OWL class expression
  * results. To be used for GAF column 16 stuff.
@@ -11,12 +11,12 @@
 bbop.core.require('bbop', 'core');
 bbop.core.require('bbop', 'json');
 bbop.core.require('amigo', 'linker');
-bbop.core.namespace('amigo', 'handler', 'owl_class_expression');
+bbop.core.namespace('amigo', 'handlers', 'owl_class_expression');
 
 /*
  * Function: owl_class_expression
  * 
- * Example incoming data:
+ * Example incoming data (as a string or object):
  * 
  * : { relationship: {
  * :     relation: [{id: "RO:001234", label: "regulates"},
@@ -27,14 +27,14 @@ bbop.core.namespace('amigo', 'handler', 'owl_class_expression');
  * : }
  * 
  * Parameters:
- *  object; see above
+ *  JSON object as *[string or object]*; see above
  * 
  * Returns:
  *  HTML string
  * 
  * Also See: <bbop.handler>
  */
-amigo.handler.owl_class_expression = function(owlo){
+amigo.handlers.owl_class_expression = function(in_owlo){
 
     var retstr = "";
 
@@ -44,10 +44,17 @@ amigo.handler.owl_class_expression = function(owlo){
     // //logger.DEBUG = false;
     // function ll(str){ logger.kvetch(str); }
 
-    // Check to make sure that it looks right.
+    // Aliases.
     var is_def = bbop.core.is_defined;
     var what_is = bbop.core.what_is;
     var loop = bbop.core.each;
+
+    var owlo = in_owlo;
+    if( bbop.core.what_is(owlo) == 'string' ){
+	owlo = bbop.json.parse(in_owlo) || {};
+    }
+
+    // Check to make sure that it looks right.
     if( ! is_def(owlo['relationship']) ||
 	! what_is(owlo['relationship']) == 'object' ||
 	! what_is(owlo['relationship']['relation']) == 'array' ||

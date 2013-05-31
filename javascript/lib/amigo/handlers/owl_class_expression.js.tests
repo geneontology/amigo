@@ -1,0 +1,47 @@
+////
+//// Some unit testing for owl_class_expression.js
+////
+//// Usage:
+////    Command line: "rhino -f owl_class_expression.js.tests"
+////    Interactive: "rhino -f owl_class_expression.js.tests -f -"
+////
+
+// Correct environment.
+load('../../../../_data/bbop.js');
+load('../data/server.js');
+load('../data/xrefs.js');
+load('../data/dispatch.js');
+load('../linker.js');
+load('../handler.js');
+load('owl_class_expression.js');
+
+// Load testing.
+var mr_t = new bbop.test();
+
+
+///
+/// Start unit testing.
+///
+
+// Simple OWLClassExpression.
+(function(){
+     
+     var owlo = {"relationship":
+		 {"relation": [{"id": "RO:001234", "label": "regulates"},
+			       {"id":"BFO:0003456", "label": "hp"}],
+		  "id": "MGI:MGI:185963",
+		  "label": "kidney"}};
+     
+     var h = new amigo.handler();
+     var t0 = h.dispatch(owlo, 'annotation_extension_json', 'bbop.widgets.search_pane');
+     
+     //mr_t.is_true(t0.success, "ran okay");
+     mr_t.is_same_atom(t0, '<a title="RO:001234 (go to the page for regulates)" href="http://purl.obolibrary.org/obo/RO_001234">regulates</a> &rarr; <a title="BFO:0003456 (go to the page for hp)" href="http://purl.obolibrary.org/obo/BFO_0003456">hp</a> <a title="MGI:MGI:185963 (go to the page for kidney)" href="http://www.informatics.jax.org/accession/MGI:185963">kidney</a>', 'complicated output');
+ })();
+
+///
+/// End unit testing.
+///
+
+// Final report.
+mr_t.report();

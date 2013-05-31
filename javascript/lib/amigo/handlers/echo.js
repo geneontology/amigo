@@ -1,7 +1,7 @@
 /* 
  * Package: echo.js
  * 
- * Namespace: amigo.handler.echo
+ * Namespace: amigo.handlers.echo
  * 
  * Static function handler for echoing inputs--really used for
  * teaching and testing.
@@ -10,7 +10,7 @@
 // Setup the internal requirements.
 bbop.core.require('bbop', 'core');
 //bbop.core.require('amigo', 'linker');
-bbop.core.namespace('amigo', 'handler', 'echo');
+bbop.core.namespace('amigo', 'handlers', 'echo');
 
 /*
  * Function: echo
@@ -25,7 +25,7 @@ bbop.core.namespace('amigo', 'handler', 'echo');
  * 
  * Also See: <bbop.handler>
  */
-amigo.handler.echo = function(thing, name, context){
+amigo.handlers.echo = function(thing, name, context){
 
     // Force a return string into existence.
     var retstr = null;

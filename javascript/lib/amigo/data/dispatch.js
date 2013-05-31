@@ -30,9 +30,9 @@ bbop.core.namespace('amigo', 'data', 'dispatch');
  * This should be consumed directly by <amigo.handler>.
  */
 amigo.data.dispatch = {
-   "annotation_extension_handler" : {
+   "annotation_extension_json" : {
       "context" : {
-         "bbop.widgets.search_pane" : "amigo.handler.owl_class_expression"
+         "bbop.widgets.search_pane" : "amigo.handlers.owl_class_expression"
       }
    }
 };

@@ -10,10 +10,11 @@ JS ?= rhino # or smjs
 JSFLAGS ?= -opt -1
 #JSENGINES = node smjs rhino
 BBOP_JS ?= ../bbop-js/
-TESTS = $(wildcard javascript/lib/amigo/*.js.tests) \
+TESTS = \
+ $(wildcard javascript/lib/amigo/*.js.tests) \
  $(wildcard javascript/lib/amigo/data/*.js.tests) \
  $(wildcard javascript/lib/amigo/ui/*.js.tests) \
- $(wildcard javascript/lib/amigo/handler/*.js.tests)
+ $(wildcard javascript/lib/amigo/handlers/*.js.tests)
 #BENCHMARKS = $(wildcard _benchmark/*.js)
 
 all:

@@ -41,7 +41,7 @@ amigo.handler = function (){
 
     // Okay, since trying functions into existance is slow, we'll
     // create a cache of strings to functions.
-    this.mangle = '_' + bbop.core.uuid() + '_';
+    this.mangle = bbop.core.uuid();
     this.string_to_function_map = {};
     this.entries = 0; // a little extra for debugging and testing
 };
@@ -71,7 +71,7 @@ amigo.handler.prototype.dispatch = function(data, name, context, fallback){
 
     // First, get the specific id for this combination.
     var did = name || '';
-    did += this.mangle;
+    did += '_' + this.mangle;
     if( context ){
 	did += '_' + context;
     }

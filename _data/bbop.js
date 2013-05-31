@@ -10888,8 +10888,8 @@ bbop.widget.display.results_table_by_class = function(cclass,
 
     // Temp logger.
     var logger = new bbop.logger();
-    //logger.DEBUG = true;
-    logger.DEBUG = false;
+    logger.DEBUG = true;
+    //logger.DEBUG = false;
     function ll(str){ logger.kvetch('TT: ' + str); }
 
     // Conveience aliases.
@@ -11102,7 +11102,6 @@ bbop.widget.display.results_table_by_class = function(cclass,
 
     // Some of what we'll do for each field in each doc (see below).
     // var ext = cclass.searchable_extension();
-    //var handler = new bbop.handler(); // may use a special handler
     function _process_entry(fid, iid, doc){
 
 	var retval = '';
@@ -11197,6 +11196,7 @@ bbop.widget.display.results_table_by_class = function(cclass,
 				   // handler fields. If the handler
 				   // resolves to null, fall back onto
 				   // standard.
+				   ll('! '+ bit +' '+ fid +' '+ display_context);
 				   var out = handler.dispatch(bit, fid,
 							      display_context);
 				   if( is_defined(out) && out != null ){
@@ -11682,8 +11682,7 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 
 	var retval = false;
 
-	if( bbop.core.is_defined(linker) &&
-	    bbop.core.what_is(linker) == 'function' ){
+	if( bbop.core.is_defined(linker) ){
 		anchor.linker = linker;
 		retval = true;
 	}
@@ -11707,8 +11706,7 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 
 	var retval = false;
 
-	if( bbop.core.is_defined(handler) &&
-	    bbop.core.what_is(handler) == 'function' ){
+	if( bbop.core.is_defined(handler) ){
 		anchor.handler = handler;
 		retval = true;
 	}
@@ -13174,9 +13172,9 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj, interface_id,
     // Our argument default hash.
     var default_hash =
 	{
-	    'topology_graph_field' : 'topology_graph',
-	    'transitivity_graph_field' : 'transitivity_graph',
-	    //'transitivity_graph_field' : 'regulates_transitivity_graph',
+	    'topology_graph_field' : 'topology_graph_json',
+	    'transitivity_graph_field' : 'transitivity_graph_json',
+	    //'transitivity_graph_field' : 'regulates_transitivity_graph_json',
 	    'info_button_callback' : function(){},
 	    'base_icon_url' : null,
 	    'image_type' : 'gif',

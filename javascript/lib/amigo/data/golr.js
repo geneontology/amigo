@@ -290,7 +290,7 @@ amigo.data.golr = {
             "required" : "false",
             "cardinality" : "single",
             "type" : "string",
-            "id" : "phylo_graph",
+            "id" : "phylo_graph_json",
             "property" : []
          },
          {
@@ -317,6 +317,18 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "source",
+            "property" : []
+         },
+         "phylo_graph_json" : {
+            "transform" : [],
+            "description" : "JSON blob form of the phylogenic tree.",
+            "display_name" : "This should not be displayed",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "phylo_graph_json",
             "property" : []
          },
          "panther_family_label" : {
@@ -377,18 +389,6 @@ amigo.data.golr = {
             "cardinality" : "multi",
             "type" : "string",
             "id" : "taxon_closure_label",
-            "property" : []
-         },
-         "phylo_graph" : {
-            "transform" : [],
-            "description" : "JSON blob form of the phylogenic tree.",
-            "display_name" : "This should not be displayed",
-            "indexed" : "false",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "phylo_graph",
             "property" : []
          },
          "annotation_class_list_label" : {
@@ -1938,7 +1938,7 @@ amigo.data.golr = {
             "required" : "false",
             "cardinality" : "single",
             "type" : "string",
-            "id" : "phylo_graph",
+            "id" : "phylo_graph_json",
             "property" : []
          },
          {
@@ -1967,7 +1967,7 @@ amigo.data.golr = {
          }
       ],
       "fields_hash" : {
-         "phylo_graph" : {
+         "phylo_graph_json" : {
             "transform" : [],
             "description" : "JSON blob form of the phylogenic tree.",
             "display_name" : "This should not be displayed",
@@ -1976,7 +1976,7 @@ amigo.data.golr = {
             "required" : "false",
             "cardinality" : "single",
             "type" : "string",
-            "id" : "phylo_graph",
+            "id" : "phylo_graph_json",
             "property" : []
          },
          "panther_family_label" : {
@@ -2469,7 +2469,7 @@ amigo.data.golr = {
             "required" : "false",
             "cardinality" : "single",
             "type" : "string",
-            "id" : "topology_graph",
+            "id" : "topology_graph_json",
             "property" : [
                "getSegmentShuntGraphJSON"
             ]
@@ -2483,27 +2483,13 @@ amigo.data.golr = {
             "required" : "false",
             "cardinality" : "single",
             "type" : "string",
-            "id" : "regulates_transitivity_graph",
+            "id" : "regulates_transitivity_graph_json",
             "property" : [
                "getLineageShuntGraphJSON"
             ]
          }
       ],
       "fields_hash" : {
-         "regulates_transitivity_graph" : {
-            "transform" : [],
-            "description" : "JSON blob form of the local relation transitivity graph.",
-            "display_name" : "This should not be displayed",
-            "indexed" : "false",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "regulates_transitivity_graph",
-            "property" : [
-               "getLineageShuntGraphJSON"
-            ]
-         },
          "source" : {
             "transform" : [],
             "description" : "Term namespace.",
@@ -2530,6 +2516,20 @@ amigo.data.golr = {
             "id" : "definition_xref",
             "property" : [
                "getDefXref"
+            ]
+         },
+         "regulates_transitivity_graph_json" : {
+            "transform" : [],
+            "description" : "JSON blob form of the local relation transitivity graph.",
+            "display_name" : "This should not be displayed",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "regulates_transitivity_graph_json",
+            "property" : [
+               "getLineageShuntGraphJSON"
             ]
          },
          "database_xref" : {
@@ -2576,6 +2576,20 @@ amigo.data.golr = {
                "consider"
             ]
          },
+         "topology_graph_json" : {
+            "transform" : [],
+            "description" : "JSON blob form of the local stepwise topology graph.",
+            "display_name" : "This should not be displayed",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "topology_graph_json",
+            "property" : [
+               "getSegmentShuntGraphJSON"
+            ]
+         },
          "subset" : {
             "transform" : [],
             "description" : "Term subset.",
@@ -2588,20 +2602,6 @@ amigo.data.golr = {
             "id" : "subset",
             "property" : [
                "getSubsets"
-            ]
-         },
-         "topology_graph" : {
-            "transform" : [],
-            "description" : "JSON blob form of the local stepwise topology graph.",
-            "display_name" : "This should not be displayed",
-            "indexed" : "false",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "topology_graph",
-            "property" : [
-               "getSegmentShuntGraphJSON"
             ]
          },
          "id" : {
