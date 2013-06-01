@@ -93,6 +93,10 @@ MGI_GAF = http://www.geneontology.org/gene-associations/gene_association.mgi.gz
 MGI_TEST_GAF = ./_test/mgi-limited.gaf
 MGI_NANO_GAF = ./_test/mgi-limited-100.gaf
 
+##
+DATE = `date +'%Y-%m-%d'`
+TIME = `date +'%H:%M'`
+
 ###
 ### Nothing to see below here: targets.
 ###
@@ -140,7 +144,7 @@ golr-schema:
 ## Create a warning message about loading.
 .PHONY: message-load-start
 message-load-start:
-	../scripts/global-message.pl -e "GOlr is currently being reloaded--any results will be partial at best. Please check back later."
+	../scripts/global-message.pl -e "GOlr is currently being reloaded (started at $(TIME) on $(DATE)). Any results will be partial at best--please check back later."
 
 ## Create a warning message about loading.
 .PHONY: message-load-clear
@@ -193,7 +197,7 @@ load-full: owltools-build
 ## An option optimizing step.
 .PHONY: load-optimize
 load-optimize:
-	../scripts/global-message.pl -w "GOlr is currently being optimized--expect reduced performance."
+	../scripts/global-message.pl -w "GOlr is currently being optimized (started at $(TIME) on $(DATE)). Expect reduced performance."
 	$(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --solr-optimize
 	../scripts/global-message.pl -c
 
