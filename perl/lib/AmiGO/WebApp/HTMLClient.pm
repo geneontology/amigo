@@ -69,6 +69,7 @@ sub setup {
 		   'gene_product'        => 'mode_golr_gene_product_details',
 		   'visualize'           => 'mode_visualize',
 		   'software_list'       => 'mode_software_list',
+		   'schema_details'      => 'mode_schema_details',
 		   'load_details'        => 'mode_load_details',
 		   ## ???
 		   'phylo_graph'         => 'mode_phylo_graph',
@@ -492,6 +493,65 @@ sub mode_software_list {
      content =>
      [
       'pages/software_list.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page();
+}
+
+
+##
+sub mode_schema_details {
+
+  my $self = shift;
+
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile();
+  $self->check_for_condition_files();
+
+  ## Page settings.
+  $self->set_template_parameter('page_name', 'schema_details');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Schema Details');
+  $self->set_template_parameter('content_title', 'Schema Details');
+
+  ## Get Galaxy, and add a variable for it in the page.
+  $self->set_template_parameter('GO_GALAXY',
+				$self->{CORE}->amigo_env('AMIGO_PUBLIC_GALAXY_URL'));
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      # 'standard', # basic GO-styles
+      # 'bbop.amigo.ui.autocomplete'
+      'standard', # basic GO-styles
+      'com.jquery.jqamigo.custom',
+      #'com.jquery.tablesorter',
+      #'bbop.amigo.ui.widgets'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.jquery-ui',
+      'com.jquery.tablesorter',
+      'bbop',
+      'amigo'
+     ],
+     javascript =>
+     [
+      #$self->{JS}->get_lib('GeneralSearchForwarding.js')
+      $self->{JS}->get_lib('Schema.js')
+     ],
+     javascript_init =>
+     [
+      #'GeneralSearchForwardingInit();'
+      'SchemaInit();'
+     ],
+     content =>
+     [
+      'pages/schema_details.tmpl'
      ]
     };
   $self->add_template_bulk($prep);

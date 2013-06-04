@@ -2086,7 +2086,7 @@ bbop.template = function(template_string){
      * Function: fill
      * 
      * Fill the template with the corresponding hash items. Undefined
-     * variables are replaces with ''.
+     * variables are replaced with ''.
      * 
      * Arguments:
      *  fill_hash - the template with the hashed values
@@ -6584,6 +6584,9 @@ bbop.golr.conf_class = function (class_conf_struct){
      * 
      * Returns a search field by id string. Null otherwise.
      * 
+     * Parameters:
+     *  fid - a string id for the field
+     * 
      * Returns:
      *  <bbop.golr.conf_field>
      */
@@ -6593,6 +6596,26 @@ bbop.golr.conf_class = function (class_conf_struct){
 	    this._class.fields_hash[fid] ){
 		retval = new bbop.golr.conf_field(this._class.fields_hash[fid]);
 	    }
+	return retval;
+    };
+
+    /*
+     * Function: get_fields
+     * 
+     * Return all of the fields in this search class.
+     * 
+     * Returns:
+     *  Array of <bbop.golr.conf_field> (unordered).
+     */
+    this.get_fields = function(){
+	var retval = [];
+	if( this._class.fields_hash ){
+	    bbop.core.each(this._class.fields_hash,
+			   function(fid, struct){
+			       var cf = new bbop.golr.conf_field(struct);
+			       retval.push(cf);
+			   });
+	}
 	return retval;
     };
 
@@ -6773,6 +6796,27 @@ bbop.golr.conf = function (golr_conf_var){
 		       function(key, val){
 			   ret.push(val);
 		       });
+	return ret;
+    };
+
+    /*
+     * Function: get_classes_by_weight
+     * 
+     * Returns an array of all search classes. Ordered by weight.
+     * 
+     * Returns:
+     *  Array of <bbop.golr.conf_class>.
+     */
+    this.get_classes_by_weight = function(){
+	var ret = this.get_classes();
+
+	ret.sort(
+	    function(cc1, cc2){
+		var w1 = cc1.weight() || 0;
+		var w2 = cc2.weight() || 0;
+		return w2 - w1;
+	    });
+
 	return ret;
     };
 };

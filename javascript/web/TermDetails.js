@@ -2,16 +2,13 @@
 //// A lot of the commented out stuff in the other completely gone here.
 ////
 
-
-// Logger.
-var logger = new bbop.logger();
-logger.DEBUG = true;
-function ll(str){ logger.kvetch('TD: ' + str); }    
-// AmiGO helper.
-var sd = new amigo.data.server();
-
 //
 function TermDetailsInit(){
+
+    // Logger.
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch('TD: ' + str); }    
 
     ll('');
     ll('TermDetails.js');

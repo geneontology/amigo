@@ -12,11 +12,30 @@ function GannetInit(){
     logger.DEBUG = true;
     function ll(str){ logger.kvetch(str); }
 
+    // External meta-data.
+    var sd = new amigo.data.server();
+    var solr_server = sd.golr_base();
+    var gconf = new bbop.golr.conf(amigo.data.golr);
+
+    // Aliases.
+    var each = bbop.core.each;
+    var hashify = bbop.core.hashify;
+    var get_keys = bbop.core.get_keys;
+
+    // Helper: dedupe a list.
+    function dedupe(list){
+	var retlist = [];
+	if( list && list.length > 1 ){
+	    retlist = get_keys(hashify(list));
+	}
+	return retlist;
+    }
+
     //ll('');
     ll('GannetInit start...');
 
     // Make unnecessary things roll up.
-    amigo.ui.rollup(["inf01", "inf02"]);
+    amigo.ui.rollup(["inf01", "inf02", "inf03"]);
 
     // GOlr: Enter things from pulldown into textarea on change.
     jQuery("#" + "gannet_golr_example_selection").change(

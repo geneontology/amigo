@@ -20,7 +20,10 @@
       [% INCLUDE "common/info_rollup_start.tmpl" %]
       <h4>GO Solr (GOlr)</h4>
       <p>
-	See some GOlr  <a href="http://wiki.geneontology.org/index.php/Example_Solr_Queries">examples</a> and preliminary <a href="http://geneontology.svn.sourceforge.net/viewvc/geneontology/java/gold/solr/conf/schema.xml?content-type=text%2Fplain">schema</a> information.
+	See some GOlr <a href="http://wiki.geneontology.org/index.php/Example_Solr_Queries">examples</a> or <a href="[% base %]/amigo/schema_details" title="Instance schema details">schema details</a> for this instance.
+	Raw schema information for the most current GOlr can be found in the
+	source
+	<a href="http://geneontology.svn.sourceforge.net/viewvc/geneontology/java/gold/solr/conf/schema.xml?content-type=text%2Fplain">repository</a>.
       </p>
       <h4>Mirrors</h4>
       <p>
@@ -34,7 +37,7 @@
       [% INCLUDE "common/info_rollup_start.tmpl" %]
       <ul>
 	[% FOREACH mirror = all_mirrors %]
-
+	
 	<li>
 	  <input type="radio" 
 		 name="mirror" 

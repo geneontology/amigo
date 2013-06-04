@@ -566,6 +566,7 @@ sub mode_gannet {
        [
 	'com.jquery',
 	'com.jquery-ui',
+	#'com.jquery.tablesorter',
 	'bbop',
 	'amigo'
        ],

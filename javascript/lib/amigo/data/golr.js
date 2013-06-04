@@ -2180,7 +2180,7 @@ amigo.data.golr = {
          }
       },
       "document_category" : "ontology_class",
-      "weight" : "-10",
+      "weight" : "-20",
       "_strict" : 0,
       "id" : "bbop_term_ac",
       "_outfile" : "/home/sjcarbon/local/src/git/amigo/metadata//term-autocomplete-config.yaml"
