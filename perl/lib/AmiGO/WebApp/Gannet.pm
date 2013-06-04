@@ -241,7 +241,7 @@ sub mode_gannet {
      'label' => 'This installation'
     };
 
-  $self->{CORE}->kvetch("_mirror_conf_info_dump_:".Dumper($mirror_conf_info));
+  #$self->{CORE}->kvetch("_mirror_conf_info_dump_:".Dumper($mirror_conf_info));
 
   ## Go through all of our mirrors and categorize them into the
   ## exclusive class sets.
