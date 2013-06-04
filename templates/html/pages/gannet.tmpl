@@ -24,7 +24,8 @@
       </p>
       <h4>Mirrors</h4>
       <p>
-	Select a mirror you believe will perform well for your needs
+	Select a mirror that will fit your needs. The default is this
+	installation.
       </p>
       [% INCLUDE "common/info_rollup_end.tmpl" %]
        
@@ -44,14 +45,14 @@
 	    <!-- [% IF mirror_info.$mirror.is_alive_p == 0 %][UNAVAILABLE][% END %] -->
 	    [% mirror_info.$mirror.label %]
 	  </b>:
-	  Use the [% IF mirror_info.$mirror.type.search('solr') %]Solr[% ELSIF mirror_info.$mirror.type.search('lead') %]LEAD[% ELSIF mirror_info.$mirror.type.search('gold') %]GOLD[% ELSE %]???[% END %] [% IF mirror_info.$mirror.type.search('full') %]full[% ELSIF mirror_info.$mirror.type.search('lite') %]lite[% END %] [% IF mirror_info.$mirror.class.search('main') %]main[% ELSIF mirror_info.$mirror.class.search('aux') %]auxiliary[% ELSIF mirror_info.$mirror.class.search('exp') %]experimental[% END %] mirror [% mirror_info.$mirror.location %].
+	  Use the Solr [% IF mirror_info.$mirror.class.search('main') %]main mirror[% ELSIF mirror_info.$mirror.class.search('aux') %]auxiliary mirror[% ELSIF mirror_info.$mirror.class.search('local') %]local installation[% ELSIF mirror_info.$mirror.class.search('exp') %]experimental mirror[% END %] [% mirror_info.$mirror.location %].
 	</li>
 	
 	[% END %]	  
       </ul>	      
       [% INCLUDE "common/info_rollup_end.tmpl" %]
 
-      <h3 class="first">Enter your query (currently a <em>[% IF database_type.search('solr') %]Solr[% ELSIF database_type.search('lead') %]LEAD[% ELSIF database_type.search('gold') %]GOLD[% ELSE %]???[% END %]</em> database):</h3>
+      <h3 class="first">Enter your Solr query:</h3>
 
       <div>
 	<textarea id="query"

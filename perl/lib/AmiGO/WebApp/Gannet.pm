@@ -227,11 +227,25 @@ sub mode_gannet {
   my $mirror_loc =
     $self->{CORE}->amigo_env('AMIGO_ROOT') . '/conf/go_solr_mirrors.yaml';
   #my $mirror_conf_info = $self->{JS}->parse_json_file($mirror_loc);
-  my $mirror_conf_info = LoadFile($mirror_loc);
-  #$self->{CORE}->kvetch("_mirror_conf_info_dump_:".Dumper($mirror_conf_info));
+  my $mirror_conf_info = LoadFile($mirror_loc) || {};
+
+  ## We have the incoming file arguments, now will jam in the local
+  ## installation default values.
+  my $default_mirror = 'amigo_2_local_default';
+  $mirror_conf_info->{$default_mirror} =
+    {
+     'database' => $self->{CORE}->amigo_env('AMIGO_PUBLIC_GOLR_URL'),
+     'location' => 'in this installation',
+     'type' => 'solr',
+     'class' => 'local',
+     'label' => 'This installation'
+    };
+
+  $self->{CORE}->kvetch("_mirror_conf_info_dump_:".Dumper($mirror_conf_info));
 
   ## Go through all of our mirrors and categorize them into the
   ## exclusive class sets.
+  my $local_mirrors = {}; # have the class flag 'local'
   my $main_mirrors = {}; # have the class flag 'main'
   my $aux_mirrors = {}; # have the class flag 'aux'
   my $exp_mirrors = {}; # have the class flag 'exp'
@@ -242,7 +256,9 @@ sub mode_gannet {
     #$self->{CORE}->kvetch("curr mirror: " .  Dumper($mirror));
 
     if( defined $mirror->{class} ){
-      if( $mirror->{class} eq 'main' ){
+      if( $mirror->{class} eq 'local' ){
+	$local_mirrors->{$m} = $mirror;
+      }elsif( $mirror->{class} eq 'main' ){
 	$main_mirrors->{$m} = $mirror;
       }elsif( $mirror->{class} eq 'aux' ){
 	$aux_mirrors->{$m} = $mirror;
@@ -286,34 +302,45 @@ sub mode_gannet {
     $self->{CORE}->kvetch('found a usable incoming mirror: ' . $my_mirror);
   }else{
 
-    ## First try the main mirrors.
-    $my_mirror = $self->_gannet_mirror_select_from_set($main_mirrors);
+    ## First try the local mirrors.
+    $my_mirror = $self->_gannet_mirror_select_from_set($local_mirrors);
     if( defined $my_mirror ){
-      $self->{CORE}->kvetch('found a usable main mirror: ' . $my_mirror);
+      $self->{CORE}->kvetch('found a usable local mirror: ' . $my_mirror);
     }else{
 
-      ## Odd, there should be a main mirror...
-      $self->add_mq('warning', "No main recommended mirror was found! " .
-		    "Gannet will try and select an auxiliary mirror...");
+      ## Odd, there should be a local mirror...
+      $self->add_mq('warning', "No local mirror was found! " .
+		    "Gannet will try and select a main mirror...");
 
-      ## Next try the aux mirrors.
-      $my_mirror = $self->_gannet_mirror_select_from_set($aux_mirrors);
+      ## Next try the main mirrors.
+      $my_mirror = $self->_gannet_mirror_select_from_set($main_mirrors);
       if(  defined $my_mirror ){
-	$self->{CORE}->kvetch('found a usable aux mirror: ' . $my_mirror);
+	$self->{CORE}->kvetch('found a usable main mirror: ' . $my_mirror);
       }else{
 
-	## Odd, not even an experimental mirror...
-	$self->add_mq('warning', "No auxiliary mirror was found! " .
-		      "Gannet will try and select an experimental mirror...");
+	## Odd, not a usable main mirror...
+	$self->add_mq('warning', "No main mirror was found! " .
+		      "Gannet will try and select an aux mirror...");
 
-	## Finally try the exp mirrors.
-	$my_mirror = $self->_gannet_mirror_select_from_set($exp_mirrors);
-	if( defined $my_mirror ){
-	  $self->{CORE}->kvetch('found a usable exp mirror: ' . $my_mirror);
+	## Next try the aux mirrors.
+	$my_mirror = $self->_gannet_mirror_select_from_set($aux_mirrors);
+	if(  defined $my_mirror ){
+	  $self->{CORE}->kvetch('found a usable aux mirror: ' . $my_mirror);
 	}else{
-	  $self->add_mq('error', "No live mirror was found! " .
-			"Please contact the GO Helpdesk for assistance.");
-	  $self->{CORE}->kvetch('no usable exp mirror');
+
+	  ## Odd, not an aux mirror...
+	  $self->add_mq('warning', "No auxiliary mirror was found! " .
+			"Gannet will try and select an experimental mirror...");
+
+	  ## Finally try the exp mirrors.
+	  $my_mirror = $self->_gannet_mirror_select_from_set($exp_mirrors);
+	  if( defined $my_mirror ){
+	    $self->{CORE}->kvetch('found a usable exp mirror: ' . $my_mirror);
+	  }else{
+	    $self->add_mq('error', "No live mirror was found! " .
+			  "Please contact the GO Helpdesk for assistance.");
+	    $self->{CORE}->kvetch('no usable exp mirror');
+	  }
 	}
       }
     }
@@ -507,6 +534,7 @@ sub mode_gannet {
 
     ## Sort mirrors into ordered list by desirability.
     my $mlist = [];
+    foreach my $m (keys %$local_mirrors){ push @$mlist, $m; }
     foreach my $m (keys %$main_mirrors){ push @$mlist, $m; }
     foreach my $m (keys %$aux_mirrors){ push @$mlist, $m; }
     foreach my $m (keys %$exp_mirrors){ push @$mlist, $m; }
