@@ -20,8 +20,9 @@ function SchemaInit(){
     var each = bbop.core.each;
     var hashify = bbop.core.hashify;
     var get_keys = bbop.core.get_keys;
+    var is_def = bbop.core.is_defined;
 
-    // Helper: dedupe a list.
+    // Helper: dedupe a list...might be nice in core?
     function dedupe(list){
 	var retlist = [];
 	if( list && list.length > 1 ){
@@ -109,10 +110,42 @@ function SchemaInit(){
     jQuery('#' + target_id).empty();
     jQuery('#' + target_id).append(tbl.to_string());
 
-    // TODO: Add events to the added table.
-
     // Apply the tablesorter to what we got.
     jQuery('#' + tbl.get_id()).tablesorter(); 
+
+    // Make the table filter active.
+    var trs = jQuery('#' + tbl.get_id() + ' tbody > tr');
+    var tds = trs.children();
+    jQuery('#' + 'schema_info_search_div').keyup(
+	function(){
+            var stext = jQuery(this).val();
+
+	    if( ! is_def(stext) || stext == "" ){
+		// Restore when nothing found.
+		trs.show();
+	    }else{
+		// Want this to be insensitive.
+		stext = stext.toLowerCase();
+
+		// All rows (the whole table) gets hidden.
+		trs.hide();
+
+		// jQuery filter to match element contents against
+		// stext.
+		function _match_filter(){
+		    var retval = false;
+		    var lc = jQuery(this).text().toLowerCase();
+		    if( lc.indexOf(stext) > -1 ){
+			retval = true;
+		    }
+		    return retval;
+		}
+
+		// If a td has a match, the parent (tr) gets shown.
+		// Or: show only matching rows.
+		tds.filter(_match_filter).parent("tr").show();
+            }
+	});
 
     ll('SchemaInit done.');
 }
