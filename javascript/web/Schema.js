@@ -76,10 +76,11 @@ function SchemaInit(){
 	     
 	     each(capacities,
 		  function(capacity){
-		      var by_weights = conf_class.get_fields();
+		      var by_weights = conf_class.get_weights(capacity);
 		      each(by_weights,
 			   function(field){
-			       var fid = field.id();
+			       //var fid = field.id();
+			       var fid = field;
 			       if( ! is_def(field_cap_cache[fid]) ){
 				   field_cap_cache[fid] = {};
 			       }
