@@ -10850,6 +10850,149 @@ bbop.widget.display.text_button_sim = function(label, title, id, add_attrs){
     return obj;
 };
 /*
+ * Package: filter_table.js
+ * 
+ * Namespace: bbop.widget.display.filter_table
+ * 
+ * Create a dynamic filter for removing rows from a table (where the
+ * rows are inside of a tbody).
+ * 
+ */
+
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'widget', 'display', 'text_button_sim');
+bbop.core.namespace('bbop', 'widget', 'display', 'filter_table');
+
+/*
+ * Method: filter_table
+ * 
+ * The table needs to keep the row information in a tbody, not just at
+ * the top level.
+ * 
+ * The repaint_func argument takes the table id as its argument. If a
+ * function is not specified, the default function will apply the
+ * classes "even_row" and "odd_row" to the table.
+ * 
+ * Arguments:
+ *  elt_id - the element to inject the filter into
+ *  table_id - the table that we will operate on
+ *  repaint_func - *[optional]* function run after altering rows (see above)
+ *  label - *[optional]* the label to use for the filter
+ * 
+ * Returns:
+ *  n/a
+ */
+bbop.widget.display.filter_table =
+    function(elt_id, table_id, repaint_func, label){
+
+	var anchor = this;
+    
+    var logger = new bbop.logger();
+    //logger.DEBUG = true;
+    logger.DEBUG = false;
+    function ll(str){ logger.kvetch(str); }
+
+    ll('init filter_table in ' + elt_id + ' for ' + table_id);
+
+    if( ! repaint_func ){
+	anchor.repaint_func = 
+	    function (tid){
+		jQuery('table#' + tid + ' tr:even').attr('class', 'even_row');
+		jQuery('table#' + tid + ' tr:odd').attr('class', 'odd_row');
+	    };
+    }else{
+	anchor.repaint_func = repaint_func;
+    }
+
+    if( ! label ){
+	anchor.label = 'Filter:';
+    }else{
+	anchor.label = label;
+    }
+
+    ll('finished args');
+
+    // Create a label, input field, and a clear button.
+    var input_attrs = {
+	'type': 'text',
+	'class': 'textBox',
+	'value': "",
+	'generate_id': true
+    };
+    var input = new bbop.html.input(input_attrs);
+    var lbl_attrs = {
+	'for': input.get_id(),
+	'generate_id': true
+    };
+    var lbl = new bbop.html.tag('label', lbl_attrs);
+    lbl.add_to(anchor.label);
+    var clear_button =
+	new bbop.widget.display.text_button_sim('X', 'Clear filter');
+
+    ll('widget gen done');
+
+    // And add them to the DOM at the location.
+    jQuery('#' + elt_id).empty();
+    jQuery('#' + elt_id).append(lbl.to_string());
+    jQuery('#' + elt_id).append(input.to_string());
+    jQuery('#' + elt_id).append(clear_button.to_string());
+
+    ll('widget addition done');
+
+    // Make the clear button active.
+    jQuery('#' + clear_button.get_id()).click(
+	function(){
+	    ll('click call');
+            jQuery('#' + input.get_id()).val('');
+	    trs.show();
+	    // Recolor after filtering.
+	    anchor.repaint_func(table_id);
+	});
+
+    // Cache information about the table.
+    var trs = jQuery('#' + table_id + ' tbody > tr');
+    var tds = trs.children();
+
+    // Make the table filter active.
+    jQuery('#' + input.get_id()).keyup(
+	function(){
+
+            var stext = jQuery(this).val();
+
+	    ll('keyup call: (' + stext + '), ' + trs);
+
+	    if( ! bbop.core.is_defined(stext) || stext == "" ){
+		// Restore when nothing found.
+		trs.show();
+	    }else{
+		// Want this to be insensitive.
+		stext = stext.toLowerCase();
+
+		// All rows (the whole table) gets hidden.
+		trs.hide();
+
+		// jQuery filter to match element contents against
+		// stext.
+		function _match_filter(){
+		    var retval = false;
+		    var lc = jQuery(this).text().toLowerCase();
+		    if( lc.indexOf(stext) >= 0 ){
+			retval = true;
+		    }
+		    return retval;
+		}
+
+		// If a td has a match, the parent (tr) gets shown.
+		// Or: show only matching rows.
+		tds.filter(_match_filter).parent("tr").show();
+            }
+
+	    // Recolor after filtering.
+	    anchor.repaint_func(table_id);
+	});
+
+};
+/*
  * Package: results_table_by_class_conf.js
  * 
  * Namespace: bbop.widget.display.results_table_by_class_conf
@@ -11426,7 +11569,7 @@ bbop.widget.display.filter_shield = function(spinner_src){
 	}
 
 	var txt = 'No filters...';
-	var tbl = new bbop.html.table();
+	var tbl = new bbop.html.table(null, null, {'generate_id': true});
 	var button_hash = {};
 	var each = bbop.core.each; // conveience
 	var bgen = bbop.widget.display.text_button_sim;
@@ -11447,10 +11590,17 @@ bbop.widget.display.filter_shield = function(spinner_src){
 			     b_minus.to_string()]);
 	     });
 	txt = tbl.to_string();
+
+	// Create a filter slot div.
 	
-	// Add text to div.
+	// Add filter slot and table text to div.
 	jQuery('#' + div_id).empty();
+	var fdiv = new bbop.html.tag('div', {'generate_id': true});
+	jQuery('#' + div_id).append(fdiv.to_string());	
 	jQuery('#' + div_id).append(txt);
+
+	// Apply the filter to the table.
+	var ft = bbop.widget.display.filter_table(fdiv.get_id(), tbl.get_id());
 	
 	// Okay, now introducing a function that we'll be using a
 	// couple of times in our callbacks. Given a button id (from

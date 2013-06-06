@@ -57,7 +57,6 @@ Group: Data  {
 
 File: api.js  (api.js)
 File: echo.js  (handlers/echo.js)
-File: filter_table.js  (ui/filter_table.js)
 File: handler.js  (handler.js)
 File: linker.js  (linker.js)
 File: owl_class_expression.js  (handlers/owl_class_expression.js)
