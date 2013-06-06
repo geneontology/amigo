@@ -10,3 +10,4 @@ javascript/lib/amigo/data/xrefs.js
 javascript/lib/amigo/data/dispatch.js
 javascript/lib/amigo/data/statistics.js
 javascript/lib/amigo/ui/rollup.js
+javascript/lib/amigo/ui/filter_table.js
