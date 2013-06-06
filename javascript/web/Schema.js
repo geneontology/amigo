@@ -196,11 +196,16 @@ function SchemaInit(){
     tbl.add_to(thead);
     tbl.add_to(tbody);
 
+    var filter_inject_id = 'schema_info_search_div';
     var target_id = 'schema_info_table_div';
 
     // Add the table to the DOM.
     jQuery('#' + target_id).empty();
     jQuery('#' + target_id).append(tbl.to_string());
+
+    ///
+    /// Sorting, coloring, etc.
+    ///
 
     // Apply a first round of coloring.
     _recolor_table(tbl.get_id());
@@ -213,42 +218,9 @@ function SchemaInit(){
 					_recolor_table(tbl.get_id());
 				    });
 
-    // Make the table filter active.
-    var trs = jQuery('#' + tbl.get_id() + ' tbody > tr');
-    var tds = trs.children();
-    jQuery('#' + 'schema_info_search_div').keyup(
-	function(){
-            var stext = jQuery(this).val();
-
-	    if( ! is_def(stext) || stext == "" ){
-		// Restore when nothing found.
-		trs.show();
-	    }else{
-		// Want this to be insensitive.
-		stext = stext.toLowerCase();
-
-		// All rows (the whole table) gets hidden.
-		trs.hide();
-
-		// jQuery filter to match element contents against
-		// stext.
-		function _match_filter(){
-		    var retval = false;
-		    var lc = jQuery(this).text().toLowerCase();
-		    if( lc.indexOf(stext) > -1 ){
-			retval = true;
-		    }
-		    return retval;
-		}
-
-		// If a td has a match, the parent (tr) gets shown.
-		// Or: show only matching rows.
-		tds.filter(_match_filter).parent("tr").show();
-            }
-
-	    // Recolor after filtering.
-	    _recolor_table(tbl.get_id());
-	});
+    // Add filtering to table.
+    var ft = new amigo.ui.filter_table(filter_inject_id, target_id,
+				       _recolor_table, 'Filter:');
 
     ll('SchemaInit done.');
 }
