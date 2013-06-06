@@ -486,7 +486,8 @@ function LiveSearchGOlrInit(){
     	//'show_checkboxes_p' : false,
     	//'spinner_search_source' : '',
     	'spinner_search_source' : sd.image_base() + '/waiting_ajax.gif',
-    	'spinner_shield_source' : sd.image_base() + '/waiting_poll.gif'
+    	//'spinner_shield_source' : sd.image_base() + '/waiting_poll.gif'
+    	'spinner_shield_source' : sd.image_base() + '/waiting_ajax.gif'
 	//
     	//'icon_clear_label' : _button_wrapper('X', 'Clear text from query'),
     	//'icon_clear_source' : 'http://amigo2.berkeleybop.org/amigo2/images/warning.png',

@@ -10850,149 +10850,6 @@ bbop.widget.display.text_button_sim = function(label, title, id, add_attrs){
     return obj;
 };
 /*
- * Package: filter_table.js
- * 
- * Namespace: bbop.widget.display.filter_table
- * 
- * Create a dynamic filter for removing rows from a table (where the
- * rows are inside of a tbody).
- * 
- */
-
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'widget', 'display', 'text_button_sim');
-bbop.core.namespace('bbop', 'widget', 'display', 'filter_table');
-
-/*
- * Method: filter_table
- * 
- * The table needs to keep the row information in a tbody, not just at
- * the top level.
- * 
- * The repaint_func argument takes the table id as its argument. If a
- * function is not specified, the default function will apply the
- * classes "even_row" and "odd_row" to the table.
- * 
- * Arguments:
- *  elt_id - the element to inject the filter into
- *  table_id - the table that we will operate on
- *  repaint_func - *[optional]* function run after altering rows (see above)
- *  label - *[optional]* the label to use for the filter
- * 
- * Returns:
- *  n/a
- */
-bbop.widget.display.filter_table =
-    function(elt_id, table_id, repaint_func, label){
-
-	var anchor = this;
-    
-    var logger = new bbop.logger();
-    //logger.DEBUG = true;
-    logger.DEBUG = false;
-    function ll(str){ logger.kvetch(str); }
-
-    ll('init filter_table in ' + elt_id + ' for ' + table_id);
-
-    if( ! repaint_func ){
-	anchor.repaint_func = 
-	    function (tid){
-		jQuery('table#' + tid + ' tr:even').attr('class', 'even_row');
-		jQuery('table#' + tid + ' tr:odd').attr('class', 'odd_row');
-	    };
-    }else{
-	anchor.repaint_func = repaint_func;
-    }
-
-    if( ! label ){
-	anchor.label = 'Filter:';
-    }else{
-	anchor.label = label;
-    }
-
-    ll('finished args');
-
-    // Create a label, input field, and a clear button.
-    var input_attrs = {
-	'type': 'text',
-	'class': 'textBox',
-	'value': "",
-	'generate_id': true
-    };
-    var input = new bbop.html.input(input_attrs);
-    var lbl_attrs = {
-	'for': input.get_id(),
-	'generate_id': true
-    };
-    var lbl = new bbop.html.tag('label', lbl_attrs);
-    lbl.add_to(anchor.label);
-    var clear_button =
-	new bbop.widget.display.text_button_sim('X', 'Clear filter');
-
-    ll('widget gen done');
-
-    // And add them to the DOM at the location.
-    jQuery('#' + elt_id).empty();
-    jQuery('#' + elt_id).append(lbl.to_string());
-    jQuery('#' + elt_id).append(input.to_string());
-    jQuery('#' + elt_id).append(clear_button.to_string());
-
-    ll('widget addition done');
-
-    // Make the clear button active.
-    jQuery('#' + clear_button.get_id()).click(
-	function(){
-	    ll('click call');
-            jQuery('#' + input.get_id()).val('');
-	    trs.show();
-	    // Recolor after filtering.
-	    anchor.repaint_func(table_id);
-	});
-
-    // Cache information about the table.
-    var trs = jQuery('#' + table_id + ' tbody > tr');
-    var tds = trs.children();
-
-    // Make the table filter active.
-    jQuery('#' + input.get_id()).keyup(
-	function(){
-
-            var stext = jQuery(this).val();
-
-	    ll('keyup call: (' + stext + '), ' + trs);
-
-	    if( ! bbop.core.is_defined(stext) || stext == "" ){
-		// Restore when nothing found.
-		trs.show();
-	    }else{
-		// Want this to be insensitive.
-		stext = stext.toLowerCase();
-
-		// All rows (the whole table) gets hidden.
-		trs.hide();
-
-		// jQuery filter to match element contents against
-		// stext.
-		function _match_filter(){
-		    var retval = false;
-		    var lc = jQuery(this).text().toLowerCase();
-		    if( lc.indexOf(stext) >= 0 ){
-			retval = true;
-		    }
-		    return retval;
-		}
-
-		// If a td has a match, the parent (tr) gets shown.
-		// Or: show only matching rows.
-		tds.filter(_match_filter).parent("tr").show();
-            }
-
-	    // Recolor after filtering.
-	    anchor.repaint_func(table_id);
-	});
-
-};
-/*
  * Package: results_table_by_class_conf.js
  * 
  * Namespace: bbop.widget.display.results_table_by_class_conf
@@ -11475,12 +11332,12 @@ bbop.core.namespace('bbop', 'widget', 'display', 'filter_shield');
  * <bbop.widget.display.live_search>
  * 
  * Arguments:
- *  spinner_src - *[optional]* optional source of a spinner image to use
+ *  spinner_img_src - *[optional]* optional source of a spinner image to use
  * 
  * Returns:
  *  self
  */
-bbop.widget.display.filter_shield = function(spinner_src){
+bbop.widget.display.filter_shield = function(spinner_img_src){
 
     this._is_a = 'bbop.widget.display.filter_shield';
 
@@ -11537,11 +11394,9 @@ bbop.widget.display.filter_shield = function(spinner_src){
 
 	// If we have an image source specified, go ahead and add it to
 	// the waiting display before popping it open.
-	if( spinner_src && spinner_src != '' ){
-	    var s = new bbop.widget.spinner(parea.get_id(), spinner_src);
+	if( spinner_img_src && spinner_img_src != '' ){
+	    var s = new bbop.widget.spinner(parea.get_id(), spinner_img_src);
 	}
-	// var f = new bbop.widget.display.filter_shield("http://localhost/amigo2/images/waiting_ajax.gif");
-	// f.start_wait();
 
 	// Pop open the dialog.
 	var dia = jQuery('#' + div_id).dialog(diargs);
@@ -11600,8 +11455,14 @@ bbop.widget.display.filter_shield = function(spinner_src){
 	jQuery('#' + div_id).append(txt);
 
 	// Apply the filter to the table.
-	var ft = bbop.widget.display.filter_table(fdiv.get_id(), tbl.get_id());
-	
+	var ft = null;
+	if( spinner_img_src && spinner_img_src != '' ){
+	    ft = bbop.widget.filter_table(fdiv.get_id(), tbl.get_id(),
+					  spinner_img_src, null);
+	}else{
+	    ft = bbop.widget.filter_table(fdiv.get_id(), tbl.get_id(), null);
+	}
+
 	// Okay, now introducing a function that we'll be using a
 	// couple of times in our callbacks. Given a button id (from
 	// a button hash) and the [field, filter, count, polarity]
@@ -13299,6 +13160,396 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	}
 	return retval;
     };
+};
+/*
+ * Package: spinner.js
+ * 
+ * Namespace: bbop.widget.spinner
+ * 
+ * BBOP object to produce a self-constructing/self-destructing
+ * spinner. It can display various spinner/throbber images and can
+ * have a set timeout to deal with annoying servers and exotic race
+ * conditions.
+ * 
+ * The class of the spinner image is "bbop-widget-spinner".
+ * 
+ * Visibility is controlled by the application and removal of
+ * "bbop-js-spinner-hidden".
+ * 
+ * This is a completely self-contained UI.
+ */
+
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'logger');
+bbop.core.require('bbop', 'html');
+bbop.core.namespace('bbop', 'widget', 'spinner');
+
+/*
+ * Constructor: spinner
+ * 
+ * Contructor for the bbop.widget.spinner object.
+ * 
+ * A trivial invocation might be something like:
+ * : var s = new bbop.widget.spinner("inf01", "http://localhost/amigo2/images/waiting_ajax.gif");
+ * : s.hide();
+ * : s.show();
+ * 
+ * Or, in a slightly different use case:
+ * 
+ * : var s = new bbop.widget.spinner("inf01", "http://localhost/amigo2/images/waiting_ajax.gif", {'timout': 5});
+ * : s.start_wait();
+ * 
+ * The optional hash arguments look like:
+ *  timeout - the number of seconds to wait before invoking <clear_waits>; 0 indicates waiting forever; defaults to 5
+ *  visible_p - whether or not the spinner is visible on initialization; true|false; defaults to true
+ *  classes - a string of space-separated classes that you want added to the spinner image
+ * 
+ * Arguments:
+ *  host_elt_id - string id of the place to place the widget
+ *  img_src - the URL for the image to use in the spinner
+ *  argument_hash - *[optional]* optional hash of optional arguments
+ * 
+ * Returns:
+ *  self
+ */
+bbop.widget.spinner = function(host_elt_id, img_src, argument_hash){
+    
+    this._is_a = 'bbop.widget.spinner';
+
+    var anchor = this;
+
+    // Per-UI logger.
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch('W (spinner): ' + str); }
+
+    // Our argument default hash.
+    var default_hash = {
+	'timeout': 5,
+	'visible_p': true,
+	'classes': ''
+    };
+    var folding_hash = argument_hash || {};
+    var arg_hash = bbop.core.fold(default_hash, folding_hash);
+
+    // Spin out arguments.
+    var timeout = arg_hash['timeout'];
+    var visible_p = arg_hash['visible_p'];
+    var classes = arg_hash['classes'];
+
+    ///
+    /// Part 1: Append the image into the given element id.
+    ///
+
+    // Use the incoming arguments to help determine the default
+    // classes on the element.'
+    var spinner_classes = ['bbop-js-spinner'];
+    if( ! visible_p ){
+	spinner_classes.push('bbop-js-spinner-hidden');
+    }
+    if( classes && classes != '' ){
+	spinner_classes.push(classes);
+    }
+
+    // Create new element.
+    var spinner_elt =
+	new bbop.html.image({'generate_id': true,
+			     'src': img_src,
+			     'title': "Please wait...",
+			     'class': spinner_classes.join(' '),
+			     'alt': "(waiting...)"});
+    var spinner_elt_id = spinner_elt.get_id();
+
+    // Append img to end of given element.
+    jQuery('#' + host_elt_id).append(spinner_elt.to_string());
+    
+    ///
+    /// Part 2: Dynamic display management.
+    ///
+
+    // Counts and accounting.
+    var current_waits = 0;
+    var timeout_queue = [];
+
+    /*
+     * Function: show
+     * 
+     * Show the spinner if it is hidden (regardless of current waits).
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns
+     *  n/a
+     */
+    this.show = function(){
+	ll("show");
+	jQuery('#' + spinner_elt_id).removeClass('bbop-js-spinner-hidden');	
+
+	// If the timeout is defined, push a timer onto
+	// the queue.
+	function _on_timeout(){
+	    anchor.finish_wait();
+	}
+	if( timeout > 0 ){
+	    setTimeout(_on_timeout, (timeout * 1000));
+	}
+	// foo=setTimeout(function(){}, 1000);
+	// clearTimeout(foo);
+    };
+
+    /*
+     * Function: hide
+     * 
+     * Hide the spinner if it is showing (regardless of current waits).
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns
+     *  n/a
+     */
+    this.hide = function(){
+	ll("hide");
+	jQuery('#' + spinner_elt_id).addClass('bbop-js-spinner-hidden');	
+    };
+
+    /*
+     * Function: start_wait
+     * 
+     * Displays the initial spinner if it is not already displayed and
+     * adds one to the wait count.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns
+     *  n/a
+     */
+    this.start_wait = function(){
+
+	ll("Start outstanding waits: " + current_waits);
+
+	// 
+	if( current_waits == 0 ){
+	    anchor.show();
+	}
+
+	current_waits++;
+    };
+
+    /*
+     * Function: finish_wait
+     * 
+     * Removes one from the wait count and hides the spinner if the
+     * number of outstanding waits has reached zero.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns
+     *  n/a
+     */
+    this.finish_wait = function(){
+
+	ll("Finish outstanding waits: " + current_waits);
+
+	// Stay at least at 0--we might have stragglers or incoming
+	// after a reset.
+	if( current_waits > 0 ){
+	    current_waits--;	    
+	}
+
+	// Gone if we are not waiting for anything.
+	if( current_waits == 0 ){
+	    anchor.hide();
+	}
+    };
+
+    /*
+     * Function: clear_waits
+     * 
+     * Hides the spinner and resets all the waiting counters. Can be
+     * used during things like server errors or collisions.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns
+     *  n/a
+     */
+    this.clear_waits = function(){
+	current_waits = 0;
+	anchor.hide();
+    };
+};
+/*
+ * Package: filter_table.js
+ * 
+ * Namespace: bbop.widget.filter_table
+ * 
+ * Create a dynamic filter for removing rows from a table (where the
+ * rows are inside of a tbody).
+ * 
+ * The repaint_func argument takes the table id as its argument. If a
+ * function is not specified, the default function will do nothing.
+ */
+
+// YANKED: ...apply the classes "even_row" and "odd_row" to the table.
+
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'widget', 'display', 'text_button_sim');
+bbop.core.require('bbop', 'widget', 'spinner');
+bbop.core.namespace('bbop', 'widget', 'filter_table');
+
+/*
+ * Method: filter_table
+ * 
+ * The table needs to keep the row information in a tbody, not just at
+ * the top level.
+ * 
+ * Arguments:
+ *  elt_id - the element to inject the filter into
+ *  table_id - the table that we will operate on
+ *  img_src - *[optional]* img source URL for the spinner image (defaults to no spinner)
+ *  repaint_func - the repaint function to run after filtering (see above)
+ *  label - *[optional]* the label to use for the filter
+ * 
+ * Returns:
+ *  n/a
+ */
+bbop.widget.filter_table = function(elt_id, table_id, img_src,
+				    repaint_func, label){
+    this._is_a = 'bbop.widget.filter_table';
+
+    var anchor = this;
+    
+    var logger = new bbop.logger();
+    //logger.DEBUG = true;
+    logger.DEBUG = false;
+    function ll(str){ logger.kvetch(str); }
+
+    ll('init filter_table in ' + elt_id + ' for ' + table_id);
+
+    // Sort out spinner image source.
+    anchor.img_src = null;
+    if( img_src ){
+	anchor.img_src = img_src;
+    }
+
+    // Sort out repaint function.
+    anchor.repaint_func = 
+    	function (tid){};	
+    // function (tid){
+    //     jQuery('table#' + tid + ' tr:even').attr('class', 'even_row');
+    //     jQuery('table#' + tid + ' tr:odd').attr('class', 'odd_row');
+    // };
+    if( repaint_func ){
+    	anchor.repaint_func = repaint_func;
+    }
+
+    // Sort out label.
+    anchor.label = 'Filter:';
+    if( label ){
+	anchor.label = label;
+    }
+
+    ll('finished args');
+
+    // Create a label, input field, and a clear button.
+    var input_attrs = {
+	'type': 'text',
+	'class': 'textBox',
+	'value': "",
+	'generate_id': true
+    };
+    var input = new bbop.html.input(input_attrs);
+    var lbl_attrs = {
+	'for': input.get_id(),
+	'generate_id': true
+    };
+    var lbl = new bbop.html.tag('label', lbl_attrs);
+    lbl.add_to(anchor.label);
+    var clear_button =
+	new bbop.widget.display.text_button_sim('X', 'Clear filter');
+
+    ll('widget gen done');
+
+    // And add them to the DOM at the location.
+    jQuery('#' + elt_id).empty();
+    jQuery('#' + elt_id).append(lbl.to_string());
+    jQuery('#' + elt_id).append(input.to_string());
+    jQuery('#' + elt_id).append(clear_button.to_string());
+
+    // Also, attach a spinner.
+    var spinner = null;
+    if( anchor.img_src ){
+	jQuery('#' + elt_id).append('&nbsp;&nbsp;');
+	spinner = new bbop.widget.spinner(elt_id, anchor.img_src,
+					 {
+					     visible_p: false
+					 });
+    }
+    
+    ll('widget addition done');
+
+    // Make the clear button active.
+    jQuery('#' + clear_button.get_id()).click(
+	function(){
+	    ll('click call');
+	    if( spinner ){ spinner.show(); }
+            jQuery('#' + input.get_id()).val('');
+	    trs.show();
+	    // Recolor after filtering.
+	    anchor.repaint_func(table_id);
+	    if( spinner ){ spinner.hide(); }
+	});
+
+    // Cache information about the table.
+    var trs = jQuery('#' + table_id + ' tbody > tr');
+    var tds = trs.children();
+
+    // Make the table filter active.
+    jQuery('#' + input.get_id()).keyup(
+	function(){
+
+	    if( spinner ){ spinner.show(); }
+
+            var stext = jQuery(this).val();
+
+	    ll('keyup call: (' + stext + '), ' + trs);
+
+	    if( ! bbop.core.is_defined(stext) || stext == "" ){
+		// Restore when nothing found.
+		trs.show();
+	    }else{
+		// Want this to be insensitive.
+		stext = stext.toLowerCase();
+
+		// All rows (the whole table) gets hidden.
+		trs.hide();
+
+		// jQuery filter to match element contents against
+		// stext.
+		function _match_filter(){
+		    var retval = false;
+		    var lc = jQuery(this).text().toLowerCase();
+		    if( lc.indexOf(stext) >= 0 ){
+			retval = true;
+		    }
+		    return retval;
+		}
+
+		// If a td has a match, the parent (tr) gets shown.
+		// Or: show only matching rows.
+		tds.filter(_match_filter).parent("tr").show();
+            }
+
+	    // Recolor after filtering.
+	    anchor.repaint_func(table_id);
+
+	    if( spinner ){ spinner.hide(); }
+	});
 };
 /*
  * Package: browse.js
@@ -16174,228 +16425,6 @@ bbop.widget.phylo_old.renderer = function (element_id, info_box_p){
 	//txt[0].attr({fill: "#f00"});
     };
 
-};
-/*
- * Package: spinner.js
- * 
- * Namespace: bbop.widget.spinner
- * 
- * BBOP object to produce a self-constructing/self-destructing
- * spinner. It can display various spinner/throbber images and can
- * have a set timeout to deal with annoying servers and exotic race
- * conditions.
- * 
- * The class of the spinner image is "bbop-widget-spinner".
- * 
- * Visibility is controlled by the application and removal of
- * "bbop-js-spinner-hidden".
- * 
- * This is a completely self-contained UI.
- */
-
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'html');
-bbop.core.namespace('bbop', 'widget', 'spinner');
-
-/*
- * Constructor: spinner
- * 
- * Contructor for the bbop.widget.spinner object.
- * 
- * A trivial invocation might be something like:
- * : var s = new bbop.widget.spinner("inf01", "http://localhost/amigo2/images/waiting_ajax.gif");
- * : s.hide();
- * : s.show();
- * 
- * Or, in a slightly different use case:
- * 
- * : var s = new bbop.widget.spinner("inf01", "http://localhost/amigo2/images/waiting_ajax.gif", {'timout': 5});
- * : s.start_wait();
- * 
- * The optional hash arguments look like:
- *  timeout - the number of seconds to wait before invoking <clear_waits>; 0 indicates waiting forever; defaults to 5
- *  visible_p - whether or not the spinner is visible on initialization; true|false; defaults to true
- *  classes - a string of space-separated classes that you want added to the spinner image
- * 
- * Arguments:
- *  host_elt_id - string id of the place to place the widget
- *  img_src - the URL for the image to use in the spinner
- *  argument_hash - *[optional]* optional hash of optional arguments
- * 
- * Returns:
- *  self
- */
-bbop.widget.spinner = function(host_elt_id, img_src, argument_hash){
-    
-    this._is_a = 'bbop.widget.spinner';
-
-    var anchor = this;
-
-    // Per-UI logger.
-    var logger = new bbop.logger();
-    logger.DEBUG = true;
-    function ll(str){ logger.kvetch('W (spinner): ' + str); }
-
-    // Our argument default hash.
-    var default_hash = {
-	'timeout': 5,
-	'visible_p': true,
-	'classes': ''
-    };
-    var folding_hash = argument_hash || {};
-    var arg_hash = bbop.core.fold(default_hash, folding_hash);
-
-    // Spin out arguments.
-    var timeout = arg_hash['timeout'];
-    var visible_p = arg_hash['visible_p'];
-    var classes = arg_hash['classes'];
-
-    ///
-    /// Part 1: Append the image into the given element id.
-    ///
-
-    // Use the incoming arguments to help determine the default
-    // classes on the element.'
-    var spinner_classes = ['bbop-js-spinner'];
-    if( ! visible_p ){
-	spinner_classes.push('bbop-js-spinner-hidden');
-    }
-    if( classes && classes != '' ){
-	spinner_classes.push(classes);
-    }
-
-    // Create new element.
-    var spinner_elt =
-	new bbop.html.image({'generate_id': true,
-			     'src': img_src,
-			     'title': "Please wait...",
-			     'class': spinner_classes.join(' '),
-			     'alt': "(waiting...)"});
-    var spinner_elt_id = spinner_elt.get_id();
-
-    // Append img to end of given element.
-    jQuery('#' + host_elt_id).append(spinner_elt.to_string());
-    
-    ///
-    /// Part 2: Dynamic display management.
-    ///
-
-    // Counts and accounting.
-    var current_waits = 0;
-    var timeout_queue = [];
-
-    /*
-     * Function: show
-     * 
-     * Show the spinner if it is hidden (regardless of current waits).
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns
-     *  n/a
-     */
-    this.show = function(){
-	ll("show");
-	jQuery('#' + spinner_elt_id).removeClass('bbop-js-spinner-hidden');	
-
-	// If the timeout is defined, push a timer onto
-	// the queue.
-	function _on_timeout(){
-	    anchor.finish_wait();
-	}
-	if( timeout > 0 ){
-	    setTimeout(_on_timeout, (timeout * 1000));
-	}
-	// foo=setTimeout(function(){}, 1000);
-	// clearTimeout(foo);
-    };
-
-    /*
-     * Function: hide
-     * 
-     * Hide the spinner if it is showing (regardless of current waits).
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns
-     *  n/a
-     */
-    this.hide = function(){
-	ll("hide");
-	jQuery('#' + spinner_elt_id).addClass('bbop-js-spinner-hidden');	
-    };
-
-    /*
-     * Function: start_wait
-     * 
-     * Displays the initial spinner if it is not already displayed and
-     * adds one to the wait count.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns
-     *  n/a
-     */
-    this.start_wait = function(){
-
-	ll("Start outstanding waits: " + current_waits);
-
-	// 
-	if( current_waits == 0 ){
-	    anchor.show();
-	}
-
-	current_waits++;
-    };
-
-    /*
-     * Function: finish_wait
-     * 
-     * Removes one from the wait count and hides the spinner if the
-     * number of outstanding waits has reached zero.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns
-     *  n/a
-     */
-    this.finish_wait = function(){
-
-	ll("Finish outstanding waits: " + current_waits);
-
-	// Stay at least at 0--we might have stragglers or incoming
-	// after a reset.
-	if( current_waits > 0 ){
-	    current_waits--;	    
-	}
-
-	// Gone if we are not waiting for anything.
-	if( current_waits == 0 ){
-	    anchor.hide();
-	}
-    };
-
-    /*
-     * Function: clear_waits
-     * 
-     * Hides the spinner and resets all the waiting counters. Can be
-     * used during things like server errors or collisions.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns
-     *  n/a
-     */
-    this.clear_waits = function(){
-	current_waits = 0;
-	anchor.hide();
-    };
 };
 /*
  * Package: message.js

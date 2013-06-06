@@ -219,8 +219,9 @@ function SchemaInit(){
 				    });
 
     // Add filtering to table.
-    var ft = new bbop.widget.display.filter_table(filter_inject_id, target_id,
-						  _recolor_table, 'Filter:');
-
+    var ft = new bbop.widget.filter_table(filter_inject_id, tbl.get_id(),
+					  sd.image_base() + '/waiting_ajax.gif',
+					  null, 'Filter:');
+    
     ll('SchemaInit done.');
 }
