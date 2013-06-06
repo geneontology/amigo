@@ -219,8 +219,8 @@ function SchemaInit(){
 				    });
 
     // Add filtering to table.
-    var ft = new amigo.ui.filter_table(filter_inject_id, target_id,
-				       _recolor_table, 'Filter:');
+    var ft = new bbop.widget.display.filter_table(filter_inject_id, target_id,
+						  _recolor_table, 'Filter:');
 
     ll('SchemaInit done.');
 }
