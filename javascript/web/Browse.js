@@ -126,6 +126,7 @@ function BrowseInit(){
 				'value_template': '{{annotation_class}}',
 				'list_select_callback': jumper
 			    });
-    auto.set_personality('bbop_ont'); // profile in gconf
+    //auto.set_personality('bbop_ont'); // profile in gconf
+    auto.set_personality('bbop_term_ac');
     auto.add_query_filter('document_category', 'ontology_class');
 }
