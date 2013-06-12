@@ -2054,7 +2054,7 @@ amigo.data.golr = {
       "display_name" : "Term autocomplete",
       "description" : "Easily find ontology classes in GO. For personality only--not a schema configuration.",
       "schema_generating" : "false",
-      "boost_weights" : "annotation_class^1.0 annotation_class_label^1.0 synonym^1.0 alternate_id^1.0",
+      "boost_weights" : "annotation_class^5.0 annotation_class_label^5.0 synonym^1.0 alternate_id^1.0",
       "fields" : [
          {
             "transform" : [],
