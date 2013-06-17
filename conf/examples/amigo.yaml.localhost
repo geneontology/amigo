@@ -32,7 +32,7 @@ AMIGO_JS_VERSION:
   type: string
   value: 0.9
 AMIGO_LAYOUT_LANDING:
-  comment: A whitespace separated list of class IDs to use for searches on the landing page.
+  comment: A whitespace separated list of class IDs to use for searches on the landing page. NOT CURRENTLY USED.
   type: string
   value: bbop_ont bbop_bio
 AMIGO_LAYOUT_SEARCH:
@@ -64,7 +64,7 @@ AMIGO_SHOW_GOOSE_LINKS:
   type: boolean
   value: 1
 AMIGO_TERM_REGEXP:
-  comment: The regular expressions to identify ontology ids.
+  comment: The regular expressions to identify internal ontology ids.
   type: string
   value: 'all|GO:[0-9]{7}'
 AMIGO_VERBOSE:
