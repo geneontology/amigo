@@ -6,17 +6,17 @@
 BEGIN {
   ## Try and find our env config file if we can't get it out of the
   ## environment.
-  if( ! defined($ENV{AMIGO_CGI_ROOT_DIR}) || $ENV{AMIGO_CGI_ROOT_DIR} eq '' ){
-    if( -f "./config.pl" ){
-      require "./config.pl";
-    }elsif( -f "./conf/config.pl" ){
-      require "./conf/config.pl";
-    }elsif( -f "../conf/config.pl" ){
-      require "../conf/config.pl";
-    }else{
-      die "unable to find config.pl";
-    }
+  #if( ! defined($ENV{AMIGO_CGI_ROOT_DIR}) || $ENV{AMIGO_CGI_ROOT_DIR} eq '' ){
+  if( -f "./config.pl" ){
+    require "./config.pl";
+  }elsif( -f "./conf/config.pl" ){
+    require "./conf/config.pl";
+  }elsif( -f "../conf/config.pl" ){
+    require "../conf/config.pl";
+  }else{
+    die "unable to find config.pl";
   }
+  #}
 }
 
 ## Bring in necessaries.
