@@ -6,7 +6,7 @@
 BEGIN {
   ## Try and find our env config file if we can't get it out of the
   ## environment.
-  if( $ENV{AMIGO_CGI_ROOT_DIR} ){
+  if( ! defined($ENV{AMIGO_CGI_ROOT_DIR}) || $ENV{AMIGO_CGI_ROOT_DIR} eq '' ){
     if( -f "./config.pl" ){
       require "./config.pl";
     }elsif( -f "./conf/config.pl" ){
