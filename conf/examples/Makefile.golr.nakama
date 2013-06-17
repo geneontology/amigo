@@ -1,0 +1,214 @@
+####
+#### Testing and load helpers for GOlr
+####
+
+###
+### User variables.
+###
+### Remember that those with "?=" can be overridden with
+### environmental variables. Helpful if you are trying to automate
+### things, like with Jenkins for example.
+###
+
+## Options.
+OWLTOOLS_MAX_MEMORY ?= 32G
+OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS = --merge-support-ontologies --reasoner elk
+
+## Bins.
+MAVEN_EXE ?= ~/local/src/java/apache-maven-3.0.4/bin/mvn
+
+## URLs.
+SOLR_URL ?= http://localhost:8080/solr/ 
+
+## Paths.
+OWLTOOLS_ROOT ?= ~/local/src/svn/owltools/
+BBOP_JS_ROOT ?= ~/local/src/git/bbop-js/
+PANTHER_FILES_DIR ?= ~/local/src/svn/geneontology.org/trunk/experimental/trees/panther_data/
+
+## Files.
+SOLR_LOAD_LOG ?= /tmp/golr_timestamp.log
+
+## File lists.
+SCHEMA_METADATA ?= \
+ ../metadata/ont-config.yaml \
+ ../metadata/bio-config.yaml \
+ ../metadata/ann-config.yaml \
+ ../metadata/protein-family-config.yaml \
+ ../metadata/general-config.yaml \
+ ../metadata/ann_ev_agg-config.yaml
+ONTOLOGY_METADATA ?= ../metadata/ont-config.yaml
+ONTOLOGIES ?= \
+ http://purl.obolibrary.org/obo/go.owl \
+ http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl \
+ http://purl.obolibrary.org/obo/cl/cl-basic.owl \
+ http://purl.obolibrary.org/obo/eco.owl \
+ http://geneontology.org/ontology/extensions/gorel.owl
+## Next:
+# http://purl.obolibrary.org/obo/ma.owl \
+# http://purl.obolibrary.org/obo/emap.owl \
+# http://purl.obolibrary.org/obo/uberon/basic.owl
+
+ALL_GAFS ?= \
+	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Lmajor.gz \
+	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Pfalciparum.gz \
+	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Spombe.gz  \
+	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Tbrucei.gz \
+	http://www.geneontology.org/gene-associations/gene_association.GeneDB_tsetse.gz \
+	http://www.geneontology.org/gene-associations/gene_association.PAMGO_Atumefaciens.gz \
+	http://www.geneontology.org/gene-associations/gene_association.PAMGO_Ddadantii.gz \
+	http://www.geneontology.org/gene-associations/gene_association.PAMGO_Mgrisea.gz \
+	http://www.geneontology.org/gene-associations/gene_association.PAMGO_Oomycetes.gz \
+	http://www.geneontology.org/gene-associations/gene_association.aspgd.gz \
+	http://www.geneontology.org/gene-associations/gene_association.cgd.gz \
+	http://www.geneontology.org/gene-associations/gene_association.dictyBase.gz \
+	http://www.geneontology.org/gene-associations/gene_association.ecocyc.gz \
+	http://www.geneontology.org/gene-associations/gene_association.fb.gz \
+	http://www.geneontology.org/gene-associations/gene_association.goa_arabidopsis.gz \
+	http://www.geneontology.org/gene-associations/gene_association.goa_chicken.gz \
+	http://www.geneontology.org/gene-associations/gene_association.goa_cow.gz \
+	http://www.geneontology.org/gene-associations/gene_association.goa_dog.gz \
+	http://www.geneontology.org/gene-associations/gene_association.goa_human.gz \
+	http://www.geneontology.org/gene-associations/gene_association.goa_mouse.gz \
+	http://www.geneontology.org/gene-associations/gene_association.goa_pdb.gz \
+	http://www.geneontology.org/gene-associations/gene_association.goa_pig.gz \
+	http://www.geneontology.org/gene-associations/gene_association.goa_rat.gz \
+	http://www.geneontology.org/gene-associations/gene_association.goa_uniprot_noiea.gz \
+	http://www.geneontology.org/gene-associations/gene_association.goa_zebrafish.gz \
+	http://www.geneontology.org/gene-associations/gene_association.gonuts.gz \
+	http://www.geneontology.org/gene-associations/gene_association.gramene_oryza.gz \
+	http://www.geneontology.org/gene-associations/gene_association.jcvi.gz \
+	http://www.geneontology.org/gene-associations/gene_association.mgi.gz \
+	http://www.geneontology.org/gene-associations/gene_association.pombase.gz \
+	http://www.geneontology.org/gene-associations/gene_association.pseudocap.gz \
+	http://www.geneontology.org/gene-associations/gene_association.reactome.gz \
+	http://www.geneontology.org/gene-associations/gene_association.rgd.gz \
+	http://www.geneontology.org/gene-associations/gene_association.sgd.gz \
+	http://www.geneontology.org/gene-associations/gene_association.sgn.gz \
+	http://www.geneontology.org/gene-associations/gene_association.tair.gz \
+	http://www.geneontology.org/gene-associations/gene_association.wb.gz \
+	http://www.geneontology.org/gene-associations/gene_association.zfin.gz \
+	http://www.geneontology.org/gene-associations/submission/paint/pre-submission/gene_association.paint_other.gaf # And higher-level PAINT annotations.
+
+MGI_GAF = http://www.geneontology.org/gene-associations/gene_association.mgi.gz
+MGI_TEST_GAF = ./_test/mgi-limited.gaf
+MGI_NANO_GAF = ./_test/mgi-limited-100.gaf
+
+##
+DATE = `date +'%Y-%m-%d'`
+TIME = `date +'%H:%M'`
+
+###
+### Nothing to see below here: targets.
+###
+
+all:
+	@echo "Not a valid target here. Please read the documentation."
+
+###
+### OWLTools operations.
+###
+
+.PHONY: owltools-update
+owltools-update:
+	cd $(OWLTOOLS_ROOT) && svn update
+# svn update --accept theirs-full
+
+.PHONY: owltools-build
+owltools-build:
+	cd $(OWLTOOLS_ROOT)/OWLTools-Parent && $(MAVEN_EXE) clean package -DskipTests
+
+.PHONY: owltools-test
+owltools-test:
+	cd $(OWLTOOLS_ROOT)/OWLTools-Parent && $(MAVEN_EXE) clean package
+
+###
+### GOlr operations.
+###
+
+.PHONY: golr-install
+golr-install:
+	sudo ./tools/golr.el
+
+.PHONY: golr-purge
+golr-purge:
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --solr-purge
+
+.PHONY: golr-schema
+golr-schema:
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-config $(SCHEMA_METADATA) --solr-schema-dump | ./tools/remove-schema-cruft.pl > ./solr/conf/schema.xml
+
+###
+### Loading.
+###
+
+## Create a warning message about loading.
+.PHONY: message-load-start
+message-load-start:
+	../scripts/global-message.pl -e "GOlr is currently being reloaded (started at $(TIME) on $(DATE)). Any results will be partial at best--please check back later."
+
+## Create a warning message about loading.
+.PHONY: message-load-clear
+message-load-clear:
+	../scripts/global-message.pl -c
+
+## Load the ontology stuff.
+.PHONY: load-ontology
+load-ontology: owltools-build
+	make message-load-start
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-config $(ONTOLOGY_METADATA) --solr-log $(SOLR_LOAD_LOG) --solr-load-ontology --solr-load-ontology-general
+	make message-load-clear
+
+## Test GAF.
+.PHONY: load-mgi-gaf
+load-mgi-gaf: owltools-build
+	make message-load-start
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --read-panther $(PANTHER_FILES_DIR) --solr-log $(SOLR_LOAD_LOG) --solr-load-gafs $(MGI_GAF) --solr-load-panther --solr-load-panther-general
+	make message-load-clear
+
+## Test GAF: A test load with the MGI GAF--column 16, etc.
+.PHONY: load-mgi-test-gaf
+load-mgi-test-gaf: owltools-build
+	make message-load-start
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --read-panther $(PANTHER_FILES_DIR) --solr-log $(SOLR_LOAD_LOG) --solr-load-gafs $(MGI_TEST_GAF) --solr-load-panther --solr-load-panther-general
+	make message-load-clear
+
+## Test GAF: A super minimal tiny test load with the MGI GAF--column 16, etc.
+## No PANTHER.
+.PHONY: load-mgi-nano-gaf
+load-mgi-nano-gaf: owltools-build
+	make message-load-start
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-log $(SOLR_LOAD_LOG) --solr-load-gafs $(MGI_NANO_GAF)
+	make message-load-clear
+
+## Test PANTHER: A test load with just PANTHER (no GAF info).
+.PHONY: load-just-panther
+load-just-panther: owltools-build
+	make message-load-start
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --read-panther $(PANTHER_FILES_DIR) --solr-log $(SOLR_LOAD_LOG) --solr-load-panther --solr-load-panther-general
+	make message-load-clear
+
+## The full and final load.
+.PHONY: load-full
+load-full: owltools-build
+	make message-load-start
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-log $(SOLR_LOAD_LOG) --solr-load-ontology --solr-load-ontology-general --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(ALL_GAFS) --solr-load-panther --solr-load-panther-general
+	make message-load-clear
+
+## An option optimizing step.
+.PHONY: load-optimize
+load-optimize:
+	../scripts/global-message.pl -w "GOlr is currently being optimized (started at $(TIME) on $(DATE)). Expect reduced performance."
+	$(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --solr-optimize
+	../scripts/global-message.pl -c
+
+###
+### Services.
+###
+
+.PHONY: service-restart-nginx
+service-restart-nginx:
+	cd /tmp && sudo trash-put golr-rps-cache amigo2-rps-cache && sudo trash-empty && sudo /etc/init.d/nginx restart
+
+.PHONY: service-restart-jetty
+service-restart-jetty:
+	sudo /etc/init.d/jetty restart
