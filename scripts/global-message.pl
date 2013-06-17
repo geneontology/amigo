@@ -78,7 +78,7 @@ sub _write_to_file {
   my $cont = shift || die "need a contents arg";
 
   my $final_fname = $root_dir . '/' . $fname;
-  open OFILE, ">$final_fname" or die "Couldn't open file $final_name: $!";
+  open OFILE, ">$final_fname" or die "Couldn't open file $final_fname: $!";
   print OFILE $cont;
   close OFILE;
 
