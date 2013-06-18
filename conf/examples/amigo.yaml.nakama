@@ -66,7 +66,7 @@ AMIGO_PUBLIC_GOLR_URL:
 AMIGO_ROOT:
   comment: "Please enter the full path to the SVN geneontology/AmiGO[/trunk] directory.\n"
   type: directory
-  value: /home/swdev/local/src/git/amigo
+  value: /home/swdev/workspace/load-golr-nakama
 AMIGO_SESSION_TIMEOUT:
   comment: The amount of time before an AmiGO session expires.
   type: integer
