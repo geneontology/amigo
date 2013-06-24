@@ -299,7 +299,7 @@ ul.dot { list-style-type: disc; margin-left: 20px; }
 #topSrchInput { width: 12em; }
 
 #footer p { margin: 5px 10px; font-size: 70%; text-align: right; line-height: 1.5; }
-#footer .left { float: left; font-size: 100%; }
+#footer .left { float: left; font-size: 80%; line-height: 1.5; }
 
 #shout { color : #7538D7; text-align : center; text-decoration : underline; font-weight : bold; font-style : italic; }
 
