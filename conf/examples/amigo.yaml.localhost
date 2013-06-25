@@ -1,4 +1,8 @@
 ---
+AMIGO_BALANCER:
+  comment: "Mark this AmiGO 2 installation as behind a load balanacer or similar system. The practical effect of this flag is that if AmiGO detects *.error or *.warning files (usually created by the global-message.pl script), it will return a 503 page signalling any upstream system that the instance is not currently ready.\n"
+  type: boolean
+  value: 0
 AMIGO_BETA:
   comment: "Mark the AmiGO site as BETA (triggers some changes in variables and installed features).\n"
   type: boolean
@@ -27,10 +31,6 @@ AMIGO_HTDOCS_PARTIAL_URL:
   comment: Please enter the URL that this path maps to.
   type: url
   value: http://localhost
-AMIGO_JS_VERSION:
-  comment: The version to apply to the JS bundle creation (should match BBOP-JS).
-  type: string
-  value: 0.9
 AMIGO_LAYOUT_LANDING:
   comment: A whitespace separated list of class IDs to use for searches on the landing page. NOT CURRENTLY USED.
   type: string
@@ -72,9 +72,9 @@ AMIGO_VERBOSE:
   type: boolean
   value: 1
 AMIGO_VERSION:
-  comment: Displayed AmiGO version string.
+  comment: Displayed AmiGO version string. This string is also used to create the AmiGO JS versioning.
   type: string
-  value: 2.0
+  value: 2.0b1
 GOLR_TIMESTAMP_LOCATION:
   comment: "This is the *full* path to the timestamp file that is optionally produced by OWLTools during GOlr loading. It contains information about download attempt times for the different loaded files. If not found or unusable, AmiGO 2 will gracefully ignore it.\n"
   type: file

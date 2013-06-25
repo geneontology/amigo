@@ -127,14 +127,19 @@ AMIGO_BETA:
     variables and installed features).
   type: boolean
 
-AMIGO_VERSION:
-  value: 2.0
-  comment: Displayed AmiGO version string.
-  type: string
+AMIGO_BALANCER:
+  value: 0
+  comment: >
+    Mark this AmiGO 2 installation as behind a load balanacer or
+    similar system. The practical effect of this flag is that if AmiGO
+    detects *.error or *.warning files (usually created by the
+    global-message.pl script), it will return a 503 page signalling
+    any upstream system that the instance is not currently ready.
+  type: boolean
 
-AMIGO_JS_VERSION:
-  value: 0.9
-  comment: The version to apply to the JS bundle creation (should match BBOP-JS).
+AMIGO_VERSION:
+  value: 2.0b1
+  comment: "Displayed AmiGO version string. This string is also used to create the AmiGO JS versioning."
   type: string
 
 AMIGO_GOOGLE_ANALYTICS_ID:

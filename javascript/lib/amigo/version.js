@@ -17,11 +17,11 @@ amigo.version = {};
  * Partial version for this library; revision (major/minor version numbers)
  * information.
  */
-amigo.version.revision = "0.9";
+amigo.version.revision = "2.0b1";
 
 /*
  * Variable: release
  *
  * Partial version for this library: release (date-like) information.
  */
-amigo.version.release = "20130624";
+amigo.version.release = "20130625";

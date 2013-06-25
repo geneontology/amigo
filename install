@@ -338,7 +338,7 @@ my $release_args_compressed =
    '-o', 'javascript/staging/amigo.js',
    '-n', 'amigo',
    '-d', 'javascript/lib/amigo',
-   '-r', $env_conf{AMIGO_JS_VERSION}
+   '-r', $env_conf{AMIGO_VERSION}
   ];
 ## In the case that we don't want compression, add the -u flag.
 if( $opt_u ){
@@ -350,7 +350,7 @@ if( $opt_u ){
      '-o', 'javascript/staging/amigo.js',
      '-n', 'amigo',
      '-d', 'javascript/lib/amigo',
-     '-r', $env_conf{AMIGO_JS_VERSION}
+     '-r', $env_conf{AMIGO_VERSION}
     ];
 }
 my $rcmd = join(' ', @$release_args_compressed);
