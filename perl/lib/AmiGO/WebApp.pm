@@ -18,6 +18,8 @@ HTML and JSON flavored user classes.
 package AmiGO::WebApp;
 
 use base 'CGI::Application';
+
+use CGI::Application::Plugin::Forward;
 use AmiGO;
 use AmiGO::JSON;
 use AmiGO::JavaScript;
@@ -51,9 +53,6 @@ sub cgiapp_init {
 
 ## NOTE: This will run on every request (once in a CGI env, maybe many
 ## times in a mod_perl env).
-## Perform some project-specific init behavior
-## such as to implement run mode specific
-## authorization functions.
 sub cgiapp_prerun {
 
   my $self = shift;
@@ -168,8 +167,45 @@ sub cgiapp_prerun {
 #       $self->_workspace_safety($workspace_name);
 #     }
   }
-}
 
+
+  ## Okay, here we're going to add a little system of passing messages
+  ## globally through filesystem manipulation.
+  my $root_dir = $self->{CORE}->amigo_env('AMIGO_CGI_ROOT_DIR');
+  my @root_a_files = glob($root_dir . '/.amigo.*');
+  foreach my $afile (@root_a_files){
+    if( $afile =~ /\.amigo\.warning.*/ ){
+      my $cstr = _min_slurp($afile);
+      $self->add_mq('warning', $cstr) if $cstr;
+    }elsif( $afile =~ /\.amigo\.error.*/ ){
+      my $cstr = _min_slurp($afile);
+      $self->add_mq('error', $cstr) if $cstr;
+    }else{
+      ## Everything else is ignored.
+    }
+  }
+
+  ## We are also going to bail out early if it looks like our
+  ## environment is bad and we have the balancer flag set.
+  my $reportable_error = undef;
+  if( $self->{CORE}->amigo_env('AMIGO_BALANCER') ){
+    foreach my $queue (("warning", "error")){
+      my $messages = $self->get_mq($queue);
+      foreach my $message (@$messages){
+	## Grab the last message.
+	$reportable_error = $queue . ': ' . $message;
+      }
+    }
+  }
+  ## Trip if there is a reportable error.
+  if( defined($reportable_error) ){
+    ## The journey ends here.
+    #$self->{CORE}->kvetch("done with status $code and message ($message)");
+    #$self->query->status(503);
+    $self->_status_message_exit('503', $reportable_error);
+    exit;
+  }
+}
 
 ## NOTE: typical post processing purposes...
 #   * Your run modes return structured data (such as XML), which you
@@ -244,7 +280,7 @@ sub flush_mq {
 =item get_mq
 
 Args: queue string
-Returns: aref of message string or undef if no such queue
+Returns: aref of message strings or undef if no such queue
 
 =cut
 sub get_mq {
@@ -838,27 +874,48 @@ sub _min_slurp {
   return $string;
 }
 
-##
-sub check_for_condition_files {
+# ##
+# sub check_for_condition_files {
 
-  my $self = shift;
+#   my $self = shift;
 
-  ## Okay, here we're going to add a little system of passing messages
-  ## globally through filesystem manipulation.
-  my $root_dir = $self->{CORE}->amigo_env('AMIGO_CGI_ROOT_DIR');
-  my @root_a_files = glob($root_dir . '/.amigo.*');
-  foreach my $afile (@root_a_files){
-    if( $afile =~ /\.amigo\.warning.*/ ){
-      my $cstr = _min_slurp($afile);
-      $self->add_mq('warning', $cstr) if $cstr;
-    }elsif( $afile =~ /\.amigo\.error.*/ ){
-      my $cstr = _min_slurp($afile);
-      $self->add_mq('error', $cstr) if $cstr;
-    }else{
-      ## Everything else is ignored.
-    }
-  }
-}
+#   # ## Okay, here we're going to add a little system of passing messages
+#   # ## globally through filesystem manipulation.
+#   # my $root_dir = $self->{CORE}->amigo_env('AMIGO_CGI_ROOT_DIR');
+#   # my @root_a_files = glob($root_dir . '/.amigo.*');
+#   # foreach my $afile (@root_a_files){
+#   #   if( $afile =~ /\.amigo\.warning.*/ ){
+#   #     my $cstr = _min_slurp($afile);
+#   #     $self->add_mq('warning', $cstr) if $cstr;
+#   #   }elsif( $afile =~ /\.amigo\.error.*/ ){
+#   #     my $cstr = _min_slurp($afile);
+#   #     $self->add_mq('error', $cstr) if $cstr;
+#   #   }else{
+#   #     ## Everything else is ignored.
+#   #   }
+#   # }
+
+#   # ## If we are set as a load balancer, stop the processing if we have
+#   # ## any issues. Look for a reportable error if we have the right
+#   # ## variable set.
+#   # my $reportable_error = undef;
+#   # if( $self->{CORE}->amigo_env('AMIGO_BALANCER') ){
+#   #   foreach my $queue (("warning", "error")){
+#   #     my $messages = $self->get_mq($queue);
+#   #     foreach my $message (@$messages){
+#   # 	## Grab the last message.
+#   # 	$reportable_error = $queue . ': ' . $message;
+#   #     }
+#   #   }
+#   # }
+#   # ## Trip if there is a reportable error.
+#   # if( defined($reportable_error) ){
+#   #   ## The journey ends here.
+#   #   #$self->header_props(-status => 503);
+#   #   #$self->query->status(503);
+#   #   $self->mode_done_with_status_and_message('503', $reportable_error);
+#   # }
+# }
 
 ###
 ### Common mode handling (HTML).
@@ -876,6 +933,24 @@ sub mode_status {
   return $self->generate_template_page();
 }
 
+##
+sub _status_message_exit {
+
+  my $self = shift;
+  my $code = shift || die 'requires a status code';
+  my $message = shift || die 'requires a message';
+
+  $self->{CORE}->kvetch("done with status $code and message ($message)");
+
+  $self->header_props(-status => 503);
+  $self->teardown();
+  print $self->_send_headers();
+  print $message;
+
+  #$self->header_add( -status => $code );
+  #return $self->generate_template_page();
+  exit;
+}
 
 ## Generic internal fatal error. Uses $@.
 sub mode_fatal {

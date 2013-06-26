@@ -90,7 +90,7 @@ sub mode_landing {
 
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile();
-  $self->check_for_condition_files();
+  #$self->check_for_condition_files();
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'landing');
@@ -156,7 +156,7 @@ sub mode_browse {
 
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile();
-  $self->check_for_condition_files();
+  #$self->check_for_condition_files();
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'browse');
@@ -217,7 +217,7 @@ sub mode_simple_search {
 
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile('simple_search');
-  $self->check_for_condition_files();
+  #$self->check_for_condition_files();
 
   ## Tally up if we have insufficient information to do a query.
   my $insufficient_info_p = 2;
@@ -440,7 +440,7 @@ sub mode_software_list {
 
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile();
-  $self->check_for_condition_files();
+  #$self->check_for_condition_files();
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'software_list');
@@ -508,7 +508,7 @@ sub mode_schema_details {
 
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile();
-  $self->check_for_condition_files();
+  #$self->check_for_condition_files();
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'schema_details');
@@ -567,7 +567,7 @@ sub mode_load_details {
 
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile();
-  $self->check_for_condition_files();
+  #$self->check_for_condition_files();
 
   ## Load in the GOlr timestamp details.
   my $glog = $self->{CORE}->amigo_env('GOLR_TIMESTAMP_LOCATION');
@@ -660,7 +660,7 @@ sub mode_visualize {
   my $input_term_data = $params->{term_data};
 
   ## ...and the message queue.
-  $self->check_for_condition_files();
+  #$self->check_for_condition_files();
 
   ## Cleanse input data of newlines.
   $input_term_data =~ s/\n/ /gso;
@@ -744,7 +744,7 @@ sub mode_live_search {
   my $query = $params->{query} || '';
 
   ## ...and the message queue.
-  $self->check_for_condition_files();
+  #$self->check_for_condition_files();
 
   ## Try and come to terms with Galaxy.
   my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
@@ -831,7 +831,7 @@ sub mode_golr_term_details {
   ## Deal with the different types of dispatch we might be facing.
   $params->{term} = $self->param('term')
     if ! $params->{term} && $self->param('term');
-  $self->check_for_condition_files();
+  #$self->check_for_condition_files();
   $self->{CORE}->kvetch(Dumper($params));
   my $input_term_id = $params->{term};
 
@@ -1099,7 +1099,7 @@ sub mode_golr_gene_product_details {
 
   ##
   my $i = AmiGO::WebApp::Input->new();
-  $self->check_for_condition_files();
+  #$self->check_for_condition_files();
   my $params = $i->input_profile('gp');
   ## Deal with the different types of dispatch we might be facing.
   $params->{gp} = $self->param('gp')
@@ -1215,7 +1215,7 @@ sub mode_phylo_graph {
   my $input_gp_id = $params->{gp};
 
   ## ...and the message queue.
-  $self->check_for_condition_files();
+  #$self->check_for_condition_files();
 
   ## Input sanity check.
   if( ! $input_gp_id ){
