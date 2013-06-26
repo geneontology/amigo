@@ -42,9 +42,9 @@ ONTOLOGIES ?= \
  http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl \
  http://purl.obolibrary.org/obo/cl/cl-basic.owl \
  http://purl.obolibrary.org/obo/eco.owl \
- http://geneontology.org/ontology/extensions/gorel.owl
+ http://geneontology.org/ontology/extensions/gorel.owl \
+ http://purl.obolibrary.org/obo/ma.owl
 ## Next:
-# http://purl.obolibrary.org/obo/ma.owl \
 # http://purl.obolibrary.org/obo/emap.owl \
 # http://purl.obolibrary.org/obo/uberon/basic.owl
 
