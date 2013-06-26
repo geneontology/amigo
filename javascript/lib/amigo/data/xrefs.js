@@ -677,6 +677,21 @@ amigo.data.xrefs = {
       "url_syntax" : "http://www.uniprot.org/uniprot/[example_id]",
       "datatype" : null
    },
+   "coriell" : {
+      "object" : "Identifier",
+      "uri_prefix" : null,
+      "name" : null,
+      "url_example" : "http://ccr.coriell.org/Sections/Search/Sample_Detail.aspx?Ref=GM07892",
+      "description" : "The Coriell Cell Repositories provide essential research reagents to the scientific community by establishing, verifying, maintaining, and distributing cell cultures and DNA derived from cell cultures. These collections, supported by funds from the National Institutes of Health (NIH) and several foundations, are extensively utilized by research scientists around the world. ",
+      "database" : "Coriell Institute for Medical Research",
+      "example_id" : "GM07892",
+      "generic_url" : "http://ccr.coriell.org/",
+      "fullname" : null,
+      "id" : null,
+      "abbreviation" : "CORIELL",
+      "url_syntax" : "http://ccr.coriell.org/Sections/Search/Sample_Detail.aspx?Ref=[example_id]",
+      "datatype" : null
+   },
    "cdd" : {
       "object" : "Identifier",
       "uri_prefix" : null,
