@@ -692,6 +692,15 @@ div .mq_message {
     padding: .5em 1em;
 }
 
+/* Darken the beta items. */
+/* .amigo-landing-navigation-beta { */
+/*     size: 80%; */
+/* } */
+/* .amigo-landing-navigation-beta tr td { */
+/*     border: 1px solid #3875D7; */
+/*     background-color: #e9effa; */
+/* } */
+
 .amigo-grebe-action-icon {
     cursor: pointer;
     height: 25px;
