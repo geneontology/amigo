@@ -7,6 +7,7 @@
 
     <h4>Ontologies</h4>
     [%   IF TS_DETAILS_ONT AND TS_DETAILS_ONT.size > 0 %]
+    [%      list_table_id = "details_ont" %]
     [%      load_detail_list = TS_DETAILS_ONT %]
     [%      INCLUDE "common/load_detail_list.tmpl" %]
     [%   ELSE %]
@@ -17,6 +18,7 @@
     
     <h4>GAFs</h4>
     [%   IF TS_DETAILS_GAF AND TS_DETAILS_GAF.size > 0 %]
+    [%      list_table_id = "details_gaf" %]
     [%      load_detail_list = TS_DETAILS_GAF %]
     [%      INCLUDE "common/load_detail_list.tmpl" %]
     [%   ELSE %]

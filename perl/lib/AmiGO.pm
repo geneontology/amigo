@@ -1542,13 +1542,14 @@ sub golr_timestamp_log {
       while( <GLOGFILE> ){
 	## TSV.
 	my @fields = split /\t/, $_;
-	if( scalar(@fields) == 3 ){
+	if( scalar(@fields) == 4 ){
 	  ## line okay.
 	  push @$ret_aref,
 	    {
 	     type => $fields[0],
-	     time => $fields[1],
-	     file => $fields[2],
+	     version => $fields[1],
+	     time => $fields[2],
+	     file => $fields[3],
 	    };
 	}
       }

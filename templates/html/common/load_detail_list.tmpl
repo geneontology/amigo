@@ -1,16 +1,26 @@
 <!-- Begin: load_detail_list.tmpl -->
-<ul>
-  [% i = 0 %]
-  [% FOREACH item IN load_detail_list %]
-  [%    IF i % 2 == 0 %]
-  <li class="even_row">
-  [%    ELSE %]
-  <li class="odd_row">
-  [%    END %]
-  [% i = i + 1 %]
-    <!-- [% item.time %] <a href="[% item.file %]">[% item.file %]</a> -->
-    [% item.time %] [% item.file %]
-  </li>
-  [% END %]
-</ul>
+<table id="[% list_table_id %]">
+  <thead>
+    <tr>
+      <th>version<img style="border: 0px;" src="[% image_dir %]/reorder.gif" title="Reorder by version" alt="[Reorder by version]" /></th>
+      <th>load date<img style="border: 0px;" src="[% image_dir %]/reorder.gif" title="Reorder by load date" alt="[Reorder by load date]" /></th>
+      <th>file<img style="border: 0px;" src="[% image_dir %]/reorder.gif" title="Reorder by file" alt="[Reorder by file]" /></th>
+    </tr>
+  </thead>
+  <tbody>
+    [% i = 0 %]
+    [% FOREACH item IN load_detail_list %]
+    [%    IF i % 2 == 0 %]
+    <tr class="even_row">
+    [%    ELSE %]
+    <tr class="odd_row">
+      [%  END %]
+      [% i = i + 1 %]
+      <td>[% item.version %]</td>
+      <td>[% item.time %]</td>
+      <td>[% item.file %]</td>
+    </tr>
+    [% END %]
+  </tbody>
+</table>
 <!-- End: load_detail_list.tmpl -->

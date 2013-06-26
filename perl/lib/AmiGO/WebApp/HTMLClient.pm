@@ -622,17 +622,19 @@ sub mode_load_details {
      [
       'com.jquery',
       'com.jquery-ui',
-      #'com.jquery.tablesorter',
+      'com.jquery.tablesorter',
       'bbop',
       'amigo'
      ],
      javascript =>
      [
-      $self->{JS}->get_lib('GeneralSearchForwarding.js')
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('LoadDetails.js')
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();'
+      'GeneralSearchForwardingInit();',
+      'LoadDetailsInit();'
      ],
      content =>
      [
