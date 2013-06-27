@@ -14,7 +14,7 @@ SOLR_LOAD_LOG ?= /home/swdev/local/src/git/amigo/golr/golr_timestamp.log
 AMIGO_CGI_ROOT_DIR ?= /srv/www-amigo2/cgi-bin/amigo2/
 
 ## Options.
-OWLTOOLS_MAX_MEMORY ?= 128G
+OWLTOOLS_MAX_MEMORY ?= 192G
 OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS = --merge-support-ontologies --reasoner elk
 
 ## Bins.
@@ -45,9 +45,9 @@ ONTOLOGIES ?= \
  http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl \
  http://purl.obolibrary.org/obo/cl/cl-basic.owl \
  http://purl.obolibrary.org/obo/eco.owl \
- http://geneontology.org/ontology/extensions/gorel.owl
+ http://geneontology.org/ontology/extensions/gorel.owl \
+ http://purl.obolibrary.org/obo/ma.owl
 ## Next:
-# http://purl.obolibrary.org/obo/ma.owl \
 # http://purl.obolibrary.org/obo/emap.owl \
 # http://purl.obolibrary.org/obo/uberon/basic.owl
 
