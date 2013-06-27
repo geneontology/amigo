@@ -668,8 +668,7 @@ sub _common_params_settings {
   $params->{version} = $self->{CORE}->amigo_env('AMIGO_VERSION');
   my $sid = $params->{session_id} || '';
   $params->{session_id_for_url} = 'session_id=' . $sid;
-  my $server_name = $self->{CORE}->amigo_env('SERVER_NAME') || 'unknown';
-  $params->{server_name} = $server_name;
+  $params->{server_name} = $self->{CORE}->amigo_env('AMIGO_SERVER_NAME') || '';
 
   ## Titles seems to be the odds ones out for some reason.
   $params->{page_title} = 'AmiGO';

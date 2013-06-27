@@ -137,6 +137,14 @@ AMIGO_BALANCER:
     any upstream system that the instance is not currently ready.
   type: boolean
 
+AMIGO_SERVER_NAME:
+  value: ""
+  comment: >
+    The name by which your AmiGO instance wishes to known--think load
+    balancer or cache situations. If you would rather this information
+    not be reported, leave blank.
+  type: string
+
 AMIGO_VERSION:
   value: 2.0b1
   comment: "Displayed AmiGO version string. This string is also used to create the AmiGO JS versioning."
