@@ -1354,14 +1354,14 @@ bbop.version = {};
  * Partial version for this library; revision (major/minor version numbers)
  * information.
  */
-bbop.version.revision = "1.0b1";
+bbop.version.revision = "2.0b1";
 
 /*
  * Variable: release
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130625";
+bbop.version.release = "20130627";
 /* 
  * Package: json.js
  * 
