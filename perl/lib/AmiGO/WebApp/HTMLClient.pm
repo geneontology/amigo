@@ -804,10 +804,12 @@ sub mode_live_search {
       $self->{JS}->make_var('global_live_search_bookmark', $bookmark),
       $self->{JS}->make_var('global_live_search_query', $query),
       #$self->{JS}->make_var('global_live_search_golr_class', $golr_class),
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('LiveSearchGOlr.js')
      ],
      javascript_init =>
      [
+      'GeneralSearchForwardingInit();',
       'LiveSearchGOlrInit();'
      ],
      content =>
