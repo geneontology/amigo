@@ -57,7 +57,7 @@ function GPDetailsInit(){
 	'rows': 7500
     };
     // Add buttons before we go live.
-    var id_download_button =
+    var id_download_button = 
 	{
 	    label: 'Download term IDs (up to 7500)',
 	    diabled_p: false,
