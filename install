@@ -18,7 +18,6 @@ use vars qw(
 	     $opt_h
 	     $opt_v
 	     $opt_g
-	     $opt_e
 	     $opt_b
 	     $opt_u
 	  );
@@ -26,7 +25,7 @@ use Getopt::Std;
 
 
 ## Since internal checks are done, get ready for user input.
-getopts('hvgedbu');
+getopts('hvgdbu');
 
 ## Embedded help through perldoc.
 if( $opt_h ){
@@ -39,9 +38,6 @@ my @args = ();
 
 ## Check our options.
 ll("Will print verbose messages.");
-if ( $opt_e ) {
-  ll("Will also install experimental binaries and executables.");
-}
 if ( $opt_g ) {
   ll("Will also install GOOSE, Gannet, Grebe, and REPL.");
 }
@@ -110,25 +106,18 @@ my %env_conf;
 ## Roll into env_conf.
 for my $var (keys %$yconf){
   ## Check that it is a real var, and not Config::YAML overhead.
-  #if( $yconf->{$var} ){
   if( $yconf->{$var} && ref($yconf->{$var}) eq 'HASH' ){
     my $var_type = $yconf->{$var}{type};
     if( $var_type eq 'boolean' ||
 	$var_type eq 'integer' ||
 	$var_type eq 'number' ){
+      ## Attempt to turn number types back into numbers.
       $env_conf{$var} = int($yconf->{$var}{value});
-    # }elsif( $var_type eq 'list' ){
-    #   $env_conf{$var} = '["' . join('", "', @{$yconf->{$var}{value}}) . '"]';
     }else{
+      ## Take strings as-is.
       $env_conf{$var} = $yconf->{$var}{value};
     }
   }
-}
-
-## As a convenience, let's switch the amigo_beta new_value on the "-e"
-## flag. This will tie installation and experimental.
-if( $opt_e ){
-  $env_conf{AMIGO_BETA} = 1;
 }
 
 ###
@@ -379,7 +368,7 @@ if( ! $opt_b ){
      );
 
   ## Copy bulk experimental things over to the new directory.
-  if ( $opt_e ) {
+  if (  $env_conf{AMIGO_BETA} ) {
     push @mods,
       qw(
 	  amigo_exp
@@ -491,6 +480,8 @@ EOC
 
   ##
   foreach ( keys %env_conf ) {
+
+    print STDERR '$ENV{' . $_ . '}=' . $env_conf{$_} . "\n";
 
     my $syn = "\$ENV{" . $_. "}=";
     #if( $_ eq 'PATH' ){
@@ -1306,10 +1297,6 @@ Enable more verbose messages. This is useful for checking installation errors.
 Do just enough to produce a JS bundle and documentation; will not make
 installation filesystem changes beyond the local configuration files
 and the staging area. Could maybe be used as a gross test run.
-
-=item -e
-
-Also install experimental CGIs, binaries, and configs.
 
 =item -g
 

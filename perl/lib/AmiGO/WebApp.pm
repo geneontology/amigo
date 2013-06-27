@@ -646,14 +646,20 @@ sub _common_params_settings {
 
   $params->{STANDARD_CSS} = 'yes';
 
+  sub _atoi {
+    my $thing = shift || 0;
+    $thing = $self->{CORE}->atoi($thing);
+    return $thing || 0;
+  }
+
   ## Create and add to output buffer.
   ## TODO: these need to be folded in somewhere--shouldn't be here...
   $params->{base} = $self->{CORE}->amigo_env('AMIGO_CGI_URL');
-  $params->{public_base} =
-    $self->{CORE}->amigo_env('AMIGO_PUBLIC_CGI_URL');
-  $params->{BETA} = $self->{CORE}->amigo_env('AMIGO_BETA') || 0;
+  $params->{public_base} = $self->{CORE}->amigo_env('AMIGO_PUBLIC_CGI_URL');
+  $params->{BETA} =
+    _atoi($self->{CORE}->amigo_env('AMIGO_BETA'));
   $params->{show_goose_links} =
-    $self->{CORE}->amigo_env('AMIGO_SHOW_GOOSE_LINKS') || 0;
+    _atoi($self->{CORE}->amigo_env('AMIGO_SHOW_GOOSE_LINKS'));
   $params->{last_load_date} = $self->{CORE}->amigo_env('GOLR_TIMESTAMP_LAST');
   #$params->{release_name} = $self->{CORE}->release_name();
   #$params->{release_type} = $self->{CORE}->release_type();
@@ -663,7 +669,8 @@ sub _common_params_settings {
   $params->{image_dir} = $self->{CORE}->amigo_env('AMIGO_HTML_URL') . '/images';
   $params->{js_dir} = $self->{CORE}->amigo_env('AMIGO_HTML_URL') .'/javascript';
   $params->{css_dir} = $self->{CORE}->amigo_env('AMIGO_HTML_URL') . '/css';
-  $params->{show_blast} = $self->{CORE}->amigo_env('AMIGO_SHOW_BLAST') || 0;
+  $params->{show_blast} =
+    _atoi($self->{CORE}->amigo_env('AMIGO_SHOW_BLAST'));
   $params->{html_url} = $self->{CORE}->amigo_env('AMIGO_HTML_URL');
   $params->{version} = $self->{CORE}->amigo_env('AMIGO_VERSION');
   my $sid = $params->{session_id} || '';
