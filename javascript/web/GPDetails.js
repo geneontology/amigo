@@ -51,6 +51,32 @@ function GPDetailsInit(){
     gps.add_query_filter('document_category', 'annotation', ['*']);
     gps.add_query_filter('bioentity', global_acc, ['*']);
 
+    // Global download properties.
+    var _dl_props = {
+	'entity_list': null,
+	'rows': 7500
+    };
+    // Add buttons before we go live.
+    var id_download_button =
+	{
+	    label: 'Download term IDs (up to 7500)',
+	    diabled_p: false,
+	    text_p: false,
+	    icon: 'ui-icon-document',
+	    click_function_generator: function(manager){
+		return function(event){
+		    _dl_props['entity_list'] = gps.get_selected_items();
+		    var raw_gdl = gps.get_download_url(['annotation_class'], _dl_props);
+		    window.open(raw_gdl, '_blank');
+		    // new bbop.widget.dialog('Download: <a href="' + raw_gdl +
+		    // 			   '" title="Download ID list."'+
+		    // 			   '>ID list</a> ' + 
+		    // 			   '(max. 7500 lines).');
+		};
+	    }
+	};
+    gps.add_button(id_download_button);
+
     // Get the interface going.
     gps.establish_display();
     gps.reset();
