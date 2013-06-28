@@ -481,7 +481,7 @@ EOC
   ##
   foreach ( keys %env_conf ) {
 
-    print STDERR '$ENV{' . $_ . '}=' . $env_conf{$_} . "\n";
+    #print STDERR '$ENV{' . $_ . '}=' . $env_conf{$_} . "\n";
 
     my $syn = "\$ENV{" . $_. "}=";
     #if( $_ eq 'PATH' ){
