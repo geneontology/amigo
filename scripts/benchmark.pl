@@ -4,6 +4,8 @@
 ####
 #### Designed to be used for frontend benchmarking.
 ####
+#### See "./benchmark.pl -h" for more details.
+####
 
 ## Bring in necessaries.
 use utf8;
@@ -80,11 +82,13 @@ benchmark.pl
 
 =head1 SYNOPSIS
 
-benchmark.pl [-h/--help] [-v/--verbose] [-b/--base URL]
+benchmark.pl [-h/--help] [-v/--verbose] [-c/--concurrency NUM] [-r/--repeat NUM] [-b/--base URL]
 
 =head1 DESCRIPTION
 
-This script does some AmiGO 2 benchmarking.
+This script does some AmiGO 2 benchmarking. Example usage might look like:
+
+./scripts/benchmark.pl -v -c 3 -r 5 -b http://groovin.lbl.gov/cgi-bin/amigo2
 
 =head1 OPTIONS
 
@@ -101,6 +105,14 @@ Help.
 =item -b/--base URL
 
 The base URL to use. E.g. "http://localhost/cgi-bin/amigo2".
+
+=item -c/--concurrency NUM
+
+The NUM of concurrent requests to make.
+
+=item -r/--repeat NUM
+
+The NUM of times to repeat the test.
 
 =back
 
