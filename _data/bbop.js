@@ -1361,7 +1361,7 @@ bbop.version.revision = "2.0b1";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130627";
+bbop.version.release = "20130628";
 /* 
  * Package: json.js
  * 
@@ -10848,6 +10848,59 @@ bbop.widget.display.text_button_sim = function(label, title, id, add_attrs){
 
     var obj = new bbop.html.span(label, args);    
     return obj;
+};
+/*
+ * Package: buttom_templates.js
+ * 
+ * Namespace: bbop.widget.display.button_templates
+ * 
+ * Template generators for various button "templates" that can be fed
+ * into the <search_pane> widget.
+ * 
+ * Note: this is a collection of methods, not a constructor/object.
+ */
+
+bbop.core.require('bbop', 'core');
+//bbop.core.require('bbop', 'logger');
+bbop.core.require('bbop', 'html');
+bbop.core.namespace('bbop', 'widget', 'display', 'button_templates');
+
+/*
+ * Method: text_button_sim
+ * 
+ * Generator for a text span for use for buttons.
+ * 
+ * Arguments:
+ *  label - *[optional]* the text to use for the span or (defaults to 'X')
+ *  title - *[optional]* the hover text (defaults to 'X')
+ *  id - *[optional]* the id for the object (defaults to generate_id: true)
+ *  add_attrs - *[optional]* more attributes to be folded in to the span as hash
+ * 
+ * Returns:
+ *  hash form of jQuery button template for consumption by <search_pane>
+ */
+bbop.widget.display.button_templates.field_download = function(label,
+							      count,
+							      field){
+    var dl_props = {
+	'entity_list': null,
+	'rows': count
+    };
+    var field_download_button =
+	{
+	    label: label,
+	    diabled_p: false,
+	    text_p: false,
+	    icon: 'ui-icon-document',
+	    click_function_generator: function(manager){
+		return function(event){
+		    dl_props['entity_list'] = manager.get_selected_items();
+		    var raw_gdl = manager.get_download_url([field], dl_props);
+		    window.open(raw_gdl, '_blank');
+		};
+	    }
+	};
+    return field_download_button;
 };
 /*
  * Package: results_table_by_class_conf.js
