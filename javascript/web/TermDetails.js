@@ -58,30 +58,11 @@ function TermDetailsInit(){
     // TODO: And or this in as well.
     //gps.add_query_filter('annotation_class', global_acc, ['*']);
 
-    // Global download properties.
-    var _dl_props = {
-	'entity_list': null,
-	'rows': 7500
-    };
-    // Add buttons before we go live.
-    var id_download_button = 
-	{
-	    label: 'Download bioentity IDs (up to 7500)',
-	    diabled_p: false,
-	    text_p: false,
-	    icon: 'ui-icon-document',
-	    click_function_generator: function(manager){
-		return function(event){
-		    _dl_props['entity_list'] = gps.get_selected_items();
-		    var raw_gdl = gps.get_download_url(['bioentity'], _dl_props);
-		    window.open(raw_gdl, '_blank');
-		    // new bbop.widget.dialog('Download: <a href="' + raw_gdl +
-		    // 			   '" title="Download ID list."'+
-		    // 			   '>ID list</a> ' + 
-		    // 			   '(max. 7500 lines).');
-		};
-	    }
-	};
+    // Add a bioentity download button.
+    var btmpl = bbop.widget.display.button_templates;
+    var id_download_button =
+	btmpl.field_download('Download bioentity IDs (up to 7500)',
+			     7500, ['bioentity']);
     gps.add_button(id_download_button);
 
     // Get the interface going.
