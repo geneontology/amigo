@@ -10,7 +10,7 @@
 ### things, like with Jenkins for example.
 ###
 
-SOLR_LOAD_LOG ?= /home/swdev/local/src/git/amigo/golr/golr_timestamp.log
+SOLR_LOAD_LOG ?= /home/bbop/local/src/git/amigo/golr/golr_timestamp.log
 AMIGO_CGI_ROOT_DIR ?= /srv/www-amigo2/cgi-bin/amigo2/
 
 ## Options.
