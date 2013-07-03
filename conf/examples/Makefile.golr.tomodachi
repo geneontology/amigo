@@ -21,7 +21,7 @@ OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS = --merge-support-ontologies --reasoner elk
 MAVEN_EXE ?= ~/local/src/java/apache-maven-3.0.4/bin/mvn
 
 ## URLs.
-SOLR_URL ?= http://localhost:9000/solr/ 
+SOLR_URL ?= http://localhost:8080/solr/ 
 
 ## Paths.
 OWLTOOLS_ROOT ?= ~/local/src/svn/owltools/
