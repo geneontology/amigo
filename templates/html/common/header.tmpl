@@ -6,12 +6,12 @@
 <!-- session_id         = [% session_id %] -->
 <!-- session_id_for_url = [% session_id_for_url %] -->
 <div id="header">
+  <a class="logo floatL" href="http://geneontology.org"><img class="logo-img-left" src="[% image_dir %]/go-logo.png" alt="GO logo" title="Gene Ontology front page"></a>
+  <a class="logo floatR" href="[% public_base %]/go.cgi"><img class="logo-img-right" src="[% image_dir %]/logo-sm.png" alt="AmiGO logo" title="AmiGO front page"></a>
   [% IF BETA == 1 %]
-  <a class="logo floatL" href="http://geneontology.org"><img class="logo-img-left" src="[% image_dir %]/go-logo.png" alt="GO logo" title="Gene Ontology front page"></a>
-  <a class="logo floatR" href="[% public_base %]/search"><img class="logo-img-right" src="[% image_dir %]/logo-amigolabs-sm.png" alt="AmiGO logo" title="AmiGO front page"></a>
+  <!-- <a class="logo floatR" href="[% public_base %]/search"><img class="logo-img-right" src="[% image_dir %]/logo-amigolabs-sm.png" alt="AmiGO logo" title="AmiGO front page"></a> -->
   [% ELSE %]
-  <a class="logo floatL" href="http://geneontology.org"><img class="logo-img-left" src="[% image_dir %]/go-logo.png" alt="GO logo" title="Gene Ontology front page"></a>
-  <a class="logo floatR" href="[% public_base %]/search"><img class="logo-img-right" src="[% image_dir %]/logo-sm.png" alt="AmiGO logo" title="AmiGO front page"></a>
+  <!-- <a class="logo floatR" href="[% public_base %]/search"><img class="logo-img-right" src="[% image_dir %]/logo-sm.png" alt="AmiGO logo" title="AmiGO front page"></a> -->
   [% END %]
 </div>
 
