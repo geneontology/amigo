@@ -82,7 +82,7 @@ AMIGO_VERSION:
 GOLR_TIMESTAMP_LOCATION:
   comment: "This is the *full* path to the timestamp file that is optionally produced by OWLTools during GOlr loading. It contains information about download attempt times for the different loaded files. If not found or unusable, AmiGO 2 will gracefully ignore it.\n"
   type: file
-  value: /home/swdev/local/src/git/amigo/golr/golr_timestamp.log
+  value: /home/bbop/local/src/git/amigo/golr/golr_timestamp.log
 GO_BBOPJS_LOCATION:
   comment: "Please enter the full path for the BBOP JS bundle that you will use.\n"
   type: directory
@@ -90,4 +90,4 @@ GO_BBOPJS_LOCATION:
 GO_YAML_LOCATION:
   comment: "Please enter the full path to the YAML config files directory. In that directory, all files like *config.yaml will be scanned for use.\n"
   type: directory
-  value: /home/swdev/local/src/git/amigo/metadata/
+  value: /home/bbop/local/src/git/amigo/metadata/
