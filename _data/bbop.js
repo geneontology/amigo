@@ -11157,7 +11157,7 @@ bbop.widget.display.results_table_by_class = function(cclass,
     var logger = new bbop.logger();
     logger.DEBUG = true;
     //logger.DEBUG = false;
-    function ll(str){ logger.kvetch('TT: ' + str); }
+    function ll(str){ logger.kvetch('RTBCC: ' + str); }
 
     // Conveience aliases.
     var each = bbop.core.each;
@@ -11463,7 +11463,8 @@ bbop.widget.display.results_table_by_class = function(cclass,
 				   // handler fields. If the handler
 				   // resolves to null, fall back onto
 				   // standard.
-				   ll('! '+ bit +' '+ fid +' '+ display_context);
+				   ll('! B:'+ bit +', F:'+ fid +
+				      ', D:'+ display_context);
 				   var out = handler.dispatch(bit, fid,
 							      display_context);
 				   if( is_defined(out) && out != null ){

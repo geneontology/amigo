@@ -63,6 +63,11 @@ mr_t.is_same_atom(l.url('PAINT_REF:PTHR10046'),
 		  'http://www.geneontology.org/gene-associations/submission/paint/PTHR10046/PTHR10046.txt',
 		  'linker: panther');
 
+// And let's make sure that nothing produces nothing.
+mr_t.is_not_defined(l.url(null), 'null url');
+mr_t.is_not_defined(l.url(''), "'' url");
+mr_t.is_not_defined(l.anchor(null), 'null anchor');
+
 // })();
 
 ///

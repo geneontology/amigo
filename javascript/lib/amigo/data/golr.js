@@ -911,7 +911,7 @@ amigo.data.golr = {
    },
    "bbop_ann" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "bioentity^7.0 bioentity_name^5.0 annotation_class^4.7 annotation_extension_json^4.5 source^4.0 taxon^3.0 evidence_type^2.5 evidence_with^2.0 panther_family^1.5 bioentity_isoform^0.5 reference^0.25",
+      "result_weights" : "bioentity^7.0 bioentity_name^6.0 qualifier^5.0 annotation_class^4.7 annotation_extension_json^4.5 source^4.0 taxon^3.0 evidence_type^2.5 evidence_with^2.0 panther_family^1.5 bioentity_isoform^0.5 reference^0.25",
       "filter_weights" : "source^7.0 assigned_by^6.5 aspect^6.25 evidence_type_closure^6.0 panther_family_label^5.5 taxon_closure_label^5.0 annotation_class_label^4.5 isa_partof_closure_label^4.0 regulates_closure_label^3.0 annotation_extension_class_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//ann-config.yaml",
       "display_name" : "Annotations",
@@ -1137,7 +1137,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Derived from column 4.",
+            "description" : "Annotation qualifier--derived from GAF column 4.",
             "display_name" : "Qualifier",
             "indexed" : "true",
             "searchable" : "false",
@@ -1559,7 +1559,7 @@ amigo.data.golr = {
          },
          "qualifier" : {
             "transform" : [],
-            "description" : "Derived from column 4.",
+            "description" : "Annotation qualifier--derived from GAF column 4.",
             "display_name" : "Qualifier",
             "indexed" : "true",
             "searchable" : "false",
