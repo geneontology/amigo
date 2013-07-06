@@ -37,17 +37,17 @@ function LiveSearchGOlrInit(){
 	    manager.clear_buttons();
 	    manager.add_button(facet_matrix_button);
 	    manager.add_button(gaf_download_button);
-	    manager.add_button(gaf_galaxy_button);
+	    //manager.add_button(gaf_galaxy_button);
 	    manager.add_button(bookmark_button);
 	}else if( personality == 'bbop_ont' ){
 	    manager.clear_buttons();
 	    manager.add_button(id_download_button);
-	    manager.add_button(id_term_label_galaxy_button);
+	    //manager.add_button(id_term_label_galaxy_button);
 	    manager.add_button(bookmark_button);
 	}else if( personality == 'bbop_bio' ){
 	    manager.clear_buttons();
 	    manager.add_button(id_download_button);
-	    manager.add_button(id_symbol_galaxy_button);
+	    //manager.add_button(id_symbol_galaxy_button);
 	    manager.add_button(bookmark_button);
 	//}else if( personality == 'bbop_ann_ev_agg' ){
 	}else{
