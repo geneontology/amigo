@@ -441,10 +441,12 @@ You may need to use the cleaning script (scripts/clean-filesystem.pl)
 to regularly purge unneeded and old files generated while AmiGO is
 running. Please see the script documentation for details and warnings.
 
-The other useful end-user scripts are: global-message.pl and
-blank-kvetch.pl. Please see the script documentation for details.
+The other useful end-user scripts are: global-message.pl,
+clean-filesystem.pl, and blank-kvetch.pl. Please see the script
+documentation for details.
 
-Your JavaScript bundle should be available in: $env_conf{AMIGO_ROOT}/javascript/staging/.
+Your JavaScript bundle should be available in:
+$env_conf{AMIGO_ROOT}/javascript/staging/.
 
 EOC
 }else{
