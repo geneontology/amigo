@@ -404,7 +404,14 @@ function LiveSearchGOlrInit(){
 	    // Make sure the text query is there and proper.
 	    // Remember, we don't refresh it off of search like the others
 	    // because it needs persistance for the UI.
-	    search.set_query_field_text(search.get_query());
+	    //ll("Post query: " + search.get_query());
+	    //ll("Post default query: " + search.get_default_query());
+	    if( search.get_query() == search.get_default_query() ){
+		// The default is the same as nothing at all.
+		search.set_query_field_text('');
+	    }else{
+		search.set_query_field_text(search.get_query());
+	    }
 	    
 	    // While we're here, make sure that the appropriate
 	    // buttons appear as well.
