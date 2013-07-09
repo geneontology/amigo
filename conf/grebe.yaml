@@ -22,7 +22,7 @@
       widget_personality: bbop_term_ac
       widget_document: ontology_class
 - question_id: q3
-  question:  What are the direct annotations for organism {{q3f1}} to term {{q3f2}}?
+  question:  What are the direct annotations for organism (scientific name) {{q3f1}} to term {{q3f2}}?
   personality: bbop_ann
   document_category: annotation
   field_translations:
@@ -37,7 +37,7 @@
       widget_personality: bbop_term_ac
       widget_document: ontology_class
 - question_id: q4
-  question: What are the direct and indirect annotations for organism {{q4f1}} to term {{q4f2}}?
+  question: What are the direct and indirect annotations for organism (scientific name) {{q4f1}} to term {{q4f2}}?
   personality: bbop_ann
   document_category: annotation
   field_translations:
@@ -61,7 +61,7 @@
       field_filter: bioentity
       widget_personality: bbop_bio
       widget_document: bioentity
-- group_label: Term associated with gene products
+- group_label: Gene products directly or indirectly associated with terms
 - question_id: q6
   question: What are the gene products annotated to term {{q6f1}} but <em>not</em> term {{q6f2}}? 
   personality: bbop_bio
@@ -90,9 +90,9 @@
       widget_document: ontology_class
 - group_label: Protein family
 - question_id: q8
-  question: What are the gene products associated with the protein family {{q8f1}}?
-  personality: bbop_bio
-  document_category: bioentity
+  question: What are the annotations associated with the protein family {{q8f1}}?
+  personality: bbop_ann
+  document_category: annotation
   field_translations:
     - field_id: q8f1
       field_filter: panther_family

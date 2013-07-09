@@ -132,8 +132,12 @@ sub mode_grebe {
 	my $field_id = $trans->{'field_id'};
 
 	my $from = '{{' . $field_id . '}}';
-	my $to = '<input id="'. $field_id .'" style="border:1px solid black;">';
-
+	my $to = '<input id="'. $field_id . '"' .
+	  ' style="border:1px solid black;"' .
+	    ' title="Hint: add a space after completing a word to' .
+	      ' narrow the search."' .
+		' class="textBox bbop-js-tooltip"' .
+		  '>';
 	my $ind = index($question, $from);
 	substr($question, $ind, length($from)) = $to;
 	#$question =~ s/$from/$to/;
