@@ -672,6 +672,7 @@ sub mode_visualize {
   if( ! defined $input_term_data ){
 
     ##
+    $self->set_template_parameter('page_name', 'visualize');
     $self->set_template_parameter('amigo_mode', 'visualize');
     $self->set_template_parameter('page_title', 'AmiGO 2: Visualize');
     $self->set_template_parameter('content_title', 'Visualize');

@@ -62,9 +62,34 @@
     </li>
     [% END %]
 
+    [% help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual" %]
+    [% IF page_name == 'landing' %]
+    [%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Home" %]
+    [% ELSIF page_name == 'goose' %]
+    [%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_GOOSE" %]
+    [% ELSIF page_name == 'gannet' %]
+    [%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Gannet" %]
+    [% ELSIF page_name == 'grebe' %]
+    [%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Grebe" %]
+    [% ELSIF page_name == 'visualize' %]
+    [%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Visualize" %]
+    [% ELSIF page_name == 'live_search' %]
+    [%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Search" %]
+    [% ELSIF page_name == 'term' %]
+    [%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Term_Page" %]
+    [% ELSIF page_name == 'gene_product' %]
+    [%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Gene_Product_Page" %]
+    [% END %]
+
     <li>
-      <a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual" title="Help guide for AmiGO 2">Help</a> 
+      <a href="[% help_link %]" title="Help guide for AmiGO 2">Help</a> 
     </li>
+
+    [% IF BETA == 1 %]
+    <li>
+      <a href="http://wiki.geneontology.org/index.php/AmiGO_2:_Feedback" title="Help guide for AmiGO 2">Feedback</a> 
+    </li>    
+    [% END %]
 
     <li>
       <a href="http://wiki.geneontology.org/index.php/AmiGO_2" title="About AmiGO 2">About</a> 

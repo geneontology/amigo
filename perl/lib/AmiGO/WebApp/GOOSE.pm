@@ -565,6 +565,7 @@ sub mode_goose {
     $self->set_template_parameter('mirror_info', $mirror_conf_info);
 
     ## Page settings.
+    $self->set_template_parameter('page_name', 'goose');
     $self->set_template_parameter('page_title',
 				  'GO Online SQL/Solr Environment');
     $self->set_template_parameter('content_title',

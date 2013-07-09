@@ -156,7 +156,8 @@ sub mode_grebe {
   $self->set_template_parameter('questions', $questions_info);
 
   ## Page settings.
-  $self->set_template_parameter('page_title', 'AmiGO : Grebe');
+  $self->set_template_parameter('page_name', 'grebe');
+  $self->set_template_parameter('page_title', 'AmiGO: Grebe');
   $self->set_template_parameter('content_title',
 				'Grebe Search Wizard');
 

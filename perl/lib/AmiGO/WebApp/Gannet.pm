@@ -200,8 +200,8 @@ sub mode_gannet {
   my $in_mirror = $params->{mirror};
   my $in_query = $params->{query};
 
-  ## ...and the message queue.
-  $self->check_for_condition_files();
+  # ## ...and the message queue.
+  # $self->check_for_condition_files();
 
   ## Try and come to terms with Galaxy.
   my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy('gannet');
@@ -543,6 +543,7 @@ sub mode_gannet {
     $self->set_template_parameter('mirror_info', $mirror_conf_info);
 
     ## Page settings.
+    $self->set_template_parameter('page_name', 'gannet');
     $self->set_template_parameter('page_title',
 				  'Gannet: GOOSE-like Solr Environment');
     $self->set_template_parameter('content_title',
