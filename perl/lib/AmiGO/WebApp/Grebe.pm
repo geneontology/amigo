@@ -136,7 +136,7 @@ sub mode_grebe {
 	  ' style="border:1px solid black;"' .
 	    ' title="Hint: add a space after completing a word to' .
 	      ' narrow the search."' .
-		' class="textBox bbop-js-tooltip"' .
+		' class="bbop-js-tooltip"' .
 		  '>';
 	my $ind = index($question, $from);
 	substr($question, $ind, length($from)) = $to;
