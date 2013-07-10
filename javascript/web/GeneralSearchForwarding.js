@@ -20,7 +20,7 @@ function GeneralSearchForwardingInit(){
     var eltid = 'gsf01';
     //var einfo = '#' + eltid + ' > div';
     var einfo = '#' + eltid + '-info';
-    var earea = '#' + eltid + ' > span > a > img';
+    var earea = '#' + eltid + ' > span > a';
     if( jQuery(einfo) && jQuery(einfo).length && jQuery(einfo).length > 0 ){
 	jQuery(einfo).hide();
 	var click_elt =

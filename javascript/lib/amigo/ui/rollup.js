@@ -51,7 +51,6 @@ amigo.ui.rollup = function(elt_ids){
     	 function(eltid){
 	     var eheader = '#' + eltid + ' > div';
 	     var earea = '#' + eltid + ' > span > a';
-	     //var earea = '#' + eltid + ' > img > a';
 	     jQuery(eheader).hide();
     	     var click_elt =
 		 jQuery(earea).click(function(){
