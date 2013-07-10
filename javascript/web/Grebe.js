@@ -9,9 +9,12 @@ function GrebeInit(){
     // Make unnecessary things roll up.
     amigo.ui.rollup(["inf01"]);
     
-    // Use jQuery UI to tooltip-ify doc. Keep them above.
-    var tt_args = {'position': {'my': 'center bottom-20', 'at': 'center top'}};
-    jQuery('.bbop-js-tooltip').tooltip(tt_args);
+    //Use jQuery UI to tooltip-ify doc.
+    var top_args = {'position': {'my': 'left bottom', 'at': 'right top'}};
+    jQuery('.bbop-js-tooltip').tooltip(top_args);
+    // Keep them above.
+    var gtt_args = {'position': {'my': 'center bottom-20', 'at': 'center top'}};
+    jQuery('.amigo-grebe-tooltip').tooltip(gtt_args);
 
     // Per-manager logger.
     var logger = new bbop.logger();

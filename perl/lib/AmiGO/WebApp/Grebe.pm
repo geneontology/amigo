@@ -136,7 +136,7 @@ sub mode_grebe {
 	  ' style="border:1px solid black;"' .
 	    ' title="Hint: add a space after completing a word to' .
 	      ' narrow the search."' .
-		' class="bbop-js-tooltip"' .
+		' class="amigo-grebe-tooltip"' .
 		  '>';
 	my $ind = index($question, $from);
 	substr($question, $ind, length($from)) = $to;
@@ -169,26 +169,36 @@ sub mode_grebe {
       'standard', # basic GO-styles
       'com.jquery.jqamigo.custom',
      ],
-     javascript =>
-     [
-      $self->{JS}->make_var('global_grebe_questions', $questions_info),
-     ],
      javascript_library =>
      [
       'com.jquery',
       'com.jquery-ui',
       'bbop',
-      'amigo',
-      'Grebe'
+      'amigo'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('Grebe.js'),
+      $self->{JS}->make_var('global_grebe_questions', $questions_info),
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();',
+      'GrebeInit();'
+     ],
+     content =>
+     [
+      'pages/grebe.tmpl'
      ]
     };
   $self->add_template_bulk($prep);
 
-  ## Initialize javascript app.
-  my $jsinit ='GrebeInit();';
-  $self->add_template_javascript($self->{JS}->initializer_jquery($jsinit));
-  $self->add_template_content('pages/grebe.tmpl');
-  #$output = $self->generate_template_page({header=>0});
+  # ## Initialize javascript app.
+  # my $jsinit ='GrebeInit();';
+  # $self->add_template_javascript($self->{JS}->initializer_jquery($jsinit));
+  # $self->add_template_content('pages/grebe.tmpl');
+  # #$output = $self->generate_template_page({header=>0});
   $output = $self->generate_template_page();
 
   return $output;
