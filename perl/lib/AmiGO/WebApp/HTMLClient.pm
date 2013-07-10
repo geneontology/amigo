@@ -842,22 +842,24 @@ sub mode_golr_term_details {
 
   ## Input sanity check.
   if( ! $input_term_id ){
-    return $self->mode_die_with_message("Term acc could not be found! Is it".
-					" possible that what you're looking".
-					" for is not a term acc?");
+    return $self->mode_die_with_message("No term acc input argument.");
   }
 
   ###
   ### Get full term info.
   ###
 
+  ## Get the data from the store.
   my $term_worker = AmiGO::Worker::GOlr::Term->new($input_term_id);
   my $term_info_hash = $term_worker->get_info();
+
+  ## First make sure that things are defined.
   if( ! defined($term_info_hash) ||
-      $self->{CORE}->empty_hash_p($term_info_hash) ){
-    return $self->mode_die_with_message("Term acc could not be found" .
-					" in the index!");
+      $self->{CORE}->empty_hash_p($term_info_hash) ||
+      ! defined($term_info_hash->{$input_term_id}) ){
+    return $self->mode_not_found($input_term_id, 'term');
   }
+
   $self->{CORE}->kvetch('solr docs: ' . Dumper($term_info_hash));
 
   ## Should just be one now, yeah?
@@ -1113,20 +1115,22 @@ sub mode_golr_gene_product_details {
 
   ## Input sanity check.
   if( ! $input_gp_id ){
-    return $self->mode_die_with_message("GP acc could not be found! Is it".
-					" possible that what you're looking".
-					" for is not a GP acc?");
+    return $self->mode_die_with_message("No input gene product acc argument.");
   }
 
   ###
   ### Get full gp info.
   ###
 
+  ## Get the data from the store.
   my $gp_worker = AmiGO::Worker::GOlr::GeneProduct->new($input_gp_id);
   my $gp_info_hash = $gp_worker->get_info();
-  if( ! defined($gp_info_hash) || $self->{CORE}->empty_hash_p($gp_info_hash) ){
-    return $self->mode_die_with_message("GP acc could not be found" .
-					" in the index!");
+
+  ## First make sure that things are defined.
+  if( ! defined($gp_info_hash) ||
+      $self->{CORE}->empty_hash_p($gp_info_hash) ||
+      ! defined($gp_info_hash->{$input_gp_id}) ){
+    return $self->mode_not_found($input_gp_id, 'gene product');
   }
 
   $self->{CORE}->kvetch('solr docs: ' . Dumper($gp_info_hash));

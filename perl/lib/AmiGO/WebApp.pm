@@ -933,7 +933,7 @@ sub mode_status {
   my $self = shift;
 
   $self->set_template_parameter('hid', $self->{CORE}->unique_id());
-  $self->set_template_parameter('page_title', 'AmiGO: Status');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Status');
   $self->add_template_content('common/status.tmpl');
   $self->{CORE}->kvetch("added status");
   return $self->generate_template_page();
@@ -966,7 +966,7 @@ sub mode_fatal {
 
   $self->header_add( -status => '500 Internal Server Error' );
 
-  $self->set_template_parameter('page_title', 'AmiGO: Fatal Error');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Fatal Error');
   # # $self->{CORE}->kvetch('ERROR: falling into mode_error: ' . $@);
   # my $ers = [];
   # # foreach my $er ($@, $!, $?, $^E){
@@ -991,7 +991,7 @@ sub mode_fatal_with_message {
 
   $self->header_add( -status => '500 Internal Server Error' );
 
-  $self->set_template_parameter('page_title', 'AmiGO: Fatal Error');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Fatal Error');
   $self->set_template_parameter('error', $message);
 
   $self->add_template_content('common/error.tmpl');
@@ -1027,7 +1027,7 @@ sub mode_generic_message {
 
   ## Deeper page settings.
   $self->header_add( -status => '500 Internal Server Error' );
-  $self->set_template_parameter('page_title', 'AmiGO: Input Error');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Input Error');
 
   $self->add_template_content('pages/generic_message.tmpl');
   return $self->generate_template_page();
@@ -1042,10 +1042,34 @@ sub mode_die_with_message {
 
   $self->header_add( -status => '500 Internal Server Error' );
 
-  $self->set_template_parameter('page_title', 'AmiGO: Input Error');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Input Error');
   $self->set_template_parameter('error', $message);
 
   $self->add_template_content('common/die.tmpl');
+  return $self->generate_template_page();
+}
+
+## What the user is looking for is not there.
+sub mode_not_found {
+
+  my $self = shift;
+  my $input_id = shift || die "requires input id";
+  my $input_type = shift || die "requires input type";
+
+  $self->header_add( -status => '404 Not Found');
+  $self->set_template_parameter('page_title',
+				'AmiGO 2: Enitity Not Found (404)');
+
+  $self->set_template_parameter('input_id', $input_id);
+  $self->set_template_parameter('input_type', $input_type);
+
+  ## Generate a specific search link.
+  $self->set_template_parameter('search_link',
+				$self->{CORE}->get_interlink({mode=>
+							      'live_search'}));
+
+
+  $self->add_template_content('common/not_found.tmpl');
   return $self->generate_template_page();
 }
 
@@ -1058,7 +1082,7 @@ sub mode_exception {
 
   $self->header_add( -status => '500 Internal Server Error' );
 
-  $self->set_template_parameter('page_title', 'AmiGO: Exception');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Exception');
   $self->set_template_parameter('error', "Looking for \"$intended_runmode\", but found no such method.");
 
   $self->add_template_content('common/error.tmpl');

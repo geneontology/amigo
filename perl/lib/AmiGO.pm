@@ -1356,6 +1356,18 @@ sub get_interlink {
        }
      },
 
+     'live_search' =>
+     sub {
+       if( ! $self->empty_hash_p($args) ){
+	 my $type = $args->{type} ||
+	   die "require a type for non-default searches";
+	 $ilink = 'amigo/search/' . $type;
+       }else{
+	 ## Just the most generic search we have.
+	 $ilink = 'amigo/search';
+       }
+     },
+
      'id_request' =>
      sub {
        my $data = $args->{data} || '';
