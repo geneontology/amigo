@@ -426,6 +426,13 @@ function LiveSearchGOlrInit(){
 	_establish_default_interface();
     } 
 
+    // A little handling if we came in on a personality dispatch.
+    if( global_live_search_personality &&
+	global_live_search_personality != ''){
+	ll("Detected dispatch argument: " + global_live_search_personality);
+	_on_search_select(global_live_search_personality);
+    }
+
     // Done message.
     ll('LiveSearchGOlrInit done.');
 

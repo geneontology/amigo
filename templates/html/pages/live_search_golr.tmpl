@@ -29,17 +29,16 @@
   </p>
   [% INCLUDE "common/info_rollup_end.tmpl" %]
   
+  [% IF personality %]
+  <!-- No in-app personality switching. -->
+  [% ELSE %]
+  <!-- Has in-app personality switching. -->
   <p>
     Select a search template:
     <div id="search_radio">
       <!-- <input type="radio" id="bbop_ann" name="search_radio" checked="checked" /> -->
       <!-- <label for="bbop_ann">Associations</label> -->
-      <!-- <input type="radio" id="bbop_ont" name="search_radio" /> -->
-      <!-- <label for="bbop_ont">Ontology</label> -->
-      <!-- <input type="radio" id="bbop_bio" name="search_radio" /> -->
-      <!-- <label for="bbop_bio">Gene products</label> -->
-      <!-- <input type="radio" id="bbop_ann_ev_agg" name="search_radio" /> -->
-      <!-- <label for="bbop_ann_ev_agg">Annotation evidence aggregate</label> -->
+      <!-- etc... -->
       [% FOREACH infi IN search_tab_info %]
       <input type="radio"
 	     name="search_radio"
@@ -54,32 +53,7 @@
       [% END %]
     </div>
   </p>
-
-  <!-- <p> -->
-  <!--   <img src="[% STAR_IMAGE %]" -->
-  <!-- 	   alt="Belongs to a homolog set." /> -->
-  <!--   indicates that the gene product is a member of a -->
-  <!--   <a href="http://www.geneontology.org/GO.refgenome.shtml">homolog set</a>. -->
-  <!--   Click on the gene product id link for more information. -->
-  <!-- </p> -->
-  
-  <!-- please read the -->
-  <!--      <a id="tiptarget" -->
-  <!-- 	 title="Explanation of query syntax" -->
-  <!-- 	 href="http://lucene.apache.org/java/1_4_3/queryparsersyntax.html">query syntax</a> documentation. -->
-  
-<!-- </div> -->
-
-<!-- Display tabbing. -->
-<!-- <div id="display-tabs" class="block"> -->
-  <!-- <h2>Search</h2> -->
-  
-  <!-- <ul> -->
-  <!--   <li> -->
-  <!--     <a href="#display-general-search" -->
-  <!-- 	 class="override"><span>Search</span></a> -->
-  <!--   </li> -->
-  <!-- </ul> -->
+  [% END %]
 
   <div id="display-general-search">
     Pending...
@@ -88,5 +62,4 @@
   <div class="clearall"></div>
   
 </div>
-
 <!-- END: live_search_golr.tmpl -->

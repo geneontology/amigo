@@ -1059,6 +1059,7 @@ sub mode_not_found {
   $self->header_add( -status => '404 Not Found');
   $self->set_template_parameter('page_title',
 				'AmiGO 2: Enitity Not Found (404)');
+  $self->set_template_parameter('amigo_mode', 'not_found');
 
   $self->set_template_parameter('input_id', $input_id);
   $self->set_template_parameter('input_type', $input_type);
@@ -1068,8 +1069,36 @@ sub mode_not_found {
 				$self->{CORE}->get_interlink({mode=>
 							      'live_search'}));
 
+  my $prep =
+    {
+     css_library =>
+     [
+      'standard', # basic GO-styles
+      'com.jquery.jqamigo.custom',
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.jquery-ui',
+      'bbop',
+      'amigo'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();'
+     ],
+     content =>
+     [
+      'common/not_found.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
 
-  $self->add_template_content('common/not_found.tmpl');
+  #$self->add_template_content('common/not_found.tmpl');
   return $self->generate_template_page();
 }
 

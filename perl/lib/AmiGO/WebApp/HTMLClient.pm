@@ -64,6 +64,7 @@ sub setup {
 		   ## Standard.
 		   'landing'             => 'mode_landing',
 		   'search'              => 'mode_live_search',
+		   'specific_search'     => 'mode_search',
 		   'browse'              => 'mode_browse',
 		   'term'                => 'mode_golr_term_details',
 		   'gene_product'        => 'mode_golr_gene_product_details',
@@ -742,6 +743,7 @@ sub mode_live_search {
   ## Pull out the bookmark parameter.
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile('live_search');
+  ## Normal incoming args.
   my $bookmark = $params->{bookmark} || '';
   my $golr_class = $params->{golr_class} || '';
   my $query = $params->{query} || '';
@@ -790,8 +792,6 @@ sub mode_live_search {
       'standard',
       #'com.jquery.redmond.custom',
       'com.jquery.jqamigo.custom',
-      #'bbop.amigo.ui.widgets'
-      #'bbop.amigo.ui.interactive'
      ],
      javascript_library =>
      [
@@ -805,6 +805,114 @@ sub mode_live_search {
       $self->{JS}->make_var('global_live_search_bookmark', $bookmark),
       $self->{JS}->make_var('global_live_search_query', $query),
       #$self->{JS}->make_var('global_live_search_golr_class', $golr_class),
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('LiveSearchGOlr.js')
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();',
+      'LiveSearchGOlrInit();'
+     ],
+     content =>
+     [
+      'pages/live_search_golr.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page();
+}
+
+
+## A committed client based on the jQuery libraries and GOlr. The
+## future.
+sub mode_search {
+
+  my $self = shift;
+
+  ## Pull out the bookmark parameter.
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile('live_search');
+  ## Deal with the different types of dispatch we might be facing.
+  $params->{personality} = $self->param('personality')
+    if ! $params->{personality} && $self->param('personality');
+  ## Normal incoming args.
+  my $bookmark = $params->{bookmark} || '';
+  my $query = $params->{query} || '';
+
+  ## Try and come to terms with Galaxy.
+  my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
+  $self->galaxy_settings($in_galaxy, $galaxy_external_p);
+
+  ## If it is defined, try to decode it into something useful that we
+  ## can pass in as javascript.
+  if( $bookmark ){
+    # $bookmark = $self->{JS}->make_js($bookmark);
+    $bookmark =~ s/\"/\\\"/g;
+  }
+  $self->{CORE}->kvetch('bookmark: ' . $bookmark || '???');
+
+  ## Page settings.
+  $self->set_template_parameter('STANDARD_CSS', 'no');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Search');
+  $self->set_template_parameter('page_name', 'live_search');
+  $self->set_template_parameter('content_title', 'Search');
+
+  ## Grab resources we want.
+  $self->set_template_parameter('STAR_IMAGE',
+				$self->{CORE}->get_image_resource('star'));
+
+  ## Make sure the personality is in our known set if it's even
+  ## defined.
+  my $personality = $params->{personality} || '';
+  if( $personality ){
+
+    ## Get the layout info to describe which personalities are
+    ## available.
+    my $stinfo = $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_SEARCH');
+
+    ## Check that it is in our search set.
+    my $allowed_personality = 0;
+    foreach my $sti (@$stinfo){
+      my $stid = $sti->{id};
+      if( $personality eq $stid ){
+	$allowed_personality = 1;
+	last;
+      }
+    }
+
+    ## If not, kick out to error.
+    if( ! $allowed_personality ){
+      $self->set_template_parameter('content_title', '');
+      $self->set_template_parameter('STANDARD_CSS', 'yes');
+      return $self->mode_not_found($personality, 'search personality');
+    }
+  }
+
+  ## Set personality for template, and later JS var.
+  $self->set_template_parameter('personality', $personality);
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      'standard',
+      #'com.jquery.redmond.custom',
+      'com.jquery.jqamigo.custom',
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.jquery-ui',
+      'bbop',
+      'amigo'
+     ],
+     javascript =>
+     [
+      $self->{JS}->make_var('global_live_search_bookmark', $bookmark),
+      $self->{JS}->make_var('global_live_search_query', $query),
+      $self->{JS}->make_var('global_live_search_personality', $personality),
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('LiveSearchGOlr.js')
      ],
