@@ -6,18 +6,23 @@
 	<img src="[% image_dir %]/down.png" alt="in-page link" />
       </a>
     </li>
-    <li><a href="#sequence"
-	   title="View peptide sequence"
-	   id="barSeqToggle">Peptide sequence
-	<img src="[% image_dir %]/down.png" alt="in-page link" />
+    <li><a href="#additional" title="View additional information">
+    	Additional information
+    	<img src="[% image_dir %]/down.png" alt="in-page link to additional information" />
       </a>
     </li>
-    <li><a href="#seq-info" title="View sequence information">
-	Sequence information
-	<img src="[% image_dir %]/down.png" alt="in-page link" />
-      </a>
-    </li>
-    <li>
+    <!-- <li><a href="#sequence" -->
+    <!-- 	   title="View peptide sequence" -->
+    <!-- 	   id="barSeqToggle">Peptide sequence -->
+    <!-- 	<img src="[% image_dir %]/down.png" alt="in-page link" /> -->
+    <!--   </a> -->
+    <!-- </li> -->
+    <!-- <li><a href="#seq-info" title="View sequence information"> -->
+    <!-- 	Sequence information -->
+    <!-- 	<img src="[% image_dir %]/down.png" alt="in-page link" /> -->
+    <!--   </a> -->
+    <!-- </li> -->
+    <!-- <li> -->
     <!--   [% IF TERM_ASSOCIATIONS_LINK || ( TERM_ASSOCIATIONS_COUNT && TERM_ASSOCIATIONS_COUNT == 0 ) %] -->
     <!--   <a href="[% TERM_ASSOCIATIONS_LINK %]" -->
     <!-- 	 title="View terms associated with this term"> -->
@@ -126,7 +131,7 @@
    </div>
  </noscript>
 
- <div class="block" id="lineage">
+ <div class="block" id="additional">
    <h2>Additional Information for [% GP_INFO.name %] ([% GP_INFO.acc %])</h2>
    
    <!-- Display tabbing. -->

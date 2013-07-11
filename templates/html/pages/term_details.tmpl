@@ -5,8 +5,8 @@
     <li><a href="#info" title="View obsolete term information">(Obsolete) Term information <img src="[% image_dir %]/down.png" alt="Obsolete term information link"></a></li>
     [% ELSE %]
     <li><a href="#info" title="View term information">Term information <img src="[% image_dir %]/down.png" alt="Term information link"></a></li>
-    <li><a href="#lineage" title="View the placement of the term in the tree">Term neighborhood <img src="[% image_dir %]/down.png" alt="Term neighborhood link"></a></li>
-    <li><a href="#xrefs" title="View cross-references to external databases">External references <img src="[% image_dir %]/down.png" alt="External references link"></a></li>
+    <li><a href="#additional" title="View the placement of the term in the tree">Additional information <img src="[% image_dir %]/down.png" alt="Additional information"></a></li>
+    <!-- <li><a href="#xrefs" title="View cross-references to external databases">External references <img src="[% image_dir %]/down.png" alt="External references link"></a></li> -->
     [% END %]
   </ul>
 
@@ -142,8 +142,8 @@
    </div>
  </noscript>
 
- <div class="block" id="lineage">
-   <h2>Term Neighborhood for [% TERM_INFO.name %] ([% TERM_INFO.acc %])</h2>
+ <div class="block" id="additional">
+   <h2>Additional Information for [% TERM_INFO.name %] ([% TERM_INFO.acc %])</h2>
    
    <!-- Holder for term gp filters. -->
    <!-- <div id="gp-count-filters" class="filters"> -->
