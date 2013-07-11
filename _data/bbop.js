@@ -1361,7 +1361,7 @@ bbop.version.revision = "2.0b1";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130710";
+bbop.version.release = "20130711";
 /* 
  * Package: json.js
  * 
