@@ -18,32 +18,32 @@
 </tr>
 <tr>
 	<td>type</td>
-	<td>id=query</td>
-	<td>misfolded</td>
+	<td>id=gsf-query</td>
+	<td>neurogenesis </td>
 </tr>
 <tr>
 	<td>typeKeys</td>
-	<td>id=query</td>
-	<td>&quot;id=query&quot;, &quot;misfolded&quot;</td>
+	<td>id=gsf-query</td>
+	<td>&quot;id=gsf-query&quot;, &quot;neurogenesis &quot;</td>
 </tr>
 <tr>
 	<td>waitForTextPresent</td>
-	<td>misfolded protein binding</td>
+	<td>neurogenesis</td>
 	<td></td>
 </tr>
 <tr>
 	<td>mouseOver</td>
-	<td>xpath=/html/body/ul/li/a[. = &quot;misfolded protein binding (GO:0051787)&quot;]</td>
+	<td>xpath=/html/body/ul/li/a[. = &quot;neurogenesis (GO:0022008)&quot;]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>xpath=/html/body/ul/li/a[. = &quot;misfolded protein binding (GO:0051787)&quot;]</td>
+	<td>xpath=/html/body/ul/li/a[. = &quot;neurogenesis (GO:0022008)&quot;]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>assertTitle</td>
-	<td>AmiGO: Term Details for GO:0051787</td>
+	<td>AmiGO: Term Details for &quot;neurogenesis&quot; (GO:0022008)</td>
 	<td></td>
 </tr>
 </tbody></table>
