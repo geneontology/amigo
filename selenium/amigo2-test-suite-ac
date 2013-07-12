@@ -9,6 +9,8 @@
 <table id="suiteTable" cellpadding="1" cellspacing="1" border="1" class="selenium"><tbody>
 <tr><td><b>Test Suite</b></td></tr>
 <tr><td><a href="tests/landing-ac-01">landing-ac-01</a></td></tr>
+<tr><td><a href="tests/grebe-ac-01">grebe-ac-01</a></td></tr>
+<tr><td><a href="tests/general-ac-01">general-ac-01</a></td></tr>
 </tbody></table>
 </body>
 </html>
