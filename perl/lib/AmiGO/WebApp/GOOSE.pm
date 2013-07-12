@@ -567,7 +567,7 @@ sub mode_goose {
     ## Page settings.
     $self->set_template_parameter('page_name', 'goose');
     $self->set_template_parameter('page_title',
-				  'GO Online SQL/Solr Environment');
+				  'AmiGO 2: GO Online SQL/Solr Environment');
     $self->set_template_parameter('content_title',
 				  'GO Online SQL/Solr Environment');
 
