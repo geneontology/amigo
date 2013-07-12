@@ -3,7 +3,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="http://amigo2.berkeleybop.org/cgi-bin/amigo2/amigo" />
 <title>landing (trivial)</title>
 </head>
 <body>
@@ -13,7 +12,7 @@
 </thead><tbody>
 <tr>
 	<td>open</td>
-	<td>http://amigo2.berkeleybop.org/cgi-bin/amigo2/amigo</td>
+	<td>amigo</td>
 	<td></td>
 </tr>
 <tr>
