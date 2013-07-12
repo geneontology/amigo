@@ -29,5 +29,5 @@ component.
 
 ** Usage
 
-Currently, the developer runs these tests using the Selenium IDE in
-Firefox.
+Currently, the developer creates and runs these tests using the
+Selenium IDE in Firefox.
