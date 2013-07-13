@@ -3,15 +3,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
   <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
-  <title>AmiGO 2 Test Suite AC</title>
-  <link rel="selenium.base" href="http://amigo2.berkeleybop.org/cgi-bin/amigo2/" />
-</head>
+  <title>Test Suite</title>
+  <link rel="selenium.base" href="http://amigo2.berkeleybop.org/cgi-bin/amigo2/" /></head>
 <body>
 <table id="suiteTable" cellpadding="1" cellspacing="1" border="1" class="selenium"><tbody>
-<tr><td><b>AmiGO 2 Test Suite AC</b></td></tr>
-<tr><td><a href="tests/landing-ac-01">landing-ac-01</a></td></tr>
-<tr><td><a href="tests/grebe-ac-01">grebe-ac-01</a></td></tr>
-<tr><td><a href="tests/general-ac-01">general-ac-01</a></td></tr>
+<tr><td><b>Test Suite</b></td></tr>
+<tr><td><a href="tests/search-02">search-02</a></td></tr>
 </tbody></table>
 </body>
 </html>
