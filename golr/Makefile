@@ -198,6 +198,10 @@ load-full: owltools-build clear-load-log
 	make message-load-start
 	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-log $(SOLR_LOAD_LOG) --solr-load-ontology --solr-load-ontology-general --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(ALL_GAFS) --solr-load-panther --solr-load-panther-general
 	make message-load-clear
+## "Silent" variation--useful w/o amigo.
+.PHONY: load-full-silent
+load-full-silent: owltools-build clear-load-log
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-log $(SOLR_LOAD_LOG) --solr-load-ontology --solr-load-ontology-general --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(ALL_GAFS) --solr-load-panther --solr-load-panther-general
 
 ## An option optimizing step.
 .PHONY: load-optimize
@@ -205,6 +209,10 @@ load-optimize:
 	../scripts/global-message.pl -w "GOlr is currently being optimized (started at $(TIME) on $(DATE)). Expect reduced performance."
 	$(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --solr-optimize
 	../scripts/global-message.pl -c
+## "Silent" variation--useful w/o amigo.
+.PHONY: load-optimize-silent
+load-optimize-silent:
+	$(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --solr-optimize
 
 ###
 ### Services.
