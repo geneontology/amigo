@@ -2188,7 +2188,7 @@ amigo.data.golr = {
    "bbop_ont" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "annotation_class^8.0 description^6.0 source^4.0 synonym^3.0 alternate_id^2.0",
-      "filter_weights" : "source^4.0 subset^3.0 isa_partof_closure_label^2.0 regulates_closure_label^1.0 is_obsolete^0.0",
+      "filter_weights" : "source^4.0 subset^3.0 regulates_closure_label^1.0 is_obsolete^0.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//ont-config.yaml",
       "display_name" : "Ontology",
       "description" : "Ontology classes for GO.",
@@ -2254,7 +2254,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Term namespace.",
-            "display_name" : "Source",
+            "display_name" : "Ontology source",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -2427,7 +2427,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Is-a/part-of/regulates",
+            "display_name" : "Ancestor",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -2493,7 +2493,7 @@ amigo.data.golr = {
          "source" : {
             "transform" : [],
             "description" : "Term namespace.",
-            "display_name" : "Source",
+            "display_name" : "Ontology source",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -2711,7 +2711,7 @@ amigo.data.golr = {
          "regulates_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Is-a/part-of/regulates",
+            "display_name" : "Ancestor",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
