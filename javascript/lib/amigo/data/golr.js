@@ -2445,7 +2445,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Is-a/part-of/regulates",
+            "display_name" : "Ancestor",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -2679,7 +2679,7 @@ amigo.data.golr = {
          "regulates_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Is-a/part-of/regulates",
+            "display_name" : "Ancestor",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",

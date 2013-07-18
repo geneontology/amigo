@@ -131,7 +131,7 @@ fields:
       - "RO:0002213"
   - id: regulates_closure_label
     description: "Closure of labels over regulates."
-    display_name: Is-a/part-of/regulates
+    display_name: Ancestor
     type: string
     cardinality: multi
     property:
