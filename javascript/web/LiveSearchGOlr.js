@@ -146,10 +146,14 @@ function LiveSearchGOlrInit(){
     /// Defined some useful buttons.
     ///
 
+    // Download limit.    
+    //var dlimit = 7500;
+    var dlimit = 1000000;
+
     // Global download properties.
     var _dl_props = {
 	'entity_list': null,
-	'rows': 7500
+	'rows': dlimit
     };
 
     // Define the rows that we'll use to create a psuedo-GAF.
@@ -177,23 +181,29 @@ function LiveSearchGOlrInit(){
     var btmpl = bbop.widget.display.button_templates;
 
     var id_download_button =
-	btmpl.field_download('Download IDs (up to 7500)', 7500, ['id']);
+	btmpl.field_download('Download IDs (up to ' +
+			     dlimit + ')',
+			     dlimit, ['id']);
     var gaf_download_button =
-	btmpl.field_download('GAF chunk download (up to 7500)', 7500, _gaf_fl);
+	btmpl.field_download('GAF chunk download (up to ' +
+			     dlimit + ')',
+			     dlimit, _gaf_fl);
     var bookmark_button = btmpl.bookmark(linker);
     var facet_matrix_button = btmpl.open_facet_matrix(gconf, sd);
     var gaf_galaxy_button =
-	btmpl.send_fields_to_galaxy('Send GAF chunk to Galaxy (up to 7500)',
-				    7500, _gaf_fl, global_galaxy_url);
+	btmpl.send_fields_to_galaxy('Send GAF chunk to Galaxy (up to ' +
+				    dlimit + ')',
+				    dlimit, _gaf_fl, global_galaxy_url);
     var id_term_label_galaxy_button =
-	btmpl.send_fields_to_galaxy('Send IDs and names to Galaxy (up to 7500)',
-				    7500, ['annotation_class',
+	btmpl.send_fields_to_galaxy('Send IDs and names to Galaxy (up to ' +
+				    dlimit + ')',
+				    dlimit, ['annotation_class',
 					   'annotation_class_label'],
 				    global_galaxy_url);
     var id_symbol_galaxy_button =
 	btmpl.send_fields_to_galaxy('Send IDs and symbols to Galaxy ' +
-				    '(up to 7500)',
-				    7500,['bioentity', 'bioentity_label'],
+				    '(up to ' + dlimit + ')',
+				    dlimit,['bioentity', 'bioentity_label'],
 				    global_galaxy_url);
 
     ///

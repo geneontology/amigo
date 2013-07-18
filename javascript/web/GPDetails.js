@@ -51,11 +51,15 @@ function GPDetailsInit(){
     gps.add_query_filter('document_category', 'annotation', ['*']);
     gps.add_query_filter('bioentity', global_acc, ['*']);
 
+    // Download limit.
+    //var dlimit = 7500;
+    var dlimit = 1000000;
+
     // Add a term id download button.
     var btmpl = bbop.widget.display.button_templates;
     var id_download_button =
-	btmpl.field_download('Download term IDs (up to 7500)',
-			     7500, ['annotation_class']);
+	btmpl.field_download('Download term IDs (up to ' + dlimit + ')',
+			     dlimit, ['annotation_class']);
     gps.add_button(id_download_button);
 
     // Get the interface going.
