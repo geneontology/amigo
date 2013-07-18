@@ -9,7 +9,7 @@ document_category: annotation
 weight: 20
 boost_weights: annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 bioentity_name^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 reference^1.0 panther_family^1.0 panther_family_label^1.0 bioentity_isoform^1.0
 result_weights: bioentity^7.0 bioentity_name^6.0 qualifier^5.0 annotation_class^4.7 annotation_extension_json^4.5 source^4.0 taxon^3.0 evidence_type^2.5 evidence_with^2.0 panther_family^1.5 bioentity_isoform^0.5 reference^0.25
-filter_weights: source^7.0 assigned_by^6.5 aspect^6.25 evidence_type_closure^6.0 panther_family_label^5.5 taxon_closure_label^5.0 annotation_class_label^4.5 isa_partof_closure_label^4.0 regulates_closure_label^3.0 annotation_extension_class_closure_label^2.0
+filter_weights: source^7.0 assigned_by^6.5 aspect^6.25 evidence_type_closure^6.0 panther_family_label^5.5 taxon_closure_label^5.0 annotation_class_label^4.5 regulates_closure_label^3.0 annotation_extension_class_closure_label^2.0
 fields:
   - id: id
     description: A unique (and internal) combination of bioentity and ontology class.
@@ -17,27 +17,27 @@ fields:
     type: string
     property: []
   - id: source
-    description: "Column 1: database source."
+    description: "GAF column 1 (database source)."
     display_name: Source
     type: string
     property: []
   - id: type
-    description: "Column 12: type class id."
+    description: "GAF column 12 (type class id)."
     display_name: Type class id
     type: string
     property: []
 #   - id: type_label
-#     description: "Column 12: type class label."
+#     description: "GAF column 12 (type class label)"
 #     display_name: Type class label
 #     type: string
 #     property: []
   - id: date
-    description: "Column 14: date of assignment."
+    description: "GAF column 14 (date of assignment)."
     display_name: Date
     type: string
     property: []
   - id: assigned_by
-    description: "Column 15: assigned by."
+    description: "GAF column 15 (assigned by)."
     display_name: Assigned by
     type: string
     property: []
@@ -54,24 +54,24 @@ fields:
 #     cardinality: multi
 #     property: []
   - id: taxon
-    description: "Column 13: taxon."
+    description: "GAF column 13 (taxon)."
     display_name: Taxon
     type: string
     property: []
   - id: taxon_label
-    description: "Derived from C13 + ncbi_taxonomy.obo."
+    description: "Taxon derived from GAF column 13 and ncbi_taxonomy.obo."
     display_name: Taxon
     type: string
     property: []
     searchable: true
   - id: taxon_closure
-    description: "IDs derived from C13 + ncbi_taxonomy.obo."
+    description: "Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo."
     display_name: Taxon (IDs)
     type: string
     cardinality: multi
     property: []
   - id: taxon_closure_label
-    description: "Labels derived from C13 + ncbi_taxonomy.obo."
+    description: "Taxon label closure derived from GAF column 13 and ncbi_taxonomy.obo."
     display_name: Taxon
     type: string
     cardinality: multi
@@ -92,13 +92,13 @@ fields:
     searchable: true
   - id: regulates_closure
     description: "Closure of ids/accs over regulates."
-    display_name: Regulates + involved in (IDs)
+    display_name: Inferred annotation (IDs)
     type: string
     cardinality: multi
     property: []
   - id: regulates_closure_label
     description: "Closure of labels over regulates."
-    display_name: Regulates + involved in
+    display_name: Inferred annotation
     type: string
     cardinality: multi
     property: []
@@ -116,7 +116,7 @@ fields:
 #     property: []
 #     searchable: true
   - id: synonym
-    description: "Column 11: gene product synonyms."
+    description: "GAF column 11: gene product synonyms."
     display_name: Synonym
     type: string
     cardinality: multi
@@ -170,12 +170,12 @@ fields:
 #     cardinality: multi
 #     property: []
   - id: bioentity
-    description: "Column 1 + columns 2."
+    description: "GAF column 1 + columns 2."
     display_name: Gene/Product
     type: string
     property: []
   - id: bioentity_label
-    description: "Column 3: bioentity label."
+    description: "GAF column 3: bioentity label."
     display_name: Gene/product label
     type: string
     property: []
@@ -210,18 +210,18 @@ fields:
     cardinality: multi
     property: []
   - id: annotation_class
-    description: Column 5.
-    display_name: Annotation
+    description: "Direct annotations (GAF column 5)."
+    display_name: Direct annotation
     type: string
     property: []
   - id: annotation_class_label
-    description: "Column 5 + ontology."
-    display_name: Annotation
+    description: "Direct annotations (GAF column 5)."
+    display_name: Direct annotation
     type: string
     property: []
     searchable: true
   - id: aspect
-    description: "Column 9: Ontology aspect."
+    description: "GAF column 9: Ontology aspect."
     display_name: Ontology (aspect)
     type: string
     property: []
@@ -236,7 +236,7 @@ fields:
 #     type: string
 #     property: []
   - id: bioentity_isoform
-    description: "Column 17: Bioentity isoform."
+    description: "GAF column 17: Bioentity isoform."
     display_name: Isoform
     type: string
     property: []
@@ -247,7 +247,7 @@ fields:
 #     cardinality: multi
 #     property: []
   - id: evidence_type
-    description: "Column 7: evidence type."
+    description: "GAF column 7: evidence type."
     display_name: Evidence
     type: string
     property: []
@@ -258,19 +258,19 @@ fields:
     cardinality: multi
     property: []
   - id: evidence_with
-    description: "Column 8: with/from."
+    description: "GAF column 8: with/from."
     display_name: Evidence with
     type: string
     cardinality: multi
     property: []
   - id: reference
-    description: "Column 6: database reference."
+    description: "GAF column 6: database reference."
     display_name: Reference
     type: string
     cardinality: multi
     property: []
   - id: annotation_extension_class
-    description: "Column 16: extension class for the annotation."
+    description: "GAF column 16: extension class for the annotation."
     display_name: Annotation extension
     type: string
     cardinality: multi

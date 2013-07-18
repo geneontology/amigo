@@ -34,7 +34,7 @@ amigo.data.golr = {
    "bbop_bio" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "bioentity^8.0 bioentity_name^7.0 taxon^6.0 panther_family^5.0 type^4.0 source^3.0 annotation_class_list^2.0",
-      "filter_weights" : "source^7.0 type^6.0 panther_family_label^5.0 annotation_class_list_label^3.5 taxon_closure_label^4.0 isa_partof_closure_label^3.0 regulates_closure_label^2.0",
+      "filter_weights" : "source^7.0 type^6.0 panther_family_label^5.0 annotation_class_list_label^3.5 taxon_closure_label^4.0 regulates_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//bio-config.yaml",
       "display_name" : "Gene/products",
       "description" : "A description of bioentities file for GOlr.",
@@ -103,7 +103,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 12: type class id.",
+            "description" : "Type class (GAF column 12).",
             "display_name" : "Type",
             "indexed" : "true",
             "searchable" : "false",
@@ -115,7 +115,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 13: taxon.",
+            "description" : "GAF column 13 (taxon).",
             "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "false",
@@ -127,7 +127,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Derived from C13 + ncbi_taxonomy.obo.",
+            "description" : "Taxon derived from GAF column 13 and ncbi_taxonomy.obo.",
             "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
@@ -139,7 +139,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
+            "description" : "Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo.",
             "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "false",
@@ -151,7 +151,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
+            "description" : "Taxon label closure derived from GAF column 13 and ncbi_taxonomy.obo.",
             "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
@@ -188,7 +188,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates + involved in",
+            "display_name" : "Inferred annotation (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -200,7 +200,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates + involved in",
+            "display_name" : "Inferred annotation",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -211,7 +211,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 1: database source.",
+            "description" : "GAF column 1 (database source).",
             "display_name" : "Source",
             "indexed" : "true",
             "searchable" : "false",
@@ -223,8 +223,8 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Terms directly annotated to this bioentity.",
-            "display_name" : "Annotations",
+            "description" : "Direct annotations (GAF column 5).",
+            "display_name" : "Direct annotation",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -235,8 +235,8 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Terms directly annotated to this bioentity.",
-            "display_name" : "Annotations",
+            "description" : "Direct annotations (GAF column 5).",
+            "display_name" : "Direct annotation",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -309,7 +309,7 @@ amigo.data.golr = {
       "fields_hash" : {
          "source" : {
             "transform" : [],
-            "description" : "Column 1: database source.",
+            "description" : "GAF column 1 (database source).",
             "display_name" : "Source",
             "indexed" : "true",
             "searchable" : "false",
@@ -381,7 +381,7 @@ amigo.data.golr = {
          },
          "taxon_closure_label" : {
             "transform" : [],
-            "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
+            "description" : "Taxon label closure derived from GAF column 13 and ncbi_taxonomy.obo.",
             "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
@@ -393,8 +393,8 @@ amigo.data.golr = {
          },
          "annotation_class_list_label" : {
             "transform" : [],
-            "description" : "Terms directly annotated to this bioentity.",
-            "display_name" : "Annotations",
+            "description" : "Direct annotations (GAF column 5).",
+            "display_name" : "Direct annotation",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -441,7 +441,7 @@ amigo.data.golr = {
          },
          "taxon_closure" : {
             "transform" : [],
-            "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
+            "description" : "Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo.",
             "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "false",
@@ -465,8 +465,8 @@ amigo.data.golr = {
          },
          "annotation_class_list" : {
             "transform" : [],
-            "description" : "Terms directly annotated to this bioentity.",
-            "display_name" : "Annotations",
+            "description" : "Direct annotations (GAF column 5).",
+            "display_name" : "Direct annotation",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -477,7 +477,7 @@ amigo.data.golr = {
          },
          "taxon" : {
             "transform" : [],
-            "description" : "Column 13: taxon.",
+            "description" : "GAF column 13 (taxon).",
             "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "false",
@@ -490,7 +490,7 @@ amigo.data.golr = {
          "regulates_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates + involved in",
+            "display_name" : "Inferred annotation",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -502,7 +502,7 @@ amigo.data.golr = {
          "regulates_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates + involved in",
+            "display_name" : "Inferred annotation (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -549,7 +549,7 @@ amigo.data.golr = {
          },
          "taxon_label" : {
             "transform" : [],
-            "description" : "Derived from C13 + ncbi_taxonomy.obo.",
+            "description" : "Taxon derived from GAF column 13 and ncbi_taxonomy.obo.",
             "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
@@ -561,7 +561,7 @@ amigo.data.golr = {
          },
          "type" : {
             "transform" : [],
-            "description" : "Column 12: type class id.",
+            "description" : "Type class (GAF column 12).",
             "display_name" : "Type",
             "indexed" : "true",
             "searchable" : "false",
@@ -912,7 +912,7 @@ amigo.data.golr = {
    "bbop_ann" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "bioentity^7.0 bioentity_name^6.0 qualifier^5.0 annotation_class^4.7 annotation_extension_json^4.5 source^4.0 taxon^3.0 evidence_type^2.5 evidence_with^2.0 panther_family^1.5 bioentity_isoform^0.5 reference^0.25",
-      "filter_weights" : "source^7.0 assigned_by^6.5 aspect^6.25 evidence_type_closure^6.0 panther_family_label^5.5 taxon_closure_label^5.0 annotation_class_label^4.5 isa_partof_closure_label^4.0 regulates_closure_label^3.0 annotation_extension_class_closure_label^2.0",
+      "filter_weights" : "source^7.0 assigned_by^6.5 aspect^6.25 evidence_type_closure^6.0 panther_family_label^5.5 taxon_closure_label^5.0 annotation_class_label^4.5 regulates_closure_label^3.0 annotation_extension_class_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//ann-config.yaml",
       "display_name" : "Annotations",
       "description" : "A description of annotations for GOlr and AmiGO.",
@@ -933,7 +933,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 1: database source.",
+            "description" : "GAF column 1 (database source).",
             "display_name" : "Source",
             "indexed" : "true",
             "searchable" : "false",
@@ -945,7 +945,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 12: type class id.",
+            "description" : "GAF column 12 (type class id).",
             "display_name" : "Type class id",
             "indexed" : "true",
             "searchable" : "false",
@@ -957,7 +957,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 14: date of assignment.",
+            "description" : "GAF column 14 (date of assignment).",
             "display_name" : "Date",
             "indexed" : "true",
             "searchable" : "false",
@@ -969,7 +969,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 15: assigned by.",
+            "description" : "GAF column 15 (assigned by).",
             "display_name" : "Assigned by",
             "indexed" : "true",
             "searchable" : "false",
@@ -981,7 +981,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 13: taxon.",
+            "description" : "GAF column 13 (taxon).",
             "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "false",
@@ -993,7 +993,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Derived from C13 + ncbi_taxonomy.obo.",
+            "description" : "Taxon derived from GAF column 13 and ncbi_taxonomy.obo.",
             "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
@@ -1005,7 +1005,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
+            "description" : "Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo.",
             "display_name" : "Taxon (IDs)",
             "indexed" : "true",
             "searchable" : "false",
@@ -1017,7 +1017,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
+            "description" : "Taxon label closure derived from GAF column 13 and ncbi_taxonomy.obo.",
             "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
@@ -1054,7 +1054,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates + involved in (IDs)",
+            "display_name" : "Inferred annotation (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1066,7 +1066,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates + involved in",
+            "display_name" : "Inferred annotation",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1077,7 +1077,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 11: gene product synonyms.",
+            "description" : "GAF column 11: gene product synonyms.",
             "display_name" : "Synonym",
             "indexed" : "true",
             "searchable" : "false",
@@ -1089,7 +1089,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 1 + columns 2.",
+            "description" : "GAF column 1 + columns 2.",
             "display_name" : "Gene/Product",
             "indexed" : "true",
             "searchable" : "false",
@@ -1101,7 +1101,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 3: bioentity label.",
+            "description" : "GAF column 3: bioentity label.",
             "display_name" : "Gene/product label",
             "indexed" : "true",
             "searchable" : "true",
@@ -1149,8 +1149,8 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 5.",
-            "display_name" : "Annotation",
+            "description" : "Direct annotations (GAF column 5).",
+            "display_name" : "Direct annotation",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1161,8 +1161,8 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 5 + ontology.",
-            "display_name" : "Annotation",
+            "description" : "Direct annotations (GAF column 5).",
+            "display_name" : "Direct annotation",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1173,7 +1173,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 9: Ontology aspect.",
+            "description" : "GAF column 9: Ontology aspect.",
             "display_name" : "Ontology (aspect)",
             "indexed" : "true",
             "searchable" : "false",
@@ -1185,7 +1185,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 17: Bioentity isoform.",
+            "description" : "GAF column 17: Bioentity isoform.",
             "display_name" : "Isoform",
             "indexed" : "true",
             "searchable" : "false",
@@ -1197,7 +1197,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 7: evidence type.",
+            "description" : "GAF column 7: evidence type.",
             "display_name" : "Evidence",
             "indexed" : "true",
             "searchable" : "false",
@@ -1221,7 +1221,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 8: with/from.",
+            "description" : "GAF column 8: with/from.",
             "display_name" : "Evidence with",
             "indexed" : "true",
             "searchable" : "false",
@@ -1233,7 +1233,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 6: database reference.",
+            "description" : "GAF column 6: database reference.",
             "display_name" : "Reference",
             "indexed" : "true",
             "searchable" : "false",
@@ -1245,7 +1245,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Column 16: extension class for the annotation.",
+            "description" : "GAF column 16: extension class for the annotation.",
             "display_name" : "Annotation extension",
             "indexed" : "true",
             "searchable" : "false",
@@ -1355,7 +1355,7 @@ amigo.data.golr = {
          },
          "bioentity_label" : {
             "transform" : [],
-            "description" : "Column 3: bioentity label.",
+            "description" : "GAF column 3: bioentity label.",
             "display_name" : "Gene/product label",
             "indexed" : "true",
             "searchable" : "true",
@@ -1367,7 +1367,7 @@ amigo.data.golr = {
          },
          "date" : {
             "transform" : [],
-            "description" : "Column 14: date of assignment.",
+            "description" : "GAF column 14 (date of assignment).",
             "display_name" : "Date",
             "indexed" : "true",
             "searchable" : "false",
@@ -1403,7 +1403,7 @@ amigo.data.golr = {
          },
          "evidence_type" : {
             "transform" : [],
-            "description" : "Column 7: evidence type.",
+            "description" : "GAF column 7: evidence type.",
             "display_name" : "Evidence",
             "indexed" : "true",
             "searchable" : "false",
@@ -1451,8 +1451,8 @@ amigo.data.golr = {
          },
          "annotation_class" : {
             "transform" : [],
-            "description" : "Column 5.",
-            "display_name" : "Annotation",
+            "description" : "Direct annotations (GAF column 5).",
+            "display_name" : "Direct annotation",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1475,7 +1475,7 @@ amigo.data.golr = {
          },
          "synonym" : {
             "transform" : [],
-            "description" : "Column 11: gene product synonyms.",
+            "description" : "GAF column 11: gene product synonyms.",
             "display_name" : "Synonym",
             "indexed" : "true",
             "searchable" : "false",
@@ -1487,7 +1487,7 @@ amigo.data.golr = {
          },
          "assigned_by" : {
             "transform" : [],
-            "description" : "Column 15: assigned by.",
+            "description" : "GAF column 15 (assigned by).",
             "display_name" : "Assigned by",
             "indexed" : "true",
             "searchable" : "false",
@@ -1499,7 +1499,7 @@ amigo.data.golr = {
          },
          "type" : {
             "transform" : [],
-            "description" : "Column 12: type class id.",
+            "description" : "GAF column 12 (type class id).",
             "display_name" : "Type class id",
             "indexed" : "true",
             "searchable" : "false",
@@ -1511,7 +1511,7 @@ amigo.data.golr = {
          },
          "source" : {
             "transform" : [],
-            "description" : "Column 1: database source.",
+            "description" : "GAF column 1 (database source).",
             "display_name" : "Source",
             "indexed" : "true",
             "searchable" : "false",
@@ -1523,7 +1523,7 @@ amigo.data.golr = {
          },
          "annotation_extension_class" : {
             "transform" : [],
-            "description" : "Column 16: extension class for the annotation.",
+            "description" : "GAF column 16: extension class for the annotation.",
             "display_name" : "Annotation extension",
             "indexed" : "true",
             "searchable" : "false",
@@ -1547,7 +1547,7 @@ amigo.data.golr = {
          },
          "taxon_closure_label" : {
             "transform" : [],
-            "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
+            "description" : "Taxon label closure derived from GAF column 13 and ncbi_taxonomy.obo.",
             "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
@@ -1571,7 +1571,7 @@ amigo.data.golr = {
          },
          "reference" : {
             "transform" : [],
-            "description" : "Column 6: database reference.",
+            "description" : "GAF column 6: database reference.",
             "display_name" : "Reference",
             "indexed" : "true",
             "searchable" : "false",
@@ -1583,7 +1583,7 @@ amigo.data.golr = {
          },
          "taxon_closure" : {
             "transform" : [],
-            "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
+            "description" : "Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo.",
             "display_name" : "Taxon (IDs)",
             "indexed" : "true",
             "searchable" : "false",
@@ -1595,7 +1595,7 @@ amigo.data.golr = {
          },
          "bioentity_isoform" : {
             "transform" : [],
-            "description" : "Column 17: Bioentity isoform.",
+            "description" : "GAF column 17: Bioentity isoform.",
             "display_name" : "Isoform",
             "indexed" : "true",
             "searchable" : "false",
@@ -1607,7 +1607,7 @@ amigo.data.golr = {
          },
          "aspect" : {
             "transform" : [],
-            "description" : "Column 9: Ontology aspect.",
+            "description" : "GAF column 9: Ontology aspect.",
             "display_name" : "Ontology (aspect)",
             "indexed" : "true",
             "searchable" : "false",
@@ -1620,7 +1620,7 @@ amigo.data.golr = {
          "regulates_closure_label" : {
             "transform" : [],
             "description" : "Closure of labels over regulates.",
-            "display_name" : "Regulates + involved in",
+            "display_name" : "Inferred annotation",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1631,7 +1631,7 @@ amigo.data.golr = {
          },
          "taxon" : {
             "transform" : [],
-            "description" : "Column 13: taxon.",
+            "description" : "GAF column 13 (taxon).",
             "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "false",
@@ -1644,7 +1644,7 @@ amigo.data.golr = {
          "regulates_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
-            "display_name" : "Regulates + involved in (IDs)",
+            "display_name" : "Inferred annotation (IDs)",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
@@ -1655,7 +1655,7 @@ amigo.data.golr = {
          },
          "bioentity" : {
             "transform" : [],
-            "description" : "Column 1 + columns 2.",
+            "description" : "GAF column 1 + columns 2.",
             "display_name" : "Gene/Product",
             "indexed" : "true",
             "searchable" : "false",
@@ -1679,7 +1679,7 @@ amigo.data.golr = {
          },
          "taxon_label" : {
             "transform" : [],
-            "description" : "Derived from C13 + ncbi_taxonomy.obo.",
+            "description" : "Taxon derived from GAF column 13 and ncbi_taxonomy.obo.",
             "display_name" : "Taxon",
             "indexed" : "true",
             "searchable" : "true",
@@ -1691,8 +1691,8 @@ amigo.data.golr = {
          },
          "annotation_class_label" : {
             "transform" : [],
-            "description" : "Column 5 + ontology.",
-            "display_name" : "Annotation",
+            "description" : "Direct annotations (GAF column 5).",
+            "display_name" : "Direct annotation",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
@@ -1715,7 +1715,7 @@ amigo.data.golr = {
          },
          "evidence_with" : {
             "transform" : [],
-            "description" : "Column 8: with/from.",
+            "description" : "GAF column 8: with/from.",
             "display_name" : "Evidence with",
             "indexed" : "true",
             "searchable" : "false",
