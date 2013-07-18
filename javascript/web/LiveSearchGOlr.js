@@ -148,7 +148,7 @@ function LiveSearchGOlrInit(){
 
     // Download limit.    
     //var dlimit = 7500;
-    var dlimit = 1000000;
+    var dlimit = 100000;
 
     // Global download properties.
     var _dl_props = {

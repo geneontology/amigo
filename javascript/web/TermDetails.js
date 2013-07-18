@@ -60,7 +60,7 @@ function TermDetailsInit(){
 
     // Download limit.
     //var dlimit = 7500;
-    var dlimit = 1000000;
+    var dlimit = 100000;
 
     // Add a bioentity download button.
     var btmpl = bbop.widget.display.button_templates;

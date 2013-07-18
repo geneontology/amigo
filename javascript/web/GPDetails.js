@@ -53,7 +53,7 @@ function GPDetailsInit(){
 
     // Download limit.
     //var dlimit = 7500;
-    var dlimit = 1000000;
+    var dlimit = 100000;
 
     // Add a term id download button.
     var btmpl = bbop.widget.display.button_templates;
