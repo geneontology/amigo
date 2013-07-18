@@ -61,8 +61,10 @@ function TermDetailsInit(){
     // Add a bioentity download button.
     var btmpl = bbop.widget.display.button_templates;
     var id_download_button =
-	btmpl.field_download('Download bioentity IDs (up to 7500)',
-			     7500, ['bioentity']);
+	// btmpl.field_download('Download bioentity IDs (up to 7500)',
+	// 		     7500, ['bioentity']);
+	btmpl.field_download('Download bioentity IDs (up to 100000)',
+			     100000, ['bioentity']);
     gps.add_button(id_download_button);
 
     // Get the interface going.
