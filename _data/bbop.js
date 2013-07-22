@@ -1361,7 +1361,7 @@ bbop.version.revision = "2.0b1";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130718";
+bbop.version.release = "20130722";
 /* 
  * Package: json.js
  * 
@@ -13063,13 +13063,14 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 		     // Count the number of redundant (not shown)
 		     // facets so we can at least give a face to this
 		     // bug/problem.
+		     // Also filter out "empty filters".
 		     var redundant_count = 0;
 		     // Now go through and get filters and counts.
 		     var good_count = 0; // only count when good
 		     var overflow_p = false; // true when at 24 -> 25
 		     each(response.facet_field(in_field),
 			  function(ff_field, ff_index){
-				  
+
 			      // Pull out info early so we can test it
 			      // for information content.
 			      var f_name = ff_field[0];
@@ -13082,13 +13083,16 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 			      // 	  good_count,
 			      // 	  redundant_count,
 			      // 	  real_facet_limit].join(', '));
-			      
+			      			      
 			      // TODO: The field is likely redundant
 			      // (BUG: not always true in closures),
 			      // so eliminate it.
 			      if( f_count == total_docs ){
 				  //ll("\tnothing here");
 				  redundant_count++;
+			      }else if( ! f_name || f_name == "" ){
+				  // Straight out skip if it is an
+				  // "empty" facet field.
 			      }else if( ff_index < real_facet_limit -1 ){
 				  //ll("\tgood row");
 				  good_count++;
