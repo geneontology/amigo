@@ -1361,7 +1361,7 @@ bbop.version.revision = "2.0b1";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130722";
+bbop.version.release = "20130723";
 /* 
  * Package: json.js
  * 
@@ -10898,9 +10898,25 @@ bbop.widget.display.button_templates.field_download = function(label,
 	    icon: 'ui-icon-document',
 	    click_function_generator: function(manager){
 		return function(event){
-		    dl_props['entity_list'] = manager.get_selected_items();
-		    var raw_gdl = manager.get_download_url(fields, dl_props);
-		    window.open(raw_gdl, '_blank');
+		    var dialog_props = {
+			buttons: {
+			    'Download': function(){
+				//alert('download');
+				dl_props['entity_list'] =
+				    manager.get_selected_items();
+				var raw_gdl =
+				    manager.get_download_url(fields, dl_props);
+				window.open(raw_gdl, '_blank');
+				jQuery(this).dialog('destroy');
+			    },
+			    'Cancel': function(){
+				jQuery(this).dialog('destroy');
+			    }
+			}
+		    };
+		    new bbop.widget.dialog('<h4>Download (up to ' + count + ')</h4><p>By clicking "Download", you may download up to ' + count + ' lines in your browser in a new window. If your request is large or if the the server busy, this may take a while to complete--please be patient.</p>',
+					   dialog_props);
+		    //window.open(raw_gdl, '_blank');
 		};
 	    }
 	};
@@ -14349,12 +14365,13 @@ bbop.widget.dialog = function(item, in_argument_hash){
 	//modal: true,
 	//draggable: false,
 	width: 300, // the jQuery default anyways
-	title: '', 
+	title: '',
+	buttons: null,
 	close:
 	function(){
 	    // TODO: Could maybe use .dialog('destroy') instead?
 	    jQuery('#' + div_id).remove();
-	}	    
+	}
     };
     var folding_hash = in_argument_hash || {};
     var arg_hash = bbop.core.fold(default_hash, folding_hash);
