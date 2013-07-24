@@ -658,8 +658,6 @@ sub _common_params_settings {
   $params->{public_base} = $self->{CORE}->amigo_env('AMIGO_PUBLIC_CGI_URL');
   $params->{BETA} =
     _atoi($self->{CORE}->amigo_env('AMIGO_BETA'));
-  $params->{show_goose_links} =
-    _atoi($self->{CORE}->amigo_env('AMIGO_SHOW_GOOSE_LINKS'));
   $params->{last_load_date} = $self->{CORE}->amigo_env('GOLR_TIMESTAMP_LAST');
   #$params->{release_name} = $self->{CORE}->release_name();
   #$params->{release_type} = $self->{CORE}->release_type();

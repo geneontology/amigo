@@ -98,27 +98,13 @@ sub mode_landing {
   $self->set_template_parameter('page_title', 'AmiGO 2: Welcome');
   $self->set_template_parameter('content_title', 'AmiGO 2');
 
-  ## Extract the landing page search order from AMIGO_LAYOUT_LANDING.
-  ## Grab the config info for the simple search form construction.
-  my $ls_info = $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_LANDING');
-  $self->set_template_parameter('landing_search_form_info', $ls_info);
-
-  ## Pick the first to be the default.
-  my $gc = $$ls_info[0]->{id};
-  my $dc = $self->{CORE}->golr_class_document_category($gc);
-  $self->set_template_parameter('golr_class', $gc);
-  $self->set_template_parameter('document_category', $dc);
-
   ## Our AmiGO services CSS.
   my $prep =
     {
      css_library =>
      [
       'standard',
-      #'com.jquery.redmond.custom',
       'com.jquery.jqamigo.custom',
-      #'bbop.amigo.ui.widgets'
-      #'bbop.amigo.ui.interactive'
      ],
      javascript_library =>
      [
@@ -129,7 +115,6 @@ sub mode_landing {
      ],
      javascript =>
      [
-      #$self->{JS}->acquire_source('https://www.google.com/jsapi'),
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('LandingGraphs.js')
      ],
@@ -137,7 +122,6 @@ sub mode_landing {
      [
       'GeneralSearchForwardingInit();',
       'LandingGraphsInit();'
-      #'DataCallback();'
      ],
      content =>
      [
