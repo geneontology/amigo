@@ -89,26 +89,10 @@ AMIGO_PUBLIC_GALAXY_URL:
 ### AmiGO internal variables.
 ###
 
-AMIGO_SHOW_GOOSE_LINKS:
-  value: 1
-  comment: >
-    Do you wish to show links to GOOSE, the GO Online SQL Environment?
-
-    Note that this is only suitable for if you are installing the
-    GO GOLD database.
-
-    Use 1 for yes and 0 for no.
-  type: boolean
-
 AMIGO_TERM_REGEXP:
   value: all|GO:[0-9]{7}
   comment: The regular expressions to identify internal ontology ids.
   type: string
-
-AMIGO_LAYOUT_LANDING:
-  comment: A whitespace separated list of class IDs to use for searches on the landing page.
-  type: string
-  value: bbop_ont bbop_bio
 
 AMIGO_LAYOUT_SEARCH:
   comment: A whitespace separated list of class IDs to use for live search tabs on the search page. NOT CURRENTLY USED.
