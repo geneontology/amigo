@@ -95,7 +95,7 @@ AMIGO_TERM_REGEXP:
   type: string
 
 AMIGO_LAYOUT_SEARCH:
-  comment: A whitespace separated list of class IDs to use for live search tabs on the search page. NOT CURRENTLY USED.
+  comment: A whitespace separated list of class IDs to use for live search tabs on the search page.
   type: string
   value: bbop_ann bbop_ont bbop_bio bbop_ann_ev_agg
 
