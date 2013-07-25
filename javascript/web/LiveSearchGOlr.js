@@ -41,7 +41,7 @@ function LiveSearchGOlrInit(){
 	    manager.add_button(bookmark_button);
 	}else if( personality == 'bbop_ont' ){
 	    manager.clear_buttons();
-	    manager.add_button(id_download_button);
+	    manager.add_button(id_label_download_button);
 	    //manager.add_button(id_term_label_galaxy_button);
 	    manager.add_button(bookmark_button);
 	}else if( personality == 'bbop_bio' ){
@@ -184,6 +184,11 @@ function LiveSearchGOlrInit(){
 	btmpl.field_download('Download IDs (up to ' +
 			     dlimit + ')',
 			     dlimit, ['id']);
+    var id_label_download_button =
+	btmpl.field_download('Download IDs and labels (up to ' +
+			     dlimit + ')',
+			     dlimit, ['annotation_class',
+				      'annotation_class_label']);
     var gaf_download_button =
 	btmpl.field_download('GAF chunk download (up to ' +
 			     dlimit + ')',
