@@ -6,7 +6,6 @@
 use strict;
 use Cwd;
 use File::Find;
-use lib '../../gobo-dbic';
 
 ###
 ### Remember, during the library search, we are chucking out all
@@ -18,7 +17,7 @@ use lib '../../gobo-dbic';
 ## Things that we might not find or see that we need.
 my %must_list =
   (
-   'GO::TermFinder' => 1, # called incidentally
+#   'GO::TermFinder' => 1, # called incidentally
    'FreezeThaw' => 1,     # not picked-up automatically for some reason
    'DBD::SQLite' => 1,   # not picked-up automatically for some reason
   );
@@ -26,7 +25,7 @@ my %must_list =
 ## Things that we might find, but don't want to worry about.
 my %ignore_list =
   (
-   ## TODO: AmiGO utilities that need to be (re?)moved. Maybe I should
+   ## TODO: AmiGO 2 utilities that need to be (re?)moved. Maybe I should
    ## just filter these out with the rest.
    'Utility' => 1,
    'Utility::GODBMeta' => 1,
@@ -86,7 +85,7 @@ my %ignore_list =
    'Net::FTP' => 1,
    'XML::RSS' => 1,
 
-   ## (I believe) older things that aren't used in day-to-day AmiGO.
+   ## (I believe) older things that aren't used in day-to-day AmiGO 2.
    'Bio::DB::SwissProt' => 1,
    'Bio::Index::GenBank' => 1,
    'Bio::Index::Swissprot' => 1,
@@ -133,19 +132,19 @@ my %ignore_list =
 ## Make sure that we're in the right directory--the amigo root. How
 ## about if we see if there is an amigo directory and the install
 ## script if present...
-unless( -e "install.pl" &&
-	-e "amigo" &&
-	-d "amigo" ){
+unless( -e "install" &&
+	-d "perl/lib/AmiGO" &&
+	-d "_data" &&
+	-d "golr" ){
   die "We don't seem to be in the amigo root directory.";
 }
 
-## Get a list of all files in the three major directories and act on
+## Get a list of all files in the major directories and act on
 ## them.
 my %lib_hash = ();
-my $upper_base = cwd . '/../';
-find(\&action, $upper_base . 'amigo');
-find(\&action, $upper_base . 'go-perl');
-find(\&action, $upper_base . 'go-db-perl');
+#my $upper_base = cwd . '/../';
+#find(\&action, $upper_base . 'perl/lib');
+find(\&action, 'perl/lib');
 sub action {
 
   my $file = $File::Find::name;
@@ -243,7 +242,7 @@ MSG
   print <<MSG;
 
 It looks like all requirements have been met.
-Please use install.pl to install AmiGO.
+Please use "make install" to install AmiGO 2.
 
 MSG
 
@@ -261,14 +260,14 @@ version.pl
 
 =head1 DESCRIPTION
 
-This AmiGO script checks the environment's perl libraries by
+This AmiGO 2 script checks the environment's perl libraries by
 recursively parsing the files in the go-dev/amigo directory and makes
 suggestions about what should still be installed. It should probably
-run first if you have never tried to install this version of AmiGO
+run first if you have never tried to install this version of AmiGO 2
 before.
 
 =head1 SEE ALSO
 
-http://wiki.geneontology.org/index.php/AmiGO_Manual:_Installation
+http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Installation
 
 =cut

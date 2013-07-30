@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 # $id$
 ####
-#### Determine what is necessary for AmiGO in a realistic environment.
+#### Determine what is necessary for AmiGO 2 in a realistic environment.
 ####
 
 ###
@@ -10,7 +10,6 @@
 
 use strict;
 use Cwd;
-use lib '../../gobo-dbic';
 use vars qw(
 	     $opt_j
 	  );
@@ -32,30 +31,14 @@ my $util_scripts =
 my $web_scripts =
   [
    "amigo",
-   "aserve",
    "visualize",
    "term_details",
-
-   "slimmer",
-   "term_enrichment",
-
-   "browse.cgi",
-   "blast.cgi",
-   "go.cgi",
-   "gp-assoc.cgi",
-   "gp-assoc-view.cgi",
-   "gp-details.cgi",
-   "gp-select.cgi",
-   "term-assoc.cgi",
-   "term-chart.cgi",
-   "term-select.cgi",
-   "search.cgi"
   ];
 
 ## Things that we might not see that we need.
 my $must_list =
   [
-   'GO::TermFinder',
+   # 'GO::TermFinder',
   ];
 
 ## Things that we might see, but don't want to worry about. These tend
@@ -171,7 +154,7 @@ eval {
     my $actual_tt_version = Template->VERSION + 0.0;
     if( $actual_tt_version < $required_tt_version ){
       $error_p++;
-      push @$lost_libs, "AmiGO requires at least version " .
+      push @$lost_libs, "AmiGO 2 requires at least version " .
 	$actual_tt_version . " of Template Toolkit.";
     }else{
       print "Checking Template::Toolkit version...ok.\n";
@@ -203,7 +186,7 @@ MSG
   print <<MSG;
 
 It looks like all requirements have been met.
-Please use install.pl to install AmiGO.
+Please use "make install" to install AmiGO 2.
 
 MSG
 
@@ -254,13 +237,13 @@ simulate.pl
 
 =head1 DESCRIPTION
 
-This AmiGO script checks the environment's perl libraries by running
+This AmiGO 2 script checks the environment's perl libraries by running
 the perl checker over them and makes suggestions about what should
 still be installed. It should probably run first if you have upgraded
-to a newer version of AmiGO.
+to a newer version of AmiGO 2.
 
 =head1 SEE ALSO
 
-http://wiki.geneontology.org/index.php/AmiGO_Manual:_Installation
+http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Installation
 
 =cut
