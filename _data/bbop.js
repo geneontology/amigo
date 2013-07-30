@@ -1361,7 +1361,7 @@ bbop.version.revision = "2.0b1";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130729";
+bbop.version.release = "20130730";
 /* 
  * Package: json.js
  * 
@@ -3285,7 +3285,12 @@ bbop.html.tag = function(tag, attrs, below){
     this._is_a = 'bbop.html.tag';
 
     // Arg check--attrs should be defined as something.
-    if( ! attrs ){ attrs = {}; }
+    if( ! attrs ){
+	attrs = {};
+    }else{
+	// Prevent sharing of structure.
+	attrs = bbop.core.clone(attrs);
+    }
 
     // Generate (or not) id if it was requested.
     if( ! bbop.core.is_defined(attrs['id']) &&
@@ -11131,6 +11136,108 @@ bbop.widget.display.button_templates.open_facet_matrix = function(gconf,
 	};
     return facet_matrix_button;
 };
+
+/*
+ * Method: flexible_download
+ * 
+ * Generate the template for a button that gives the user a DnD and
+ * reorderable selector for how they want their tab-delimited
+ * downloads.
+ * 
+ * Arguments:
+ *  label - the text to use for the hover
+ *  count - the number of items to be downloadable
+ *  start_fields - ordered list of the initially selected fields 
+ *  personality - the personality (id) that we want to work with
+ *  gconf - a copy of the <golr_conf> for the currrent setup
+ * 
+ * Returns:
+ *  hash form of jQuery button template for consumption by <search_pane>.
+ */
+bbop.widget.display.button_templates.flexible_download = function(label, count,
+								  start_fields,
+								  personality,
+								  gconf){
+
+    var dl_props = {
+	'entity_list': null,
+	'rows': count
+    };
+
+    // Aliases.
+    var loop = bbop.core.each;
+    var hashify = bbop.core.hashify;
+
+    var flexible_download_button =
+	{
+	    label: label,
+	    diabled_p: false,
+	    text_p: false,
+	    icon: 'ui-icon-circle-arrow-s',
+	    click_function_generator: function(manager){
+
+		return function(event){
+		    
+		    var class_conf = gconf.get_class(personality);
+		    if( class_conf ){
+			
+			// First, a hash of our default items so we
+			// can check against them later to remove
+			// those items from the selectable pool.
+			// Then convert the list into a more
+			// interesting data type.
+			var start_hash = hashify(start_fields);
+			var start_list = [];
+			loop(start_fields,
+			     function(field_id, field_index){
+				 var cf = class_conf.get_field(field_id);
+				 var cname = cf.display_name();
+				 var cid = cf.id();
+				 var pset = [cname, cid];
+				 start_list.push(pset);
+			     });
+
+			// Then get an ordered list of all the
+			// different values we want to show in
+			// the pool list.
+			var pool_list = [];
+			var all_fields = class_conf.get_fields();
+			loop(all_fields,
+			     function(field, field_index){
+				 var field_id = field.id();
+				 if( start_hash[field_id] ){
+				     // Skip if already in start list.
+				 }else{
+				     var cname = field.display_name();
+				     var cid = field.id();
+				     var pset = [cname, cid];
+				     pool_list.push(pset);
+				 }
+			     });
+			// TODO: To alphabetical?
+
+			// Stub sender.
+			var dss_args = {
+			    title: 'Select the fields to download (up to ' + count + ')',
+			    blurb: 'By clicking "Select", you may download up to ' + count + ' lines in your browser in a new window. If your request is large or if the the server busy, this may take a while to complete--please be patient.',
+			    pool_list: pool_list,
+			    selected_list: start_list,
+			    action: function(selected_items){
+				dl_props['entity_list'] =
+				    manager.get_selected_items();
+				var raw_gdl =
+				    manager.get_download_url(selected_items,
+							     dl_props);
+				window.open(raw_gdl, '_blank');
+				jQuery(this).dialog('destroy');
+			    }};
+			new bbop.widget.drop_select_shield(dss_args);
+		    }
+		};
+	    }
+	};
+    return flexible_download_button;
+};
 /*
  * Package: results_table_by_class_conf.js
  * 
@@ -14812,6 +14919,214 @@ bbop.widget.list_select_shield = function(in_argument_hash){
 	}	    
     };
     var dia = jQuery('#' + div_id).dialog(diargs);
+};
+/*
+ * Package: drop_select_shield.js
+ * 
+ * Namespace: bbop.widget.drop_select_shield
+ * 
+ * BBOP object to produce a self-constructing/self-destructing DnD
+ * selection and ordering shield.
+ * 
+ * A simple invocation could be:
+ * 
+ * : new bbop.widget.drop_select_shield({title: 'foo', blurb: 'explanation', pool_list: [['a', 'b'], ['c', 'd']], selected_list [['a', 'b']], action: function(selected_items){ alert(selected_items.join(', '));}})
+ * 
+ * This is a completely self-contained UI and manager.
+ */
+
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'logger');
+//bbop.core.require('bbop', 'model');
+//bbop.core.require('bbop', 'model', 'graph', 'bracket');
+bbop.core.require('bbop', 'html');
+bbop.core.require('bbop', 'golr', 'manager', 'jquery');
+bbop.core.namespace('bbop', 'widget', 'drop_select_shield');
+
+/*
+ * Constructor: drop_select_shield
+ * 
+ * Contructor for the bbop.widget.drop_select_shield object.
+ * 
+ * The purpose of this object to to create a popup that 1) displays a
+ * drag selectable and reorderable list of items and 2) define an
+ * action (by function argument) to act on the selection.
+ * 
+ * The list arguments take the form of: ["label", "id"].
+ * 
+ * The "action" argument is a function that takes a list of selected
+ * ids.
+ * 
+ * The argument hash looks like:
+ *  title - *[optional]* the title to be displayed 
+ *  blurb - *[optional]* a text chunk to explain the point of the action
+ *  pool_list - a list of lists (see above)
+ *  selected_list - a list of lists (see above)
+ *  action - *[optional] * the action function to be triggered (see above, defaults to no-op)
+ *  width - *[optional]* width as px integer (defaults to 800)
+ * 
+ * Arguments:
+ *  in_argument_hash - hash of arguments (see above)
+ * 
+ * Returns:
+ *  self
+ */
+bbop.widget.drop_select_shield = function(in_argument_hash){    
+    this._is_a = 'bbop.widget.drop_select_shield';
+
+    var anchor = this;
+
+    // Per-UI logger.
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch('W (drop_select_shield): ' + str); }
+
+    // Aliases.
+    var each = bbop.core.each;
+    var uuid = bbop.core.uuid;
+    
+    // Our argument default hash.
+    var default_hash = {
+	'title': '',
+	'blurb': '',
+	'pool_list': [],
+	'selected_list': [],
+	'action': function(){},
+	'width': 800
+    };
+    var folding_hash = in_argument_hash || {};
+    var arg_hash = bbop.core.fold(default_hash, folding_hash);
+    var title = arg_hash['title'];
+    var blurb = arg_hash['blurb'];
+    var pool_list = arg_hash['pool_list'];
+    var selected_list = arg_hash['selected_list'];
+    var action = arg_hash['action'];
+    var width = arg_hash['width'];
+
+    // Create a random class that we'll use as a connector later.
+    var rclass = 'bbop-js-ui-dss-rclass-'+ bbop.core.randomness(20);
+
+    // Get the pool and selected lists into html form for loading into
+    // the frame table.
+    var ul_list_attrs = {
+    	'generate_id': true,
+	'class': 'bbop-js-ui-drop-select-shield ' + rclass
+    };
+    var li_attrs = {
+	'class': 'ui-state-default bbop-js-ui-hoverable'
+	//'class': 'bbop-js-ui-hoverable'
+    };
+    var pool_ul_list = new bbop.html.list([], ul_list_attrs);
+    each(pool_list,
+    	 function(item){	     
+    	     var lbl = item[0];
+    	     var val = item[1];
+    	     //ll('lbl: ' + lbl);
+    	     //ll('val: ' + val);
+	     li_attrs['value'] = val;
+	     var li_elt = new bbop.html.tag('li', li_attrs,
+					    lbl + ' (' + val + ')');
+	     pool_ul_list.add_to(li_elt);
+    	 });
+    var selected_ul_list = new bbop.html.list([], ul_list_attrs);
+    each(selected_list,
+    	 function(item){	     
+    	     var lbl = item[0];
+    	     var val = item[1];
+    	     //ll('lbl: ' + lbl);
+    	     //ll('val: ' + val);
+	     li_attrs['id'] = bbop.core.randomness(20) + '-' + val;
+	     var li_elt = new bbop.html.tag('li', li_attrs,
+					    lbl + ' (' + val + ')', li_attrs);
+	     selected_ul_list.add_to(li_elt);
+    	 });
+
+    // Append super container div to body.
+    var div = new bbop.html.tag('div', {'generate_id': true});
+    var div_id = div.get_id();
+    jQuery('body').append(div.to_string());
+
+    // Add title and blurb to div.
+    jQuery('#' + div_id).append('<p>' + blurb + '</p>');
+
+    // Add the table frame to the div.
+    var tbl = new bbop.html.table(['Available pool', 'Selected fields'],
+				  [[pool_ul_list, selected_ul_list]]);
+    jQuery('#' + div_id).append(tbl.to_string());
+
+    // Make the lists operable.
+    var pul_id = pool_ul_list.get_id();
+    var sul_id = selected_ul_list.get_id();
+    jQuery('#'+pul_id+',#'+sul_id ).sortable(
+	{connectWith: '.' + rclass}
+    ).disableSelection();
+
+    // Finally, add a clickable button to that calls the action
+    // function. (Itself embedded in a container div to help move it
+    // around.)
+    var cont_div_attrs = {
+    	'class': 'bbop-js-ui-dialog-button-right',
+    	'generate_id': true
+    };
+    var cont_div = new bbop.html.tag('div', cont_div_attrs);
+    var cont_btn_attrs = {
+    	//'class': 'bbop-js-ui-dialog-button-right'
+    };
+    var cont_btn = new bbop.widget.display.text_button_sim('Select',
+    							   'Click to select',
+    							   null,
+    							   cont_btn_attrs);
+    cont_div.add_to(cont_btn);
+    jQuery('#' + div_id).append(cont_div.to_string());
+
+    // Since we've technically added the button, make it clickable
+    // Note that this is very much radio button specific.
+    jQuery('#' + cont_btn.get_id()).click(
+    	function(){
+	    // Pull the values.
+	    var selected_strings =
+		jQuery('#'+ sul_id).sortable('toArray', {'attribute': 'value'});
+	    alert(selected_strings.join(','));
+
+    	    // // Jimmy values out from above by cycling over the
+    	    // // collected groups.
+    	    // var selected = [];
+    	    // each(group_cache,
+    	    // 	 function(gname){
+    	    // 	     var find_str = 'input[name=' + gname + ']';
+    	    // 	     var val = null;
+    	    // 	     jQuery(find_str).each(
+    	    // 		 function(){
+    	    // 		     if( this.checked ){
+    	    // 			 val = jQuery(this).val();
+    	    // 		     }
+    	    // 		     // }else{
+    	    // 		     // 	 selected.push(null);
+    	    // 		     //}
+    	    // 		 });
+    	    // 	     selected.push(val);
+    	    // 	 });
+
+    	    // // Calls those values with our action function.
+    	    // action(selected);
+
+    	    // And destroy ourself.
+    	    jQuery('#' + div_id).remove();
+    	});
+
+    // Modal dialogify div; include self-destruct.
+    var diargs = {
+	'title': title,
+	'modal': true,
+	'draggable': false,
+	'width': width,
+	'close':
+	function(){
+	    // TODO: Could maybe use .dialog('destroy') instead?
+	    jQuery('#' + div_id).remove();
+	}	    
+    };
+    var dia = jQuery('#' + div_id).dialog(diargs);    
 };
 /*
  * Package: search_pane.js
