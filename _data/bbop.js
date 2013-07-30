@@ -11231,17 +11231,17 @@ bbop.widget.display.button_templates.flexible_download = function(label, count,
 			// Stub sender.
 			var dss_args = {
 			    title: 'Select the fields to download (up to ' + count + ')',
-			    blurb: 'By clicking "Select" at the bottom, you may download up to ' + count + ' lines in your browser in a new window. If your request is large or if the the server busy, this may take a while to complete--please be patient.',
+			    blurb: 'By clicking "Download" at the bottom, you may download up to ' + count + ' lines in your browser in a new window. If your request is large or if the the server busy, this may take a while to complete--please be patient.',
 			    pool_list: pool_list,
 			    selected_list: start_list,
+			    action_label: 'Download',
 			    action: function(selected_items){
-				dl_props['entity_list'] =
-				    manager.get_selected_items();
-				var raw_gdl =
-				    manager.get_download_url(selected_items,
-							     dl_props);
-				window.open(raw_gdl, '_blank');
-				jQuery(this).dialog('destroy');
+			    	dl_props['entity_list'] =
+			    	    manager.get_selected_items();
+			    	var raw_gdl =
+			    	    manager.get_download_url(selected_items,
+			    				     dl_props);
+			    	window.open(raw_gdl, '_blank');
 			    }};
 			new bbop.widget.drop_select_shield(dss_args);
 		    }
@@ -14974,6 +14974,7 @@ bbop.core.namespace('bbop', 'widget', 'drop_select_shield');
  *  blurb - *[optional]* a text chunk to explain the point of the action
  *  pool_list - a list of lists (see above)
  *  selected_list - a list of lists (see above)
+ *  action_label - *[optional] * defaults to "Select"
  *  action - *[optional] * the action function to be triggered (see above, defaults to no-op)
  *  width - *[optional]* width as px integer (defaults to 800)
  * 
@@ -15003,6 +15004,7 @@ bbop.widget.drop_select_shield = function(in_argument_hash){
 	'blurb': '',
 	'pool_list': [],
 	'selected_list': [],
+	'action_label': 'Select',
 	'action': function(){},
 	'width': 800
     };
@@ -15012,6 +15014,7 @@ bbop.widget.drop_select_shield = function(in_argument_hash){
     var blurb = arg_hash['blurb'];
     var pool_list = arg_hash['pool_list'];
     var selected_list = arg_hash['selected_list'];
+    var action_label = arg_hash['action_label'];
     var action = arg_hash['action'];
     var width = arg_hash['width'];
 
@@ -15087,64 +15090,39 @@ bbop.widget.drop_select_shield = function(in_argument_hash){
 	{connectWith: '.' + rclass}
     ).disableSelection();
 
-    // Finally, add a clickable button to that calls the action
-    // function. (Itself embedded in a container div to help move it
-    // around.)
-    var cont_div_attrs = {
-    	'class': 'bbop-js-ui-dialog-button-right',
-    	'generate_id': true
-    };
-    var cont_div = new bbop.html.tag('div', cont_div_attrs);
-    var cont_btn_attrs = {
-    	//'class': 'bbop-js-ui-dialog-button-right'
-    };
-    var cont_btn = new bbop.widget.display.text_button_sim('Select',
-    							   'Click to select',
-    							   null,
-    							   cont_btn_attrs);
-    // var cancel_btn_attrs = {
-    // 	//'class': 'bbop-js-ui-dialog-button-right'
-    // };
-    // var cancel_btn = new bbop.widget.display.text_button_sim('Cancel',
-    // 							     'Click to cancel',
-    // 							     null,
-    // 							     cont_btn_attrs);
-    cont_div.add_to(cont_btn);
-    // cont_div.add_to(cancel_btn);
-    jQuery('#' + div_id).append(cont_div.to_string());
+    // Helper function to pull the values.
+    // Currently, JQuery adds a lot of extra non-attributes li
+    // tags when it creates the DnD, so filter those out to
+    // get just the fields ids.
+    function _get_selected(){
+    	var ret_list = [];
+	var selected_strings =
+	    jQuery('#'+ sul_id).sortable('toArray', {'attribute': 'value'});
+    	each(selected_strings,
+    	     function(in_thing){
+		 if( in_thing && in_thing != '' ){
+		     ret_list.push(in_thing);
+		 }
+	     });
+	return ret_list;
+    }
 
-    // Since we've technically added the button, make it clickable
-    // Note that this is very much radio button specific.
-    jQuery('#' + cont_btn.get_id()).click(
-    	function(){
-	    // Pull the values.
-	    // Currently, JQuery adds a lot of extra non-attributes li
-	    // tags when it creates the DnD, so filter those out to
-	    // get just the fields ids.
-	    var selected_strings =
-		jQuery('#'+ sul_id).sortable('toArray', {'attribute': 'value'});
-    	    var final_selected = [];
-    	    each(selected_strings,
-    	    	 function(in_thing){
-		     if( in_thing && in_thing != '' ){
-			 final_selected.push(in_thing);
-		     }
-		 });
-	    //alert(final_selected.join(','));
+    // Buttons for final dialog.
+    var mod_buttons = {};
+    mod_buttons[action_label] =
+    	function(event){
+    	    var final_selected = _get_selected();
 
     	    // Calls those values with our action function.
     	    action(final_selected);
 
     	    // And destroy ourself.
     	    jQuery('#' + div_id).remove();
-    	});
-
-    // // And activate the canel button.
-    // jQuery('#' + cancel_btn.get_id()).click(
-    // 	function(){
-    // 	    // And destroy ourself.
-    // 	    jQuery('#' + div_id).remove();
-    // 	});
+    	};
+    mod_buttons['Cancel'] =
+	function(event, selected_items){
+	    jQuery(this).dialog('destroy');
+	};
 
     // Modal dialogify div; include self-destruct.
     var diargs = {
@@ -15152,10 +15130,10 @@ bbop.widget.drop_select_shield = function(in_argument_hash){
 	'modal': true,
 	'draggable': false,
 	'width': width,
+	'buttons': mod_buttons,
 	'close':
 	function(){
-	    // TODO: Could maybe use .dialog('destroy') instead?
-	    jQuery('#' + div_id).remove();
+	    jQuery(this).dialog('destroy');
 	}	    
     };
     var dia = jQuery('#' + div_id).dialog(diargs);    
