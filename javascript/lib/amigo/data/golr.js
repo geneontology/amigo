@@ -2463,7 +2463,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "JSON blob form of the local stepwise topology graph.",
-            "display_name" : "This should not be displayed",
+            "display_name" : "Topology graph (JSON)",
             "indexed" : "false",
             "searchable" : "false",
             "required" : "false",
@@ -2477,7 +2477,7 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "JSON blob form of the local relation transitivity graph.",
-            "display_name" : "This should not be displayed",
+            "display_name" : "Regulates transitivity graph (JSON)",
             "indexed" : "false",
             "searchable" : "false",
             "required" : "false",
@@ -2521,7 +2521,7 @@ amigo.data.golr = {
          "regulates_transitivity_graph_json" : {
             "transform" : [],
             "description" : "JSON blob form of the local relation transitivity graph.",
-            "display_name" : "This should not be displayed",
+            "display_name" : "Regulates transitivity graph (JSON)",
             "indexed" : "false",
             "searchable" : "false",
             "required" : "false",
@@ -2579,7 +2579,7 @@ amigo.data.golr = {
          "topology_graph_json" : {
             "transform" : [],
             "description" : "JSON blob form of the local stepwise topology graph.",
-            "display_name" : "This should not be displayed",
+            "display_name" : "Topology graph (JSON)",
             "indexed" : "false",
             "searchable" : "false",
             "required" : "false",

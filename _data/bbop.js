@@ -11214,12 +11214,24 @@ bbop.widget.display.button_templates.flexible_download = function(label, count,
 				     pool_list.push(pset);
 				 }
 			     });
-			// TODO: To alphabetical?
+
+			// To alphabetical.
+			pool_list.sort(function(a, b){
+					   var av = a[0];
+					   var bv = b[0];
+					   var val = 0;
+					   if( av < bv ){
+					       return -1;
+					   }else if( av > bv){
+					       return 1;
+					   }
+					   return val;
+				       });
 
 			// Stub sender.
 			var dss_args = {
 			    title: 'Select the fields to download (up to ' + count + ')',
-			    blurb: 'By clicking "Select", you may download up to ' + count + ' lines in your browser in a new window. If your request is large or if the the server busy, this may take a while to complete--please be patient.',
+			    blurb: 'By clicking "Select" at the bottom, you may download up to ' + count + ' lines in your browser in a new window. If your request is large or if the the server busy, this may take a while to complete--please be patient.',
 			    pool_list: pool_list,
 			    selected_list: start_list,
 			    action: function(selected_items){
@@ -15008,15 +15020,15 @@ bbop.widget.drop_select_shield = function(in_argument_hash){
 
     // Get the pool and selected lists into html form for loading into
     // the frame table.
-    var ul_list_attrs = {
-    	'generate_id': true,
-	'class': 'bbop-js-ui-drop-select-shield ' + rclass
-    };
     var li_attrs = {
 	'class': 'ui-state-default bbop-js-ui-hoverable'
 	//'class': 'bbop-js-ui-hoverable'
     };
-    var pool_ul_list = new bbop.html.list([], ul_list_attrs);
+    var ul_src_list_attrs = {
+    	'generate_id': true,
+	'class': 'bbop-js-ui-drop-select-shield ' + rclass
+    };
+    var pool_ul_list = new bbop.html.list([], ul_src_list_attrs);
     each(pool_list,
     	 function(item){	     
     	     var lbl = item[0];
@@ -15024,20 +15036,32 @@ bbop.widget.drop_select_shield = function(in_argument_hash){
     	     //ll('lbl: ' + lbl);
     	     //ll('val: ' + val);
 	     li_attrs['value'] = val;
-	     var li_elt = new bbop.html.tag('li', li_attrs,
-					    lbl + ' (' + val + ')');
+	     var cntnt = '' +
+		 '<span class="ui-icon ui-icon-arrow-4"></span> ' +
+		 '' + lbl + ' (' + val + ')' + 
+		 '';
+	     var li_elt = new bbop.html.tag('li', li_attrs, cntnt);
 	     pool_ul_list.add_to(li_elt);
     	 });
-    var selected_ul_list = new bbop.html.list([], ul_list_attrs);
+    var ul_target_list_attrs = {
+    	'generate_id': true,
+	'class':
+	'bbop-js-ui-drop-select-shield bbop-js-ui-drop-select-shield-target ' +
+	    rclass
+    };
+    var selected_ul_list = new bbop.html.list([], ul_target_list_attrs);
     each(selected_list,
-    	 function(item){	     
+    	 function(item){
     	     var lbl = item[0];
     	     var val = item[1];
     	     //ll('lbl: ' + lbl);
     	     //ll('val: ' + val);
-	     li_attrs['id'] = bbop.core.randomness(20) + '-' + val;
-	     var li_elt = new bbop.html.tag('li', li_attrs,
-					    lbl + ' (' + val + ')', li_attrs);
+	     li_attrs['value'] = val;
+	     var cntnt = '' +
+		 '<span class="ui-icon ui-icon-arrow-4"></span> ' +
+		 '' + lbl + ' (' + val + ')' + 
+		 '';
+	     var li_elt = new bbop.html.tag('li', li_attrs, cntnt);
 	     selected_ul_list.add_to(li_elt);
     	 });
 
@@ -15051,7 +15075,9 @@ bbop.widget.drop_select_shield = function(in_argument_hash){
 
     // Add the table frame to the div.
     var tbl = new bbop.html.table(['Available pool', 'Selected fields'],
-				  [[pool_ul_list, selected_ul_list]]);
+				  [[pool_ul_list, selected_ul_list]],
+				  {'class':
+				   'bbop-js-ui-drop-select-shield-frame'});
     jQuery('#' + div_id).append(tbl.to_string());
 
     // Make the lists operable.
@@ -15076,7 +15102,15 @@ bbop.widget.drop_select_shield = function(in_argument_hash){
     							   'Click to select',
     							   null,
     							   cont_btn_attrs);
+    // var cancel_btn_attrs = {
+    // 	//'class': 'bbop-js-ui-dialog-button-right'
+    // };
+    // var cancel_btn = new bbop.widget.display.text_button_sim('Cancel',
+    // 							     'Click to cancel',
+    // 							     null,
+    // 							     cont_btn_attrs);
     cont_div.add_to(cont_btn);
+    // cont_div.add_to(cancel_btn);
     jQuery('#' + div_id).append(cont_div.to_string());
 
     // Since we've technically added the button, make it clickable
@@ -15084,35 +15118,33 @@ bbop.widget.drop_select_shield = function(in_argument_hash){
     jQuery('#' + cont_btn.get_id()).click(
     	function(){
 	    // Pull the values.
+	    // Currently, JQuery adds a lot of extra non-attributes li
+	    // tags when it creates the DnD, so filter those out to
+	    // get just the fields ids.
 	    var selected_strings =
 		jQuery('#'+ sul_id).sortable('toArray', {'attribute': 'value'});
-	    alert(selected_strings.join(','));
+    	    var final_selected = [];
+    	    each(selected_strings,
+    	    	 function(in_thing){
+		     if( in_thing && in_thing != '' ){
+			 final_selected.push(in_thing);
+		     }
+		 });
+	    //alert(final_selected.join(','));
 
-    	    // // Jimmy values out from above by cycling over the
-    	    // // collected groups.
-    	    // var selected = [];
-    	    // each(group_cache,
-    	    // 	 function(gname){
-    	    // 	     var find_str = 'input[name=' + gname + ']';
-    	    // 	     var val = null;
-    	    // 	     jQuery(find_str).each(
-    	    // 		 function(){
-    	    // 		     if( this.checked ){
-    	    // 			 val = jQuery(this).val();
-    	    // 		     }
-    	    // 		     // }else{
-    	    // 		     // 	 selected.push(null);
-    	    // 		     //}
-    	    // 		 });
-    	    // 	     selected.push(val);
-    	    // 	 });
-
-    	    // // Calls those values with our action function.
-    	    // action(selected);
+    	    // Calls those values with our action function.
+    	    action(final_selected);
 
     	    // And destroy ourself.
     	    jQuery('#' + div_id).remove();
     	});
+
+    // // And activate the canel button.
+    // jQuery('#' + cancel_btn.get_id()).click(
+    // 	function(){
+    // 	    // And destroy ourself.
+    // 	    jQuery('#' + div_id).remove();
+    // 	});
 
     // Modal dialogify div; include self-destruct.
     var diargs = {

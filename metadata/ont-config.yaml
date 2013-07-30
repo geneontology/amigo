@@ -143,13 +143,13 @@ fields:
     searchable: true
   - id: topology_graph_json
     description: JSON blob form of the local stepwise topology graph.
-    display_name: This should not be displayed
+    display_name: Topology graph (JSON)
     type: string
     property: [getSegmentShuntGraphJSON]
     indexed: false
   - id: regulates_transitivity_graph_json
     description: JSON blob form of the local relation transitivity graph.
-    display_name: This should not be displayed
+    display_name: Regulates transitivity graph (JSON)
     type: string
     property: [getLineageShuntGraphJSON]
     indexed: false
