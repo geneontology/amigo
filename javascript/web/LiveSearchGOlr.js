@@ -42,6 +42,7 @@ function LiveSearchGOlrInit(){
 	}else if( personality == 'bbop_ont' ){
 	    manager.clear_buttons();
 	    manager.add_button(id_label_download_button);
+	    manager.add_button(ont_flex_download_button);
 	    //manager.add_button(id_term_label_galaxy_button);
 	    manager.add_button(bookmark_button);
 	}else if( personality == 'bbop_bio' ){
@@ -193,6 +194,12 @@ function LiveSearchGOlrInit(){
 	btmpl.field_download('GAF chunk download (up to ' +
 			     dlimit + ')',
 			     dlimit, _gaf_fl);
+    var ont_flex_download_button =
+	btmpl.flexible_download('Flex download test (up to ' + dlimit + ')',
+				dlimit,
+				['annotation_class', 'annotation_class_label'],
+				'bbop_ont',
+				gconf);
     var bookmark_button = btmpl.bookmark(linker);
     var facet_matrix_button = btmpl.open_facet_matrix(gconf, sd);
     var gaf_galaxy_button =

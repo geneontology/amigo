@@ -762,6 +762,39 @@ div .mq_message {
 }
 
 /*
+ * For the drop_select_shield.
+ */
+.bbop-js-ui-drop-select-shield-frame tr td {
+    width: 50%;
+}
+.bbop-js-ui-drop-select-shield-target {
+    border: 1px solid #3875D7;
+    padding: 5px;
+}
+.bbop-js-ui-drop-select-shield {
+    list-style-type: none;
+    margin: 5px;
+    font-size: 85%;
+    /* width: 60%; */
+}
+.bbop-js-ui-drop-select-shield li {
+     margin-top: 2px;
+     margin-bottom: 2px;
+    /* padding: 0.4em; */
+    /* padding-left: 1.5em; */
+    /* font-size: 1.4em; */
+    /* height: 18px; */
+}
+.bbop-js-ui-drop-select-shield li span {
+    /* position: absolute; */
+    /* margin-left: -1.3em; */
+    display: inline-block;
+}
+/* .bbop-js-ui-drop-select-shield li span span .ui-icon { */
+/*     display: inline-block; */
+/* } */
+
+/*
  * bbop.widget.spinner classes.
  */
 .bbop-js-spinner {
