@@ -70,6 +70,7 @@ sub cgiapp_prerun {
      'error' => [],
      'warning' => [],
      'notice' => [],
+     'success' => [],
     };
 
   ## 
@@ -167,7 +168,6 @@ sub cgiapp_prerun {
 #       $self->_workspace_safety($workspace_name);
 #     }
   }
-
 
   ## Okay, here we're going to add a little system of passing messages
   ## globally through filesystem manipulation.
@@ -857,6 +857,81 @@ sub generate_template_page {
   push @mbuf, $self->_eval_content('common/footer.tmpl')
     if ! $lite_p && $footer_p;
   push @mbuf, $self->_eval_content('common/close.tmpl');
+
+  ## Merge and return.
+  my $output = '';
+  $output = join "\n", @mbuf;
+  return $output;
+}
+
+=item new_generate_template_page
+
+Experimental template setup build around BS3.
+
+Args: ???
+Returns: the page text
+
+=cut
+sub new_generate_template_page {
+
+  my $self = shift;
+  my $args = shift || {};
+
+  ## Check vs. defaults.
+  ## TODO: pull documentation up.
+
+  ## Before we start, make sure that the beta is announced.
+  $self->add_mq('notice', 'You are using'.
+		' <a title="Go to AmiGO Labs explanation page"'.
+		' href="http://wiki.geneontology.org/index.php/AmiGO_Labs"'.
+		' class="alert-link">'.
+		' AmiGO Labs</a>');
+
+  ## Generate the page output.
+  my @mbuf = ();
+
+  ## Do head. First CSS, then JS.
+  push @mbuf, $self->_eval_content('common/bs3/head_open.tmpl');
+  foreach my $css (@{$self->{WEBAPP_CSS}}){ push @mbuf, $css; }
+  foreach my $js (@{$self->{WEBAPP_JAVASCRIPT}}){ push @mbuf, $js; }
+  push @mbuf, $self->_eval_content('common/bs3/head_close.tmpl');
+
+  ## Do body.
+  push @mbuf, $self->_eval_content('common/bs3/body_open.tmpl');
+
+  ## Optional debugging output.
+  if( $self->{CORE}->verbose_p() ){
+    push @mbuf, '<!-- DEBUG -->';
+    foreach my $key (keys %{$self->{WEBAPP_TEMPLATE_PARAMS}}){
+      my $val = $self->{WEBAPP_TEMPLATE_PARAMS}{$key} || '<undefined>';
+      push @mbuf, "<!-- $key : $val -->";
+    }
+  }
+
+  ## The usual everywhere header.
+  push @mbuf, $self->_eval_content('common/bs3/header.tmpl');
+  #  if ! $lite_p && $header_p;
+
+  ## Pre-main content output.
+  push @mbuf, $self->_eval_content('common/bs3/content_open.tmpl');
+
+  ## RoR-style messages and the like.
+  foreach my $queue (("success", "notice", "warning", "error")){
+    my $messages = $self->get_mq($queue);
+    foreach my $message (@$messages){
+      $self->{CORE}->kvetch('in queue output try: '. $queue . ": " . $message);
+      $self->{WEBAPP_TEMPLATE_PARAMS}{'mq_last_message_type'} = $queue;
+      $self->{WEBAPP_TEMPLATE_PARAMS}{'mq_last_message'} = $message;
+      push @mbuf, $self->_eval_content('common/bs3/mq_message.tmpl')
+    }
+  }
+
+  ## Main content output.
+  foreach my $content (@{$self->{WEBAPP_CONTENT}}){ push @mbuf, $content; }
+  #push @mbuf, $self->_eval_content('common/content_close.tmpl');
+  push @mbuf, $self->_eval_content('common/bs3/footer.tmpl');
+  #  if ! $lite_p && $footer_p;
+  push @mbuf, $self->_eval_content('common/bs3/close.tmpl');
 
   ## Merge and return.
   my $output = '';

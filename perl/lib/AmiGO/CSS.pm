@@ -43,6 +43,16 @@ my $uicss2path =
 ## For independant CSS.
 my $css2path =
   {
+   ## Bootstrap.
+   'com.bootstrap' =>
+   'bootstrap.min.css',
+   'com.bootstrap-theme' =>
+   'bootstrap-theme.min.css',
+
+   ## BBOP.
+   'bbop' =>
+   'bbop.css',
+
    ## Use this:
    'standard' =>
    'formatting.css',

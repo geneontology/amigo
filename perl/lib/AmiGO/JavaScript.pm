@@ -54,6 +54,10 @@ my $sig2path =
    'com.modernizr' =>
    'com/modernizr-1.0.min.js',
 
+   ## Starting with B3.
+   'com.bootstrap' =>
+   'com/bootstrap.min.js',
+
    ## JQuery. I think this is layout 1.2, aimed for 1.3
    ## and 1.7.
    'com.jquery' =>

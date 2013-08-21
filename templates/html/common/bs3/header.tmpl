@@ -1,0 +1,87 @@
+<!-- START template: header.tmpl -->
+<!-- page_name          = [% page_name %] -->
+<!-- image_dir          = [% image_dir %] -->
+<!-- show_blast         = [% show_blast %] -->
+<!-- bookmark           = [% bookmark %] -->
+<!-- session_id         = [% session_id %] -->
+<!-- session_id_for_url = [% session_id_for_url %] -->
+<div class="navbar navbar-default navbar-static-top">
+  <div class="container">
+    <!-- Button on collapse. -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="amigo-logo-img-link" href="http://geneontology.org"><img class="amigo-logo-img" src="[% image_dir %]/go-logo-icon.small.png" alt="GO logo" title="Gene Ontology front page"></a>
+      <a class="navbar-brand" href="[% base %]/amigo/landing">AmiGO 2</a>
+    </div>
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+
+	<!-- Home. -->
+        <li[% IF page_name == 'landing' %] class="active"[% END %]><a href="[% base %]/amigo/landing" title="The AmiGO 2 landing page.">Home</a></li>
+
+	<!-- The various searches. -->
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle[% IF page_name == 'live_search' %] active[% END %]" data-toggle="dropdown">Search <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li[% IF page_name == 'live_search' %] class="disabled"[% END %]><a href="[% base %]/amigo/search" title="Search for GO terms, gene product annotations, and other entities.">Search</a></li>
+            <!-- <li class="dropdown-header">Nav header</li> -->
+          </ul>
+        </li>
+
+	<!-- Browse. -->
+        <!-- <li[% IF page_name == 'browse' %] class="active"[% END %]><a href="[% base %]/amigo/browse" title="Browse GO terms.">Browse</a></li> -->
+
+	<!-- Software list. -->
+        <li[% IF page_name == 'software_list' %] class="active"[% END %]><a href="[% base %]/amigo/software_list" title="More tools to explore the Gene Ontology">Tools&nbsp;&amp;&nbsp;Resources</a></li>
+
+	<!-- Help. -->
+	[% help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual" %]
+	[% IF page_name == 'landing' %]
+	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Home" %]
+	[% ELSIF page_name == 'goose' %]
+	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_GOOSE" %]
+	[% ELSIF page_name == 'gannet' %]
+	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Gannet" %]
+	[% ELSIF page_name == 'grebe' %]
+	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Grebe" %]
+	[% ELSIF page_name == 'visualize' %]
+	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Visualize" %]
+	[% ELSIF page_name == 'live_search' %]
+	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Search" %]
+	[% ELSIF page_name == 'term' %]
+	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Term_Page" %]
+	[% ELSIF page_name == 'gene_product' %]
+	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Gene_Product_Page" %]
+	[% END %]
+
+        <li><a href="[% help_link %]" title="Help guide for AmiGO 2.">Help</a></li>
+
+	<!-- Feedback. -->
+	[% IF BETA == 1 %]
+	<li><a href="http://wiki.geneontology.org/index.php/AmiGO_2:_Feedback" title="Give feddback on AmiGO 2">Feedback</a></li>    
+	[% END %]
+
+	<!-- About. -->
+	<li><a href="http://wiki.geneontology.org/index.php/AmiGO_2" title="About AmiGO 2">About</a></li>
+
+      </ul>
+
+      [% IF page_name == 'landing' || page_name == 'visualize' || page_name == 'goose' || page_name == 'gannet' || page_name == 'repl' || page_name == 'simple_search' || page_name == 'amigo' || page_name == 'schema_details' || page_name == 'load_details' %]
+      [% ELSE %]
+      [%    INCLUDE "common/bs3/header_search.tmpl" %]
+      [% END %] 
+
+      <!-- <p class="navbar-text navbar-right"> -->
+      <!-- 	<a href="http://geneontology.org"><img class="logo-img" style="height: 50px;" src="[% image_dir %]/go-logo-icon.small.png" alt="GO logo" title="Gene Ontology front page"></a> -->
+      <!-- </p> -->
+      <!-- <p> -->
+      	<!-- <a href="http://geneontology.org" class="navbar-link">GO</a> -->
+      <!-- </p> -->
+    </div>
+  </div>
+</div>
+<!-- END template: header.tmpl -->

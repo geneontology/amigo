@@ -187,7 +187,11 @@ sub input_profile {
   }elsif( $profile_name eq 'live_search' ){
     $self->_add_simple_argument('bookmark', '');
     $self->_add_simple_argument('query', '');
+    ## TODO: I think we'll need to remove this once we
+    ## we separate.
     $self->_add_simple_argument('golr_class', '');
+    ## Temp variable as we experiement with new template systems.
+    $self->_add_simple_argument('template', 'default');
   }elsif( $profile_name eq 'live_search_term' ){
     $self->_add_simple_search_set();
     $self->_add_range_set();
