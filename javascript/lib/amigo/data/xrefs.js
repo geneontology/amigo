@@ -664,6 +664,7 @@ amigo.data.xrefs = {
    },
    "uniprotkb/swiss-prot" : {
       "object" : "Accession",
+      "replaced_by" : "UniProtKB",
       "name" : null,
       "uri_prefix" : null,
       "url_example" : "http://www.uniprot.org/uniprot/P51587",
@@ -675,6 +676,7 @@ amigo.data.xrefs = {
       "abbreviation" : "UniProtKB/Swiss-Prot",
       "id" : null,
       "url_syntax" : "http://www.uniprot.org/uniprot/[example_id]",
+      "is_obsolete" : "true",
       "datatype" : null
    },
    "coriell" : {
@@ -1850,7 +1852,7 @@ amigo.data.xrefs = {
       "name" : null,
       "url_example" : "http://zfin.org/cgi-bin/ZFIN_jump?record=ZDB-GENE-990415-103",
       "database" : "Zebrafish Information Network",
-      "local_id_syntax" : "^ZDB-(GENE|GEN|MRPHLNO)-[0-9]{6}-[0-9]+$",
+      "local_id_syntax" : "^ZDB-(GENE|GENO|MRPHLNO)-[0-9]{6}-[0-9]+$",
       "example_id" : "ZFIN:ZDB-GENE-990415-103",
       "generic_url" : "http://zfin.org/",
       "fullname" : null,
@@ -1873,6 +1875,21 @@ amigo.data.xrefs = {
       "id" : null,
       "abbreviation" : "protein_id",
       "url_syntax" : null,
+      "datatype" : null
+   },
+   "broad_neurospora" : {
+      "object" : "Identifier for Broad_Ncrassa Loci",
+      "uri_prefix" : null,
+      "name" : null,
+      "url_example" : "http://www.broadinstitute.org/annotation/genome/neurospora/GeneDetails.html?sp=S7000007580576824",
+      "description" : "Neurospora crassa database at the Broad Institute",
+      "database" : "Neurospora crassa Database",
+      "example_id" : "BROAD_NEUROSPORA:7000007580576824",
+      "generic_url" : "http://www.broadinstitute.org/annotation/genome/neurospora/MultiHome.html",
+      "fullname" : null,
+      "id" : null,
+      "abbreviation" : "Broad_NEUROSPORA",
+      "url_syntax" : "http://www.broadinstitute.org/annotation/genome/neurospora/GeneDetails.html?sp=S[example_id]",
       "datatype" : null
    },
    "pamgo_mgg" : {
@@ -2593,6 +2610,7 @@ amigo.data.xrefs = {
    },
    "swiss-prot" : {
       "object" : "Accession",
+      "replaced_by" : "UniProtKB",
       "uri_prefix" : null,
       "name" : null,
       "url_example" : "http://www.uniprot.org/uniprot/P51587",
@@ -2603,6 +2621,7 @@ amigo.data.xrefs = {
       "fullname" : null,
       "id" : null,
       "abbreviation" : "Swiss-Prot",
+      "is_obsolete" : "true",
       "url_syntax" : "http://www.uniprot.org/uniprot/[example_id]",
       "datatype" : null
    },
@@ -2890,6 +2909,7 @@ amigo.data.xrefs = {
    },
    "trembl" : {
       "object" : "Accession",
+      "replaced_by" : "UniProtKB",
       "uri_prefix" : null,
       "name" : null,
       "url_example" : "http://www.uniprot.org/uniprot/O31124",
@@ -2900,6 +2920,7 @@ amigo.data.xrefs = {
       "fullname" : null,
       "id" : null,
       "abbreviation" : "TrEMBL",
+      "is_obsolete" : "true",
       "url_syntax" : "http://www.uniprot.org/uniprot/[example_id]",
       "datatype" : null
    },
@@ -4244,6 +4265,7 @@ amigo.data.xrefs = {
    },
    "uniprotkb/trembl" : {
       "object" : "Accession",
+      "replaced_by" : "UniProtKB",
       "name" : null,
       "uri_prefix" : null,
       "url_example" : "http://www.uniprot.org/uniprot/O31124",
@@ -4255,6 +4277,7 @@ amigo.data.xrefs = {
       "abbreviation" : "UniProtKB/TrEMBL",
       "id" : null,
       "url_syntax" : "http://www.uniprot.org/uniprot/[example_id]",
+      "is_obsolete" : "true",
       "datatype" : null
    },
    "jcvi_egad" : {
