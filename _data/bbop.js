@@ -11498,6 +11498,7 @@ bbop.widget.display.button_templates.field_download = function(label,
 	    click_function_generator: function(manager){
 		return function(event){
 		    var dialog_props = {
+			title: 'Download',
 			buttons: {
 			    'Download': function(){
 				//alert('download');
@@ -11506,10 +11507,12 @@ bbop.widget.display.button_templates.field_download = function(label,
 				var raw_gdl =
 				    manager.get_download_url(fields, dl_props);
 				window.open(raw_gdl, '_blank');
-				jQuery(this).dialog('destroy');
+				//jQuery(this).dialog('destroy');
+    				jQuery(this).remove();
 			    },
 			    'Cancel': function(){
-				jQuery(this).dialog('destroy');
+				//jQuery(this).dialog('destroy');
+    				jQuery(this).remove();
 			    }
 			}
 		    };
@@ -11553,7 +11556,8 @@ bbop.widget.display.button_templates.bookmark = function(linker){
 			id: encodeURIComponent(raw_bookmark),
 			label: 'this search'
 		    };
-		    new bbop.widget.dialog('<p>Bookmark for: ' + linker.anchor(a_args, 'search') + '</p><p>Please be aware that this bookmark does not save properties like currently selected items.</p>');
+		    new bbop.widget.dialog('<p>Bookmark for: ' + linker.anchor(a_args, 'search') + '</p><p>Please be aware that this bookmark does not save properties like currently selected items.</p>',
+					   {'title': 'Bookmark'});
 		};
 	    }
 	};
@@ -12163,11 +12167,11 @@ bbop.widget.display.results_table_by_class = function(cclass,
 			  score = bbop.core.to_string(100.0 * score);
 			  entry_buff.push(bbop.core.crop(score, 4) + '%');
 		      }else{
-
+			  
 			  // Not "score", so let's figure out what we
 			  // can automatically.
 			  var field = cclass.get_field(fid);
-
+			  
 			  // Make sure that something is there and
 			  // that we can iterate over whatever it
 			  // is.
@@ -12181,12 +12185,12 @@ bbop.widget.display.results_table_by_class = function(cclass,
 				  bits = [doc[fid]];
 			      }
 			  }
-
+			  
 			  // Render each of the bits.
 			  var tmp_buff = [];
 			  each(bits,
 			       function(bit){
-
+				   
 				   // The major difference that we'll have here
 				   // is between standard fields and special
 				   // handler fields. If the handler
@@ -12214,40 +12218,42 @@ bbop.widget.display.results_table_by_class = function(cclass,
 	     table_buff.push(entry_buff);
 	 });
 	
-	// Add the table to the DOM.
-	var final_table = new bbop.html.table(headers_display, table_buff);
-	jQuery('#' + elt_id).append(bbop.core.to_string(final_table));
+    // Add the table to the DOM.
+    var final_table =
+	new bbop.html.table(headers_display, table_buff,
+			    {'class': 'bbop-js-search-pane-results-table'});
+    jQuery('#' + elt_id).append(bbop.core.to_string(final_table));
+    
+    // Add the roll-up/down events to the doc.
+    each(trim_hash,
+	 function(key, val){
+	     var tease_id = val[0];
+	     var more_b_id = val[1];
+	     var full_id = val[2];
+	     var less_b_id = val[3];
+	     
+	     // Initial state.
+	     jQuery('#' + full_id ).hide();
+	     jQuery('#' + less_b_id ).hide();
+	     
+	     // Click actions to go back and forth.
+	     jQuery('#' + more_b_id ).click(
+		 function(){
+		     jQuery('#' + tease_id ).hide();
+		     jQuery('#' + more_b_id ).hide();
+		     jQuery('#' + full_id ).show('fast');
+		     jQuery('#' + less_b_id ).show('fast');
+		 });
+	     jQuery('#' + less_b_id ).click(
+		 function(){
+		     jQuery('#' + full_id ).hide();
+		     jQuery('#' + less_b_id ).hide();
+		     jQuery('#' + tease_id ).show('fast');
+		     jQuery('#' + more_b_id ).show('fast');
+		 });
+	 });
 
-	// Add the roll-up/down events to the doc.
-	each(trim_hash,
-	    function(key, val){
-		var tease_id = val[0];
-		var more_b_id = val[1];
-		var full_id = val[2];
-		var less_b_id = val[3];
-
-		// Initial state.
-		jQuery('#' + full_id ).hide();
-		jQuery('#' + less_b_id ).hide();
-
-		// Click actions to go back and forth.
-		jQuery('#' + more_b_id ).click(
-		    function(){
-			jQuery('#' + tease_id ).hide();
-			jQuery('#' + more_b_id ).hide();
-			jQuery('#' + full_id ).show('fast');
-			jQuery('#' + less_b_id ).show('fast');
-		    });
-		jQuery('#' + less_b_id ).click(
-		    function(){
-			jQuery('#' + full_id ).hide();
-			jQuery('#' + less_b_id ).hide();
-			jQuery('#' + tease_id ).show('fast');
-			jQuery('#' + more_b_id ).show('fast');
-		    });
-	    });
-
-	//return final_table;
+    //return final_table;
 };
 //bbop.widget.display.results_table_by_class.prototype = new bbop.html.tag;
 /*
@@ -13541,8 +13547,9 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	var sticky_query_filters = manager.get_sticky_query_filters();
 	ll('sticky filters: ' + bbop.core.dump(sticky_query_filters));
 	var fq_list_tbl =
-	    new bbop.html.table(['',
-				 'Your search is pinned to these filters'], []);
+	    new bbop.html.table(['', 'Your search is pinned to these filters'],
+				[],
+			       	{'class': 'bbop-js-search-pane-filter-table'});
 	// [{'filter': A, 'value': B, 'negative_p': C, 'sticky_p': D}, ...]
 	each(sticky_query_filters,
 	     function(fset){
@@ -13606,8 +13613,10 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	var in_query_filters = response.query_filters();
 	//var sticky_query_filters = manager.get_sticky_query_filters();
 	ll('filters: ' + bbop.core.dump(in_query_filters));
-	var fq_list_tbl = new bbop.html.table(['', 'User filters',
-					       b_cf.to_string()], []);
+	var fq_list_tbl =
+	    new bbop.html.table(['', 'User filters', b_cf.to_string()],
+				[],
+			       	{'class': 'bbop-js-search-pane-filter-table'});
 	var has_fq_p = false; // assume there are no filters to begin with
 	var button_hash = {};
 	each(in_query_filters,
@@ -15715,7 +15724,7 @@ bbop.widget.drop_select_shield = function(in_argument_hash){
     	};
     mod_buttons['Cancel'] =
 	function(event, selected_items){
-	    jQuery(this).dialog('destroy');
+    	    jQuery('#' + div_id).remove();
 	};
 
     // Modal dialogify div; include self-destruct.
@@ -15727,7 +15736,8 @@ bbop.widget.drop_select_shield = function(in_argument_hash){
 	'buttons': mod_buttons,
 	'close':
 	function(){
-	    jQuery(this).dialog('destroy');
+	    //jQuery(this).dialog('destroy');
+	    jQuery(this).remove();
 	}	    
     };
     var dia = jQuery('#' + div_id).dialog(diargs);    

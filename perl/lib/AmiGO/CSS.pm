@@ -53,6 +53,10 @@ my $css2path =
    'bbop' =>
    'bbop.css',
 
+   ## AmiGO.
+   'amigo' =>
+   'amigo.css',
+
    ## Use this:
    'standard' =>
    'formatting.css',

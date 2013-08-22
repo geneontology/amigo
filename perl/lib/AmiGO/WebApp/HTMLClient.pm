@@ -885,6 +885,7 @@ sub mode_search {
        [
 	'com.bootstrap',
 	'com.jquery.jqamigo.custom',
+	'amigo',
 	'bbop'
 	#'standard'
        ],
@@ -911,7 +912,7 @@ sub mode_search {
        ],
        content =>
        [
-	'pages/live_search_golr.tmpl'
+	'pages/bs3/live_search_golr.tmpl'
        ]
       };
     $self->add_template_bulk($prep);
