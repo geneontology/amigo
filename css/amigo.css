@@ -153,5 +153,6 @@
 /* Allow wider layouts for search than bs3's default. */
 .amigo-ui-wide-max { max-width: 1800px; }
 
- /* Default of 1000 interferes with popups etc. */
-.navbar { z-index: 100; }
+/* BS3 overrides. */
+.navbar { z-index: 100; } /* Default of 1000 interferes with popups etc. */
+.page-header { text-align: center; }
