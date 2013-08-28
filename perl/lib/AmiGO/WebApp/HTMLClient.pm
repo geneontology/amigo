@@ -53,9 +53,13 @@ sub setup {
 			COOKIE_PARAMS => {-path  => '/'},
 			SEND_COOKIE => 1);
 
+  ## Make sure we have the right path for our internal system.
+  $self->template_set('legacy');
+  #$self->template_set('bs3');
+
   ## Templates.
   $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
-			 '/templates/html');
+			 '/templates/html/' . $self->template_set());
 
   $self->mode_param('mode');
   $self->start_mode('landing');
@@ -130,6 +134,7 @@ sub mode_landing {
     };
   $self->add_template_bulk($prep);
 
+  #return $self->generate_template_page_with();
   return $self->generate_template_page();
 }
 
@@ -877,8 +882,8 @@ sub mode_search {
   $self->set_template_parameter('personality', $personality);
 
   ## Temporary test of new template system based on BS3.
-  my $template_system = $params->{template} || 'default';
-  if( $template_system && $template_system eq 'new' ){
+  my $template_system = $self->template_set() || die 'no template system set';
+  if( $template_system && $template_system eq 'bs3' ){
     my $prep =
       {
        css_library =>
@@ -912,12 +917,12 @@ sub mode_search {
        ],
        content =>
        [
-	'pages/bs3/live_search_golr.tmpl'
+	'pages/live_search_golr.tmpl'
        ]
       };
     $self->add_template_bulk($prep);
     #$self->add_mq('warning', "Remove this test when this is YELLOW!");
-    return $self->new_generate_template_page();
+    return $self->generate_template_page_with();
   }else{
     my $prep =
       {

@@ -44,6 +44,9 @@ sub cgiapp_init {
   ## What the default prefix looks like.
   $self->{SESSION_STRING} = 'cgisess_';
 
+  ## Which template set to use when rendering.
+  $self->{AW_TEMPLATE_SET} = undef;
+
   ## TODO: change the default. I wanted to do the below, but it seemed
   ## to prevent the application's ability to recover a previous
   ## session.
@@ -723,6 +726,26 @@ sub _add_something {
   return $retval;
 }
 
+# ##
+# sub _add_template {
+
+#   my $self = shift;
+#   my $thing = shift || undef;
+#   my $thing_type = shift || die "need a thing type to add something";
+
+#   my $set_name = $self->template_set() || die 'no defined template set';
+
+#   my $retval = '';
+#   if( defined $thing ){
+#     ## TODO/BUG: it is nice to eval at this point, but we are now
+#     ## double buffering.
+#     $retval = $self->_eval_content($set_name . '/' . $thing);
+#     #$retval = $thing;
+#     push @{$self->{$thing_type}}, $retval;
+#   }
+
+#   return $retval;
+# }
 
 ##
 sub set_template_parameter {
@@ -749,12 +772,19 @@ sub template_parameters {
 sub add_template_css { return _add_something(@_, 'WEBAPP_CSS'); }
 sub add_template_javascript { return _add_something(@_, 'WEBAPP_JAVASCRIPT'); }
 sub add_template_content { return _add_something(@_, 'WEBAPP_CONTENT'); }
+# sub add_template_content {
+#   my $self = shift;
+#   return $self->_add_template(@_, 'WEBAPP_CONTENT');
+# }
 
 ##
 sub add_template_bulk {
 
   my $self = shift;
   my $args = shift || {};
+
+  # ## Get ready for rewrites based on template set.
+  # my $set_name = $self->template_set() || die 'no defined template set';
 
   if( defined $args->{css_library} ){
     foreach my $css_lib (@{$args->{css_library}}){
@@ -783,6 +813,7 @@ sub add_template_bulk {
     my $alljs = join("\n", @{$args->{javascript_init}});
     $self->add_template_javascript($self->{JS}->initializer_jquery( $alljs ));
   }
+  ## At this stage we'll rewrite to the correct template path.
   if( defined $args->{content} ){
     foreach my $c (@{$args->{content}}){
       $self->add_template_content( $c );
@@ -864,40 +895,61 @@ sub generate_template_page {
   return $output;
 }
 
-=item new_generate_template_page
+=item template_set
 
 Experimental template setup build around BS3.
 
-Args: ???
+Args: set name as string; optional
 Returns: the page text
 
 =cut
-sub new_generate_template_page {
+sub template_set {
+
+  my $self = shift;
+  my $set_name = shift || undef;
+  if( defined $set_name && $set_name ){
+    $self->{AW_TEMPLATE_SET} = $set_name;
+  }
+
+  return $self->{AW_TEMPLATE_SET};
+}
+
+=item generate_template_page_with
+
+Experimental template setup build around BS3.
+Uses the return value of template_set as the default output
+
+Args: optional
+Returns: the page text
+
+=cut
+sub generate_template_page_with {
 
   my $self = shift;
   my $args = shift || {};
+#  my $set_name = $self->template_set() || die 'no defined template set';
 
   ## Check vs. defaults.
-  ## TODO: pull documentation up.
+  ## TODO: 
 
   ## Before we start, make sure that the beta is announced.
-  $self->add_mq('notice', 'You are using'.
+  $self->add_mq('notice', 'You are using an'.
 		' <a title="Go to AmiGO Labs explanation page"'.
 		' href="http://wiki.geneontology.org/index.php/AmiGO_Labs"'.
 		' class="alert-link">'.
-		' AmiGO Labs</a>');
+		' AmiGO Labs</a> prototype');
 
   ## Generate the page output.
   my @mbuf = ();
 
   ## Do head. First CSS, then JS.
-  push @mbuf, $self->_eval_content('common/bs3/head_open.tmpl');
+  push @mbuf, $self->_eval_content('common/head_open.tmpl');
   foreach my $css (@{$self->{WEBAPP_CSS}}){ push @mbuf, $css; }
   foreach my $js (@{$self->{WEBAPP_JAVASCRIPT}}){ push @mbuf, $js; }
-  push @mbuf, $self->_eval_content('common/bs3/head_close.tmpl');
+  push @mbuf, $self->_eval_content('common/head_close.tmpl');
 
   ## Do body.
-  push @mbuf, $self->_eval_content('common/bs3/body_open.tmpl');
+  push @mbuf, $self->_eval_content('common/body_open.tmpl');
 
   ## Optional debugging output.
   if( $self->{CORE}->verbose_p() ){
@@ -909,11 +961,11 @@ sub new_generate_template_page {
   }
 
   ## The usual everywhere header.
-  push @mbuf, $self->_eval_content('common/bs3/header.tmpl');
+  push @mbuf, $self->_eval_content('common/header.tmpl');
   #  if ! $lite_p && $header_p;
 
   ## Pre-main content output.
-  push @mbuf, $self->_eval_content('common/bs3/content_open.tmpl');
+  push @mbuf, $self->_eval_content('common/content_open.tmpl');
 
   ## RoR-style messages and the like.
   foreach my $queue (("success", "notice", "warning", "error")){
@@ -922,16 +974,20 @@ sub new_generate_template_page {
       $self->{CORE}->kvetch('in queue output try: '. $queue . ": " . $message);
       $self->{WEBAPP_TEMPLATE_PARAMS}{'mq_last_message_type'} = $queue;
       $self->{WEBAPP_TEMPLATE_PARAMS}{'mq_last_message'} = $message;
-      push @mbuf, $self->_eval_content('common/bs3/mq_message.tmpl')
+      push @mbuf, $self->_eval_content('common/mq_message.tmpl')
     }
   }
 
   ## Main content output.
-  foreach my $content (@{$self->{WEBAPP_CONTENT}}){ push @mbuf, $content; }
+  foreach my $content (@{$self->{WEBAPP_CONTENT}}){
+    push @mbuf, '' . $content;
+  }
+
+  ## Close up.
   #push @mbuf, $self->_eval_content('common/content_close.tmpl');
-  push @mbuf, $self->_eval_content('common/bs3/footer.tmpl');
+  push @mbuf, $self->_eval_content('common/footer.tmpl');
   #  if ! $lite_p && $footer_p;
-  push @mbuf, $self->_eval_content('common/bs3/close.tmpl');
+  push @mbuf, $self->_eval_content('common/close.tmpl');
 
   ## Merge and return.
   my $output = '';
