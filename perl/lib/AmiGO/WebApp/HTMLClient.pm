@@ -55,7 +55,7 @@ sub setup {
 
   ## Make sure we have the right path for our internal system.
   $self->template_set('legacy');
-  #$self->template_set('bs3');
+  $self->template_set('bs3');
 
   ## Templates.
   $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
@@ -881,18 +881,18 @@ sub mode_search {
   ## Set personality for template, and later JS var.
   $self->set_template_parameter('personality', $personality);
 
-  ## Temporary test of new template system based on BS3.
-  my $template_system = $self->template_set() || die 'no template system set';
-  if( $template_system && $template_system eq 'bs3' ){
+  # ## Temporary test of new template system based on BS3.
+  # my $template_system = $self->template_set() || die 'no template system set';
+  # if( $template_system && $template_system eq 'bs3' ){
     my $prep =
       {
        css_library =>
        [
+	#'standard',
 	'com.bootstrap',
 	'com.jquery.jqamigo.custom',
 	'amigo',
 	'bbop'
-	#'standard'
        ],
        javascript_library =>
        [
@@ -922,46 +922,46 @@ sub mode_search {
       };
     $self->add_template_bulk($prep);
     #$self->add_mq('warning', "Remove this test when this is YELLOW!");
-    return $self->generate_template_page_with();
-  }else{
-    my $prep =
-      {
-       css_library =>
-       [
-	'standard',
-	#'com.jquery.redmond.custom',
-	'com.jquery.jqamigo.custom',
-       ],
-       javascript_library =>
-       [
-	'com.jquery',
-	'com.jquery-ui',
-	'bbop',
-	'amigo'
-       ],
-       javascript =>
-       [
-	$self->{JS}->make_var('global_live_search_bookmark', $bookmark),
-	$self->{JS}->make_var('global_live_search_query', $query),
-	$self->{JS}->make_var('global_live_search_personality', $personality),
-	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
-	$self->{JS}->get_lib('LiveSearchGOlr.js')
-       ],
-       javascript_init =>
-       [
-	'GeneralSearchForwardingInit();',
-	'LiveSearchGOlrInit();'
-       ],
-       content =>
-       [
-	'pages/live_search_golr.tmpl'
-       ]
-      };
-    $self->add_template_bulk($prep);
-    return $self->generate_template_page();
-  }
+    #return $self->generate_template_page_with();
+  # }else{
+  #   my $prep =
+  #     {
+  #      css_library =>
+  #      [
+  # 	'standard',
+  # 	#'com.jquery.redmond.custom',
+  # 	'com.jquery.jqamigo.custom',
+  #      ],
+  #      javascript_library =>
+  #      [
+  # 	'com.jquery',
+  # 	'com.jquery-ui',
+  # 	'bbop',
+  # 	'amigo'
+  #      ],
+  #      javascript =>
+  #      [
+  # 	$self->{JS}->make_var('global_live_search_bookmark', $bookmark),
+  # 	$self->{JS}->make_var('global_live_search_query', $query),
+  # 	$self->{JS}->make_var('global_live_search_personality', $personality),
+  # 	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
+  # 	$self->{JS}->get_lib('LiveSearchGOlr.js')
+  #      ],
+  #      javascript_init =>
+  #      [
+  # 	'GeneralSearchForwardingInit();',
+  # 	'LiveSearchGOlrInit();'
+  #      ],
+  #      content =>
+  #      [
+  # 	'pages/live_search_golr.tmpl'
+  #      ]
+  #     };
+  #   $self->add_template_bulk($prep);
+  #   return $self->generate_template_page();
+  # }
 
-  #return $self->generate_template_page();
+  return $self->generate_template_page_with();
 }
 
 

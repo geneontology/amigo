@@ -930,7 +930,13 @@ sub generate_template_page_with {
 #  my $set_name = $self->template_set() || die 'no defined template set';
 
   ## Check vs. defaults.
-  ## TODO: 
+  ## TODO: pull documentation up.
+  my $lite_p = 0;
+  $lite_p = 1 if defined $args->{lite} && $args->{lite} == 1;
+  my $footer_p = 1;
+  $footer_p = 0 if defined $args->{footer} && $args->{footer} == 0;
+  my $header_p = 1;
+  $header_p = 0 if defined $args->{header} && $args->{header} == 0;
 
   ## Before we start, make sure that the beta is announced.
   $self->add_mq('notice', 'You are using an'.
@@ -944,6 +950,7 @@ sub generate_template_page_with {
 
   ## Do head. First CSS, then JS.
   push @mbuf, $self->_eval_content('common/head_open.tmpl');
+  #push @mbuf, $self->_eval_content('common/head_info_lite.tmpl') if ! $lite_p;
   foreach my $css (@{$self->{WEBAPP_CSS}}){ push @mbuf, $css; }
   foreach my $js (@{$self->{WEBAPP_JAVASCRIPT}}){ push @mbuf, $js; }
   push @mbuf, $self->_eval_content('common/head_close.tmpl');
@@ -961,8 +968,8 @@ sub generate_template_page_with {
   }
 
   ## The usual everywhere header.
-  push @mbuf, $self->_eval_content('common/header.tmpl');
-  #  if ! $lite_p && $header_p;
+  push @mbuf, $self->_eval_content('common/header.tmpl')
+    if ! $lite_p && $header_p;
 
   ## Pre-main content output.
   push @mbuf, $self->_eval_content('common/content_open.tmpl');
@@ -985,8 +992,8 @@ sub generate_template_page_with {
 
   ## Close up.
   #push @mbuf, $self->_eval_content('common/content_close.tmpl');
-  push @mbuf, $self->_eval_content('common/footer.tmpl');
-  #  if ! $lite_p && $footer_p;
+  push @mbuf, $self->_eval_content('common/footer.tmpl')
+    if ! $lite_p && $footer_p;
   push @mbuf, $self->_eval_content('common/close.tmpl');
 
   ## Merge and return.
@@ -1065,6 +1072,7 @@ sub mode_status {
   $self->set_template_parameter('page_title', 'AmiGO 2: Status');
   $self->add_template_content('common/status.tmpl');
   $self->{CORE}->kvetch("added status");
+  #return $self->generate_template_page();
   return $self->generate_template_page();
 }
 
@@ -1108,7 +1116,8 @@ sub mode_fatal {
   $self->set_template_parameter('error', $err);
 
   $self->add_template_content('common/error.tmpl');
-  return $self->generate_template_page();
+  #return $self->generate_template_page();
+  return $self->generate_template_page_with();
 }
 
 
@@ -1124,7 +1133,8 @@ sub mode_fatal_with_message {
   $self->set_template_parameter('error', $message);
 
   $self->add_template_content('common/error.tmpl');
-  return $self->generate_template_page();
+  #return $self->generate_template_page();
+  return $self->generate_template_page_with();
 }
 
 
@@ -1202,12 +1212,14 @@ sub mode_not_found {
     {
      css_library =>
      [
-      'standard', # basic GO-styles
+      #'standard',
+      'com.bootstrap',
       'com.jquery.jqamigo.custom',
      ],
      javascript_library =>
      [
       'com.jquery',
+      'com.bootstrap',
       'com.jquery-ui',
       'bbop',
       'amigo'
@@ -1222,13 +1234,13 @@ sub mode_not_found {
      ],
      content =>
      [
-      'common/not_found.tmpl'
+      'pages/not_found_generic.tmpl'
      ]
     };
   $self->add_template_bulk($prep);
 
   #$self->add_template_content('common/not_found.tmpl');
-  return $self->generate_template_page();
+  return $self->generate_template_page_with();
 }
 
 
