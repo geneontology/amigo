@@ -67,7 +67,8 @@ sub setup {
   $self->run_modes(
 		   ## Standard.
 		   'landing'             => 'mode_landing',
-		   'search'              => 'mode_live_search',
+		   #'search'              => 'mode_live_search',
+		   'search'              => 'mode_search',
 		   'specific_search'     => 'mode_search',
 		   'browse'              => 'mode_browse',
 		   'term'                => 'mode_golr_term_details',
@@ -723,94 +724,94 @@ sub mode_visualize {
 }
 
 
-## A committed client based on the jQuery libraries and GOlr. The
-## future.
-sub mode_live_search {
+# ## A committed client based on the jQuery libraries and GOlr. The
+# ## future.
+# sub mode_live_search {
 
-  my $self = shift;
+#   my $self = shift;
 
-  ## Pull out the bookmark parameter.
-  my $i = AmiGO::WebApp::Input->new();
-  my $params = $i->input_profile('live_search');
-  ## Normal incoming args.
-  my $bookmark = $params->{bookmark} || '';
-  my $golr_class = $params->{golr_class} || '';
-  my $query = $params->{query} || '';
+#   ## Pull out the bookmark parameter.
+#   my $i = AmiGO::WebApp::Input->new();
+#   my $params = $i->input_profile('live_search');
+#   ## Normal incoming args.
+#   my $bookmark = $params->{bookmark} || '';
+#   my $golr_class = $params->{golr_class} || '';
+#   my $query = $params->{query} || '';
 
-  ## ...and the message queue.
-  #$self->check_for_condition_files();
+#   ## ...and the message queue.
+#   #$self->check_for_condition_files();
 
-  ## Try and come to terms with Galaxy.
-  my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
-  $self->galaxy_settings($in_galaxy, $galaxy_external_p);
+#   ## Try and come to terms with Galaxy.
+#   my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
+#   $self->galaxy_settings($in_galaxy, $galaxy_external_p);
 
-  ## If it is defined, try to decode it into something useful that we
-  ## can pass in as javascript.
-  if( $bookmark ){
-    # $bookmark = $self->{JS}->make_js($bookmark);
-    $bookmark =~ s/\"/\\\"/g;
-  }
-  $self->{CORE}->kvetch('bookmark: ' . $bookmark || '???');
+#   ## If it is defined, try to decode it into something useful that we
+#   ## can pass in as javascript.
+#   if( $bookmark ){
+#     # $bookmark = $self->{JS}->make_js($bookmark);
+#     $bookmark =~ s/\"/\\\"/g;
+#   }
+#   $self->{CORE}->kvetch('bookmark: ' . $bookmark || '???');
 
-  ## Page settings.
-  $self->set_template_parameter('STANDARD_CSS', 'no');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Search');
-  $self->set_template_parameter('page_name', 'live_search');
-  $self->set_template_parameter('content_title', 'Search');
+#   ## Page settings.
+#   $self->set_template_parameter('STANDARD_CSS', 'no');
+#   $self->set_template_parameter('page_title', 'AmiGO 2: Search');
+#   $self->set_template_parameter('page_name', 'live_search');
+#   $self->set_template_parameter('content_title', 'Search');
 
-  ## Grab resources we want.
-  $self->set_template_parameter('STAR_IMAGE',
-				$self->{CORE}->get_image_resource('star'));
+#   ## Grab resources we want.
+#   $self->set_template_parameter('STAR_IMAGE',
+# 				$self->{CORE}->get_image_resource('star'));
 
-  ## Get the layout info to describe which tabs should be generated.
-  my $stinfo = $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_SEARCH');
-  $self->set_template_parameter('search_tab_info', $stinfo);
-  ## Pick the first to be the default. Technically, this is optional
-  ## since the JS will eventually fall back to just picking the first
-  ## defined class.
-  ## However, if we were kicked in from the landing page, we might
-  ## already have this information.
-  my $gc = $golr_class || $$stinfo[0]->{id};
-  $self->set_template_parameter('starting_golr_class', $gc);
+#   ## Get the layout info to describe which tabs should be generated.
+#   my $stinfo = $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_SEARCH');
+#   $self->set_template_parameter('search_tab_info', $stinfo);
+#   ## Pick the first to be the default. Technically, this is optional
+#   ## since the JS will eventually fall back to just picking the first
+#   ## defined class.
+#   ## However, if we were kicked in from the landing page, we might
+#   ## already have this information.
+#   my $gc = $golr_class || $$stinfo[0]->{id};
+#   $self->set_template_parameter('starting_golr_class', $gc);
 
-  ## Our AmiGO services CSS.
-  my $prep =
-    {
-     css_library =>
-     [
-      'standard',
-      #'com.jquery.redmond.custom',
-      'com.jquery.jqamigo.custom',
-     ],
-     javascript_library =>
-     [
-      'com.jquery',
-      'com.jquery-ui',
-      'bbop',
-      'amigo'
-     ],
-     javascript =>
-     [
-      $self->{JS}->make_var('global_live_search_bookmark', $bookmark),
-      $self->{JS}->make_var('global_live_search_query', $query),
-      #$self->{JS}->make_var('global_live_search_golr_class', $golr_class),
-      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-      $self->{JS}->get_lib('LiveSearchGOlr.js')
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      'LiveSearchGOlrInit();'
-     ],
-     content =>
-     [
-      'pages/live_search_golr.tmpl'
-     ]
-    };
-  $self->add_template_bulk($prep);
+#   ## Our AmiGO services CSS.
+#   my $prep =
+#     {
+#      css_library =>
+#      [
+#       'standard',
+#       #'com.jquery.redmond.custom',
+#       'com.jquery.jqamigo.custom',
+#      ],
+#      javascript_library =>
+#      [
+#       'com.jquery',
+#       'com.jquery-ui',
+#       'bbop',
+#       'amigo'
+#      ],
+#      javascript =>
+#      [
+#       $self->{JS}->make_var('global_live_search_bookmark', $bookmark),
+#       $self->{JS}->make_var('global_live_search_query', $query),
+#       #$self->{JS}->make_var('global_live_search_golr_class', $golr_class),
+#       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+#       $self->{JS}->get_lib('LiveSearchGOlr.js')
+#      ],
+#      javascript_init =>
+#      [
+#       'GeneralSearchForwardingInit();',
+#       'LiveSearchGOlrInit();'
+#      ],
+#      content =>
+#      [
+#       'pages/live_search_golr.tmpl'
+#      ]
+#     };
+#   $self->add_template_bulk($prep);
 
-  return $self->generate_template_page();
-}
+#   return $self->generate_template_page();
+# }
 
 
 ## A committed client based on the jQuery libraries and GOlr. The
@@ -842,7 +843,7 @@ sub mode_search {
   $self->{CORE}->kvetch('bookmark: ' . $bookmark || '???');
 
   ## Page settings.
-  $self->set_template_parameter('STANDARD_CSS', 'no');
+  #$self->set_template_parameter('STANDARD_CSS', 'no');
   $self->set_template_parameter('page_title', 'AmiGO 2: Search');
   $self->set_template_parameter('page_name', 'live_search');
   $self->set_template_parameter('content_title', 'Search');
@@ -873,9 +874,12 @@ sub mode_search {
     ## If not, kick out to error.
     if( ! $allowed_personality ){
       $self->set_template_parameter('content_title', '');
-      $self->set_template_parameter('STANDARD_CSS', 'yes');
+      #$self->set_template_parameter('STANDARD_CSS', 'yes');
       return $self->mode_not_found($personality, 'search personality');
     }
+  }else{
+    ## No incoming personality.
+    return $self->mode_not_found('undefined', 'search personality');
   }
 
   ## Set personality for template, and later JS var.

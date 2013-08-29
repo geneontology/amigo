@@ -205,7 +205,7 @@ sub cgiapp_prerun {
     ## The journey ends here.
     #$self->{CORE}->kvetch("done with status $code and message ($message)");
     #$self->query->status(503);
-    $self->_status_message_exit('503', $reportable_error);
+    $self->_status_message_exit(503, $reportable_error);
     exit;
   }
 }
@@ -647,7 +647,7 @@ sub _common_params_settings {
   ## Check for and use google analytics.
   $params->{GOOGLE_ANALYTICS_ID} = $self->{CORE}->google_analytics_id();
 
-  $params->{STANDARD_CSS} = 'yes';
+  #$params->{STANDARD_CSS} = 'yes';
 
   sub _atoi {
     my $thing = shift || 0;
@@ -1085,7 +1085,7 @@ sub _status_message_exit {
 
   $self->{CORE}->kvetch("done with status $code and message ($message)");
 
-  $self->header_props(-status => 503);
+  $self->header_props(-status => $code);
   $self->teardown();
   print $self->_send_headers();
   print $message;
@@ -1099,7 +1099,7 @@ sub _status_message_exit {
 sub mode_fatal {
 
   my $self = shift;
-  my $err = shift || $@ || $! || $? || $^E;
+  my $err = shift || $@ || $! || $? || $^E || 'no error captured';
 
   $self->header_add( -status => '500 Internal Server Error' );
 
@@ -1121,21 +1121,21 @@ sub mode_fatal {
 }
 
 
-## Specific internal fatal error. Uses argument as message.
-sub mode_fatal_with_message {
+# ## Specific internal fatal error. Uses argument as message.
+# sub mode_fatal_with_message {
 
-  my $self = shift;
-  my $message = shift || '';
+#   my $self = shift;
+#   my $message = shift || '';
 
-  $self->header_add( -status => '500 Internal Server Error' );
+#   $self->header_add( -status => '500 Internal Server Error' );
 
-  $self->set_template_parameter('page_title', 'AmiGO 2: Fatal Error');
-  $self->set_template_parameter('error', $message);
+#   $self->set_template_parameter('page_title', 'AmiGO 2: Fatal Error');
+#   $self->set_template_parameter('error', $message);
 
-  $self->add_template_content('common/error.tmpl');
-  #return $self->generate_template_page();
-  return $self->generate_template_page_with();
-}
+#   $self->add_template_content('common/error.tmpl');
+#   #return $self->generate_template_page();
+#   return $self->generate_template_page_with();
+# }
 
 
 ## Very lightly catching errors from the user that couldn't be
@@ -1206,7 +1206,7 @@ sub mode_not_found {
   ## Generate a specific search link.
   $self->set_template_parameter('search_link',
 				$self->{CORE}->get_interlink({mode=>
-							      'live_search'}));
+							      'landing'}));
 
   my $prep =
     {

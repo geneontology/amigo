@@ -1198,6 +1198,11 @@ sub get_interlink {
     (
 
      ## First, things that are in the main app set...
+     'landing' =>
+     sub {
+       $ilink = 'amigo/landing';
+     },
+
      'gp_details' =>
      sub {
        die "interlink mode 'gp_details' requires args" if ! defined $args;
