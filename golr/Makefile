@@ -69,7 +69,6 @@ ALL_GAFS ?= \
 	http://www.geneontology.org/gene-associations/gene_association.goa_dog.gz \
 	http://www.geneontology.org/gene-associations/gene_association.goa_human.gz \
 	http://www.geneontology.org/gene-associations/gene_association.goa_mouse.gz \
-	http://www.geneontology.org/gene-associations/gene_association.goa_pdb.gz \
 	http://www.geneontology.org/gene-associations/gene_association.goa_pig.gz \
 	http://www.geneontology.org/gene-associations/gene_association.goa_rat.gz \
 	http://www.geneontology.org/gene-associations/gene_association.goa_uniprot_noiea.gz \
