@@ -27,8 +27,21 @@
         <li class="dropdown">
           <a href="#" class="dropdown-toggle[% IF page_name == 'live_search' %] active[% END %]" data-toggle="dropdown">Search <b class="caret"></b></a>
           <ul class="dropdown-menu">
-            <li[% IF page_name == 'live_search' %] class="disabled"[% END %]><a href="[% base %]/amigo/search" title="Search for GO terms, gene product annotations, and other entities.">Search</a></li>
-            <!-- <li class="dropdown-header">Nav header</li> -->
+            <!-- <li[% IF page_name == 'live_search' %] class="disabled"[% END %]><a href="[% base %]/amigo/search" title="Search for GO terms, gene product annotations, and other entities.">Search</a></li> -->
+	    <!-- start test -->
+	    [% FOREACH a2_search_blob = search_layout_list %]
+	    [%   a2_search_id = a2_search_blob.id %]
+	    [%   a2_search_name = a2_search_blob.display_name %]
+	    [%   a2_search_desc = a2_search_blob.description %]
+	    [%   a2_search_link = a2_search_blob.amigo_interlink %]
+            <li><a href="[% a2_search_link %]"
+		   title="[% a2_search_desc %]">[% a2_search_name %]</a></li>
+	    <!-- [% a2_search_id %] -->
+	    <!-- [% a2_search_name %] -->
+	    <!-- [% a2_search_desc %] -->
+	    <!-- [% a2_search_link %] -->
+	    [% END %]
+	    <!-- end test-->
           </ul>
         </li>
 
@@ -70,8 +83,7 @@
 
       </ul>
 
-      [% IF page_name == 'landing' || page_name == 'visualize' || page_name == 'goose' || page_name == 'gannet' || page_name == 'repl' || page_name == 'simple_search' || page_name == 'amigo' || page_name == 'schema_details' || page_name == 'load_details' %]
-      [% ELSE %]
+      [% IF add_search_box_to_header %]
       [%    INCLUDE "common/header_search.tmpl" %]
       [% END %] 
 

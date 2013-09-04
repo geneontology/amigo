@@ -1,0 +1,55 @@
+<!-- Begin: load_details.tmpl -->
+
+<!-- <h2>Current instance load information</h2> -->    
+[% IF TS_DETAILS_P %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Ontologies</h3>
+  </div>
+  <div class="panel-body">
+    [%   IF TS_DETAILS_ONT AND TS_DETAILS_ONT.size > 0 %]
+    [%      list_table_id = "details_ont" %]
+    [%      load_detail_list = TS_DETAILS_ONT %]
+    [%      INCLUDE "common/load_detail_list.tmpl" %]
+    [%   ELSE %]
+    <p>
+      No details about loaded ontologies could be found.
+    </p>
+    [%   END %]
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">GAFs</h3>
+  </div>
+  <div class="panel-body">
+    [%   IF TS_DETAILS_GAF AND TS_DETAILS_GAF.size > 0 %]
+    [%      list_table_id = "details_gaf" %]
+    [%      load_detail_list = TS_DETAILS_GAF %]
+    [%      INCLUDE "common/load_detail_list.tmpl" %]
+    [%   ELSE %]
+    <p>
+      No details about loaded GAFs could be found.
+    </p>
+    [%   END %]
+  </div>
+</div>
+
+[% ELSE %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">No information</h3>
+  </div>
+  <div class="panel-body">
+    <p>
+      Detailed load information is not available for this AmiGO 2
+      instance at this time.
+    </p>
+  </div>
+</div>
+
+[% END %]    
+<!-- End: load_details.tmpl -->

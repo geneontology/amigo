@@ -53,13 +53,12 @@ sub setup {
 			COOKIE_PARAMS => {-path  => '/'},
 			SEND_COOKIE => 1);
 
-  ## Make sure we have the right path for our internal system.
-  $self->template_set('legacy');
-  $self->template_set('bs3');
-
-  ## Templates.
-  $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
-			 '/templates/html/' . $self->template_set());
+  # ## Make sure we have the right path for our internal system.
+  # $self->template_set('legacy');
+  # $self->template_set('bs3');
+  # ## Templates.
+  # $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
+  # 			 '/templates/html/' . $self->template_set());
 
   $self->mode_param('mode');
   $self->start_mode('landing');
@@ -71,18 +70,14 @@ sub setup {
 		   'search'              => 'mode_search',
 		   'specific_search'     => 'mode_search',
 		   'browse'              => 'mode_browse',
-		   'term'                => 'mode_golr_term_details',
-		   'gene_product'        => 'mode_golr_gene_product_details',
+		   'term'                => 'mode_term_details',
+		   'gene_product'        => 'mode_gene_product_details',
 		   'visualize'           => 'mode_visualize',
 		   'software_list'       => 'mode_software_list',
 		   'schema_details'      => 'mode_schema_details',
 		   'load_details'        => 'mode_load_details',
 		   ## ???
 		   'phylo_graph'         => 'mode_phylo_graph',
-		   ## Old--need to be removed once okayed.
-		   'golr_term_details'   => 'mode_golr_term_details',
-		   'golr_gene_product_details' 
-		   => 'mode_golr_gene_product_details',
 		   ## Fallback.
 		   'simple_search'       => 'mode_simple_search',
 		   'AUTOLOAD'            => 'mode_exception'
@@ -101,22 +96,26 @@ sub mode_landing {
   ## Page settings.
   $self->set_template_parameter('page_name', 'landing');
   $self->set_template_parameter('page_title', 'AmiGO 2: Welcome');
-  $self->set_template_parameter('content_title', 'AmiGO 2');
+  #$self->set_template_parameter('content_title', 'AmiGO 2');
 
   ## Our AmiGO services CSS.
   my $prep =
     {
      css_library =>
      [
-      'standard',
+      #'standard',
+      'com.bootstrap',
       'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
      ],
      javascript_library =>
      [
       'com.jquery',
+      'com.bootstrap',
       'com.jquery-ui',
       'bbop',
-      'amigo',
+      'amigo'
      ],
      javascript =>
      [
@@ -136,7 +135,7 @@ sub mode_landing {
   $self->add_template_bulk($prep);
 
   #return $self->generate_template_page_with();
-  return $self->generate_template_page();
+  return $self->generate_template_page_with({search=>0});
 }
 
 
@@ -458,18 +457,19 @@ sub mode_software_list {
     {
      css_library =>
      [
-      # 'standard', # basic GO-styles
-      # 'bbop.amigo.ui.autocomplete'
-      'standard', # basic GO-styles
+      #'standard',
+      'com.bootstrap',
       'com.jquery.jqamigo.custom',
       #'com.jquery.tablesorter',
-      #'bbop.amigo.ui.widgets'
+      'amigo',
+      'bbop'
      ],
      javascript_library =>
      [
       'com.jquery',
+      'com.bootstrap',
       'com.jquery-ui',
-      'com.jquery.tablesorter',
+      #'com.jquery.tablesorter',
       'bbop',
       'amigo'
      ],
@@ -488,7 +488,7 @@ sub mode_software_list {
     };
   $self->add_template_bulk($prep);
 
-  return $self->generate_template_page();
+  return $self->generate_template_page_with();
 }
 
 
@@ -504,7 +504,7 @@ sub mode_schema_details {
   ## Page settings.
   $self->set_template_parameter('page_name', 'schema_details');
   $self->set_template_parameter('page_title', 'AmiGO 2: Schema Details');
-  $self->set_template_parameter('content_title', 'Schema Details');
+  $self->set_template_parameter('content_title', 'Instance Schema Details');
 
   ## Get Galaxy, and add a variable for it in the page.
   $self->set_template_parameter('GO_GALAXY',
@@ -515,16 +515,17 @@ sub mode_schema_details {
     {
      css_library =>
      [
-      # 'standard', # basic GO-styles
-      # 'bbop.amigo.ui.autocomplete'
-      'standard', # basic GO-styles
+      #'standard',
+      'com.bootstrap',
       'com.jquery.jqamigo.custom',
       #'com.jquery.tablesorter',
-      #'bbop.amigo.ui.widgets'
+      'amigo',
+      'bbop'
      ],
      javascript_library =>
      [
       'com.jquery',
+      'com.bootstrap',
       'com.jquery-ui',
       'com.jquery.tablesorter',
       'bbop',
@@ -547,7 +548,7 @@ sub mode_schema_details {
     };
   $self->add_template_bulk($prep);
 
-  return $self->generate_template_page();
+  return $self->generate_template_page_with();
 }
 
 
@@ -591,7 +592,9 @@ sub mode_load_details {
   ## Page settings.
   $self->set_template_parameter('page_name', 'load_details');
   $self->set_template_parameter('page_title', 'AmiGO 2: Load Details');
-  $self->set_template_parameter('content_title', 'Load Details');
+  #$self->set_template_parameter('content_title', 'Load Details');
+  $self->set_template_parameter('content_title',
+				'Current instance load information');
 
   ## Get Galaxy, and add a variable for it in the page.
   $self->set_template_parameter('GO_GALAXY',
@@ -602,16 +605,17 @@ sub mode_load_details {
     {
      css_library =>
      [
-      # 'standard', # basic GO-styles
-      # 'bbop.amigo.ui.autocomplete'
-      'standard', # basic GO-styles
+      #'standard',
+      'com.bootstrap',
       'com.jquery.jqamigo.custom',
       #'com.jquery.tablesorter',
-      #'bbop.amigo.ui.widgets'
+      'amigo',
+      'bbop'
      ],
      javascript_library =>
      [
       'com.jquery',
+      'com.bootstrap',
       'com.jquery-ui',
       'com.jquery.tablesorter',
       'bbop',
@@ -634,7 +638,7 @@ sub mode_load_details {
     };
   $self->add_template_bulk($prep);
 
-  return $self->generate_template_page();
+  return $self->generate_template_page_with();
 }
 
 
@@ -666,15 +670,37 @@ sub mode_visualize {
     $self->set_template_parameter('page_name', 'visualize');
     $self->set_template_parameter('amigo_mode', 'visualize');
     $self->set_template_parameter('page_title', 'AmiGO 2: Visualize');
-    $self->set_template_parameter('content_title', 'Visualize');
+    $self->set_template_parameter('content_title',
+				  'Visualize an Arbitrary GO Graph');
     my $prep =
       {
-       javascript_library => ['com.jquery', 'com.jquery-ui', 'bbop', 'amigo'],
-       javascript_init => ['amigo.ui.rollup(["inf01"]);'],
-       content => ['pages/visualize.tmpl']
+       css_library =>
+       [
+	#'standard',
+	'com.bootstrap',
+	'com.jquery.jqamigo.custom',
+	'amigo',
+	'bbop'
+       ],
+       javascript_library =>
+       [
+	'com.jquery',
+	'com.bootstrap',
+	'com.jquery-ui',
+	'bbop',
+	'amigo'
+       ],
+       javascript_init =>
+       [
+	'amigo.ui.rollup(["inf01"]);'
+       ],
+       content =>
+       [
+	'pages/visualize.tmpl'
+       ]
       };
     $self->add_template_bulk($prep);
-    $output = $self->generate_template_page();
+    $output = $self->generate_template_page_with();
 
   }else{
 
@@ -686,10 +712,10 @@ sub mode_visualize {
       };
       if ($@) {
 	my $str = 'Your JSON was not formatted correctly...please go back and retry. Look at the <a href="http://wiki.geneontology.org/index.php/AmiGO_Manual:_Visualize">advanced format</a> documentation for more details.';
-	#return $self->mode_die_with_message($str . '<br />' . $@);
+	#return $self->mode_fatal($str . '<br />' . $@);
 	$self->{CORE}->kvetch("die decoding JSON: " . $@);
 	$self->{CORE}->kvetch("JSON: " . $input_term_data);
-	return $self->mode_die_with_message($str);
+	return $self->mode_fatal($str);
       }
     }
 
@@ -855,6 +881,7 @@ sub mode_search {
   ## Make sure the personality is in our known set if it's even
   ## defined.
   my $personality = $params->{personality} || '';
+  my $personality_name = 'n/a';
   if( $personality ){
 
     ## Get the layout info to describe which personalities are
@@ -867,6 +894,7 @@ sub mode_search {
       my $stid = $sti->{id};
       if( $personality eq $stid ){
 	$allowed_personality = 1;
+	$personality_name = $sti->{display_name};
 	last;
       }
     }
@@ -884,49 +912,50 @@ sub mode_search {
 
   ## Set personality for template, and later JS var.
   $self->set_template_parameter('personality', $personality);
+  $self->set_template_parameter('content_subtitle', $personality_name);
 
   # ## Temporary test of new template system based on BS3.
   # my $template_system = $self->template_set() || die 'no template system set';
   # if( $template_system && $template_system eq 'bs3' ){
-    my $prep =
-      {
-       css_library =>
-       [
-	#'standard',
-	'com.bootstrap',
-	'com.jquery.jqamigo.custom',
-	'amigo',
-	'bbop'
-       ],
-       javascript_library =>
-       [
-	'com.jquery',
-	'com.bootstrap',
-	'com.jquery-ui',
-	'bbop',
-	'amigo'
-       ],
-       javascript =>
-       [
-	$self->{JS}->make_var('global_live_search_bookmark', $bookmark),
-	$self->{JS}->make_var('global_live_search_query', $query),
-	$self->{JS}->make_var('global_live_search_personality', $personality),
-	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
-	$self->{JS}->get_lib('LiveSearchGOlr.js')
-       ],
-       javascript_init =>
-       [
-	'GeneralSearchForwardingInit();',
-	'LiveSearchGOlrInit();'
-       ],
-       content =>
-       [
-	'pages/live_search_golr.tmpl'
-       ]
-      };
-    $self->add_template_bulk($prep);
-    #$self->add_mq('warning', "Remove this test when this is YELLOW!");
-    #return $self->generate_template_page_with();
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui',
+      'bbop',
+      'amigo'
+     ],
+     javascript =>
+     [
+      $self->{JS}->make_var('global_live_search_bookmark', $bookmark),
+      $self->{JS}->make_var('global_live_search_query', $query),
+      $self->{JS}->make_var('global_live_search_personality', $personality),
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('LiveSearchGOlr.js')
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();',
+      'LiveSearchGOlrInit();'
+     ],
+     content =>
+     [
+      'pages/live_search_golr.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+  #$self->add_mq('warning', "Remove this test when this is YELLOW!");
+  #return $self->generate_template_page_with();
   # }else{
   #   my $prep =
   #     {
@@ -965,13 +994,14 @@ sub mode_search {
   #   return $self->generate_template_page();
   # }
 
+  #return $self->generate_template_page_with({search=>1});
   return $self->generate_template_page_with();
 }
 
 
 ## Experimental try at the term details page, in perl, backed by the
 ## solr index.
-sub mode_golr_term_details {
+sub mode_term_details {
 
   my $self = shift;
 
@@ -987,7 +1017,7 @@ sub mode_golr_term_details {
 
   ## Input sanity check.
   if( ! $input_term_id ){
-    return $self->mode_die_with_message("No term acc input argument.");
+    return $self->mode_fatal("No term acc input argument.");
   }
 
   ###
@@ -1201,16 +1231,17 @@ sub mode_golr_term_details {
     {
      css_library =>
      [
-      # 'standard', # basic GO-styles
-      # 'bbop.amigo.ui.autocomplete'
-      'standard', # basic GO-styles
+      #'standard',
+      'com.bootstrap',
       'com.jquery.jqamigo.custom',
       #'com.jquery.tablesorter',
-      #'bbop.amigo.ui.widgets'
+      'amigo',
+      'bbop'
      ],
      javascript_library =>
      [
       'com.jquery',
+      'com.bootstrap',
       'com.jquery-ui',
       'com.jquery.tablesorter',
       'bbop',
@@ -1239,13 +1270,13 @@ sub mode_golr_term_details {
     };
   $self->add_template_bulk($prep);
 
-  return $self->generate_template_page();
+  return $self->generate_template_page_with();
 }
 
 
 ## Experimental try at the gp details page, in perl, backed by the
 ## solr index.
-sub mode_golr_gene_product_details {
+sub mode_gene_product_details {
 
   my $self = shift;
 
@@ -1260,7 +1291,7 @@ sub mode_golr_gene_product_details {
 
   ## Input sanity check.
   if( ! $input_gp_id ){
-    return $self->mode_die_with_message("No input gene product acc argument.");
+    return $self->mode_fatal("No input gene product acc argument.");
   }
 
   ###
@@ -1319,12 +1350,16 @@ sub mode_golr_gene_product_details {
     {
      css_library =>
      [
-      'standard', # basic GO-styles
+      #'standard',
+      'com.bootstrap',
       'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
      ],
      javascript_library =>
      [
       'com.jquery',
+      'com.bootstrap',
       'com.jquery-ui',
       'bbop',
       'amigo'
@@ -1350,7 +1385,7 @@ sub mode_golr_gene_product_details {
     };
   $self->add_template_bulk($prep);
 
-  return $self->generate_template_page();
+  return $self->generate_template_page_with();
 }
 
 
@@ -1373,9 +1408,9 @@ sub mode_phylo_graph {
 
   ## Input sanity check.
   if( ! $input_gp_id ){
-    return $self->mode_die_with_message("GP acc could not be found! Is it".
-					" possible that what you're looking".
-					" for is not a GP acc?");
+    return $self->mode_fatal("GP acc could not be found! Is it".
+			     " possible that what you're looking".
+			     " for is not a GP acc?");
   }
 
   ###
@@ -1385,8 +1420,8 @@ sub mode_phylo_graph {
   my $gp_worker = AmiGO::Worker::GOlr::GeneProduct->new($input_gp_id);
   my $gp_info_hash = $gp_worker->get_info();
   if( ! defined($gp_info_hash) || $self->{CORE}->empty_hash_p($gp_info_hash) ){
-    return $self->mode_die_with_message("GP acc could not be found" .
-					" in the index!");
+    return $self->mode_fatal("GP acc could not be found" .
+			     " in the index!");
   }
 
   $self->{CORE}->kvetch('solr docs: ' . Dumper($gp_info_hash));

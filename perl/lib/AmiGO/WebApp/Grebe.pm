@@ -38,9 +38,9 @@ sub setup {
 			COOKIE_PARAMS => {-path  => '/'},
 			SEND_COOKIE => 1);
 
-  ## Templates.
-  $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
-			 '/templates/html');
+  # ## Templates.
+  # $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
+  # 			 '/templates/html/' . $self->template_set());
 
   $self->mode_param('mode');
   $self->start_mode('grebe');
@@ -133,11 +133,11 @@ sub mode_grebe {
 
 	my $from = '{{' . $field_id . '}}';
 	my $to = '<input id="'. $field_id . '"' .
-	  ' style="border:1px solid black;"' .
-	    ' title="Hint: add a space after completing a word to' .
-	      ' narrow the search."' .
-		' class="amigo-grebe-tooltip"' .
-		  '>';
+	  ' type="text"' .
+	    ' class="amigo-grebe-input-box amigo-grebe-tooltip"' .
+		' title="Hint: add a space after completing a word to' .
+		  ' narrow the search."' .
+		    '>';
 	my $ind = index($question, $from);
 	substr($question, $ind, length($from)) = $to;
 	#$question =~ s/$from/$to/;
@@ -166,12 +166,16 @@ sub mode_grebe {
     {
      css_library =>
      [
-      'standard', # basic GO-styles
+      #'standard',
+      'com.bootstrap',
       'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
      ],
      javascript_library =>
      [
       'com.jquery',
+      'com.bootstrap',
       'com.jquery-ui',
       'bbop',
       'amigo'
@@ -199,7 +203,8 @@ sub mode_grebe {
   # $self->add_template_javascript($self->{JS}->initializer_jquery($jsinit));
   # $self->add_template_content('pages/grebe.tmpl');
   # #$output = $self->generate_template_page({header=>0});
-  $output = $self->generate_template_page();
+
+  $output = $self->generate_template_page_with();
 
   return $output;
 }

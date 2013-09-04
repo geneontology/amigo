@@ -1,0 +1,9 @@
+[% IF VERBOSE %]<!-- START: grebe_entry.tmpl -->[% END %]
+[% IF grebe_eo % 2 == 0 %]
+<li class="list-group-item even_row">
+[% ELSE %]
+<li class="list-group-item odd_row">
+[% END %]
+[% grebe_question %]
+</li>
+[% IF VERBOSE %]<!-- END: grebe_entry.tmpl -->[% END %]

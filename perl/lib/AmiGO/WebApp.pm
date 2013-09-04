@@ -47,6 +47,30 @@ sub cgiapp_init {
   ## Which template set to use when rendering.
   $self->{AW_TEMPLATE_SET} = undef;
 
+  ## Pull the different search information that we'll use for the
+  ## menus and pages.
+  ## Pulling: AMIGO_LAYOUT_SEARCH
+  my $search_list_to_try =
+    $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_SEARCH');
+  my $golr_conf = $self->{CORE}->golr_configuration();
+  my $search_list = [];
+  foreach my $search_entry (@$search_list_to_try){
+    my $search_entry_id = $search_entry->{'id'};
+    if( defined $golr_conf->{$search_entry_id} ){
+      ## Add in the search link.
+      my $item_conf = $golr_conf->{$search_entry_id};
+      $item_conf->{'amigo_interlink'} =
+	$self->{CORE}->get_interlink({mode=>'live_search',
+				      arg=>{type=>$search_entry_id}});
+      push @$search_list, $item_conf;
+      $self->{CORE}->kvetch('search layout a2i'. $item_conf->{amigo_interlink});
+    }else{
+      $self->{CORE}->kvetch('unable to find search layout entry: ' .
+			    $search_entry_id);
+    }
+  }
+  $self->{AW_SEARCH_LIST} = $search_list;
+
   ## TODO: change the default. I wanted to do the below, but it seemed
   ## to prevent the application's ability to recover a previous
   ## session.
@@ -66,6 +90,14 @@ sub cgiapp_prerun {
   $self->{WEBAPP_JAVASCRIPT} = [];
   $self->{WEBAPP_CONTENT} = [];
   $self->{WEBAPP_TEMPLATE_PARAMS} = {};
+
+  ## Make sure we have the right path for our internal system.
+  $self->template_set('legacy');
+  $self->template_set('bs3');
+
+  ## Setup template environment.
+  $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
+			 '/templates/html/' . $self->template_set());
 
   ## Hold on to the various message queues.
   $self->{WEBAPP_MQ} =
@@ -656,22 +688,20 @@ sub _common_params_settings {
   }
 
   ## Create and add to output buffer.
-  ## TODO: these need to be folded in somewhere--shouldn't be here...
   $params->{base} = $self->{CORE}->amigo_env('AMIGO_CGI_URL');
   $params->{public_base} = $self->{CORE}->amigo_env('AMIGO_PUBLIC_CGI_URL');
-  $params->{BETA} =
-    _atoi($self->{CORE}->amigo_env('AMIGO_BETA'));
+  $params->{BETA} = _atoi($self->{CORE}->amigo_env('AMIGO_BETA'));
+  $params->{VERBOSE} = _atoi($self->{CORE}->amigo_env('AMIGO_VERBOSE'));
   $params->{last_load_date} = $self->{CORE}->amigo_env('GOLR_TIMESTAMP_LAST');
   #$params->{release_name} = $self->{CORE}->release_name();
   #$params->{release_type} = $self->{CORE}->release_type();
   $params->{release_date} = $params->{release_name};
   $params->{page_name} = 'amigo';
   $params->{amigo_mode} = $additional->{amigo_mode} || '';
+  $params->{search_layout_list} = $self->{AW_SEARCH_LIST}; # for menus
   $params->{image_dir} = $self->{CORE}->amigo_env('AMIGO_HTML_URL') . '/images';
   $params->{js_dir} = $self->{CORE}->amigo_env('AMIGO_HTML_URL') .'/javascript';
   $params->{css_dir} = $self->{CORE}->amigo_env('AMIGO_HTML_URL') . '/css';
-  $params->{show_blast} =
-    _atoi($self->{CORE}->amigo_env('AMIGO_SHOW_BLAST'));
   $params->{html_url} = $self->{CORE}->amigo_env('AMIGO_HTML_URL');
   $params->{version} = $self->{CORE}->amigo_env('AMIGO_VERSION');
   my $sid = $params->{session_id} || '';
@@ -689,6 +719,15 @@ sub _common_params_settings {
   return $self->{WEBAPP_TEMPLATE_PARAMS};
 }
 
+## Reset the content buffers in extreme cases.
+sub _wipe_buffered_content {
+
+  my $self = shift;
+  $self->{WEBAPP_CSS} = [];
+  $self->{WEBAPP_JAVASCRIPT} = [];
+  $self->{WEBAPP_CONTENT} = [];
+  #$self->{WEBAPP_TEMPLATE_PARAMS} = {};
+}
 
 ##
 sub _eval_content {
@@ -931,19 +970,28 @@ sub generate_template_page_with {
 
   ## Check vs. defaults.
   ## TODO: pull documentation up.
-  my $lite_p = 0;
-  $lite_p = 1 if defined $args->{lite} && $args->{lite} == 1;
-  my $footer_p = 1;
-  $footer_p = 0 if defined $args->{footer} && $args->{footer} == 0;
+  # my $lite_p = 0;
+  # $lite_p = 1 if defined $args->{lite} && $args->{lite} == 1;
   my $header_p = 1;
   $header_p = 0 if defined $args->{header} && $args->{header} == 0;
+  my $search_p = 1;
+  $search_p = 0 if defined $args->{search} && $args->{search} == 0;
+  my $footer_p = 1;
+  $footer_p = 0 if defined $args->{footer} && $args->{footer} == 0;
 
   ## Before we start, make sure that the beta is announced.
-  $self->add_mq('notice', 'You are using an'.
-		' <a title="Go to AmiGO Labs explanation page"'.
-		' href="http://wiki.geneontology.org/index.php/AmiGO_Labs"'.
-		' class="alert-link">'.
-		' AmiGO Labs</a> prototype');
+  my $is_beta = _atoi($self->{CORE}->amigo_env('AMIGO_BETA'));
+  if( defined $is_beta && $is_beta ){
+    $self->add_mq('notice', 'You are using an'.
+		  ' <a title="Go to AmiGO Labs explanation page"'.
+		  ' href="http://wiki.geneontology.org/index.php/AmiGO_Labs"'.
+		  ' class="alert-link">'.
+		  ' AmiGO Labs</a> prototype. See ' .
+		  ' <a title="Go to AmiGO Labs explanation page"'.
+		  ' href="http://wiki.geneontology.org/index.php/AmiGO_Labs"'.
+		  ' class="alert-link">'.
+		  ' here</a> for more information.');
+  }
 
   ## Generate the page output.
   my @mbuf = ();
@@ -967,9 +1015,16 @@ sub generate_template_page_with {
     }
   }
 
-  ## The usual everywhere header.
+  ## The usual everywhere header. The search box is handled within
+  ## here.
+  my $add_search_box_to_header = 0;
+  if( defined $search_p && $search_p ){
+    $add_search_box_to_header = 1;
+  }
+  $self->set_template_parameter('add_search_box_to_header',
+				$add_search_box_to_header);
   push @mbuf, $self->_eval_content('common/header.tmpl')
-    if ! $lite_p && $header_p;
+    if $header_p;
 
   ## Pre-main content output.
   push @mbuf, $self->_eval_content('common/content_open.tmpl');
@@ -985,16 +1040,19 @@ sub generate_template_page_with {
     }
   }
 
+  ## The actual title, if defined in variables.
+  push @mbuf, $self->_eval_content('common/content_title.tmpl');
+
   ## Main content output.
   foreach my $content (@{$self->{WEBAPP_CONTENT}}){
     push @mbuf, '' . $content;
   }
 
   ## Close up.
-  #push @mbuf, $self->_eval_content('common/content_close.tmpl');
+  push @mbuf, $self->_eval_content('common/content_close.tmpl');
   push @mbuf, $self->_eval_content('common/footer.tmpl')
-    if ! $lite_p && $footer_p;
-  push @mbuf, $self->_eval_content('common/close.tmpl');
+    if $footer_p;
+  #push @mbuf, $self->_eval_content('common/content_close.tmpl');
 
   ## Merge and return.
   my $output = '';
@@ -1063,18 +1121,16 @@ sub _min_slurp {
 ### Common mode handling (HTML).
 ###
 
-##
-sub mode_status {
-
-  my $self = shift;
-
-  $self->set_template_parameter('hid', $self->{CORE}->unique_id());
-  $self->set_template_parameter('page_title', 'AmiGO 2: Status');
-  $self->add_template_content('common/status.tmpl');
-  $self->{CORE}->kvetch("added status");
-  #return $self->generate_template_page();
-  return $self->generate_template_page();
-}
+# ##
+# sub mode_status {
+#   my $self = shift;
+#   $self->set_template_parameter('hid', $self->{CORE}->unique_id());
+#   $self->set_template_parameter('page_title', 'AmiGO 2: Status');
+#   $self->add_template_content('common/status.tmpl');
+#   $self->{CORE}->kvetch("added status");
+#   #return $self->generate_template_page();
+#   return $self->generate_template_page();
+# }
 
 ##
 sub _status_message_exit {
@@ -1101,6 +1157,9 @@ sub mode_fatal {
   my $self = shift;
   my $err = shift || $@ || $! || $? || $^E || 'no error captured';
 
+  ## Purge content buffers.
+  $self->_wipe_buffered_content();
+
   $self->header_add( -status => '500 Internal Server Error' );
 
   $self->set_template_parameter('page_title', 'AmiGO 2: Fatal Error');
@@ -1115,78 +1174,53 @@ sub mode_fatal {
   # $self->set_template_parameter('error', join('; ', @$ers));
   $self->set_template_parameter('error', $err);
 
-  $self->add_template_content('common/error.tmpl');
-  #return $self->generate_template_page();
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui',
+      'bbop',
+      'amigo'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();'
+     ],
+     content =>
+     [
+      'pages/error.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
   return $self->generate_template_page_with();
 }
 
-
 # ## Specific internal fatal error. Uses argument as message.
 # sub mode_fatal_with_message {
-
 #   my $self = shift;
 #   my $message = shift || '';
-
 #   $self->header_add( -status => '500 Internal Server Error' );
-
 #   $self->set_template_parameter('page_title', 'AmiGO 2: Fatal Error');
 #   $self->set_template_parameter('error', $message);
-
 #   $self->add_template_content('common/error.tmpl');
 #   #return $self->generate_template_page();
 #   return $self->generate_template_page_with();
 # }
-
-
-## Very lightly catching errors from the user that couldn't be
-## prevented before reaching the server.
-sub mode_generic_message {
-
-  my $self = shift;
-  my $in_args = shift || {};
-
-  #$self->{CORE}->kvetch("_do_generic_message_");
-
-  ## Merge incoming args with template.
-  my $args = $self->{CORE}->merge({
-				   title => '',
-				   header => 'Error!',
-				   message => 'Unknown problem.',
-				   error => 1,
-				  }, $in_args);
-
-  #$self->{CORE}->kvetch("_in_" . Dumper($in_args));
-  #$self->{CORE}->kvetch("_out_" . Dumper($args));
-
-  ## Page variables.
-  $self->set_template_parameter('title', $args->{title});
-  $self->set_template_parameter('header', $args->{header});
-  $self->set_template_parameter('message', $args->{message});
-  $self->set_template_parameter('error', $args->{error});
-
-  ## Deeper page settings.
-  $self->header_add( -status => '500 Internal Server Error' );
-  $self->set_template_parameter('page_title', 'AmiGO 2: Input Error');
-
-  $self->add_template_content('pages/generic_message.tmpl');
-  return $self->generate_template_page();
-}
-
-
-## Catching user and input errors.
-sub mode_die_with_message {
-
-  my $self = shift;
-  my $message = shift || '';
-
-  $self->header_add( -status => '500 Internal Server Error' );
-
-  $self->set_template_parameter('page_title', 'AmiGO 2: Input Error');
-  $self->set_template_parameter('error', $message);
-
-  $self->add_template_content('common/die.tmpl');
-  return $self->generate_template_page();
-}
 
 ## What the user is looking for is not there.
 sub mode_not_found {
@@ -1215,6 +1249,8 @@ sub mode_not_found {
       #'standard',
       'com.bootstrap',
       'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
      ],
      javascript_library =>
      [
@@ -1239,65 +1275,115 @@ sub mode_not_found {
     };
   $self->add_template_bulk($prep);
 
-  #$self->add_template_content('common/not_found.tmpl');
   return $self->generate_template_page_with();
 }
 
-
-## Catching mode errors.
-sub mode_exception {
+## Very lightly catching errors from the user that couldn't be
+## prevented before reaching the server.
+sub mode_generic_message {
 
   my $self = shift;
-  my $intended_runmode = shift;
+  my $in_args = shift || {};
 
-  $self->header_add( -status => '500 Internal Server Error' );
+  #$self->{CORE}->kvetch("_do_generic_message_");
 
-  $self->set_template_parameter('page_title', 'AmiGO 2: Exception');
-  $self->set_template_parameter('error', "Looking for \"$intended_runmode\", but found no such method.");
+  ## Merge incoming args with template.
+  my $args = $self->{CORE}->merge({
+				   title => '',
+				   header => '!!!',
+				   message => 'Unknown issue.',
+				   error => 1,
+				  }, $in_args);
 
-  $self->add_template_content('common/error.tmpl');
-  return $self->generate_template_page();
+  #$self->{CORE}->kvetch("_in_" . Dumper($in_args));
+  #$self->{CORE}->kvetch("_out_" . Dumper($args));
+
+  ## Page variables.
+  $self->set_template_parameter('title', $args->{title});
+  $self->set_template_parameter('header', $args->{header});
+  $self->set_template_parameter('message', $args->{message});
+  $self->set_template_parameter('error', $args->{error});
+
+  ## Deeper page settings.
+  if( $args->{error} ){
+    $self->header_add( -status => '500 Internal Server Error' );
+    $self->set_template_parameter('page_title', 'AmiGO 2: 500 Error');
+  }else{
+    $self->set_template_parameter('page_title', 'AmiGO 2: Message');
+  }
+
+  ## Purge content buffers.
+  $self->_wipe_buffered_content();
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui',
+      'bbop',
+      'amigo'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();'
+     ],
+     content =>
+     [
+      'pages/message_generic.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page_with();
 }
 
+## Catching mode errors through fatal.
+sub mode_exception {
+  my $self = shift;
+  my $intended_runmode = shift;
+  return $self->mode_fatal("Looking for run mode \"$intended_runmode\", but found no such method.");
+}
 
 ###
 ### Common mode handling (JSON).
 ###
 
+# ##
+# sub mode_js_status {
+#   my $self = shift;
+#   my $json_resp = AmiGO::JSON->new('status');
+#   $self->header_add( -type => 'application/json' );
+#   $json_resp->set_results({
+# 			   heartbeat => $self->{JS}->{JSON_TRUE},
+# 			   id => $self->{CORE}->unique_id(),
+# 			  });
+#   return $json_resp->make_js();
+# }
 
-##
-sub mode_js_status {
-
-  my $self = shift;
-
-  my $json_resp = AmiGO::JSON->new('status');
-
-  $self->header_add( -type => 'application/json' );
-
-  $json_resp->set_results({
-			   heartbeat => $self->{JS}->{JSON_TRUE},
-			   id => $self->{CORE}->unique_id(),
-			  });
-
-  return $json_resp->make_js();
-}
-
-
-## Catching nasty errors.
-sub mode_js_fatal {
-
-  my $self = shift;
-
-  $self->header_add( -status => '500 Internal Server Error' );
-  $self->header_add( -type => 'application/json' );
-
-  ##
-  my $json_resp = AmiGO::JSON->new('fatal');
-  $json_resp->add_error($@);
-  $json_resp->failed(1);
-  return $json_resp->make_js();
-}
-
+# ## Catching nasty errors.
+# sub mode_js_fatal {
+#   my $self = shift;
+#   $self->header_add( -status => '500 Internal Server Error' );
+#   $self->header_add( -type => 'application/json' );
+#   ##
+#   my $json_resp = AmiGO::JSON->new('fatal');
+#   $json_resp->add_error($@);
+#   $json_resp->failed(1);
+#   return $json_resp->make_js();
+# }
 
 # ## Catching nasty errors.
 # sub mode_js_fatal_with_message {
@@ -1308,22 +1394,18 @@ sub mode_js_fatal {
 #   return $core->make_js($message);
 # }
 
-
-## Catching mode errors.
-sub mode_js_exception {
-
-  my $self = shift;
-  my $intended_runmode = shift;
-
-  $self->header_add( -status => '500 Internal Server Error' );
-  $self->header_add( -type => 'application/json' );
-
-  ##
-  my $json_resp = AmiGO::JSON->new('exception');
-  $json_resp->add_error($intended_runmode . " doesn\'t exist");
-  $json_resp->failed(1);
-  return $json_resp->make_js();
-}
+# ## Catching mode errors.
+# sub mode_js_exception {
+#   my $self = shift;
+#   my $intended_runmode = shift;
+#   $self->header_add( -status => '500 Internal Server Error' );
+#   $self->header_add( -type => 'application/json' );
+#   ##
+#   my $json_resp = AmiGO::JSON->new('exception');
+#   $json_resp->add_error($intended_runmode . " doesn\'t exist");
+#   $json_resp->failed(1);
+#   return $json_resp->make_js();
+# }
 
 ###
 ### Utility functions for the applications.

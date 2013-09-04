@@ -48,36 +48,34 @@
 /*
  * Pad out the landing box to make it a little more appealing.
  */
-.amigo-landing-navigation {
-    width: 80%;
-    padding-left: 3em;
-    padding-right: 3em;
-    margin-left: 10%;
-    margin-right: 10%;
-    margin-bottom: 3em;
-}
-.amigo-landing-navigation td {
-    width: 33%;
-    padding: 0em;
-    /* padding-left: 1em; */
-    /* padding-right: 1em; */
-}
-.amigo-landing-navigation tr td a img {
-    height: 36px;
-    float: left;
-    padding-right: .5em;
-    /* border: 1px solid blue; */
-}
-.amigo-landing-navigation tr td {
-    border: 1px solid #3875D7;
-    background-color: #e9effa;
-    vertical-align: middle;
-}
-.amigo-landing-navigation tr td a {
-    display: block;
-    border-bottom-style: none;
-    padding: .5em 1em;
-}
+/* .amigo-landing-navigation { */
+/*     width: 80%; */
+/*     padding-left: 3em; */
+/*     padding-right: 3em; */
+/*     margin-left: 10%; */
+/*     margin-right: 10%; */
+/*     margin-bottom: 3em; */
+/* } */
+/* .amigo-landing-navigation td { */
+/*     width: 33%; */
+/*     padding: 0em; */
+/* } */
+/* .amigo-landing-navigation tr td a img { */
+/*     height: 36px; */
+/*     float: left; */
+/*     padding-right: .5em; */
+/*     /\* border: 1px solid blue; *\/ */
+/* } */
+/* .amigo-landing-navigation tr td { */
+/*     border: 1px solid #3875D7; */
+/*     background-color: #e9effa; */
+/*     vertical-align: middle; */
+/* } */
+/* .amigo-landing-navigation tr td a { */
+/*     display: block; */
+/*     border-bottom-style: none; */
+/*     padding: .5em 1em; */
+/* } */
 
 /* Darken the beta items. */
 /* .amigo-landing-navigation-beta { */
@@ -92,6 +90,9 @@
     cursor: pointer;
     height: 25px;
     vertical-align:middle;
+}
+.amigo-grebe-input-box {
+    border:1px solid black;
 }
 
 /*
@@ -150,9 +151,15 @@
 .amigo-ui-margin-top-zero div { margin-top: 0; }
 .amigo-ui-margin-top-zero div div { margin-top: 0; }
 
+/*
+ * BS3 overrides.
+ */
+
 /* Allow wider layouts for search than bs3's default. */
 .amigo-ui-wide-max { max-width: 1800px; }
-
-/* BS3 overrides. */
 .navbar { z-index: 100; } /* Default of 1000 interferes with popups etc. */
 .page-header { text-align: center; }
+.page-header { text-align: center; }
+.page-header { text-align: center; }
+.amigo-gp-info dt { width: 80px; }
+.amigo-gp-info dd { margin-left: 90px; }

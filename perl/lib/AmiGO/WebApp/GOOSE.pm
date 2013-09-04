@@ -582,13 +582,19 @@ sub mode_goose {
       {
        css_library =>
        [
-	'standard', # basic GO-styles
+	#'standard',
+	'com.bootstrap',
 	'com.jquery.jqamigo.custom',
+	#'com.jquery.tablesorter',
+	'amigo',
+	'bbop'
        ],
        javascript_library =>
        [
 	'com.jquery',
+	'com.bootstrap',
 	'com.jquery-ui',
+	#'com.jquery.tablesorter',
 	'bbop',
 	'amigo'
        ],
@@ -607,7 +613,7 @@ sub mode_goose {
       };
     $self->add_template_bulk($prep);
 
-    $output = $self->generate_template_page();
+    $output = $self->generate_template_page_with();
   }
   return $output;
 }

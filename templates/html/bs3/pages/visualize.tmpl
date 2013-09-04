@@ -1,0 +1,96 @@
+<!-- START template: visualize.tmpl -->
+<!-- SEARCH_P = [% SEARCHED_P %] -->
+
+
+<div class="panel panel-default">
+  <!-- <h2>Visualize an Arbitrary GO Graph</h2> -->
+  <div class="panel-body">
+    
+    <p>
+      [% rollup_id = "inf01" %]
+      [% rollup_anchor = "Information about Visualize" %]
+      [% INCLUDE "common/info_rollup_start.tmpl" %]
+      This is a simple interface to the visualizations in
+      AmiGO. Type in your GO IDs (in the form GO:xxxxxxx) or use the
+      <a title="AmiGO Visualize documentation" href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Visualize">advanced format</a>
+      for more control.
+      [% INCLUDE "common/info_rollup_end.tmpl" %]
+    </p>
+    
+    <div class="well">
+      <strong>Caution</strong>: The static image may be very large and
+      inappropriate for viewing within a web browser.
+    </div>
+    
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    
+    <form roll="form" action="[% base %]/amigo/[% amigo_mode %]"
+	  id="term_input_form" method="GET">
+      
+      <div class="form-group">
+	<label for="term_data">GO IDs or advanced format</label>
+	<textarea rows="10"
+		  class="form-control" 
+		  placeholder="GO:1234567"
+		  name="term_data"
+		  id="terms"></textarea>
+      </div>
+
+      <div class="checkbox">
+	<label for="png">Use
+	  <a title="AmiGO Visualize documentation"
+	     href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Visualize">advanced format</a>
+	  <input type="checkbox"
+		 name="term_data_type"
+		 value="json"
+		 id="term_data_type" />
+	</label>
+      </div>
+
+      <h4>Output type:</h4>
+      <div name="format" class="radio">
+	<label for="png">
+	  <input type="radio"
+		 class="radio-inline"
+		 name="format"
+		 value="png"
+		 checked
+		 id="png" />
+	  static (png)
+	</label>
+      </div>
+      <div class="radio">
+	<label for="svg">
+	  <input type="radio"
+		 class="radio-inline"
+		 name="format"
+		 value="svg"
+		 id="svg"/>
+	  dynamic (svg+xml)
+	</label>
+      </div>
+      [% IF BETA == 1 %]
+      <div class="radio">
+	<label for="navi">
+	  <input type="radio"
+		 class="radio-inline"
+		 name="format"
+		 value="navi"
+		 id="navi" />
+	  navigation (javascript alpha)
+	</label>
+      </div>
+      [% END %]
+      
+      <button type="submit" class="btn btn-primary">Visualize</button>
+    </form>
+    
+  </div>
+  
+</div>
+  
+<!-- END template: visualize.tmpl -->
