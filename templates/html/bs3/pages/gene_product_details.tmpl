@@ -1,13 +1,6 @@
 <!-- START template: gene_product_details.tmpl -->
 
-    <!-- <dl class="dl-horizontal"> -->
-    <!--   <dt>Symbol</dt>  -->
-    <!--   [% IF GP_INFO.label %] -->
-    <!--   <dd class="symbol">[% GP_INFO.label %]</dd> -->
-    <!--   [% ELSE %] -->
-    <!--   <dd class="symbol">(n/a)</dd> -->
-    <!--   [% END %] -->
-    <!-- </dl>       -->
+[% INCLUDE common/noscript_js_limited.tmpl %]
 
 <div class="panel panel-default">
   <div class="panel-heading">
@@ -15,29 +8,29 @@
   </div>
   <div class="panel-body">
 
-    <dl class="dl-horizontal amigo-gp-info">
+    <dl class="dl-horizontal amigo-detail-info">
       
       <dt>Symbol</dt> 
       [% IF GP_INFO.label %]
-      <dd class="symbol">[% GP_INFO.label %]</dd>
+      <dd>[% GP_INFO.label %]</dd>
       [% ELSE %]
-      <dd class="symbol">(n/a)</dd>
+      <dd>(n/a)</dd>
       [% END %]
       
       <dt>Name(s)</dt>
       [% IF GP_INFO.name %]
-      <dd class="full_name">[% GP_INFO.name %]</dd>
+      <dd>[% GP_INFO.name %]</dd>
       [% ELSE %]
-      <dd class="full_name">(n/a)</dd>
+      <dd>(n/a)</dd>
       [% END %]
       
       <dt>Type</dt> 
-      <dd class="type">[% GP_INFO.type %]</dd>
+      <dd>[% GP_INFO.type %]</dd>
       
       <dt>Taxon</dt>
-      <dd class="spp">[% GP_INFO.taxon_readable %]</dd>
+      <dd>[% GP_INFO.taxon_readable %]</dd>
       <!-- TODO: Oo! Copy below. -->
-      <!-- <dd class="spp"><a href="http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=44689" title="View Dictyostelium discoideum details on the NCBI taxonomy website">Dictyostelium discoideum</a></dd> -->
+      <!-- <dd><a href="http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=44689" title="View Dictyostelium discoideum details on the NCBI taxonomy website">Dictyostelium discoideum</a></dd> -->
       
       <!-- Synonyms -->
       <dt>Synonyms</dt>
@@ -49,9 +42,9 @@
       <!-- <dd class="syn">[% IF synh.scope %]<span class="type">[% synh.scope %]</span>: [% END %][% synh.acc %]</dd> -->
       [%       ## Something broken in the GAF or pipeline? %]
       [%       IF synh == "" %]
-      <dd class="syn">(n/a)</dd>
+      <dd>(n/a)</dd>
       [%       ELSE %]
-      <dd class="syn">[% synh %]</dd>
+      <dd>[% synh %]</dd>
       [%       END %]
       [%    END %]
       [% END %]
@@ -74,28 +67,9 @@
   </div>
 </div>
 
-<noscript>
-  <div class="block warning">
-    <h2>Notice</h2>
-    <p>
-      Enable JavaScript in your browser and reload for gene product
-      count filters and links.
-    </p>
-  </div>
-</noscript>
-
-<noscript>
-  <div class="block warning">
-    <h2>Notice</h2>
-    <p>
-      Enable JavaScript in your browser and reload for advanced features.
-    </p>
-  </div>
-</noscript>
-
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title">Associations</h3>
+    <h3 class="panel-title">Gene Product Associations</h3>
   </div>
   <div class="panel-body">
     <div id="display-associations">

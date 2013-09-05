@@ -1,0 +1,23 @@
+<!-- START template: term_details_entry.tmpl -->
+<!-- graph_entry = [% graph_entry %]-->
+<!-- number_of_spaces = [% number_of_spaces %]-->
+<!-- override_image = [% override_image %]-->
+<!-- override_title = [% override_title %]-->
+<!-- override_link = [% override_link %]-->
+<!-- override_bold = [% override_bold %]-->
+<li>
+  [% foo_nargle_mangle = 0; WHILE foo_nargle_mangle < number_of_spaces; %]&nbsp;&nbsp;&nbsp;&nbsp;[% foo_nargle_mangle = foo_nargle_mangle + 1; END; %]
+  [% IF override_image && override_title %]
+   <img src="[% override_image %]" title="[% override_title %]" />
+  [% ELSE %]
+  [%    IF graph_entry.inferred_p %]
+   <img src="[% image_dir _ "/" _ graph_entry.rel _ ".gif" %]"
+	title="Inferred [% graph_entry.rel %] relation" />
+  [%    ELSE %]
+   <img src="[% image_dir _ "/" _ graph_entry.rel _ ".gif" %]"
+	title="[% graph_entry.rel %] relation" />
+  [%    END %]
+  [% END %]
+  [% IF override_link %][% IF override_bold %]<span style="font-weight: bold;">[% END %][% graph_entry.acc %]&nbsp;[% graph_entry.name %][% IF override_bold %]</span>[% END %][% ELSE %][% IF override_bold %]<span style="font-weight: bold;">[% END %]<a href="[% graph_entry.link %]#lineage" title="Go to [% graph_entry.name %]">[% graph_entry.acc %]&nbsp;[% graph_entry.name %]</a>[% END %][% for_acc = graph_entry.acc %][% IF override_bold %]</span>[% END %]
+</li>
+<!-- END template: term_details_entry.tmpl -->

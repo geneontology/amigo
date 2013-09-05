@@ -25,9 +25,10 @@ function TermDetailsInit(){
     // Tabify the layout if we can (may be in a non-tabby version).
     var dtabs = jQuery("#display-tabs");
     if( dtabs ){
-	ll('Apply tabs...');
-	jQuery("#display-tabs").tabs();
-	jQuery("#display-tabs").tabs('option', 'active', 0);
+    	ll('Apply tabs...');
+    	// jQuery("#display-tabs").tabs();
+    	// jQuery("#display-tabs").tabs('option', 'active', 0);
+    	jQuery("#display-tabs a:first").tab('show');
     }
 
     // Ready the configuration that we'll use.

@@ -1,0 +1,50 @@
+<!-- START template: term_details_community.tmpl -->
+<dt>Community</dt>
+[% IF GONUTS_SUCCESS || wikipedia_label %]
+[%    IF GONUTS_SUCCESS %]
+<dd>
+  <!-- <img height="16px" src="[% image_dir %]/gonuts.link.jpg" alt="GONUTS" /> --><small><strong>GN</b></strong></small> <a href="[% GONUTS_PAGE_URL %]" title="Community note for [% GONUTS_PAGE_TITLE %]">[% IF GONUTS_TOTAL_COUNT > 0 %]View or edit[% ELSE %]Add[% END %]</a> usage comments for this term on the <abbr title="GO Normal Usage Tracking System"" class="initialism">GONUTS</abbr> wiki.
+</dd>
+[%    END %]
+[%    IF wikipedia_label %]
+<dd>
+  <img height="18px" src="[% image_dir %]/wikipedia.link.png" alt="Wikipedia" /><a href="[% wikipedia_link %]" title="Wikipedia page for [% wikipedia_label %]">View and edit</a> information about this term on Wikipedia.
+</dd>
+[%    END %]
+[% ELSE %]
+<dd>Unavailable</dd>
+[% END %]
+<!-- <dt>Community</dt> -->
+<!-- [% IF GONUTS_SUCCESS %] -->
+<!-- <dd> -->
+<!--   There -->
+<!--   [% GONUTS_IS_SINGULAR = 0 %] -->
+<!--   [% IF GONUTS_TOTAL_COUNT == 1 %] -->
+<!--   [%    GONUTS_IS_SINGULAR = 1 %] -->
+<!--   [% END %] -->
+<!--   [% IF GONUTS_IS_SINGULAR %] -->
+<!--   has -->
+<!--   [% ELSE %] -->
+<!--   have -->
+<!--   [% END %] -->
+<!--   been -->
+<!--   <a href="[% GONUTS_PAGE_URL %]#Notes" -->
+<!-- 	  title="Community note for [% GONUTS_PAGE_TITLE %]"> -->
+<!-- 	 [% IF GONUTS_TOTAL_COUNT %] -->
+<!-- 	 <b>[% GONUTS_TOTAL_COUNT + 0 %]</b> -->
+<!-- 	 [% ELSE %] -->
+<!-- 	 <b>0</b> -->
+<!-- 	 [% END %] -->
+<!-- 	 [% IF GONUTS_IS_SINGULAR %]comment[% ELSE %]comments[% END %]</a> -->
+<!--   for this term[% IF GONUTS_TOTAL_COUNT %], -->
+<!--   with <b>[% GONUTS_RECENT_COUNT + 0 %]</b> -->
+<!--   since <b>[% GONUTS_DATE_STRING %]</b>[% END %].  If -->
+<!--   you would like to view or participate in the -->
+<!--   community annotation, please continue to the -->
+<!--   <a href="[% GONUTS_PAGE_URL %]" -->
+<!-- 	  title="[% GONUTS_PAGE_TITLE %]">GONUTS page</a>. -->
+<!-- </dd> -->
+<!-- [% ELSE %] -->
+<!-- <dd>Unavailable</dd> -->
+<!-- [% END %]      -->
+<!-- END template: term_details_community.tmpl -->

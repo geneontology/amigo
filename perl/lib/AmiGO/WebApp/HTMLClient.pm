@@ -1067,7 +1067,7 @@ sub mode_term_details {
     my $exotic_term = '';
     if( $exotic_link ){
       $exotic_term = '<a href="' .
-	$exotic_link . '" title="GO to the homepage for ' .
+	$exotic_link . '" title="Go to the homepage for ' .
 	  $input_term_id . '">' .
 	    $input_term_id . '</a>';
     }else{

@@ -1,0 +1,83 @@
+<!-- START template: term_details_sentences.tmpl -->
+[% IF PARENT_CHUNKS_BY_DEPTH && MAX_DEPTH > 0 %]
+
+<h5 class="text-center">
+  Ancestors of [% TERM_INFO.name %] ([% TERM_INFO.acc %])
+</h5>
+  
+<table id="all-table-above"
+       class="table table-striped table-hover">
+  
+  [% INCLUDE common/term_details_neighborhood_head.tmpl %]
+
+  <tbody>
+    
+    [%    eo_rows = 0 %]
+    [%    d = 0 %]
+    [%    WHILE d <= MAX_DEPTH %]
+    [%       IF PARENT_CHUNKS_BY_DEPTH.$d %]
+    [%          ANCESTOR_CHUNKS = PARENT_CHUNKS_BY_DEPTH.$d %]
+    [%          FOREACH anc IN ANCESTOR_CHUNKS %]
+    [%             subject_chunk = TERM_INFO %]
+    [%             object_chunk = anc %]
+    [%             even_odd_rows = eo_rows %]
+    [%             munge_id_tail = "_a" %]
+    [%             count_type = "object" %]
+    [%             tmp_acc = anc.acc %]
+    [%             INCLUDE common/term_details_re_row.tmpl %]
+    [%             eo_rows = eo_rows + 1 %]
+    [%          END %]
+    [%       END %]
+    [%       d = d + 1 %]
+    [%    END %]
+
+		     </tbody>
+  
+</table>
+
+[% ELSE %]
+
+<p>
+  This term has no ancestors.
+</p>
+
+[% END %]
+
+[% IF CHILD_CHUNKS && CHILD_CHUNKS.size > 0 %]
+
+<h5 class="text-center">
+  Children of [% TERM_INFO.name %] ([% TERM_INFO.acc %])
+</h5>
+  
+<table id="all-table-below"
+       class="table table-striped table-hover">
+  
+  [% INCLUDE common/term_details_neighborhood_head.tmpl %]
+	
+  <tbody>
+	  
+    [%    eo_rows = 0 %]
+    [%    FOREACH desc IN CHILD_CHUNKS %]
+    [%       subject_chunk = desc %]
+    [%       object_chunk = TERM_INFO %]
+    [%       even_odd_rows = eo_rows %]
+    [%       munge_id_tail = "_a" %]
+    [%       count_type = "subject" %]
+    [%       tmp_acc = desc.acc %]
+    [%       INCLUDE common/term_details_re_row.tmpl %]
+    [%       eo_rows = eo_rows + 1 %]
+    [%    END %]
+    
+  </tbody>
+  
+</table>
+      
+[% ELSE %]
+      
+<p>
+  This term has no children.
+</p>
+      
+[% END %]
+      
+<!-- END template: term_details_sentences.tmpl -->
