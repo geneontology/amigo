@@ -161,5 +161,6 @@
 .page-header { text-align: center; }
 .page-header { text-align: center; }
 .page-header { text-align: center; }
-.amigo-gp-info dt { width: 80px; }
-.amigo-gp-info dd { margin-left: 90px; }
+.amigo-detail-info dt { width: 80px; }
+.amigo-detail-info dd { margin-left: 90px; }
+.amigo-detail-tab-spacer { margin-top: 1em; }
