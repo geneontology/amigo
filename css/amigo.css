@@ -164,3 +164,11 @@
 .amigo-detail-info dt { width: 80px; }
 .amigo-detail-info dd { margin-left: 90px; }
 .amigo-detail-tab-spacer { margin-top: 1em; }
+.amigo-searchbar-tooltip-style {
+    font-size: 80%;
+    color: #2d6987;
+    background: #d9edf7;
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+    /* margin-right: 1em; */
+}
