@@ -600,10 +600,12 @@ sub mode_goose {
        ],
        javascript =>
        [
+	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
 	$self->{JS}->get_lib('GOOSE.js')
        ],
        javascript_init =>
        [
+	'GeneralSearchForwardingInit();',
 	'GOOSEInit();'
        ],
        content =>

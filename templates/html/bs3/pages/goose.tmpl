@@ -2,43 +2,32 @@
 
 [% INCLUDE common/noscript_js_limited.tmpl %]
 
-<div class="panel panel-default">
-  <!-- <div class="panel-heading"> -->
-    <!-- <div class="panel-title"> -->
-    <!-- Directly query GO data using SQL -->
-    <!-- </div> -->
-  <!-- </div> -->
-  <div class="panel-body">
-    
-    [% rollup_id = "inf01" %]
-    [% rollup_anchor = "Information about GOOSE" %]
-    [% INCLUDE "common/info_rollup_start.tmpl" %]
-    <h4>General SQL</h4>
-    <p>
-      If your query takes a long time or returns a blank screen,
-      you may want to try the download option. If your query is
-      long-running or fails, you may also want to try a "lite"
-      database from the mirror selection.
-    </p>	
-    <h4>LEAD SQL</h4>
-    <p>
-      See some LEAD SQL <a href="http://wiki.geneontology.org/index.php/Example_LEAD_Queries">examples</a> and learn more about the LEAD <a href="http://www.geneontology.org/GO.database.shtml" title="LEAD database schema documentation">schema</a>.
-    </p>
-    <h4>Mirrors</h4>
-    <p>
-      Select a mirror you believe will perform well for your
-      needs. Mirrors may have different load settings and
-      frequencies.
-    </p>
-    <h4>More information...</h4>
-    <p>
-      For more information, please see the GOOSE
-      <a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_GOOSE">manual page</a>.
-    </p>
-    [% INCLUDE "common/info_rollup_end.tmpl" %]
-    
-  </div>
-</div>
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Information about GOOSE" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<h5>General SQL</h5>
+<p>
+  If your query takes a long time or returns a blank screen,
+  you may want to try the download option. If your query is
+  long-running or fails, you may also want to try a "lite"
+  database from the mirror selection.
+</p>	
+<h5>LEAD SQL</h5>
+<p>
+  See some LEAD SQL <a href="http://wiki.geneontology.org/index.php/Example_LEAD_Queries">examples</a> and learn more about the LEAD <a href="http://www.geneontology.org/GO.database.shtml" title="LEAD database schema documentation">schema</a>.
+</p>
+<h5>Mirrors</h5>
+<p>
+  Select a mirror you believe will perform well for your
+  needs. Mirrors may have different load settings and
+  frequencies.
+</p>
+<h5>More information...</h5>
+<p>
+  For more information, please see the GOOSE
+  <a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_GOOSE">manual page</a>.
+</p>
+[% INCLUDE "common/info_rollup_end.tmpl" %]
 
 <div class="panel panel-default">
   <div class="panel-body">

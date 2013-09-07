@@ -6,14 +6,15 @@
 //
 function GrebeInit(){
 
-    // Make unnecessary things roll up.
-    amigo.ui.rollup(["inf01"]);
+    // // Make unnecessary things roll up.
+    // amigo.ui.rollup(["inf01"]);
     
-    //Use jQuery UI to tooltip-ify doc.
-    var top_args = {'position': {'my': 'left bottom', 'at': 'right top'}};
-    jQuery('.bbop-js-tooltip').tooltip(top_args);
+    // Use jQuery UI to tooltip-ify doc.
     // Keep them above.
-    var gtt_args = {'position': {'my': 'center bottom-20', 'at': 'center top'}};
+    var gtt_args = {
+	'position': {'my': 'center bottom-5', 'at': 'center top'},
+	'tooltipClass': 'amigo-searchbar-tooltip-style'
+    };
     jQuery('.amigo-grebe-tooltip').tooltip(gtt_args);
 
     // Per-manager logger.

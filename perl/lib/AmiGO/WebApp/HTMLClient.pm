@@ -533,12 +533,12 @@ sub mode_schema_details {
      ],
      javascript =>
      [
-      #$self->{JS}->get_lib('GeneralSearchForwarding.js')
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('Schema.js')
      ],
      javascript_init =>
      [
-      #'GeneralSearchForwardingInit();'
+      'GeneralSearchForwardingInit();',
       'SchemaInit();'
      ],
      content =>
@@ -690,14 +690,17 @@ sub mode_visualize {
 	'bbop',
 	'amigo'
        ],
+       javascript =>
+       [
+	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
+       ],
        javascript_init =>
        [
-	'amigo.ui.rollup(["inf01"]);'
+	'GeneralSearchForwardingInit();'
        ],
        content =>
        [
-	'pages/visualize.tmpl'
-       ]
+	'pages/visualize.tmpl']
       };
     $self->add_template_bulk($prep);
     $output = $self->generate_template_page_with();
@@ -1234,7 +1237,7 @@ sub mode_term_details {
       #'standard',
       'com.bootstrap',
       'com.jquery.jqamigo.custom',
-      #'com.jquery.tablesorter',
+      'com.jquery.tablesorter',
       'amigo',
       'bbop'
      ],

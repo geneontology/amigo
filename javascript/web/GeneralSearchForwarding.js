@@ -1,9 +1,6 @@
 ////
-//// A twiddle to see if I can get Google Charts and BBOP playing
-//// nicely. They seem to want to fight over the initialization.
-////
-//// Trying to let Google win--when it doesn't it seems to throw a fit
-//// and redirect to nothingness. WTF, Google?
+//// A general set to get the search box at the top of most pages
+//// going.
 ////
 
 function GeneralSearchForwardingInit(){
@@ -15,20 +12,35 @@ function GeneralSearchForwardingInit(){
 	logger.kvetch(str);
     }
     
-    // Make unnecessary things roll up, need custom code since the
-    // header search is a strange space.
-    var eltid = 'gsf01';
-    //var einfo = '#' + eltid + ' > div';
-    var einfo = '#' + eltid + '-info';
-    var earea = '#' + eltid + ' > span > a';
-    if( jQuery(einfo) && jQuery(einfo).length && jQuery(einfo).length > 0 ){
-	jQuery(einfo).hide();
-	var click_elt =
-	    jQuery(earea).click(function(){
-				    jQuery(einfo).toggle("blind",{},250);
-				    return false;
-				});
-    }
+    // Use jQuery UI to tooltip-ify doc.
+    var tt_args = {
+	'position': {'my': 'left+5 top', 'at': 'right top'},
+	'tooltipClass': 'amigo-searchbar-tooltip-style'
+    };
+    jQuery('.bbop-js-tooltip').tooltip(tt_args);
+
+    // // Activate hint/tooltop via Bootstrap.
+    // // var jquitt = jQuery.fn.tooltip.noConflict();
+    // jQuery("#gsf-query").tooltip({'container': 'body',
+    // 				  'placement': 'left',
+    // 				  'title': 'foo'});
+    // //jQuery("#foofoo").tooltip();
+    // // jQuery.fn.tooltip = jquitt;
+
+    // // Make unnecessary things roll up, need custom code since the
+    // // header search is a strange space.
+    // var eltid = 'gsf01';
+    // //var einfo = '#' + eltid + ' > div';
+    // var einfo = '#' + eltid + '-info';
+    // var earea = '#' + eltid + ' > span > a';
+    // if( jQuery(einfo) && jQuery(einfo).length && jQuery(einfo).length > 0 ){
+    // 	jQuery(einfo).hide();
+    // 	var click_elt =
+    // 	    jQuery(earea).click(function(){
+    // 				    jQuery(einfo).toggle("blind",{},250);
+    // 				    return false;
+    // 				});
+    // }
     
     // Setup the annotation profile and make the annotation document
     // category and the current acc sticky in the filters.

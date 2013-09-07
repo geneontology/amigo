@@ -60,8 +60,8 @@ function SchemaInit(){
     //ll('');
     ll('SchemaInit start...');
 
-    // Make unnecessary things roll up.
-    amigo.ui.rollup(["inf01"]);
+    // // Make unnecessary things roll up.
+    // amigo.ui.rollup(["inf01"]);
 
     var classes = gconf.get_classes_by_weight();
 

@@ -19,12 +19,12 @@ function LiveSearchGOlrInit(){
     // Aliases.
     var loop = bbop.core.each;
 
-    // Make unnecessary things roll up.
-    amigo.ui.rollup(["inf01"]);
+    // // Make unnecessary things roll up.
+    // amigo.ui.rollup(["inf01"]);
 
-    // Use jQuery UI to tooltip-ify doc.
-    var tt_args = {'position': {'my': 'left bottom', 'at': 'right top'}};
-    jQuery('.bbop-js-tooltip').tooltip(tt_args);
+    // // Use jQuery UI to tooltip-ify doc.
+    // var tt_args = {'position': {'my': 'left bottom', 'at': 'right top'}};
+    // jQuery('.bbop-js-tooltip').tooltip(tt_args);
 
     ///
     /// A description of the active buttons and what to do when they

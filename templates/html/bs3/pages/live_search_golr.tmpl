@@ -4,33 +4,24 @@
 
 [% INCLUDE common/noscript_js_limited_search.tmpl %]
 
-<div class="panel panel-default">
-  <!-- <div class="panel-heading"> -->
-  <!--   <h3 class="panel-title">Search</h3> -->
-  <!-- </div> -->
-  <div class="panel-body">
-    
-    [% rollup_id = "inf01" %]
-    [% rollup_anchor = "Information about Search" %]
-    [% INCLUDE "common/info_rollup_start.tmpl" %]
-    <p>
-      Live Search will return results from the Gene Ontology as you
-      type. No results will be returned until the search input is at
-      least three characters. After that, you may also use the filters
-      to limit or reduce the results.
-    </p>
-    <p>
-      For a detailed explanation on how to search, a list of what fields
-      can be used in the search string, or an explanation for how to get
-      the results you want, please view the AmiGO 2
-      <a title="Go to Search AmiGO 2 live search documentation"
-	 href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Search">search</a>
-      documentation.
-    </p>
-    [% INCLUDE "common/info_rollup_end.tmpl" %]
-
-  </div>
-</div>
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Information about Search" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<p>
+  Live Search will return results from the Gene Ontology as you
+  type. No results will be returned until the search input is at
+  least three characters. After that, you may also use the filters
+  to limit or reduce the results.
+</p>
+<p>
+  For a detailed explanation on how to search, a list of what fields
+  can be used in the search string, or an explanation for how to get
+  the results you want, please view the AmiGO 2
+  <a title="Go to Search AmiGO 2 live search documentation"
+     href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Search">search</a>
+  documentation.
+</p>
+[% INCLUDE "common/info_rollup_end.tmpl" %]
   
 <div class="panel panel-default">
   <div class="panel-body">

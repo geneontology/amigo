@@ -2,26 +2,19 @@
 
 [% INCLUDE common/noscript_js_limited.tmpl %]
 
-<div class="panel panel-default">
-  <!-- <h2>Instance Schema</h2> -->
-
-  <div class="panel-body">
-    
-    [% rollup_id = "inf01" %]
-    [% rollup_anchor = "Additional information about the schema" %]
-    [% INCLUDE "common/info_rollup_start.tmpl" %]
-    <p>
-      Below is the current state of the schema as is handled through the
-      API. However, one hole in this are the "*_closure_map" and
-      "*_list_map" fields, which are normally only ever accessed during
-      rendering. These fields provide a JSON map between
-      "*_closure"/"*_closure_label" and "*_list"/"*_list_label"
-      fields. The existance of these fields is optional, but
-      automatically consumed by AmiGO 2 if present.
-    </p>
-    [% INCLUDE "common/info_rollup_end.tmpl" %]
-  </div>
-</div>
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Additional information about the schema" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<p>
+  Below is the current state of the schema as is handled through the
+  API. However, one hole in this are the "*_closure_map" and
+  "*_list_map" fields, which are normally only ever accessed during
+  rendering. These fields provide a JSON map between
+  "*_closure"/"*_closure_label" and "*_list"/"*_list_label"
+  fields. The existance of these fields is optional, but
+  automatically consumed by AmiGO 2 if present.
+</p>
+[% INCLUDE "common/info_rollup_end.tmpl" %]
 
 <div class="panel panel-default">
   <div class="panel-body">
