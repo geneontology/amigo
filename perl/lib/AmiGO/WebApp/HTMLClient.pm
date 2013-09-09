@@ -885,6 +885,7 @@ sub mode_search {
   ## defined.
   my $personality = $params->{personality} || '';
   my $personality_name = 'n/a';
+  my $personality_desc = 'No description.';
   if( $personality ){
 
     ## Get the layout info to describe which personalities are
@@ -898,6 +899,7 @@ sub mode_search {
       if( $personality eq $stid ){
 	$allowed_personality = 1;
 	$personality_name = $sti->{display_name};
+	$personality_desc = $sti->{description};
 	last;
       }
     }
@@ -916,6 +918,8 @@ sub mode_search {
   ## Set personality for template, and later JS var.
   $self->set_template_parameter('personality', $personality);
   $self->set_template_parameter('content_subtitle', $personality_name);
+  $self->set_template_parameter('personality_name', $personality_name);
+  $self->set_template_parameter('personality_description', $personality_desc);
 
   # ## Temporary test of new template system based on BS3.
   # my $template_system = $self->template_set() || die 'no template system set';
