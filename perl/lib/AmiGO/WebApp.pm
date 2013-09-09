@@ -690,6 +690,8 @@ sub _common_params_settings {
   ## General menu/link items all templates have access to.
   $params->{interlink_landing} =
     $self->{CORE}->get_interlink({mode=>'landing'});
+  $params->{interlink_tools} =
+    $self->{CORE}->get_interlink({mode=>'tools'});
   ## No longer anything simple about search.
   $params->{interlink_grebe} =
     $self->{CORE}->get_interlink({mode=>'grebe'});
