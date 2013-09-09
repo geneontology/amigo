@@ -1197,11 +1197,17 @@ sub get_interlink {
   my %fun_hash =
     (
 
-     ## First, things that are in the main app set...
-     'landing' =>
-     sub {
-       $ilink = 'amigo/landing';
-     },
+     ## First, things that are in the main app set...the trivially
+     ## called pages.
+     'landing' => sub { $ilink = 'amigo/landing'; },
+     'tools' => sub { $ilink = 'amigo/software_list'; },
+     'schema_details' => sub { $ilink = 'amigo/schema_details'; },
+     'load_details' => sub { $ilink = 'amigo/load_details'; },
+     'browse' => sub { $ilink = 'amigo/browse'; },
+     'goose' => sub { $ilink = 'goose'; },
+     'grebe' => sub { $ilink = 'grebe'; },
+     'gannet' => sub { $ilink = 'gannet'; },
+     'repl' => sub { $ilink = 'repl'; },
 
      'gp_details' =>
      sub {
@@ -1258,6 +1264,9 @@ sub get_interlink {
      #   $ilink = 'gaffer?mode=' . $gmode . '&data_url=' . $self->uri_safe($gurl);
      # },
 
+     ## The actual "visualize" is more a call to the data server.
+     ## "visual_client" is for the user page.
+     'visualize_client' => sub { $ilink = 'amigo/visualize'; },
      'visualize' =>
      sub {
        #print STDERR Dumper($arg_hash);

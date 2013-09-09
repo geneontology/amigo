@@ -687,6 +687,29 @@ sub _common_params_settings {
     return $thing || 0;
   }
 
+  ## General menu/link items all templates have access to.
+  $params->{interlink_landing} =
+    $self->{CORE}->get_interlink({mode=>'landing'});
+  ## No longer anything simple about search.
+  $params->{interlink_grebe} =
+    $self->{CORE}->get_interlink({mode=>'grebe'});
+  $params->{interlink_visualize} =
+    $self->{CORE}->get_interlink({mode=>'visualize_client'});
+  $params->{interlink_goose} =
+    $self->{CORE}->get_interlink({mode=>'goose'});
+  $params->{interlink_schema_details} =
+    $self->{CORE}->get_interlink({mode=>'schema_details'});
+  $params->{interlink_load_details} =
+    $self->{CORE}->get_interlink({mode=>'load_details'});
+  $params->{interlink_browse} =
+    $self->{CORE}->get_interlink({mode=>'browse'});
+  $params->{interlink_simple_search} =
+    $self->{CORE}->get_interlink({mode=>'simple_search'});
+  $params->{interlink_gannet} =
+    $self->{CORE}->get_interlink({mode=>'gannet'});
+  $params->{interlink_repl} =
+    $self->{CORE}->get_interlink({mode=>'repl'});
+
   ## Create and add to output buffer.
   $params->{base} = $self->{CORE}->amigo_env('AMIGO_CGI_URL');
   $params->{public_base} = $self->{CORE}->amigo_env('AMIGO_PUBLIC_CGI_URL');
