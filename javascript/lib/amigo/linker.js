@@ -161,7 +161,7 @@ amigo.linker.prototype.anchor = function(args, xid){
 	    var label = args['label'];
 	    if( ! label ){ label = id; }
 	
-	    // Infer label from id if not present.
+	    // Infer hilite from label if not present.
 	    var hilite = args['hilite'];
 	    if( ! hilite ){ hilite = label; }
 	

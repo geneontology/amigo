@@ -7,6 +7,18 @@
 .nowrap { white-space: nowrap; }
 .dark-cell { background-color: #cddcf3; }
 .light-cell { background-color: #ffffff; }
+.hilite {
+    border: 1px dotted #000;
+    color: #000;
+    background: #A9FFA1;
+    /* background: #ff0; */
+    padding: 0 1px;
+}
+a:hover .hilite, a:active .hilite {
+    color: #fff;
+    background: #3875D7;
+/* border: none; border: 1px solid #3875D7; */
+}
 
 /* Sideways...really? You bet! */
 /* In order: FF, Safari, IE, Opera */
