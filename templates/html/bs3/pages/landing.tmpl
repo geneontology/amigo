@@ -34,10 +34,23 @@
       Search the Gene Ontology data for
       annotations, gene products, and terms.
     </p>
-    <p>
-      <!-- <a class="btn btn-primary" href="[% base %]/amigo/search">Go &raquo;</a> -->
-      <strong>TODO</strong>
-    </p>
+    <div class="dropdown">
+      <a href="#" class="dropdown-toggle btn btn-primary" data-toggle="dropdown">Search <b class="caret"></b></a>
+      <ul class="dropdown-menu">	
+        [% FOREACH a2_search_blob = search_layout_list %]
+	[%   a2_search_id = a2_search_blob.id %]
+	[%   a2_search_name = a2_search_blob.display_name %]
+	[%   a2_search_desc = a2_search_blob.description %]
+	[%   a2_search_link = a2_search_blob.amigo_interlink %]
+	<li>
+	  <!-- <a href="[% a2_search_link %]" -->
+	  <!--    title="[% a2_search_desc %]">[% a2_search_name %]</a> -->
+	  <a href="[% a2_search_link %]"
+	     title="[% a2_search_desc %]">[% a2_search_name %]</a>
+	</li>
+	[% END %]
+      </ul>
+    </div>
   </div>
 
   <div class="col-6 col-sm-6 col-lg-4">

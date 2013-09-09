@@ -27,8 +27,6 @@
         <li class="dropdown">
           <a href="#" class="dropdown-toggle[% IF page_name == 'live_search' %] active[% END %]" data-toggle="dropdown">Search <b class="caret"></b></a>
           <ul class="dropdown-menu">
-            <!-- <li[% IF page_name == 'live_search' %] class="disabled"[% END %]><a href="[% base %]/amigo/search" title="Search for GO terms, gene product annotations, and other entities.">Search</a></li> -->
-	    <!-- start test -->
 	    [% FOREACH a2_search_blob = search_layout_list %]
 	    [%   a2_search_id = a2_search_blob.id %]
 	    [%   a2_search_name = a2_search_blob.display_name %]
@@ -41,7 +39,6 @@
 	    <!-- [% a2_search_desc %] -->
 	    <!-- [% a2_search_link %] -->
 	    [% END %]
-	    <!-- end test-->
           </ul>
         </li>
 

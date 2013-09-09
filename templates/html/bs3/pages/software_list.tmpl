@@ -10,11 +10,30 @@
   </li>
   
   <li class="list-group-item">
-    <strong>TODO:</strong> Search interactively
-    searches and filters the GO data as you type. Also allows you to
-    use a powerful search syntax (including boolean operators).
-    <!-- This page can interact with the -->
+    <p>
+    Interactively search and filter the GO data as you type. These
+    pages allow you to use a powerful search syntax (including
+    boolean operators).
+    <!-- These pages can interact with the -->
     <!-- <a title="GO Galaxy" href="[% GO_GALAXY %]">GO Galaxy</a> instance. -->
+    </p>
+    <ul class="list-unstyled">
+      [% FOREACH a2_search_blob = search_layout_list %]
+      [%   a2_search_id = a2_search_blob.id %]
+      [%   a2_search_name = a2_search_blob.display_name %]
+      [%   a2_search_desc = a2_search_blob.description %]
+      [%   a2_search_link = a2_search_blob.amigo_interlink %]
+      <li>
+	<a href="[% a2_search_link %]"
+	   title="[% a2_search_desc %]">[% a2_search_name %]</a>:
+	[% a2_search_desc %]
+      </li>
+      <!-- [% a2_search_id %] -->
+      <!-- [% a2_search_name %] -->
+      <!-- [% a2_search_desc %] -->
+      <!-- [% a2_search_link %] -->
+      [% END %]
+    </ul>
   </li>
   
   <li class="list-group-item">
