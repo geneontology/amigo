@@ -6,7 +6,7 @@
 #### PANTHERGeneralSolrDocumentLoader (optional, panther families)
 #### OntologyGeneralSolrDocumentLoader (optional, ontology terms) 
 ####
-id: bbop_general
+id: general
 schema_generating: true
 description: A generic search document to get a general overview of everything.
 display_name: General

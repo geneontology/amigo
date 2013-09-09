@@ -33,19 +33,19 @@ function LiveSearchGOlrInit(){
     ///
 
     function _establish_buttons(personality, manager){
-	if( personality == 'bbop_ann' ){
+	if( personality == 'annotation' ){
 	    manager.clear_buttons();
 	    manager.add_button(facet_matrix_button);
 	    manager.add_button(gaf_download_button);
 	    //manager.add_button(gaf_galaxy_button);
 	    manager.add_button(bookmark_button);
-	}else if( personality == 'bbop_ont' ){
+	}else if( personality == 'ontology' ){
 	    manager.clear_buttons();
 	    manager.add_button(id_label_download_button);
 	    manager.add_button(ont_flex_download_button);
 	    //manager.add_button(id_term_label_galaxy_button);
 	    manager.add_button(bookmark_button);
-	}else if( personality == 'bbop_bio' ){
+	}else if( personality == 'bioentity' ){
 	    manager.clear_buttons();
 	    manager.add_button(id_download_button);
 	    //manager.add_button(id_symbol_galaxy_button);
@@ -58,52 +58,52 @@ function LiveSearchGOlrInit(){
 
     var active_classes = [
 	{
-	    id: 'bbop_ann', 
+	    id: 'annotation', 
 	    on_click: function(manager){
 		manager.add_query_filter('document_category',
 					 'annotation', ['*']);
-		_establish_buttons('bbop_ann', manager);
+		_establish_buttons('annotation', manager);
 	    }
 	},
 	{
-	    id: 'bbop_ont',
+	    id: 'ontology',
 	    on_click: function(manager){
     		manager.add_query_filter('document_category',
 					 'ontology_class', ['*']);
-		_establish_buttons('bbop_ont', manager);
+		_establish_buttons('ontology', manager);
 	    }
 	},
 	{
-	    id: 'bbop_bio',
+	    id: 'bioentity',
 	    on_click: function(manager){
     		manager.add_query_filter('document_category',
 					 'bioentity', ['*']);
-		_establish_buttons('bbop_bio', manager);
+		_establish_buttons('bioentity', manager);
 	    }
 	},
 	{
-	    id: 'bbop_family',
+	    id: 'family',
 	    on_click: function(manager){
     		manager.add_query_filter('document_category',
 					 'family', ['*']);
-		_establish_buttons('bbop_family', manager);
+		_establish_buttons('family', manager);
 	    }
 	},
 	{
-	    id: 'bbop_general',
+	    id: 'general',
 	    on_click: function(manager){
     		manager.add_query_filter('document_category',
 					 'general', ['*']);
-		_establish_buttons('bbop_general', manager);
+		_establish_buttons('general', manager);
 	    }
-	},
-	{
-	    id: 'bbop_ann_ev_agg',
-	    on_click: function(manager){
-    		manager.add_query_filter('document_category',
-    					 'annotation_evidence_aggregate',['*']);
-		_establish_buttons('bbop_ann_ev_agg', manager);
-	    }
+	// },
+	// {
+	//     id: 'bbop_ann_ev_agg',
+	//     on_click: function(manager){
+    	// 	manager.add_query_filter('document_category',
+    	// 				 'annotation_evidence_aggregate',['*']);
+	// 	_establish_buttons('bbop_ann_ev_agg', manager);
+	//     }
 	}
     ];
 
@@ -198,7 +198,7 @@ function LiveSearchGOlrInit(){
 	btmpl.flexible_download('Flex download test (up to ' + dlimit + ')',
 				dlimit,
 				['annotation_class', 'annotation_class_label'],
-				'bbop_ont',
+				'ontology',
 				gconf);
     var bookmark_button = btmpl.bookmark(linker);
     var facet_matrix_button = btmpl.open_facet_matrix(gconf, sd);

@@ -1,7 +1,7 @@
 ####
 #### The bioentity description file for GOlr and AmiGO.
 ####
-id: bbop_family
+id: family
 schema_generating: true
 description: Information about protein (PANTHER) families.
 display_name: Protein families
