@@ -1,0 +1,170 @@
+####
+#### The annotation description file for GOlr and AmiGO.
+####
+## TODO: OWLTools will autogen an annotation label if not provided by
+## editor.
+id: lego_unit
+schema_generating: true
+description: An individual unit within LEGO.
+display_name: LEGO
+document_category: lego
+weight: 100
+boost_weights: annotation^2.0 annotation_label^1.0
+result_weights: annotation^2.0 annotation_label^1.0
+filter_weights: annotation_label^1.0
+fields:
+  - id: id
+    description: A unique (and internal) thing.
+    display_name: ID
+    type: string
+    property: []
+## Annotation
+  - id: annotation
+    description: ???.
+    display_name: Annotation
+    type: string
+    property: []
+  - id: annotation_label
+    description: ???.
+    display_name: Annotation
+    type: string
+    property: []
+    searchable: true
+## Enabled by
+  - id: enabled_by
+    description: ???
+    display_name: Enabled by
+    type: string
+    property: []
+    searchable: true
+  - id: enabled_by_label
+    description: ???
+    display_name: Enabled by
+    type: string
+    property: []
+    searchable: true
+## PANTHER
+  - id: panther_family
+    description: PANTHER family IDs that are associated with this entity.
+    display_name: PANTHER family
+    type: string
+    searchable: true
+    property: []
+  - id: panther_family_label
+    description: PANTHER families that are associated with this entity.
+    display_name: PANTHER family
+    type: string
+    searchable: true
+    property: []
+## Taxon
+  - id: taxon
+    description: "GAF column 13 (taxon)."
+    display_name: Taxon
+    type: string
+    property: []
+  - id: taxon_label
+    description: "Taxon derived from GAF column 13 and ncbi_taxonomy.obo."
+    display_name: Taxon
+    type: string
+    property: []
+    searchable: true
+  - id: taxon_closure
+    description: "Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo."
+    display_name: Taxon (IDs)
+    type: string
+    cardinality: multi
+    property: []
+  - id: taxon_closure_label
+    description: "Taxon label closure derived from GAF column 13 and ncbi_taxonomy.obo."
+    display_name: Taxon
+    type: string
+    cardinality: multi
+    property: []
+    searchable: true
+## Function
+  - id: function_class
+    description: Function acc/ID.
+    display_name: Function
+    type: string
+    property: []
+  - id: function_class_label
+    description: Common function name.
+    display_name: Function
+    type: string
+    property: []
+    searchable: true
+  - id: function_class_closure
+    description: "???"
+    display_name: Function
+    type: string
+    cardinality: multi
+    property: []
+  - id: function_class_closure_label
+    description: "???"
+    display_name: Function
+    type: string
+    cardinality: multi
+    property: []
+    searchable: true
+## Process
+  - id: process_class
+    description: Process acc/ID.
+    display_name: Process
+    type: string
+    property: []
+  - id: process_class_label
+    description: Common process name.
+    display_name: Process
+    type: string
+    property: []
+    searchable: true
+  - id: process_class_closure
+    description: "???"
+    display_name: Process
+    type: string
+    cardinality: multi
+    property: []
+  - id: process_class_closure_label
+    description: "???"
+    display_name: Process
+    type: string
+    cardinality: multi
+    property: []
+    searchable: true
+## Location
+  - id: location_list
+    description: ""
+    display_name: Location
+    type: string
+    cardinality: multi
+    property: []
+  - id: location_list_label
+    description: ""
+    display_name: Location
+    type: string
+    cardinality: multi
+    property: []
+  - id: location_list_closure
+    description: ""
+    display_name: Location
+    type: string
+    cardinality: multi
+    property: []
+  - id: location_list_closure_label
+    description: ""
+    display_name: Location
+    type: string
+    cardinality: multi
+    property: []
+  # - id: owl_blob_json
+  #   description: ???
+  #   display_name: ???
+  #   type: string
+  #   property: []
+  #   indexed: false
+  - id: topology_graph_json
+    description: JSON blob form of the local stepwise topology graph.
+    display_name: Topology graph (JSON)
+    type: string
+    property: []
+    indexed: false
