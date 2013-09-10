@@ -78,7 +78,7 @@ function GeneralSearchForwardingInit(){
 	'list_select_callback': forward
     };
     var auto = new a_widget(sd.golr_base(), gconf, 'gsf-query', general_args);
-    auto.set_personality('bbop_general'); // profile in gconf
+    auto.set_personality('general'); // profile in gconf
     auto.add_query_filter('document_category', 'general');
     auto.add_query_filter('category', 'family', ['-']);
 }

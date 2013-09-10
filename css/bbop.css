@@ -120,13 +120,15 @@
     width: 50%;
 }
 .bbop-js-ui-drop-select-shield-target {
-    border: 1px solid #3875D7;
-    padding: 5px;
+    /* border: 1px solid #3875D7; */
+    /* padding: 5px; */
 }
 .bbop-js-ui-drop-select-shield {
     list-style-type: none;
     margin: 5px;
     font-size: 85%;
+    border: 1px solid #3875D7;
+    padding: 5px;
     /* width: 60%; */
 }
 .bbop-js-ui-drop-select-shield li {
@@ -145,6 +147,16 @@
 /* .bbop-js-ui-drop-select-shield li span span .ui-icon { */
 /*     display: inline-block; */
 /* } */
+
+.bbop-js-ui-list-select-shield-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+.bbop-js-ui-list-select-shield-table {
+    width: 100%;
+    /* padding-left: 1em; */
+    /* padding-right: 1em; */
+}
 
 /*
  * bbop.widget.spinner classes.

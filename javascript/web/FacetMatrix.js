@@ -34,51 +34,8 @@ function FacetMatrixInit(){
     var results_head = '#' + 'facet_matrix_results_a_head';
     var results_div = '#' + 'facet_matrix_results_a_div';
     var bookmark_info = '#' + 'facet_matrix_info';
-    var hover_id = '#' + 'facet_matrix_cell_info';
-    var pwidget = '#' + 'progress-widget';
-    var plabel = '#' + 'progress-label';
-
-    ///
-    /// Setup JS UI.
-    ///
-
-    // Hide the hover until we need it.
-    jQuery(hover_id).hide();
-
-    // Make unnecessary things roll up.
-    amigo.ui.rollup(["inf01"]);
-
-    // Start the progressbar.
-    var prog_attrs = {
-	value: false,
-	change: function(){
-	    jQuery(plabel).text( jQuery(pwidget).progressbar('value') + "%" );
-	},
-	complete: function(){
-	    jQuery(plabel).text( "Complete!" );
-	}
-    };
-    jQuery(pwidget).progressbar(prog_attrs);
-
-    // Actually, should be unnecessary as most of these should be
-    // caught in perl.
-    // // First off, let's verify that we have the right environment to
-    // // run.
-    // var env_errors = 0;
-    // try {
-    // 	each([global_facet1, global_facet2, global_manager],
-    // 	     function(invar){
-    // 		 if( ! is_def(invar) || invar == '' ){
-    // 		     env_errors++;
-    // 		 }
-    // 	     });
-    // } catch (x) {
-    // 	env_errors++;
-    // }
-    // if( env_errors > 0 ){
-    // 	alert("Not the right environment.");
-    // 	//return 0;
-    // }
+    var pwidget_bs3_container = '#' + 'progress-widget-bs3-container';
+    var pwidget_bs3_bar = '#' + 'progress-widget-bs3-bar';
 
     ///
     /// Manager.
@@ -110,7 +67,10 @@ function FacetMatrixInit(){
     meta_cache.push('<em>filters</em>: ' + qf_cache.join(', '));
 
     // Add to DOM.
-    var info_list_attrs = {};
+    var info_list_attrs = {
+	// 'class': 'amigo-facet-matrix-bookmark-list'
+	'class': 'list-unstyled' // bs3
+    };
     var info_list = new bbop.html.list(meta_cache, info_list_attrs);
     jQuery(bookmark_info).empty();
     jQuery(bookmark_info).append(info_list.to_string());
@@ -171,20 +131,6 @@ function FacetMatrixInit(){
 	     });
 	ll('id_to_index: ' + id_to_index);
 
-	// // We know what in indices will look like now, so go ahead an
-	// // reinit the matrix variable.
-	// matrix = [];
-	// each(f1,
-	//      function(f1_set, f1_index){
-	// 	 var cache_row = [];
-	// 	 each(f2,
-	// 	      function(f2_set, f2_index){
-	// 		  cache_row.push(null);
-	// 	      });
-	// 	 matrix.push(cache_row);
-	//      });
-	
-
 	// Now collect the batch URLs along one facet in reference to
 	// the other (arbitrary)--we should be able to get what we
 	// want by just looking at once facet and checking the other
@@ -215,7 +161,10 @@ function FacetMatrixInit(){
 	    reqs_done++;
 	    var per = Math.round((reqs_done / reqs_to_do) * 100);
 	    //ll(reqs_done + ' of ' + reqs_to_do + ' = ' + per + '%');
-	    jQuery(pwidget).progressbar('value', per);
+	    // jQuery(pwidget).progressbar('value', per);
+
+	    jQuery(pwidget_bs3_bar).css('width', per + '%');
+	    jQuery(pwidget_bs3_bar).attr('aria-valuenow', per);
 
 	    // Recover the facet that we're currently looking at: 1.
     	    var fq_set = resp.parameter('fq');
@@ -259,18 +208,6 @@ function FacetMatrixInit(){
 		     if( results_val > max_val ){
 			 max_val = results_val;
 		     }
-
-		     // // Now create the proper matrix data structure
-		     // // around the data we've pulled.
-		     // var f1_map = id_to_index[f1_name];
-		     // var f2_map = id_to_index[f2_name];
-		     // var matrix_data = {
-		     // 	 x: f1_map,	 
-		     // 	 y: f2_map,	 
-		     // 	 z: results_val	 
-		     // };
-		     // matrix[f1_map][f2_map] = matrix_data;
-		     // matrix[f2_map][f1_map] = matrix_data;
 
 		     // While we're here, let's also create a lookup
 		     // structure.
@@ -338,7 +275,7 @@ function FacetMatrixInit(){
 	var final_fun = function(){
 
 	    // We are done!
-	    jQuery(pwidget).hide();
+	    jQuery(pwidget_bs3_container).hide();
 
 	    //render(matrix, nodes, max_val);
 	    render();
@@ -438,7 +375,11 @@ function FacetMatrixInit(){
 		 });
 
 	    //var tbl = new bbop.html.table(title_list);
-	    var table = new bbop.html.tag('table', {generate_id: true});
+	    var table_attrs = {
+		'generate_id': true,
+		'class': 'table' // bs3
+	    };
+	    var table = new bbop.html.tag('table', table_attrs);
 	    table.add_to(thead);
 	    table.add_to(tbody);
 
@@ -453,39 +394,11 @@ function FacetMatrixInit(){
 
 	// Add tooltips.
 	//var tt_args = {'position': {'my': 'left bottom', 'at': 'right top'}};
-	var tt_args = {};
+	var tt_args = {
+	    'position': {'my': 'center bottom-5', 'at': 'center top'},
+	    'tooltipClass': 'amigo-searchbar-tooltip-style'
+	};
 	jQuery('.bbop-js-tooltip').tooltip(tt_args);
-
-	// // Add hover events to cells.
-	// each(td_id_to_data,
-	//      function(td_id, td_data){
-	// 	 jQuery('#' + td_id).mouseenter(
-	// 	     function(event){
-	// 		 var eid = event.target.id;
-	// 		 var edata = td_id_to_data[eid];
-	// 		 jQuery(hover_id).empty();
-	// 		 jQuery(hover_id).append(
-	// 		     edata.y + ', ' + edata.x + ': ' + edata.z);
-	// 		 jQuery(hover_id).show();
-	// 	     });
-	// 	 jQuery('#' + td_id).mouseleave(
-	// 	     function(event){
-	// 		 var eid = event.target.id;
-	// 		 jQuery(hover_id).hide();
-	// 	     });
-	// 	 jQuery('#' + td_id).mousemove(
-	// 	     function(event){
-	// 		 if( jQuery(hover_id).is(':visible') ){
-	// 		     //var eid = event.target.id;
-	// 		     var pre_x = event.pageX;
-	// 		     var pre_y = event.pageY;			     
-	// 		     var xpos = pre_x + 10;
-	// 		     var ypos = pre_y + 10;
-	// 		     jQuery(hover_id).css('left', xpos);
-	// 		     jQuery(hover_id).css('top', ypos);
-	// 		 }
-	// 	     });
-	//      });
 
 	//
 	ll('Completed render!');

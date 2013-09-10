@@ -32,9 +32,9 @@ sub setup {
 			COOKIE_PARAMS => {-path  => '/'},
 			SEND_COOKIE => 1);
 
-  ## Templates.
-  $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
-			 '/templates/html');
+  # ## Templates.
+  # $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
+  # 			 '/templates/html');
 
   $self->mode_param('mode');
   $self->start_mode('facet_matrix');
@@ -75,51 +75,55 @@ sub mode_facet_matrix {
   $self->set_template_parameter('page_title',
 				'Facet Matrix');
   $self->set_template_parameter('content_title',
-				'Facet Matrix');
-  ##
-  my $prep =
-    {
-     css_library =>
-     [
-      'standard', # basic GO-styles
-      'com.jquery.jqamigo.custom',
-     ],
-     javascript_library =>
-     [
-      'org.d3',
-      'com.jquery',
-      'com.jquery-ui',
-      'com.jquery.tablesorter',
-      #'com.jquery.jstree',
-      'bbop',
-      'amigo',
-     ],
-     javascript =>
-     [
-     ]
-    };
+				#'Facet Matrix: Compare Facet Counts');
+				'Compare Facet Counts');
 
-  ## only attempt launch if everything is fine.
+  ## Only attempt launch if everything is fine.
   if( $facet1 && $facet2 && $manager ){
-    push @{$prep->{javascript}},
-      $self->{JS}->make_var('global_facet1', $facet1);
-    push @{$prep->{javascript}},
-      $self->{JS}->make_var('global_facet2', $facet2);
-    push @{$prep->{javascript}},
-      $self->{JS}->make_var('global_manager', $manager);
-    push @{$prep->{javascript}},
-      $self->{JS}->get_lib('FacetMatrix.js');
-    push @{$prep->{javascript_init}},
-      'FacetMatrixInit();';
+    my $prep =
+      {
+       css_library =>
+       [
+	#'standard',
+	'com.bootstrap',
+	'com.jquery.jqamigo.custom',
+	'amigo',
+	'bbop'
+       ],
+     javascript_library =>
+       [
+	'org.d3',
+	'com.jquery',
+	'com.bootstrap',
+	'com.jquery-ui',
+	'com.jquery.tablesorter',
+	'bbop',
+	'amigo'
+       ],
+       javascript =>
+       [
+	$self->{JS}->make_var('global_facet1', $facet1),
+	$self->{JS}->make_var('global_facet2', $facet2),
+	$self->{JS}->make_var('global_manager', $manager),
+	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
+	$self->{JS}->get_lib('FacetMatrix.js')
+       ],
+       javascript_init =>
+       [
+	'GeneralSearchForwardingInit();',
+	'FacetMatrixInit();'
+       ],
+       content =>
+       [
+	'pages/facet_matrix.tmpl'
+       ]
+      };
+    $self->add_template_bulk($prep);
+    $output = $self->generate_template_page_with();
+    return $output;
+  }else{
+    return $self->mode_fatal("Not enough information to bootstrap process.");
   }
-
-  ## Load in template.
-  $self->add_template_bulk($prep);
-
-  $self->add_template_content('pages/facet_matrix.tmpl');
-  $output = $self->generate_template_page();
-
-  return $output;
 }
 
 
