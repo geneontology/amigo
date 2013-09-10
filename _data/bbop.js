@@ -15447,7 +15447,8 @@ bbop.widget.list_select_shield = function(in_argument_hash){
 	// Now we have a list of all the items, put them into a UL
 	// element.
 	var ul_list_attrs = {
-	    'generate_id': true
+	    'generate_id': true,
+	    'class': 'bbop-js-ui-list-select-shield-list'
 	};
 	var ul_list = new bbop.html.list(list_cache, ul_list_attrs);
 
@@ -15464,8 +15465,11 @@ bbop.widget.list_select_shield = function(in_argument_hash){
     jQuery('#' + div_id).append('<p>' + blurb + '</p>');
 
     // Add the table of lists to div.
-    var tbl = new bbop.html.table(title_list);
-    var lol_cache = [];
+    var cont_table_attrs = {
+	'class': 'bbop-js-ui-list-select-shield-table'
+    };
+    var tbl = new bbop.html.table(title_list, [], cont_table_attrs);
+    var lol_cache = []; // not funny: list of lists
     each(list_of_lists,
 	 function(sub_list){
 	     lol_cache.push(_draw_radio_list(sub_list));
