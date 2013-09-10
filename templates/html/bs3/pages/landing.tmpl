@@ -25,90 +25,70 @@
 <div class="row">
 
   <div class="col-6 col-sm-6 col-lg-4">
-    <h2>Search</h2>
-    <img src="[% image_dir %]/magnifying-glass.50.png"
-	 title="Go to the Search page."
-	 class="img-rounded"
-	 alt="[Search]" />
-    <p>
-      Search the Gene Ontology data for
-      annotations, gene products, and terms.
-    </p>
-    <div class="dropdown">
-      <a href="#" class="dropdown-toggle btn btn-primary" data-toggle="dropdown">Search <b class="caret"></b></a>
-      <ul class="dropdown-menu">	
-        [% FOREACH a2_search_blob = search_layout_list %]
-	[%   a2_search_id = a2_search_blob.id %]
-	[%   a2_search_name = a2_search_blob.display_name %]
-	[%   a2_search_desc = a2_search_blob.description %]
-	[%   a2_search_link = a2_search_blob.amigo_interlink %]
-	<li>
-	  <!-- <a href="[% a2_search_link %]" -->
-	  <!--    title="[% a2_search_desc %]">[% a2_search_name %]</a> -->
-	  <a href="[% a2_search_link %]"
-	     title="[% a2_search_desc %]">[% a2_search_name %]</a>
-	</li>
-	[% END %]
-      </ul>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+	<h3 class="panel-title">Search</h3>
+      </div>
+      <div class="panel-body">
+	<img src="[% image_dir %]/magnifying-glass.50.png"
+	     title="Go to a Search page."
+	     class="img-rounded"
+	     alt="[Search]" />
+	<p>
+	  Interactively <strong>search</strong> the Gene Ontology data
+	  for annotations, gene products, and terms using a powerful
+	  search syntax.
+	</p>
+	<div class="dropdown">
+	  <a href="#" class="dropdown-toggle btn btn-primary"
+	     data-toggle="dropdown">Search <b class="caret"></b></a>
+	  <ul class="dropdown-menu">	
+            [% FOREACH a2_search_blob = search_layout_list %]
+	    [%   a2_search_id = a2_search_blob.id %]
+	    [%   a2_search_name = a2_search_blob.display_name %]
+	    [%   a2_search_desc = a2_search_blob.description %]
+	    [%   a2_search_link = a2_search_blob.amigo_interlink %]
+	    <li>
+	      <!-- <a href="[% a2_search_link %]" -->
+	      <!--    title="[% a2_search_desc %]">[% a2_search_name %]</a> -->
+	      <a href="[% a2_search_link %]"
+		 title="[% a2_search_desc %]">[% a2_search_name %]</a>
+	    </li>
+	    [% END %]
+	  </ul>
+	</div>
+      </div>
     </div>
   </div>
-
-  <div class="col-6 col-sm-6 col-lg-4">
-    <h2>Grebe</h2>
-      <img src="[% image_dir %]/grebe.50.png"
-	   title="Go to the Search Wizard page."
-	   class="img-rounded"
-	   alt="[Search Wizard]" />
-    <p>
-      Use the Grebe Search Wizard to <strong>get started</strong> in exploring
-      the Gene Ontology data.
-    </p>
-    <p>
-      <a class="btn btn-primary" href="[% interlink_grebe %]">Go &raquo;</a>
-    </p>
-  </div>
-
-    <!--   <a href="[% interlink_browse %]"> -->
-    <!-- 	<img src="[% image_dir %]/browse-icon.50.png" -->
-    <!-- 	     title="Go to the Browse page." -->
-    <!-- 	     alt="[Browse]" /> -->
-    <!-- 	Interactively <strong>browse the graph</strong> of the Gene -->
-    <!-- 	Ontology term data. -->
-    <!--   </a> -->
-    <!-- </td> -->
-
-  <div class="col-6 col-sm-6 col-lg-4">
-    <h2>GOOSE</h2>
-    <img src="[% image_dir %]/goose-1.50.png"
-	 title="Go to GOOSE."
-	 class="img-rounded"
-	 alt="[GOOSE]" />
-    <p>
-      Use GOOSE to query
-      a legacy GO database with <strong>SQL</strong> or edit one of the templates.
-    </p>
-    <p>
-      <a class="btn btn-primary" href="[% interlink_goose %]">Go &raquo;</a>
-    </p>
-  </div>
-
-  <div class="col-6 col-sm-6 col-lg-4">
-    <h2>Statistics</h2>
-    <img src="[% image_dir %]/stats-generic.50.png"
-	 title="Go to the statistics page."
-	 class="img-rounded"
-	 alt="[Statistics]" />
-    <p>
-      View the most recent <strong>statistics</strong> about the Gene Ontology data.
-    </p>
-    <p>
-      <a class="btn btn-primary" href="http://beta.geneontology.org/page/current-go-statistics">Go &raquo;</a>
-    </p>
-  </div>
-
-
+  
+  [% landing_item_header = "Grebe" %]
+  [% landing_item_image = image_dir _ "/grebe.50.png" %]
+  [% landing_item_body = "Use the Grebe Search Wizard to <strong>get started</strong> in exploring the Gene Ontology data." %]
+  [% landing_item_link = interlink_grebe %]
+  [% INCLUDE "common/landing_item.tmpl" %]
+  
+  <!--   <a href="[% interlink_browse %]"> -->
+  <!-- 	<img src="[% image_dir %]/browse-icon.50.png" -->
+  <!-- 	     title="Go to the Browse page." -->
+  <!-- 	     alt="[Browse]" /> -->
+  <!-- 	Interactively <strong>browse the graph</strong> of the Gene -->
+  <!-- 	Ontology term data. -->
+  <!--   </a> -->
+  <!-- </td> -->
+  
+  [% landing_item_header = "GOOSE" %]
+  [% landing_item_image = image_dir _ "/goose-1.50.png" %]
+  [% landing_item_body = "Use GOOSE to query a legacy GO database with <strong>SQL</strong> or edit one of the templates." %]
+  [% landing_item_link = interlink_goose %]
+  [% INCLUDE "common/landing_item.tmpl" %]
+  
+  [% landing_item_header = "Statistics" %]
+  [% landing_item_image = image_dir _ "/stats-generic.50.png" %]
+  [% landing_item_body = "View the most recent <strong>statistics</strong> about the Gene Ontology data." %]
+  [% landing_item_link = "http://beta.geneontology.org/page/current-go-statistics" %]
+  [% INCLUDE "common/landing_item.tmpl" %]
+  
 <!-- <table class="amigo-landing-navigation amigo-landing-navigation-beta"> -->
-
 <!--   <tr> -->
 <!--     <td> -->
 <!--       <a href="[% base %]/amigo/browse"> -->
