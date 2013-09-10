@@ -1,0 +1,50 @@
+<!-- Start: facet_matrix.tmpl -->
+
+[% INCLUDE common/noscript_js_necessary.tmpl %]
+
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Information about Facet Matrix" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<p>
+  This tool is used for quick visual inspection of two facets'
+  document counts against each other.
+</p>
+<p>
+  There is no way to access this page directly, but it can be
+  launched from the Search page on some templates using the matrix button.
+</p>
+<p>
+  There is currently a limit of 50 facets on each axis.
+</p>
+[% INCLUDE "common/info_rollup_end.tmpl" %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Incoming bookmark data</h3>
+  </div>
+  <div class="panel-body">
+    <div id="facet_matrix_info">Loading data...</div>
+  </div>
+</div>
+
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title" id="facet_matrix_results_a_head">Matrix for: </h3>
+  </div>
+  <div class="panel-body">
+
+    <!-- Progress bar. -->
+    <div id="progress-widget-bs3-container"
+	 class="progress progress-striped active">
+      <div id="progress-widget-bs3-bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+	<span class="sr-only">Working...</span>
+      </div>
+    </div>
+ 
+    <!-- Dynamic table will go here. -->
+    <div id="facet_matrix_results_a_div"></div>
+    
+  </div>
+</div>
+<!-- End: facet_matrix.tmpl -->
