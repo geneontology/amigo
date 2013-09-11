@@ -11891,8 +11891,8 @@ bbop.widget.display.results_table_by_class = function(cclass,
 
     // Temp logger.
     var logger = new bbop.logger();
-    logger.DEBUG = true;
-    //logger.DEBUG = false;
+    //logger.DEBUG = true;
+    logger.DEBUG = false;
     function ll(str){ logger.kvetch('RTBCC: ' + str); }
 
     // Conveience aliases.
@@ -13057,14 +13057,18 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	// Add header section.
 	var hargs = {
 	    generate_id: true,
-	    'classes': 'bbop-widget-search_pane-spinner-element'
+	    'class': 'bbop-widget-search_pane-spinner-element'
 	};
-	var header = new bbop.html.tag('h2', hargs, 'Found entities&nbsp;');
+	//var header = new bbop.html.tag('h2', hargs, 'Found entities&nbsp;');
+	var header = new bbop.html.tag('h4', hargs, 'Found entities&nbsp;');
 	block.add_to(header);
 
 	// If wanted, add meta to display queue.
 	if( add_meta_p ){	    
-	    var meta = new bbop.html.tag('div', {'id': ui_meta_div_id});
+	    var meta_attrs = {
+		'id': ui_meta_div_id
+	    };
+	    var meta = new bbop.html.tag('div', meta_attrs);
 	    block.add_to(meta);
 	}
 
@@ -13073,12 +13077,6 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	block.add_to(results);
 
 	jQuery('#' + ui_results_section_id).append(block.to_string());
-
-	// Now that the block is added, we can add the spinner to our
-	// larger context. Safe access functions defined elsewhere.
-	if( add_spinner_p ){
-	    _spinner_gen(header.get_id());
-	}
 
 	// If wanted, add initial render of meta.
 	if( add_meta_p ){	    
@@ -13095,6 +13093,13 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 		    'class="bbop-js-spinner"/>';
 		jQuery('#' + ui_meta_div_id).append(init_spin_str);
 	    }
+
+	}
+
+	// Now that the block is added, we can add the spinner to our
+	// larger context. Safe access functions defined elsewhere.
+	if( add_spinner_p ){
+	    _spinner_gen(header.get_id());
 	}
     };
 
@@ -13237,7 +13242,11 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	    var sel = new bbop.html.tag('select', sel_attrs, cinputs);
 	    
 	    // Create a text label.
-	    var sel_label = new bbop.html.tag('label', {},
+	    var sel_label_attrs = {
+		// 'generate_id': true,
+		// 'class': 'bbop-widget-search_pane-spinner-element'
+	    };
+	    var sel_label = new bbop.html.tag('label', sel_label_attrs,
 					      'Results count&nbsp;&nbsp;');
 	    
 	    // Container div.
