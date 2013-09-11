@@ -11528,7 +11528,8 @@ bbop.widget.display.button_templates.field_download = function(label,
 /*
  * Method: bookmark
  * 
- * Generate the template for a simple bookmark button with pop-up.
+ * Generate the template for a simple bookmark (for search) button
+ * with pop-up.
  * 
  * Arguments:
  *  linker - the linker to be used for this bookmarking
@@ -11549,6 +11550,7 @@ bbop.widget.display.button_templates.bookmark = function(linker){
 		    //alert('GAF download: ' + manager.get_query_url());
 		    //alert('URL: ' + manager.get_query_url());
 		    var raw_bookmark = manager.get_state_url();
+		    var curr_personality = manager.get_personality();
 		    var a_args = {
 			// Since we're using the whole URI as a
 			// parameter, we use the heavy hitter on top
@@ -11556,7 +11558,8 @@ bbop.widget.display.button_templates.bookmark = function(linker){
 			id: encodeURIComponent(raw_bookmark),
 			label: 'this search'
 		    };
-		    new bbop.widget.dialog('<p>Bookmark for: ' + linker.anchor(a_args, 'search') + '</p><p>Please be aware that this bookmark does not save properties like currently selected items.</p>',
+		    
+		    new bbop.widget.dialog('<p>Bookmark for: ' + linker.anchor(a_args, 'search', curr_personality) + '</p><p>Please be aware that <strong>this bookmark does not save properties</strong> like currently selected items.</p><p>The AmiGO 2 bookmarking method may change in the future: at this point, <strong>it is intended as a temporary method</strong> (days, not weeks or months) of allowing the reruning of searches using a link.</p>',
 					   {'title': 'Bookmark'});
 		};
 	    }
