@@ -65,6 +65,15 @@ amigo.linker = function (){
         'search': true,
 	'live_search': true
     };
+    this.search_modifier = {
+	'gene_product': '/bioentity',
+	'bioentity': '/bioentity',
+	'ontology': '/ontology',
+	'annotation': '/annotation',
+	'family': '/family',
+	'lego_unit': '/lego_unit',
+	'general': '/general'
+    };
 };
 
 /*
@@ -75,11 +84,12 @@ amigo.linker = function (){
  * Arguments:
  *  args - id
  *  xid - *[optional]* an internal transformation id
+ *  modifier - *[optional]* modify xid; only used with xid
  * 
  * Returns:
  *  string (url); null if it couldn't create anything
  */
-amigo.linker.prototype.url = function (id, xid){
+amigo.linker.prototype.url = function (id, xid, modifier){
     
     var retval = null;
 
@@ -95,17 +105,22 @@ amigo.linker.prototype.url = function (id, xid){
 		//retval = 'amigo?mode=gene_product&gp=' + id;
 		retval = this.app_base + '/amigo/gene_product/' + id;
             }else if( this.search_category[xid] ){
+		// First, try and get the proper path out. Will
+		// hardcode for now since some paths don't map
+		// directly to the personality.
+		var search_path = '';
+		if( this.search_modifier[modifier] ){
+		    search_path = this.search_modifier[modifier];
+		}
+
+		retval = this.app_base + '/amigo/search' + search_path;
 		if( id ){
-		    //retval = 'amigo?mode=search&bookmark=' + id;
-		    retval = this.app_base +'/amigo/search?bookmark='+ id;
-		}else{
-		//retval = 'amigo?mode=search';
-		    retval = this.app_base + '/amigo/search';
+		    retval = retval + '?bookmark='+ id;
 		}
 	    }
 	}
 
-	// Since we couldn't find anything with our explicit
+	// Since we couldn't find anything with our explicit local
 	// transformation set, drop into the great abyss of the xref data.
 	if( ! retval ){
 	    if( ! amigo.data.xrefs ){
@@ -141,11 +156,12 @@ amigo.linker.prototype.url = function (id, xid){
  * Arguments:
  *  args - hash--'id' required; 'label' and 'hilite' are inferred if not extant
  *  xid - *[optional]* an internal transformation id
+ *  rest - *[optional]* modify xid; only used with xid
  * 
  * Returns:
  *  string (link); null if it couldn't create anything
  */
-amigo.linker.prototype.anchor = function(args, xid){
+amigo.linker.prototype.anchor = function(args, xid, modifier){
     
     var anchor = this;
     var retval = null;
@@ -166,7 +182,7 @@ amigo.linker.prototype.anchor = function(args, xid){
 	    if( ! hilite ){ hilite = label; }
 	
 	    // See if the URL is legit. If it is, make something for it.
-	    var url = this.url(id, xid);
+	    var url = this.url(id, xid, modifier);
 	    if( url ){
 		
 		// First, see if it is one of the internal ones we know about

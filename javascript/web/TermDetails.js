@@ -49,7 +49,7 @@ function TermDetailsInit(){
 					  'display-associations',
 					  gps_args);
     // Set the manager profile.
-    gps.set_personality('bbop_ann'); // profile in gconf
+    gps.set_personality('annotation'); // profile in gconf
     gps.include_highlighting(true);
 
     // Two sticky filters.
@@ -82,7 +82,7 @@ function TermDetailsInit(){
     
     // Get bookmark.
     var relman = new bbop.golr.manager.jquery(solr_server, gconf);
-    relman.set_personality('bbop_bio');
+    relman.set_personality('bioentity');
     relman.add_query_filter('document_category', 'bioentity', ['*']);
     relman.add_query_filter('regulates_closure', global_acc);
     //ll('qurl: ' + relman.get_query_url());
@@ -90,7 +90,8 @@ function TermDetailsInit(){
 
     // Generate the link.
     var al = new amigo.linker();
-    var hot_anchor = al.anchor({id:relstate, label:'Search'}, 'search');
+    var hot_anchor = al.anchor({id:relstate, label:'Search'},
+			       'search', 'bioentity');
 
     // Add it to the DOM.
     var rtid = "#related-terms-span";

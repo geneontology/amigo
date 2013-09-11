@@ -44,7 +44,7 @@ function GPDetailsInit(){
 					  'display-associations',
 					  gps_args);
     // Set the manager profile.
-    gps.set_personality('bbop_ann'); // profile in gconf
+    gps.set_personality('annotation'); // profile in gconf
     gps.include_highlighting(true);
 
     // Two sticky filters.
