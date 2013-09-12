@@ -19,13 +19,6 @@ function LiveSearchGOlrInit(){
     // Aliases.
     var loop = bbop.core.each;
 
-    // // Make unnecessary things roll up.
-    // amigo.ui.rollup(["inf01"]);
-
-    // // Use jQuery UI to tooltip-ify doc.
-    // var tt_args = {'position': {'my': 'left bottom', 'at': 'right top'}};
-    // jQuery('.bbop-js-tooltip').tooltip(tt_args);
-
     ///
     /// A description of the active buttons and what to do when they
     /// are clicked. Very likely the only thing that you'd have to
@@ -33,6 +26,7 @@ function LiveSearchGOlrInit(){
     ///
 
     function _establish_buttons(personality, manager){
+	ll('Using _establish_buttons');
 	if( personality == 'annotation' ){
 	    manager.clear_buttons();
 	    manager.add_button(facet_matrix_button);
@@ -56,82 +50,38 @@ function LiveSearchGOlrInit(){
 	}
     }
 
-    var active_classes = [
-	{
-	    id: 'annotation', 
-	    on_click: function(manager){
-		manager.add_query_filter('document_category',
-					 'annotation', ['*']);
-		_establish_buttons('annotation', manager);
-	    }
-	},
-	{
-	    id: 'ontology',
-	    on_click: function(manager){
-    		manager.add_query_filter('document_category',
-					 'ontology_class', ['*']);
-		_establish_buttons('ontology', manager);
-	    }
-	},
-	{
-	    id: 'bioentity',
-	    on_click: function(manager){
-    		manager.add_query_filter('document_category',
-					 'bioentity', ['*']);
-		_establish_buttons('bioentity', manager);
-	    }
-	},
-	{
-	    id: 'family',
-	    on_click: function(manager){
-    		manager.add_query_filter('document_category',
-					 'family', ['*']);
-		_establish_buttons('family', manager);
-	    }
-	},
-	{
-	    id: 'general',
-	    on_click: function(manager){
-    		manager.add_query_filter('document_category',
-					 'general', ['*']);
-		_establish_buttons('general', manager);
-	    }
-	// },
-	// {
-	//     id: 'bbop_ann_ev_agg',
-	//     on_click: function(manager){
-    	// 	manager.add_query_filter('document_category',
-    	// 				 'annotation_evidence_aggregate',['*']);
-	// 	_establish_buttons('bbop_ann_ev_agg', manager);
-	//     }
-	}
-    ];
-
-    // Helper function to pull out class by id.
-    function _get_active_class(cid){
-	var retcls = null;
-	loop(active_classes,
-	     function(acls, index){
-		 //ll("index: " + index);		 
-		 //ll("acls['id']: " + acls['id']);		 
-		 if( acls['id'] == cid ){
-		     retcls = acls;
-		 }
-	     });
-	return retcls;
-    }
-
-    ///
-    /// Tabify the layout if we can (may be in a non-tabby version).
-    ///
-
-    // var dtabs = jQuery("#display-tabs");
-    // if( dtabs ){
-    // 	ll('Apply tabs...');
-    // 	jQuery("#display-tabs").tabs();
-    // 	//dtabs.tabs();
-    // 	jQuery("#display-tabs").tabs('select', 0);
-    // }
+    var active_classes = {
+    	'annotation': function(manager){
+    	    manager.add_query_filter('document_category',
+    				     'annotation', ['*']);
+    	    _establish_buttons('annotation', manager);
+    	},
+    	'ontology': function(manager){
+    	    manager.add_query_filter('document_category',
+    				     'ontology_class', ['*']);
+    	    _establish_buttons('ontology', manager);
+    	},
+    	'bioentity': function(manager){
+    	    manager.add_query_filter('document_category',
+    				     'bioentity', ['*']);
+    	    _establish_buttons('bioentity', manager);
+    	},
+    	'family': function(manager){
+    	    manager.add_query_filter('document_category',
+    				     'family', ['*']);
+    	    _establish_buttons('family', manager);
+    	},
+    	'general': function(manager){
+    	    manager.add_query_filter('document_category',
+    				     'general', ['*']);
+    	    _establish_buttons('general', manager);
+    	// },
+    	// 'bbop_ann_ev_agg': function(manager){
+    	//     manager.add_query_filter('document_category',
+    	// 			     'annotation_evidence_aggregate',['*']);
+    	//     _establish_buttons('bbop_ann_ev_agg', manager);
+    	}
+    };
 
     ///
     /// Ready the configuration that we'll use.
@@ -255,209 +205,105 @@ function LiveSearchGOlrInit(){
     // through the widget.
     search.include_highlighting(true);
     
-    // NOTE: We leave the rest of the configuration to the triggered
-    // button click below.
-
     ///
-    /// Enable search class switching.
-    /// 
+    /// Handle setup:
+    ///  1) We /need/ to have a personality defined. If not, it is an error--
+    ///     we no longer do the (confusing) tabbed-switch approach.
+    ///  2) Process incoming queries (into manager).
+    ///  3) Process incoming bookmarks (into manager).
+    ///  4) Render manager state to display.
+    ///
+ 
+    // 1) Check for incoming personality.
+    // A little handling if we came in on a personality dispatch.
+    if( ! global_live_search_personality ||
+	global_live_search_personality == ''){
+	ll('ERROR: No personality defined, cannot continue.');
+	alert('ERROR: No personality defined, cannot continue.');
+    }else{
+	ll("Detected dispatch argument: " + global_live_search_personality);
 
-    // Process to switch the search into a different type.
-    function _on_search_select(string_or_event){
+	// _on_search_select(global_live_search_personality);
+	search.set_personality(global_live_search_personality);
+	search.lite(true);
 
-	// Recover the 'id' of the clicked element if we didn't
-	// already define it as a string argument. If it's not a
-	// string argument, it's probably an event.
-	var cid = string_or_event; // string
-	if( bbop.core.what_is(string_or_event) != 'string' ){ // event
-    	    cid = jQuery(this).attr('id');	    
-    	    //cid = jQuery(this).val();
+	// 2) Process incoming queries (into manager).
+	// Check to see if we have an incoming query (likely the landing page).
+	if( global_live_search_query ){ // has incoming query
+    	    ll("Try and use incoming query (set default): " +
+	       global_live_search_query);
+    	    //search.set_comfy_query(global_live_search_query);
+	    var def_comfy = search.set_comfy_query(global_live_search_query);
+    	    search.set_default_query(def_comfy);	    
 	}
 
-    	// Make sure whatever document_category sticky filters we had
-    	// are completely gone.
-	loop(search.get_sticky_query_filters(),
-	     function(sqf_pair){
-		 var sqf_filter = sqf_pair['filter'];
-		 var sqf_value = sqf_pair['value'];
-		 if( sqf_filter && sqf_filter == 'document_category' ){
-    		     search.remove_query_filter('document_category',
-						sqf_value, ['*']);
-		 }
-	     });
-
-	// Find the click class in the set of active classes.
-	var active_class = _get_active_class(cid);
-
-	// If we found it, set personality, run the stored function,
-	// and then establish/reset display.
-	if( ! active_class ){
-	    alert('ERROR: Could not find class: ' + cid);
-	}else{
-    	    search.set_personality(cid);
-	    search.lite(true);
-	    var run_fun = active_class['on_click'];
-	    run_fun(search);
-    	    search.establish_display();
-	    search.reset();
-	}
-    }
-
-    // Turn the radio row into a jQuery button set and make them
-    // active to clicks.
-    jQuery("#search_radio").buttonset();
-    loop(active_classes,
-    	 function(active_class){
-	     var cclass_id = active_class['id'];
-    	     var c = '#' + cclass_id;
-    	     jQuery(c).click(_on_search_select);
-    	 });
-
-
-    // First, define a helper function to try and probe various things
-    // to establish what should be established--find the checked radio
-    // button (from the layout) and click it, or, failing that, the
-    // first one and click it.
-    function _establish_default_interface(){
-
-	// // Check to see if we have an incoming query (likely the
-	// // landing page).
-	// var qfield_text = null;
-	// if( global_live_search_query ){ // has incoming query
-	//     qfield_text = global_live_search_query;
-    	//     ll("Try and use incoming query: " + qfield_text);
-    	//     // search.set_query_field_text(global_live_search_query);
-    	//     // search.set_comfy_query(global_live_search_query);
-    	//     // search.search();
-	// }
-
-	// Work the radio.
-	var checked_radio_vals = [];
-	var checked_elt = null;
-	jQuery("[name='" + 'search_radio' + "']:checked").each(
-	    function(){
-		checked_elt = jQuery(this);
-		checked_radio_vals.push(checked_elt.val());
-	    });
-	
-	if( checked_radio_vals && checked_radio_vals.length == 1 ){
-	    // Find the checked radio value and click on it.
-	    var clid = checked_radio_vals[0];
-	    var cls = _get_active_class(clid);
-	    ll("Select the checked radio value: " + cls['id']);
-	    //jQuery(checked_elt).click();
-	    //jQuery('#' + cls['id']).click();
-	    _on_search_select(cls['id']);
-	}else{
-	    // Click the first defined class.
-	    ll("Just select the first: " + active_classes[0]['id']);
-	    //jQuery('#' + active_classes[0]['id']).click();
-	    _on_search_select(active_classes[0]['id']);
-	}
-    }
-
-    // Check to see if we have an incoming query (likely the landing page).
-    // If we do, work with tricking the reset and initial run
-    // mechanisms to make it look like we're catching the incoming
-    // parameter and setting the environment.
-    if( global_live_search_query ){ // has incoming query
-    	ll("Try and use incoming query (set default): " +
-	   global_live_search_query);
-    	//search.set_comfy_query(global_live_search_query);
-	var def_comfy = search.set_comfy_query(global_live_search_query);
-    	search.set_default_query(def_comfy);
-
-	// Things to do after the initial reset is complete.
-	function _first_runner(response, manager){
-	    // Ignoring the args--we'll just use the "local" names for
-	    // clarity.
-
-	    // Unstick the default query and add the text to the search.
-	    if( global_live_search_query ){ // has incoming query
-    		ll("Initial reset: try set the env to the proper settings...");
-		search.reset_default_query();
-    		search.set_query_field_text(global_live_search_query);
-    		search.set_comfy_query(global_live_search_query);
-	    }
-	}
-	search.set_initial_reset_callback(_first_runner);
-    }
-
-    // Establish the display (and run a reset) depending on bookmark.
-    // Check to see if we have a bookmark or not. If we have one, run
-    // it, otherwise use the default. This also establishes the
-    // display at this level.
-    if( global_live_search_bookmark ){ // has bookmark
-	ll("Try and use bookmark in establishment.");
-
-	// Load it and see what happens.
-	var parm_list = 
-	    bbop.core.url_parameters(global_live_search_bookmark);
-	//alert(bbop.core.dump(parm_list));
-	var bookmark_probe = bbop.core.hashify(parm_list);
-	//alert(bbop.core.dump(bookmark_probe));
-
-	if( ! bookmark_probe['personality'] || // bookmark is bad
-	    bookmark_probe['json.nl'] != 'arrarr' ||
-	    bookmark_probe['wt'] != 'json' ){ //||
-	    //! bookmark_probe['document_category'] ){
-
-            ll("Bookmark lacks sanity.");
-	    alert('ERROR: Bookmark did not include a personality, and sanity. '+
-		  'Please remove the bookmark parameter from the URL.');
-	    // Fall back onto the defaults.
-	    _establish_default_interface();
-	}else{ // probably good bookmark
-	    //ll("Bookmark has a personality: " + search.get_personality());
-
-	    // Load bookmark.
-	    //ll("Pre bookmark: " + search.get_query_url());
-	    //ll(global_live_search_bookmark);
-	    //ll("Pre-bookmark personality: " + search.get_personality());
-	    search.load_url(global_live_search_bookmark);
-	    ll("Post-bookmark personality: " + search.get_personality());
-	    ll("Post bookmark: " + search.get_query_url());
-
-	    // Establish the display with what we have.
-    	    search.establish_display();
-	    search.search();
-	    //ll("Post establish: " + search.get_query_url());
-
-	    // Make sure the text query is there and proper.
-	    // Remember, we don't refresh it off of search like the others
-	    // because it needs persistance for the UI.
-	    //ll("Post query: " + search.get_query());
-	    //ll("Post default query: " + search.get_default_query());
-	    if( search.get_query() == search.get_default_query() ){
-		// The default is the same as nothing at all.
-		search.set_query_field_text('');
-	    }else{
-		search.set_query_field_text(search.get_query());
-	    }
+	// 3) Process incoming bookmarks (into manager).
+	// Check to see if we have a bookmark or not. If we have one, run
+	// it.
+	if( global_live_search_bookmark ){ // has bookmark
+	    ll("Try and use bookmark in establishment.");
 	    
-	    // While we're here, make sure that the appropriate
-	    // buttons appear as well.
-	    _establish_buttons(search.get_personality(), search);
-	}
+	    // Load it and see what happens.
+	    var parm_list = 
+		bbop.core.url_parameters(global_live_search_bookmark);
+	    //alert(bbop.core.dump(parm_list));
+	    var bookmark_probe = bbop.core.hashify(parm_list);
+	    //alert(bbop.core.dump(bookmark_probe));
+	    
+	    // Sanity check.
+	    if( ! bookmark_probe['personality'] || // bookmark is bad
+		bookmark_probe['json.nl'] != 'arrarr' ||
+		bookmark_probe['wt'] != 'json' ){ //||
+			//! bookmark_probe['document_category'] ){
+			
+		    ll("Bookmark lacks sanity.");
+		    alert('ERROR: Bookmark did not include a personality, ' +
+			  'and sanity. ' +
+			  'Please remove the bookmark parameter from the URL.');
+	    }else{ // probably good bookmark
+		ll("Bookmark has a personality: "+search.get_personality());
+		
+		// Load bookmark.
+		ll("Pre bookmark: " + search.get_query_url());
+		ll(global_live_search_bookmark);
+		ll("Pre-bookmark personality: "+search.get_personality());
+		search.load_url(global_live_search_bookmark);
+		ll("Post-bookmark personality: "+search.get_personality());
+		ll("Post bookmark: " + search.get_query_url());
+	    }
+	}else{ // no bookmark
+	    ll("No bookmark in establishment.");
+	} 
 
+	// 4) Render manager state to display.
+	// Run through our pre-defined activation functions
+	var activation_fun = active_classes[search.get_personality()];
+	activation_fun(search);
+	// Establish the display with what we have.
+    	search.establish_display();
+	search.search();
+	//ll("Post establish: " + search.get_query_url());
+		    
+	// Make sure the text query is there and proper.
+	// Remember, we don't refresh it off of search like the others
+	// because it needs persistance for the UI.
+	ll("Post query: " + search.get_query());
+	ll("Post default query: " + search.get_default_query());
+	if( search.get_query() == search.get_default_query() ){
+	    // The default is the same as nothing at all.
+	    search.set_query_field_text('');
+	}else{
+	    search.set_query_field_text(search.get_query());
+	}
+		    
 	// Destroy the bookmark so we don't keep hitting it.
 	global_live_search_bookmark = null;
 
-    }else{ // no bookmark
-	ll("No bookmark in establishment.");
-	_establish_default_interface();
-    } 
-
-    // A little handling if we came in on a personality dispatch.
-    if( global_live_search_personality &&
-	global_live_search_personality != ''){
-	ll("Detected dispatch argument: " + global_live_search_personality);
-	_on_search_select(global_live_search_personality);
     }
-
+ 
     // Done message.
     ll('LiveSearchGOlrInit done.');
-
+    
     // DEBUGGING: A temporary external hook to help with dev and
     // debugging.
     s = search;

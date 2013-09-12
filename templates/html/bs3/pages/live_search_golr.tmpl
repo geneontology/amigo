@@ -29,37 +29,10 @@
   
 <div class="panel panel-default">
   <div class="panel-body">
-    [% IF personality %]
-    <!-- No in-app personality switching. -->
-    [% ELSE %]
-    <!-- Has in-app personality switching. -->
-    <p>
-      Select a search template:
-      <div id="search_radio">
-	<!-- <input type="radio" id="bbop_ann" name="search_radio" checked="checked" /> -->
-	<!-- <label for="bbop_ann">Associations</label> -->
-	<!-- etc... -->
-	[% FOREACH infi IN search_tab_info %]
-	<input type="radio"
-	       name="search_radio"
-               id="[% infi.id %]"
-               value="[% infi.id %]"
-	       [%    IF starting_golr_class == infi.id %]
-	       checked="yes" />
-	[%    ELSE %]
-        />
-	[%    END %]
-	<label for="[% infi.id %]">[% infi.display_name %]</label>
-	[% END %]
-      </div>
-    </p>
-    [% END %]
     
     <div id="display-general-search">
       Pending...
     </div>
-  
-  <!-- <div class="clearall"></div> -->
   
   </div>
 </div>

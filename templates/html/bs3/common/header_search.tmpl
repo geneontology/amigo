@@ -1,19 +1,19 @@
 <!-- START template: header_search.tmpl -->
 <!-- page_name          = [% page_name %] -->
-<form action="[% base %]/amigo/search"
+<form action="[% interlink_search_default %]"
+      id="query-form"
       class="navbar-form navbar-right"
       role="search"
-      id="query-form"
       method="GET">
-
   <div class="form-group">
     <input
        type="text"
-       class="form-control bbop-js-tooltip"
-       placeholder="Quick search"
        title="Hint: add a space after completing a word to narrow the search."
+       class="form-control bbop-js-tooltip"
+       name="query"
+       placeholder="Quick search"
+       value="[% query %]"
        id="gsf-query">
-       <!-- data-toggle="tooltip" -->
   </div>
   <button type="submit"
 	  title="Search for annotations with the inputted text."

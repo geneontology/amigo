@@ -711,6 +711,11 @@ sub _common_params_settings {
     $self->{CORE}->get_interlink({mode=>'gannet'});
   $params->{interlink_repl} =
     $self->{CORE}->get_interlink({mode=>'repl'});
+  ## Since there is no default search page, arrange for one.
+  my $def_search = $self->{CORE}->get_amigo_search_default();
+  $params->{interlink_search_default} =
+    $self->{CORE}->get_interlink({mode=>'live_search',
+				  arg=>{type=>$def_search}});
 
   ## Create and add to output buffer.
   $params->{base} = $self->{CORE}->amigo_env('AMIGO_CGI_URL');
