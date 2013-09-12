@@ -1232,6 +1232,12 @@ sub get_interlink {
      # 	 $acc . '&session_id=' . $sid;
      # },
 
+     ##
+     'term_details_base' =>
+     sub {
+       $ilink = 'amigo/term';
+     },
+
      ## NOTE: Should now be the same as term-details.
      'term_details' =>
      sub {

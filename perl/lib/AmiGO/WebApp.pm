@@ -716,6 +716,8 @@ sub _common_params_settings {
   $params->{interlink_search_default} =
     $self->{CORE}->get_interlink({mode=>'live_search',
 				  arg=>{type=>$def_search}});
+  $params->{interlink_term_details_base} =
+    $self->{CORE}->get_interlink({mode=>'term_details_base'});
 
   ## Create and add to output buffer.
   $params->{base} = $self->{CORE}->amigo_env('AMIGO_CGI_URL');

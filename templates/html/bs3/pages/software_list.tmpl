@@ -59,7 +59,7 @@
   <!--   <a href="[% base %]/amigo?mode=gene_product&gp=dictyBase:DDB_G0291524">Gene Product Details</a> -->
   <!--   (trying to make the page work off of the Solr backend). -->
   <!-- </p> -->
-
+  
 </ul>
     
 <h2>Analysis of GO data</h2>
@@ -131,10 +131,30 @@
   <!-- <a href="[% interlink_gannet %]" -->
   <!-- 	 title="Gannet: query the SOlr index directly">Gannet</a>. -->
   
+  <li class="list-group-item">
+    <p>
+      For users unable to use JavaScript and spiders, the root GO
+      terms can be found here.
+    </p>
+    <ul class="list-unstyled">
+      <li>
+	<a href="[% interlink_term_details_base %]/GO:0008150"
+	   title="Jump to biological_process">Biological process</a>
+      </li>
+      <li>
+	<a href="[% interlink_term_details_base %]/GO:0005575"
+	   title="Jump to cellur_component">Cellular component</a>
+      </li>
+      <li>
+	<a href="[% interlink_term_details_base %]/GO:0003674"
+	   title="Jump to molecular_function">Molecular function</a>
+      </li>
+    </ul>
+  </li>
+
 </ul>
 
 [% IF BETA == 1 %]
-
 
 <h2>AmiGO 2 Software in the Lab</h2>
 
