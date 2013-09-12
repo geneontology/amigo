@@ -6,9 +6,6 @@
 //
 function GrebeInit(){
 
-    // // Make unnecessary things roll up.
-    // amigo.ui.rollup(["inf01"]);
-    
     // Use jQuery UI to tooltip-ify doc.
     // Keep them above.
     var gtt_args = {

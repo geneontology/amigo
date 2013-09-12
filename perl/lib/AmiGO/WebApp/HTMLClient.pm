@@ -166,15 +166,16 @@ sub mode_browse {
     {
      css_library =>
      [
-      'standard',
-      #'com.jquery.redmond.custom',
+      #'standard',
+      'com.bootstrap',
       'com.jquery.jqamigo.custom',
-      #'bbop.amigo.ui.widgets'
-      #'bbop.amigo.ui.interactive'
+      'amigo',
+      'bbop'
      ],
      javascript_library =>
      [
       'com.jquery',
+      'com.bootstrap',
       'com.jquery-ui',
       'bbop',
       'amigo'
@@ -196,7 +197,7 @@ sub mode_browse {
     };
   $self->add_template_bulk($prep);
 
-  return $self->generate_template_page();
+  return $self->generate_template_page_with();
 }
 
 

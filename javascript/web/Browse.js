@@ -5,9 +5,6 @@
 
 function BrowseInit(){
     
-    // Make unnecessary things roll up.
-    amigo.ui.rollup(["inf01"]);
-
     // Use jQuery UI to tooltip-ify doc.
     var tt_args = {'position': {'my': 'left bottom', 'at': 'right top'}};
     jQuery('.bbop-js-tooltip').tooltip(tt_args);
@@ -29,7 +26,7 @@ function BrowseInit(){
     var linker = new amigo.linker();
     var shield = new bbop.widget.term_shield(sd.golr_base(), gconf,
 					     {'linker_function': linker });
-    shield.set_personality('bbop_ont');
+    shield.set_personality('ontology');
 
     ///
     /// The tree browser.
@@ -90,16 +87,29 @@ function BrowseInit(){
 	     var term = shortcut['term'];
 	     var label = shortcut['label'];
 
+	     var ltag_attr = {
+		 'class' : 'btn btn-default',
+		 'for': sid
+	     };
+	     //var ltag = new bbop.html.tag('label', ltag_attr, label);
+	     var ltag = new bbop.html.tag('label', ltag_attr);
+
 	     // 
-	     var itag = new bbop.html.input({id: sid, type: 'radio',
-					     name: 'graph_radio'});
-	     var ltag = new bbop.html.tag('label', {for: sid}, label);
-	     jQuery("#graph_radio").append(itag.to_string());
+	     var itag_attr = {
+		 'id': sid,
+		 'type': 'radio',
+		 'name': 'graph_radio'
+	     };
+	     var itag = new bbop.html.input(itag_attr);
+	     //jQuery("#graph_radio").append(itag.to_string());
+
+	     ltag.add_to(itag);
+	     ltag.add_to(label);
 	     jQuery("#graph_radio").append(ltag.to_string());
 	 });
 
     // Now, make our different shortcut buttons active.
-    jQuery("#graph_radio").buttonset();
+//    jQuery("#graph_radio").buttonset();
     loop(shortcuts,
 	 function(shortcut){
 	     var sid = shortcut['id'];

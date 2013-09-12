@@ -14711,7 +14711,10 @@ bbop.widget.browse = function(golr_loc, golr_conf_obj, interface_id,
 	///
 
 	// I guess we'll just start by making the list.
-	var top_level = new bbop.html.list();
+	var tl_attrs = {
+	    'class': 'bbop-js-ui-browse'
+	};
+	var top_level = new bbop.html.list([], tl_attrs);
 
 	// Store the navigation anf info buttons.
 	var nav_button_hash = {};

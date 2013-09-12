@@ -169,6 +169,12 @@
     display: none;
 }
 
+.bbop-js-ui-browse {
+    list-style-type: none;
+    /* margin: 5px; */
+    padding-left: 0;
+}
+
 /*
  * Reserved for tooltip stuff (that we farm out).
  */

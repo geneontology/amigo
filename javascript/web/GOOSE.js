@@ -15,9 +15,6 @@ function GOOSEInit(){
     //ll('');
     ll('GOOSEInit start...');
 
-    // // Make unnecessary things roll up.
-    // amigo.ui.rollup(["inf01"]);
-
     // LEAD: Enter things from pulldown into textarea on change.
     jQuery("#" + "goose_lead_example_selection").change(
 	function(){
