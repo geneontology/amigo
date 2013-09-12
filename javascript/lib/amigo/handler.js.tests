@@ -60,8 +60,8 @@ var amigo;
      if( ! is_def(amigo.data.dispatch) ){ amigo.data.dispatch = {}; }
      amigo.data.dispatch = {
 	 'echo_test_field_01': {
-	 default: 'amigo.handlers.echo',
-	     context: {
+	     'default': 'amigo.handlers.echo',
+	     'context': {
 		 'echo_test_context_01':  'amigo.handlers.echo'
 	     }
 	 }
