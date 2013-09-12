@@ -1361,7 +1361,7 @@ bbop.version.revision = "2.0b1";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130910";
+bbop.version.release = "20130911";
 /* 
  * Package: json.js
  * 
@@ -12552,7 +12552,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
     
     // Per-UI logger.
     var logger = new bbop.logger();
-    logger.DEBUG = true;
+    logger.DEBUG = false;
+    //logger.DEBUG = true;
     function ll(str){ logger.kvetch('UI (search): ' + str); }
 
     // There should be a string interface_id argument.
@@ -14241,7 +14242,8 @@ bbop.widget.spinner = function(host_elt_id, img_src, argument_hash){
 
     // Per-UI logger.
     var logger = new bbop.logger();
-    logger.DEBUG = true;
+    logger.DEBUG = false;
+    //logger.DEBUG = true;
     function ll(str){ logger.kvetch('W (spinner): ' + str); }
 
     // Our argument default hash.
@@ -15940,7 +15942,7 @@ bbop.widget.search_pane = function(golr_loc, golr_conf_obj, interface_id,
     	var personality = anchor.get_personality();
     	var cclass = golr_conf_obj.get_class(personality);
     	if( ! personality || ! cclass ){
-    	    ll('ERROR: no useable personality set');
+    	    ll('ERROR: no usable personality set');
     	    throw new Error('ERROR: no useable personality set');
     	}
 
