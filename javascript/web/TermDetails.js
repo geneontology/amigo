@@ -28,7 +28,16 @@ function TermDetailsInit(){
     	ll('Apply tabs...');
     	// jQuery("#display-tabs").tabs();
     	// jQuery("#display-tabs").tabs('option', 'active', 0);
-    	jQuery("#display-tabs a:first").tab('show');
+
+	// Since we're a tabby version, we're going to try and open
+	// any tabs defined by fragments.
+	if( window && window.location && window.location.hash &&
+	    window.location.hash != "" && window.location.hash != "#" ){
+            var fragname = window.location.hash;
+	    jQuery('#display-tabs a[href="' + fragname + '"]').tab('show');
+	}else{
+    	    jQuery("#display-tabs a:first").tab('show');
+	}
     }
 
     // Ready the configuration that we'll use.

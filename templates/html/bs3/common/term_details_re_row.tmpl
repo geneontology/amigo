@@ -7,7 +7,7 @@
 <tr class="">
 [% IF count_type == "subject" %]
   <td>
-    <a href="[% subject_chunk.link %]#lineage"
+    <a href="[% subject_chunk.link %]"
 	title="Go to [% subject_chunk.name %]">[% subject_chunk.name %] ([% subject_chunk.acc %])</a>
   </td>
   <td>
@@ -40,7 +40,7 @@
     </span>
   </td>
   <td>
-    <a href="[% object_chunk.link %]#lineage"
+    <a href="[% object_chunk.link %]"
     	title="Go to [% object_chunk.name %]">[% object_chunk.name %] ([% object_chunk.acc %])</a>
   </td>
 [% END %]

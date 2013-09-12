@@ -18,6 +18,6 @@
 	title="[% graph_entry.rel %] relation" />
   [%    END %]
   [% END %]
-  [% IF override_link %][% IF override_bold %]<span style="font-weight: bold;">[% END %][% graph_entry.acc %]&nbsp;[% graph_entry.name %][% IF override_bold %]</span>[% END %][% ELSE %][% IF override_bold %]<span style="font-weight: bold;">[% END %]<a href="[% graph_entry.link %]#lineage" title="Go to [% graph_entry.name %]">[% graph_entry.acc %]&nbsp;[% graph_entry.name %]</a>[% END %][% for_acc = graph_entry.acc %][% IF override_bold %]</span>[% END %]
+  [% IF override_link %][% IF override_bold %]<span style="font-weight: bold;">[% END %][% graph_entry.acc %]&nbsp;[% graph_entry.name %][% IF override_bold %]</span>[% END %][% ELSE %][% IF override_bold %]<span style="font-weight: bold;">[% END %]<a href="[% graph_entry.link %]#display-lineage-tab" title="Go to [% graph_entry.name %]">[% graph_entry.acc %]&nbsp;[% graph_entry.name %]</a>[% END %][% for_acc = graph_entry.acc %][% IF override_bold %]</span>[% END %]
 </li>
 <!-- END template: term_details_entry.tmpl -->
