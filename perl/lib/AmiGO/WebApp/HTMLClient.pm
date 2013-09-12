@@ -53,13 +53,6 @@ sub setup {
 			COOKIE_PARAMS => {-path  => '/'},
 			SEND_COOKIE => 1);
 
-  # ## Make sure we have the right path for our internal system.
-  # $self->template_set('legacy');
-  # $self->template_set('bs3');
-  # ## Templates.
-  # $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
-  # 			 '/templates/html/' . $self->template_set());
-
   $self->mode_param('mode');
   $self->start_mode('landing');
   $self->error_mode('mode_fatal');

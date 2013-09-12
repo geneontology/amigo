@@ -1,0 +1,206 @@
+<!-- START: gannet.tmpl -->
+
+[% INCLUDE common/noscript_js_limited.tmpl %]
+
+<!-- <h2>Directly query GO data</h2> -->
+      
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Information about Gannet" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<h5>GO Solr (GOlr)</h5>
+<p>
+  See some GOlr <a href="http://wiki.geneontology.org/index.php/Example_Solr_Queries">examples</a> or <a href="[% base %]/amigo/schema_details" title="Instance schema details">schema details</a> for this instance.
+  Raw schema information for the most current GOlr can be found in the
+  source
+  <a href="http://geneontology.svn.sourceforge.net/viewvc/geneontology/java/gold/solr/conf/schema.xml?content-type=text%2Fplain">repository</a>.
+</p>
+<h5>Mirrors</h5>
+<p>
+  Select a mirror that will fit your needs. The default is this
+  installation.
+</p>
+[% INCLUDE "common/info_rollup_end.tmpl" %]
+
+<div class="panel panel-default">
+  <div class="panel-body">
+
+    <form action="gannet"
+	  method="GET"
+	  name="gannet_form"
+	  id="gannet_form">
+    
+      [% IF galaxy_url && galaxy_url_external_p %]
+      <input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
+      [% END %]
+      
+      <div class="form-group">
+	<label for="term_data">Directly query GO data using a Solr URL</label>
+	<textarea id="query"
+		  class="form-control" 
+		  name="query"
+		  placeholder="Enter your query here"
+		  rows="5">[% query %]</textarea>
+      </div>
+
+      <h5>Use an example query:</h5>
+      <!-- <div style="" id="gannet_golr_example_list"> -->
+      [% IF golr_examples_list %]
+      <!-- Assemble the examples table. -->
+      <select id="gannet_golr_example_selection"
+	      class=""
+	      style=""
+	      size="1">
+	[%    FOREACH ex = golr_examples_list %]
+	[%       value = ex.solr %]
+	[%       title = ex.title %]
+	<option title='[% value %]' 
+		value='[% value %]'>[% title %]</option>
+	[%    END %]
+      </select>
+      [% ELSE %]
+      <!-- Unable to assemble the examples table. -->
+      <p>
+	(The GO Solr wiki page could not be contacted so GOlr examples
+	are not available.)
+      </p>
+      [% END %]
+  
+      <h5>Available mirrors:</h5>
+      [% FOREACH mirror = all_mirrors %]
+      <div class="radio">
+	<label>
+	  <input type="radio" 
+		 name="mirror" 
+		 value="[% mirror %]" 
+		 [% IF my_mirror == mirror %]checked[% END %]
+		 class="cbox">
+	  <b>
+	    <!-- [% IF mirror_info.$mirror.is_alive_p == 0 %][UNAVAILABLE][% END %] -->
+	    [% mirror_info.$mirror.label %]
+	  </b>:
+	  Use the Solr [% IF mirror_info.$mirror.class.search('main') %]main mirror[% ELSIF mirror_info.$mirror.class.search('aux') %]auxiliary mirror[% ELSIF mirror_info.$mirror.class.search('local') %]local installation[% ELSIF mirror_info.$mirror.class.search('exp') %]experimental mirror[% END %] [% mirror_info.$mirror.location %].
+	</label>
+      </div>
+      [% END %]	  
+
+      <button type="submit" class="btn btn-primary">Query</button>
+
+    </form>		
+	
+  </div>
+</div>
+
+[% IF NOT results_count AND results_count == 0 %]
+  
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      Results
+    </div>
+  </div>
+  <div class="panel-body">
+    <p>Your query did not return any results.</p>
+  </div>
+</div>
+
+[% ELSIF results_count %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      Results
+    </div>
+  </div>
+  <div class="panel-body">
+    <p id="results_generated">
+      
+      Your query generated      
+      [% IF limit AND results_count > limit  %]
+      <b>[% limit %]</b>
+      (limited from <b>[% results_count %]</b>)
+      [% ELSE %]
+      <b>[% results_count %]</b>
+      [% END %]
+      
+      result(s).<br />
+      
+      [% IF direct_solr_url %]
+      Raw Solr <a href="[% direct_solr_url %]"
+		  title="Link to full Solr results.">results</a>
+      from GOlr server.
+      <br />
+      [%    IF galaxy_url AND direct_id_url_safe AND direct_all_url_safe %]
+      
+      Direct download: <a href="[% direct_id_url_safe %]"
+			  title="Downloadable ID results.">ID list</a>
+      or <a href="[% direct_all_url_safe %]"
+	    title="Download results with all fields.">all fields</a>.
+      <br />
+      
+      <h5>Export to GO Galaxy</h5>
+      <form id="galaxyform"
+	    role="form"
+	    action="[% galaxy_url %]"
+	    name="galaxyform"
+	    method="POST"
+	    target="_blank">
+	<input id="URL"
+	       type="hidden" name="URL" value="[% direct_id_url_safe %]" />
+	<input type="hidden" name="URL_method" value="get">
+	<input name="submit"
+	       class="btn btn-default"
+	       type="submit"
+	       value="ID list" />
+      </form>
+      <form id="galaxyform"
+	    role="form"
+	    action="[% galaxy_url %]" 
+	    name="galaxyform"
+	    method="POST"
+	    target="_blank">
+	<input id="URL"
+	       type="hidden" name="URL" value="[% direct_all_url_safe %]" />
+	<input type="hidden" name="URL_method" value="get">
+	<input name="submit"
+	       class="btn btn-default"
+	       type="submit"
+	       value="all fields" />
+      </form>
+      [% END %]
+    </p>  
+    [% ELSE %]
+    <p>
+      No direct URL possible...
+    </p>
+    [% END %]
+    
+    <table
+       summary="Query results"
+       class="table table-striped table-hover">
+      <thead>
+	<tr>	  
+	  [% FOREACH header = results_headers %]
+	  <th>
+	    [% header %]
+	  </th>
+	  [% END%]	  
+	</tr>
+      </thead>
+      <tbody>	
+	[% FOREACH row = results %]
+	<tr>
+	  [%  FOREACH col = row %]
+	  <td>
+	    [%   col %]
+	  </td>
+	  [%  END %]
+	</tr>
+	[% END %]
+      </tbody>
+    </table>
+  
+  </div>
+</div>
+
+[% END %]
+<!-- END: gannet.tmpl -->

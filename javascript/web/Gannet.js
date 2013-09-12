@@ -34,8 +34,8 @@ function GannetInit(){
     //ll('');
     ll('GannetInit start...');
 
-    // Make unnecessary things roll up.
-    amigo.ui.rollup(["inf01", "inf02", "inf03"]);
+    // // Make unnecessary things roll up.
+    // amigo.ui.rollup(["inf01", "inf02", "inf03"]);
 
     // GOlr: Enter things from pulldown into textarea on change.
     jQuery("#" + "gannet_golr_example_selection").change(

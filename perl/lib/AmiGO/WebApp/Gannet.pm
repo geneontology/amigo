@@ -40,15 +40,11 @@ sub setup {
 			COOKIE_PARAMS => {-path  => '/'},
 			SEND_COOKIE => 1);
 
-  ## Templates.
-  $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
-			 '/templates/html');
-
   $self->mode_param('mode');
   $self->start_mode('gannet');
   $self->error_mode('mode_fatal');
   $self->run_modes(
-		   'gannet'    => 'mode_gannet',
+		   'gannet'   => 'mode_gannet',
 		   'AUTOLOAD' => 'mode_exception'
 		  );
 }
@@ -560,23 +556,28 @@ sub mode_gannet {
       {
        css_library =>
        [
-	'standard', # basic GO-styles
+	#'standard',
+	'com.bootstrap',
 	'com.jquery.jqamigo.custom',
+	'amigo',
+	'bbop'
        ],
        javascript_library =>
        [
 	'com.jquery',
+	'com.bootstrap',
 	'com.jquery-ui',
-	#'com.jquery.tablesorter',
 	'bbop',
 	'amigo'
        ],
        javascript =>
        [
+	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
 	$self->{JS}->get_lib('Gannet.js')
        ],
        javascript_init =>
        [
+	'GeneralSearchForwardingInit();',
 	'GannetInit();'
        ],
        content =>
@@ -586,7 +587,7 @@ sub mode_gannet {
       };
     $self->add_template_bulk($prep);
 
-    $output = $self->generate_template_page();
+    $output = $self->generate_template_page_with();
   }
   return $output;
 }
