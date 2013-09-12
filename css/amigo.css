@@ -187,3 +187,12 @@ a:hover .hilite, a:active .hilite {
     border-color: #bce8f1;
     /* margin-right: 1em; */
 }
+
+/* Turn down the jumbotron from 11. */
+.amigo-jumbotron-override {
+    padding-bottom: 32px;
+    padding-top: 32px;
+}
+.amigo-jumbotron-override .lead {
+    font-size: 16px;
+}
