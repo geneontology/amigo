@@ -105,23 +105,30 @@ sub mode_bbop_js {
     {
      css_library =>
      [
-      #'standard', # basic GO-styles
+      #'standard',
+      'com.bootstrap',
       'com.jquery.jqamigo.custom',
+      #'com.jquery.tablesorter',
+      'amigo',
+      'bbop'
      ],
      javascript_library =>
      [
       'com.jquery',
+      'com.bootstrap',
       'com.jquery-ui',
-      'com.jquery.jstree',
+      #'com.jquery.tablesorter',
       'bbop',
       'amigo'
      ],
      javascript =>
      [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('REPL.js')
      ],
      javascript_init =>
      [
+      'GeneralSearchForwardingInit();',
       'REPLInit();'
      ],
      content =>
@@ -131,7 +138,7 @@ sub mode_bbop_js {
     };
   $self->add_template_bulk($prep);
 
-  $output = $self->generate_template_page();
+  $output = $self->generate_template_page_with();
 
   return $output;
 }

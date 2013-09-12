@@ -18,8 +18,8 @@ function REPLInit(){
 
     // var cmnd_buff_id = 'command_buffer';
 
-    // Make unnecessary things roll up.
-    amigo.ui.rollup(["inf01"]);
+    // // Make unnecessary things roll up.
+    // amigo.ui.rollup(["inf01"]);
 
     ///
     /// Set the repl widget.
