@@ -147,6 +147,16 @@ refresh: tags bundle
 	./scripts/blank-kvetch.pl
 
 ###
+### Clean out stuff. There needs to be a "-x" to actually run.
+###
+
+.PHONY: clean-filesystem
+clean-filesystem:
+	./scripts/clean-filesystem.pl -v -s
+	./scripts/clean-filesystem.pl -v -c
+	./scripts/clean-filesystem.pl -v -r
+
+###
 ### Essentially a lite refresh for when working on or testing HTML,
 ### CSS, etc.
 ###

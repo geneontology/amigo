@@ -34,7 +34,7 @@ AMIGO_HTDOCS_PARTIAL_URL:
 AMIGO_LAYOUT_SEARCH:
   comment: A whitespace separated list of class IDs to use for live search tabs on the search page.
   type: string
-  value: bbop_ann bbop_ont bbop_bio bbop_family bbop_general
+  value: annotation ontology bioentity family general
 AMIGO_PROJECT_NAME:
   comment: Please enter the name of this AmiGO installation.
   type: string
@@ -55,6 +55,10 @@ AMIGO_ROOT:
   comment: 'Please enter the full path to the git repo amigo[/trunk] directory.'
   type: directory
   value: /home/sjcarbon/local/src/git/amigo
+AMIGO_SEARCH_DEFAULT:
+  comment: The default search personality to use.
+  type: string
+  value: annotation
 AMIGO_SERVER_NAME:
   comment: "The name by which your AmiGO instance wishes to known--think load balancer or cache situations. If you would rather this information not be reported, leave blank.\n"
   type: string

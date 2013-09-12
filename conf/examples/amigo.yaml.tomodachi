@@ -34,7 +34,7 @@ AMIGO_HTDOCS_PARTIAL_URL:
 AMIGO_LAYOUT_SEARCH:
   comment: A whitespace separated list of class IDs to use for live search tabs on the search page.
   type: string
-  value: bbop_ann bbop_ont bbop_bio
+  value: annotation ontology bioentity
 AMIGO_PROJECT_NAME:
   comment: Please enter the name of this AmiGO installation.
   type: string
@@ -55,6 +55,10 @@ AMIGO_ROOT:
   comment: 'Please enter the full path to the git repo amigo[/trunk] directory.'
   type: directory
   value: /home/bbop/jenkins/workspace/load-golr-tomodachi
+AMIGO_SEARCH_DEFAULT:
+  comment: The default search personality to use.
+  type: string
+  value: annotation
 AMIGO_SERVER_NAME:
   comment: "The name by which your AmiGO instance wishes to known--think load balancer or cache situations. If you would rather this information not be reported, leave blank.\n"
   type: string
@@ -62,7 +66,7 @@ AMIGO_SERVER_NAME:
 AMIGO_TERM_REGEXP:
   comment: The regular expressions to identify internal ontology ids.
   type: string
-  value: 'all|GO:[0-9]{7}'
+  value: '^all$|^GO:[0-9]{7}$'
 AMIGO_VERBOSE:
   comment: Log verbose AmiGO debugging messages.
   type: boolean
