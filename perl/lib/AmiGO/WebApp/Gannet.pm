@@ -515,7 +515,7 @@ sub mode_gannet {
 
     ## HTML return phrasing.
     $self->set_template_parameter('database_type', $in_type);
-    $self->set_template_parameter('query', $in_query);
+    $self->set_template_parameter('gannet_query', $in_query);
     $self->set_template_parameter('results_count', $count);
     $self->set_template_parameter('results_headers', $sql_headers);
     $self->set_template_parameter('direct_solr_url',

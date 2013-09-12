@@ -39,7 +39,7 @@
 		  class="form-control" 
 		  name="query"
 		  placeholder="Enter your query here"
-		  rows="5">[% query %]</textarea>
+		  rows="5">[% gannet_query %]</textarea>
       </div>
 
       <h5>Use an example query:</h5>
@@ -47,7 +47,7 @@
       [% IF golr_examples_list %]
       <!-- Assemble the examples table. -->
       <select id="gannet_golr_example_selection"
-	      class=""
+	      class="form-control"
 	      style=""
 	      size="1">
 	[%    FOREACH ex = golr_examples_list %]
@@ -135,9 +135,9 @@
 			  title="Downloadable ID results.">ID list</a>
       or <a href="[% direct_all_url_safe %]"
 	    title="Download results with all fields.">all fields</a>.
-      <br />
       
-      <h5>Export to GO Galaxy</h5>
+    </p>
+    <p>
       <form id="galaxyform"
 	    role="form"
 	    action="[% galaxy_url %]"
@@ -147,11 +147,11 @@
 	<input id="URL"
 	       type="hidden" name="URL" value="[% direct_id_url_safe %]" />
 	<input type="hidden" name="URL_method" value="get">
-	<input name="submit"
-	       class="btn btn-default"
-	       type="submit"
-	       value="ID list" />
+	<button type="submit"
+		class="btn">Export ID list to GO Galaxy</button>
       </form>
+    </p>
+    <p>
       <form id="galaxyform"
 	    role="form"
 	    action="[% galaxy_url %]" 
@@ -161,13 +161,11 @@
 	<input id="URL"
 	       type="hidden" name="URL" value="[% direct_all_url_safe %]" />
 	<input type="hidden" name="URL_method" value="get">
-	<input name="submit"
-	       class="btn btn-default"
-	       type="submit"
-	       value="all fields" />
+	<button type="submit"
+		class="btn">Export all fields to GO Galaxy</button>
       </form>
-      [% END %]
-    </p>  
+    </p>
+    [% END %]
     [% ELSE %]
     <p>
       No direct URL possible...
