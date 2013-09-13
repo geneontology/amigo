@@ -374,38 +374,28 @@ sub mode_simple_search {
     {
      css_library =>
      [
-      'standard',
-      #'com.jquery.redmond.custom',
+      #'standard',
+      'com.bootstrap',
       'com.jquery.jqamigo.custom',
-      #'bbop.amigo.ui.widgets'
-      #'bbop.amigo.ui.interactive'
+      'amigo',
+      'bbop'
      ],
-     # javascript_library =>
-     # [
-     #  'com.jquery',
-     #  'com.jquery-ui',
-     #  'bbop.core',
-     #  'bbop.logger',
-     #  'bbop.logic',
-     #  'bbop.registry',
-     #  'bbop.html',
-     #  'bbop.amigo',
-     #  'bbop.amigo.amigo_meta',
-     #  #'bbop.amigo.live_search',
-     #  'bbop.amigo.ui.widgets',
-     #  'bbop.amigo.ui.interactive'
-     # ],
-     # # javascript =>
-     # # [
-     # #  #$self->{JS}->get_lib('GOlrTemplate.js'),
-     # #  #$self->{JS}->get_lib('GOlrManager.js'),
-     # #  #$self->{JS}->get_lib('GOlrUIBeta.js'),
-     # #  #$self->{JS}->get_lib('LiveSearchGOlr.js')
-     # # ],
-     # # javascript_init =>
-     # # [
-     # #  #'LiveSearchGOlrInit();'
-     # # ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui',
+      'bbop',
+      'amigo'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js')
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();'
+     ],
      content =>
      [
       'pages/simple_search.tmpl'
@@ -413,7 +403,7 @@ sub mode_simple_search {
     };
   $self->add_template_bulk($prep);
 
-  return $self->generate_template_page();
+  return $self->generate_template_page_with();
 }
 
 

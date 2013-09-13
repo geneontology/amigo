@@ -131,27 +131,6 @@
   <!-- <a href="[% interlink_gannet %]" -->
   <!-- 	 title="Gannet: query the SOlr index directly">Gannet</a>. -->
   
-  <li class="list-group-item">
-    <p>
-      For users unable to use JavaScript and spiders, the root GO
-      terms can be found below.
-    </p>
-    <ul class="list-unstyled">
-      <li>
-	<a href="[% interlink_term_details_base %]/GO:0008150"
-	   title="Jump to biological_process">Biological process</a>
-      </li>
-      <li>
-	<a href="[% interlink_term_details_base %]/GO:0005575"
-	   title="Jump to cellur_component">Cellular component</a>
-      </li>
-      <li>
-	<a href="[% interlink_term_details_base %]/GO:0003674"
-	   title="Jump to molecular_function">Molecular function</a>
-      </li>
-    </ul>
-  </li>
-
 </ul>
 
 [% IF BETA == 1 %]
@@ -183,6 +162,28 @@
       <a href="[% interlink_simple_search %]">Simple search</a> is a
       limited non-JavaScript search client for primitive access to
       GOlr data.
+    </li>
+
+    <li class="list-group-item">
+      <p>
+	For users unable to use JavaScript and spiders, the root GO
+	terms can be found here.
+      </p>
+      <ul class="list-inline">
+	<!-- <ul class="list-unstyled"> -->
+	<li>
+	  <a href="[% interlink_term_details_base %]/GO:0008150"
+	     title="Jump to biological_process">Biological process</a>
+      </li>
+	<li>
+	<a href="[% interlink_term_details_base %]/GO:0005575"
+	   title="Jump to cellur_component">Cellular component</a>
+	</li>
+	<li>
+	  <a href="[% interlink_term_details_base %]/GO:0003674"
+	     title="Jump to molecular_function">Molecular function</a>
+	</li>
+      </ul>
     </li>
 
   </ul>

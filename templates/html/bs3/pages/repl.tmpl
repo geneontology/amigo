@@ -25,20 +25,20 @@
 <div class="panel panel-default">
   <div class="panel-body">
 
-    <table>
-      <tr>
-	<td>
-	  <div id="repl-div">
-	    Waiting for server response.
-	  </div>
-	</td>
-	<td width="100%">
-	  <div class="block">
-	    <p> Example interactions scraped from the wiki
-	      <a href="http://wiki.geneontology.org/index.php/Example_GOlr_Sessions">sessions example</a> page:
-	    </p>
+    <table class="table">
+      <tbody>
+	<tr>
+	  <td>
+	    <div id="repl-div">
+	      Waiting for server response...
+	    </div>
+	  </td>
+	  <td width="100%">
+
+	    <h5>Example interactions scraped from the wiki <a href="http://wiki.geneontology.org/index.php/Example_GOlr_Sessions">sessions example</a> page</h5>
 	    <p>
-	      <select id="golr_session_example_selection">
+	      <select id="golr_session_example_selection"
+		      class="form-control">
 		[% FOREACH item IN bbop_js_examples_list %]
 		<option value="[% item.bbopjs %]">
 		  [% item.title %]
@@ -46,50 +46,49 @@
 		[% END %]
 	      </select>
 	    </p>
+
+	    <h5>Enitities already defined in the REPL environment</h5>
 	    <p>
-	      Enitities already defined in the REPL environment:
-	      <br />
 	      <span id="show-entities">[<a href="#">show/hide</a>]</span>
-	      <dl id="env-entities">
+	      <!-- <dl id="env-entities"> -->
+	      <dl id="env-entities" class="dl-horizontal">
 		<dt>loop (function)</dt>
-		<dd>- An alias for <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/core-js.html#bbop.core.each">bbop.core.each</a>.</dd>
+		<dd>An alias for <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/core-js.html#bbop.core.each">bbop.core.each</a>.</dd>
 		<dt>dump (function)</dt>
-		<dd>- An alias for <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/core-js.html#bbop.core.dump">bbop.core.dump</a>.</dd>
+		<dd>An alias for <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/core-js.html#bbop.core.dump">bbop.core.dump</a>.</dd>
 		<dt>what_is (function)</dt>
-		<dd>- An alias for <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/core-js.html#bbop.core.what_is">bbop.core.what_is</a>.</dd>
+		<dd>An alias for <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/core-js.html#bbop.core.what_is">bbop.core.what_is</a>.</dd>
 		<dt>ll (function)</dt>
-		<dd>- Write something to the log console.</dd>
+		<dd>Write something to the log console.</dd>
 		<dt>server_meta (object)</dt>
-		<dd>- An instance of <a href="http://cdn.berkeleybop.org/jsapi/amigo2/docs/files/index.html">amigo.data.server</a>.</dd>
+		<dd>An instance of <a href="http://cdn.berkeleybop.org/jsapi/amigo2/docs/files/index.html">amigo.data.server</a>.</dd>
 		<dt>gloc (string)</dt>
-		<dd>- The URL location of our GOlr server.</dd>
+		<dd>The URL location of our GOlr server.</dd>
 		<dt>gconf (object)</dt>
-		<dd>- An instance of <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/golr/conf-js.html#bbop.golr.conf">bbop.golr.conf</a>.</dd>
+		<dd>An instance of <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/golr/conf-js.html#bbop.golr.conf">bbop.golr.conf</a>.</dd>
 		<dt>go (object)</dt>
-		<dd>- An instance of <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/golr/manager/jquery-js.html">bbop.golr.manager.jquery</a>. When data is retrieved using this manager, the return response is automatically generated and put into the variable "data" (see the next item).</dd>
+		<dd>An instance of <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/golr/manager/jquery-js.html">bbop.golr.manager.jquery</a>. When data is retrieved using this manager, the return response is automatically generated and put into the variable "data" (see the next item).</dd>
 		<dt>data (object)</dt>
-		<dd>- Usually an instance of <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/golr/response-js.html">bbop.golr.response</a>. See above.</dd>
+		<dd>Usually an instance of <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/golr/response-js.html">bbop.golr.response</a>. See above.</dd>
 		<dt>go.gaf_url (function)</dt>
-		<dd>- Return a URL for a psuedo GAF file given the current filters.</dd>
+		<dd>Return a URL for a psuedo GAF file given the current filters.</dd>
 		<dt>go.doc_type (function)</dt>
-		<dd>- Set the "document_type" to filter one time (a thin wrapper for <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/golr/manager-js.html#bbop.golr.manager.add_query_filter">bbop.golr.manager.add_query_filter</a>).</dd>
+		<dd>Set the "document_type" to filter one time (a thin wrapper for <a href="http://cdn.berkeleybop.org/jsapi/bbop-js/docs/files/golr/manager-js.html#bbop.golr.manager.add_query_filter">bbop.golr.manager.add_query_filter</a>).</dd>
 		<dt>empty (function)</dt>
-		<dd>- Empty an HTML div of its contents. See examples.</dd>
+		<dd>Empty an HTML div of its contents. See examples.</dd>
 		<dt>append (function)</dt>
-		<dd>- Append HTML contents to a given div. See examples.</dd>
+		<dd>Append HTML contents to a given div. See examples.</dd>
 	      </dl> 
 	    </p>
-	  </div>
-	  <div class="block">
-	    <!-- <h4>User addressable divs</h4> -->
+	    <h5>REPL addressable divs</h5>
 	    <p>
 	      <div id="div1"><b>&lt;div id="div1"&gt;</b></div>
 	      <div id="div2"><b>&lt;div id="div2"&gt;</b></div>
 	      <div id="div3"><b>&lt;div id="div3"&gt;</b></div>
 	    </p>
-	  </div>
-	</td>
-      </tr>
+	  </td>
+	</tr>
+      </tbody>
     </table>
   </div>
 </div>
