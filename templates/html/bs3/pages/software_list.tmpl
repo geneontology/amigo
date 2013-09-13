@@ -133,74 +133,76 @@
   
 </ul>
 
+<h2>Pages for non-JavaScript users and spiders</h2>
+<ul class="list-group">
+  
+  <li class="list-group-item">
+    <a href="[% interlink_simple_search %]">Simple search</a> is a
+    limited non-JavaScript search client for primitive access to
+    GOlr data.
+  </li>
+  
+  <li class="list-group-item">
+    <p>
+      For users unable to use JavaScript and spiders, the root GO
+      terms can be found here.
+    </p>
+    <ul class="list-inline">
+      <!-- <ul class="list-unstyled"> -->
+      <li>
+	<a href="[% interlink_term_details_base %]/GO:0008150"
+	   title="Jump to biological_process">Biological process</a>
+      </li>
+      <li>
+	<a href="[% interlink_term_details_base %]/GO:0005575"
+	   title="Jump to cellur_component">Cellular component</a>
+      </li>
+      <li>
+	<a href="[% interlink_term_details_base %]/GO:0003674"
+	   title="Jump to molecular_function">Molecular function</a>
+      </li>
+    </ul>
+  </li>
+
+</ul>
+
 [% IF BETA == 1 %]
 
 <h2>AmiGO 2 Software in the Lab</h2>
 
-  <!-- <h3>Beta features being tested and functional demos:</h3> -->
+<!-- <h3>Beta features being tested and functional demos:</h3> -->
 
-  <ul class="list-group">
+<ul class="list-group">
+  
+  <li class="list-group-item">
+    <a href="[% interlink_browse %]">Browse</a> the Gene Ontology
+    term data in an interactive hierarchical form.
+  </li>
+  
+  <!-- http://gannet.berkeleybop.org -->
+  <li class="list-group-item">
+    <a href="[% interlink_gannet %]" title="Gannet: query the SOlr index directly">Gannet</a> is the Solr analog to GOOSE. This page can
+    interact with the <a title="GO Galaxy" href="[% GO_GALAXY %]">GO
+      Galaxy</a> instance. Also see the <a href="[% interlink_schema_details %]" title="Instance schema details">schema details</a>.
+  </li>
+  
+  <li class="list-group-item">
+    <a href="[% interlink_repl %]">REPL</a> is an interactive JavaScript
+    environment for working with BBOP JS against the GO data.
+  </li>
+  
+</ul>
+  
+<h2>AmiGO 2 Software in the Garage</h2>
+<ul class="list-group">
 
-    <li class="list-group-item">
-      <a href="[% interlink_browse %]">Browse</a> the Gene Ontology
-      term data in an interactive hierarchical form.
-    </li>
+  <li class="list-group-item">
+    <a href="[% base %]/pgraph">Phylotree/Graph</a> test using new generic graph system (single static data set).
+  </li>
   
-    <!-- http://gannet.berkeleybop.org -->
-    <li class="list-group-item">
-      <a href="[% interlink_gannet %]" title="Gannet: query the SOlr index directly">Gannet</a> is the Solr analog to GOOSE. This page can
-      interact with the <a title="GO Galaxy" href="[% GO_GALAXY %]">GO
-	Galaxy</a> instance. Also see the <a href="[% interlink_schema_details %]" title="Instance schema details">schema details</a>.
-    </li>
-  
-    <li class="list-group-item">
-      <a href="[% interlink_repl %]">REPL</a> is an interactive JavaScript
-      environment for working with BBOP JS against the GO data.
-    </li>
-
-    <li class="list-group-item">
-      <a href="[% interlink_simple_search %]">Simple search</a> is a
-      limited non-JavaScript search client for primitive access to
-      GOlr data.
-    </li>
-
-    <li class="list-group-item">
-      <p>
-	For users unable to use JavaScript and spiders, the root GO
-	terms can be found here.
-      </p>
-      <ul class="list-inline">
-	<!-- <ul class="list-unstyled"> -->
-	<li>
-	  <a href="[% interlink_term_details_base %]/GO:0008150"
-	     title="Jump to biological_process">Biological process</a>
-      </li>
-	<li>
-	<a href="[% interlink_term_details_base %]/GO:0005575"
-	   title="Jump to cellur_component">Cellular component</a>
-	</li>
-	<li>
-	  <a href="[% interlink_term_details_base %]/GO:0003674"
-	     title="Jump to molecular_function">Molecular function</a>
-	</li>
-      </ul>
-    </li>
-
-  </ul>
-  
-  <h2>AmiGO 2 Software in the Garage</h2>
-  
-  <!-- <h3>Alpha features:</h3> -->
-  
-  <ul class="list-group">
-
-    <li class="list-group-item">
-      <a href="[% base %]/pgraph">Phylotree/Graph</a> test using new generic graph system (single static data set).
-    </li>
-  
-    <li class="list-group-item">
-      <a href="[% base %]/pgraph?mode=pthr10170">Phylotree/Graph of PTHR10170</a> test using new generic graph system (hand-coded test of PTHR10170).
-    </li>
+  <li class="list-group-item">
+    <a href="[% base %]/pgraph?mode=pthr10170">Phylotree/Graph of PTHR10170</a> test using new generic graph system (hand-coded test of PTHR10170).
+  </li>
   
   <!-- <p> -->
   <!--   <a href="[% base %]/phylotree">Phylotree</a> data using PANTHER and old Newick system. -->
@@ -224,29 +226,29 @@
   <!--   <a href="[% base %]/amigo_exp?mode=ntree">Phylogenic Tree</a> browser in JavaScript. -->
   <!-- </p> -->
   
-    <li class="list-group-item">
-      <a href="[% base %]/matrix">Matrix</a> showing shared
-      association information.
-    </li>
+  <li class="list-group-item">
+    <a href="[% base %]/matrix">Matrix</a> showing shared
+    association information.
+  </li>
   
-    <li class="list-group-item">
-      <a href="[% base %]/amigo_exp?mode=drill">Drill Down</a>
-      experimental tree browser using a jQuery plugin. Not too smart,
-      but lightweight.
-    </li>
+  <li class="list-group-item">
+    <a href="[% base %]/amigo_exp?mode=drill">Drill Down</a>
+    experimental tree browser using a jQuery plugin. Not too smart,
+    but lightweight.
+  </li>
   
-    <li class="list-group-item">
-      <a href="[% base %]/amigo_exp?mode=visic">Visual IC</a> lets you
-      enter terms and see them in the graph along with their
-      information content in a static image.
-    </li>
+  <li class="list-group-item">
+    <a href="[% base %]/amigo_exp?mode=visic">Visual IC</a> lets you
+    enter terms and see them in the graph along with their
+    information content in a static image.
+  </li>
+  
+  <li class="list-group-item">
+    <a href="[% base %]/amigo_exp?mode=scratch">Scratch</a> space
+    for test pieces not part of something else--a rotating guest list.
+  </li>
 
-    <li class="list-group-item">
-      <a href="[% base %]/amigo_exp?mode=scratch">Scratch</a> space
-      for test pieces not part of something else--a rotating guest list.
-    </li>
-
-  </ul>  
+</ul>  
 
 [% END %]
 <!-- End: software_list.tmpl -->
