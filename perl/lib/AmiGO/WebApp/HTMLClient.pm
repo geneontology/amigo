@@ -209,7 +209,7 @@ sub mode_simple_search {
   ## Pull our query parameter.
   my $q = $params->{query};
   if( ! defined $q || $q eq '' ){
-    $self->add_mq('warning', 'No search query was defined--please try again.');
+    #$self->add_mq('warning', 'No search query was defined--please try again.');
   }else{
     $self->set_template_parameter('query', $q);
     $self->{CORE}->kvetch('query: ' . $q);
@@ -219,8 +219,8 @@ sub mode_simple_search {
   ## Pull our golr_class parameter.
   my $gc = $params->{golr_class};
   if( ! defined $gc || $gc eq '' ){
-    $self->add_mq('warning',
-		  'No search category was defined--please try again.');
+    # $self->add_mq('warning',
+    # 		  'No search category was defined--please try again.');
   }else{
     $self->set_template_parameter('golr_class', $gc);
     $self->{CORE}->kvetch('golr_class: ' . $gc);
