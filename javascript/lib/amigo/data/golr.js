@@ -1066,6 +1066,42 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
+            "description" : "Closure of ids/accs over regulates.",
+            "display_name" : "Ancestor",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "regulates_closure",
+            "property" : [
+               "getRelationIDClosure",
+               "BFO:0000050",
+               "RO:0002211",
+               "RO:0002212",
+               "RO:0002213"
+            ]
+         },
+         {
+            "transform" : [],
+            "description" : "Closure of labels over regulates.",
+            "display_name" : "Ancestor",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "regulates_closure_label",
+            "property" : [
+               "getRelationLabelClosure",
+               "BFO:0000050",
+               "RO:0002211",
+               "RO:0002212",
+               "RO:0002213"
+            ]
+         },
+         {
+            "transform" : [],
             "description" : "JSON blob form of the local stepwise topology graph.",
             "display_name" : "Topology graph (JSON)",
             "indexed" : "false",
@@ -1091,9 +1127,82 @@ amigo.data.golr = {
             "property" : [
                "getLineageShuntGraphJSON"
             ]
+         },
+         {
+            "transform" : [],
+            "description" : "Only in taxon.",
+            "display_name" : "Only in taxon",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "only_in_taxon",
+            "property" : [
+               "getIdentifier"
+            ]
+         },
+         {
+            "transform" : [],
+            "description" : "Only in taxon label.",
+            "display_name" : "Only in taxon",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "only_in_taxon_label",
+            "property" : [
+               "getLabel"
+            ]
+         },
+         {
+            "transform" : [],
+            "description" : "Only in taxon closure.",
+            "display_name" : "Only in taxon (IDs)",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "only_in_taxon_closure",
+            "property" : [
+               "getRelationLabelClosure",
+               "RO:0002160"
+            ]
+         },
+         {
+            "transform" : [],
+            "description" : "Only in taxon label closure.",
+            "display_name" : "Only in taxon",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "only_in_taxon_closure_label",
+            "property" : [
+               "getRelationLabelClosure",
+               "RO:0002160"
+            ]
          }
       ],
       "fields_hash" : {
+         "only_in_taxon_closure" : {
+            "transform" : [],
+            "description" : "Only in taxon closure.",
+            "display_name" : "Only in taxon (IDs)",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "only_in_taxon_closure",
+            "property" : [
+               "getRelationLabelClosure",
+               "RO:0002160"
+            ]
+         },
          "source" : {
             "transform" : [],
             "description" : "Term namespace.",
@@ -1165,6 +1274,21 @@ amigo.data.golr = {
                "alt_id"
             ]
          },
+         "only_in_taxon_closure_label" : {
+            "transform" : [],
+            "description" : "Only in taxon label closure.",
+            "display_name" : "Only in taxon",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "only_in_taxon_closure_label",
+            "property" : [
+               "getRelationLabelClosure",
+               "RO:0002160"
+            ]
+         },
          "consider" : {
             "transform" : [],
             "description" : "Others terms you might want to look at.",
@@ -1206,6 +1330,34 @@ amigo.data.golr = {
             "id" : "subset",
             "property" : [
                "getSubsets"
+            ]
+         },
+         "only_in_taxon_label" : {
+            "transform" : [],
+            "description" : "Only in taxon label.",
+            "display_name" : "Only in taxon",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "only_in_taxon_label",
+            "property" : [
+               "getLabel"
+            ]
+         },
+         "only_in_taxon" : {
+            "transform" : [],
+            "description" : "Only in taxon.",
+            "display_name" : "Only in taxon",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "only_in_taxon",
+            "property" : [
+               "getIdentifier"
             ]
          },
          "id" : {
@@ -2531,6 +2683,54 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
+            "description" : "Secondary taxon.",
+            "display_name" : "Secondary taxon",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "secondary_taxon",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Secondary taxon.",
+            "display_name" : "Secondary taxon",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "secondary_taxon_label",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Secondary taxon closure.",
+            "display_name" : "Secondary taxon (IDs)",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "secondary_taxon_closure",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Secondary taxon closure.",
+            "display_name" : "Secondary taxon",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "secondary_taxon_closure_label",
+            "property" : []
+         },
+         {
+            "transform" : [],
             "description" : "Closure of ids/accs over isa and partof.",
             "display_name" : "Involved in (IDs)",
             "indexed" : "true",
@@ -2575,6 +2775,30 @@ amigo.data.golr = {
             "cardinality" : "multi",
             "type" : "string",
             "id" : "regulates_closure_label",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Closure of ids/accs over has_participant.",
+            "display_name" : "Has participant (IDs)",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "has_participant_closure",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "Closure of labels over has_participant.",
+            "display_name" : "Has participant",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "has_participant_closure_label",
             "property" : []
          },
          {
@@ -2879,6 +3103,30 @@ amigo.data.golr = {
             "id" : "date",
             "property" : []
          },
+         "has_participant_closure" : {
+            "transform" : [],
+            "description" : "Closure of ids/accs over has_participant.",
+            "display_name" : "Has participant (IDs)",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "has_participant_closure",
+            "property" : []
+         },
+         "secondary_taxon_label" : {
+            "transform" : [],
+            "description" : "Secondary taxon.",
+            "display_name" : "Secondary taxon",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "secondary_taxon_label",
+            "property" : []
+         },
          "bioentity_internal_id" : {
             "transform" : [],
             "description" : "The bioentity ID used at the database of origin.",
@@ -2975,6 +3223,18 @@ amigo.data.golr = {
             "id" : "annotation_extension_json",
             "property" : []
          },
+         "has_participant_closure_label" : {
+            "transform" : [],
+            "description" : "Closure of labels over has_participant.",
+            "display_name" : "Has participant",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "has_participant_closure_label",
+            "property" : []
+         },
          "synonym" : {
             "transform" : [],
             "description" : "GAF column 11: gene product synonyms.",
@@ -3011,18 +3271,6 @@ amigo.data.golr = {
             "id" : "type",
             "property" : []
          },
-         "source" : {
-            "transform" : [],
-            "description" : "GAF column 1 (database source).",
-            "display_name" : "Source",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "source",
-            "property" : []
-         },
          "annotation_extension_class" : {
             "transform" : [],
             "description" : "GAF column 16: extension class for the annotation.",
@@ -3033,6 +3281,18 @@ amigo.data.golr = {
             "cardinality" : "multi",
             "type" : "string",
             "id" : "annotation_extension_class",
+            "property" : []
+         },
+         "source" : {
+            "transform" : [],
+            "description" : "GAF column 1 (database source).",
+            "display_name" : "Source",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "source",
             "property" : []
          },
          "panther_family" : {
@@ -3083,6 +3343,18 @@ amigo.data.golr = {
             "id" : "reference",
             "property" : []
          },
+         "secondary_taxon_closure_label" : {
+            "transform" : [],
+            "description" : "Secondary taxon closure.",
+            "display_name" : "Secondary taxon",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "secondary_taxon_closure_label",
+            "property" : []
+         },
          "taxon_closure" : {
             "transform" : [],
             "description" : "Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo.",
@@ -3107,6 +3379,18 @@ amigo.data.golr = {
             "id" : "bioentity_isoform",
             "property" : []
          },
+         "secondary_taxon_closure" : {
+            "transform" : [],
+            "description" : "Secondary taxon closure.",
+            "display_name" : "Secondary taxon (IDs)",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "secondary_taxon_closure",
+            "property" : []
+         },
          "aspect" : {
             "transform" : [],
             "description" : "GAF column 9: Ontology aspect.",
@@ -3117,18 +3401,6 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "aspect",
-            "property" : []
-         },
-         "regulates_closure_label" : {
-            "transform" : [],
-            "description" : "Closure of labels over regulates.",
-            "display_name" : "Inferred annotation",
-            "indexed" : "true",
-            "searchable" : "true",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "regulates_closure_label",
             "property" : []
          },
          "taxon" : {
@@ -3143,6 +3415,18 @@ amigo.data.golr = {
             "id" : "taxon",
             "property" : []
          },
+         "regulates_closure_label" : {
+            "transform" : [],
+            "description" : "Closure of labels over regulates.",
+            "display_name" : "Inferred annotation",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "multi",
+            "type" : "string",
+            "id" : "regulates_closure_label",
+            "property" : []
+         },
          "regulates_closure" : {
             "transform" : [],
             "description" : "Closure of ids/accs over regulates.",
@@ -3155,16 +3439,16 @@ amigo.data.golr = {
             "id" : "regulates_closure",
             "property" : []
          },
-         "bioentity" : {
+         "secondary_taxon" : {
             "transform" : [],
-            "description" : "GAF column 1 + columns 2.",
-            "display_name" : "Gene/Product",
+            "description" : "Secondary taxon.",
+            "display_name" : "Secondary taxon",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
             "cardinality" : "single",
             "type" : "string",
-            "id" : "bioentity",
+            "id" : "secondary_taxon",
             "property" : []
          },
          "isa_partof_closure" : {
@@ -3177,6 +3461,18 @@ amigo.data.golr = {
             "cardinality" : "multi",
             "type" : "string",
             "id" : "isa_partof_closure",
+            "property" : []
+         },
+         "bioentity" : {
+            "transform" : [],
+            "description" : "GAF column 1 + columns 2.",
+            "display_name" : "Gene/Product",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "bioentity",
             "property" : []
          },
          "taxon_label" : {
