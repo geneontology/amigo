@@ -45,7 +45,7 @@ var gm_ann = new bbop.golr.manager.rhino('http://golr.berkeleybop.org/', gconf);
 gm_ann.debug(false);
 
 // Set ourselves to annotations.
-if( ! gm_ann.set_personality('bbop_ann') ){ // profile in gconf
+if( ! gm_ann.set_personality('annotation') ){ // profile in gconf
     throw new Error('There seems to have been an ERROR in the YAML loader...');
 }
 gm_ann.add_query_filter('document_category', 'annotation', ['*']);
