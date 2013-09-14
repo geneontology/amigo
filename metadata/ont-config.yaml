@@ -176,10 +176,6 @@ fields:
     type: string
     property: [getLineageShuntGraphJSON]
     indexed: false
-    description: "Only in taxon."
-    display_name: Only in taxon
-    type: string
-    property: []
   - id: only_in_taxon
     description: "Only in taxon."
     display_name: Only in taxon
