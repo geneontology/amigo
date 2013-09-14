@@ -44,6 +44,8 @@ function LiveSearchGOlrInit(){
 	    manager.add_button(id_download_button);
 	    //manager.add_button(id_symbol_galaxy_button);
 	    manager.add_button(bookmark_button);
+	}else if( personality == 'complex_annotation' ){
+	    manager.clear_buttons();
 	//}else if( personality == 'bbop_ann_ev_agg' ){
 	}else{
 	    manager.clear_buttons();
@@ -65,6 +67,11 @@ function LiveSearchGOlrInit(){
     	    manager.add_query_filter('document_category',
     				     'bioentity', ['*']);
     	    _establish_buttons('bioentity', manager);
+    	},
+    	'complex_annotation': function(manager){
+    	    manager.add_query_filter('document_category',
+    				     'complex_annotation', ['*']);
+    	    _establish_buttons('annotation', manager);
     	},
     	'family': function(manager){
     	    manager.add_query_filter('document_category',
