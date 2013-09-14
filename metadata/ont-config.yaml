@@ -141,6 +141,29 @@ fields:
       - "RO:0002212"
       - "RO:0002213"
     searchable: true
+  - id: regulates_closure
+    description: "Closure of ids/accs over regulates."
+    display_name: Ancestor
+    type: string
+    cardinality: multi
+    property:
+      - "getRelationIDClosure"
+      - "BFO:0000050"
+      - "RO:0002211"
+      - "RO:0002212"
+      - "RO:0002213"
+  - id: regulates_closure_label
+    description: "Closure of labels over regulates."
+    display_name: Ancestor
+    type: string
+    cardinality: multi
+    property:
+      - "getRelationLabelClosure"
+      - "BFO:0000050"
+      - "RO:0002211"
+      - "RO:0002212"
+      - "RO:0002213"
+    searchable: true
   - id: topology_graph_json
     description: JSON blob form of the local stepwise topology graph.
     display_name: Topology graph (JSON)
@@ -153,3 +176,36 @@ fields:
     type: string
     property: [getLineageShuntGraphJSON]
     indexed: false
+    description: "Only in taxon."
+    display_name: Only in taxon
+    type: string
+    property: []
+  - id: only_in_taxon
+    description: "Only in taxon."
+    display_name: Only in taxon
+    type: string
+    property: [getIdentifier]
+    searchable: true
+  - id: only_in_taxon_label
+    description: "Only in taxon label."
+    display_name: Only in taxon
+    type: string
+    property: [getLabel]
+    searchable: true
+  - id: only_in_taxon_closure
+    description: "Only in taxon closure."
+    display_name: Only in taxon (IDs)
+    type: string
+    cardinality: multi
+    property:
+      - "getRelationLabelClosure"
+      - "RO:0002160"
+  - id: only_in_taxon_closure_label
+    description: "Only in taxon label closure."
+    display_name: Only in taxon
+    type: string
+    cardinality: multi
+    property:
+      - "getRelationLabelClosure"
+      - "RO:0002160"
+    searchable: true

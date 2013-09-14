@@ -1,13 +1,11 @@
 ####
 #### The annotation description file for GOlr and AmiGO.
 ####
-## TODO: OWLTools will autogen an annotation label if not provided by
-## editor.
-id: lego_unit
+id: complex_annotation
 schema_generating: true
 description: An individual unit within LEGO.
 display_name: LEGO
-document_category: lego_unit
+document_category: complex_annotation
 weight: -5
 boost_weights: annotation^2.0 annotation_label^1.0
 result_weights: annotation^2.0 annotation_label^1.0
@@ -156,12 +154,12 @@ fields:
     type: string
     cardinality: multi
     property: []
-  # - id: owl_blob_json
-  #   description: ???
-  #   display_name: ???
-  #   type: string
-  #   property: []
-  #   indexed: false
+  - id: owl_blob_json
+    description: ???
+    display_name: ???
+    type: string
+    property: []
+    indexed: false
   - id: topology_graph_json
     description: JSON blob form of the local stepwise topology graph.
     display_name: Topology graph (JSON)
