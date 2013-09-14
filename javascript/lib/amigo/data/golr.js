@@ -170,11 +170,11 @@ amigo.data.golr = {
       "id" : "general",
       "_outfile" : "/home/sjcarbon/local/src/git/amigo/metadata//general-config.yaml"
    },
-   "lego_unit" : {
+   "complex_annotation" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "annotation^2.0 annotation_label^1.0",
       "filter_weights" : "annotation_label^1.0",
-      "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//lego-config.yaml",
+      "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//complex-ann-config.yaml",
       "display_name" : "LEGO",
       "description" : "An individual unit within LEGO.",
       "schema_generating" : "true",
@@ -458,6 +458,18 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
+            "description" : "???",
+            "display_name" : "???",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "owl_blob_json",
+            "property" : []
+         },
+         {
+            "transform" : [],
             "description" : "JSON blob form of the local stepwise topology graph.",
             "display_name" : "Topology graph (JSON)",
             "indexed" : "false",
@@ -734,6 +746,18 @@ amigo.data.golr = {
             "id" : "taxon_label",
             "property" : []
          },
+         "owl_blob_json" : {
+            "transform" : [],
+            "description" : "???",
+            "display_name" : "???",
+            "indexed" : "false",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "owl_blob_json",
+            "property" : []
+         },
          "process_class" : {
             "transform" : [],
             "description" : "Process acc/ID.",
@@ -759,11 +783,11 @@ amigo.data.golr = {
             "property" : []
          }
       },
-      "document_category" : "lego_unit",
+      "document_category" : "complex_annotation",
       "weight" : "-5",
       "_strict" : 0,
-      "id" : "lego_unit",
-      "_outfile" : "/home/sjcarbon/local/src/git/amigo/metadata//lego-config.yaml"
+      "id" : "complex_annotation",
+      "_outfile" : "/home/sjcarbon/local/src/git/amigo/metadata//complex-ann-config.yaml"
    },
    "ontology" : {
       "searchable_extension" : "_searchable",
