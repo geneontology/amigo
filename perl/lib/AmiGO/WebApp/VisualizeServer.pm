@@ -1,0 +1,521 @@
+=head1 AmiGO::WebApp::VisualizeServer
+
+...
+
+=cut
+
+
+package AmiGO::WebApp::VisualizeServer;
+use base 'AmiGO::WebApp';
+
+use CGI::Application::Plugin::TT;
+use Data::Dumper;
+use AmiGO::GraphViz;
+use AmiGO::SVGRewrite;
+use AmiGO::WebApp::Input;
+#use AmiGO::Aid;
+#use AmiGO::Worker::Subset;
+use AmiGO::Worker::Visualize;
+use AmiGO::Worker::GOlr::Term;
+
+
+##
+sub setup {
+
+  my $self = shift;
+
+  $self->{STATELESS} = 1;
+
+  $self->mode_param('mode');
+  $self->start_mode('status');
+  $self->error_mode('mode_fatal');
+  $self->run_modes(
+		   'quickgo'      => 'mode_quickgo', # TODO: fold into ...?
+#		   'subset'       => 'mode_subset',
+#		   'single'       => 'mode_single',
+		   'basic'        => 'mode_advanced', # TODO: 'mode_single',
+		   'multi'        => 'mode_advanced', # TODO: 'mode_multi',
+		   'advanced'     => 'mode_advanced',
+		   'status'       => 'mode_local_status',
+		   'AUTOLOAD'     => 'mode_exception'
+		  );
+}
+
+
+## If a header is needed, set correct header type for format.
+sub _add_fiddly_header {
+
+  my $self = shift;
+  my $type = shift || die "need type as arg: $!";
+  my $inline_p = shift;
+  die "need inline as arg: $!" if ! defined $inline_p;
+
+  ##
+  if( $inline_p eq 'true' ){
+    $inline_p = 1;
+  }elsif( $inline_p eq 'false' ){
+    $inline_p = 0;
+  }
+
+  ##
+  if( $inline_p ){
+    ## If it is inline, we want no headers (raw image feed).
+    #$self->header_add( -type => '' );
+    $self->header_type('none');
+  }else{
+    if( $type && ($type eq 'svg' || $type eq 'svg_raw') ){
+      $self->header_add( -type => 'image/svg+xml' );
+    }elsif( $type && $type eq 'dot' ){
+      $self->header_add( -type => 'text/plain' );
+    }else{
+      $self->header_add( -type => 'image/' . $type );
+    }
+  }
+}
+
+
+## Example:
+sub mode_local_status {
+   my $self = shift;
+   return $self->mode_status('visualize server');
+}
+
+## Example:
+## http://localhost/cgi-bin/amigo/visualize?mode=quickgo&term=GO:0048856
+sub mode_quickgo {
+
+  my $self = shift;
+  my $output = '';
+
+  ##
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile('visualize_single');
+  my $inline_p = $params->{inline};
+  my $term = $params->{term};
+
+  ##
+  my $qg_viz = AmiGO::Worker::Visualize->new($term);
+
+  ##
+  $self->_add_fiddly_header('png', $inline_p);
+
+  ##
+  my $img = $qg_viz->quickgo() || die "could not get image for quickgo: $!";
+  return $img;
+}
+
+
+# ## Example:
+# ## http://localhost/cgi-bin/amigo/visualize?mode=single&term=GO:0048856
+# sub mode_single {
+
+#   my $self = shift;
+#   my $output = '';
+
+#   ##
+#   my $i = AmiGO::WebApp::Input->new();
+#   my $params = $i->input_profile('visualize_single');
+#   my $inline_p = $params->{inline};
+#   my $acc = $params->{term};
+
+#   ## Set graphics renderer.
+#   my $gv = AmiGO::GraphViz->new({bitmap => 1});
+
+#   ###
+#   ### Build graph.
+#   ###
+
+#   ## Convert input terms to AmiGO terms.
+#   my $graph = GOBO::DBIC::GODBModel::Graph->new();
+
+#   if( $acc ){
+
+#     my $terms = [$graph->get_term($acc)];
+
+#     ## Assemble the graph.
+#     my($nodes, $edges) = $graph->climb($terms);
+
+#     ## Add edges to gv.
+#     foreach my $key (keys %$edges){
+
+#       my $t2t = $edges->{$key};
+#       my $s = $t2t->subject->acc;
+#       my $o = $t2t->object->acc;
+#       my $r = $t2t->relationship->name;
+#       $gv->add_edge($s, $r, $o);
+
+#       $self->{CORE}->kvetch("edge: $s $r $o");
+#     }
+
+#     ## Add nodes and node information to gv.
+#     foreach my $acc (keys %$nodes){
+#       my $t = $nodes->{$acc};
+
+#       my $title = $t->acc;
+#       my $body = $t->name;
+#       my $border = '';
+#       my $fill = '';
+#       my $font = '';
+
+#       ## Back to standard adding.
+#       $gv->add_node($acc, $title, $body,
+# 		    {
+# 		     color => $border,
+# 		     fillcolor => $fill,
+# 		     fontcolor => $font,
+# 		    });
+#       if( ! $amigo_terms->{$title} ){
+# 	$amigo_terms->{$title} = {
+# 				  name => $body,
+# 				  gene_products => {},
+# 				 };
+#       }
+#     }
+#     $output = $gv->get_png();
+#   }
+
+#   ## If a header is needed, set correct header type for format.
+#   $self->_add_fiddly_header('png', $inline_p);
+#   return $output;
+# }
+
+
+## Example:
+## http://localhost/cgi-bin/amigo2/visualize?mode=advanced&term_data={"GO:0002244" : 0.00001, "GO:0048856" : 0.5}&format=svg
+sub mode_advanced {
+
+  my $self = shift;
+  my $output = '';
+
+  ##
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile('visualize');
+  my $inline_p = $params->{inline};
+  my $format = $params->{format};
+  my $input_term_data_type = $params->{term_data_type};
+  my $input_term_data = $params->{term_data};
+
+  # my $aid = AmiGO::Aid->new();
+  #$self->{CORE}->kvetch('input: ' . $input_term_data);
+
+  ## Decode the incoming term data, depending on incoming data
+  ## type. Completely overwrite the input_term_list if we can.
+  my $term_list = [];
+  my $term_hash = {};
+  if( $input_term_data_type eq 'string' ){
+    $term_list = $self->{CORE}->clean_term_list($input_term_data);
+  }else{
+    $term_hash = $self->{JS}->parse_json_viz_data($input_term_data);
+    #if( defined($input_term_data) &&
+    #	scalar(keys %$input_term_data) != 0 ){
+    # $input_term_list = [];
+    foreach my $itd (keys %$term_hash){
+      push @$term_list, $itd;
+    }
+  }
+
+  ## The term_hash is so useful, even if we came in through a list,
+  ## let's minimally populate it.
+  if( $self->{CORE}->empty_hash_p($term_hash) ){
+    foreach my $tli (@$term_list){
+      $term_hash->{$tli} = {};
+    }
+  }
+
+  ## DEBUG.
+  #$self->{CORE}->kvetch(Dumper($term_list));
+  #$self->{CORE}->kvetch(Dumper($term_hash));
+
+  ## Set correct graphics renderer.
+  my $gv = undef;
+  if( $format &&
+      ($format eq 'svg' || $format eq 'svg_raw' || $format eq 'dot') ){
+    $gv = AmiGO::GraphViz->new();
+  }else{
+    $gv = AmiGO::GraphViz->new({bitmap => 1});
+  }
+
+  ###
+  ### Build graph.
+  ###
+
+  ## Go through build graph routine only if there is something coming
+  ## in. We'll need the empty amigo_terms later on in some cases even
+  ## if there is nothing (example: producing empty SVG).
+  my $amigo_terms = {};
+  if( defined($term_list) &&
+      scalar(@$term_list) != 0 ){
+
+    ## Get information on all incoming terms.
+    my $tinfo = AmiGO::Worker::GOlr::Term->new($term_list);
+    my $tinfo_hash = $tinfo->get_info();
+
+    ## Cycle through the info of all of the incoming terms.
+    ## Collect all of the edge info and node info.
+    my $all_edges = {};
+    my $all_nodes = {};
+    foreach my $acc (keys %$tinfo_hash){
+
+      ## Pull out the raw graph info out.
+      my $tinfo_item = $tinfo_hash->{$acc};
+      my $topo_graph_raw = $tinfo_item->{topology_graph_json};
+      my $topo_graph = $self->{CORE}->_read_json_string($topo_graph_raw);
+
+      ## Also, use the chewable graph as a filter to eliminate excess
+      ## child nodes from displays.
+      my $cgraph = $tinfo_item->{chewable_graph};
+      my $children_list = $cgraph->get_children($acc);
+      my %children_hash = map { $_ => 1 } @$children_list;
+      $self->{CORE}->kvetch(Dumper(\%children_hash));
+      $self->{CORE}->kvetch(Dumper($term_hash));
+
+      ## Simply process the edges.
+      foreach my $edge (@{$topo_graph->{'edges'}}){
+	my $sid = $edge->{'sub'};
+	my $oid = $edge->{'obj'};
+	my $pid = $edge->{'pred'} || '.';
+	## Filter child rels out.
+	if( ! $children_hash->{$sid} && ! $term_hash->{$oid} ){
+	  my $vid = $sid . $pid . $oid;
+	  $all_edges->{$vid} =
+	    {
+	     'sub' => $sid,
+	     'obj' => $oid,
+	     'pred' => $pid,
+	    };
+	  $self->{CORE}->kvetch("edge: $sid $pid $oid");
+	}
+      }
+
+      ## A more complicates processing of the nodes.
+      foreach my $node (@{$topo_graph->{'nodes'}}){
+	my $acc = $node->{'id'};
+	my $label = $node->{'lbl'};
+
+	## Filter child nodes out.
+	if( ! $children_hash{$acc} ){
+	  $all_nodes->{$acc} =
+	    {
+	     'acc' => $acc,
+	     'label' => $label
+	    };
+	  $self->{CORE}->kvetch("node: $acc ($label)");
+	}
+      }
+    }
+
+    ## Add edges to the visual graph.
+    foreach my $eid (keys %$all_edges){
+      my $sid = $all_edges->{$eid}{sub};
+      my $oid = $all_edges->{$eid}{obj};
+      my $pid = $all_edges->{$eid}{pred};
+      $gv->add_edge($sid, $pid, $oid);
+    }
+
+    ## Add nodes to the visual graph.
+    foreach my $nacc (keys %$all_nodes){
+      my $acc = $all_nodes->{$nacc}{acc};
+      my $label = $all_nodes->{$nacc}{label};
+
+      my $title = $acc;
+      my $body = $label;
+      my $border = '';
+      my $fill = '';
+      my $font = '';
+      my $box_width = undef;
+      my $box_height = undef;
+      # my $node_width = undef;
+      # my $node_height = undef;
+
+      ## BUG: this bit is great, except it shouldn't be here--it
+      ## should be generated on the "client" side. How should I do
+      ## that since this is the client...?  Special section for
+      ## jsoned data.
+      ## Deal with additional data...
+      if( defined $term_hash->{$acc} && ref($term_hash->{$acc}) eq 'HASH' ){
+	my $data_hash = $term_hash->{$acc};
+	$title = $data_hash->{title} if defined $data_hash->{title};
+	$body = $data_hash->{body} if defined $data_hash->{body};
+	$border = $data_hash->{border} if defined $data_hash->{border};
+	$fill = $data_hash->{fill} if defined $data_hash->{fill};
+	$font = $data_hash->{font} if defined $data_hash->{font};
+	# ($fill, $font) = $aid->pval_to_color($term_hash->{$acc});
+	$box_width = $data_hash->{box_width}
+	  if defined $data_hash->{box_width};
+	$box_height = $data_hash->{box_height}
+	  if defined $data_hash->{box_height};
+	# $node_width = $data_hash->{node_width}
+	#   if defined $data_hash->{node_width};
+	# $node_height = $data_hash->{node_height}
+	#   if defined $data_hash->{node_height};
+      }
+
+      ## Back to standard adding.
+      $gv->add_node($acc, $title, $body,
+		    {
+		     color => $border,
+		     fillcolor => $fill,
+		     fontcolor => $font,
+		     box_width => $box_width,
+		     box_height => $box_height,
+		     # node_width => $node_width,
+		     # node_height => $node_height,
+		    });
+      if( ! $amigo_terms->{$title} ){
+	$amigo_terms->{$title} = {
+				  name => $body,
+				  gene_products => {},
+				 };
+      }
+    }
+  }
+
+  ## Produce the (possibly empty) image in SVG or PNG.
+  if( $format && $format eq 'svg' ){
+
+    my $svg_file = $gv->get_svg();
+    my $svg_rewriter = AmiGO::SVGRewrite->new();
+    $svg_rewriter->add_js_variable('amigo_terms', $amigo_terms);
+    $svg_rewriter->add_js_variable('amigo_species_order', []);
+    $svg_rewriter->add_js_library('org.bbop.NodeDetails');
+    $svg_rewriter->add_js_initializer("org.bbop.NodeDetails('detail_context');");
+    $svg_rewriter->add_js_library('org.bbop.Viewer');
+    $svg_rewriter->add_js_initializer("org.bbop.Viewer('rgsvg','tform_matrix');");
+    $output = $svg_rewriter->rewrite($svg_file);
+
+  }elsif( $format && $format eq 'svg_raw' ){
+    $output = $gv->get_svg();
+  }elsif( $format && $format eq 'dot' ){
+    $output = $gv->get_dot();
+  }else{
+    $output = $gv->get_png();
+  }
+
+  ## If a header is needed, set correct header type for format.
+  if( $inline_p eq 'false' ){
+    if( $format && ($format eq 'svg' || $format eq 'svg_raw') ){
+      $self->header_add( -type => 'image/svg+xml' );
+    }elsif( $format && $format eq 'dot' ){
+      $self->header_add( -type => 'text/plain' );
+    }else{
+      $self->header_add( -type => 'image/png' );
+    }
+  }else{
+
+    ## No header.
+    $self->header_add( -type => '' );
+
+    ## BUG: inline SVG needs the first few lines removed as well...
+    if( $format && ($format eq 'svg' || $format eq 'svg_raw') ){
+      ## TODO: 
+    }
+  }
+
+  return $output;
+}
+
+
+# ## Example:
+# ## http://localhost/cgi-bin/amigo/visualize?mode=subset&subset=goslim_candida
+# sub mode_subset {
+
+#   my $self = shift;
+#   my $output = '';
+
+#   ##
+#   my $i = AmiGO::WebApp::Input->new();
+#   my $params = $i->input_profile('visualize_subset');
+#   my $inline_p = $params->{inline};
+#   my $subset_acc = $params->{subset};
+
+#   ## Set graphics renderer.
+#   my $gv = AmiGO::GraphViz->new({bitmap => 1});
+
+#   ###
+#   ### Build graph.
+#   ###
+
+#   my $graph = GOBO::DBIC::GODBModel::Graph->new();
+#   if( $subset_acc ){
+
+#     ## Convert input subset acc to term accs.
+#     my $sget = AmiGO::Worker::Subset->new();
+#     my @term_list = keys(%{$sget->get_term_accs($subset_acc)});
+
+#     $self->{CORE}->kvetch("Subsets:" .
+# 			  join(', ', keys(%{$sget->get_subset_accs()})));
+#     $self->{CORE}->kvetch("Subset terms:" . join(', ', @term_list));
+
+#     ## Convert input terms to AmiGO terms.
+#     my $terms = [];
+#     foreach my $acc (@term_list){
+#       my $term = $graph->get_term($acc);
+#       if( defined $term ){
+# 	push @$terms, $term;
+#       }
+#     }
+
+#     ## Assemble the graph.
+#     my($nodes, $edges) = $graph->climb($terms);
+
+#     ## Add edges to gv.
+#     foreach my $key (keys %$edges){
+
+#       my $t2t = $edges->{$key};
+#       my $s = $t2t->subject->acc;
+#       my $o = $t2t->object->acc;
+#       my $r = $t2t->relationship->name;
+#       $gv->add_edge($s, $r, $o);
+
+#       $self->{CORE}->kvetch("edge: $s $r $o");
+#     }
+
+#     ## Add nodes and node information to gv.
+#     foreach my $acc (keys %$nodes){
+#       my $t = $nodes->{$acc};
+
+#       my $title = $t->acc;
+#       my $body = $t->name;
+#       my $border = '';
+#       my $fill = '';
+#       my $font = '';
+
+#       ## Back to standard adding.
+#       $gv->add_node($acc, $title, $body,
+# 		    {
+# 		     color => $border,
+# 		     fillcolor => $fill,
+# 		     fontcolor => $font,
+# 		    });
+#       if( ! $amigo_terms->{$title} ){
+# 	$amigo_terms->{$title} = {
+# 				  name => $body,
+# 				  gene_products => {},
+# 				 };
+#       }
+#     }
+#     $output = $gv->get_png();
+#   }
+
+#   ## If a header is needed, set correct header type for format.
+#   $self->_add_fiddly_header('png', $inline_p);
+#   return $output;
+# }
+
+
+###
+###
+###
+
+
+## Last called before the lights go out.
+sub teardown {
+  my $self = shift;
+
+  # Disconnect when we're done, (Although DBI usually does this automatically)
+  #$self->dbh->disconnect();
+}
+
+
+
+1;
