@@ -28,12 +28,12 @@ sub setup {
 
   $self->{STATELESS} = 1;
 
-  # $self->tt_config(TEMPLATE_OPTIONS =>
-  # 		   {INCLUDE_PATH =>
-  # 		    $self->{CORE}->amigo_env('GO_DEV_ROOT') .
-  # 		    '/amigo/amigo/templates'});
-  $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
-			 '/templates/html');
+  # # $self->tt_config(TEMPLATE_OPTIONS =>
+  # # 		   {INCLUDE_PATH =>
+  # # 		    $self->{CORE}->amigo_env('GO_DEV_ROOT') .
+  # # 		    '/amigo/amigo/templates'});
+  # $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
+  # 			 '/templates/html');
 
   $self->mode_param('mode');
   $self->start_mode('status');
@@ -45,7 +45,7 @@ sub setup {
 		   'basic'        => 'mode_advanced', # TODO: 'mode_single',
 		   'multi'        => 'mode_advanced', # TODO: 'mode_multi',
 		   'advanced'     => 'mode_advanced',
-		   'status'       => 'mode_status', # server alive?
+		   'status'       => 'mode_local_status',
 		   'AUTOLOAD'     => 'mode_exception'
 		  );
 }
@@ -82,6 +82,12 @@ sub _add_fiddly_header {
   }
 }
 
+
+## Example:
+sub mode_local_status {
+   my $self = shift;
+   return $self->mode_status('visualize server');
+}
 
 ## Example:
 ## http://localhost/cgi-bin/amigo/visualize?mode=quickgo&term=GO:0048856

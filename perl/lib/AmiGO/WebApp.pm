@@ -1153,16 +1153,55 @@ sub _min_slurp {
 ### Common mode handling (HTML).
 ###
 
-# ##
-# sub mode_status {
-#   my $self = shift;
-#   $self->set_template_parameter('hid', $self->{CORE}->unique_id());
-#   $self->set_template_parameter('page_title', 'AmiGO 2: Status');
-#   $self->add_template_content('common/status.tmpl');
-#   $self->{CORE}->kvetch("added status");
-#   #return $self->generate_template_page();
-#   return $self->generate_template_page();
-# }
+##
+sub mode_status {
+  my $self = shift;
+  my $service_name = shift || 'unidentified';
+
+  $self->set_template_parameter('service_name', $service_name);
+  $self->set_template_parameter('hid', $self->{CORE}->current_time());
+  $self->set_template_parameter('page_title',
+				'AmiGO 2: Service Status for ' . $service_name);
+
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui',
+      'bbop',
+      'amigo'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();'
+     ],
+     content =>
+     [
+      'pages/status.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page_with();
+  # $self->add_template_content('page/status.tmpl');
+  # $self->{CORE}->kvetch("added status");
+  # #return $self->generate_template_page();
+  # return $self->generate_template_page_with();
+}
 
 ##
 sub _status_message_exit {

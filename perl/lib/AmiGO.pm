@@ -507,6 +507,16 @@ sub verbose_p {
   return $retval;
 }
 
+=item current_time
+
+Returns: the current local time as a string.
+
+=cut
+sub current_time {
+  my $self = shift;
+  my $now = POSIX::strftime("%H:%M:%S", localtime);
+  return $now;
+}
 
 =item kvetch
 
@@ -528,7 +538,7 @@ sub kvetch {
   if( $self->verbose_p() ){
 
 
-    my $now = POSIX::strftime("%H:%M:%S", localtime);
+    my $now = $self->current_time();
 
     ## Add paerent caller package to top of message if
     ## possible. Otherwise, as much as we can...
