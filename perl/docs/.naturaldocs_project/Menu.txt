@@ -129,6 +129,7 @@ Group: AmiGO  {
       File: PGraph  (AmiGO/WebApp/PGraph.pm)
       File: REPL.pm  (AmiGO/WebApp/REPL.pm)
       File: Services  (AmiGO/WebApp/Services.pm)
+      File: VisualizeServer.pm  (AmiGO/WebApp/VisualizeServer.pm)
       }  # Group: WebApp
 
    Group: Worker  {
