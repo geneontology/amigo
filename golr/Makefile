@@ -227,6 +227,7 @@ service-restart-nginx:
 service-restart-jetty:
 	sudo /etc/init.d/jetty restart
 
+## Solr rollbackup helper.
 .PHONY: service-backup-solr
 service-backup-solr:
 	sudo rsync -avzog --progress $(SOLR_DATA_ROOT) $(SOLR_DATA_ROOT).$(DATE)-$(TIME)
