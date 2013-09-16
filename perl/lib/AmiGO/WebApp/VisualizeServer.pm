@@ -36,6 +36,7 @@ sub setup {
 		   'basic'        => 'mode_advanced', # TODO: 'mode_single',
 		   'multi'        => 'mode_advanced', # TODO: 'mode_multi',
 		   'advanced'     => 'mode_advanced',
+		   'freeform'     => 'mode_freeform',
 		   'status'       => 'mode_local_status',
 		   'AUTOLOAD'     => 'mode_exception'
 		  );
@@ -47,10 +48,9 @@ sub _add_fiddly_header {
 
   my $self = shift;
   my $type = shift || die "need type as arg: $!";
-  my $inline_p = shift;
-  die "need inline as arg: $!" if ! defined $inline_p;
+  my $inline_p = shift || die "need inline as arg: $!";
 
-  ##
+  ## Translate English to perl for bool.
   if( $inline_p eq 'true' ){
     $inline_p = 1;
   }elsif( $inline_p eq 'false' ){
@@ -179,6 +179,132 @@ sub mode_quickgo {
 #   return $output;
 # }
 
+## Add edges from hash ref to GraphViz object.
+sub _add_gv_edges {
+  my $self = shift;
+  my $gv = shift || die 'need gv object';
+  my $all_edges = shift || die 'need all edges object';
+
+  ## Add edges to the visual graph.
+  foreach my $eid (keys %$all_edges){
+    my $sid = $all_edges->{$eid}{sub};
+    my $oid = $all_edges->{$eid}{obj};
+    my $pid = $all_edges->{$eid}{pred};
+    $gv->add_edge($sid, $pid, $oid);
+  }
+}
+
+sub _add_gv_nodes {
+  my $self = shift;
+  my $gv = shift || die 'need gv object';
+  my $all_nodes = shift || die 'need all nodes object';
+  my $term_hash = shift || {}; # fonts, colors, etc.
+  
+  ## Add nodes to the visual graph.
+  foreach my $nacc (keys %$all_nodes){
+    my $acc = $all_nodes->{$nacc}{acc};
+    my $label = $all_nodes->{$nacc}{label};
+    
+    my $title = $acc;
+    my $body = $label;
+    my $border = '';
+    my $fill = '';
+    my $font = '';
+    my $box_width = undef;
+    my $box_height = undef;
+    # my $node_width = undef;
+    # my $node_height = undef;
+    
+    ## BUG: this bit is great, except it shouldn't be here--it
+    ## should be generated on the "client" side. How should I do
+    ## that since this is the client...?  Special section for
+    ## jsoned data.
+    ## Deal with additional data...
+    if( defined $term_hash &&
+	defined $term_hash->{$acc} &&
+	ref($term_hash->{$acc}) eq 'HASH' ){
+      my $data_hash = $term_hash->{$acc};
+      $title = $data_hash->{title} if defined $data_hash->{title};
+      $body = $data_hash->{body} if defined $data_hash->{body};
+      $border = $data_hash->{border} if defined $data_hash->{border};
+      $fill = $data_hash->{fill} if defined $data_hash->{fill};
+      $font = $data_hash->{font} if defined $data_hash->{font};
+      # ($fill, $font) = $aid->pval_to_color($term_hash->{$acc});
+      $box_width = $data_hash->{box_width}
+	if defined $data_hash->{box_width};
+      $box_height = $data_hash->{box_height}
+	if defined $data_hash->{box_height};
+      # $node_width = $data_hash->{node_width}
+      #   if defined $data_hash->{node_width};
+      # $node_height = $data_hash->{node_height}
+      #   if defined $data_hash->{node_height};
+    }
+
+    ## Back to standard adding.
+    $gv->add_node($acc, $title, $body,
+		  {
+		   color => $border,
+		   fillcolor => $fill,
+		   fontcolor => $font,
+		   box_width => $box_width,
+		   box_height => $box_height,
+		   # node_width => $node_width,
+		   # node_height => $node_height,
+		  });
+    # if( ! $amigo_terms->{$title} ){
+    #   $amigo_terms->{$title} = {
+    # 			    name => $body,
+    # 			    gene_products => {},
+    # 			   };
+    # }
+  }
+}
+
+sub _get_format_appropriate_renderer {
+  my $self = shift;
+  my $format = shift || die 'need format';
+
+  my $gv = undef;
+  if( $format &&
+      ($format eq 'svg' || $format eq 'svg_raw' || $format eq 'dot') ){
+    $gv = AmiGO::GraphViz->new();
+  }else{
+    $gv = AmiGO::GraphViz->new({bitmap => 1});
+  }
+
+  return $gv;
+}
+
+## ...
+sub _produce_appropriate_output {
+  my $self = shift;
+  my $gv = shift || die "need graphics object for output";
+  my $format = shift || die "need format for output";
+  my $amigo_terms = shift || {};
+
+  my $output = undef;
+  if( $format && $format eq 'svg' ){
+    ## TODO: How old is this? Even used anymore? If eliminated,
+    ## amigo_terms could go too.
+    my $svg_file = $gv->get_svg();
+    my $svg_rewriter = AmiGO::SVGRewrite->new();
+    $svg_rewriter->add_js_variable('amigo_terms', $amigo_terms);
+    $svg_rewriter->add_js_variable('amigo_species_order', []);
+    $svg_rewriter->add_js_library('org.bbop.NodeDetails');
+    $svg_rewriter->add_js_initializer("org.bbop.NodeDetails('detail_context');");
+    $svg_rewriter->add_js_library('org.bbop.Viewer');
+    $svg_rewriter->add_js_initializer("org.bbop.Viewer('rgsvg','tform_matrix');");
+    $output = $svg_rewriter->rewrite($svg_file);
+  }elsif( $format && $format eq 'svg_raw' ){
+    $output = $gv->get_svg();
+  }elsif( $format && $format eq 'dot' ){
+    $output = $gv->get_dot();
+  }else{
+    $output = $gv->get_png();
+  }
+
+  return $output;
+}
 
 ## Example:
 ## http://localhost/cgi-bin/amigo2/visualize?mode=advanced&term_data={"GO:0002244" : 0.00001, "GO:0048856" : 0.5}&format=svg
@@ -199,7 +325,7 @@ sub mode_advanced {
   #$self->{CORE}->kvetch('input: ' . $input_term_data);
 
   ## Decode the incoming term data, depending on incoming data
-  ## type. Completely overwrite the input_term_list if we can.
+  ## type. Completely overwrite the input_term_list if we can using 
   my $term_list = [];
   my $term_hash = {};
   if( $input_term_data_type eq 'string' ){
@@ -226,23 +352,20 @@ sub mode_advanced {
   #$self->{CORE}->kvetch(Dumper($term_list));
   #$self->{CORE}->kvetch(Dumper($term_hash));
 
-  ## Set correct graphics renderer.
-  my $gv = undef;
-  if( $format &&
-      ($format eq 'svg' || $format eq 'svg_raw' || $format eq 'dot') ){
-    $gv = AmiGO::GraphViz->new();
-  }else{
-    $gv = AmiGO::GraphViz->new({bitmap => 1});
-  }
-
   ###
   ### Build graph.
   ###
 
-  ## Go through build graph routine only if there is something coming
-  ## in. We'll need the empty amigo_terms later on in some cases even
-  ## if there is nothing (example: producing empty SVG).
+  ## TODO: (removable?) We'll need the empty amigo_terms later on in
+  ## some cases even if there is nothing (example: producing empty
+  ## SVG).
   my $amigo_terms = {};
+
+  ## Go through build graph routine only if there is something coming
+  ## in on out term_list (which was generated by either direct list or
+  ## indirect advanced format).
+  my $all_edges = {};
+  my $all_nodes = {};
   if( defined($term_list) &&
       scalar(@$term_list) != 0 ){
 
@@ -250,10 +373,8 @@ sub mode_advanced {
     my $tinfo = AmiGO::Worker::GOlr::Term->new($term_list);
     my $tinfo_hash = $tinfo->get_info();
 
-    ## Cycle through the info of all of the incoming terms.
-    ## Collect all of the edge info and node info.
-    my $all_edges = {};
-    my $all_nodes = {};
+    ## Cycle through the info of all of the incoming terms and related
+    ## edges.
     foreach my $acc (keys %$tinfo_hash){
 
       ## Pull out the raw graph info out.
@@ -303,114 +424,21 @@ sub mode_advanced {
 	}
       }
     }
-
-    ## Add edges to the visual graph.
-    foreach my $eid (keys %$all_edges){
-      my $sid = $all_edges->{$eid}{sub};
-      my $oid = $all_edges->{$eid}{obj};
-      my $pid = $all_edges->{$eid}{pred};
-      $gv->add_edge($sid, $pid, $oid);
-    }
-
-    ## Add nodes to the visual graph.
-    foreach my $nacc (keys %$all_nodes){
-      my $acc = $all_nodes->{$nacc}{acc};
-      my $label = $all_nodes->{$nacc}{label};
-
-      my $title = $acc;
-      my $body = $label;
-      my $border = '';
-      my $fill = '';
-      my $font = '';
-      my $box_width = undef;
-      my $box_height = undef;
-      # my $node_width = undef;
-      # my $node_height = undef;
-
-      ## BUG: this bit is great, except it shouldn't be here--it
-      ## should be generated on the "client" side. How should I do
-      ## that since this is the client...?  Special section for
-      ## jsoned data.
-      ## Deal with additional data...
-      if( defined $term_hash->{$acc} && ref($term_hash->{$acc}) eq 'HASH' ){
-	my $data_hash = $term_hash->{$acc};
-	$title = $data_hash->{title} if defined $data_hash->{title};
-	$body = $data_hash->{body} if defined $data_hash->{body};
-	$border = $data_hash->{border} if defined $data_hash->{border};
-	$fill = $data_hash->{fill} if defined $data_hash->{fill};
-	$font = $data_hash->{font} if defined $data_hash->{font};
-	# ($fill, $font) = $aid->pval_to_color($term_hash->{$acc});
-	$box_width = $data_hash->{box_width}
-	  if defined $data_hash->{box_width};
-	$box_height = $data_hash->{box_height}
-	  if defined $data_hash->{box_height};
-	# $node_width = $data_hash->{node_width}
-	#   if defined $data_hash->{node_width};
-	# $node_height = $data_hash->{node_height}
-	#   if defined $data_hash->{node_height};
-      }
-
-      ## Back to standard adding.
-      $gv->add_node($acc, $title, $body,
-		    {
-		     color => $border,
-		     fillcolor => $fill,
-		     fontcolor => $font,
-		     box_width => $box_width,
-		     box_height => $box_height,
-		     # node_width => $node_width,
-		     # node_height => $node_height,
-		    });
-      if( ! $amigo_terms->{$title} ){
-	$amigo_terms->{$title} = {
-				  name => $body,
-				  gene_products => {},
-				 };
-      }
-    }
   }
+
+  ## Get correct graphics renderer.
+  my $gv = $self->_get_format_appropriate_renderer($format);
+
+  ## Assemble the found nodes (including the term hash style/label
+  ## info) and edges into the GraphVix graph.
+  $self->_add_gv_edges($gv, $all_edges);
+  $self->_add_gv_nodes($gv, $all_nodes, $term_hash);
+
+  ## Get the headers correct.
+  $self->_add_fiddly_header($format, $inline_p);
 
   ## Produce the (possibly empty) image in SVG or PNG.
-  if( $format && $format eq 'svg' ){
-
-    my $svg_file = $gv->get_svg();
-    my $svg_rewriter = AmiGO::SVGRewrite->new();
-    $svg_rewriter->add_js_variable('amigo_terms', $amigo_terms);
-    $svg_rewriter->add_js_variable('amigo_species_order', []);
-    $svg_rewriter->add_js_library('org.bbop.NodeDetails');
-    $svg_rewriter->add_js_initializer("org.bbop.NodeDetails('detail_context');");
-    $svg_rewriter->add_js_library('org.bbop.Viewer');
-    $svg_rewriter->add_js_initializer("org.bbop.Viewer('rgsvg','tform_matrix');");
-    $output = $svg_rewriter->rewrite($svg_file);
-
-  }elsif( $format && $format eq 'svg_raw' ){
-    $output = $gv->get_svg();
-  }elsif( $format && $format eq 'dot' ){
-    $output = $gv->get_dot();
-  }else{
-    $output = $gv->get_png();
-  }
-
-  ## If a header is needed, set correct header type for format.
-  if( $inline_p eq 'false' ){
-    if( $format && ($format eq 'svg' || $format eq 'svg_raw') ){
-      $self->header_add( -type => 'image/svg+xml' );
-    }elsif( $format && $format eq 'dot' ){
-      $self->header_add( -type => 'text/plain' );
-    }else{
-      $self->header_add( -type => 'image/png' );
-    }
-  }else{
-
-    ## No header.
-    $self->header_add( -type => '' );
-
-    ## BUG: inline SVG needs the first few lines removed as well...
-    if( $format && ($format eq 'svg' || $format eq 'svg_raw') ){
-      ## TODO: 
-    }
-  }
-
+  my $output = $self->_produce_appropriate_output($gv, $format, $amigo_terms);
   return $output;
 }
 
