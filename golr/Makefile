@@ -24,6 +24,7 @@ SOLR_URL ?= http://localhost:8080/solr/
 OWLTOOLS_ROOT ?= ~/local/src/svn/owltools/
 BBOP_JS_ROOT ?= ~/local/src/git/bbop-js/
 PANTHER_FILES_DIR ?= ~/local/src/svn/geneontology.org/trunk/experimental/trees/panther_data/
+SOLR_DATA_ROOT ?= /srv/solr
 
 ## Files.
 SOLR_LOAD_LOG ?= /tmp/golr_timestamp.log
@@ -225,3 +226,7 @@ service-restart-nginx:
 .PHONY: service-restart-jetty
 service-restart-jetty:
 	sudo /etc/init.d/jetty restart
+
+.PHONY: service-backup-solr
+service-backup-solr:
+	sudo rsync -avzog --progress $(SOLR_DATA_ROOT) $(SOLR_DATA_ROOT).$(DATE)-$(TIME)
