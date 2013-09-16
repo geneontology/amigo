@@ -175,7 +175,7 @@ amigo.data.golr = {
       "result_weights" : "annotation^2.0 annotation_label^1.0",
       "filter_weights" : "annotation_label^1.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//complex-ann-config.yaml",
-      "display_name" : "LEGO",
+      "display_name" : "Complex annotations",
       "description" : "An individual unit within LEGO.",
       "schema_generating" : "true",
       "boost_weights" : "annotation^2.0 annotation_label^1.0",

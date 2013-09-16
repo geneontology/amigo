@@ -1948,6 +1948,7 @@ amigo.data.xrefs = {
       "abbreviation" : "Wormpep",
       "id" : null,
       "url_syntax" : "http://www.wormbase.org/db/get?class=Protein;name=WP:[example_id]",
+      "is_obsolete" : "true",
       "datatype" : null
    },
    "jcvi" : {
@@ -4190,6 +4191,7 @@ amigo.data.xrefs = {
       "fullname" : null,
       "id" : null,
       "abbreviation" : "WP",
+      "is_obsolete" : "true",
       "url_syntax" : "http://www.wormbase.org/db/get?class=Protein;name=WP:[example_id]",
       "datatype" : null
    },

@@ -4,7 +4,7 @@
 id: complex_annotation
 schema_generating: true
 description: An individual unit within LEGO.
-display_name: LEGO
+display_name: Complex annotations
 document_category: complex_annotation
 weight: -5
 boost_weights: annotation^2.0 annotation_label^1.0
