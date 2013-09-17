@@ -1484,6 +1484,25 @@ sub mode_exception {
 ### Utility functions for the applications.
 ###
 
+## Just a true|false sanity check on JSON arguments. TODO: May want to
+## move this to WebbApp/Input.pm.
+sub json_parsable_p {
+  my $self = shift;
+  my $json_str = shift || die 'required json string not found';
+
+  my $retval = 1;
+  eval {
+    $self->{CORE}->_read_json_string($json_str);
+  };
+  if( $@ ){
+      $self->{CORE}->kvetch("problem decoding JSON: " . $@);
+      $self->{CORE}->kvetch("with JSON: " . $json_str);
+      $retval = 0;
+    }
+  
+  return $retval;
+}
+
 ## Irritating FormValidator can return scalar or array
 ## ref. Normalize on array ref.
 sub to_array_ref {

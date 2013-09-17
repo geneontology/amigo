@@ -694,14 +694,8 @@ sub mode_visualize {
     ## Check to see if this JSON is even parsable...that's really all
     ## that we're doing here.
     if( $input_term_data_type eq 'json' ){
-      eval {
-	$self->{CORE}->_read_json_string($input_term_data);
-      };
-      if ($@) {
-	my $str = 'Your JSON was not formatted correctly...please go back and retry. Look at the <a href="http://wiki.geneontology.org/index.php/AmiGO_Manual:_Visualize">advanced format</a> documentation for more details.';
-	#return $self->mode_fatal($str . '<br />' . $@);
-	$self->{CORE}->kvetch("die decoding JSON: " . $@);
-	$self->{CORE}->kvetch("JSON: " . $input_term_data);
+      if( ! $self->json_parsable_p($input_term_data) ){
+	my $str = 'Your JSON was not formatted correctly, please go back and retry. Look at the <a href="http://wiki.geneontology.org/index.php/AmiGO_Manual:_Visualize">advanced format</a> documentation for more details.';
 	return $self->mode_fatal($str);
       }
     }
@@ -802,31 +796,20 @@ sub mode_visualize_freeform {
 
   }else{
 
-    ## Check to see if this JSON is even parsable...that's really all
-    ## that we're doing here.
+    ## Check to see if the graph JSON is even parsable.
     if( $input_graph_data ){
-      eval {
-	$self->{CORE}->_read_json_string($input_graph_data);
+      if( ! $self->json_parsable_p($input_graph_data) ){
+	my $str = 'Your graph JSON was not formatted correctly...';
+	return $self->mode_fatal($str);
       }
-    }
-    if( $@ ){
-      my $str = 'Your graph JSON was not formatted correctly...';
-      $self->{CORE}->kvetch("die decoding JSON: " . $@);
-      $self->{CORE}->kvetch("JSON: " . $input_term_data);
-      return $self->mode_fatal($str);
     }
 
     ## The same for the term data.
     if( $input_term_data ){
-      eval {
-	$self->{CORE}->_read_json_string($input_term_data);
-      };
-    }
-    if( $@ ){
-      my $str = 'Your term JSON was not formatted correctly...';
-      $self->{CORE}->kvetch("die decoding JSON: " . $@);
-      $self->{CORE}->kvetch("JSON: " . $input_term_data);
-      return $self->mode_fatal($str);
+      if( ! $self->json_parsable_p($input_term_data) ){
+	my $str = 'Your term JSON was not formatted correctly...';
+	return $self->mode_fatal($str);
+      }
     }
 
     my $jump = $self->{CORE}->get_interlink({mode=>'visualize_freeform',
