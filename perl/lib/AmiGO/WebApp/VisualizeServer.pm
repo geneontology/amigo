@@ -309,9 +309,7 @@ sub _produce_appropriate_output {
 ## Example:
 ## http://localhost/cgi-bin/amigo2/visualize?mode=advanced&term_data={"GO:0002244" : 0.00001, "GO:0048856" : 0.5}&format=svg
 sub mode_advanced {
-
   my $self = shift;
-  my $output = '';
 
   ##
   my $i = AmiGO::WebApp::Input->new();
@@ -442,6 +440,76 @@ sub mode_advanced {
   return $output;
 }
 
+## Example:
+sub mode_freeform {
+  my $self = shift;
+
+  ##
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile('visualize_freeform');
+  my $inline_p = $params->{inline};
+  my $format = $params->{format};
+  my $input_graph_data = $params->{graph_data} || '';
+  my $input_term_data = $params->{term_data} || '';
+
+  ## Decode the incoming term data--easy!
+  my $term_hash = {};
+  if( $input_term_data ){
+    $term_hash = $self->{JS}->parse_json_viz_data($input_term_data);
+  }
+
+  ## Decode the incoming graph data--a little harder.
+  my $all_nodes = {};
+  my $all_edges = {};
+  if( $input_graph_data ){
+    $graph_hash = $self->{JS}->parse_json_data($input_graph_data);
+
+    if( $graph_hash ){
+
+      ## Simply process the nodes.
+      foreach my $node (@{$graph_hash->{'nodes'}}){
+	my $acc = $node->{'id'};
+	my $label = $node->{'lbl'};
+	$all_nodes->{$acc} =
+	  {
+	   'acc' => $acc,
+	   'label' => $label
+	  };
+	$self->{CORE}->kvetch("node: $acc ($label)");
+      }
+
+      ## Simply process the edges.
+      foreach my $edge (@{$graph_hash->{'edges'}}){
+	my $sid = $edge->{'sub'};
+	my $oid = $edge->{'obj'};
+	my $pid = $edge->{'pred'} || '.';
+	my $vid = $sid . $pid . $oid;
+	$all_edges->{$vid} =
+	  {
+	   'sub' => $sid,
+	   'obj' => $oid,
+	   'pred' => $pid,
+	  };
+	$self->{CORE}->kvetch("edge: $sid $pid $oid");
+      }
+    }
+  }
+
+  ## Get correct graphics renderer.
+  my $gv = $self->_get_format_appropriate_renderer($format);
+
+  ## Assemble the found nodes (including the term hash style/label
+  ## info) and edges into the GraphVix graph.
+  $self->_add_gv_edges($gv, $all_edges);
+  $self->_add_gv_nodes($gv, $all_nodes, $term_hash);
+
+  ## Get the headers correct.
+  $self->_add_fiddly_header($format, $inline_p);
+
+  ## Produce the (possibly empty) image in SVG or PNG.
+  my $output = $self->_produce_appropriate_output($gv, $format);
+  return $output;
+}
 
 # ## Example:
 # ## http://localhost/cgi-bin/amigo/visualize?mode=subset&subset=goslim_candida

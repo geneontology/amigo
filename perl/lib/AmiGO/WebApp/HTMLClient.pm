@@ -66,6 +66,7 @@ sub setup {
 		   'term'                => 'mode_term_details',
 		   'gene_product'        => 'mode_gene_product_details',
 		   'visualize'           => 'mode_visualize',
+		   'visualize_freeform'  => 'mode_visualize_freeform',
 		   'software_list'       => 'mode_software_list',
 		   'schema_details'      => 'mode_schema_details',
 		   'load_details'        => 'mode_load_details',
@@ -625,7 +626,6 @@ sub mode_load_details {
   return $self->generate_template_page_with();
 }
 
-
 ## This is just a very thin pass-through client.
 ## TODO/BUG: not accepting "inline" parameter yet...
 sub mode_visualize {
@@ -731,6 +731,116 @@ sub mode_visualize {
       #$output = $jump;
       return $self->redirect($jump, '302 Found');
     }
+  }
+
+  return $output;
+}
+
+## This is just a very thin pass-through client.
+## TODO/BUG: not accepting "inline" parameter yet...
+sub mode_visualize_freeform {
+
+  my $self = shift;
+  my $output = '';
+
+  ##
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile('visualize_freeform');
+  my $format = $params->{format};
+  my $input_term_data = $params->{term_data};
+  my $input_graph_data = $params->{graph_data};
+
+  ## ...and the message queue.
+  #$self->check_for_condition_files();
+
+  ## Cleanse input data of newlines.
+  $input_term_data =~ s/\n/ /gso;
+  $input_graph_data =~ s/\n/ /gso;
+
+  ## If there is no incoming graph data, display the "client" page.
+  ## Otherwise, forward to render app.
+  if( ! defined $input_graph_data ){
+
+    ##
+    $self->set_template_parameter('page_name', 'visualize_freeform');
+    $self->set_template_parameter('amigo_mode', 'visualize_freeform');
+    $self->set_template_parameter('page_title', 'AmiGO 2: Visualize Freeform');
+    $self->set_template_parameter('content_title',
+				  'Visualize an Arbitrary Graph');
+    my $prep =
+      {
+       css_library =>
+       [
+	#'standard',
+	'com.bootstrap',
+	'com.jquery.jqamigo.custom',
+	'amigo',
+	'bbop'
+       ],
+       javascript_library =>
+       [
+	'com.jquery',
+	'com.bootstrap',
+	'com.jquery-ui',
+	'bbop',
+	'amigo'
+       ],
+       javascript =>
+       [
+	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
+       ],
+       javascript_init =>
+       [
+	'GeneralSearchForwardingInit();'
+       ],
+       content =>
+       [
+	'pages/visualize_freeform.tmpl']
+      };
+    $self->add_template_bulk($prep);
+    $output = $self->generate_template_page_with();
+
+  }else{
+
+    ## Check to see if this JSON is even parsable...that's really all
+    ## that we're doing here.
+    if( $input_graph_data ){
+      eval {
+	$self->{CORE}->_read_json_string($input_graph_data);
+      }
+    }
+    if( $@ ){
+      my $str = 'Your graph JSON was not formatted correctly...';
+      $self->{CORE}->kvetch("die decoding JSON: " . $@);
+      $self->{CORE}->kvetch("JSON: " . $input_term_data);
+      return $self->mode_fatal($str);
+    }
+
+    ## The same for the term data.
+    if( $input_term_data ){
+      eval {
+	$self->{CORE}->_read_json_string($input_term_data);
+      };
+    }
+    if( $@ ){
+      my $str = 'Your term JSON was not formatted correctly...';
+      $self->{CORE}->kvetch("die decoding JSON: " . $@);
+      $self->{CORE}->kvetch("JSON: " . $input_term_data);
+      return $self->mode_fatal($str);
+    }
+
+    my $jump = $self->{CORE}->get_interlink({mode=>'visualize_freeform',
+				       #optional => {url_safe=>1, html_safe=>0},
+				       #optional => {html_safe=>0},
+					     arg => {
+						     format => $format,
+						     term_data => $input_term_data,
+						     graph_data => $input_graph_data,
+						    }});
+    #$self->{CORE}->kvetch("Jumping to: " . $jump);
+    ##
+    #$output = $jump;
+    return $self->redirect($jump, '302 Found');
   }
 
   return $output;

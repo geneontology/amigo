@@ -1280,6 +1280,36 @@ sub get_interlink {
      #   $ilink = 'gaffer?mode=' . $gmode . '&data_url=' . $self->uri_safe($gurl);
      # },
 
+     'visualize_freeform_client' => sub { $ilink = 'amigo/visualize_freeform';},
+     'visualize_freeform' =>
+     sub {
+       #print STDERR Dumper($arg_hash);
+       my $term_data = $args->{term_data} || '';
+       my $graph_data = $args->{graph_data} || '';
+       my $format = $args->{format} || 'png';
+
+       my $final_term_data = $term_data;
+       my $final_graph_data = $graph_data;
+       if( ! $optional_hash_p ){
+	 $final_term_data = $self->uri_safe($term_data);
+	 $final_graph_data = $self->uri_safe($graph_data);
+       }
+       $ihash = {
+		 action => 'visualize',
+		 arguments =>
+		 {
+		  mode => 'freeform',
+		  inline => 'false',
+		  format => $format,
+		  graph_data => $final_graph_data,
+		  term_data => $final_term_data,
+		 },
+		};
+       $ilink = $self->_fuse_hash($ihash);
+       # $ilink = 'amigo/visualize/' .
+       # 	 $self->_fuse_arguments($ihash->{arguments});
+     },
+
      ## The actual "visualize" is more a call to the data server.
      ## "visual_client" is for the user page.
      'visualize_client' => sub { $ilink = 'amigo/visualize'; },

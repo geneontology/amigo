@@ -35,6 +35,7 @@ my $dispatch_table =
    'schema_details'      => { app => $app, rm => 'schema_details'},
    'load_details'        => { app => $app, rm => 'load_details'},
    'visualize'           => { app => $app, rm => 'visualize'},
+   'visualize_freeform'  => { app => $app, rm => 'visualize_freeform'},
    'phylo_graph/:gp'     => { app => $app, rm => 'phylo_graph', gp => 'gp'},
   ];
 CGI::Application::Dispatch->dispatch(

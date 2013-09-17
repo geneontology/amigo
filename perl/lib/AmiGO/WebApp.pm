@@ -697,6 +697,8 @@ sub _common_params_settings {
     $self->{CORE}->get_interlink({mode=>'grebe'});
   $params->{interlink_visualize} =
     $self->{CORE}->get_interlink({mode=>'visualize_client'});
+  $params->{interlink_visualize_freeform} =
+    $self->{CORE}->get_interlink({mode=>'visualize_freeform_client'});
   $params->{interlink_goose} =
     $self->{CORE}->get_interlink({mode=>'goose'});
   $params->{interlink_schema_details} =

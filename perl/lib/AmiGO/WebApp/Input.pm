@@ -145,6 +145,11 @@ sub input_profile {
     $self->_add_visual_format();
     $self->_add_term_data();
     $self->_add_term_data_type();
+  }elsif( $profile_name eq 'visualize_freeform' ){
+    $self->_add_inline_p();
+    $self->_add_visual_format();
+    $self->_add_term_data();
+    $self->_add_graph_data();
   }elsif( $profile_name eq 'visualize_single' ){
     $self->_add_inline_p();
     $self->_add_loose_term();
@@ -640,6 +645,15 @@ sub _add_term_data {
   ## TODO: could add some constraints...
 }
 
+
+## Graph data will be JSON.
+## BUG: a little weak...
+sub _add_graph_data {
+
+  ## A string on incoming terms.
+  push @{$profile->{optional}}, 'graph_data';
+  ## TODO: could add some constraints...
+}
 
 ##
 sub _add_term_data_type {
