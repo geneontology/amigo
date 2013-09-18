@@ -54,6 +54,24 @@ var our_sources_of_interest = [
     // 'EcoCyc',
     // 'PAMGO',
     // 'MetaCyc'
+///
+/// Mike's set.
+///
+// 'EcoCyc',
+// 'PomBase',
+// 'SGD',
+// 'dictyBase',
+// 'WB',
+// 'FB',
+// 'Chicken',
+// 'Cow',
+// 'ZFIN',
+// 'Pig',
+// 'Dog',
+// 'RGD',
+// 'MGI',
+// 'TAIR',
+// 'Human'
 ];
 
 // regulates_closure_label
