@@ -224,7 +224,7 @@ sub highlighting {
       ## Instead of cycling through the available highlights and
       ## merging/do something with them, just take the first for now.
       my $hrows = $raw_highlighting->{$hid}{$raw_fid};
-      if( defined $hrows && length(@{$hrows}) ){
+      if( defined $hrows && scalar(@{$hrows}) ){
 
 	#$self->kvetch('l@: ' . $raw_fid);
 

@@ -525,7 +525,7 @@ sub session_db_list_workspaces {
 
   ## Not great, but change to undef if it looks funny.
   if( ! defined($retraref) ||
-      length(@$retraref) == 0 || # there should at least be default
+      scalar(@$retraref) == 0 || # there should at least be default
       ! defined($undef_p) ){
     $retraref = undef;
   }
@@ -667,6 +667,14 @@ sub session_db_remove_workspace {
 ### Template methods for easier handling.
 ###
 
+## Correcting wrapper for core sub.
+sub _atoi {
+  my $self = shift;
+  my $thing = shift || 0;
+  $thing = $self->{CORE}->atoi($thing);
+  return $thing || 0;
+}
+
 ## The the params variable to the most common settings that we use.
 ## Will either modify a current params or make a new one.
 sub _common_params_settings {
@@ -680,12 +688,6 @@ sub _common_params_settings {
   $params->{GOOGLE_ANALYTICS_ID} = $self->{CORE}->google_analytics_id();
 
   #$params->{STANDARD_CSS} = 'yes';
-
-  sub _atoi {
-    my $thing = shift || 0;
-    $thing = $self->{CORE}->atoi($thing);
-    return $thing || 0;
-  }
 
   ## General menu/link items all templates have access to.
   $params->{interlink_landing} =
@@ -724,8 +726,8 @@ sub _common_params_settings {
   ## Create and add to output buffer.
   $params->{base} = $self->{CORE}->amigo_env('AMIGO_CGI_URL');
   $params->{public_base} = $self->{CORE}->amigo_env('AMIGO_PUBLIC_CGI_URL');
-  $params->{BETA} = _atoi($self->{CORE}->amigo_env('AMIGO_BETA'));
-  $params->{VERBOSE} = _atoi($self->{CORE}->amigo_env('AMIGO_VERBOSE'));
+  $params->{BETA} = $self->_atoi($self->{CORE}->amigo_env('AMIGO_BETA'));
+  $params->{VERBOSE} = $self->_atoi($self->{CORE}->amigo_env('AMIGO_VERBOSE'));
   $params->{last_load_date} = $self->{CORE}->amigo_env('GOLR_TIMESTAMP_LAST');
   #$params->{release_name} = $self->{CORE}->release_name();
   #$params->{release_type} = $self->{CORE}->release_type();
@@ -1014,7 +1016,7 @@ sub generate_template_page_with {
   $footer_p = 0 if defined $args->{footer} && $args->{footer} == 0;
 
   ## Before we start, make sure that the beta is announced.
-  my $is_beta = _atoi($self->{CORE}->amigo_env('AMIGO_BETA'));
+  my $is_beta = $self->_atoi($self->{CORE}->amigo_env('AMIGO_BETA'));
   if( defined $is_beta && $is_beta ){
     $self->add_mq('notice', 'You are using an'.
 		  ' <a title="Go to AmiGO Labs explanation page"'.
