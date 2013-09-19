@@ -1361,7 +1361,7 @@ bbop.version.revision = "2.0b1";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20130918";
+bbop.version.release = "20130919";
 /* 
  * Package: json.js
  * 
@@ -1835,7 +1835,7 @@ bbop.core.namespace('bbop', 'json', 'parse');
 
 // If the text is not JSON parseable, then a SyntaxError is thrown.
 
-            throw new SyntaxError('bbop.json.parse');
+            throw new SyntaxError('bbop.json.parse: ' + text);
         };
 //    }
 }());
