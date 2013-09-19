@@ -27,6 +27,7 @@ SOLR_URL ?= http://localhost:8080/solr/
 OWLTOOLS_ROOT ?= ~/local/src/svn/owltools/
 BBOP_JS_ROOT ?= ~/local/src/git/bbop-js/
 PANTHER_FILES_DIR ?= ~/local/src/svn/geneontology.org/trunk/experimental/trees/panther_data/
+SOLR_DATA_ROOT ?= /srv/solr
 
 ## Files.
 SOLR_LOAD_LOG ?= /tmp/golr_timestamp.log
@@ -36,13 +37,13 @@ SCHEMA_METADATA ?= \
  ../metadata/ont-config.yaml \
  ../metadata/bio-config.yaml \
  ../metadata/ann-config.yaml \
+ ../metadata/complex-ann-config.yaml \
  ../metadata/protein-family-config.yaml \
  ../metadata/general-config.yaml \
  ../metadata/ann_ev_agg-config.yaml
 ONTOLOGY_METADATA ?= ../metadata/ont-config.yaml
 ONTOLOGIES ?= \
- http://purl.obolibrary.org/obo/go.owl \
- http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl \
+ http://purl.obolibrary.org/obo/go/extensions/go-plus.owl \
  http://purl.obolibrary.org/obo/cl/cl-basic.owl \
  http://purl.obolibrary.org/obo/eco.owl \
  http://geneontology.org/ontology/extensions/gorel.owl \
@@ -50,6 +51,9 @@ ONTOLOGIES ?= \
  http://purl.obolibrary.org/obo/emap.owl
 ## Next:
 # http://purl.obolibrary.org/obo/uberon/basic.owl
+## Bumped: 
+# http://purl.obolibrary.org/obo/go.owl \
+# http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl \
 
 ALL_GAFS ?= \
 	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Lmajor.gz \
@@ -91,8 +95,8 @@ ALL_GAFS ?= \
 	http://www.geneontology.org/gene-associations/gene_association.zfin.gz \
 	http://www.geneontology.org/gene-associations/submission/paint/pre-submission/gene_association.paint_other.gaf # And higher-level PAINT annotations.
 
+MGI_TEST_GAF ?= ./_test/mgi-limited.gaf
 MGI_GAF = http://www.geneontology.org/gene-associations/gene_association.mgi.gz
-MGI_TEST_GAF = ./_test/mgi-limited.gaf
 MGI_NANO_GAF = ./_test/mgi-limited-100.gaf
 
 ##
@@ -227,3 +231,8 @@ service-restart-nginx:
 .PHONY: service-restart-jetty
 service-restart-jetty:
 	sudo /etc/init.d/jetty restart
+
+## Solr rollbackup helper.
+.PHONY: service-backup-solr
+service-backup-solr:
+	sudo rsync -avzog --progress $(SOLR_DATA_ROOT) $(SOLR_DATA_ROOT).$(DATE)-$(TIME)
