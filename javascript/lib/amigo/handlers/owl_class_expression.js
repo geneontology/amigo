@@ -50,16 +50,30 @@ amigo.handlers.owl_class_expression = function(in_owlo){
     var loop = bbop.core.each;
 
     var owlo = in_owlo;
-    if( bbop.core.what_is(owlo) == 'string' ){
-	owlo = bbop.json.parse(in_owlo) || {};
+    if( what_is(owlo) == 'string' ){
+	// This should be an unnecessary robustness check as
+	// everything /should/ be a legit JSON string...but things
+	// happen in testing. We'll check to make sure that it looks
+	// like what it should be as well.
+	if( in_owlo.charAt(0) == '{' &&
+	    in_owlo.charAt(in_owlo.length-1) == '}' ){
+	    owlo = bbop.json.parse(in_owlo) || {};
+	}else{
+	    // Looks like a normal string string.
+	    // Do nothing for now, but catch in the next section.
+	}
     }
 
     // Check to make sure that it looks right.
-    if( ! is_def(owlo['relationship']) ||
-	! what_is(owlo['relationship']) == 'object' ||
-	! what_is(owlo['relationship']['relation']) == 'array' ||
-	! is_def(owlo['relationship']['id']) ||
-	! is_def(owlo['relationship']['label']) ){
+    if( what_is(owlo) == 'string' ){
+	// Still a string means bad happened--we want to see that.
+	retstr = owlo + '?';
+    }else if( ! is_def(owlo) ||
+	      ! is_def(owlo['relationship']) ||
+	      ! what_is(owlo['relationship']) == 'object' ||
+	      ! what_is(owlo['relationship']['relation']) == 'array' ||
+	      ! is_def(owlo['relationship']['id']) ||
+	      ! is_def(owlo['relationship']['label']) ){
 	// 'Twas an error--ignore.
 	//throw new Error('sproing!');
     }else{
