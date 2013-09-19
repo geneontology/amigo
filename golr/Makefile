@@ -90,7 +90,7 @@ ALL_GAFS ?= \
 	http://www.geneontology.org/gene-associations/gene_association.zfin.gz \
 	http://www.geneontology.org/gene-associations/submission/paint/pre-submission/gene_association.paint_other.gaf # And higher-level PAINT annotations.
 
-MGI_TEST_GAF =? ./_test/mgi-limited.gaf
+MGI_TEST_GAF ?= ./_test/mgi-limited.gaf
 MGI_GAF = http://www.geneontology.org/gene-associations/gene_association.mgi.gz
 MGI_NANO_GAF = ./_test/mgi-limited-100.gaf
 
