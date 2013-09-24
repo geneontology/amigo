@@ -172,13 +172,13 @@ amigo.data.golr = {
    },
    "complex_annotation" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "id^7.0 annotation_group^5.0 annotation_unit^6.0 bioentity^4.0 location_list^3.0 process_class^2.0 function_class^1.0",
-      "filter_weights" : "annotation_group_label^5.0 location_list_closure_label^4.0 process_class_closure_label^3.0 function_class_closure_label^2.0",
+      "result_weights" : "id^7.0 annotation_group^5.0 annotation_unit^6.0 enabled_by^3.5 location_list^3.0 process_class^2.0 function_class^1.0",
+      "filter_weights" : "annotation_group_label^5.0 enabled_by_label^4.5 location_list_closure_label^4.0 process_class_closure_label^3.0 function_class_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//complex-ann-config.yaml",
       "display_name" : "Complex annotations",
       "description" : "An individual unit within LEGO.",
       "schema_generating" : "true",
-      "boost_weights" : "bioentity^1.0 bioentity_label^1.0 annotation_group_label^1.0 annotation_unit_label^1.0 location_list_closure^1.0 location_list_closure_label^1.0 process_class_closure_label^1.0 function_class_closure_label^1.0",
+      "boost_weights" : "annotation_group_label^1.0 annotation_unit_label^1.0 enabled_by^1.0 enabled_by_label^1.0 location_list_closure^1.0 location_list_closure_label^1.0 process_class_closure_label^1.0 function_class_closure_label^1.0",
       "fields" : [
          {
             "transform" : [],
@@ -242,36 +242,12 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "GAF column 1 + columns 2.",
-            "display_name" : "Gene/Product",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "bioentity",
-            "property" : []
-         },
-         {
-            "transform" : [],
-            "description" : "GAF column 3: bioentity label.",
-            "display_name" : "Gene/product label",
-            "indexed" : "true",
-            "searchable" : "true",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "bioentity_label",
-            "property" : []
-         },
-         {
-            "transform" : [],
             "description" : "???",
             "display_name" : "Enabled by",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
-            "cardinality" : "multi",
+            "cardinality" : "single",
             "type" : "string",
             "id" : "enabled_by",
             "property" : []
@@ -283,7 +259,7 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
-            "cardinality" : "multi",
+            "cardinality" : "single",
             "type" : "string",
             "id" : "enabled_by_label",
             "property" : []
@@ -590,18 +566,6 @@ amigo.data.golr = {
             "id" : "panther_family",
             "property" : []
          },
-         "bioentity_label" : {
-            "transform" : [],
-            "description" : "GAF column 3: bioentity label.",
-            "display_name" : "Gene/product label",
-            "indexed" : "true",
-            "searchable" : "true",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "bioentity_label",
-            "property" : []
-         },
          "process_class_closure" : {
             "transform" : [],
             "description" : "???",
@@ -633,7 +597,7 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
-            "cardinality" : "multi",
+            "cardinality" : "single",
             "type" : "string",
             "id" : "enabled_by",
             "property" : []
@@ -813,7 +777,7 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
-            "cardinality" : "multi",
+            "cardinality" : "single",
             "type" : "string",
             "id" : "enabled_by_label",
             "property" : []
@@ -828,18 +792,6 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "taxon",
-            "property" : []
-         },
-         "bioentity" : {
-            "transform" : [],
-            "description" : "GAF column 1 + columns 2.",
-            "display_name" : "Gene/Product",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "bioentity",
             "property" : []
          },
          "taxon_label" : {
