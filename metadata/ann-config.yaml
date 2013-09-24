@@ -41,6 +41,11 @@ fields:
     display_name: Assigned by
     type: string
     property: []
+  - id: is_redundant_for
+    description: "Rational for redundancy of annotation."
+    display_name: Redundant for
+    type: string
+    property: []
 #   - id: type_closure
 #     description: "Derived from c12 + SO."
 #     display_name: Type closure
