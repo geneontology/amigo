@@ -1,0 +1,54 @@
+<!-- START template: complex_annotation_details.tmpl -->
+
+[% INCLUDE common/noscript_js_limited.tmpl %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Complex Annotation Information</h3>
+  </div>
+  <div class="panel-body">
+
+    <dl class="dl-horizontal amigo-detail-info">
+      
+      <dt>Unit</dt> 
+      [% IF CA_INFO.annotation_unit_label %]
+      <dd>[% CA_INFO.annotation_unit_label %]</dd>
+      [% ELSE %]
+      <dd>(n/a)</dd>
+      [% END %]
+      
+      <dt>Group</dt>
+      [% IF CA_INFO.annotation_group_label %]
+      <dd>[% CA_INFO.annotation_group_label %]</dd>
+      [% ELSE %]
+      <dd>(n/a)</dd>
+      [% END %]
+      
+      <!-- <dt>Taxon</dt> -->
+      <!-- <dd>[% CA_INFO.taxon_readable %]</dd> -->
+      <!-- TODO: Oo! Copy below. -->
+      <!-- <dd><a href="http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=44689" title="View Dictyostelium discoideum details on the NCBI taxonomy website">Dictyostelium discoideum</a></dd> -->
+      
+    </dl>
+
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">View</h3>
+  </div>
+  <div class="panel-body">
+    <div id="display-associations">
+
+      <a href="[% VIZ_STATIC_LINK %]"
+	 title="Stand-alone graphic for [% CA_INFO.annotation_group_label %]">
+	<img src="[% VIZ_STATIC_LINK %]"
+	     alt="Graph of [% CA_INFO.annotation_group_label %]" />
+      </a>
+
+    </div>
+  </div>
+</div>
+
+<!-- END template: complex_annotation_details.tmpl -->
