@@ -1280,8 +1280,24 @@ sub get_interlink {
      #   $ilink = 'gaffer?mode=' . $gmode . '&data_url=' . $self->uri_safe($gurl);
      # },
 
-     'visualize_freeform_client' => sub { $ilink = 'amigo/visualize_freeform';},
-     'visualize_freeform' =>
+     'visualize_complex_annotation' =>
+     sub {
+       my $au = $args->{annotation_unit} || '';
+       my $format = $args->{format} || 'png';
+       $ihash = {
+		 action => 'visualize',
+		 arguments =>
+		 {
+		  mode => 'complex_annotation',
+		  inline => 'false',
+		  format => $format,
+		  annotation_unit => $au,
+		 },
+		};
+       $ilink = $self->_fuse_hash($ihash);
+     },
+    'visualize_freeform_client' => sub { $ilink = 'amigo/visualize_freeform';},
+      'visualize_freeform' =>
      sub {
        #print STDERR Dumper($arg_hash);
        my $term_data = $args->{term_data} || '';
@@ -1542,6 +1558,25 @@ sub get_interlink {
   }
 
   return $final_ret;
+}
+
+
+## Write a JSON string from perl object.
+sub _write_json_string {
+
+  my $self = shift;
+  my $perl_obj = shift || die 'yes, but what object do you want write';
+
+  my $retstr = undef;
+  # eval {
+  $retstr = $self->{JSON}->encode($perl_obj);
+  # };
+  # if( $@ ){
+  # die "nope: $@: $!";
+  # }
+  # $self->kvetch("passed: " . Dumper($rethash));
+
+  return $retstr;
 }
 
 

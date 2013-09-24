@@ -61,6 +61,11 @@ amigo.linker = function (){
 	'gene_product': true,
 	'bioentity': true
     };
+    this.complex_annotation_category = {
+        //'complex_annotation': true,
+        //'annotation_group': true
+        'annotation_unit': true
+    };
     this.search_category = {
         'search': true,
 	'live_search': true
@@ -70,6 +75,7 @@ amigo.linker = function (){
 	'bioentity': '/bioentity',
 	'ontology': '/ontology',
 	'annotation': '/annotation',
+	'complex_annotation': '/complex_annotation',
 	'family': '/family',
 	'lego_unit': '/lego_unit',
 	'general': '/general'
@@ -99,11 +105,11 @@ amigo.linker.prototype.url = function (id, xid, modifier){
 	// AmiGO hard-coded link types.
 	if( xid ){
 	    if( this.ont_category[xid] ){
-		//retval = 'amigo?mode=term&term=' + id;
 		retval = this.app_base + '/amigo/term/' + id;
             }else if( this.bio_category[xid] ){
-		//retval = 'amigo?mode=gene_product&gp=' + id;
 		retval = this.app_base + '/amigo/gene_product/' + id;
+            }else if( this.complex_annotation_category[xid] ){
+		retval = this.app_base + '/amigo/complex_annotation/'+ id;
             }else if( this.search_category[xid] ){
 		// First, try and get the proper path out. Will
 		// hardcode for now since some paths don't map

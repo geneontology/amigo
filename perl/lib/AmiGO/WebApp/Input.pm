@@ -109,6 +109,9 @@ sub input_profile {
     #$self->_add_simple_argument('graph_type', 'correct', ['all', 'correct']);
   }elsif( $profile_name eq 'gp' ){
     $self->_add_gps_string();
+  }elsif( $profile_name eq 'complex_annotation' ){
+    #$self->_add_simple_argument('annotation_group', '');
+    $self->_add_simple_argument('annotation_unit', '');
   }elsif( $profile_name eq 'gaffer' ){
     $self->_add_simple_argument('data_url', '');
   }elsif( $profile_name eq 'matrix' ){
@@ -150,6 +153,11 @@ sub input_profile {
     $self->_add_visual_format();
     $self->_add_term_data();
     $self->_add_graph_data();
+  }elsif( $profile_name eq 'visualize_complex_annotation' ){
+    $self->_add_inline_p();
+    $self->_add_visual_format();
+    #$self->_add_simple_argument('annotation_group', '');
+    $self->_add_simple_argument('annotation_unit', '');
   }elsif( $profile_name eq 'visualize_single' ){
     $self->_add_inline_p();
     $self->_add_loose_term();

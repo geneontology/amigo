@@ -31,6 +31,12 @@ my $dispatch_table =
    'browse'              => { app => $app, rm => 'browse'},
    'term/:term'          => { app => $app, rm => 'term', term => 'term'},
    'gene_product/:gp'    => { app => $app, rm => 'gene_product', gp => 'gp'},
+   # 'complex_annotation/:annotation_group'  =>
+   # { app => $app, rm => 'complex_annotation',
+   #   annotation_group => 'annotation_group'},
+   'complex_annotation/:annotation_unit'  =>
+   { app => $app, rm => 'complex_annotation',
+     annotation_unit => 'annotation_unit'},
    'software_list'       => { app => $app, rm => 'software_list'},
    'schema_details'      => { app => $app, rm => 'schema_details'},
    'load_details'        => { app => $app, rm => 'load_details'},

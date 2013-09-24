@@ -27,6 +27,7 @@ use CGI::Application::Plugin::Redirect;
 ## Real external workers.
 use AmiGO::Worker::GOlr::Term;
 use AmiGO::Worker::GOlr::GeneProduct;
+use AmiGO::Worker::GOlr::ComplexAnnotationUnit;
 use AmiGO::External::QuickGO::Term;
 use AmiGO::External::XML::GONUTS;
 #use AmiGO::External::Raw;
@@ -65,6 +66,7 @@ sub setup {
 		   'browse'              => 'mode_browse',
 		   'term'                => 'mode_term_details',
 		   'gene_product'        => 'mode_gene_product_details',
+		   'complex_annotation'  => 'mode_complex_annotation_details',
 		   'visualize'           => 'mode_visualize',
 		   'visualize_freeform'  => 'mode_visualize_freeform',
 		   'software_list'       => 'mode_software_list',
@@ -1465,6 +1467,121 @@ sub mode_gene_product_details {
      content =>
      [
       'pages/gene_product_details.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page_with();
+}
+
+
+## Complex annotation/annotation group/annotation unit information.
+sub mode_complex_annotation_details {
+
+  my $self = shift;
+
+  ##
+  my $i = AmiGO::WebApp::Input->new();
+  #$self->check_for_condition_files();
+  my $params = $i->input_profile('complex_annotation');
+  ## Deal with the different types of dispatch we might be facing.
+  # $params->{annotation_group} = $self->param('annotation_group')
+  #   if ! $params->{annotation_group} && $self->param('annotation_group');
+  # my $input_annotation_group_id = $params->{annotation_group};
+  $params->{annotation_unit} = $self->param('annotation_unit')
+    if ! $params->{annotation_unit} && $self->param('annotation_unit');
+  my $input_complex_annotation_id = $params->{annotation_unit};
+
+  ## Input sanity check.
+  if( ! $input_complex_annotation_id ){
+    return $self->mode_fatal("No input complex annotation argument.");
+  }
+
+  ###
+  ### Get full info.
+  ###
+
+  ## Get the data from the store.
+  my $ca_worker =
+    AmiGO::Worker::GOlr::ComplexAnnotationUnit->new($input_complex_annotation_id);
+  my $ca_info_hash = $ca_worker->get_info();
+
+  ## First make sure that things are defined.
+  if( ! defined($ca_info_hash) ||
+      $self->{CORE}->empty_hash_p($ca_info_hash) ||
+      ! defined($ca_info_hash->{$input_complex_annotation_id}) ){
+    return $self->mode_not_found($input_complex_annotation_id,
+				 'complex annotation');
+  }
+
+  $self->{CORE}->kvetch('solr docs: ' . Dumper($ca_info_hash));
+  $self->set_template_parameter('CA_INFO',
+				$ca_info_hash->{$input_complex_annotation_id});
+
+  ## Will only need to link through the visualizer,
+  my $vlink =
+    $self->{CORE}->get_interlink({mode => 'visualize_complex_annotation',
+				  arg => {annotation_unit =>
+					  $input_complex_annotation_id}});
+  $self->set_template_parameter('VIZ_STATIC_LINK', $vlink);
+
+  ###
+  ### Standard setup.
+  ###
+
+  ## Page settings.
+  $self->set_template_parameter('page_name', 'complex_annotation');
+  $self->set_template_parameter('page_title',
+				'AmiGO 2: Complex Annotation Details for ' .
+				$input_complex_annotation_id);
+
+  ## Figure out the best title we can.
+  my $best_title = $input_complex_annotation_id; # start with the worst
+  if ( $ca_info_hash->{$input_complex_annotation_id}{'annotation_unit_label'} ){
+    $best_title =
+      $ca_info_hash->{$input_complex_annotation_id}{'annotation_unit_label'};
+  }elsif( $ca_info_hash->{$input_complex_annotation_id}{'annotation_unit'} ){
+    $best_title =
+      $ca_info_hash->{$input_complex_annotation_id}{'annotation_unit'};
+  }
+  $self->set_template_parameter('content_title', $best_title);
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui',
+      'bbop',
+      'amigo'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      #$self->{JS}->get_lib('GPDetails.js'),
+      # $self->{JS}->make_var('global_count_data', $gpc_info),
+      # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
+      # $self->{JS}->make_var('global_acc_to_rand', $acc_to_rand),
+      $self->{JS}->make_var('global_acc', $input_complex_annotation_id)
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();',
+      #'GPDetailsInit();'
+     ],
+     content =>
+     [
+      'pages/complex_annotation_details.tmpl'
      ]
     };
   $self->add_template_bulk($prep);

@@ -71,7 +71,7 @@ function LiveSearchGOlrInit(){
     	'complex_annotation': function(manager){
     	    manager.add_query_filter('document_category',
     				     'complex_annotation', ['*']);
-    	    _establish_buttons('annotation', manager);
+    	    //_establish_buttons('annotation', manager);
     	},
     	'family': function(manager){
     	    manager.add_query_filter('document_category',

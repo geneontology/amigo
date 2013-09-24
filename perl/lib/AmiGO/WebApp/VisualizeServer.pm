@@ -17,7 +17,7 @@ use AmiGO::WebApp::Input;
 #use AmiGO::Worker::Subset;
 use AmiGO::Worker::Visualize;
 use AmiGO::Worker::GOlr::Term;
-
+use AmiGO::Worker::GOlr::ComplexAnnotationUnit;
 
 ##
 sub setup {
@@ -30,15 +30,16 @@ sub setup {
   $self->start_mode('status');
   $self->error_mode('mode_fatal');
   $self->run_modes(
-		   'quickgo'      => 'mode_quickgo', # TODO: fold into ...?
+		   'quickgo'            => 'mode_quickgo', #TODO: fold into ...?
 #		   'subset'       => 'mode_subset',
 #		   'single'       => 'mode_single',
-		   'basic'        => 'mode_advanced', # TODO: 'mode_single',
-		   'multi'        => 'mode_advanced', # TODO: 'mode_multi',
-		   'advanced'     => 'mode_advanced',
-		   'freeform'     => 'mode_freeform',
-		   'status'       => 'mode_local_status',
-		   'AUTOLOAD'     => 'mode_exception'
+		   'basic'              => 'mode_advanced', #TODO:'mode_single',
+		   'multi'              => 'mode_advanced', #TODO: 'mode_multi',
+		   'advanced'           => 'mode_advanced',
+		   'freeform'           => 'mode_freeform',
+		   'complex_annotation' => 'mode_complex_annotation',
+		   'status'             => 'mode_local_status',
+		   'AUTOLOAD'           => 'mode_exception'
 		  );
 }
 
@@ -104,80 +105,6 @@ sub mode_quickgo {
   return $img;
 }
 
-
-# ## Example:
-# ## http://localhost/cgi-bin/amigo/visualize?mode=single&term=GO:0048856
-# sub mode_single {
-
-#   my $self = shift;
-#   my $output = '';
-
-#   ##
-#   my $i = AmiGO::WebApp::Input->new();
-#   my $params = $i->input_profile('visualize_single');
-#   my $inline_p = $params->{inline};
-#   my $acc = $params->{term};
-
-#   ## Set graphics renderer.
-#   my $gv = AmiGO::GraphViz->new({bitmap => 1});
-
-#   ###
-#   ### Build graph.
-#   ###
-
-#   ## Convert input terms to AmiGO terms.
-#   my $graph = GOBO::DBIC::GODBModel::Graph->new();
-
-#   if( $acc ){
-
-#     my $terms = [$graph->get_term($acc)];
-
-#     ## Assemble the graph.
-#     my($nodes, $edges) = $graph->climb($terms);
-
-#     ## Add edges to gv.
-#     foreach my $key (keys %$edges){
-
-#       my $t2t = $edges->{$key};
-#       my $s = $t2t->subject->acc;
-#       my $o = $t2t->object->acc;
-#       my $r = $t2t->relationship->name;
-#       $gv->add_edge($s, $r, $o);
-
-#       $self->{CORE}->kvetch("edge: $s $r $o");
-#     }
-
-#     ## Add nodes and node information to gv.
-#     foreach my $acc (keys %$nodes){
-#       my $t = $nodes->{$acc};
-
-#       my $title = $t->acc;
-#       my $body = $t->name;
-#       my $border = '';
-#       my $fill = '';
-#       my $font = '';
-
-#       ## Back to standard adding.
-#       $gv->add_node($acc, $title, $body,
-# 		    {
-# 		     color => $border,
-# 		     fillcolor => $fill,
-# 		     fontcolor => $font,
-# 		    });
-#       if( ! $amigo_terms->{$title} ){
-# 	$amigo_terms->{$title} = {
-# 				  name => $body,
-# 				  gene_products => {},
-# 				 };
-#       }
-#     }
-#     $output = $gv->get_png();
-#   }
-
-#   ## If a header is needed, set correct header type for format.
-#   $self->_add_fiddly_header('png', $inline_p);
-#   return $output;
-# }
 
 ## Add edges from hash ref to GraphViz object.
 sub _add_gv_edges {
@@ -440,6 +367,55 @@ sub mode_advanced {
   return $output;
 }
 
+## The main worker in freeform.
+## Returns an AmiGO::GraphViz object.
+sub _freeform_core {
+  my $self = shift;
+
+  my $format = shift || die "needs format";
+  my $graph_hash = shift || die "needs graph data";
+  my $term_hash = shift || undef;
+
+  ## Simply process the nodes.
+  my $all_nodes = {};
+  my $all_edges = {};
+  foreach my $node (@{$graph_hash->{'nodes'}}){
+    my $acc = $node->{'id'};
+    my $label = $node->{'lbl'};
+    $all_nodes->{$acc} =
+      {
+       'acc' => $acc,
+       'label' => $label
+      };
+    $self->{CORE}->kvetch("node: $acc ($label)");
+  }
+
+  ## Simply process the edges.
+  foreach my $edge (@{$graph_hash->{'edges'}}){
+    my $sid = $edge->{'sub'};
+    my $oid = $edge->{'obj'};
+    my $pid = $edge->{'pred'} || '.';
+    my $vid = $sid . $pid . $oid;
+    $all_edges->{$vid} =
+      {
+       'sub' => $sid,
+       'obj' => $oid,
+       'pred' => $pid,
+      };
+    $self->{CORE}->kvetch("edge: $sid $pid $oid");
+  }
+
+  ## Get correct graphics renderer.
+  my $gv = $self->_get_format_appropriate_renderer($format);
+
+  ## Assemble the found nodes (including the term hash style/label
+  ## info) and edges into the GraphVix graph.
+  $self->_add_gv_edges($gv, $all_edges);
+  $self->_add_gv_nodes($gv, $all_nodes, $term_hash);
+
+  return $gv;
+}
+
 ## Example:
 sub mode_freeform {
   my $self = shift;
@@ -452,157 +428,117 @@ sub mode_freeform {
   my $input_graph_data = $params->{graph_data} || '';
   my $input_term_data = $params->{term_data} || '';
 
+  ## Decode the incoming graph data--easy!
+  my $graph_hash = {};
+  if( $input_graph_data ){
+    $graph_hash = $self->{JS}->parse_json_data($input_graph_data);
+  }
+
   ## Decode the incoming term data--easy!
   my $term_hash = {};
   if( $input_term_data ){
     $term_hash = $self->{JS}->parse_json_viz_data($input_term_data);
   }
 
-  ## Decode the incoming graph data--a little harder.
-  my $all_nodes = {};
-  my $all_edges = {};
-  if( $input_graph_data ){
-    $graph_hash = $self->{JS}->parse_json_data($input_graph_data);
-
-    if( $graph_hash ){
-
-      ## Simply process the nodes.
-      foreach my $node (@{$graph_hash->{'nodes'}}){
-	my $acc = $node->{'id'};
-	my $label = $node->{'lbl'};
-	$all_nodes->{$acc} =
-	  {
-	   'acc' => $acc,
-	   'label' => $label
-	  };
-	$self->{CORE}->kvetch("node: $acc ($label)");
-      }
-
-      ## Simply process the edges.
-      foreach my $edge (@{$graph_hash->{'edges'}}){
-	my $sid = $edge->{'sub'};
-	my $oid = $edge->{'obj'};
-	my $pid = $edge->{'pred'} || '.';
-	my $vid = $sid . $pid . $oid;
-	$all_edges->{$vid} =
-	  {
-	   'sub' => $sid,
-	   'obj' => $oid,
-	   'pred' => $pid,
-	  };
-	$self->{CORE}->kvetch("edge: $sid $pid $oid");
-      }
-    }
-  }
-
-  ## Get correct graphics renderer.
-  my $gv = $self->_get_format_appropriate_renderer($format);
-
-  ## Assemble the found nodes (including the term hash style/label
-  ## info) and edges into the GraphVix graph.
-  $self->_add_gv_edges($gv, $all_edges);
-  $self->_add_gv_nodes($gv, $all_nodes, $term_hash);
+  ## Produce the (possibly empty) image in SVG or PNG.
+  my $gv = $self->_freeform_core($format, $graph_hash, $term_hash);
+  my $output = $self->_produce_appropriate_output($gv, $format);
 
   ## Get the headers correct.
   $self->_add_fiddly_header($format, $inline_p);
 
-  ## Produce the (possibly empty) image in SVG or PNG.
-  my $output = $self->_produce_appropriate_output($gv, $format);
   return $output;
 }
 
-# ## Example:
-# ## http://localhost/cgi-bin/amigo/visualize?mode=subset&subset=goslim_candida
-# sub mode_subset {
+## Example:
+sub mode_complex_annotation {
+  my $self = shift;
 
-#   my $self = shift;
-#   my $output = '';
+  ##
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile('visualize_complex_annotation');
+  my $inline_p = $params->{inline};
+  my $format = $params->{format};
+  ## Harder argument.
+  $params->{annotation_unit} = $self->param('annotation_unit')
+    if ! $params->{annotation_unit} && $self->param('annotation_unit');
+  my $input_complex_annotation_id = $params->{annotation_unit};
 
-#   ##
-#   my $i = AmiGO::WebApp::Input->new();
-#   my $params = $i->input_profile('visualize_subset');
-#   my $inline_p = $params->{inline};
-#   my $subset_acc = $params->{subset};
+  ## Input sanity check.
+  if( ! $input_complex_annotation_id ){
+    return $self->mode_fatal("No input complex annotation id argument.");
+  }
 
-#   ## Set graphics renderer.
-#   my $gv = AmiGO::GraphViz->new({bitmap => 1});
+  ###
+  ### Get full info.
+  ###
 
-#   ###
-#   ### Build graph.
-#   ###
+  ## Get the data from the store.
+  my $ca_worker =
+    AmiGO::Worker::GOlr::ComplexAnnotationUnit->new($input_complex_annotation_id);
+  my $ca_info_hash = $ca_worker->get_info();
 
-#   my $graph = GOBO::DBIC::GODBModel::Graph->new();
-#   if( $subset_acc ){
+  ## First make sure that things are defined.
+  if( ! defined($ca_info_hash) ||
+      $self->{CORE}->empty_hash_p($ca_info_hash) ||
+      ! defined($ca_info_hash->{$input_complex_annotation_id}) ){
+    return $self->mode_not_found($input_complex_annotation_id,
+				 'complex annotation');
+  }
 
-#     ## Convert input subset acc to term accs.
-#     my $sget = AmiGO::Worker::Subset->new();
-#     my @term_list = keys(%{$sget->get_term_accs($subset_acc)});
+  ###
+  ### Sort out the graph jimmied out of the GOlr/Worker.
+  ###
 
-#     $self->{CORE}->kvetch("Subsets:" .
-# 			  join(', ', keys(%{$sget->get_subset_accs()})));
-#     $self->{CORE}->kvetch("Subset terms:" . join(', ', @term_list));
+  ## Unit we get topo and style separated, reduce the graph ourselves.
+  my $multi_json_str =
+    $ca_info_hash->{$input_complex_annotation_id}{topology_graph_json};
+  my $multi_json = $self->{CORE}->_read_json_string($multi_json_str);
 
-#     ## Convert input terms to AmiGO terms.
-#     my $terms = [];
-#     foreach my $acc (@term_list){
-#       my $term = $graph->get_term($acc);
-#       if( defined $term ){
-# 	push @$terms, $term;
-#       }
-#     }
+  ## Unwind out given graph into a simpler form.
+  my $graph_hash = {'nodes'=>[], 'edges'=>[]};
+  my $term_hash = {};
+  my $nodes = $multi_json->{nodes};
+  foreach my $node (@$nodes){
+    my $nid = $node->{id};
+    my $nlbl = $node->{lbl} || '';
+    push @{$graph_hash->{nodes}},
+      {
+       'id' => $nid,
+       #'lbl' => $nlbl,
+      };
+    $term_hash->{$nid} =
+      {
+       'title' => $nlbl,
+       #'body' => $nlbl
+      };
+  }
+  my $edges = $multi_json->{edges};
+  foreach my $edge (@$edges){
+    my $sub = $edge->{sub};
+    my $obj = $edge->{obj};
+    my $pred = $edge->{pred} || '';
+    push @{$graph_hash->{edges}},
+      {
+       'sub'=> $sub,
+       'obj'=> $obj,
+       'pred'=> $pred,
+      };
+  }
 
-#     ## Assemble the graph.
-#     my($nodes, $edges) = $graph->climb($terms);
+  ## Produce the (possibly empty) image in SVG or PNG.
+  my $gv = $self->_freeform_core($format, $graph_hash, $term_hash);
+  my $output = $self->_produce_appropriate_output($gv, $format);
 
-#     ## Add edges to gv.
-#     foreach my $key (keys %$edges){
+  ## Get the headers correct.
+  $self->_add_fiddly_header($format, $inline_p);
 
-#       my $t2t = $edges->{$key};
-#       my $s = $t2t->subject->acc;
-#       my $o = $t2t->object->acc;
-#       my $r = $t2t->relationship->name;
-#       $gv->add_edge($s, $r, $o);
-
-#       $self->{CORE}->kvetch("edge: $s $r $o");
-#     }
-
-#     ## Add nodes and node information to gv.
-#     foreach my $acc (keys %$nodes){
-#       my $t = $nodes->{$acc};
-
-#       my $title = $t->acc;
-#       my $body = $t->name;
-#       my $border = '';
-#       my $fill = '';
-#       my $font = '';
-
-#       ## Back to standard adding.
-#       $gv->add_node($acc, $title, $body,
-# 		    {
-# 		     color => $border,
-# 		     fillcolor => $fill,
-# 		     fontcolor => $font,
-# 		    });
-#       if( ! $amigo_terms->{$title} ){
-# 	$amigo_terms->{$title} = {
-# 				  name => $body,
-# 				  gene_products => {},
-# 				 };
-#       }
-#     }
-#     $output = $gv->get_png();
-#   }
-
-#   ## If a header is needed, set correct header type for format.
-#   $self->_add_fiddly_header('png', $inline_p);
-#   return $output;
-# }
-
+  return $output;
+}
 
 ###
 ###
 ###
-
 
 ## Last called before the lights go out.
 sub teardown {
