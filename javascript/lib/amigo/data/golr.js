@@ -172,13 +172,13 @@ amigo.data.golr = {
    },
    "complex_annotation" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "annotation^2.0 annotation_label^1.0",
-      "filter_weights" : "annotation_label^1.0",
+      "result_weights" : "id^7.0 annotation_group^5.0 annotation_unit^6.0 bioentity^4.0 location_list^3.0 process_class^2.0 function_class^1.0",
+      "filter_weights" : "annotation_group_label^5.0 location_list_closure_label^4.0 process_class_closure_label^3.0 function_class_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//complex-ann-config.yaml",
       "display_name" : "Complex annotations",
       "description" : "An individual unit within LEGO.",
       "schema_generating" : "true",
-      "boost_weights" : "annotation^2.0 annotation_label^1.0",
+      "boost_weights" : "bioentity^1.0 bioentity_label^1.0 annotation_group_label^1.0 annotation_unit_label^1.0 location_list_closure^1.0 location_list_closure_label^1.0 process_class_closure_label^1.0 function_class_closure_label^1.0",
       "fields" : [
          {
             "transform" : [],
@@ -195,25 +195,73 @@ amigo.data.golr = {
          {
             "transform" : [],
             "description" : "???.",
-            "display_name" : "Annotation",
+            "display_name" : "Annotation unit",
             "indexed" : "true",
             "searchable" : "false",
             "required" : "false",
             "cardinality" : "single",
             "type" : "string",
-            "id" : "annotation",
+            "id" : "annotation_unit",
             "property" : []
          },
          {
             "transform" : [],
             "description" : "???.",
-            "display_name" : "Annotation",
+            "display_name" : "Annotation unit",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
             "cardinality" : "single",
             "type" : "string",
-            "id" : "annotation_label",
+            "id" : "annotation_unit_label",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "???.",
+            "display_name" : "Annotation group",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_group",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "???.",
+            "display_name" : "Annotation group",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_group_label",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "GAF column 1 + columns 2.",
+            "display_name" : "Gene/Product",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "bioentity",
+            "property" : []
+         },
+         {
+            "transform" : [],
+            "description" : "GAF column 3: bioentity label.",
+            "display_name" : "Gene/product label",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "bioentity_label",
             "property" : []
          },
          {
@@ -223,7 +271,7 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
-            "cardinality" : "single",
+            "cardinality" : "multi",
             "type" : "string",
             "id" : "enabled_by",
             "property" : []
@@ -235,7 +283,7 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
-            "cardinality" : "single",
+            "cardinality" : "multi",
             "type" : "string",
             "id" : "enabled_by_label",
             "property" : []
@@ -482,6 +530,18 @@ amigo.data.golr = {
          }
       ],
       "fields_hash" : {
+         "annotation_group" : {
+            "transform" : [],
+            "description" : "???.",
+            "display_name" : "Annotation group",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_group",
+            "property" : []
+         },
          "process_class_closure_label" : {
             "transform" : [],
             "description" : "???",
@@ -530,16 +590,16 @@ amigo.data.golr = {
             "id" : "panther_family",
             "property" : []
          },
-         "annotation_label" : {
+         "bioentity_label" : {
             "transform" : [],
-            "description" : "???.",
-            "display_name" : "Annotation",
+            "description" : "GAF column 3: bioentity label.",
+            "display_name" : "Gene/product label",
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
             "cardinality" : "single",
             "type" : "string",
-            "id" : "annotation_label",
+            "id" : "bioentity_label",
             "property" : []
          },
          "process_class_closure" : {
@@ -573,7 +633,7 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
-            "cardinality" : "single",
+            "cardinality" : "multi",
             "type" : "string",
             "id" : "enabled_by",
             "property" : []
@@ -600,6 +660,18 @@ amigo.data.golr = {
             "cardinality" : "multi",
             "type" : "string",
             "id" : "location_list_label",
+            "property" : []
+         },
+         "annotation_unit" : {
+            "transform" : [],
+            "description" : "???.",
+            "display_name" : "Annotation unit",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_unit",
             "property" : []
          },
          "location_list" : {
@@ -686,6 +758,18 @@ amigo.data.golr = {
             "id" : "taxon_closure",
             "property" : []
          },
+         "annotation_group_label" : {
+            "transform" : [],
+            "description" : "???.",
+            "display_name" : "Annotation group",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_group_label",
+            "property" : []
+         },
          "location_list_closure_label" : {
             "transform" : [],
             "description" : "",
@@ -710,6 +794,18 @@ amigo.data.golr = {
             "id" : "location_list_closure",
             "property" : []
          },
+         "annotation_unit_label" : {
+            "transform" : [],
+            "description" : "???.",
+            "display_name" : "Annotation unit",
+            "indexed" : "true",
+            "searchable" : "true",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "annotation_unit_label",
+            "property" : []
+         },
          "enabled_by_label" : {
             "transform" : [],
             "description" : "???",
@@ -717,7 +813,7 @@ amigo.data.golr = {
             "indexed" : "true",
             "searchable" : "true",
             "required" : "false",
-            "cardinality" : "single",
+            "cardinality" : "multi",
             "type" : "string",
             "id" : "enabled_by_label",
             "property" : []
@@ -732,6 +828,18 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "taxon",
+            "property" : []
+         },
+         "bioentity" : {
+            "transform" : [],
+            "description" : "GAF column 1 + columns 2.",
+            "display_name" : "Gene/Product",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "bioentity",
             "property" : []
          },
          "taxon_label" : {
@@ -768,18 +876,6 @@ amigo.data.golr = {
             "cardinality" : "single",
             "type" : "string",
             "id" : "process_class",
-            "property" : []
-         },
-         "annotation" : {
-            "transform" : [],
-            "description" : "???.",
-            "display_name" : "Annotation",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "single",
-            "type" : "string",
-            "id" : "annotation",
             "property" : []
          }
       },
@@ -2635,6 +2731,18 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
+            "description" : "Rational for redundancy of annotation.",
+            "display_name" : "Redundant for",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "is_redundant_for",
+            "property" : []
+         },
+         {
+            "transform" : [],
             "description" : "GAF column 13 (taxon).",
             "display_name" : "Taxon",
             "indexed" : "true",
@@ -3521,6 +3629,18 @@ amigo.data.golr = {
             "cardinality" : "multi",
             "type" : "string",
             "id" : "evidence_with",
+            "property" : []
+         },
+         "is_redundant_for" : {
+            "transform" : [],
+            "description" : "Rational for redundancy of annotation.",
+            "display_name" : "Redundant for",
+            "indexed" : "true",
+            "searchable" : "false",
+            "required" : "false",
+            "cardinality" : "single",
+            "type" : "string",
+            "id" : "is_redundant_for",
             "property" : []
          },
          "annotation_extension_class_closure" : {
