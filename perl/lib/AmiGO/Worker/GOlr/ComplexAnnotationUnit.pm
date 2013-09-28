@@ -40,10 +40,31 @@ sub new {
 
       $intermediate =
 	{
-	 annotation_unit_id => $found_doc->{annotation_unit_id},
+	 ## Unit.
+	 annotation_unit_id => $found_doc->{annotation_unit},
 	 annotation_unit_label => $found_doc->{annotation_unit_label},
-	 annotation_group_id => $found_doc->{annotation_group_id},
+
+	 ## Group.
+	 annotation_group_id => $found_doc->{annotation_group},
 	 annotation_group_label => $found_doc->{annotation_group_label},
+
+	 ## Enabled by/bioentity.
+	 enabled_by_id => $found_doc->{enabled_by},
+	 enabled_by_label => $found_doc->{enabled_by_label},
+
+	 ## Process.
+	 process_class_id => $found_doc->{process_class},
+	 process_class_label => $found_doc->{process_class_label},
+
+	 ## Function.
+	 function_class_id => $found_doc->{function_class},
+	 function_class_label => $found_doc->{function_class_label},
+
+	 ## Location.
+	 location_id_list => $found_doc->{location_list},
+	 location_label_list => $found_doc->{location_list_label},
+
+	 ## Graph.
 	 topology_graph_json => $found_doc->{topology_graph_json},
 	};
     }
