@@ -40,6 +40,12 @@ my %REL_COLOR_MAPPING =
    'http://purl.obolibrary.org/obo/BFO_0000050' => 'lightblue',
    'directly_activates' => 'coral4',
    'http://purl.obolibrary.org/obo/directly_activates' => 'coral4',
+   'RO_0002211' => 'black',
+   'http://purl.obolibrary.org/obo/RO_0002211' => 'black',
+   'RO_0002212' => 'red',
+   'http://purl.obolibrary.org/obo/RO_0002212' => 'red',
+   'RO_0002213' => 'green',
+   'http://purl.obolibrary.org/obo/RO_0002213' => 'green',
   );
 
 my %ONT_COLOR_MAPPING =
