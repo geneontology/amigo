@@ -141,7 +141,7 @@ sub _add_gv_nodes {
     my $box_height = undef;
     # my $node_width = undef;
     # my $node_height = undef;
-    
+
     ## BUG: this bit is great, except it shouldn't be here--it
     ## should be generated on the "client" side. How should I do
     ## that since this is the client...?  Special section for
@@ -500,19 +500,37 @@ sub mode_complex_annotation {
   my $term_hash = {};
   my $nodes = $multi_json->{nodes};
   foreach my $node (@$nodes){
+
     my $nid = $node->{id};
-    my $nlbl = $node->{lbl} || '';
+    my $nlbl = $node->{lbl} || '???';
+
+    my $enby = '~';
+    my $actv = '~';
+    my $loc = [];
+    #my $proc = $node->{process} || '~';
+    if( $node->{meta} ){
+      $enby = $node->{meta}{enabled_by} if $node->{meta}{enabled_by};
+      $actv = $node->{meta}{activity} if $node->{meta}{activity};
+      #$proc = $node->{meta}{process} if $node->{meta}{process};
+    }
+
     push @{$graph_hash->{nodes}},
       {
        'id' => $nid,
        #'lbl' => $nlbl,
       };
+
     $term_hash->{$nid} =
       {
-       'title' => $nlbl,
-       #'body' => $nlbl
+       #'title' => $nlbl,
+       'title' => $enby,
+       #'body' => '<HTML>' . join('<BR>', @{[$enby, $actv]}) . '</HTML>'
+       #'body' => join("\n", @{[$enby, $actv]})
+       'body' => $actv
       };
   }
+  $self->{CORE}->kvetch('nodes added: ' . scalar(@$nodes));
+
   my $edges = $multi_json->{edges};
   foreach my $edge (@$edges){
     my $sub = $edge->{sub};
@@ -520,8 +538,11 @@ sub mode_complex_annotation {
     my $pred = $edge->{pred} || '';
     push @{$graph_hash->{edges}},
       {
-       'sub'=> $sub,
-       'obj'=> $obj,
+       # BUG
+       #'sub'=> $sub,
+       #'obj'=> $obj,
+       'obj'=> $sub,
+       'sub'=> $obj,
        'pred'=> $pred,
       };
   }

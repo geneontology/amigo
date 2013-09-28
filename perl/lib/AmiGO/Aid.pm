@@ -19,6 +19,11 @@ my $READABLE =
    'negatively_regulates' => 'negatively regulates',
    'regulates' => 'regulates',
    'develops_from' => 'develops from',
+   ## Some more modern stuff:
+   'BFO_0000050' => 'part of',
+   'http://purl.obolibrary.org/obo/BFO_0000050' => 'part of',
+   'directly_activates' => 'directly activates',
+   'http://purl.obolibrary.org/obo/directly_activates' => 'directly activates',
   };
 
 ## TODO: These should maybe be switched with hex colors.
@@ -30,6 +35,11 @@ my %REL_COLOR_MAPPING =
    'regulates' =>            'black',
    'negatively_regulates' => 'red',
    'positively_regulates' => 'green',
+   ## Some more modern stuff:
+   'BFO_0000050' => 'lightblue',
+   'http://purl.obolibrary.org/obo/BFO_0000050' => 'lightblue',
+   'directly_activates' => 'coral4',
+   'http://purl.obolibrary.org/obo/directly_activates' => 'coral4',
   );
 
 my %ONT_COLOR_MAPPING =
