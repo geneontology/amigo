@@ -722,6 +722,9 @@ sub _common_params_settings {
 				  arg=>{type=>$def_search}});
   $params->{interlink_term_details_base} =
     $self->{CORE}->get_interlink({mode=>'term_details_base'});
+  ## Phylo experiments.
+  $params->{interlink_phylo_graph} =
+    $self->{CORE}->get_interlink({mode=>'phylo_graph'});
 
   ## Create and add to output buffer.
   $params->{base} = $self->{CORE}->amigo_env('AMIGO_CGI_URL');

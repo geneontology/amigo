@@ -1598,58 +1598,59 @@ sub mode_phylo_graph {
 
   ##
   my $i = AmiGO::WebApp::Input->new();
-  my $params = $i->input_profile('gp');
+  my $params = $i->input_profile('family');
   ## Deal with the different types of dispatch we might be facing.
-  $params->{gp} = $self->param('gp')
-    if ! $params->{gp} && $self->param('gp');
-  my $input_gp_id = $params->{gp};
-
-  ## ...and the message queue.
-  #$self->check_for_condition_files();
+  $params->{family} = $self->param('family')
+    if ! $params->{family} && $self->param('family');
+  my $input_family_id = $params->{family} || '';
 
   ## Input sanity check.
-  if( ! $input_gp_id ){
-    return $self->mode_fatal("GP acc could not be found! Is it".
-			     " possible that what you're looking".
-			     " for is not a GP acc?");
+  if( ! $input_family_id ){
+    $self->add_mq('warning', "Family ID argument not found. " .
+		  "Will use <strong>demo mode</strong> instead.");
+  #}else{
   }
-
-  ###
-  ### Get full gp info.
-  ###
-
-  my $gp_worker = AmiGO::Worker::GOlr::GeneProduct->new($input_gp_id);
-  my $gp_info_hash = $gp_worker->get_info();
-  if( ! defined($gp_info_hash) || $self->{CORE}->empty_hash_p($gp_info_hash) ){
-    return $self->mode_fatal("GP acc could not be found" .
-			     " in the index!");
-  }
-
-  $self->{CORE}->kvetch('solr docs: ' . Dumper($gp_info_hash));
-  $self->set_template_parameter('GP_INFO', $gp_info_hash->{$input_gp_id});
-  my $raw_pgraph = $gp_info_hash->{$input_gp_id}{'phylo_graph'};
-  my $pgraph = $self->{JS}->parse_json_data($raw_pgraph);
 
   ###
   ### Standard setup.
   ###
+
+  ## Page seetings.
+  my $global_family = undef;
+  if( $input_family_id ){
+    $self->set_template_parameter('page_title',
+				  'AmiGO 2:  Family tree for ' .
+				  $input_family_id);
+    $self->set_template_parameter('content_title', $input_family_id);
+    $self->set_template_parameter('demo_mode', 'false');
+    $global_family = $input_family_id;
+  }else{
+    $self->set_template_parameter('page_title', 'AmiGO 2:  Family tree demo');
+    $self->set_template_parameter('content_title', 'Family tree demo');
+    $self->set_template_parameter('demo_mode', 'true');
+    $global_family = undef;
+  }
 
   ## Our AmiGO services CSS.
   my $prep =
     {
      css_library =>
      [
-      'standard', # basic GO-styles
+      #'standard',
+      #'com.bootstrap',
       'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
      ],
      javascript_library =>
      [
       'com.jquery',
+      #'com.bootstrap',
       'com.jquery-ui',
-      'com.raphael',
-      'com.raphael.graffle',
+      #'com.raphael',
+      #'com.raphael.graffle',
       'bbop',
-      'amigo',
+      'amigo'
       #'bbop.model',
       #'bbop.model.tree',
       #'bbop.graph.render.phylo',
@@ -1657,28 +1658,32 @@ sub mode_phylo_graph {
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-      # $self->{JS}->make_var('global_count_data', $gpc_info),
-      # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
-      # $self->{JS}->make_var('global_acc_to_rand', $acc_to_rand),
-      $self->{JS}->make_var('global_graph', $pgraph)
+      $self->{JS}->get_lib('PhyloGraph.js'),
+      $self->{JS}->make_var('global_family', $global_family)
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();',
+      'PhyloGraphInit();'
+     ],
+     content =>
+     [
+      'pages/phylo_graph.tmpl'
      ]
-    };
+   };
   $self->add_template_bulk($prep);
 
-  ## Page seetings.
-  $self->set_template_parameter('page_title',
-				'AmiGO 2: PANTHER Tree for ' .
-				$input_gp_id);
-  $self->set_template_parameter('content_title',
-				$gp_info_hash->{$input_gp_id}{'name'});
-
   ## Initialize javascript app.
-  $self->add_template_javascript($self->{JS}->get_lib('PANTHERTree.js'));
-  $self->add_template_javascript($self->{JS}->initializer_jquery('PT();'));
+  #$self->add_template_javascript($self->{JS}->get_lib('PANTHERTree.js'));
+  # $self->add_template_javascript($self->{JS}->initializer_jquery('PT();'));
 
-  $self->add_template_content('pages/panther_tree.tmpl');
+  # $self->add_template_content('pages/phylo_graph.tmpl');
 
-  return $self->generate_template_page();
+  ## Nothing for now.
+  return $self->generate_template_page_with({
+					     header=>0,
+					     footer=>0,
+					    });
 }
 
 

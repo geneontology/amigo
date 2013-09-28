@@ -1261,15 +1261,16 @@ sub get_interlink {
      ##
      'phylo_graph' =>
      sub {
-       die "interlink mode 'phylo_graph' requires args" if ! defined $args;
-       my $gp = $args->{gp} || '';
-       my $acc = $args->{acc} || undef;
-       my $db = $args->{db} || undef;
-       if( defined($acc) && defined($db) ){
-	 $gp = $db . ':' . $acc;
-       }
+       #die "interlink mode 'phylo_graph' requires args" if ! defined $args;
+       #my $gp = $args->{gp} || '';
+       #my $acc = $args->{acc} || undef;
+       #my $db = $args->{db} || undef;
+       # if( defined($acc) && defined($db) ){
+       # 	 $gp = $db . ':' . $acc;
+       # }
        #$ilink = 'amigo?mode=phylo_graph&gp=' . $gp;
-       $ilink = 'amigo/phylo_graph/' . $gp;
+       #$ilink = 'amigo/phylo_graph/' . $gp;
+       $ilink = 'amigo/phylo_graph';
      },
 
      # ## Slightly different than the others.

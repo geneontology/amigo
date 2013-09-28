@@ -109,6 +109,9 @@ sub input_profile {
     #$self->_add_simple_argument('graph_type', 'correct', ['all', 'correct']);
   }elsif( $profile_name eq 'gp' ){
     $self->_add_gps_string();
+  }elsif( $profile_name eq 'family' ){
+    ## Optional string at this point since we have optional behavior.
+    $self->_add_simple_argument('family', '');
   }elsif( $profile_name eq 'complex_annotation' ){
     #$self->_add_simple_argument('annotation_group', '');
     $self->_add_simple_argument('annotation_unit', '');

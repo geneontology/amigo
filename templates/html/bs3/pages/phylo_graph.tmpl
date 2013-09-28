@@ -1,0 +1,123 @@
+<!-- START: phylo_graph.tmpl -->
+
+[%# INCLUDE common/noscript_js_necessary.tmpl %]
+
+[%# INCLUDE common/noscript_js_limited_search.tmpl %]
+
+[%# rollup_id = "info_header" %]
+[%# rollup_anchor = "Information about PhyloGraph" %]
+[%# INCLUDE "common/info_rollup_start.tmpl" %]
+<!-- <p> -->
+<!--   TODO -->
+<!-- </p> -->
+[%# INCLUDE "common/info_rollup_end.tmpl" %]
+  
+[% IF demo_mode && demo_mode == "true" %]
+<!-- <div class="panel panel-default"> -->
+<!--   <div class="panel-body"> -->
+
+    <select id="family_id">
+      <option value="PTHR10000" selected>PTHR10000</option>
+      <option value="PTHR10003">PTHR10003</option>
+      <option value="PTHR10005">PTHR10005</option>
+      <option value="PTHR10006">PTHR10006</option>
+      <option value="PTHR10009">PTHR10009</option>
+      <option value="PTHR10012">PTHR10012</option>
+      <option value="PTHR10025">PTHR10025</option>
+      <option value="PTHR10027">PTHR10027</option>
+      <option value="PTHR10032">PTHR10032</option>
+      <option value="PTHR10046">PTHR10046</option>
+      <option value="PTHR10048">PTHR10048</option>
+      <option value="PTHR10063">PTHR10063</option>
+      <option value="PTHR10073">PTHR10073</option>
+      <option value="PTHR10125">PTHR10125</option>
+      <option value="PTHR10130">PTHR10130</option>
+      <option value="PTHR10138">PTHR10138</option>
+      <option value="PTHR10146">PTHR10146</option>
+      <option value="PTHR10150">PTHR10150</option>
+      <option value="PTHR10159">PTHR10159</option>
+      <option value="PTHR10169">PTHR10169</option>
+      <option value="PTHR10170">PTHR10170</option>
+      <option value="PTHR10188">PTHR10188</option>
+      <option value="PTHR10194">PTHR10194</option>
+      <option value="PTHR10202">PTHR10202</option>
+      <option value="PTHR10218">PTHR10218</option>
+      <option value="PTHR10233">PTHR10233</option>
+      <option value="PTHR10250">PTHR10250</option>
+      <option value="PTHR10290">PTHR10290</option>
+      <option value="PTHR10322">PTHR10322</option>
+      <option value="PTHR10371">PTHR10371</option>
+      <option value="PTHR10373">PTHR10373</option>
+      <option value="PTHR10394">PTHR10394</option>
+      <option value="PTHR10442">PTHR10442</option>
+      <option value="PTHR10459">PTHR10459</option>
+      <option value="PTHR10496">PTHR10496</option>
+      <option value="PTHR10516">PTHR10516</option>
+      <option value="PTHR10529">PTHR10529</option>
+      <option value="PTHR10559">PTHR10559</option>
+      <option value="PTHR10569">PTHR10569</option>
+      <option value="PTHR10663">PTHR10663</option>
+      <option value="PTHR10668">PTHR10668</option>
+      <option value="PTHR10682">PTHR10682</option>
+      <option value="PTHR10732">PTHR10732</option>
+      <option value="PTHR10769">PTHR10769</option>
+      <option value="PTHR10795">PTHR10795</option>
+      <option value="PTHR10845">PTHR10845</option>
+      <option value="PTHR10856">PTHR10856</option>
+      <option value="PTHR10871">PTHR10871</option>
+      <option value="PTHR10878">PTHR10878</option>
+      <option value="PTHR10890">PTHR10890</option>
+      <option value="PTHR10927">PTHR10927</option>
+      <option value="PTHR11019">PTHR11019</option>
+      <option value="PTHR11089">PTHR11089</option>
+      <option value="PTHR11118">PTHR11118</option>
+      <option value="PTHR11164">PTHR11164</option>
+      <option value="PTHR11227">PTHR11227</option>
+      <option value="PTHR11254">PTHR11254</option>
+      <option value="PTHR11278">PTHR11278</option>
+      <option value="PTHR11289">PTHR11289</option>
+      <option value="PTHR11309">PTHR11309</option>
+      <option value="PTHR11361">PTHR11361</option>
+      <option value="PTHR11409">PTHR11409</option>
+      <option value="PTHR11447">PTHR11447</option>
+      <option value="PTHR11452">PTHR11452</option>
+      <option value="PTHR11461">PTHR11461</option>
+      <option value="PTHR11489">PTHR11489</option>
+      <option value="PTHR11502">PTHR11502</option>
+      <option value="PTHR11537">PTHR11537</option>
+      <option value="PTHR11559">PTHR11559</option>
+      <option value="PTHR11568">PTHR11568</option>
+      <option value="PTHR11615">PTHR11615</option>
+      <option value="PTHR11829">PTHR11829</option>
+      <option value="PTHR12027">PTHR12027</option>
+      <option value="PTHR12607">PTHR12607</option>
+      <option value="PTHR12733">PTHR12733</option>
+      <option value="PTHR16505">PTHR16505</option>
+      <!-- <option value="PTHR19384">PTHR19384</option> -->
+      <!-- <option value="PTHR19443">PTHR19443</option> -->
+      <!-- <option value="PTHR19957">PTHR19957</option> -->
+      <!-- <option value="PTHR21304">PTHR21304</option> -->
+      <option value="PTHR21558">PTHR21558</option>
+      <!-- <option value="PTHR22573">PTHR22573</option> -->
+      <!-- <option value="PTHR23315">PTHR23315</option> -->
+      <!-- <option value="PTHR24221">PTHR24221</option> -->
+    </select>
+
+<!--   </div> -->
+<!-- </div> -->
+[% END %]
+    
+<!-- <div class="panel panel-default"> -->
+<!--   <div class="panel-body"> -->
+    
+<!--     <div id="display-general-search"> -->
+<div id="test0" style="position:absolute; width:80%; padding: 0px; border: 1px solid #888;"></div>
+      <!-- <div id="test0" style="position:absolute;"></div> -->
+      <!-- <div id="test0"></div> -->
+      <!-- <div class="clearfix"></div> -->
+<!--     </div> -->
+  
+<!--   </div> -->
+<!-- </div> -->
+
+<!-- END: phylo_graph.tmpl -->
