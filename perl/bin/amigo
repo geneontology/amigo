@@ -42,7 +42,8 @@ my $dispatch_table =
    'load_details'        => { app => $app, rm => 'load_details'},
    'visualize'           => { app => $app, rm => 'visualize'},
    'visualize_freeform'  => { app => $app, rm => 'visualize_freeform'},
-   'phylo_graph/:family'     => { app => $app, rm => 'phylo_graph', family => 'family'},
+   'phylo_graph/:family' =>
+   { app => $app, rm => 'phylo_graph', family => 'family'},
    'phylo_graph'         => { app => $app, rm => 'phylo_graph'},
   ];
 CGI::Application::Dispatch->dispatch(
