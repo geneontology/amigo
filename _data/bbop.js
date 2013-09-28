@@ -17664,6 +17664,1494 @@ bbop.widget.phylo_old.renderer = function (element_id, info_box_p){
     };
 
 };
+bbop.core.require('bbop', 'core');
+bbop.core.namespace('bbop', 'widget', 'phylo_tree');
+
+(function() {
+
+bbop.widget.phylo_tree.renderer = renderer;
+
+// if there is more than one phylo tree on the page, this counter
+// makes the CSS prefixes unique
+var id_counter = 0;
+
+// see default_config for a description of possible config settings
+function renderer(parent, config){
+    this.parent = ( ( "string" == typeof parent )
+		    ? document.getElementById(parent)
+		    : parent );
+    if (this.parent === undefined) {
+        throw "can't find parent element " + parent;
+    }
+    this.tree = new tree();
+    this.node_hidden = {};
+    this.children_hidden = {};
+    this._sort = "ladderize_up";
+    this._layout_dirty = true;
+    this._css_prefix = "phylo_tree_" + (id_counter++) + "_";
+
+    var self = this;
+    this.node_elem_click_handler = function(event) {
+        var node_elem =
+            (event.currentTarget) ? event.currentTarget : event.srcElement;
+        var node = self.tree.nodes[node_elem.node_id];
+        if (node) self.node_clicked(node, node_elem);
+    };
+
+    var default_config = {
+        // these are in pixels
+        // leaf box vertical height, including padding and borders
+        box_height: 24,
+        // vertical space between leaf boxes
+        box_spacing: 10,
+        // space between leaf box edge and leaf label
+        leaf_padding: 4,
+        // leaf border thickness
+        leaf_border: 2,
+        // leaf left offset
+        leaf_margin: 1,
+        // width/height of internal nodes
+        node_size: 8,
+
+        // leaf border color
+        leaf_border_color: "blue",
+        // font for leaf labels
+        leaf_font: "Helvetica, Arial, sans-serif",
+        transition_time: "0.8s"
+    };
+
+    this.config = ("object" == typeof config
+                   ? bbop.core.merge(default_config, config)
+                   : default_config);
+
+    //config settings with default values dependent on other config values
+    this.config.parent_padding = ( (this.config.parent_padding === undefined)
+                                   ? ((this.config.box_spacing / 2) | 0)
+                                   : this.config.parent_padding );
+
+    this.node_style = {
+        position: "absolute",
+        background: "white",
+        "z-index": 2,
+        width: this.config.node_size + "px",
+        height: this.config.node_size + "px",
+        "margin-top": (-this.config.node_size / 2) + "px",
+        "margin-left": (-this.config.node_size / 2) + "px",
+        border: "1px solid black",
+        "transition-property": "top, left",
+        "transition-duration": this.config.transition_time,
+        "transition-timing-function": "ease-in-out, ease-in-out"
+    };
+
+    this.leaf_style = {
+        position: "absolute",
+        background: "#f1f1ff",
+        "z-index": 1,
+        padding: this.config.leaf_padding + "px",
+        // if leaf_padding is too low, the branch line will touch the text
+        "padding-left": Math.max(this.config.leaf_padding, 3) + "px",
+
+        // so that the leaves don't cover up the connection lines
+        "margin-left": this.config.leaf_margin + "px",
+
+        "margin-top": (-this.config.box_height / 2) + "px",
+
+        // setting font size from box height.  We'd like to set font cap height
+        // directly, but we can only set em box size.  Cap height on average is
+        // 70% of em box size, so we'll set the font size to the intended
+	// height divided by 0.7
+        font: ( ( this.config.box_height
+                  - ( this.config.leaf_padding * 2 )
+                  - ( this.config.leaf_border * 2 ) )
+                / 0.7 ) + "px " + this.config.leaf_font,
+
+        // this.config.box_height includes padding and borders, so we
+        // subtract those out to set the CSS height, which doesn't include
+        // padding or borders
+        height: ( this.config.box_height
+                  - ( this.config.leaf_padding * 2 )
+                  - ( this.config.leaf_border * 2 ) ) + "px",
+
+        // center vertically by setting the line height to 0.7em
+        // (corresponding to the way we set font size above)
+        "line-height": "0.7em",
+        "border-radius": (this.config.leaf_padding + 1) + "px",
+        "white-space": "nowrap",
+        "transition-property": "top, left",
+        "transition-duration": this.config.transition_time,
+        "transition-timing-function": "ease-in-out, ease-in-out"
+    };
+
+    if (this.config.leaf_border > 0) {
+        this.leaf_style.border =
+            this.config.leaf_border + "px solid "
+            + this.config.leaf_border_color;
+    }
+
+    this.connection_style = {
+        position: "absolute",
+        "border-left": "2px solid black",
+        "border-top": "2px solid black",
+        "border-bottom": "2px solid black",
+        "border-right": "none",
+        "transition-property": "top, height, left, width, border",
+        "transition-duration": this.config.transition_time,
+        "transition-timing-function": 
+            "ease-in-out, ease-in-out, ease-in-out, ease-in-out, step-start"
+    };
+};
+
+renderer.prototype.subtree_hidden = function(node_id) {
+    return this.children_hidden[node_id];
+};
+
+// sets the given css_string as a new stylesheet, or replaces this object's
+// stylesheet with css_string if one has already been set
+renderer.prototype.set_styles = function(css_string) {
+    if (! this._style_node) {
+        head = document.getElementsByTagName('head')[0],
+        this._style_node = document.createElement('style');
+        this._style_node.type = 'text/css';
+        head.appendChild(this._style_node);
+    }
+
+    if (this._style_node.styleSheet) {
+        // IE
+        this._style_node.styleSheet.cssText = css_string;
+    } else {
+        while (this._style_node.firstChild) {
+            this._style_node.removeChild(this._style_node.firstChild);
+        }
+        this._style_node.appendChild(document.createTextNode(css_string));
+    }
+};
+
+renderer.prototype.add_node = function(unique_id, label, meta){
+    this.tree.add_node(unique_id, label, meta);
+    this._layout_dirty = true;
+};
+
+renderer.prototype.add_edge = function(nid1, nid2, dist){
+    this.tree.add_edge(nid1, nid2, dist);
+    this._layout_dirty = true;
+};
+
+renderer.prototype.display = function () {
+    if (this.container) this.parent.removeChild(this.container);
+
+    this.container = document.createElement("div");
+    this.container.style.cssText = [
+        "position: absolute",
+        "top: 0px",
+        "left: " + ( (this.config.node_size / 2)
+                     + this.config.parent_padding ) + "px",
+        "margin: 0px",
+        "padding: 0px",
+        "transition-property: width, height",
+        "transition-duration: " + this.config.transition_time,
+        "transition-timing-function: ease-in-out"
+    ].join(";") + ";";
+
+    var node_class = this._css_prefix + "node";
+    var leaf_class = this._css_prefix + "leaf";
+    var conn_class = this._css_prefix + "conn";
+        
+    this.set_styles([
+        "div." + node_class + " {" + css_string(this.node_style) + "}",
+        "div." + leaf_class + " {" + css_string(this.leaf_style) + "}",
+        "div." + conn_class + " {" + css_string(this.connection_style) + "}"
+    ].join("\n"));
+
+    var phynodes = {};
+    for (var node_id in this.tree.nodes) {
+        var node = this.tree.nodes[node_id];
+        var phynode = new graph_pnode(node,
+                                      node_class, leaf_class,
+                                      this.config.box_height);
+        this.container.appendChild(phynode.node_elem);
+        phynode.node_elem.onclick = this.node_elem_click_handler;
+        phynodes[node.id] = phynode;
+    }
+    this._phynodes = phynodes;
+
+    var container = this.container;
+    var self = this;
+    this.tree.iterate_edges(function(parent, child) {
+        if (self.node_hidden[child.id]) return;
+        var child_phynode = phynodes[child.id];
+        child_phynode.set_parent(
+            phynodes[parent.id],
+            conn_class
+        );
+        container.appendChild(child_phynode.conn_elem);
+    });
+
+    this.position_nodes();
+    this.parent.appendChild(this.container);
+
+    this.width_changed(this.parent.clientWidth);
+};
+
+renderer.prototype.position_nodes = function() {
+    // x_scale will be percentage units
+    var x_scale = 100 / this.max_distance();
+
+    // row_height is in pixel units
+    var row_height = this.config.box_height + this.config.box_spacing;
+
+    // the position values from the tree layout are center
+    // positions, and the very top one has a y-position of 0.
+    // if a leaf node box is centered at that point, then the
+    // top half of the top box would get cut off.  So we move
+    // all of the positions down by top_margin pixels.
+    var top_margin = ( (this.config.box_height / 2)
+                       + this.config.parent_padding );
+
+    var layout = this.layout();
+    var self = this;
+    this.tree.iterate_preorder(function(node) {
+	var node_pos = layout[node.id];
+
+	var x = (node_pos.x * x_scale);
+	var y = (node_pos.y * row_height) + top_margin;
+        self._phynodes[node_pos.id].set_position(x, y);
+        if (self.subtree_hidden(node.id)) return true;
+    });
+    this.tree_height = ( (this.leaves().length * row_height)
+                         - this.config.box_spacing
+                         + (this.config.parent_padding * 2) );
+
+    this.parent.style.transition =
+        "height " + this.config.transition_time + " ease-in-out";
+    this.parent.style.height = this.tree_height + "px";
+    this.container.style.height = this.tree_height + "px";
+};
+
+renderer.prototype.max_distance = function() {
+    if (this._layout_dirty) this._update_layout();
+    return this._max_distance;
+};
+
+renderer.prototype.leaves = function() {
+    if (this._layout_dirty) this._update_layout();
+    return this._leaves;
+};
+
+renderer.prototype.layout = function() {
+    if (this._layout_dirty) this._update_layout();
+    return this._layout;
+};
+
+renderer.prototype._update_layout = function() {
+    this._do_sort(this._sort);
+    var self = this;
+
+    var visible_leaves = [];
+    this.tree.iterate_preorder(function(node) {
+        if (self.node_hidden[node.id]) return;
+        // nodes with hidden children are leaves for layout purposes
+        if (node.is_leaf() || self.children_hidden[node.id]) {
+            visible_leaves.push(node);
+        }
+    });
+    this._leaves = visible_leaves;
+
+    this._max_distance = max(this.tree.traverse(
+        function(node, down_data) {
+            return down_data + node.parent_distance;
+        },
+        0,
+        function(node, child_results, down_data) {
+            if (self.node_hidden[node.id]) return 0;
+
+            return Math.max(down_data, max(child_results));
+        }
+    ) );
+
+    this._layout = this._do_layout();
+    this._layout_dirty = false;
+};
+
+// returns an array of {id, x, y} objects (one per node)
+renderer.prototype._do_layout = function() {
+    var leaf_counter = 0;
+    var self = this;
+    var layout_list = Array.prototype.concat.apply([], this.tree.traverse(
+        function(node, down_data) {
+            return down_data + node.parent_distance;
+        },
+        0,
+        function(node, child_results, down_data) {
+            // don't lay out the node if it's hidden
+            if (self.node_hidden[node.id]) return [];
+
+            // don't try to average child positions if children are hidden
+            if (! (node.id in self.children_hidden)) {
+                var immediate_child_y_sum = 0;
+                for (var i = 0; i < child_results.length; i++) {
+                    // child_results will be an array with one element
+                    // for each child.  Each of those elements is an
+                    // array of position objects.  The first position
+                    // object is the position of the immediate child,
+                    // and the rest of the position objects are for
+                    // that child's descendants.  (see how the return
+                    // value is constructed below)
+                    immediate_child_y_sum += child_results[i][0].y;
+                }
+            }
+            
+            var my_pos = [{
+                id: node.id,
+                x: down_data,
+                y: ( ( node.is_leaf() || self.children_hidden[node.id] )
+                     // The traverse method goes depth-first, so we'll
+                     // encounter the leaves in leaf-order.  So the y-coord
+                     // is just the number of leaves we've seen so far.
+                     ? leaf_counter++
+                     // internal node y-coord is the mean of its child y-coords
+                     : ( immediate_child_y_sum / child_results.length ) )
+            }];
+            // flatten child result arrays and append the result to my_pos
+            return Array.prototype.concat.apply(my_pos, child_results);
+        }
+    ) );
+
+    var layout_hash = {};
+    for (var i = 0; i < layout_list.length; i++) {
+        layout_hash[layout_list[i].id] = layout_list[i];
+    }
+    return layout_hash;
+};
+
+// call this when the width of the tree's parent element changes
+renderer.prototype.width_changed = function(parent_width) {
+    var leaves = this.leaves();
+
+    var min_width = Number.MAX_VALUE;
+    for (var li = 0; li < leaves.length; li++) {
+        var leaf_id = leaves[li].id;
+        var phynode = this._phynodes[leaf_id];
+
+        // Each potential width is the width that this.container
+        // would have to be so that the leaf label fits into this.parent.
+        // We take the minimum because that's the most conservative of
+        // all the potential widths we calculate here.
+        var potential_width =
+            // dividing px by 100 because px is in percentage units
+            (parent_width - phynode.width()) / (phynode.px / 100)
+        min_width = Math.min(min_width, potential_width);
+    }
+    var new_width = Math.max(0, ( min_width
+				  - (this.config.node_size / 2)
+				  - (this.config.parent_padding * 2)
+                                  - this.config.leaf_margin ) );
+    this.container.style.width = new_width + "px";
+};
+
+// hides the subtree under the given node_id; for that node,
+// it shows the label and a visual ellipsis
+renderer.prototype.hide_subtree = function(node_id) {
+    var to_hide_under = this.tree.nodes[node_id];
+    if (to_hide_under === undefined) {
+        throw "asked to hide non-existent node " + node_id;
+    }
+    // there's nothing to hide under a leaf node
+    if (to_hide_under.is_leaf()) return;
+
+    var self = this;
+    to_hide_under.iterate_preorder(function(node) {
+        // don't hide the given node
+        if (node === to_hide_under) return;
+
+        self.node_hidden[node.id] = true;
+        self._phynodes[node.id].hide();
+    });
+    self.children_hidden[to_hide_under.id] = true;
+    self._phynodes[to_hide_under.id].set_children_hidden();
+
+    this._layout_dirty = true;
+    this.position_nodes();
+    this.width_changed(this.parent.clientWidth);
+};
+
+// show a previously-hidden subtree
+renderer.prototype.show_subtree = function(node_id) {
+    var to_show_under = this.tree.nodes[node_id];
+    if (to_show_under === undefined) {
+        throw "asked to show non-existent node " + node_id;
+    }
+
+    var self = this;
+    // remove this node from children_hidden
+    delete self.children_hidden[to_show_under.id];
+    to_show_under.iterate_preorder(function(node) {
+        if (node == to_show_under) return;
+
+        delete self.node_hidden[node.id];
+        self._phynodes[node.id].show();
+        
+        // returning true stops the iteration: if we encounter a
+        // previously-hidden subtree under the node that we're
+        // showing, we'll leave its children hidden unless it's
+        // specifically shown
+        if (self.children_hidden[node.id]) return true;
+    });
+    self._phynodes[to_show_under.id].set_children_visible();
+
+    this._layout_dirty = true;
+    this.position_nodes();
+    this.width_changed(this.parent.clientWidth);
+};
+
+renderer.prototype.node_clicked = function() {};
+
+renderer.prototype.set_sort = function(sort) {
+    if (sort == this._sort) return;
+    this._sort = sort;
+    this._layout_dirty = true;
+};
+
+// sort the tree according to the given sort ordering
+// see available_sorts for available sort arguments
+renderer.prototype._do_sort = function(sort) {
+    // leaf_counts: for each node, contains the number of its descendant leaves
+    var leaf_counts = {};
+    this.tree.traverse(
+        function() {}, null,
+        function(node, child_results, down_data) {
+            // if this is a leaf, call the leaf count 1
+            var leaf_count = node.is_leaf() ? 1 : sum(child_results);
+            leaf_counts[node.id] = leaf_count;
+            return leaf_count;
+        }
+    );
+
+    var available_sorts = {
+        ladderize_up: function(a, b) {
+            return leaf_counts[b.id] - leaf_counts[a.id];
+        },
+        ladderize_down: function(a, b) {
+            return leaf_counts[a.id] - leaf_counts[b.id];
+        },
+        alphabetical: function(a, b) {
+            if( a.id == b.id ) return 0;
+            return (a.id < b.id) ? -1 : 1;
+        }
+    };
+
+    if ("string" == typeof sort) {
+        if( ! sort in available_sorts ) throw "unknown sort " + sort;
+        this.tree.sort_children(available_sorts[sort]);
+    } else if ("function" == typeof sort) {
+        this.tree.sort_children(sort);
+    }
+};
+
+renderer.prototype.iterate_preorder = function(callback) {
+    var self = this;
+    this.tree.iterate_preorder(function(node) {
+        // if the node is hidden, there won't be anything in self._phynodes
+        if (self.node_hidden[node.id]) return;
+        return callback(node.id, node.label, node.meta,
+                        self._phynodes[node.id].node_elem,
+                        node.children);
+    });
+};
+
+renderer.prototype.traverse = function(down_fun, down_data, up_aggregator) {
+    var self = this;
+    return this.tree.traverse(down_fun, down_data, up_aggregator);
+};
+
+///
+/// phylo node html renderer
+///
+
+function graph_pnode(node, node_class, leaf_class, height){
+    this.node = node;
+    this.height = height;
+    this.leaf_class = leaf_class;
+
+    var node_elem = document.createElement("div");
+    if (node.is_leaf()) {
+        node_elem.appendChild(document.createTextNode(node.label));
+        node_elem.className = leaf_class;
+    } else {
+        node_elem.title = node.label;
+        node_elem.className = node_class;
+    }
+
+    node_elem.node_id = node.id;
+    this.node_elem = node_elem;
+}
+
+graph_pnode.prototype.set_children_hidden = function() {
+    var left_offset = 10;
+    this.subtree_box = document.createElement("div");
+    this.subtree_box.className = this.leaf_class;
+    this.subtree_box.style.backgroundColor = "#eee";
+    this.subtree_box.style.left = left_offset + "px";
+    this.subtree_box.style.top =
+        ((this.height / 2) - (this.node_elem.offsetHeight / 2 ) ) + "px";
+    this.subtree_box.appendChild(
+        document.createTextNode(this.node.label + " ...")
+    );
+
+    this.subtree_box.node_id = this.node.id;
+    this.node_elem.appendChild(this.subtree_box);
+    this._width = left_offset + this.subtree_box.offsetWidth;
+};
+
+graph_pnode.prototype.set_children_visible = function() {
+    this._width = this.node_elem.offsetWidth;
+    this.node_elem.removeChild(this.subtree_box);
+};
+graph_pnode.prototype.hide = function() {
+    this.node_elem.style.display = "none";
+    if (this.parent) this.conn_elem.style.display = "none";
+};
+
+graph_pnode.prototype.show = function() {
+    this.node_elem.style.display = "";
+    if (this.parent) this.conn_elem.style.display = "";
+};
+
+graph_pnode.prototype.set_position = function(x, y) {
+    this.px = x;
+    this.py = y;
+
+    this.node_elem.style.left = x + "%";
+    this.node_elem.style.top = y + "px";
+
+    if (this.parent) {
+        var conn_style =
+            "top: " + Math.min(this.parent.py, this.py) + "px;"
+            + "left: " + this.parent.px + "%;"
+            + "width: " + (this.px - this.parent.px) + "%;"
+            + "height: " + Math.abs(this.parent.py - this.py) + "px;";
+
+        if (this.py < this.parent.py) {
+            // upward connection
+            conn_style += "border-bottom: none;";
+        } else {
+            // downward connection
+            conn_style += "border-top: none;";
+        }
+        this.conn_elem.style.cssText = conn_style;
+    }
+}
+
+graph_pnode.prototype.set_parent = function(parent, conn_class) {
+    this.parent = parent;
+    this.conn_elem = document.createElement("div");
+    this.conn_elem.className = conn_class;
+};
+
+graph_pnode.prototype.width = function() {
+    if (! ("_width" in this)) this._width = this.node_elem.offsetWidth;
+    return this._width;
+};
+
+///
+/// a tree with distances on each edge
+///
+
+function tree() {
+    this.nodes = {};
+    // if _dirty is true, then the stuff that's calculated in _summarize()
+    // is out of date
+    this._dirty = true;
+}
+
+tree.prototype.add_node = function(id, label, meta) {
+    this.nodes[id] = new node(id, label, meta);
+    this._dirty = true;
+};
+
+tree.prototype.add_edge = function(parent_id, child_id, distance) {
+    var parent = this.nodes[parent_id];
+    var child = this.nodes[child_id];
+    if( "undefined" == typeof parent ){
+        throw "parent node " + parent_id + " not found";
+    }
+    if( "undefined" == typeof child ){
+        throw "child node " + child_id + " not found";
+    }
+    parent.add_child(child, distance);
+    this._dirty = true;
+};
+
+tree.prototype.sort_children = function(compare_fun) {
+    var roots = this.roots();
+    roots.sort(compare_fun);
+    for (var i = 0; i < roots.length; i++) {
+        roots[i].sort_children(compare_fun);
+    }
+    // this can change the leaf ordering, so we'll want to
+    // recompute the leaf list.
+    this._dirty = true;
+};
+
+tree.prototype.iterate_preorder = function(fun) {
+    var roots = this.roots()
+    for (var i = 0; i < roots.length; i++) {
+        roots[i].iterate_preorder(fun);
+    }
+};
+
+tree.prototype.iterate_edges = function(fun) {
+    for (var id in this.nodes) {
+        var parent = this.nodes[id];
+        for (var i = 0; i < parent.children.length; i++) {
+            fun(parent, parent.children[i]);
+        }
+    }
+};
+
+// computes and stores a list of leaves, list of roots, max distance, etc.
+tree.prototype._summarize = function() {
+    var roots = [];
+    for (var id in this.nodes) {
+        var node = this.nodes[id];
+        if( ! node.has_parent() ) roots.push(node);
+    }
+    this._roots = roots;
+    
+    this._dirty = false;
+};
+
+tree.prototype.roots = function() {
+    if (this._dirty) this._summarize();
+    return this._roots;
+};
+
+// see node.traverse for description
+tree.prototype.traverse = function(down_fun, down_data, up_aggregator) {
+    var roots = this.roots();
+    var results = [];
+    for (var i = 0; i < roots.length; i++) {
+        results.push(roots[i].traverse(down_fun, down_data, up_aggregator));
+    }
+    return results;
+};
+
+///
+/// tree node
+///
+
+function node(id, label, meta) {
+    this.id = id;
+    this.label = label;
+    this.meta = meta;
+    this.parent = null;
+    this.parent_distance = 0;
+    this.children = [];
+};
+
+node.prototype.add_child = function(child_node, distance) {
+    child_node.parent_distance = distance;
+    child_node.parent = this;
+    this.children.push(child_node);
+};
+
+node.prototype.is_leaf = function() {
+    return 0 == this.children.length;
+};
+
+node.prototype.has_parent = function() {
+    return null != this.parent;
+};
+
+node.prototype.sort_children = function(compare_fun) {
+    for (var i = 0; i < this.children.length; i++) {
+        this.children[i].sort_children(compare_fun);
+    }
+    this.children.sort(compare_fun);
+};
+
+// return true from the callback to stop iterating at a node
+// (the iteration will continue with siblings but not with children of the
+//  node where the callback returns true
+node.prototype.iterate_preorder = function(fun) {
+    if (! (true == fun(this))) {
+        for (var i = 0; i < this.children.length; i++) {
+            this.children[i].iterate_preorder(fun);
+        }
+    }
+};
+
+// traverse down and then up the tree, passing some data down
+// at each step, and aggregating traversal results from the
+// children on the way up
+// down_fun: gets called on each node on the way down
+//           arguments: node, down_data
+// down_data: starting value for the data to pass down
+//            (down_fun on a root gets this value for down_data)
+// up_aggregator: function to aggregate results on the way back up
+//                arguments: node, child_results, down_data
+node.prototype.traverse = function(down_fun, down_data, up_aggregator) {
+    down_data = down_fun(this, down_data);
+
+    var child_results = new Array(this.children.length);;
+    for (var i = 0; i < this.children.length; i++) {
+        child_results[i] =
+            this.children[i].traverse(down_fun, down_data, up_aggregator)
+    }
+
+    return up_aggregator(this, child_results, down_data);
+};
+
+///
+/// Util functions
+///
+
+// takes an object like {"top": "10px", "left": "5px"}
+// and return a string like "top: 10px; left: 5px;"
+function css_string(css_object) {
+    var result = "";
+    if ("object" == typeof css_object) {
+        for (var key in css_object) {
+            result += key + ":" + css_object[key] + ";";
+        }
+    }
+    return result;
+}
+
+function max(list) {
+    if (0 == list.length) return null;
+    var result = list[0];
+    for (var i = 1; i < list.length; i++) {
+        if (list[i] > result) result = list[i];
+    }
+    return result;
+}
+
+function min(list) {
+    if (0 == list.length) return null;
+    var result = list[0];
+    for (var i = 1; i < list.length; i++) {
+        if (list[i] < result) result = list[i];
+    }
+    return result;
+}
+
+function sum(list) {
+    var result = 0;
+    for (var i = 0; i < list.length; i++) {
+        result += list[i];
+    }
+    return result;
+}
+
+})();
+bbop.core.require('bbop', 'core');
+bbop.core.require('bbop', 'widget', 'phylo_tree');
+bbop.core.namespace('bbop', 'widget', 'phylo');
+
+(function() {
+
+bbop.widget.phylo.renderer = renderer;
+
+function renderer(parent, golr_loc, golr_conf, config) {
+    this.parent = parent;
+
+    var default_config = {
+        // these are in pixels
+        // row vertical height, including padding and borders
+        row_height: 18,
+        // vertical space between the contents of adjacent rows
+        row_spacing: 2,
+        font: "Helvetica, Arial, sans-serif",
+        mat_cell_width: 22,
+        transition_time: "0.8s"
+    };
+
+    this.config = ("object" == typeof config
+                   ? bbop.core.merge(default_config, config)
+                   : default_config);
+
+    this.phylo_facet_list = [
+        "panther_family_label",
+        "phylo_graph_json",
+        "score"
+    ].join(",");
+    //].join("%2C");
+    this.ann_facet_list = [
+        "id",
+        "bioentity",
+        "bioentity_label",
+        "taxon_label",
+        "bioentity_name",
+        "annotation_class_list_map",
+        "score"
+    ].join(",");
+    // ].join("%2C");
+    //this.ann_facet_list = "*%2Cscore";
+
+    var golr = new bbop.golr.manager.jquery(golr_loc, golr_conf);
+    golr.set_personality('bbop_bio');
+    golr.add_query_filter('document_category', 'bioentity', ['*']);
+    this.golr = golr;
+}
+
+renderer.prototype.show_family = function(family_id) {
+    var self = this;
+    var pgraph;
+
+    function phyloCallback(response) {
+        // make sure we don't show the phylo tree before the doc is ready
+        jQuery(document).ready(function() {
+            if (response.documents().length > 0) {
+                var pgraph_json = response.documents()[0].phylo_graph_json;
+                pgraph = (JSON.parse(pgraph_json));
+
+                self.golr.register('search', 's', annCallback);
+                self.golr.set_query("panther_family:" + family_id);
+                self.golr.current_fl = self.ann_facet_list;
+                self.golr.set("fl", self.ann_facet_list);
+                self.golr.page(response.total_documents(), 0);
+            } else {
+                console.log("no documents received");
+            }
+        });
+    }
+
+    function annCallback(response) {
+        if (response.documents().length > 0) {
+            self.bioentity_map = 
+                self.match_pnodes(pgraph.nodes, response.documents());
+            self.show_pgraph(pgraph);
+        } else {
+            console.log("no documents received");
+        }
+    }
+        
+    this.golr.register('search', 's', phyloCallback);
+    this.golr.set_query("panther_family:" + family_id);
+    this.golr.current_fl = this.phylo_facet_list;
+    this.golr.set("fl", this.phylo_facet_list);
+    this.golr.page(1, 0);
+};
+
+renderer.prototype.match_pnodes = function(pnodes, bioentities) {
+    var bioent_id_map = {};
+    var bioents_by_pthr_id = {};
+    var bioents_matched = 0;
+
+    for (var b = 0; b < bioentities.length; b++) {
+        bioent_id_map[bioentities[b].id] = bioentities[b];
+    }
+
+    for (var n = 0; n < pnodes.length; n++) {
+        if ("annotations" in pnodes[n].meta) {
+            var pgraph_bioent_ids = pnodes[n].meta.annotations.split("|");
+            for (var pbi = 0; pbi < pgraph_bioent_ids.length; pbi++) {
+                if (pgraph_bioent_ids[pbi] in bioent_id_map) {
+                    bioents_by_pthr_id[pnodes[n].id] =
+                        bioent_id_map[pgraph_bioent_ids[pbi]];
+                    bioents_matched++;
+                    //console.log("found bioentity for " + pnodes[n].id + " (" + pgraph_bioent_ids[pbi] + ")");
+
+                }
+            }
+            if (! (pnodes[n].id in bioents_by_pthr_id)) {
+                //console.log("no bioentity for " + pnodes[n].id + " (" + pgraph_bioent_ids.join(",") + ")");
+            }
+        } else {
+            // this is typically the case for internal nodes
+            //console.log("no non-panther IDs for " + pnodes[n].id);
+        }
+    }
+    console.log(pnodes.length + " phylo nodes");
+    console.log(bioentities.length + " bioentities");
+    
+    console.log(bioents_matched + " matched");
+    return bioents_by_pthr_id;
+};
+
+renderer.prototype.show_pgraph = function(pgraph) {
+    this.parent = ( ( "string" == typeof this.parent )
+		    ? document.getElementById(this.parent)
+		    : this.parent );
+    jQuery(this.parent).empty();
+
+    var parent_width = jQuery(this.parent).width();
+
+    var tree_container = document.createElement("div");
+    tree_container.style = "position:absolute; top: 0px; bottom: 100%; left: 0px;";
+    
+    var mat_container = document.createElement("div");
+    mat_container.style = "position:absolute; top: 0px; bottom: 100%;";
+
+    var col_count = 10;
+    var coldescs = new Array(col_count);
+    for (var ci = 0; ci < col_count; ci++) {
+        coldescs[ci] = "C" + ci;
+    }
+    var mat_width = col_count * this.config.mat_cell_width;
+    tree_container.style.width = (parent_width - mat_width) + "px";
+    mat_container.style.width = mat_width + "px";
+    mat_container.style.left = (parent_width - mat_width) + "px";
+
+    this.parent.appendChild(tree_container);
+    this.parent.appendChild(mat_container);
+    var tree_renderer = new bbop.widget.phylo_tree.renderer(tree_container, {
+        box_height: this.config.row_height,
+        box_spacing: this.config.row_spacing,
+        leaf_font: this.config.font,
+        leaf_border: 0,
+        leaf_padding: 3,
+        node_size: 8,
+        transition_time: this.config.transition_time
+    });
+    tree_renderer.leaf_style.background = "none";
+    tree_renderer.node_style.cursor = "pointer";
+
+    var nodes = pgraph.nodes;
+    var edges = pgraph.edges;
+    //console.log(nodes.length + " nodes");
+    //console.log(edges.length + " edges");
+
+    for (var i = 0; i < nodes.length; i++) {
+        var bioe =
+            nodes[i].id in this.bioentity_map ?
+            this.bioentity_map[nodes[i].id] :
+            null;
+
+        var label = nodes[i].lbl;
+        // abbreviate genus
+        if (bioe) {
+            var taxon_words = [];
+            if (bioe.taxon_label) taxon_words = bioe.taxon_label.split(/\s+/);
+            // sometimes there are more than two taxon words (strain name?)
+            // but taxon_words[0] appears to be the genus name
+            if (taxon_words.length >= 2) {
+                taxon_words[0] = taxon_words[0].substr(0, 1) + ".";
+            }
+            label = taxon_words.join(" ") + ":" + bioe.bioentity_label;
+        }
+
+        tree_renderer.add_node(nodes[i].id,
+                               label,
+                               nodes[i].meta);
+    }
+
+    for (var i = 0; i < edges.length; i++) {
+        tree_renderer.add_edge(edges[i].sub,
+                               edges[i].obj,
+                               parseFloat(edges[i].meta.distance));
+    }
+    
+    tree_renderer.set_sort(function(a, b) {
+        return parseInt(a.meta.layout_index) - parseInt(b.meta.layout_index);
+    });
+
+    var self = this;
+    tree_renderer.node_clicked = function(node, node_elem) {
+        if (tree_renderer.subtree_hidden(node.id)) {
+            tree_renderer.show_subtree(node.id);
+            var leaf_id_list = tree_renderer.leaves().map(
+                function(x) { return x.id }
+            );
+            mat_renderer.show_rows(leaf_id_list);
+            self.update_heights();
+        } else {
+            tree_renderer.hide_subtree(node.id);
+            var leaf_id_list = tree_renderer.leaves().map(
+                function(x) { return x.id }
+            );
+            mat_renderer.show_rows(leaf_id_list);
+            self.update_heights();
+        }
+    };
+
+    var node_colors = {};
+    var cur_color = 1;
+    tree_renderer.traverse(
+        function(node, down_data) {
+            if (node.id in node_colors) {
+                down_data = node_colors[node.id]
+            }
+            if ("true" == node.meta.duplication_p) {
+                var have_grandchildren = false;
+                var nearest_child_dist = Infinity;
+                var nearest_child;
+                for (var i = 0; i < node.children.length; i++) {
+                    if (node.children[i].parent_distance < nearest_child_dist) {
+                        nearest_child = node.children[i];
+                        nearest_child_dist = nearest_child.parent_distance;
+                    }
+                    have_grandchildren =
+                        have_grandchildren
+                        || (! node.children[i].is_leaf() );
+                }
+                if (have_grandchildren) {
+                    // under duplication nodes, we give new colors to
+                    // all children other than the nearest
+                    for (var i = 0; i < node.children.length; i++) {
+                        if (node.children[i] === nearest_child) {
+                            node_colors[node.children[i].id] = down_data;
+                        } else {
+                            node_colors[node.children[i].id] = cur_color++;
+                        }
+                    }
+                }
+            }
+            if (! (node.id in node_colors)) {
+                node_colors[node.id] = down_data;
+            }
+            return node_colors[node.id];
+        },
+        0,
+        function() {}
+    );
+    this.node_colors = node_colors;
+
+    this.tree_renderer = tree_renderer;
+    this.render_tree();
+
+    var node_id_list = nodes.map(function(x) { return x.id });
+    
+    function cell_renderer(cell, row, col) {
+        cell.style.backgroundColor = (Math.random() > 0.8) ? "#aaa" : "#fff";
+    }
+    var mat_renderer = new bbop.widget.matrix.renderer(mat_container,
+                                                       node_id_list,
+                                                       coldescs,
+                                                       cell_renderer,
+                                                       {
+                                                           cell_width: this.config.mat_cell_width,
+                                                           cell_height: this.config.row_height + 2,
+                                                           header_height: 0,
+                                                           show_headers: false,
+                                                           transition_time: this.config.transition_time
+                                                       });
+    var leaf_id_list = tree_renderer.leaves().map(
+        function(x) { return x.id }
+    );
+    mat_renderer.show_rows(leaf_id_list);
+    this.parent.style.transition =
+        "height " + this.config.transition_time + " ease-in-out";
+    this.update_heights();
+    
+    this.mat_renderer = mat_renderer;
+};
+
+renderer.prototype.update_heights = function() {
+    this.parent.style.height = this.tree_renderer.tree_height + "px";
+};
+
+renderer.prototype.render_tree = function() {
+    this.tree_renderer.display();
+
+    this.tree_renderer.iterate_preorder(
+        function(id, label, meta, dom_elem, children) {
+            if ("true" == meta.speciation_p) {
+                dom_elem.style.borderRadius = "6px";
+            } else if ("true" == meta.duplication_p) {
+                var has_children = children.length > 0;
+                if (has_children) {
+                    dom_elem.style.backgroundColor = "black";
+                }
+            }
+        }
+    );
+
+    var color_list = [
+        "white",
+        "rgb(238, 232, 170)",
+        "rgb(255, 182, 193)",
+        "rgb(135, 206, 250)",
+        "rgb(240, 128, 128)",
+        "rgb(152, 251, 152)",
+        "rgb(216, 191, 216)",
+        "rgb(240, 230, 140)",
+        "rgb(224, 255, 255)",
+        "rgb(255, 218, 185)",
+        "rgb(211, 211, 211)",
+        "rgb(255, 250, 205)",
+        "rgb(176, 196, 222)",
+        "rgb(255, 228, 173)",
+        "rgb(175, 238, 238)",
+        "rgb(244, 164, 96)",
+        "rgb(127, 255, 212)",
+        "rgb(245, 222, 179)",
+        "rgb(255, 160, 122)",
+        "rgb(221, 160, 221)"
+    ];
+    var self = this;
+    this.tree_renderer.iterate_preorder(
+        function(id, label, meta, dom_elem, children) {
+            var is_leaf = 0 == children.length;
+            if (is_leaf) {
+                dom_elem.style.backgroundColor =
+                    color_list[self.node_colors[id] % color_list.length];
+                if (id in self.bioentity_map) {
+                    dom_elem.style.color = "black";
+                } else {
+                    dom_elem.style.color = "#aaa";
+                }
+            }
+        }
+    );
+
+};
+
+})();
+bbop.core.require('bbop', 'core');
+//bbop.core.require('jQuery');
+bbop.core.namespace('bbop', 'widget', 'matrix');
+
+(function() {
+
+bbop.widget.matrix.renderer = renderer;
+
+// if there are multiple instances of this widget on the page, this will
+// make sure that their CSS rules don't step on each other
+var this_id = 0;
+
+function renderer(parent, row_descriptors, col_descriptors,
+                  cell_renderer, config) {
+    var default_config = {
+        // cell_width: null means to set the width based on cell contents;
+        // otherwise cell_width is a fixed width per cell in pixels
+        cell_width: null,
+        cell_height: 24,
+	cell_border: 1,
+        cell_padding: 6,
+        cell_font: "Helvetica, Arial, sans-serif",
+
+        header_height: 30,
+        header_font: "Helvetica, Arial, sans-serif",
+        show_headers: true,
+        transition_time: "0.8s"
+    };
+
+    if( "object" == typeof config ){
+        this.config = bbop.core.merge(default_config, config);
+    }else{
+        this.config = default_config;
+    }
+
+    this.parent = ( ( "string" == typeof parent )
+		    ? document.getElementById(parent)
+		    : parent );
+    if (this.parent === undefined) {
+        throw "can't find parent element " + parent;
+    }
+
+    // css width/height don't include padding or border, but
+    // offsetWidth/offsetHeight do
+    this.offset_size_delta = ( ( this.config.cell_padding * 2 )
+                               + ( this.config.cell_border ) );
+    // setting font size from cell height.  We'd like to set font cap height
+    // directly, but we can only set em box size.  Cap height on average is
+    // 70% of em box size, so we'll set the font size to the intended
+    // height divided by 0.7
+    var cell_font_size = ( ( this.config.cell_height
+                             - this.offset_size_delta )
+                           / 0.7 );
+    var header_font_size = ( ( this.config.header_height
+                               - this.offset_size_delta )
+                           / 0.7 );
+    
+
+    var css_prefix = "matrix_" + this_id++;
+    var header_class = css_prefix + "_header";
+    var cell_class = css_prefix + "_cell";
+    this.fixed_width = (null != this.config.cell_width);
+
+    this.row_descriptors = row_descriptors;
+    this.col_descriptors = col_descriptors;
+
+    this.headers = [];
+    this.matrix = [];
+    this.num_cols = col_descriptors.length;
+    this.num_rows = row_descriptors.length;
+    //rowdesc_map: row descriptor -> matrix row index
+    this.rowdesc_map = {};
+    //coldesc_map: col descriptor -> matrix col index
+    this.coldesc_map = {};
+    //rowindex_map: displayed row index -> matrix row index
+    this.rowindex_map = Array(row_descriptors.length);
+    //colindex_map: displayed col index -> matrix col index
+    this.colindex_map = Array(col_descriptors.length);
+    //create the header row
+    for (var i = 0; i < col_descriptors.length; i++) {
+        var cell = document.createElement("div");
+        cell.className = header_class;
+        cell.title = col_descriptors[i];
+        if (this.config.show_headers) {
+            cell.appendChild(document.createTextNode(col_descriptors[i]));
+        }
+        cell.style.top = "0px";
+        this.parent.appendChild(cell);
+        this.headers.push(cell);
+        this.colindex_map[i] = i;
+        this.coldesc_map[col_descriptors[i]] = i;
+    }
+    for( var ri = 0; ri < row_descriptors.length; ri++ ){
+        var row = [];
+
+        for (var ci = 0; ci < col_descriptors.length; ci++) {
+            var cell = document.createElement("div");
+            cell.className = cell_class;
+            cell_renderer(cell, row_descriptors[ri], col_descriptors[ci]);
+            cell.title = row_descriptors[ri] + ", " + col_descriptors[ci];
+            cell.style.top = ( this.config.header_height
+                               + (ri * this.config.cell_height) ) + "px";
+            this.parent.appendChild(cell);
+            row.push(cell);
+        }
+
+        this.matrix.push(row);
+        this.rowindex_map[ri] = ri;
+        this.rowdesc_map[row_descriptors[ri]] = ri;
+    }
+
+    this.cell_style = [
+        "  position: absolute;",
+        "  white-space: nowrap;",
+        "  height: " + (this.config.cell_height
+                        - this.offset_size_delta) + "px;",
+        "  border: " + this.config.cell_border + "px solid black;",
+        "  padding: " + this.config.cell_padding + "px;",
+        "  margin: 0px;",
+        "  font: " + cell_font_size + "px" + " " + this.config.cell_font + ";",
+        "  line-height: 0.7em;",
+        "  overflow: hidden;"
+    ].join("\n");
+
+    this.header_style = [
+        "  position: absolute;",
+        "  white-space: nowrap;",
+        "  height: " + (this.config.header_height
+                        - this.offset_size_delta) + "px;",
+        "  border: " + this.config.cell_border + "px solid black;",
+        "  padding: " + this.config.cell_padding + "px;",
+        "  font: " + header_font_size + "px" + " "
+            + this.config.header_font + ";",
+        "  line-height: 0.7em;",
+        "  overflow: hidden;"
+    ].join("\n");
+
+    this.transition_style = [
+        "  transition-property: top, left;",
+        "  transition-duration:" +  this.config.transition_time + ";",
+        "  transition-timing-function: ease-in-out, ease-in-out;"
+    ].join("\n");
+
+    //"table." + table_class + " tr:hover td { background-color: #bef195; }"
+
+    this.set_styles([
+        "div." + header_class + " { ",
+        this.header_style,
+        "}",
+        "div." + cell_class + " { ",
+        this.cell_style,
+        "}"
+    ].join("\n"));
+
+    this.update_height();
+    this.width = this.update_widths() + this.offset_size_delta;
+    this.parent.style.width = this.width + this.config.cell_border + "px";
+
+    this.set_styles([
+        "div." + header_class + " { ",
+        this.header_style,
+        this.transition_style,
+        "}",
+        "div." + cell_class + " { ",
+        this.cell_style,
+        this.transition_style,
+        "}"
+    ].join("\n"));
+}
+
+renderer.prototype.update_height = function() {
+    this.height = ( this.config.header_height + 
+                    ( this.config.cell_height * this.rowindex_map.length ) );
+    this.parent.style.height = this.height + this.config.cell_border + "px";
+};
+
+renderer.prototype.set_styles = function(css_string) {
+    if( ! this._style_node ){
+        head = document.getElementsByTagName('head')[0],
+        this._style_node = document.createElement('style');
+        this._style_node.type = 'text/css';
+        head.appendChild(this._style_node);
+    }
+
+    if (this._style_node.styleSheet){
+        this._style_node.styleSheet.cssText = css_string; // IE
+    } else {
+        while (this._style_node.firstChild) {
+            this._style_node.removeChild(this._style_node.firstChild);
+        }
+        this._style_node.appendChild(document.createTextNode(css_string));
+    }
+};
+
+renderer.prototype.update_widths = function() {
+    function max_widths(matrix) {
+        // matrix is row-major
+        var widths = [];
+        for (var row = 0; row < matrix.length; row++) {
+            for (var col = 0; col < matrix[row].length; col++) {
+                var cell = matrix[row][col];
+                if (cell !== undefined) {
+                    cell.style.width = "";
+                    if (! (col in widths)) widths[col] = 0;
+                    widths[col] = Math.max(widths[col], cell.offsetWidth);
+                }
+            }
+        }
+        return widths;
+    }
+
+    function set_widths(row, colindex_map, widths, offset_delta) {
+        var left = 0;
+        for (var col = 0; col < colindex_map.length; col++) {
+            var cell = row[colindex_map[col]];
+            cell.style.width = (widths[colindex_map[col]] - offset_delta) + "px";
+            cell.style.left = left + "px";
+            left += widths[col];
+        }
+    }
+
+    var widths = Array(this.num_cols);
+    var totalWidth = 0;
+    if (this.fixed_width) {
+        for (var col = 0; col < this.num_cols; col++) {
+            widths[col] = this.config.cell_width;
+            totalWidth += widths[col];
+        }
+    } else {
+        var header_widths = max_widths([this.headers]);
+        var matrix_widths = max_widths(this.matrix);
+        for (var col = 0; col < this.num_cols; col++) {
+            // || 0 here in case the matrix and headers don't have the
+            // same number of columns
+            widths[col] = Math.max(header_widths[col] || 0,
+                                   matrix_widths[col] || 0);
+            totalWidth += widths[col];
+        }
+    }
+
+    set_widths(this.headers, this.colindex_map, widths, this.offset_size_delta);
+    for (var ri = 0; ri < this.matrix.length; ri++) {
+        set_widths(this.matrix[ri], this.colindex_map, widths,
+                   this.offset_size_delta);
+    }
+
+    this.widths = widths;
+    return totalWidth - this.offset_size_delta;
+};
+
+renderer.prototype.show_rows = function(row_list) {
+    var new_rowindex_map = Array(row_list.length);
+    var new_row_map = {};
+
+    var displayed_colindices = Array(this.num_cols);
+    for (var dci = 0; dci < this.colindex_map.length; dci++) {
+        displayed_colindices[this.colindex_map[dci]] = dci;
+    }
+    var displayed_rowindices = Array(this.num_rows);
+    for (var dri = 0; dri < this.rowindex_map.length; dri++) {
+        displayed_rowindices[this.rowindex_map[dri]] = dri;
+    }
+
+    // set new row y-positions
+    for( var ri = 0; ri < row_list.length; ri++ ){
+        var matrix_row_index = this.rowdesc_map[row_list[ri]];
+        var row = this.matrix[matrix_row_index];
+
+        for (var ci = 0; ci < this.num_cols; ci++) {
+            var cell = row[ci];
+            cell.style.top = ( this.config.header_height
+                               + (ri * this.config.cell_height) ) + "px";
+
+            var displayed_colindex = displayed_colindices[ci];
+            if (displayed_colindex == undefined) {
+                cell.style.display = "none";
+            } else {
+                cell.style.display = "";
+            }
+        }
+
+        new_rowindex_map[ri] = matrix_row_index;
+        new_row_map[row_list[ri]] = 1;
+    }
+
+    this.rowindex_map = new_rowindex_map;
+
+    // hide non-shown rows
+    for(var i = 0; i < this.row_descriptors.length; i++) {
+        var rowdesc = this.row_descriptors[i];
+        if (! (rowdesc in new_row_map)) {
+            var row = this.matrix[this.rowdesc_map[rowdesc]];
+            for (var j = 0; j < row.length; j++) {
+                row[j].style.display = "none";
+            }
+        }
+    }
+    this.update_height();
+};
+
+renderer.prototype.show_cols = function(col_list) {
+    var new_colindex_map = Array(col_list.length);
+    var new_col_map = {};
+
+    var displayed_rowindices = Array(this.num_rows);
+    for (var dri = 0; dri < this.rowindex_map.length; dri++) {
+        displayed_rowindices[this.rowindex_map[dri]] = dri;
+    }
+
+    // set new col x-positions
+    var left = 0;
+    for( var ci = 0; ci < col_list.length; ci++ ){
+        matrix_col_index = this.coldesc_map[col_list[ci]];
+
+        for (var ri = 0; ri < this.num_rows; ri++) {
+            var row = this.matrix[ri];
+            var cell = row[matrix_col_index];
+            cell.style.left = left + "px";
+
+            var displayed_rowindex = displayed_rowindices[ri];
+            if (displayed_rowindex == undefined) {
+                cell.style.display = "none";
+            } else {
+                cell.style.display = "";
+            }
+        }
+        this.headers[matrix_col_index].style.left = left + "px";
+        this.headers[matrix_col_index].style.display = "";
+
+        new_colindex_map[ci] = matrix_col_index;
+        new_col_map[col_list[ci]] = 1;
+        left += this.widths[matrix_col_index];
+    }
+
+    this.colindex_map = new_colindex_map;
+
+    // hide non-shown cols
+    for(var i = 0; i < this.col_descriptors.length; i++) {
+        var coldesc = this.col_descriptors[i];
+        if (! (coldesc in new_col_map)) {
+            matrix_col_index = this.coldesc_map[coldesc];
+            for (var j = 0; j < this.matrix.length; j++) {
+                var cell = this.matrix[j][matrix_col_index];
+                cell.style.display = "none";
+            }
+            this.headers[matrix_col_index].style.display = "none";
+        }
+    }
+
+    this.width = left;
+    this.parent.style.width = this.width + this.config.cell_border + "px";
+};
+
+})();
 /*
  * Package: message.js
  * 
