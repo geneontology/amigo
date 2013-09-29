@@ -17,7 +17,8 @@ use AmiGO::WebApp::Input;
 #use AmiGO::Worker::Subset;
 use AmiGO::Worker::Visualize;
 use AmiGO::Worker::GOlr::Term;
-use AmiGO::Worker::GOlr::ComplexAnnotationUnit;
+#use AmiGO::Worker::GOlr::ComplexAnnotationUnit;
+use AmiGO::Worker::GOlr::ComplexAnnotationGroup;
 
 ##
 sub setup {
@@ -460,12 +461,12 @@ sub mode_complex_annotation {
   my $inline_p = $params->{inline};
   my $format = $params->{format};
   ## Harder argument.
-  $params->{annotation_unit} = $self->param('annotation_unit')
-    if ! $params->{annotation_unit} && $self->param('annotation_unit');
-  my $input_complex_annotation_id = $params->{annotation_unit};
+  $params->{complex_annotation} = $self->param('complex_annotation')
+    if ! $params->{complex_annotation} && $self->param('complex_annotation');
+  my $input_id = $params->{complex_annotation};
 
   ## Input sanity check.
-  if( ! $input_complex_annotation_id ){
+  if( ! $input_id ){
     return $self->mode_fatal("No input complex annotation id argument.");
   }
 
@@ -474,15 +475,15 @@ sub mode_complex_annotation {
   ###
 
   ## Get the data from the store.
-  my $ca_worker =
-    AmiGO::Worker::GOlr::ComplexAnnotationUnit->new($input_complex_annotation_id);
+  #my $ca_worker = AmiGO::Worker::GOlr::ComplexAnnotationUnit->new($input_id);
+  my $ca_worker = AmiGO::Worker::GOlr::ComplexAnnotationGroup->new($input_id);
   my $ca_info_hash = $ca_worker->get_info();
 
   ## First make sure that things are defined.
   if( ! defined($ca_info_hash) ||
       $self->{CORE}->empty_hash_p($ca_info_hash) ||
-      ! defined($ca_info_hash->{$input_complex_annotation_id}) ){
-    return $self->mode_not_found($input_complex_annotation_id,
+      ! defined($ca_info_hash->{$input_id}) ){
+    return $self->mode_not_found($input_id,
 				 'complex annotation');
   }
 
@@ -491,8 +492,7 @@ sub mode_complex_annotation {
   ###
 
   ## Unit we get topo and style separated, reduce the graph ourselves.
-  my $multi_json_str =
-    $ca_info_hash->{$input_complex_annotation_id}{topology_graph_json};
+  my $multi_json_str = $ca_info_hash->{$input_id}{topology_graph_json};
   my $multi_json = $self->{CORE}->_read_json_string($multi_json_str);
 
   ## Unwind out given graph into a simpler form.

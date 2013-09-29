@@ -56,6 +56,36 @@ sub get_by_id {
   return $retval;
 }
 
+=item get_by_proxy
+
+Return a document by using another field as a proxy key.
+For example, the graph you want is shared by all documents in a group, so
+you just need any document from that group 
+
+Args: proxy field (string), proxy id (string)
+Return: perl hash structure (see TODO) or undef
+
+=cut
+sub get_by_proxy {
+
+  my $self = shift;
+  my $in_field = shift || die "need to have an field argument";
+  my $in_id = shift || die "need to have an id argument";
+  my $retval = undef;
+
+  ## Merge in id with template. Make sure the quotes are encoded/safe.
+  $self->{AEJS_BASE_HASH}{q} = $in_field . ':%22' . $in_id . '%22';
+
+  ## Use the superclass to finish.
+  if( $self->query() ){
+    $retval = $self->first_doc();
+  }
+
+  #$self->kvetch('$retval: ' . Dumper($retval));
+
+  return $retval;
+}
+
 
 
 1;

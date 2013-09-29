@@ -63,8 +63,8 @@ amigo.linker = function (){
     };
     this.complex_annotation_category = {
         //'complex_annotation': true,
-        //'annotation_group': true
-        'annotation_unit': true
+        'annotation_group': true
+        //'annotation_unit': true
     };
     this.search_category = {
         'search': true,

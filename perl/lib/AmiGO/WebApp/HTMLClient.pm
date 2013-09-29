@@ -27,7 +27,8 @@ use CGI::Application::Plugin::Redirect;
 ## Real external workers.
 use AmiGO::Worker::GOlr::Term;
 use AmiGO::Worker::GOlr::GeneProduct;
-use AmiGO::Worker::GOlr::ComplexAnnotationUnit;
+#use AmiGO::Worker::GOlr::ComplexAnnotationUnit;
+use AmiGO::Worker::GOlr::ComplexAnnotationGroup;
 use AmiGO::External::QuickGO::Term;
 use AmiGO::External::XML::GONUTS;
 #use AmiGO::External::Raw;
@@ -1488,12 +1489,12 @@ sub mode_complex_annotation_details {
   # $params->{annotation_group} = $self->param('annotation_group')
   #   if ! $params->{annotation_group} && $self->param('annotation_group');
   # my $input_annotation_group_id = $params->{annotation_group};
-  $params->{annotation_unit} = $self->param('annotation_unit')
-    if ! $params->{annotation_unit} && $self->param('annotation_unit');
-  my $input_complex_annotation_id = $params->{annotation_unit};
+  $params->{complex_annotation} = $self->param('complex_annotation')
+    if ! $params->{complex_annotation} && $self->param('complex_annotation');
+  my $input_id = $params->{complex_annotation};
 
   ## Input sanity check.
-  if( ! $input_complex_annotation_id ){
+  if( ! $input_id ){
     return $self->mode_fatal("No input complex annotation argument.");
   }
 
@@ -1502,27 +1503,29 @@ sub mode_complex_annotation_details {
   ###
 
   ## Get the data from the store.
+  #AmiGO::Worker::GOlr::ComplexAnnotationUnit->new($input_id);
   my $ca_worker =
-    AmiGO::Worker::GOlr::ComplexAnnotationUnit->new($input_complex_annotation_id);
+
+    AmiGO::Worker::GOlr::ComplexAnnotationGroup->new($input_id);
   my $ca_info_hash = $ca_worker->get_info();
 
   ## First make sure that things are defined.
   if( ! defined($ca_info_hash) ||
       $self->{CORE}->empty_hash_p($ca_info_hash) ||
-      ! defined($ca_info_hash->{$input_complex_annotation_id}) ){
-    return $self->mode_not_found($input_complex_annotation_id,
+      ! defined($ca_info_hash->{$input_id}) ){
+    return $self->mode_not_found($input_id,
 				 'complex annotation');
   }
 
   $self->{CORE}->kvetch('solr docs: ' . Dumper($ca_info_hash));
   $self->set_template_parameter('CA_INFO',
-				$ca_info_hash->{$input_complex_annotation_id});
+				$ca_info_hash->{$input_id});
 
   ## Will only need to link through the visualizer,
   my $vlink =
     $self->{CORE}->get_interlink({mode => 'visualize_complex_annotation',
-				  arg => {annotation_unit =>
-					  $input_complex_annotation_id}});
+				  arg => {complex_annotation =>
+					  $input_id}});
   $self->set_template_parameter('VIZ_STATIC_LINK', $vlink);
 
   ###
@@ -1533,16 +1536,16 @@ sub mode_complex_annotation_details {
   $self->set_template_parameter('page_name', 'complex_annotation');
   $self->set_template_parameter('page_title',
 				'AmiGO 2: Complex Annotation Details for ' .
-				$input_complex_annotation_id);
+				$input_id);
 
   ## Figure out the best title we can.
-  my $best_title = $input_complex_annotation_id; # start with the worst
-  if ( $ca_info_hash->{$input_complex_annotation_id}{'annotation_unit_label'} ){
+  my $best_title = $input_id; # start with the worst
+  if ( $ca_info_hash->{$input_id}{'annotation_group_label'} ){
     $best_title =
-      $ca_info_hash->{$input_complex_annotation_id}{'annotation_unit_label'};
-  }elsif( $ca_info_hash->{$input_complex_annotation_id}{'annotation_unit'} ){
+      $ca_info_hash->{$input_id}{'annotation_group_label'};
+  }elsif( $ca_info_hash->{$input_id}{'annotation_group'} ){
     $best_title =
-      $ca_info_hash->{$input_complex_annotation_id}{'annotation_unit'};
+      $ca_info_hash->{$input_id}{'annotation_group'};
   }
   $self->set_template_parameter('content_title', $best_title);
 
@@ -1572,7 +1575,7 @@ sub mode_complex_annotation_details {
       # $self->{JS}->make_var('global_count_data', $gpc_info),
       # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
       # $self->{JS}->make_var('global_acc_to_rand', $acc_to_rand),
-      $self->{JS}->make_var('global_acc', $input_complex_annotation_id)
+      $self->{JS}->make_var('global_acc', $input_id)
      ],
      javascript_init =>
      [

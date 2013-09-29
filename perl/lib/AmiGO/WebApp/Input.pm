@@ -114,7 +114,8 @@ sub input_profile {
     $self->_add_simple_argument('family', '');
   }elsif( $profile_name eq 'complex_annotation' ){
     #$self->_add_simple_argument('annotation_group', '');
-    $self->_add_simple_argument('annotation_unit', '');
+    #$self->_add_simple_argument('annotation_unit', '');
+    $self->_add_simple_argument('complex_annotation', '');
   }elsif( $profile_name eq 'gaffer' ){
     $self->_add_simple_argument('data_url', '');
   }elsif( $profile_name eq 'matrix' ){
@@ -159,8 +160,7 @@ sub input_profile {
   }elsif( $profile_name eq 'visualize_complex_annotation' ){
     $self->_add_inline_p();
     $self->_add_visual_format();
-    #$self->_add_simple_argument('annotation_group', '');
-    $self->_add_simple_argument('annotation_unit', '');
+    $self->_add_simple_argument('complex_annotation', '');
   }elsif( $profile_name eq 'visualize_single' ){
     $self->_add_inline_p();
     $self->_add_loose_term();

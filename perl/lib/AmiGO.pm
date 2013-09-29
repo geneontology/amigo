@@ -1283,7 +1283,7 @@ sub get_interlink {
 
      'visualize_complex_annotation' =>
      sub {
-       my $au = $args->{annotation_unit} || '';
+       my $au = $args->{complex_annotation} || '';
        my $format = $args->{format} || 'png';
        $ihash = {
 		 action => 'visualize',
@@ -1292,7 +1292,7 @@ sub get_interlink {
 		  mode => 'complex_annotation',
 		  inline => 'false',
 		  format => $format,
-		  annotation_unit => $au,
+		  complex_annotation => $au,
 		 },
 		};
        $ilink = $self->_fuse_hash($ihash);
