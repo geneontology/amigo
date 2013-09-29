@@ -140,6 +140,7 @@ Group: AmiGO  {
       Group: GOlr  {
 
          File: Closure.pm  (AmiGO/Worker/GOlr/Closure.pm)
+         File: ComplexAnnotationGroup.pm  (AmiGO/Worker/GOlr/ComplexAnnotationGroup.pm)
          File: ComplexAnnotationUnit.pm  (AmiGO/Worker/GOlr/ComplexAnnotationUnit.pm)
          File: GeneProduct.pm  (AmiGO/Worker/GOlr/GeneProduct.pm)
          File: IC.pm  (AmiGO/Worker/GOlr/IC.pm)
