@@ -95,13 +95,20 @@ TEST_GAF = http://www.geneontology.org/gene-associations/gene_association.mgi.gz
 TEST_GAF_SMALL ?= ./_test/mgi-limited.gaf
 TEST_GAF_MICRO = ./_test/mgi-limited-100.gaf
 
-COMPLEX_ANNOTATIONS ?= --catalog-xml /home/sjcarbon/local/src/svn/geneontology.org/trunk/experimental/lego/owl/catalog-v001.xml \
-	/home/sjcarbon/local/src/svn/geneontology.org/trunk/experimental/lego/owl/textbook_glycolysis-mouse.owl
-# /home/sjcarbon/local/src/svn/geneontology.org/trunk/experimental/lego/owl/textbook_glycolysis.owl \
-# /home/sjcarbon/local/src/svn/geneontology.org/trunk/ontology/go.owl \
-# /home/sjcarbon/local/src/svn/geneontology.org/trunk/experimental/lego/owl/lego-relations.owl \
 ## Not over the wire yet.
-#
+## Experimental Lego paths.
+LEGO_CATALOGS ?= \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/catalog-v001.xml
+LEGO_FILES ?= \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/Muscle_contraction.owl \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/NEDD4-merged.owl \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/Wnt-intestine-pmid22617424dph.owl \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/canonical-wnt.owl \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/cytokinin-signaling.owl \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/lr-asymmetry-pmid21771813.owl \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/textbook_glycolysis-mouse.owl \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/worm-vulval-development.owl \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/reactome/Arachidonic_acid_metabolism.owl
 
 ##
 DATE = `date +'%Y-%m-%d'`
@@ -205,10 +212,9 @@ load-just-panther: owltools-build
 ## TODO/BUG: Testing phase.
 ## Test complex annotations (LEGO): A test load with just the new doc type.
 .PHONY: load-just-complex-annotations
-#load-just-complex-annotations:
 load-just-complex-annotations: owltools-build
 	make message-load-start
-	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(COMPLEX_ANNOTATIONS) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-load-complex-annotations
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --read-lego-catalogs $(LEGO_CATALOGS) --read-lego-files $(LEGO_FILES) --solr-load-complex-annotations
 	make message-load-clear
 
 ## The full and final load.
