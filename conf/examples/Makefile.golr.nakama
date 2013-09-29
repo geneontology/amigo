@@ -54,7 +54,7 @@ ONTOLOGIES ?= \
 # http://purl.obolibrary.org/obo/go/extensions/go-plus.owl \
 # http://purl.obolibrary.org/obo/uberon/basic.owl
 
-ALL_GAFS ?= \
+GENE_ASSOCIATION_FILES ?= \
 	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Lmajor.gz \
 	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Pfalciparum.gz \
 	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Spombe.gz  \
@@ -94,9 +94,24 @@ ALL_GAFS ?= \
 	http://www.geneontology.org/gene-associations/gene_association.zfin.gz \
 	http://www.geneontology.org/gene-associations/submission/paint/pre-submission/gene_association.paint_other.gaf # And higher-level PAINT annotations.
 
-MGI_TEST_GAF ?= ./_test/mgi-limited.gaf
-MGI_GAF = http://www.geneontology.org/gene-associations/gene_association.mgi.gz
-MGI_NANO_GAF = ./_test/mgi-limited-100.gaf
+TEST_GAF = http://www.geneontology.org/gene-associations/gene_association.mgi.gz
+TEST_GAF_SMALL ?= ./_test/mgi-limited.gaf
+TEST_GAF_MICRO = ./_test/mgi-limited-100.gaf
+
+## Not over the wire yet.
+## Experimental Lego paths.
+LEGO_CATALOGS ?= \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/catalog-v001.xml
+LEGO_FILES ?= \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/Muscle_contraction.owl \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/NEDD4-merged.owl \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/Wnt-intestine-pmid22617424dph.owl \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/canonical-wnt.owl \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/cytokinin-signaling.owl \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/lr-asymmetry-pmid21771813.owl \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/textbook_glycolysis-mouse.owl \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/worm-vulval-development.owl \
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/reactome/Arachidonic_acid_metabolism.owl
 
 ##
 DATE = `date +'%Y-%m-%d'`
@@ -169,25 +184,25 @@ load-ontology: owltools-build
 	make message-load-clear
 
 ## Test GAF.
-.PHONY: load-mgi-gaf
-load-mgi-gaf: owltools-build
+.PHONY: load-test-gaf
+load-test-gaf: owltools-build
 	make message-load-start
-	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --read-panther $(PANTHER_FILES_DIR) --solr-log $(SOLR_LOAD_LOG) --solr-load-gafs $(MGI_GAF) --solr-load-panther --solr-load-panther-general
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --read-panther $(PANTHER_FILES_DIR) --solr-log $(SOLR_LOAD_LOG) --solr-load-gafs $(TEST_GAF) --solr-load-panther --solr-load-panther-general
 	make message-load-clear
 
 ## Test GAF: A test load with the MGI GAF--column 16, etc.
-.PHONY: load-mgi-test-gaf
-load-mgi-test-gaf: owltools-build
+.PHONY: load-test-gaf-small
+load-test-gaf-small: owltools-build
 	make message-load-start
-	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --read-panther $(PANTHER_FILES_DIR) --solr-log $(SOLR_LOAD_LOG) --solr-load-gafs $(MGI_TEST_GAF) --solr-load-panther --solr-load-panther-general
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --read-panther $(PANTHER_FILES_DIR) --solr-log $(SOLR_LOAD_LOG) --solr-load-gafs $(TEST_GAF_SMALL) --solr-load-panther --solr-load-panther-general
 	make message-load-clear
 
 ## Test GAF: A super minimal tiny test load with the MGI GAF--column 16, etc.
 ## No PANTHER.
-.PHONY: load-mgi-nano-gaf
-load-mgi-nano-gaf: owltools-build
+.PHONY: load-test-gaf-micro
+load-test-gaf-micro: owltools-build
 	make message-load-start
-	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-log $(SOLR_LOAD_LOG) --solr-load-gafs $(MGI_NANO_GAF)
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-log $(SOLR_LOAD_LOG) --solr-load-gafs $(TEST_GAF_MICRO)
 	make message-load-clear
 
 ## Test PANTHER: A test load with just PANTHER (no GAF info).
@@ -197,16 +212,24 @@ load-just-panther: owltools-build
 	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --read-panther $(PANTHER_FILES_DIR) --solr-log $(SOLR_LOAD_LOG) --solr-load-panther --solr-load-panther-general
 	make message-load-clear
 
+## TODO/BUG: Testing phase.
+## Test complex annotations (LEGO): A test load with just the new doc type.
+.PHONY: load-just-complex-annotations
+load-just-complex-annotations: owltools-build
+	make message-load-start
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --read-lego-catalogs $(LEGO_CATALOGS) --read-lego-files $(LEGO_FILES) --solr-load-complex-annotations
+	make message-load-clear
+
 ## The full and final load.
 .PHONY: load-full
 load-full: owltools-build clear-load-log
 	make message-load-start
-	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-log $(SOLR_LOAD_LOG) --solr-load-ontology --solr-load-ontology-general --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(ALL_GAFS) --solr-load-panther --solr-load-panther-general
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-log $(SOLR_LOAD_LOG) --solr-load-ontology --solr-load-ontology-general --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(GENE_ASSOCIATION_FILES) --solr-load-panther --solr-load-panther-general
 	make message-load-clear
 ## "Silent" variation--useful w/o amigo.
 .PHONY: load-full-silent
 load-full-silent: owltools-build clear-load-log
-	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-log $(SOLR_LOAD_LOG) --solr-load-ontology --solr-load-ontology-general --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(ALL_GAFS) --solr-load-panther --solr-load-panther-general
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-log $(SOLR_LOAD_LOG) --solr-load-ontology --solr-load-ontology-general --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(GENE_ASSOCIATION_FILES) --solr-load-panther --solr-load-panther-general
 
 ## An option optimizing step.
 .PHONY: load-optimize
