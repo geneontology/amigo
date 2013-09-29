@@ -38,14 +38,31 @@ my %REL_COLOR_MAPPING =
    ## Some more modern stuff:
    'BFO_0000050' => 'lightblue',
    'http://purl.obolibrary.org/obo/BFO_0000050' => 'lightblue',
-   'directly_activates' => 'coral4',
-   'http://purl.obolibrary.org/obo/directly_activates' => 'coral4',
+   ## Regulates.
    'RO_0002211' => 'black',
    'http://purl.obolibrary.org/obo/RO_0002211' => 'black',
    'RO_0002212' => 'red',
    'http://purl.obolibrary.org/obo/RO_0002212' => 'red',
    'RO_0002213' => 'green',
    'http://purl.obolibrary.org/obo/RO_0002213' => 'green',
+   ## Activates.
+   'directly_activates' => 'coral4',
+   'http://purl.obolibrary.org/obo/directly_activates' => 'coral4',
+   ## ???
+   'enabled_by' => 'lightpink',
+   'RO_0002333' => 'lightpink',
+   'http://purl.obolibrary.org/obo/RO_0002333' => 'lightpink',
+   'regulates_levels_of' => 'lightpink',
+   'RO_0002332' => 'lightpink',
+   'http://purl.obolibrary.org/obo/RO_0002332' => 'lightpink',
+   'genomically_related_to' => 'lightpink',
+   'RO_0002330' => 'lightpink',
+   'http://purl.obolibrary.org/obo/RO_0002330' => 'lightpink',
+   ## ???
+   'http://purl.obolibrary.org/obo/BFO_0000051' => 'lightpink',
+   'http://purl.obolibrary.org/obo/upstream_of' => 'lightpink',
+   'http://purl.obolibrary.org/obo/directly_inhibits' => 'lightpink',
+   'http://purl.obolibrary.org/obo/indirectly_disables_action_of' => 'lightpink',
   );
 
 my %ONT_COLOR_MAPPING =
