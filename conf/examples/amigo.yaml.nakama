@@ -34,7 +34,7 @@ AMIGO_HTDOCS_PARTIAL_URL:
 AMIGO_LAYOUT_SEARCH:
   comment: A whitespace separated list of class IDs to use for live search tabs on the search page.
   type: string
-  value: annotation ontology bioentity
+  value: annotation ontology bioentity complex_annotation
 AMIGO_PROJECT_NAME:
   comment: Please enter the name of this AmiGO installation.
   type: string
