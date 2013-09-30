@@ -373,9 +373,17 @@ sub mode_advanced {
 sub _freeform_core {
   my $self = shift;
 
+  ## Core required arguments.
   my $format = shift || die "needs format";
   my $graph_hash = shift || die "needs graph data";
   my $term_hash = shift || undef;
+
+  ## Optional hash arguments.
+  my $args = shift || {};
+  my $nodes_p = 1;
+  my $edges_p = 1;
+  $nodes_p = 0 if( defined $args->{nodes} && $args->{nodes} == 0 );
+  $edges_p = 0 if( defined $args->{edges} && $args->{edges} == 0 );
 
   ## Simply process the nodes.
   my $all_nodes = {};
@@ -411,8 +419,8 @@ sub _freeform_core {
 
   ## Assemble the found nodes (including the term hash style/label
   ## info) and edges into the GraphVix graph.
-  $self->_add_gv_edges($gv, $all_edges);
-  $self->_add_gv_nodes($gv, $all_nodes, $term_hash);
+  $self->_add_gv_edges($gv, $all_edges) if $edges_p;
+  $self->_add_gv_nodes($gv, $all_nodes, $term_hash) if $nodes_p;
 
   return $gv;
 }
@@ -497,21 +505,23 @@ sub mode_complex_annotation {
 
   ## Unwind out given graph into a simpler form.
   my $graph_hash = {'nodes'=>[], 'edges'=>[]};
-  my $term_hash = {};
+  #my $term_hash = {};
+  my $stacked_node_hash = {};
   my $nodes = $multi_json->{nodes};
   foreach my $node (@$nodes){
 
     my $nid = $node->{id};
     my $nlbl = $node->{lbl} || '???';
 
-    my $enby = '~';
-    my $actv = '~';
+    my $enby = '';
+    my $actv = '';
+    my $proc = '';
     my $loc = [];
-    #my $proc = $node->{process} || '~';
     if( $node->{meta} ){
       $enby = $node->{meta}{enabled_by} if $node->{meta}{enabled_by};
       $actv = $node->{meta}{activity} if $node->{meta}{activity};
-      #$proc = $node->{meta}{process} if $node->{meta}{process};
+      $proc = $node->{meta}{process} if $node->{meta}{process};
+      $loc = $node->{meta}{location} if $node->{meta}{location};
     }
 
     push @{$graph_hash->{nodes}},
@@ -520,13 +530,44 @@ sub mode_complex_annotation {
        #'lbl' => $nlbl,
       };
 
-    $term_hash->{$nid} =
+    # $term_hash->{$nid} =
+    #   {
+    #    #'title' => $nlbl,
+    #    'title' => $enby,
+    #    #'body' => '<HTML>' . join('<BR>', @{[$enby, $actv]}) . '</HTML>'
+    #    'body' => join(" ", @{['e:'.$enby, 'a:'.$actv, 'p:'.$proc,
+    # 			      'l'.join(":", @$loc)]})
+    #    #'body' => $actv
+    #   };
+
+    my $stack = [];
+    push @$stack, {
+		  'color' => 'white',
+		  'field' => 'enabled by',
+		  'label' => $enby
+		 } if $enby;
+    push @$stack, {
+		  'color' => 'lightblue',
+		  'field' => 'activity',
+		  'label' => $actv
+		 } if $actv;
+    push @$stack, {
+		  'color' => 'coral2',
+		  'field' => 'process',
+		  'label' => $proc
+		 } if $proc;
+    foreach my $l (@$loc){
+      push @$stack, {
+		     'color' => 'yellow',
+		     'field' => 'location',
+		     'label' => $l
+		    };
+    }
+
+    $stacked_node_hash->{$nid} =
       {
-       #'title' => $nlbl,
-       'title' => $enby,
-       #'body' => '<HTML>' . join('<BR>', @{[$enby, $actv]}) . '</HTML>'
-       #'body' => join("\n", @{[$enby, $actv]})
-       'body' => $actv
+       'id' => $nid,
+       'stack' => $stack
       };
   }
   $self->{CORE}->kvetch('nodes added: ' . scalar(@$nodes));
@@ -547,11 +588,20 @@ sub mode_complex_annotation {
       };
   }
 
-  ## Produce the (possibly empty) image in SVG or PNG.
-  my $gv = $self->_freeform_core($format, $graph_hash, $term_hash);
-  my $output = $self->_produce_appropriate_output($gv, $format);
+  ## Produce the edges part of the image using the freeform core.
+  #my $gv = $self->_freeform_core($format, $graph_hash, $term_hash, {nodes=>0});
+  my $gv = $self->_freeform_core($format, $graph_hash, {}, {nodes=>0});
 
-  ## Get the headers correct.
+  ## Do our own stacked nodes for the nodes.
+  foreach my $snid (keys %$stacked_node_hash){
+    my $stacked_node = $stacked_node_hash->{$snid};
+    my $id = $stacked_node->{id};
+    my $stack = $stacked_node->{stack};
+    $gv->add_complex_node($id, $stack);
+  }
+
+  ## Produce output and get the headers correct.
+  my $output = $self->_produce_appropriate_output($gv, $format);
   $self->_add_fiddly_header($format, $inline_p);
 
   return $output;

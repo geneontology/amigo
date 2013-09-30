@@ -86,11 +86,12 @@ sub new {
   return $self;
 }
 
-
 =item add_stacked_node
 
 Adds a schema node to the graph. Should really only be used for
 specific ref genome stuff.
+
+DEPRECATED as we no longer are really doing the RefGen graphs anymore.
 
 =cut
 sub add_stacked_node {
@@ -251,6 +252,103 @@ sub add_stacked_node {
   #print STDERR "_nodes_" . $acc . "\n";
 }
 
+=item add_complex_node
+
+A refactor of add_stacked_node built around the things necessary
+for complex annotation visualizations.
+
+=cut
+sub add_complex_node {
+
+  my $self = shift;
+  my $acc = shift || die 'reference acc necessary for graph construction';
+  my $in_stack = shift || [];
+
+  $self->kvetch("\tGV::glyph acc: " . $acc);
+
+  ## TODO: this protection no longer needed?
+  #my $wnum = 12;
+  my $wnum = 20;
+
+  ## BUG: Word wrap works on smaller graphs, but causes GV to explode
+  ## on larger ones. Haven't found a work-around yet. I think that it
+  ## might be the <br /> period.
+
+  ## Maybe shortening works instead?
+  ## BUG: in this case, a total length > 13 causes failure
+  ## THERE ARE *SO* MANY GV bugs...
+  #$name = _name_wrap($name, $wnum);
+
+  ## BUG: This does not seem to be mine. It looks like perl graphviz
+  ## barfs if there are too many rows in the table. We'll tune this
+  ## out for now. I've experimentally found the limit (21 sends things
+  ## around the bend for some graphs).
+  #my $limit = 20 - $number_of_times_wrapped; # BUG COVER
+  #my $limit = 19; # BUG COVER
+  my $limit = 50; # BUG COVER -- TODO: no longer needed?
+  my $too_much = 0;# BUG COVER
+  if( @$in_stack > $limit ){# BUG COVER
+    $too_much = 1;# BUG COVER
+  }# BUG COVER
+  my $i = 1;# BUG COVER
+  my @mbuf = ();
+  foreach my $item (@$in_stack){
+
+    ## BUG: again GV's...what is going on here?
+    #$self->kvetch("\t\tcolor: " . $item->{color});
+    #$self->kvetch("\t\t^^^^^: problem: " . $item->{color})
+    #  if ! ($item->{color} =~ /^\#[0-9ABCDEF]{6}$/);
+
+    ## BUG: Found it. GV. Again. C'MON! Why is this so hard?!
+    if( $item->{color} ){
+      push @mbuf, '<TR BGCOLOR="';
+      push @mbuf, $item->{color};
+      push @mbuf, '">';
+      push @mbuf, '<TD BGCOLOR="';
+      push @mbuf, $item->{color};
+      push @mbuf, '">';
+    }else{
+      push @mbuf, '<TR>';
+      push @mbuf, '<TD ALIGN="LEFT" BALIGN="LEFT">';
+    }
+    #push @mbuf, '<FONT COLOR="blue">' if $item->{direct_p} > 0; # on direct
+    push @mbuf, _name_wrap($item->{label}, $wnum);
+    #push @mbuf, '</FONT>' if $item->{direct_p} > 0; # on direct
+    # push @mbuf, ' (';
+    # push @mbuf, $item->{field};
+    # push @mbuf, ')';
+
+    ## Wrap up stack and count towards overload.
+    push @mbuf, '</TD></TR>';
+    last if $i >= $limit;# BUG COVER
+    $i++;# BUG COVER
+  }
+  if( $too_much ){# BUG COVER
+    push @mbuf, '<TR BGCOLOR="white">';# BUG COVER
+    push @mbuf, '<TD BGCOLOR="white">';# BUG COVER
+    push @mbuf, 'More...';# BUG COVER
+    push @mbuf, '</TD></TR>';# BUG COVER
+  }# BUG COVER
+
+  my $stack_str = join '',  @mbuf;
+
+  #my $label_str = join '', ($acc, ' ', $name);
+  #my $label_str = join '', ($acc, '.......');
+  #my $label_str = join '', ($acc, '<br />', '....................');
+  #my $label_str = join '', ($acc, '<br />', $name, '<br />', '.....');
+  #my $label_str = join '<br/>', ($acc, $name);
+  #my $label_str = '';
+
+  $self->{GV}->add_node(
+			$acc,
+#			label => "<<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\"><TR><TD>$label_str</TD></TR>$stack_str</TABLE>>",
+			label => "<<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\">$stack_str</TABLE>>",
+			shape => 'plaintext',
+		       )
+    if $acc;
+
+  #print STDERR "_nodes_" . $acc . "\n";
+}
 
 =item add_node
 
