@@ -172,7 +172,7 @@ amigo.data.golr = {
    },
    "complex_annotation" : {
       "searchable_extension" : "_searchable",
-      "result_weights" : "annotation_group^5.0 enabled_by^4.0 location_list^3.0 process_class^2.0 function_class^1.0",
+      "result_weights" : "function_class^5.0 enabled_by^4.0 location_list^3.0 process_class^2.0 annotation_group^1.0",
       "filter_weights" : "annotation_group_label^5.0 enabled_by_label^4.5 location_list_closure_label^4.0 process_class_closure_label^3.0 function_class_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//complex-ann-config.yaml",
       "display_name" : "Complex annotations",
