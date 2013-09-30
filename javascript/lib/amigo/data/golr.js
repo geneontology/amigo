@@ -175,8 +175,8 @@ amigo.data.golr = {
       "result_weights" : "function_class^5.0 enabled_by^4.0 location_list^3.0 process_class^2.0 annotation_group^1.0",
       "filter_weights" : "annotation_group_label^5.0 enabled_by_label^4.5 location_list_closure_label^4.0 process_class_closure_label^3.0 function_class_closure_label^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//complex-ann-config.yaml",
-      "display_name" : "Complex annotations",
-      "description" : "An individual unit within LEGO.",
+      "display_name" : "Complex annotations (ALPHA)",
+      "description" : "An individual unit within LEGO. This is <strong>ALPHA</strong> software.",
       "schema_generating" : "true",
       "boost_weights" : "annotation_group_label^1.0 annotation_unit_label^1.0 enabled_by^1.0 enabled_by_label^1.0 location_list_closure^1.0 location_list_closure_label^1.0 process_class_closure_label^1.0 function_class_closure_label^1.0",
       "fields" : [
