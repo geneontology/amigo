@@ -1498,6 +1498,10 @@ sub mode_complex_annotation_details {
     return $self->mode_fatal("No input complex annotation argument.");
   }
 
+  ## Warn people away for now.
+  $self->add_mq('warning',
+		'This page is considered <strong>ALPHA</strong> software.');
+
   ###
   ### Get full info.
   ###
