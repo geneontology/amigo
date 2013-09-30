@@ -245,12 +245,12 @@ my $synth_conf_fname = $env_conf{AMIGO_CGI_ROOT_DIR} . '/config.pl';
 ll("Starting installation...");
 if( ! $opt_b ){
   create_synthetic_amigo_environmental_variables($synth_conf_fname, \%env_conf);
-  ll("Created synthetic variables and configuration file \"config.pl\".");
 }else{
   $synth_conf_fname = $env_conf{AMIGO_ROOT} . '/conf/config.pl';
   create_synthetic_amigo_environmental_variables($synth_conf_fname, \%env_conf);
   ll("Created synthetic variables and configuration file \"config.pl\".");
 }
+ll("Created synthetic variables and configuration file: $synth_conf_fname");
 
 ###
 ### Dump the YAML GOlr config into a representation that we can use
