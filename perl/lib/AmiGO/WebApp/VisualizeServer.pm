@@ -609,6 +609,9 @@ sub mode_complex_annotation {
     $gv->add_complex_node($id, $stack);
   }
 
+  ## TODO: Add legend.
+  $gv->add_legend();
+
   ## Produce output and get the headers correct.
   my $output = $self->_produce_appropriate_output($gv, $format);
   $self->_add_fiddly_header($format, $inline_p);

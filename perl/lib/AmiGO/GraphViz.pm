@@ -32,6 +32,10 @@ sub new {
   ## Prettiness.
   $self->{PRETTY} = AmiGO::Aid->new();
 
+  ## A place to passively keep legend information in case we want to
+  ## render it.
+  $self->{AGV_LEGEND} = {};
+
   ## Build display graph.
   if( $bitmap ){
     $self->{GV} = GraphViz->new({
@@ -407,16 +411,53 @@ sub add_edge {
   my $pred_id = shift || 'unknown_predicate';
   my $obj_id = shift  || 'unknown_object';
 
+  my $rcolor = $self->{PRETTY}->relationship_color($pred_id);
+  my $rlbl = $self->{PRETTY}->readable($pred_id);
+
+  ## Store possible legend information.
+  $self->{AGV_LEGEND}{$rlbl} = $rcolor;
+
+  ## Add edge.
   $self->{GV}->add_edge(
 			$obj_id => $sub_id,
-			#label => $self->{PRETTY}->readable($pred_id),
-			color => $self->{PRETTY}->relationship_color($pred_id),
+			label => undef,
+			color => $rcolor,
 			arrowhead => 'none',
 			arrowtail => 'normal',
 			style => 'bold'
 		       );
 
   #print STDERR "_edge_ " . $sub_id . ' ' . $pred_id  .  ' ' .  $obj_id . "\n";
+}
+
+
+=item add_legend
+
+Lamely add a legend to the graph.
+
+=cut
+sub add_legend {
+
+  my $self = shift;
+
+  my $stack =
+    [
+     {
+      'label' => '<B>Legend for edge colors</B>',
+      'color' => 'white',
+     }
+    ];
+  foreach my $rlbl (keys %{$self->{AGV_LEGEND}}){
+    my $rcolor = $self->{AGV_LEGEND}{$rlbl};
+    push @$stack,
+      {
+       'label' => $rlbl,
+       'color' => $rcolor,
+      };
+  }
+
+  ## Add legend as node.
+  $self->add_complex_node('this_is_an_a2_legend_node', $stack);
 }
 
 

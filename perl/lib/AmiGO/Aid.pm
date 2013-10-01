@@ -8,62 +8,191 @@ package AmiGO::Aid;
 
 use base 'AmiGO';
 
-my $READABLE =
+## TODO: This should be refactored into a YAML config for better sharing.
+## We're getting a lot of colors and aliases coming from different
+## sources, so let's try and merge our data better into one spot.
+my $super_data =
   {
-   'biological_process' => 'Biological Process',
-   'cellular_component' => 'Cellular Component',
-   'molecular_function' => 'Molecular Function',
-   'is_a' => 'is a',
-   'part_of' => 'part of',
-   'positively_regulates' => 'positively regulates',
-   'negatively_regulates' => 'negatively regulates',
-   'regulates' => 'regulates',
-   'develops_from' => 'develops from',
-   ## Some more modern stuff:
-   'BFO_0000050' => 'part of',
-   'http://purl.obolibrary.org/obo/BFO_0000050' => 'part of',
-   'directly_activates' => 'directly activates',
-   'http://purl.obolibrary.org/obo/directly_activates' => 'directly activates',
+   ## Terms.
+   'GO_0008150' => {
+		    readable => 'biological process',
+		    color => 'grey',
+		   },
+   'GO_0005575' => {
+		    readable => 'cellular component',
+		    color => 'grey',
+		   },
+   'GO_0003674' => {
+		    readable => 'molecular function',
+		    color => 'grey',
+		   },
+   ## Relations.
+   'BFO_0000050' =>
+   {
+    readable => 'part of',
+    color => 'lightblue',
+   },
+   'BFO_0000051' =>
+   {
+    readable => 'has part',
+    color => 'cornflowerblue',
+   },
+   'RO_0002202' =>
+   {
+    readable => 'develops from',
+    color => 'brown',
+   },
+   'RO_0002211' =>
+   {
+    readable => 'regulates',
+    color => 'black',
+   },
+   'RO_0002212' =>
+   {
+    readable => 'negatively regulates',
+    color => 'red',
+   },
+   'RO_0002213' =>
+   {
+    readable => 'positively regulates',
+    color => 'green',
+   },
+   'RO_0002213' =>
+   {
+    readable => 'positively regulates',
+    color => 'green',
+   },
+   'RO_0002330' =>
+   {
+    readable => 'genomically related to',
+    color => 'darkorchid',
+   },
+   'RO_0002331' =>
+   {
+    readable => 'involved in',
+    color => 'darksalmon',
+   },
+   'RO_0002332' =>
+   {
+    readable => 'regulates level of',
+    color => 'darkolivegreen',
+   },
+   'RO_0002333' =>
+   {
+    readable => 'enabled by',
+    color => 'darkgoldenrod',
+   },
+   ## ???
+   'directly_activates' =>
+   {
+    readable => 'directly activates',
+    color => 'darkseagreen',
+   },
+   'upstream_of' =>
+   {
+    readable => 'upstream of',
+    color => 'deeppink',
+   },
+   'directly_inhibits' =>
+   {
+    readable => 'directly inhibits',
+    color => 'chartreuse',
+   },
+   'indirectly_disables_action_of' =>
+   {
+    readable => 'indirectly disables action of',
+    color => 'darkslateblue',
+   },
+  };
+my $super_alias =
+  {
+   ## GO.
+   'biological_process' => 'GO_0008150',
+   'cellular_component' => 'GO_0005575',
+   'molecular_function' => 'GO_0003674',
+   'B' => 'GO_0008150',
+   'P' => 'GO_0005575',
+   'F' => 'GO_0003674',
+   ## BFO.
+   'http://purl.obolibrary.org/obo/BFO_0000050' => 'BFO_0000050',
+   'http://purl.obolibrary.org/obo/part_of' => 'BFO_0000050',
+   'part_of' => 'BFO_0000050',
+   'http://purl.obolibrary.org/obo/BFO_0000051' => 'BFO_0000051',
+   'has_part' => 'BFO_0000051',
+   ## RO.
+   'http://purl.obolibrary.org/obo/RO_0002211' => 'RO_0002211',
+   'http://purl.obolibrary.org/obo/RO_0002212' => 'RO_0002212',
+   'http://purl.obolibrary.org/obo/RO_0002213' => 'RO_0002213',
+   ## ???
+   'http://purl.obolibrary.org/obo/indirectly_disables_action_of' => 'indirectly_disables_action_of',
+   'http://purl.obolibrary.org/obo/directly_activates' => 'directly_activates',
+   'http://purl.obolibrary.org/obo/upstream_of' => 'upstream_of',
+   'http://purl.obolibrary.org/obo/directly_inhibits' => 'directly_inhibits',
   };
 
-## TODO: These should maybe be switched with hex colors.
-my %REL_COLOR_MAPPING =
-  (
-   'is_a' =>                 'blue',
-   'part_of' =>              'lightblue',
-   'develops_from' =>        'brown',
-   'regulates' =>            'black',
-   'negatively_regulates' => 'red',
-   'positively_regulates' => 'green',
-   ## Some more modern stuff:
-   'BFO_0000050' => 'lightblue',
-   'http://purl.obolibrary.org/obo/BFO_0000050' => 'lightblue',
-   ## Regulates.
-   'RO_0002211' => 'black',
-   'http://purl.obolibrary.org/obo/RO_0002211' => 'black',
-   'RO_0002212' => 'red',
-   'http://purl.obolibrary.org/obo/RO_0002212' => 'red',
-   'RO_0002213' => 'green',
-   'http://purl.obolibrary.org/obo/RO_0002213' => 'green',
-   ## Activates.
-   'directly_activates' => 'coral4',
-   'http://purl.obolibrary.org/obo/directly_activates' => 'coral4',
-   ## ???
-   'enabled_by' => 'lightpink',
-   'RO_0002333' => 'lightpink',
-   'http://purl.obolibrary.org/obo/RO_0002333' => 'lightpink',
-   'regulates_levels_of' => 'lightpink',
-   'RO_0002332' => 'lightpink',
-   'http://purl.obolibrary.org/obo/RO_0002332' => 'lightpink',
-   'genomically_related_to' => 'lightpink',
-   'RO_0002330' => 'lightpink',
-   'http://purl.obolibrary.org/obo/RO_0002330' => 'lightpink',
-   ## ???
-   'http://purl.obolibrary.org/obo/BFO_0000051' => 'lightpink',
-   'http://purl.obolibrary.org/obo/upstream_of' => 'lightpink',
-   'http://purl.obolibrary.org/obo/directly_inhibits' => 'lightpink',
-   'http://purl.obolibrary.org/obo/indirectly_disables_action_of' => 'lightpink',
-  );
+# my $READABLE =
+#   {
+#    'is_a' => 'is a',
+#    'part_of' => 'part of',
+#    'positively_regulates' => 'positively regulates',
+#    'negatively_regulates' => 'negatively regulates',
+#    'regulates' => 'regulates',
+#    'develops_from' => 'develops from',
+#    ## Some more modern stuff:
+#    'BFO_0000050' => 'part of',
+#    'http://purl.obolibrary.org/obo/BFO_0000050' => 'part of',
+#    'http://purl.obolibrary.org/obo/part_of' => 'part of',
+#    'BFO_0000051' => 'has part',
+#    'http://purl.obolibrary.org/obo/BFO_0000051' => 'has part',
+#    'directly_activates' => 'directly activates',
+#    'http://purl.obolibrary.org/obo/directly_activates' => 'directly activates',
+#    'RO_0002211' => 'regulates',
+#    'http://purl.obolibrary.org/obo/RO_0002211' => 'regulates',
+#    'RO_0002212' => 'negatively regulates',
+#    'http://purl.obolibrary.org/obo/RO_0002212' => 'negatively regulates',
+#    'RO_0002213' => 'positively regulates',
+#    'http://purl.obolibrary.org/obo/RO_0002213' => 'positively regulates',
+#   };
+
+# ## TODO: These should maybe be switched with hex colors.
+# my %REL_COLOR_MAPPING =
+#   (
+#    'is_a' =>                 'blue',
+#    'part_of' =>              'lightblue',
+#    'develops_from' =>        'brown',
+#    'regulates' =>            'black',
+#    'negatively_regulates' => 'red',
+#    'positively_regulates' => 'green',
+#    ## Some more modern stuff:
+#    'BFO_0000050' => 'lightblue',
+#    'http://purl.obolibrary.org/obo/BFO_0000050' => 'lightblue',
+#    'http://purl.obolibrary.org/obo/part_of' => 'lightblue',
+#    ## Regulates.
+#    'RO_0002211' => 'black',
+#    'http://purl.obolibrary.org/obo/RO_0002211' => 'black',
+#    'RO_0002212' => 'red',
+#    'http://purl.obolibrary.org/obo/RO_0002212' => 'red',
+#    'RO_0002213' => 'green',
+#    'http://purl.obolibrary.org/obo/RO_0002213' => 'green',
+#    ## Activates.
+#    ## ???
+#    'enabled_by' => 'lightpink',
+#    'RO_0002333' => 'lightpink',
+#    'http://purl.obolibrary.org/obo/RO_0002333' => 'lightpink',
+#    'regulates_levels_of' => 'lightpink',
+#    'RO_0002332' => 'lightpink',
+#    'http://purl.obolibrary.org/obo/RO_0002332' => 'lightpink',
+#    'genomically_related_to' => 'lightpink',
+#    'RO_0002330' => 'lightpink',
+#    'http://purl.obolibrary.org/obo/RO_0002330' => 'lightpink',
+#    ## ???
+#    'http://purl.obolibrary.org/obo/BFO_0000051' => 'lightpink',
+#    'directly_activates' => 'coral4',
+#    'http://purl.obolibrary.org/obo/directly_activates' => 'coral4',
+#    'http://purl.obolibrary.org/obo/upstream_of' => 'lightpink',
+#    'http://purl.obolibrary.org/obo/directly_inhibits' => 'lightpink',
+#    'http://purl.obolibrary.org/obo/indirectly_disables_action_of' => 'lightpink',
+#   );
 
 my %ONT_COLOR_MAPPING =
   (
@@ -88,6 +217,32 @@ sub new {
   return $self;
 }
 
+## Helper fuction to go from unknown id -> alias -> data structure.
+sub _dealias_data {
+  my $self = shift;
+  my $id = shift || undef;
+
+  $self->kvetch('dealias id: ' . $id);
+
+  my $ret = undef;
+  if( defined $id ){
+    $self->kvetch('dealias defined');
+    if( defined $super_data->{$id} ){ # directly pull
+      $self->kvetch('dealias direct pull');
+      $ret = $super_data->{$id};
+    }elsif( defined $super_alias->{$id} ){ # dealias
+      my $unalias = $super_alias->{$id};
+      $self->kvetch('dealias unalias: ' . $unalias);
+      if( defined $super_data->{$unalias} ){ # indirect pull
+	$self->kvetch('dealias indirect pull');
+	$ret = $super_data->{$unalias};
+      }
+    }
+  }
+
+  return $ret;
+}
+
 
 =item readable
 
@@ -96,12 +251,14 @@ Returns a human readable form of the inputted string.
 
 =cut
 sub readable {
-
   my $self = shift;
-  my $ret = shift || '';
+  my $in = shift || '';
 
-  $ret = $READABLE->{$ret}
-    if defined $READABLE->{$ret};
+  my $ret = $in;
+  my $data = $self->_dealias_data($in);
+  if( $data && defined $data->{readable} ){
+    $ret = $data->{readable};
+  }
 
   return $ret;
 }
@@ -110,15 +267,19 @@ sub readable {
 =item relationship_color
 
 Return the string of a color of a rel.
-TODO: This should be defined from ENV?
 
 =cut
 sub relationship_color {
-
   my $self = shift;
-  my $rel_str = shift || '';
+  my $in = shift || '';
 
-  return $REL_COLOR_MAPPING{$rel_str} || 'grey';
+  my $ret = 'grey';
+  my $data = $self->_dealias_data($in);
+  if( $data && defined $data->{color} ){
+    $ret = $data->{color};
+  }
+
+  return $ret;
 }
 
 
