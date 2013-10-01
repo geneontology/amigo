@@ -119,8 +119,8 @@ function BrowseInit(){
 
     // Finally, start the first draw with an artificial click on the
     // first shortcut button.
-    var start_id = shortcuts[0]['id'];
-    jQuery('#' + start_id).click();
+//    var start_id = shortcuts[0]['id'];
+//    jQuery('#' + start_id).click();
 
     ///
     /// The autocomplete talking back to the tree browser.
@@ -130,14 +130,14 @@ function BrowseInit(){
     function jumper(doc){ b.draw_browser(doc['annotation_class']); }
     var a_widget = bbop.widget.search_box;
     var auto =
-	new a_widget(sd.golr_base(), gconf, 'jumper',
-		     {
-			 'label_template':
-			 '{{annotation_class_label}} ({{annotation_class}})',
-			 'value_template': '{{annotation_class}}',
-			 'list_select_callback': jumper
-		     });
+    	new a_widget(sd.golr_base(), gconf, 'jumper',
+    		     {
+    			 'label_template':
+    			 '{{annotation_class_label}} ({{annotation_class}})',
+    			 'value_template': '{{annotation_class}}',
+    			 'list_select_callback': jumper
+    		     });
     //auto.set_personality('ontology'); // profile in gconf
     auto.set_personality('bbop_term_ac');
-    auto.add_query_filter('document_category', 'ontology');
+    auto.add_query_filter('document_category', 'ontology_class');
 }
