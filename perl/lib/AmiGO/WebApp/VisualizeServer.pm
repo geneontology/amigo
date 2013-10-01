@@ -514,11 +514,13 @@ sub mode_complex_annotation {
     my $nlbl = $node->{lbl} || '???';
 
     my $enby = '';
+    my $unk = [];
     my $actv = '';
     my $proc = '';
     my $loc = [];
     if( $node->{meta} ){
       $enby = $node->{meta}{enabled_by} if $node->{meta}{enabled_by};
+      $unk = $node->{meta}{unknown} if $node->{meta}{unknown};
       $actv = $node->{meta}{activity} if $node->{meta}{activity};
       $proc = $node->{meta}{process} if $node->{meta}{process};
       $loc = $node->{meta}{location} if $node->{meta}{location};
@@ -551,6 +553,13 @@ sub mode_complex_annotation {
 		  'field' => 'activity',
 		  'label' => $actv
 		 } if $actv;
+    foreach my $u (@$unk){
+      push @$stack, {
+		     'color' => 'lavenderblush',
+		     'field' => 'unknown',
+		     'label' => $u
+		    };
+    }
     push @$stack, {
 		  'color' => 'coral2',
 		  'field' => 'process',
