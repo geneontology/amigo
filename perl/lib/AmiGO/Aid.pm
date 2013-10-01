@@ -45,7 +45,7 @@ my $super_data =
    'RO_0002211' =>
    {
     readable => 'regulates',
-    color => 'black',
+    color => 'gray25',
    },
    'RO_0002212' =>
    {
