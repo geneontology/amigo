@@ -109,7 +109,7 @@ function BrowseInit(){
 	 });
 
     // Now, make our different shortcut buttons active.
-//    jQuery("#graph_radio").buttonset();
+    //    jQuery("#graph_radio").buttonset();
     loop(shortcuts,
 	 function(shortcut){
 	     var sid = shortcut['id'];
@@ -127,16 +127,17 @@ function BrowseInit(){
     ///
 
     jQuery('#' + 'jumper').click(function(){ jQuery(this).val(''); }); // clear
-    function jumper(doc){ b.draw_browser(doc['id']); }
+    function jumper(doc){ b.draw_browser(doc['annotation_class']); }
     var a_widget = bbop.widget.search_box;
-    var auto = new a_widget(sd.golr_base(), gconf, 'jumper',
-			    {
-				'label_template':
-				'{{annotation_class_label}} ({{id}})',
-				'value_template': '{{annotation_class}}',
-				'list_select_callback': jumper
-			    });
-    //auto.set_personality('bbop_ont'); // profile in gconf
+    var auto =
+	new a_widget(sd.golr_base(), gconf, 'jumper',
+		     {
+			 'label_template':
+			 '{{annotation_class_label}} ({{annotation_class}})',
+			 'value_template': '{{annotation_class}}',
+			 'list_select_callback': jumper
+		     });
+    //auto.set_personality('ontology'); // profile in gconf
     auto.set_personality('bbop_term_ac');
     auto.add_query_filter('document_category', 'ontology');
 }
