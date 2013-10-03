@@ -5,7 +5,7 @@
 - group_label: Term annotations
 - question_id: q1
   question: What are the direct annotations to term {{q1f1}}?
-  personality: bbop_ann
+  personality: annotation
   document_category: annotation
   field_translations:
     - field_id: q1f1
@@ -14,7 +14,7 @@
       widget_document: ontology_class
 - question_id: q2
   question: What are the direct and indirect annotations to term {{q2f1}}?
-  personality: bbop_ann
+  personality: annotation
   document_category: annotation
   field_translations:
     - field_id: q2f1
@@ -23,7 +23,7 @@
       widget_document: ontology_class
 - question_id: q3
   question:  What are the direct annotations for organism (scientific name) {{q3f1}} to term {{q3f2}}?
-  personality: bbop_ann
+  personality: annotation
   document_category: annotation
   field_translations:
     - field_id: q3f1
@@ -38,7 +38,7 @@
       widget_document: ontology_class
 - question_id: q4
   question: What are the direct and indirect annotations for organism (scientific name) {{q4f1}} to term {{q4f2}}?
-  personality: bbop_ann
+  personality: annotation
   document_category: annotation
   field_translations:
     - field_id: q4f1
@@ -54,17 +54,17 @@
 - group_label: Gene product annotations
 - question_id: q5
   question: What are all the annotations for gene product {{q5f1}}
-  personality: bbop_ann
+  personality: annotation
   document_category: annotation
   field_translations:
     - field_id: q5f1
       field_filter: bioentity
-      widget_personality: bbop_bio
+      widget_personality: bioentity
       widget_document: bioentity
 - group_label: Gene products directly or indirectly associated with terms
 - question_id: q6
   question: What are the gene products annotated to term {{q6f1}} but <em>not</em> term {{q6f2}}? 
-  personality: bbop_bio
+  personality: bioentity
   document_category: bioentity
   field_translations:
     - field_id: q6f1
@@ -77,7 +77,7 @@
       widget_document: ontology_class
 - question_id: q7
   question: What are the gene products annotated to term {{q7f1}} <em>and</em> term {{q7f2}}?
-  personality: bbop_bio
+  personality: bioentity
   document_category: bioentity
   field_translations:
     - field_id: q7f1
@@ -91,7 +91,7 @@
 - group_label: Protein family
 - question_id: q8
   question: What are the annotations associated with the protein family {{q8f1}}?
-  personality: bbop_ann
+  personality: annotation
   document_category: annotation
   field_translations:
     - field_id: q8f1
