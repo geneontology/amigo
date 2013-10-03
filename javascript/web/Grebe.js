@@ -200,7 +200,8 @@ function GrebeInit(){
 
 		     // Jump to that search in AmiGO 2.
 		     var state = mgr.get_state_url();
-		     var pop = linker.url(encodeURIComponent(state), 'search');
+		     var pop = linker.url(encodeURIComponent(state),
+					  'search', prs);
 		     window.open(pop, '_blank');
 		 });
 	 });
