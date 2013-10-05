@@ -1433,14 +1433,34 @@ sub get_interlink {
        }
      },
 
+     'medial_search' =>
+     sub {
+       my $query = $args->{query} || '';
+       if( $query ){
+	 $ilink = 'amigo/medial_search?query='. $query;
+       }else{
+	 $ilink = 'amigo/medial_search';
+       }
+       # }else{
+       # 	 die "The medial_search system requires a query argument.";
+       # }
+     },
+
      'live_search' =>
      sub {
        if( ! $self->empty_hash_p($args) ){
 	 my $type = $args->{type} ||
 	   die "require a type for non-default searches";
 	 $ilink = 'amigo/search/' . $type;
+
+	 ## In the case that we also have an incoming query, add that.
+	 if( defined $args->{query} && $args->{query} ne '' ){
+	   $ilink = $ilink . '?query=' . $args->{query};
+	 }
+
        }else{
 	 ## Just the most generic search we have.
+	 ## TODO/BUG: Likely DEFUNCT at this point.
 	 $ilink = 'amigo/search';
        }
      },

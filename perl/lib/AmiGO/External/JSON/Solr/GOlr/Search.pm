@@ -109,6 +109,139 @@ sub smart_query {
 }
 
 
+=item comfy_query_string
+
+Arguments: simple query string
+Return: a query string to the same parameters as manager.js's set_comfy_query
+
+edismax built through our config hash
+
+mostly runs off of Solr::query
+
+=cut
+sub comfy_query_string {
+  my $self = shift;
+  my $in_str = shift || die "comfy_query_string requires a q";
+
+  my $comfy = $in_str;
+  $self->kvetch("in comfy: " . $comfy);
+
+  ## Check that there is something there.
+  if( $in_str && $in_str ne '' ){
+
+    ## That it is alphanum+space-ish
+    if( $in_str =~ /^[a-zA-Z0-9 ]+$/ ){
+
+      ## Break it into tokens and get the last.
+      my @tokens = split(/\s+/, $in_str);
+      if( scalar(@tokens) > 0 ){
+	my $li = scalar(@tokens) -1;
+	my $last_token = $tokens[$li];
+	$self->kvetch('last: ' . $last_token);
+
+	## If it is three or more, and does not already end in '*',
+	## add the wildcard.
+	if( length($last_token) >= 3 && $last_token !~ /\*$/ ){
+	  $tokens[$li] = $last_token . '*';
+
+	  # $self->kvetch('j0: ' . $last_token);
+	  # $self->kvetch('j1: ' . $tokens[$li]);
+	  # $self->kvetch('j2: ' . join(' ', @tokens));
+
+	  ## And join it all back into our comfy query.
+	  $comfy = join(' ', @tokens);
+	}
+      }
+    }
+  }
+
+  $self->kvetch("out comfy: " . $comfy);
+  return $comfy;
+}
+
+
+=item blanket_query
+
+Arguments: simple query string, a list ref of golr class id strs list (like a list from the layout input)
+Return: true or false on minimal success
+
+edismax built through our config hash
+
+mostly runs off of Solr::query
+
+=cut
+sub blanket_query {
+
+  my $self = shift;
+  my $qstr = shift || die "blanket_query requires a q";
+  my $gc_id_list =
+    shift || die "blanket_query requires a list ref of golr conf class ids";
+
+  #  $self->{AEJSGS_GOLR_CLASS_ID_LIST} = $gc_id;
+  $self->kvetch("query with: " . $qstr);
+  $self->kvetch("looking at ids: " . join(', ', @$gc_id_list));
+
+  ## TODO: Manipulate the config to get the hash.
+  my $gconf = $self->golr_configuration();
+  $self->kvetch("conf: " . Dumper($gconf));
+
+  ## 
+  my $boost_hash = {};
+  foreach my $gc_id (@$gc_id_list){
+    if( ! scalar($gconf->{$gc_id}) ){
+      $self->kvetch("rotten document conf id: " . $gc_id);
+    }else{
+
+      ## Grab the main nutrients. Let's assumed that nobody screwed up
+      ## the format. Now we need to break it down, see if there are
+      ## any searchable fields to use, transfer to them, and
+      ## reassemble.
+      my $dfab = $self->golr_class_weights($gc_id, 'boost');
+      #my @fields = split /\s+/, $dfab;
+      #my $fields_to_search = [];
+      my $search_ext = $self->golr_class_searchable_extension($gc_id);
+      foreach my $field (keys %{$dfab}){
+	my $boost = $dfab->{$field};
+
+	## TODO: Check to see if the field is searchable, and if it is,
+	## add the extension.
+	if( $self->golr_class_field_searchable_p($gc_id, $field) ){
+	  $field = $field . $search_ext;
+	}
+
+	## We're not ordering, we just want numbers, so we'll just
+	## give everything a uniform boost.
+	#push @$fixed_boosts, $field . '^' . $boost;
+	$boost_hash->{$field} = '1.0';
+      }
+    }
+  }
+
+  ## Unwind the boost hash into a string in two steps.
+  my $fixed_boosts = [];
+  foreach my $key (keys %$boost_hash){
+    push @$fixed_boosts, $key . '^' . $boost_hash->{$key};
+  }
+  my $final_dfab_str = join ' ', @$fixed_boosts;
+
+
+  ## Wildcard the query if appropriate.
+
+  ## Fold what we have into the hash.
+  $self->{AEJS_BASE_HASH}{qf} = $final_dfab_str;
+  $self->{AEJS_BASE_HASH}{defType} = 'edismax';
+  $self->{AEJS_BASE_HASH}{'facet'} = 'true';
+  $self->{AEJS_BASE_HASH}{'facet.field'} = 'document_category';
+  $self->{AEJS_BASE_HASH}{rows} = '0';
+  $self->{AEJS_BASE_HASH}{'json.nl'} = 'arrarr';
+  $self->{AEJS_BASE_HASH}{q} = $qstr;
+
+  ## Call the main engine.
+  my $retval = $self->query();
+  return $retval;
+}
+
+
 =item more_p
 
 Return: 0 or 1

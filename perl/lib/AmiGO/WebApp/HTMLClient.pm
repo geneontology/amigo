@@ -73,6 +73,7 @@ sub setup {
 		   'software_list'       => 'mode_software_list',
 		   'schema_details'      => 'mode_schema_details',
 		   'load_details'        => 'mode_load_details',
+		   'medial_search'       =>  'mode_medial_search',
 		   ## ???
 		   'phylo_graph'         => 'mode_phylo_graph',
 		   ## Fallback.
@@ -88,7 +89,6 @@ sub mode_landing {
 
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile();
-  #$self->check_for_condition_files();
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'landing');
@@ -143,7 +143,6 @@ sub mode_browse {
 
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile();
-  #$self->check_for_condition_files();
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'browse');
@@ -205,7 +204,6 @@ sub mode_simple_search {
 
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile('simple_search');
-  #$self->check_for_condition_files();
 
   ## Tally up if we have insufficient information to do a query.
   my $insufficient_info_p = 2;
@@ -412,13 +410,140 @@ sub mode_simple_search {
 
 
 ##
+sub mode_medial_search {
+
+  my $self = shift;
+
+  my $i = AmiGO::WebApp::Input->new();
+  my $params = $i->input_profile('medial_search');
+  ## Deal with the different types of dispatch we might be facing.
+  $params->{query} = $self->param('query')
+    if ! $params->{query} && $self->param('query');
+  $self->{CORE}->kvetch(Dumper($params));
+  my $q = $params->{query};
+
+  ## Pull our query parameter.
+  if( ! defined $q || $q eq '' ){
+    my $str = "No query found. Please go back and try again.";
+    return $self->mode_fatal($str);
+  }
+
+  $self->set_template_parameter('query', $q);
+  $self->{CORE}->kvetch('query: ' . $q);
+
+  ## Get the layout info to describe which personalities are
+  ## available.
+  my $stinfo = $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_SEARCH');
+  my $stinfo_hash = {};
+  my $personality_list = [];
+  foreach my $sti (@$stinfo){
+    my $st_id = $sti->{id};
+    my $st_name = $sti->{display_name};
+    my $st_desc = $sti->{description};
+    my $st_weight = $sti->{weight};
+
+    $stinfo_hash->{$st_id} =
+      {
+       'id' => $st_id,
+       'name' => $st_name,
+       'description' => $st_desc,
+       'weight' => $st_weight,
+       'count' => 0,
+       'link' => $self->{CORE}->get_interlink({mode=>'live_search',
+					       arg => {
+						       type => $st_id,
+						       query => $q,
+						      }}),
+      };
+
+    push @$personality_list, $st_id;
+  }
+
+  my $results_p = 0;
+  my $gs = AmiGO::External::JSON::Solr::GOlr::Search->new();
+  my $cqs = $gs->comfy_query_string($q);
+  my $results_ok_p = $gs->blanket_query($cqs, $personality_list);
+  my $result_facets = $gs->facet_field('document_category');
+  my $results_total = $gs->total();
+  my $results_count = $gs->count();
+  if( $results_ok_p &&
+      $result_facets &&
+      scalar(@$result_facets) &&
+      $results_total ){
+    $results_p = 1;
+  }
+
+  ## Add a few more fields to our stash.
+  foreach my $fbundle (@$result_facets){
+    my $ffield = $$fbundle[0];
+    my $fcount = $$fbundle[1];
+    if( defined $stinfo_hash->{$ffield} ){
+      $stinfo_hash->{$ffield}{count} = $fcount;
+    }
+  }
+
+  ## Make our data into a weight-ordered list for rendering.
+  my @info_array =
+    sort { return $b->{weight} <=> $a->{weight}; } values %$stinfo_hash;
+  $self->{CORE}->kvetch('results_info: ' . Dumper(\@info_array));
+
+  ## Set with our findings.
+  $self->set_template_parameter('results_info', \@info_array);
+  $self->set_template_parameter('results_p', $results_p);
+  $self->set_template_parameter('results_total', $results_total);
+  $self->set_template_parameter('results_count', $results_count);
+  #$self->{CORE}->kvetch('results_order: ' . Dumper(\@results_order));
+
+  ## Page settings.
+  $self->set_template_parameter('page_name', 'medial_search');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Search Directory');
+  $self->set_template_parameter('content_title', 'Search Directory');
+
+  ## The rest of our environment.
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui',
+      'bbop',
+      'amigo'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js')
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();'
+     ],
+     content =>
+     [
+      'pages/medial_search.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page_with();
+}
+
+
+##
 sub mode_software_list {
 
   my $self = shift;
 
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile();
-  #$self->check_for_condition_files();
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'software_list');
@@ -487,7 +612,6 @@ sub mode_schema_details {
 
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile();
-  #$self->check_for_condition_files();
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'schema_details');
@@ -547,7 +671,6 @@ sub mode_load_details {
 
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile();
-  #$self->check_for_condition_files();
 
   ## Load in the GOlr timestamp details.
   my $glog = $self->{CORE}->amigo_env('GOLR_TIMESTAMP_LOCATION');
@@ -642,9 +765,6 @@ sub mode_visualize {
   my $format = $params->{format};
   my $input_term_data_type = $params->{term_data_type};
   my $input_term_data = $params->{term_data};
-
-  ## ...and the message queue.
-  #$self->check_for_condition_files();
 
   ## Cleanse input data of newlines.
   $input_term_data =~ s/\n/ /gso;
@@ -747,9 +867,6 @@ sub mode_visualize_freeform {
   my $input_term_data = $params->{term_data};
   my $input_graph_data = $params->{graph_data};
 
-  ## ...and the message queue.
-  #$self->check_for_condition_files();
-
   ## Cleanse input data of newlines.
   $input_term_data =~ s/\n/ /gso;
   $input_graph_data =~ s/\n/ /gso;
@@ -846,9 +963,6 @@ sub mode_visualize_freeform {
 #   my $bookmark = $params->{bookmark} || '';
 #   my $golr_class = $params->{golr_class} || '';
 #   my $query = $params->{query} || '';
-
-#   ## ...and the message queue.
-#   #$self->check_for_condition_files();
 
 #   ## Try and come to terms with Galaxy.
 #   my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
@@ -1098,7 +1212,6 @@ sub mode_term_details {
   ## Deal with the different types of dispatch we might be facing.
   $params->{term} = $self->param('term')
     if ! $params->{term} && $self->param('term');
-  #$self->check_for_condition_files();
   $self->{CORE}->kvetch(Dumper($params));
   my $input_term_id = $params->{term};
 
@@ -1369,7 +1482,6 @@ sub mode_gene_product_details {
 
   ##
   my $i = AmiGO::WebApp::Input->new();
-  #$self->check_for_condition_files();
   my $params = $i->input_profile('gp');
   ## Deal with the different types of dispatch we might be facing.
   $params->{gp} = $self->param('gp')
@@ -1483,7 +1595,6 @@ sub mode_complex_annotation_details {
 
   ##
   my $i = AmiGO::WebApp::Input->new();
-  #$self->check_for_condition_files();
   my $params = $i->input_profile('complex_annotation');
   ## Deal with the different types of dispatch we might be facing.
   # $params->{annotation_group} = $self->param('annotation_group')

@@ -1,0 +1,43 @@
+<!-- START: medial_search.tmpl -->
+[% USE HTML %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      Sub-search selection
+    </div>
+  </div>
+  <div class="panel-body">
+
+    [% IF results_p == 0 %]
+    <p>
+      Nothing found. Please try again.
+    </p>
+    [% ELSE %]
+    <p>
+      Select the type of document that you want to search for.
+    </p>
+    
+    <ul class="list-group">
+      [%   FOREACH bundle = results_info %]
+      <li class="list-group-item">
+	[% IF bundle.count == 0 %]
+	<a href="#"
+	   class="btn btn-default disabled">[% bundle.name %]</a>
+	[% ELSE %]
+	<a href="[% bundle.link %]"
+	   class="btn btn-primary">[% bundle.name %]</a>
+	[% END %]
+	<span class="badge">[% bundle.count %]</span>
+	&nbsp;&nbsp;&nbsp;
+	[% bundle.description %]
+      </li>
+      [%   END %]
+    </ul>
+
+    [% END %]
+
+  </div>
+</div>
+
+<!-- END: medial_search.tmpl -->

@@ -27,6 +27,7 @@ my $dispatch_table =
    'search/:personality' => { app => $app, rm => 'specific_search',
 			      personality => 'personality'},
    'search'              => { app => $app, rm => 'search'},
+   'medial_search'       => { app => $app, rm => 'medial_search'},
    'simple_search'       => { app => $app, rm => 'simple_search'},
    'browse'              => { app => $app, rm => 'browse'},
    'term/:term'          => { app => $app, rm => 'term', term => 'term'},

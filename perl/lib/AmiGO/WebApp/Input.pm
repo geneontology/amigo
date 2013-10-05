@@ -196,6 +196,8 @@ sub input_profile {
     $self->_add_terms_string();
     $self->_add_gps_string();
     $self->_add_simple_argument('load', '');
+  }elsif( $profile_name eq 'medial_search' ){
+    $self->_add_simple_search_set();
   }elsif( $profile_name eq 'simple_search' ){
     $self->_add_simple_argument('golr_class', '');
     $self->_add_simple_argument('page', '1');

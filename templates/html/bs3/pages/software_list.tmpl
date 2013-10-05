@@ -198,6 +198,31 @@
     more <a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Visualize_Freeform">information</a>.
   </li>
     
+  <li class="list-group-item">
+    Medial search returns the different search personalities and
+    allows users to select which one they wish to continue
+    with.
+    <form action="[% interlink_medial_search %]"
+      id="medial-query-form"
+      class="form-inline"
+      role="search"
+      method="GET">
+      <div class="form-group">
+	<input
+	   type="text"
+	   title="Throw pretty much anything in here."
+	   class="form-control"
+	   name="query"
+	   placeholder="Quick search"
+	   value=""
+	   id="medial-search-query">
+      </div>
+      <button type="submit"
+	      title="Search for groups of documents with the inputted text."
+	      class="btn btn-default">Search</button>
+</form>
+  </li>
+    
 </ul>
   
 <h2>AmiGO 2 Software in the Garage</h2>
