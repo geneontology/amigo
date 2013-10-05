@@ -409,7 +409,8 @@ sub mode_simple_search {
 }
 
 
-##
+## WARNING: Without pivot tables, this is expensive, taking multiple
+## passes at the server to assemble the necessarily grouped data.
 sub mode_medial_search {
 
   my $self = shift;
@@ -436,7 +437,9 @@ sub mode_medial_search {
   my $stinfo = $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_SEARCH');
   my $stinfo_hash = {};
   my $personality_list = [];
+  my $accu_results = 0;
   foreach my $sti (@$stinfo){
+
     my $st_id = $sti->{id};
     my $st_name = $sti->{display_name};
     my $st_desc = $sti->{description};
@@ -458,44 +461,23 @@ sub mode_medial_search {
 						      }}),
       };
 
-    push @$personality_list, $st_id;
+    #push @$personality_list, $st_id;
+    #$personality_list = [$st_id];
+    my $gs = AmiGO::External::JSON::Solr::GOlr::Search->new();
+    my $cqs = $gs->comfy_query_string($q);
+    #my $results_ok_p = $gs->counting_query($cqs, $personality_list);
+    my $results_ok_p = $gs->counting_query($cqs, $st_id);
+    #my $result_facets = $gs->facet_field('document_category');
+    my $results_total = $gs->total();
+    if( $results_total ){
+      $stinfo_hash->{$st_id}{count} = $results_total;
+      $accu_results += $results_total;
+    }
   }
 
   my $results_p = 0;
-  my $gs = AmiGO::External::JSON::Solr::GOlr::Search->new();
-  my $cqs = $gs->comfy_query_string($q);
-  my $results_ok_p = $gs->blanket_query($cqs, $personality_list);
-  my $result_facets = $gs->facet_field('document_category');
-  my $results_total = $gs->total();
-  my $results_count = $gs->count();
-  if( $results_ok_p &&
-      $result_facets &&
-      scalar(@$result_facets) &&
-      $results_total ){
+  if( $accu_results ){
     $results_p = 1;
-  }
-
-  # ## Add a few more fields to our stash.
-  # foreach my $fbundle (@$result_facets){
-  #   my $ffield = $$fbundle[0];
-  #   my $fcount = $$fbundle[1];
-  #   if( defined $stinfo_hash->{$ffield} ){
-  #     $stinfo_hash->{$ffield}{count} = $fcount;
-  #   }elsif(){
-  #   }
-  # }
-
-  ## Add a few more fields to our stash.
-  foreach my $stinfo_id (keys %$stinfo_hash){
-    my $stinfo_bundle = $stinfo_hash->{$stinfo_id};
-    foreach my $fbundle (@$result_facets){
-      my $ffield = $$fbundle[0];
-      my $fcount = $$fbundle[1];
-      if( #$stinfo_bundle->{id} eq $ffield ||
-	  $stinfo_bundle->{document_category} eq $ffield ){
-	$stinfo_bundle->{count} = $fcount;
-      }
-    }
   }
 
   ## Make our data into a weight-ordered list for rendering.
@@ -506,8 +488,8 @@ sub mode_medial_search {
   ## Set with our findings.
   $self->set_template_parameter('results_info', \@info_array);
   $self->set_template_parameter('results_p', $results_p);
-  $self->set_template_parameter('results_total', $results_total);
-  $self->set_template_parameter('results_count', $results_count);
+  #$self->set_template_parameter('results_total', $results_total);
+  #$self->set_template_parameter('results_count', $results_count);
   #$self->{CORE}->kvetch('results_order: ' . Dumper(\@results_order));
 
   ## Page settings.

@@ -160,62 +160,61 @@ sub comfy_query_string {
 }
 
 
-=item blanket_query
+=item counting_query
 
 WARNING: It should be noted that this call conflates document_category
 and YAML config ID. If there is not a one-to-one and onto relation
 between the two in your setup, results may be off.
 
-Arguments: simple query string, a list ref of golr class id strs list (like a list from the layout input)
+Arguments: simple query string, a golr class id str
 Return: true or false on minimal success
 
 =cut
-sub blanket_query {
+sub counting_query {
 
   my $self = shift;
-  my $qstr = shift || die "blanket_query requires a q";
-  my $gc_id_list =
-    shift || die "blanket_query requires a list ref of golr conf class ids";
+  my $qstr = shift || die "counting_query requires a q";
+  my $gc_id = shift || die "counting_query requires a golr conf class id";
 
   #  $self->{AEJSGS_GOLR_CLASS_ID_LIST} = $gc_id;
   $self->kvetch("query with: " . $qstr);
-  $self->kvetch("looking at ids: " . join(', ', @$gc_id_list));
+  $self->kvetch("looking at id: " . $gc_id);
 
   ## TODO: Manipulate the config to get the hash.
   my $gconf = $self->golr_configuration();
   #$self->kvetch("conf: " . Dumper($gconf));
 
-  ## 
+  ##
   my $boost_hash = {};
-  foreach my $gc_id (@$gc_id_list){
-    if( ! scalar($gconf->{$gc_id}) ){
-      $self->kvetch("rotten document conf id: " . $gc_id);
-    }else{
+  # foreach my $gc_id (@$gc_id_list){
+  if( ! scalar($gconf->{$gc_id}) ){
+    $self->kvetch("rotten document conf id: " . $gc_id);
+  }else{
 
-      ## Grab the main nutrients. Let's assumed that nobody screwed up
-      ## the format. Now we need to break it down, see if there are
-      ## any searchable fields to use, transfer to them, and
-      ## reassemble.
-      my $dfab = $self->golr_class_weights($gc_id, 'boost');
-      #my @fields = split /\s+/, $dfab;
-      #my $fields_to_search = [];
-      my $search_ext = $self->golr_class_searchable_extension($gc_id);
-      foreach my $field (keys %{$dfab}){
-	my $boost = $dfab->{$field};
+    ## Grab the main nutrients. Let's assumed that nobody screwed up
+    ## the format. Now we need to break it down, see if there are
+    ## any searchable fields to use, transfer to them, and
+    ## reassemble.
+    my $dfab = $self->golr_class_weights($gc_id, 'boost');
+    #my @fields = split /\s+/, $dfab;
+    #my $fields_to_search = [];
+    my $search_ext = $self->golr_class_searchable_extension($gc_id);
+    foreach my $field (keys %{$dfab}){
+      my $boost = $dfab->{$field};
 
-	## TODO: Check to see if the field is searchable, and if it is,
-	## add the extension.
-	if( $self->golr_class_field_searchable_p($gc_id, $field) ){
-	  $field = $field . $search_ext;
-	}
-
-	## We're not ordering, we just want numbers, so we'll just
-	## give everything a uniform boost.
-	#push @$fixed_boosts, $field . '^' . $boost;
-	$boost_hash->{$field} = '1.0';
+      ## TODO: Check to see if the field is searchable, and if it is,
+      ## add the extension.
+      if( $self->golr_class_field_searchable_p($gc_id, $field) ){
+	$field = $field . $search_ext;
       }
+
+      ## We're not ordering, we just want numbers, so we'll just
+      ## give everything a uniform boost.
+      #push @$fixed_boosts, $field . '^' . $boost;
+      $boost_hash->{$field} = '1.0';
     }
   }
+  #  }
 
   ## Unwind the boost hash into a string in two steps.
   my $fixed_boosts = [];
@@ -229,8 +228,10 @@ sub blanket_query {
   ## Fold what we have into the hash.
   $self->{AEJS_BASE_HASH}{qf} = $final_dfab_str;
   $self->{AEJS_BASE_HASH}{defType} = 'edismax';
-  $self->{AEJS_BASE_HASH}{'facet'} = 'true';
-  $self->{AEJS_BASE_HASH}{'facet.field'} = 'document_category';
+  #$self->{AEJS_BASE_HASH}{'facet'} = 'true';
+  #$self->{AEJS_BASE_HASH}{'facet.field'} = 'document_category';
+  $self->{AEJS_BASE_HASH}{fq} =
+    'document_category:"' . $self->golr_class_document_category($gc_id) . '"';
   $self->{AEJS_BASE_HASH}{rows} = '0';
   $self->{AEJS_BASE_HASH}{'json.nl'} = 'arrarr';
   $self->{AEJS_BASE_HASH}{q} = $qstr;
