@@ -1,0 +1,23 @@
+* Data generating scripts (generate_*_.statistics.js)
+
+These scripts were created to drive plotting software a la gnuplot.
+
+Due to the complexity of making a graph just-so and all of the little
+tweaks necessary to the data in certain cases, we finally split the
+generators into different files. However, they all share the same
+first part of the file for the sake of ease of change and
+comformity. Once we settle more into a server-oriented routine and
+library setup we'll abstract the first parts out into a standard
+library for generating graph data, but until then we'll keep them
+completely in sync using meld or similar.
+
+** generate_simple_slice_statistics.js
+
+   Usage like:
+   - generate_simple_slice_statistics.js source
+   - generate_simple_slice_statistics.js assigned_by
+   - generate_simple_slice_statistics.js evidence
+
+     The first two examples are obvious when you see the output. The
+     last example looks at the evidence facet, but only the items in
+     the order as listed.
