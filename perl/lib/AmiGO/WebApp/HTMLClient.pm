@@ -440,6 +440,7 @@ sub mode_medial_search {
     my $st_id = $sti->{id};
     my $st_name = $sti->{display_name};
     my $st_desc = $sti->{description};
+    my $st_cat = $sti->{document_category};
     my $st_weight = $sti->{weight};
 
     $stinfo_hash->{$st_id} =
@@ -447,6 +448,7 @@ sub mode_medial_search {
        'id' => $st_id,
        'name' => $st_name,
        'description' => $st_desc,
+       'document_category' => $st_cat,
        'weight' => $st_weight,
        'count' => 0,
        'link' => $self->{CORE}->get_interlink({mode=>'live_search',
@@ -473,12 +475,26 @@ sub mode_medial_search {
     $results_p = 1;
   }
 
+  # ## Add a few more fields to our stash.
+  # foreach my $fbundle (@$result_facets){
+  #   my $ffield = $$fbundle[0];
+  #   my $fcount = $$fbundle[1];
+  #   if( defined $stinfo_hash->{$ffield} ){
+  #     $stinfo_hash->{$ffield}{count} = $fcount;
+  #   }elsif(){
+  #   }
+  # }
+
   ## Add a few more fields to our stash.
-  foreach my $fbundle (@$result_facets){
-    my $ffield = $$fbundle[0];
-    my $fcount = $$fbundle[1];
-    if( defined $stinfo_hash->{$ffield} ){
-      $stinfo_hash->{$ffield}{count} = $fcount;
+  foreach my $stinfo_id (keys %$stinfo_hash){
+    my $stinfo_bundle = $stinfo_hash->{$stinfo_id};
+    foreach my $fbundle (@$result_facets){
+      my $ffield = $$fbundle[0];
+      my $fcount = $$fbundle[1];
+      if( #$stinfo_bundle->{id} eq $ffield ||
+	  $stinfo_bundle->{document_category} eq $ffield ){
+	$stinfo_bundle->{count} = $fcount;
+      }
     }
   }
 
@@ -496,8 +512,9 @@ sub mode_medial_search {
 
   ## Page settings.
   $self->set_template_parameter('page_name', 'medial_search');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Search Directory');
-  $self->set_template_parameter('content_title', 'Search Directory');
+  $self->set_template_parameter('page_title',
+				'AmiGO 2: Advanced Search Directory');
+  $self->set_template_parameter('content_title', 'Advanced Search Directory');
 
   ## The rest of our environment.
   my $prep =

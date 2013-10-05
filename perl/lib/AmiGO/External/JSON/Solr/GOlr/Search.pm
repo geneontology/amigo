@@ -162,12 +162,12 @@ sub comfy_query_string {
 
 =item blanket_query
 
+WARNING: It should be noted that this call conflates document_category
+and YAML config ID. If there is not a one-to-one and onto relation
+between the two in your setup, results may be off.
+
 Arguments: simple query string, a list ref of golr class id strs list (like a list from the layout input)
 Return: true or false on minimal success
-
-edismax built through our config hash
-
-mostly runs off of Solr::query
 
 =cut
 sub blanket_query {
@@ -183,7 +183,7 @@ sub blanket_query {
 
   ## TODO: Manipulate the config to get the hash.
   my $gconf = $self->golr_configuration();
-  $self->kvetch("conf: " . Dumper($gconf));
+  #$self->kvetch("conf: " . Dumper($gconf));
 
   ## 
   my $boost_hash = {};
@@ -223,7 +223,6 @@ sub blanket_query {
     push @$fixed_boosts, $key . '^' . $boost_hash->{$key};
   }
   my $final_dfab_str = join ' ', @$fixed_boosts;
-
 
   ## Wildcard the query if appropriate.
 
