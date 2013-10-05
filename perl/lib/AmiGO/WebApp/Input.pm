@@ -107,6 +107,8 @@ sub input_profile {
     $self->_add_loose_term();
     # ## TODO: remove these later after testing.
     #$self->_add_simple_argument('graph_type', 'correct', ['all', 'correct']);
+    ## Experimental consumption of a bookmark.
+    $self->_add_simple_argument('pin', '');
   }elsif( $profile_name eq 'gp' ){
     $self->_add_gps_string();
   }elsif( $profile_name eq 'family' ){

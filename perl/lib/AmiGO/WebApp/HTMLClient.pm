@@ -1224,6 +1224,13 @@ sub mode_term_details {
     return $self->mode_fatal("No term acc input argument.");
   }
 
+  ## Experimental bookmark capture.
+  my $pin = $params->{pin} || '';
+  if( $pin ){
+    $pin =~ s/\"/\\\"/g;
+  }
+  $self->{CORE}->kvetch('incoming pin: ' . $pin || '<none>');
+
   ###
   ### Get full term info.
   ###
@@ -1459,6 +1466,7 @@ sub mode_term_details {
       # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
       # $self->{JS}->make_var('global_acc_to_rand', $acc_to_rand),
       $self->{JS}->make_var('global_acc', $input_term_id),
+      $self->{JS}->make_var('global_pin', $pin),
       $self->{JS}->make_var('global_label',
 			    $term_info_hash->{$input_term_id}{'name'})
      ],
