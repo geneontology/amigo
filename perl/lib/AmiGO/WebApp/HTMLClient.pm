@@ -1052,10 +1052,11 @@ sub mode_search {
   my $bookmark = $params->{bookmark} || '';
   my $query = $params->{query} || '';
 
-  ## BUG/TODO: Let people know about the bug.
-  if( $query && $query ne '' ){
-    $self->add_mq('warning', 'Please be aware the this page is affected by <strong><a href="https://github.com/kltm/amigo/issues/44">bug #44</a></strong>.');
-  }
+  ## Looks like bug is fixed--remove later when better tested.
+  # ## BUG/TODO: Let people know about the bug.
+  # if( $query && $query ne '' ){
+  #   $self->add_mq('warning', 'Please be aware the this page is affected by <strong><a href="https://github.com/kltm/amigo/issues/44">bug #44</a></strong>.');
+  # }
 
   ## Try and come to terms with Galaxy.
   my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();

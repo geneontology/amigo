@@ -246,7 +246,8 @@ function LiveSearchGOlrInit(){
 	       global_live_search_query);
     	    //search.set_comfy_query(global_live_search_query);
 	    var def_comfy = search.set_comfy_query(global_live_search_query);
-    	    search.set_default_query(def_comfy);	    
+    	    //search.set_default_query(def_comfy);	    
+    	    //search.set_query(def_comfy);	    
 	}
 
 	// 3) Process incoming bookmarks (into manager).
@@ -302,10 +303,17 @@ function LiveSearchGOlrInit(){
 	ll("Post query: " + search.get_query());
 	ll("Post default query: " + search.get_default_query());
 	if( search.get_query() == search.get_default_query() ){
-	    // The default is the same as nothing at all.
+	    // The default is the same as nothing at all since it is
+	    // default.
 	    search.set_query_field_text('');
 	}else{
-	    search.set_query_field_text(search.get_query());
+	    // Wild cards are set after the fact in comfy, so just
+	    // remove the wildcard if it is sitting there at the end.
+	    var gq = search.get_query();
+	    if( '*' == gq.charAt(gq.length - 1) ){
+		gq = gq.substring(0, gq.length - 1);		
+	    }
+	    search.set_query_field_text(gq);
 	}
 		    
 	// Destroy the bookmark so we don't keep hitting it.
