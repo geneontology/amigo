@@ -2475,7 +2475,7 @@ amigo.data.golr = {
    "bbop_term_ac" : {
       "searchable_extension" : "_searchable",
       "result_weights" : "annotation_class^8.0 synonym^3.0 alternate_id^2.0",
-      "filter_weights" : "",
+      "filter_weights" : "annotation_class^8.0 synonym^3.0 alternate_id^2.0",
       "_infile" : "/home/sjcarbon/local/src/git/amigo/metadata//term-autocomplete-config.yaml",
       "display_name" : "Term autocomplete",
       "description" : "Easily find ontology classes in GO. For personality only--not a schema configuration.",

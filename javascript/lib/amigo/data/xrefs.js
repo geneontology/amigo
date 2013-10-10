@@ -1194,6 +1194,21 @@ amigo.data.xrefs = {
       "url_syntax" : "http://biocyc.org/META/NEW-IMAGE?type=NIL&object=[example_id]",
       "datatype" : null
    },
+   "cacao" : {
+      "object" : "accession",
+      "uri_prefix" : null,
+      "name" : null,
+      "url_example" : "http://gowiki.tamu.edu/wiki/index.php/MYCS2:A0QNF5",
+      "description" : "The Community Assessment of Community Annotation with Ontologies (CACAO) is a project to do large-scale manual community annotation of gene function using the Gene Ontology as a multi-institution student competition. ",
+      "database" : "Community Assessment of Community Annotation with Ontologies",
+      "example_id" : "MYCS2:A0QNF5",
+      "generic_url" : "http://gowiki.tamu.edu/wiki/index.php/Category:CACAO",
+      "fullname" : null,
+      "id" : null,
+      "abbreviation" : "CACAO",
+      "url_syntax" : "http://gowiki.tamu.edu/wiki/index.php/[example_id]",
+      "datatype" : null
+   },
    "omssa" : {
       "uri_prefix" : null,
       "name" : null,

@@ -82,6 +82,11 @@ function LiveSearchGOlrInit(){
     	    manager.add_query_filter('document_category',
     				     'general', ['*']);
     	    _establish_buttons('general', manager);
+	},
+    	'bbop_term_ac': function(manager){
+    	    manager.add_query_filter('document_category',
+    				     'ontology_class', ['*']);
+    	    _establish_buttons('bbop_term_ac', manager);
     	// },
     	// 'bbop_ann_ev_agg': function(manager){
     	//     manager.add_query_filter('document_category',
