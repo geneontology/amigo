@@ -970,7 +970,7 @@ sub mode_visualize_freeform {
 #   ## If it is defined, try to decode it into something useful that we
 #   ## can pass in as javascript.
 #   if( $bookmark ){
-#     # $bookmark = $self->{JS}->make_js($bookmark);
+#     # $bookmark = $self->{CORE}->render_json($bookmark);
 #     $bookmark =~ s/\"/\\\"/g;
 #   }
 #   $self->{CORE}->kvetch('bookmark: ' . $bookmark || '???');
@@ -1065,7 +1065,7 @@ sub mode_search {
   ## If it is defined, try to decode it into something useful that we
   ## can pass in as javascript.
   if( $bookmark ){
-    # $bookmark = $self->{JS}->make_js($bookmark);
+    # $bookmark = $self->{CORE}->render_json($bookmark);
     $bookmark =~ s/\"/\\\"/g;
   }
   $self->{CORE}->kvetch('bookmark: ' . $bookmark || '???');
@@ -1217,19 +1217,24 @@ sub mode_term_details {
   ## Deal with the different types of dispatch we might be facing.
   $params->{term} = $self->param('term')
     if ! $params->{term} && $self->param('term');
+  $params->{format} = $self->param('format')
+    if ! $params->{format} && $self->param('format');
   $self->{CORE}->kvetch(Dumper($params));
+
   my $input_term_id = $params->{term};
+  my $input_format = $params->{format} || 'html';
 
   ## Input sanity check.
   if( ! $input_term_id ){
     return $self->mode_fatal("No term acc input argument.");
   }
+  if( $input_format ne 'html' && $input_format ne 'json' ){
+    return $self->mode_fatal('Bad output format: "' . $input_format . ':');
+  }
 
   ## Experimental bookmark capture.
   my $pin = $params->{pin} || '';
-  if( $pin ){
-    $pin =~ s/\"/\\\"/g;
-  }
+  if( $pin ){ $pin =~ s/\"/\\\"/g; }
   $self->{CORE}->kvetch('incoming pin: ' . $pin || '<none>');
 
   ###
@@ -1247,13 +1252,24 @@ sub mode_term_details {
     return $self->mode_not_found($input_term_id, 'term');
   }
 
-  $self->{CORE}->kvetch('solr docs: ' . Dumper($term_info_hash));
+  #$self->{CORE}->kvetch('solr docs: ' . Dumper($term_info_hash));
+  # $self->{CORE}->kvetch('solr doc: ' .
+  # 			Dumper($term_info_hash->{$input_term_id}));
 
   ## Should just be one now, yeah?
   #my $foo = (keys %$term_info_hash)[0];
   #$self->{CORE}->kvetch('$term_info: ' . Dumper($term_info->{$foo}));
   $self->set_template_parameter('TERM_INFO',
 				$term_info_hash->{$input_term_id});
+
+  ## TODO/BUG: Should this be a separate client?
+  if( $input_format eq 'json' ){
+    $self->header_add( -type => 'application/json' );
+    my $json_resp = AmiGO::JSON->new('term');
+    $json_resp->set_results($term_info_hash->{$input_term_id});
+    my $jdump = $json_resp->render();
+    return $jdump;
+  }
 
   ## First switch on internal term vs. external.
   my $is_term_acc_p = $self->{CORE}->is_term_acc_p($input_term_id);
@@ -1302,13 +1318,13 @@ sub mode_term_details {
   ## Note: won't be included in subset case (too messy), so don't
   ## push.
   #if( $is_term_acc_p ){
-    my $sorted_child_chunks =
-      $term_worker->get_child_info_for($input_term_id);
-    #$self->{CORE}->kvetch('scc: ' . Dumper($sorted_child_chunks));
-    foreach my $cinfo (@$sorted_child_chunks){ 
-      push @$acc_list_for_gpc_info, $cinfo->{acc};
-    }
-    $self->set_template_parameter('CHILD_CHUNKS', $sorted_child_chunks);
+  my $sorted_child_chunks =
+    $term_worker->get_child_info_for($input_term_id);
+  #$self->{CORE}->kvetch('scc: ' . Dumper($sorted_child_chunks));
+  foreach my $cinfo (@$sorted_child_chunks){ 
+    push @$acc_list_for_gpc_info, $cinfo->{acc};
+  }
+  $self->set_template_parameter('CHILD_CHUNKS', $sorted_child_chunks);
   #}
 
   ###
@@ -1499,11 +1515,19 @@ sub mode_gene_product_details {
   ## Deal with the different types of dispatch we might be facing.
   $params->{gp} = $self->param('gp')
     if ! $params->{gp} && $self->param('gp');
+  $params->{format} = $self->param('format')
+    if ! $params->{format} && $self->param('format');
+  $self->{CORE}->kvetch(Dumper($params));
+
   my $input_gp_id = $params->{gp};
+  my $input_format = $params->{format} || 'html';
 
   ## Input sanity check.
   if( ! $input_gp_id ){
     return $self->mode_fatal("No input gene product acc argument.");
+  }
+  if( $input_format ne 'html' && $input_format ne 'json' ){
+    return $self->mode_fatal('Bad output format: "' . $input_format . ':');
   }
 
   ###
@@ -1521,8 +1545,17 @@ sub mode_gene_product_details {
     return $self->mode_not_found($input_gp_id, 'gene product');
   }
 
-  $self->{CORE}->kvetch('solr docs: ' . Dumper($gp_info_hash));
+  # $self->{CORE}->kvetch('solr docs: ' . Dumper($gp_info_hash));
   $self->set_template_parameter('GP_INFO', $gp_info_hash->{$input_gp_id});
+
+  ## TODO/BUG: Should this be a separate client?
+  if( $input_format eq 'json' ){
+    $self->header_add( -type => 'application/json' );
+    my $json_resp = AmiGO::JSON->new('gene_product');
+    $json_resp->set_results($gp_info_hash->{$input_gp_id});
+    my $jdump = $json_resp->render();
+    return $jdump;
+  }
 
   ## PANTHER info if there.
   my $pgraph = $gp_info_hash->{$input_gp_id}{'phylo_graph'};

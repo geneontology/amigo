@@ -244,8 +244,8 @@ function LiveSearchGOlrInit(){
 	if( global_live_search_query ){ // has incoming query
     	    ll("Try and use incoming query (set default): " +
 	       global_live_search_query);
-    	    //search.set_comfy_query(global_live_search_query);
-	    var def_comfy = search.set_comfy_query(global_live_search_query);
+    	    search.set_comfy_query(global_live_search_query);
+	    //var def_comfy = search.set_comfy_query(global_live_search_query);
     	    //search.set_default_query(def_comfy);	    
     	    //search.set_query(def_comfy);	    
 	}

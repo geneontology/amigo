@@ -1581,6 +1581,99 @@ sub get_interlink {
   return $final_ret;
 }
 
+###
+### JSON handling--finally centralized.
+###
+
+=item render_json
+
+Args: a perl data scalar.
+Returns: a JSONified string.
+
+TODO: Switch to more complete JSON backend once packages reach Ubuntu.
+
+=cut
+sub render_json {
+
+  my $self = shift;
+  my $perl_var = shift || undef;
+
+  # $self->kvetch('HERE');
+  # die "here";
+
+  my $retval = '';
+  ## Pass the recursive buck...mine is better at simple things--the
+  ## real one seems to require a ref.
+  if( ref($perl_var) eq "HASH" ||
+      ref($perl_var) eq "ARRAY" ){
+    ## Try the new version, if not, use the old version.
+    eval{
+      $retval = $self->{JSON}->encode($perl_var);
+    };
+    if ($@) {
+      #    $retval = $self->{JSON}->to_json($perl_var);
+      $retval = JSON::XS->new->utf8->allow_blessed->encode($perl_var);
+    }
+  }else{
+    $retval = $self->emit_json_scalar($perl_var);
+  }
+
+  return $retval;
+}
+
+
+##
+sub emit_json_scalar {
+  my $self = shift;
+  my $scalar = shift || undef;
+
+  my @mbuf = ();
+
+  ## Right now, we're mostly interested in scalars and hash pointers.
+  if( ! $scalar ){
+
+    ## Nothingness.
+    push @mbuf, 'null';
+
+  }elsif( ref($scalar) eq 'HASH' ){
+
+    ## Examine the hash and descend.
+    push @mbuf, $self->rec_des_on_hash($scalar);
+
+  }else{
+
+    ## Typical.
+    push @mbuf, '"';
+    push @mbuf, $scalar;
+    push @mbuf, '"';
+  }
+
+  return join '', @mbuf;
+}
+
+
+##
+sub rec_des_on_hash {
+  my $self = shift;
+  my $hash = shift || undef;
+
+  my @mbuf = ();
+  push @mbuf, '{';
+  if( $hash && %$hash && keys %{$hash} ){
+    foreach my $key (keys %{$hash}){
+      push @mbuf, '"';
+      push @mbuf, $key;
+      push @mbuf, '":';
+      push @mbuf, $self->emit_json_scalar($hash->{$key});
+      push @mbuf, ',';
+    }
+    pop @mbuf;
+  }
+
+  push @mbuf, '}';
+  return join '', @mbuf;
+}
+
 
 ## Write a JSON string from perl object.
 sub _write_json_string {
@@ -1643,6 +1736,9 @@ sub _read_json_file {
   return $self->_read_json_string($json_str);
 }
 
+###
+###
+###
 
 =item golr_timestamp_log
 

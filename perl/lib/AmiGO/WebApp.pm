@@ -63,7 +63,8 @@ sub cgiapp_init {
 	$self->{CORE}->get_interlink({mode=>'live_search',
 				      arg=>{type=>$search_entry_id}});
       push @$search_list, $item_conf;
-      $self->{CORE}->kvetch('search layout a2i'. $item_conf->{amigo_interlink});
+      $self->{CORE}->kvetch('search layout a2i: '.
+			    $item_conf->{amigo_interlink});
     }else{
       $self->{CORE}->kvetch('unable to find search layout entry: ' .
 			    $search_entry_id);
@@ -1450,7 +1451,7 @@ sub mode_exception {
 # 			   heartbeat => $self->{JS}->{JSON_TRUE},
 # 			   id => $self->{CORE}->unique_id(),
 # 			  });
-#   return $json_resp->make_js();
+#   return $json_resp->render_json();
 # }
 
 # ## Catching nasty errors.
@@ -1462,7 +1463,7 @@ sub mode_exception {
 #   my $json_resp = AmiGO::JSON->new('fatal');
 #   $json_resp->add_error($@);
 #   $json_resp->failed(1);
-#   return $json_resp->make_js();
+#   return $json_resp->render_json();
 # }
 
 # ## Catching nasty errors.
@@ -1471,7 +1472,7 @@ sub mode_exception {
 #   my $message = shift || '';
 #   $self->header_add( -status => '500 Internal Server Error' );
 #   $self->header_add( -type => 'application/json' );
-#   return $core->make_js($message);
+#   return $core->render_json($message);
 # }
 
 # ## Catching mode errors.
@@ -1484,7 +1485,7 @@ sub mode_exception {
 #   my $json_resp = AmiGO::JSON->new('exception');
 #   $json_resp->add_error($intended_runmode . " doesn\'t exist");
 #   $json_resp->failed(1);
-#   return $json_resp->make_js();
+#   return $json_resp->render_json();
 # }
 
 ###

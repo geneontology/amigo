@@ -2,9 +2,6 @@
 
 Wrapper for the standard AmiGO JSON return object.
 
-NOTE/TODO: there is currently some overlap with AmiGO::JavaScript
-here with make_js.
-
 success : success/errors in the server handling
 errors : errors in the data returned
 warnings: warnings in the data returned
@@ -16,6 +13,7 @@ package AmiGO::JSON;
 use base 'AmiGO';
 use utf8;
 use strict;
+use Data::Dumper;
 
 
 =item new
@@ -112,14 +110,14 @@ Arg: string
 sub set_arguments {
 
   my $self = shift;
-  my $res = shift || {};
+  my $args = shift || {};
 
   ##
-  $self->{JSON_arguments} = $res;
+  $self->{JSON_arguments} = $args;
 }
 
 
-=item make_js
+=item render
 
 Args: a perl data scalar and name.
 Returns: a JSONified string.
@@ -127,8 +125,7 @@ Returns: a JSONified string.
 TODO: Switch to more complete JSON backend once packages reach Ubuntu.
 
 =cut
-sub make_js {
-
+sub render {
   my $self = shift;
 
   ## Assemble.
@@ -142,42 +139,10 @@ sub make_js {
      arguments => $self->{JSON_arguments},
     };
 
-  my $retval = '';
-  ## Try the new version, if not, use the old version.
-  eval{
-    $retval = $self->{JSON}->encode($perl_var);
-  };
-  if ($@) {
-    $retval = $self->{JSON}->encode_json($perl_var);
-  }
-
+  #$perl_var = {};
+  #$self->kvetch('JSON output perl_var: ' . Dumper($perl_var));
+  my $retval = $self->render_json($perl_var);
   return $retval;
-}
-
-
-=item make_js_fast
-
-Args: a perl data scalar and name.
-Returns: a JSONified string.
-
-Note: same as make_js, except we know that encode will work (no eval).
-
-=cut
-sub make_js_fast {
-
-  my $self = shift;
-
-  ## Assemble.
-  my $perl_var =
-    {
-     success => $self->{JSON_success},
-     type => $self->{JSON_type},
-     errors => $self->{JSON_errors},
-     warnings => $self->{JSON_warnings},
-     results => $self->{JSON_results},
-    };
-
-  return $self->{JSON}->encode($perl_var);
 }
 
 

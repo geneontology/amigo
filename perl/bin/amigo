@@ -21,28 +21,40 @@ use CGI::Application::Dispatch;
 my $app = 'AmiGO::WebApp::HTMLClient';
 my $dispatch_table =
   [
-   ''                    => { app => $app},
-   '/'                   => { app => $app},
-   'landing'             => { app => $app, rm => 'landing'},
+   ##
+   ## Applications (page taken as-is).
+   ##
+   ''                    => { app => $app }, # defaults to landing
+   '/'                   => { app => $app }, # defaults to landing
+   'landing'             => { app => $app, rm => 'landing' },
+   'software_list'       => { app => $app, rm => 'software_list' },
+   'schema_details'      => { app => $app, rm => 'schema_details' },
+   'load_details'        => { app => $app, rm => 'load_details' },
+   'browse'              => { app => $app, rm => 'browse' },
+   ##
+   ## Soft applications (may take some parameters, browser-only).
+   ##
+   'medial_search'       => { app => $app, rm => 'medial_search' },
+   'simple_search'       => { app => $app, rm => 'simple_search' },
    'search/:personality' => { app => $app, rm => 'specific_search',
-			      personality => 'personality'},
-   'search'              => { app => $app, rm => 'search'},
-   'medial_search'       => { app => $app, rm => 'medial_search'},
-   'simple_search'       => { app => $app, rm => 'simple_search'},
-   'browse'              => { app => $app, rm => 'browse'},
-   'term/:term'          => { app => $app, rm => 'term', term => 'term'},
-   'gene_product/:gp'    => { app => $app, rm => 'gene_product', gp => 'gp'},
+			      personality => 'personality' },
+   'search'              => { app => $app, rm => 'search' },
+   'phylo_graph/:family' =>
+   { app => $app, rm => 'phylo_graph', family => 'family' },
+   'phylo_graph'         => { app => $app, rm => 'phylo_graph' },
+   ##
+   ## RESTy (can be consumed as service).
+   ##
+   'term/:term/:format?'       => { app => $app, rm => 'term',
+				    'term' => 'term', 'format' => 'format' },
+   'gene_product/:gp/:format?' => { app => $app, rm => 'gene_product',
+				    'gp' => 'gp', 'format' => 'format' },
+   'visualize'                 => { app => $app, rm => 'visualize' },
+   ## Beta.
    'complex_annotation/:complex_annotation'  =>
    { app => $app, rm => 'complex_annotation',
-     complex_annotation => 'complex_annotation'},
-   'software_list'       => { app => $app, rm => 'software_list'},
-   'schema_details'      => { app => $app, rm => 'schema_details'},
-   'load_details'        => { app => $app, rm => 'load_details'},
-   'visualize'           => { app => $app, rm => 'visualize'},
-   'visualize_freeform'  => { app => $app, rm => 'visualize_freeform'},
-   'phylo_graph/:family' =>
-   { app => $app, rm => 'phylo_graph', family => 'family'},
-   'phylo_graph'         => { app => $app, rm => 'phylo_graph'},
+     complex_annotation => 'complex_annotation' },
+   'visualize_freeform'  => { app => $app, rm => 'visualize_freeform' },
   ];
 CGI::Application::Dispatch->dispatch(
 				     #debug => 1,

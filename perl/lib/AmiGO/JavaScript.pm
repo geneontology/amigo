@@ -328,6 +328,44 @@ sub acquire_source {
 }
 
 
+=item make_var
+
+Args: a perl data scalar, name #, and (optionally) as_is_p (no render_json call).
+Returns: a JSONified var string.
+
+TODO: Switch to more complete JSON backend once packages reach Ubuntu.
+
+=cut
+sub make_var {
+  my $self = shift;
+  my $variable_name = shift || 'unknown_var';
+  my $perl_var = shift || undef;
+  #my $as_is_p = shift || 0;
+
+  my @mbuf = ();
+  push @mbuf, '<script type="text/javascript">';
+  #push @mbuf, "\n<!--//--><![CDATA[//><!--\n";
+  push @mbuf, 'var ';
+  push @mbuf, $variable_name;
+  push @mbuf, ' = ';
+
+  ## It looks like we'll have to take out newlines as JS in HTML can
+  ## interpret them badly.
+  # my $conv_var = "'" . $perl_var . "'";
+  # if( ! as_is_p ){
+  my $conv_var = $self->render_json($perl_var);
+  # }
+  $conv_var =~ s/\n+//g;
+  push @mbuf, $conv_var;
+
+  push @mbuf, ';';
+  #push @mbuf, "\n//--><!]]>\n";
+  push @mbuf, '</script>';
+  push @mbuf, "\n";
+  return join '', @mbuf;
+}
+
+
 =item get_yui_libs
 
 Args: TODO
@@ -375,131 +413,6 @@ sub get_yui_libs {
     push @mbuf, "\n";
   }
 
-  return join '', @mbuf;
-}
-
-
-=item make_js
-
-Args: a perl data scalar.
-Returns: a JSONified string.
-
-TODO: Switch to more complete JSON backend once packages reach Ubuntu.
-
-=cut
-sub make_js {
-
-  my $self = shift;
-  my $perl_var = shift || undef;
-
-  my $retval = '';
-  ## Pass the recursive buck...mine is better at simple things--the
-  ## real one seems to require a ref.
-  if( ref($perl_var) eq "HASH" ||
-      ref($perl_var) eq "ARRAY" ){
-    ## Try the new version, if not, use the old version.
-    eval{
-      $retval = $self->{JSON}->encode($perl_var);
-    };
-    # if ($@) {
-    #    $retval = $self->{JSON}->to_json($perl_var);
-    # }
-  }else{
-    $retval = _emit_scalar($perl_var);
-  }
-
-  return $retval;
-}
-
-
-=item make_var
-
-Args: a perl data scalar, name #, and (optionally) as_is_p (no make_js call).
-Returns: a JSONified var string.
-
-TODO: Switch to more complete JSON backend once packages reach Ubuntu.
-
-=cut
-sub make_var {
-
-  my $self = shift;
-  my $variable_name = shift || 'unknown_var';
-  my $perl_var = shift || undef;
-  #my $as_is_p = shift || 0;
-
-  my @mbuf = ();
-  push @mbuf, '<script type="text/javascript">';
-  #push @mbuf, "\n<!--//--><![CDATA[//><!--\n";
-  push @mbuf, 'var ';
-  push @mbuf, $variable_name;
-  push @mbuf, ' = ';
-
-  ## It looks like we'll have to take out newlines as JS in HTML can
-  ## interpret them badly.
-  # my $conv_var = "'" . $perl_var . "'";
-  # if( ! as_is_p ){
-  my $conv_var = $self->make_js($perl_var);
-  # }
-  $conv_var =~ s/\n+//g;
-  push @mbuf, $conv_var;
-
-  push @mbuf, ';';
-  #push @mbuf, "\n//--><!]]>\n";
-  push @mbuf, '</script>';
-  push @mbuf, "\n";
-  return join '', @mbuf;
-}
-
-
-##
-sub _emit_scalar {
-
-  my $scalar = shift || undef;
-
-  my @mbuf = ();
-
-  ## Right now, we're mostly interested in scalars and hash pointers.
-  if( ! $scalar ){
-
-    ## Nothingness.
-    push @mbuf, 'null';
-
-  }elsif( ref($scalar) eq 'HASH' ){
-
-    ## Examine the hash and descend.
-    push @mbuf, rec_des_on_hash($scalar);
-
-  }else{
-
-    ## Typical.
-    push @mbuf, '"';
-    push @mbuf, $scalar;
-    push @mbuf, '"';
-  }
-
-  return join '', @mbuf;
-}
-
-
-##
-sub rec_des_on_hash {
-
-  my $hash = shift || undef;
-
-  my @mbuf = ();
-  push @mbuf, '{';
-  if( $hash && %$hash && keys %{$hash} ){
-    foreach my $key (keys %{$hash}){
-      push @mbuf, '"';
-      push @mbuf, $key;
-      push @mbuf, '":';
-      push @mbuf, _emit_scalar($hash->{$key});
-      push @mbuf, ',';
-    }
-    pop @mbuf;
-  }
-
-  push @mbuf, '}';
   return join '', @mbuf;
 }
 
