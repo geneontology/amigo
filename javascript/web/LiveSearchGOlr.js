@@ -17,7 +17,9 @@ function LiveSearchGOlrInit(){
     ll('LiveSearchGOlrInit start...');
 
     // Aliases.
-    var loop = bbop.core.each;
+    var each = bbop.core.each;
+    var is_array = bbop.core.is_array;
+    var first_split = bbop.core.first_split;
 
     ///
     /// A description of the active buttons and what to do when they
@@ -162,7 +164,8 @@ function LiveSearchGOlrInit(){
 				['annotation_class', 'annotation_class_label'],
 				'ontology',
 				gconf);
-    var bookmark_button = btmpl.bookmark(linker);
+    //var bookmark_button = btmpl.bookmark(linker);
+    var bookmark_button = btmpl.restmark(linker);
     var facet_matrix_button = btmpl.open_facet_matrix(gconf, sd);
     var gaf_galaxy_button =
 	btmpl.send_fields_to_galaxy('Send GAF chunk to Galaxy (up to ' +
@@ -221,7 +224,7 @@ function LiveSearchGOlrInit(){
     /// Handle setup:
     ///  1) We /need/ to have a personality defined. If not, it is an error--
     ///     we no longer do the (confusing) tabbed-switch approach.
-    ///  2) Process incoming queries (into manager).
+    ///  2) Process incoming queries/filters (into manager).
     ///  3) Process incoming bookmarks (into manager).
     ///  4) Render manager state to display.
     ///
@@ -233,13 +236,15 @@ function LiveSearchGOlrInit(){
 	ll('ERROR: No personality defined, cannot continue.');
 	alert('ERROR: No personality defined, cannot continue.');
     }else{
-	ll("Detected dispatch argument: " + global_live_search_personality);
+	ll("Detected dispatch argument (can progress): " +
+	   global_live_search_personality);
 
 	// _on_search_select(global_live_search_personality);
 	search.set_personality(global_live_search_personality);
 	search.lite(true);
 
-	// 2) Process incoming queries (into manager).
+	// 2) Process incoming queries, pins, and filters (into
+	// manager)--the RESTy bookmarking API.
 	// Check to see if we have an incoming query (likely the landing page).
 	if( global_live_search_query ){ // has incoming query
     	    ll("Try and use incoming query (set default): " +
@@ -249,7 +254,19 @@ function LiveSearchGOlrInit(){
     	    //search.set_default_query(def_comfy);	    
     	    //search.set_query(def_comfy);	    
 	}
-
+	if( is_array(global_live_search_filters) ){ // has incoming filters
+	    each(global_live_search_filters,
+		 function(filter){
+		     search.add_query_filter_as_string(filter, ['$']);
+		 });
+	}
+	if( is_array(global_live_search_pins) ){ // has incoming pins
+	    each(global_live_search_pins,
+		 function(pin){
+		     search.add_query_filter_as_string(pin, ['*']);
+		 });
+	}
+	
 	// 3) Process incoming bookmarks (into manager).
 	// Check to see if we have a bookmark or not. If we have one, run
 	// it.
@@ -274,14 +291,14 @@ function LiveSearchGOlrInit(){
 			  'and sanity. ' +
 			  'Please remove the bookmark parameter from the URL.');
 	    }else{ // probably good bookmark
-		ll("Bookmark has a personality: "+search.get_personality());
+		ll("Bookmark has a personality: " + search.get_personality());
 		
 		// Load bookmark.
 		ll("Pre bookmark: " + search.get_query_url());
 		ll(global_live_search_bookmark);
-		ll("Pre-bookmark personality: "+search.get_personality());
+		ll("Pre-bookmark personality: " + search.get_personality());
 		search.load_url(global_live_search_bookmark);
-		ll("Post-bookmark personality: "+search.get_personality());
+		ll("Post-bookmark personality: " + search.get_personality());
 		ll("Post bookmark: " + search.get_query_url());
 	    }
 	}else{ // no bookmark
@@ -290,8 +307,8 @@ function LiveSearchGOlrInit(){
 
 	// 4) Render manager state to display.
 	// Run through our pre-defined activation functions
-	var activation_fun = active_classes[search.get_personality()];
-	activation_fun(search);
+	var activation_function = active_classes[search.get_personality()];
+	activation_function(search);
 	// Establish the display with what we have.
     	search.establish_display();
 	search.search();

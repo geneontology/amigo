@@ -1437,7 +1437,7 @@ sub get_interlink {
      sub {
        my $query = $args->{query} || '';
        if( $query ){
-	 $ilink = 'amigo/medial_search?query='. $query;
+	 $ilink = 'amigo/medial_search?q='. $query;
        }else{
 	 $ilink = 'amigo/medial_search';
        }
@@ -1455,7 +1455,7 @@ sub get_interlink {
 
 	 ## In the case that we also have an incoming query, add that.
 	 if( defined $args->{query} && $args->{query} ne '' ){
-	   $ilink = $ilink . '?query=' . $args->{query};
+	   $ilink = $ilink . '?q=' . $args->{query};
 	 }
 
        }else{
@@ -2317,6 +2317,30 @@ sub empty_hash_p {
     return 0;
   }
 }
+
+
+# =item listref_ify
+
+# Attempts to turn the input into some kind of list ref on expected
+# input of undef, scalar, listref, or list.
+
+# Returns a listref (empty if no contents or coersion).
+
+# =cut
+# sub listref_ify {
+#   my $self = shift;
+#   my $input = shift || undef;
+
+#   my $ret = [];
+
+#   if( defined $input ){
+#     if( ref($input) eq 'ARRAY' ){
+      
+#     }
+#   }
+
+#   return $ret;
+# }
 
 
 ###

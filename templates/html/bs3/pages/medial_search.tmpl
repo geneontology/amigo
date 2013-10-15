@@ -11,10 +11,12 @@
 
     [% IF results_p == 0 %]
     <p>
-      Nothing found. Please try again.
+      Nothing found for <strong>[% query %]</strong>. Please try again.
     </p>
     [% ELSE %]
     <p>
+      The following results were found for <strong>[% query %]</strong>.
+      <br />
       Select the type of document that you want to search for.
     </p>
     

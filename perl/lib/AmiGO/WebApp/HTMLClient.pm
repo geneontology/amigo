@@ -340,7 +340,7 @@ sub mode_simple_search {
     $self->set_template_parameter('last_page_url', $last_page_url);
     $self->set_template_parameter('next_page_url', $next_page_url);
     $self->set_template_parameter('prev_page_url', $prev_page_url);
-    $self->set_template_parameter('next_page_p', $gs->more_p());
+    $self->set_template_parameter('next_page_p', $gs->more_p($page));
     $self->set_template_parameter('range_high', $gs->range_high($page));
     $self->set_template_parameter('range_low', $gs->range_low($page));
     $self->set_template_parameter('range', $gs->count());
@@ -418,10 +418,10 @@ sub mode_medial_search {
   my $i = AmiGO::WebApp::Input->new();
   my $params = $i->input_profile('medial_search');
   ## Deal with the different types of dispatch we might be facing.
-  $params->{query} = $self->param('query')
-    if ! $params->{query} && $self->param('query');
+  $params->{q} = $self->param('q')
+    if ! $params->{q} && $self->param('q');
   $self->{CORE}->kvetch(Dumper($params));
-  my $q = $params->{query};
+  my $q = $params->{q};
 
   ## Pull our query parameter.
   if( ! defined $q || $q eq '' ){
@@ -949,93 +949,6 @@ sub mode_visualize_freeform {
 }
 
 
-# ## A committed client based on the jQuery libraries and GOlr. The
-# ## future.
-# sub mode_live_search {
-
-#   my $self = shift;
-
-#   ## Pull out the bookmark parameter.
-#   my $i = AmiGO::WebApp::Input->new();
-#   my $params = $i->input_profile('live_search');
-#   ## Normal incoming args.
-#   my $bookmark = $params->{bookmark} || '';
-#   my $golr_class = $params->{golr_class} || '';
-#   my $query = $params->{query} || '';
-
-#   ## Try and come to terms with Galaxy.
-#   my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
-#   $self->galaxy_settings($in_galaxy, $galaxy_external_p);
-
-#   ## If it is defined, try to decode it into something useful that we
-#   ## can pass in as javascript.
-#   if( $bookmark ){
-#     # $bookmark = $self->{CORE}->render_json($bookmark);
-#     $bookmark =~ s/\"/\\\"/g;
-#   }
-#   $self->{CORE}->kvetch('bookmark: ' . $bookmark || '???');
-
-#   ## Page settings.
-#   $self->set_template_parameter('STANDARD_CSS', 'no');
-#   $self->set_template_parameter('page_title', 'AmiGO 2: Search');
-#   $self->set_template_parameter('page_name', 'live_search');
-#   $self->set_template_parameter('content_title', 'Search');
-
-#   ## Grab resources we want.
-#   $self->set_template_parameter('STAR_IMAGE',
-# 				$self->{CORE}->get_image_resource('star'));
-
-#   ## Get the layout info to describe which tabs should be generated.
-#   my $stinfo = $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_SEARCH');
-#   $self->set_template_parameter('search_tab_info', $stinfo);
-#   ## Pick the first to be the default. Technically, this is optional
-#   ## since the JS will eventually fall back to just picking the first
-#   ## defined class.
-#   ## However, if we were kicked in from the landing page, we might
-#   ## already have this information.
-#   my $gc = $golr_class || $$stinfo[0]->{id};
-#   $self->set_template_parameter('starting_golr_class', $gc);
-
-#   ## Our AmiGO services CSS.
-#   my $prep =
-#     {
-#      css_library =>
-#      [
-#       'standard',
-#       #'com.jquery.redmond.custom',
-#       'com.jquery.jqamigo.custom',
-#      ],
-#      javascript_library =>
-#      [
-#       'com.jquery',
-#       'com.jquery-ui',
-#       'bbop',
-#       'amigo'
-#      ],
-#      javascript =>
-#      [
-#       $self->{JS}->make_var('global_live_search_bookmark', $bookmark),
-#       $self->{JS}->make_var('global_live_search_query', $query),
-#       #$self->{JS}->make_var('global_live_search_golr_class', $golr_class),
-#       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-#       $self->{JS}->get_lib('LiveSearchGOlr.js')
-#      ],
-#      javascript_init =>
-#      [
-#       'GeneralSearchForwardingInit();',
-#       'LiveSearchGOlrInit();'
-#      ],
-#      content =>
-#      [
-#       'pages/live_search_golr.tmpl'
-#      ]
-#     };
-#   $self->add_template_bulk($prep);
-
-#   return $self->generate_template_page();
-# }
-
-
 ## A committed client based on the jQuery libraries and GOlr. The
 ## future.
 sub mode_search {
@@ -1048,9 +961,15 @@ sub mode_search {
   ## Deal with the different types of dispatch we might be facing.
   $params->{personality} = $self->param('personality')
     if ! $params->{personality} && $self->param('personality');
+
   ## Normal incoming args.
   my $bookmark = $params->{bookmark} || '';
-  my $query = $params->{query} || '';
+  my $query = $params->{q} || '';
+  my $filters = $params->{fq} || [];
+  my $pins = $params->{sfq} || [];
+  ## Ensure listref input on multi-inputs.
+  $pins = [$pins] if ref($pins) ne 'ARRAY';
+  $filters = [$filters] if ref($filters) ne 'ARRAY';
 
   ## Looks like bug is fixed--remove later when better tested.
   # ## BUG/TODO: Let people know about the bug.
@@ -1062,8 +981,8 @@ sub mode_search {
   my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
   $self->galaxy_settings($in_galaxy, $galaxy_external_p);
 
-  ## If it is defined, try to decode it into something useful that we
-  ## can pass in as javascript.
+  ## Bookmark system one: if it is defined, try to decode it into
+  ## something useful that we can pass in as javascript.
   if( $bookmark ){
     # $bookmark = $self->{CORE}->render_json($bookmark);
     $bookmark =~ s/\"/\\\"/g;
@@ -1075,10 +994,6 @@ sub mode_search {
   $self->set_template_parameter('page_title', 'AmiGO 2: Search');
   $self->set_template_parameter('page_name', 'live_search');
   $self->set_template_parameter('content_title', 'Search');
-
-  ## Grab resources we want.
-  $self->set_template_parameter('STAR_IMAGE',
-				$self->{CORE}->get_image_resource('star'));
 
   ## Make sure the personality is in our known set if it's even
   ## defined.
@@ -1143,9 +1058,11 @@ sub mode_search {
      ],
      javascript =>
      [
+      $self->{JS}->make_var('global_live_search_personality', $personality),
       $self->{JS}->make_var('global_live_search_bookmark', $bookmark),
       $self->{JS}->make_var('global_live_search_query', $query),
-      $self->{JS}->make_var('global_live_search_personality', $personality),
+      $self->{JS}->make_var('global_live_search_pins', $pins),
+      $self->{JS}->make_var('global_live_search_filters', $filters),
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('LiveSearchGOlr.js')
      ],
@@ -1160,47 +1077,6 @@ sub mode_search {
      ]
     };
   $self->add_template_bulk($prep);
-  #$self->add_mq('warning', "Remove this test when this is YELLOW!");
-  #return $self->generate_template_page_with();
-  # }else{
-  #   my $prep =
-  #     {
-  #      css_library =>
-  #      [
-  # 	'standard',
-  # 	#'com.jquery.redmond.custom',
-  # 	'com.jquery.jqamigo.custom',
-  #      ],
-  #      javascript_library =>
-  #      [
-  # 	'com.jquery',
-  # 	'com.jquery-ui',
-  # 	'bbop',
-  # 	'amigo'
-  #      ],
-  #      javascript =>
-  #      [
-  # 	$self->{JS}->make_var('global_live_search_bookmark', $bookmark),
-  # 	$self->{JS}->make_var('global_live_search_query', $query),
-  # 	$self->{JS}->make_var('global_live_search_personality', $personality),
-  # 	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
-  # 	$self->{JS}->get_lib('LiveSearchGOlr.js')
-  #      ],
-  #      javascript_init =>
-  #      [
-  # 	'GeneralSearchForwardingInit();',
-  # 	'LiveSearchGOlrInit();'
-  #      ],
-  #      content =>
-  #      [
-  # 	'pages/live_search_golr.tmpl'
-  #      ]
-  #     };
-  #   $self->add_template_bulk($prep);
-  #   return $self->generate_template_page();
-  # }
-
-  #return $self->generate_template_page_with({search=>1});
   return $self->generate_template_page_with();
 }
 

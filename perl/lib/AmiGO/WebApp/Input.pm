@@ -91,20 +91,26 @@ sub input_profile {
     #$self->_add_galaxy();
 
     ## Experimental consumption of a REST API style bookmark.
-    $self->_add_simple_optional_argument('query', '');
-    $self->_add_simple_optional_argument('filter', '');
-    $self->_add_simple_optional_argument('pin', '');
+    $self->_add_simple_optional_argument('q', '');
+    $self->_add_simple_optional_argument('fq', '');
+    $self->_add_simple_optional_argument('sfq', '');
 
   }elsif( $profile_name eq 'gp' ){
     ## Due to dispatch, done through app.
     #$self->_add_gps_string();
-  }elsif( $profile_name eq 'family' ){
-    ## Optional string at this point since we have optional behavior.
-    $self->_add_simple_argument('family', '');
+
+    ## Experimental consumption of a REST API style bookmark.
+    $self->_add_simple_optional_argument('q', '');
+    $self->_add_simple_optional_argument('fq', '');
+    $self->_add_simple_optional_argument('sfq', '');
+
   }elsif( $profile_name eq 'complex_annotation' ){
     #$self->_add_simple_argument('annotation_group', '');
     #$self->_add_simple_argument('annotation_unit', '');
     $self->_add_simple_argument('complex_annotation', '');
+  }elsif( $profile_name eq 'family' ){
+    ## Optional string at this point since we have optional behavior.
+    $self->_add_simple_argument('family', '');
   }elsif( $profile_name eq 'matrix' ){
     $self->_add_named_terms_string();
     $self->_add_species();
@@ -160,19 +166,23 @@ sub input_profile {
     $self->_add_simple_argument('mirror', '');
     $self->_add_simple_argument('query', '');
   }elsif( $profile_name eq 'medial_search' ){
-    $self->_add_simple_search_set();
+    #$self->_add_simple_search_set();
+    $self->_add_simple_argument('q', '');
   }elsif( $profile_name eq 'simple_search' ){
     $self->_add_simple_argument('golr_class', '');
     $self->_add_simple_argument('page', '1');
     $self->_add_simple_search_set();
   }elsif( $profile_name eq 'live_search' ){
+
+    ## "Complicated" bookmarking system.
     $self->_add_simple_argument('bookmark', '');
-    $self->_add_simple_argument('query', '');
-    ## TODO: I think we'll need to remove this once we
-    ## we separate.
-    $self->_add_simple_argument('golr_class', '');
-    # ## Temp variable as we experiement with new template systems.
-    # $self->_add_simple_argument('template', 'default');
+    #$self->_add_simple_argument('query', '');
+
+    ## Experimental consumption of a REST API style bookmark.
+    $self->_add_simple_optional_argument('q', '');
+    $self->_add_simple_optional_argument('fq', '');
+    $self->_add_simple_optional_argument('sfq', '');
+
   }elsif( $profile_name eq 'workspace' ){
     $self->_add_workspace_set();
   }else{
