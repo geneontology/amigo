@@ -1361,7 +1361,7 @@ bbop.version.revision = "2.0b1";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20131011";
+bbop.version.release = "20131014";
 /* 
  * Package: json.js
  * 
@@ -8192,6 +8192,48 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	}
 
 	return phash;
+    };
+
+    /*
+     * Function: add_query_filter_as_string
+     *
+     * Setter for query filters ('fq'). Acts as a 
+     *
+     * Parameters: 
+     *  filter_string - filter (type) string (e.g. "-type:gene")
+     *  plist - *[optional]* list of properties of the filter
+     *
+     * Returns: 
+     *  (TODO) The current query filter hash.
+     * 
+     * See also:
+     *  <add_query_filter>
+     */
+    this.add_query_filter_as_string = function(filter_string, plist){
+	
+	// Split the incoming filter string into its component parts.
+	var f_v = bbop.core.first_split(':', filter_string);
+	var fname = f_v[0];
+	var fval = f_v[1];
+
+	//var props = plist || ['$'];
+	var props = plist;
+
+	// Only continue on sensible inputs.
+	var ret = {};
+	if( fname != '' && fval != '' ){
+
+	    // Similar to the URL loader.
+	    var lead_char = fname.charAt(0);
+	    if( lead_char == '-' || lead_char == '+' ){
+		props.push(lead_char);
+		fname = fname.substr(1, fname.length -1);
+	    }
+	    
+	    ret = this.add_query_filter(fname, fval, props);
+	}
+
+	return ret;
     };
 
     /*
