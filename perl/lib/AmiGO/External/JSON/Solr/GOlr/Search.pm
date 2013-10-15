@@ -244,6 +244,8 @@ sub counting_query {
 
 =item more_p
 
+Takes current page number as an argument.
+
 Return: 0 or 1
 
 Returns whether or not an additional "paging" would return more
@@ -253,12 +255,13 @@ results with the current start/rows settings.
 sub more_p {
 
   my $self = shift;
+  my $page = shift || die "need a defined page";
   my $retval = 1;
 
   ## Make sure we got something.
-  my $num_rows = $self->rows_requested() || 10;
-  my $current_returned = $self->count() || 10;
-  if( $num_rows > $current_returned ){
+  my $rh = $self->range_high($page);
+  my $t = $self->total();
+  if( $rh == $t ){
     $retval = 0;
   }
 
@@ -267,6 +270,8 @@ sub more_p {
 
 
 =item range_high
+
+Takes current page number as an argument.
 
 Return: undef or int
 
@@ -294,6 +299,8 @@ sub range_high {
 
 
 =item range_low
+
+Takes current page number as an argument.
 
 Return: undef or int
 
