@@ -1290,51 +1290,6 @@ bbop.core.extend = function(subclass, baseclass){
     // // Create a property to
     // subclass.parent_class = baseclass.prototype;
 };
-
-// /*
-//  * Function: coder
-//  *
-//  * An object that functions to encode and decode data that we might be
-//  * hiding in element ids.
-//  * 
-//  * This constructor takes hash parameters.
-//  *
-//  * Parameters: 
-//  *  string - the base "namespace" string to use; has a default
-//  *  size - 
-//  *
-//  * Returns: 
-//  *  bbop.core.coder object
-//  */
-// bbop.core.coder = function(args){
-
-//     var mangle_base_string = "bbop_core_coder_mangle_";
-//     var mangle_base_space_size = 10;
-
-//     var defs = {string: mangle_base_string, size: mangle_base_space_size};
-//     var final_args = bbop.core.fold(defs, args);
-//     var mangle_str = final_args['string'];
-//     var space_size = final_args['size'];
-
-//     // TODO/BUG: apparently, html ids can only be of a limited
-//     // character set.
-//     //var en_re = new RegExp("/:/", "gi");
-//     //var de_re = new RegExp("/-_-/", "gi");
-//     this.encode = function(str){
-// 	// Mangle and encode.
-// 	var new_str = mangle_str + bbop.core.randomness(space_size) +'_'+ str;
-// 	// TODO:
-// 	// str.replace(en_re, "-_-");
-// 	return new_str;
-//     };
-//     this.decode = function(str){	    
-// 	// Decode and demangle.
-// 	var new_str = str.substring(mangle_str.length + space_size + 1);
-// 	// TODO:
-// 	// str.replace(de_re, ":");
-// 	return new_str;
-//     };
-// };
 /* 
  * Package: version.js
  * 
@@ -1361,7 +1316,7 @@ bbop.version.revision = "2.0b1";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20131014";
+bbop.version.release = "20131015";
 /* 
  * Package: json.js
  * 
@@ -8216,6 +8171,9 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	var fname = f_v[0];
 	var fval = f_v[1];
 
+	// Need to shuck the value from the quotes, as in load_url.
+	fval = bbop.core.dequote(fval);
+
 	//var props = plist || ['$'];
 	var props = plist;
 
@@ -8456,6 +8414,20 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
     // A little extra thing that we might need sometimes.
     this.query_extra = null;
 
+    // Spaces can cause problems in URLs in some environments.
+    //final_qurl = final_qurl.replace(/ /g, '%20');
+    // Convert the URL into something more usable.
+    // Because we internally use %09 as a special case, make sure
+    // we don't double-up on it.
+    this._query_encode = function(str_to_encode){
+
+	var fs1 = encodeURI(str_to_encode);
+	var fs2 = fs1.replace(/\%2509/g, '%09');
+
+	var final_encoding = fs2;
+	return final_encoding;
+    };
+
     // The callback function called after a successful AJAX
     // intialization/reset call. First it runs some template code,
     // then it does all of the callbacks.
@@ -8478,6 +8450,54 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	ll('run error callbacks...');
 	var response = new bbop.golr.response(json_data);
 	anchor.apply_callbacks('error', [response, anchor]);
+    };
+
+    /*
+     * Function: filter_list_to_assemble_hash
+     *
+     * Get all of our query filter variables and try and make
+     * something of them that <get_assemble> can understand.
+     *
+     * Sticky doesn't matter here, but negativity does. However, we
+     * can be pretty naive since the hashing should have already taken
+     * out mutually exclusive dupes.
+     * 
+     * The argument is a list of query filter properties, as returned
+     * by <get_query_filters> and <get_sticky_query_filters>.
+     *
+     * Parameters:
+     *  flist - a list of query filter properties (see above)
+     *
+     * Returns:
+     *  hash of filter names to value lists
+     * 
+     * See also:
+     *  <get_query_filters>
+     *  <get_sticky_query_filters>
+     */
+    this.filter_list_to_assemble_hash = function(flist){
+	var h = {};
+	bbop.core.each(flist,
+		       function(filter_property){
+
+			   // Grab only the properties that affect the
+			   // URL.
+			   var filter = filter_property['filter'];
+			   var value = filter_property['value'];
+			   var negative_p = filter_property['negative_p'];
+
+			   // We need to alter at the filter level.
+			   if( negative_p ){
+			       filter = '-' + filter;
+			   }
+
+			   // Make sure it is defined.
+			   if( ! bbop.core.is_defined(h[filter]) ){
+			       h[filter] = [];
+			   }
+			   h[filter].push(value);
+		       });
+	return h;
     };
 
     /*
@@ -9430,33 +9450,9 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	// Structure of the necessary invariant parts.	
 	var qurl = anchor._solr_url + 'select?';
 
-	// Get all of our query filter variables and try and
-	// make something of them that get_assemble can
-	// understand. Sticky doesn't matter here, but negativity
-	// does. However, we can be pretty naive since the hashing
-	// should have already taken out mutually exclusive dupes.
-	var fq = {};
-	var loop = bbop.core.each;
-	loop(anchor.get_query_filters(),
-	     function(filter_property){
-
-		 // Grab only the properties that affect the
-		 // URL.
-		 var filter = filter_property['filter'];
-		 var value = filter_property['value'];
-		 var negative_p = filter_property['negative_p'];
-
-		 // We need to alter at the filter level.
-		 if( negative_p ){
-		     filter = '-' + filter;
-		 }
-
-		 // Make sure it is defined.
-		 if( ! bbop.core.is_defined(fq[filter]) ){
-		     fq[filter] = [];
-		 }
-		 fq[filter].push(value);
-	     });
+	// Filters to assemble.
+	var assemf = anchor.get_query_filters();
+	var fq = anchor.filter_list_to_assemble_hash(assemf);
 
 	// Add all of our different specialized hashes.
 	var things_to_add = [
@@ -9496,15 +9492,7 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 			   });
 
 	var final_qurl = qurl + filtered_things.join('&');
-	// Spaces can cause problems in URLs in some environments.
-	//final_qurl = final_qurl.replace(/ /g, '%20');
-	// Convert the URL into something more usable.
-	// Because we internally use %09 as a special case, make sure
-	// we don't double-up on it.
-	var fs1 = encodeURI(final_qurl);
-	var fs2 = fs1.replace(/\%2509/g, '%09');
-	final_qurl = fs2;
-
+	final_qurl = anchor._query_encode(final_qurl);
 	ll('qurl: ' + final_qurl);
     	return final_qurl;
     };
@@ -9680,10 +9668,77 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
     };
 
     /*
+     * Function: get_filter_query_string
+     *
+     * Get the current state of the manager, as defined by the current
+     * gross filter set--query, sticky filters, and standard filters--
+     * returned as a URL query string (sans the '?').
+     * 
+     * This differs from <get_query_url> and <get_state_url> in that
+     * the generated string is intended for applications that may want
+     * just enough information to recover filter state when the
+     * personality, and other types of information, are already
+     * known. It is intended to be part of a light RESTy bookmarking
+     * mechanism in larger application.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  query string for current filters (sans the '?')
+     * 
+     * Also see:
+     *  <get_query_url>
+     *  <get_state_url>
+     */
+    this.get_filter_query_string = function(){
+	
+	// // Save current state.
+	// anchor.push_excursion();
+
+	var q = anchor.get_query();
+
+	// Get the filters and sort them into sticky and "normal"
+	// sets.
+	var filters = anchor.get_query_filters();
+	var std_filters = [];
+	var sticky_filters = [];
+	bbop.core.each(filters,
+		       function(filter){
+			   if( filter['sticky_p'] ){
+			       sticky_filters.push(filter);
+			   }else{
+			       std_filters.push(filter);
+			   }
+		       });
+
+	var fq = anchor.filter_list_to_assemble_hash(std_filters);
+	var sfq = anchor.filter_list_to_assemble_hash(sticky_filters);
+
+	var things_to_add = [];
+	if( q ){
+	    things_to_add.push(bbop.core.get_assemble({'q': q}));
+	}
+	if( ! bbop.core.is_empty(fq) ){
+	    things_to_add.push(bbop.core.get_assemble({'fq': fq}));
+	}
+	if( ! bbop.core.is_empty(sfq) ){
+	    things_to_add.push(bbop.core.get_assemble({'sfq': sfq}));
+	}
+	    
+	// // Reset the old state.
+	// anchor.pop_excursion();
+
+	var final_qstr = things_to_add.join('&');
+	final_qstr = anchor._query_encode(final_qstr);
+    	return final_qstr;
+    };
+
+    /*
      * Function: get_state_url
      *
      * Get the current invariant state of the manager, plus the
-     * current personality as a paramater, returned as a URL string.
+     * current personality as a parameter, returned as a URL string.
      * 
      * This differs from <get_query_url> in that the generated string
      * is intended for applications that may want a little more
@@ -9712,24 +9767,7 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	// Explicitly set sticky pins for later recovery.
 	// Do this pretty much exactly like we do for get_query_url().
 	var sticky_filters = anchor.get_sticky_query_filters();
-	var sfq = {};
-	bbop.core.each(sticky_filters,
-		       function(sticky_filter){
-
-			   var filter = sticky_filter['filter'];
-			   var value = sticky_filter['value'];
-			   var negative_p = sticky_filter['negative_p'];
-
-			   if( negative_p ){
-			       filter = '-' + filter;
-			   }
-
-			   // Make sure it is defined.
-			   if( ! bbop.core.is_defined(sfq[filter]) ){
-			       sfq[filter] = [];
-			   }
-			   sfq[filter].push(value);
-		       });
+	var sfq = anchor.filter_list_to_assemble_hash(sticky_filters);
 	anchor.set('sfq', sfq);
 	
 	// Get url.
@@ -11565,6 +11603,50 @@ bbop.widget.display.button_templates.field_download = function(label,
 	    }
 	};
     return field_download_button;
+};
+
+/*
+ * Method: restmark
+ * 
+ * Generate the template for a simple bookmark button with pop-up.
+ * 
+ * Arguments:
+ *  linker - the linker to be used for this bookmarking
+ * 
+ * Returns:
+ *  hash form of jQuery button template for consumption by <search_pane>.
+ */
+bbop.widget.display.button_templates.restmark = function(linker){
+    
+    var bookmark_button =
+	{
+	    label: 'Show URL/bookmark',
+	    diabled_p: false,
+	    text_p: false,
+	    icon: 'ui-icon-link',
+	    click_function_generator: function(manager){
+		return function(event){
+		    //alert('GAF download: ' + manager.get_query_url());
+		    //alert('URL: ' + manager.get_query_url());
+		    var raw_restmark = manager.get_filter_query_string();
+		    // var a_args = {
+		    // 	// Since we're using the whole URI as a
+		    // 	// parameter, we use the heavy hitter on top
+		    // 	// of the already encoded URI.
+		    // 	id: encodeURIComponent(raw_bookmark),
+		    // 	label: 'this search'
+		    // };
+		    //  linker.anchor(a_args, 'search', curr_personality)
+
+		    var restmark_anchor =
+			'<a href="?' + raw_restmark + '">this search</a>';
+
+		    new bbop.widget.dialog('<p>Bookmark for: ' + restmark_anchor + '.</p><p>Please be aware that <strong>this bookmark does not save properties</strong> like currently selected items.</p><p>The AmiGO 2 bookmarking method may change in the future: at this point, <strong>it is intended as a temporary method</strong> (days, not weeks or months) of allowing the reruning of searches using a link.</p>',
+					   {'title': 'Bookmark'});
+		};
+	    }
+	};
+    return bookmark_button;
 };
 
 /*
