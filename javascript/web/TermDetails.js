@@ -79,21 +79,31 @@ function TermDetailsInit(){
 			     dlimit, ['bioentity']);
     gps.add_button(id_download_button);
 
-    // BUG/TODO: Experiment.
-    if( global_pin ){ // has bookmark
-	//ll("Try and use bookmark in establishment.");
-	ll("Try and use pre-pinning in establishment.");
-	ll('taxon_closure_label' + global_pin);
-	// taxon_closure_label: Arabidopsis thaliana
-	gps.add_query_filter('taxon_closure_label', global_pin, ['*']);
-    }else{ // no bookmark
-	//ll("No bookmark in establishment.");
-    } 
+    // Experiment.
+    // Process incoming queries, pins, and filters (into
+    // manager)--the RESTy bookmarking API.
+    if( global_live_search_query ){ //has incoming query
+    	ll("Try and use incoming query (set default): " +
+	   global_live_search_query);
+    	gps.set_comfy_query(global_live_search_query);
+    }
+    if( bbop.core.is_array(global_live_search_filters) ){ //has incoming filters
+	bbop.core.each(global_live_search_filters,
+		       function(filter){
+			   gps.add_query_filter_as_string(filter, ['$']);
+		       });
+    }
+    if( bbop.core.is_array(global_live_search_pins) ){ //has incoming pins
+	bbop.core.each(global_live_search_pins,
+		       function(pin){
+			   gps.add_query_filter_as_string(pin, ['*']);
+		       });
+    }
 
     // Get the interface going.
     gps.establish_display();
-    gps.reset();
-    //gps.search();
+    //gps.reset();
+    gps.search();
 
     ///
     /// TODO: Create a bookmark for searching bioentities with this

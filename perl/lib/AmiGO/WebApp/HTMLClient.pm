@@ -1061,8 +1061,8 @@ sub mode_search {
       $self->{JS}->make_var('global_live_search_personality', $personality),
       $self->{JS}->make_var('global_live_search_bookmark', $bookmark),
       $self->{JS}->make_var('global_live_search_query', $query),
-      $self->{JS}->make_var('global_live_search_pins', $pins),
       $self->{JS}->make_var('global_live_search_filters', $filters),
+      $self->{JS}->make_var('global_live_search_pins', $pins),
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('LiveSearchGOlr.js')
      ],
@@ -1097,8 +1097,17 @@ sub mode_term_details {
     if ! $params->{format} && $self->param('format');
   $self->{CORE}->kvetch(Dumper($params));
 
+  ## Standard inputs for page control.
   my $input_term_id = $params->{term};
   my $input_format = $params->{format} || 'html';
+
+  ## Optional RESTmark input for embedded search_pane.
+  my $query = $params->{q} || '';
+  my $filters = $params->{fq} || [];
+  my $pins = $params->{sfq} || [];
+  ## Ensure listref input on multi-inputs.
+  $pins = [$pins] if ref($pins) ne 'ARRAY';
+  $filters = [$filters] if ref($filters) ne 'ARRAY';
 
   ## Input sanity check.
   if( ! $input_term_id ){
@@ -1358,10 +1367,12 @@ sub mode_term_details {
       # $self->{JS}->make_var('global_count_data', $gpc_info),
       # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
       # $self->{JS}->make_var('global_acc_to_rand', $acc_to_rand),
-      $self->{JS}->make_var('global_acc', $input_term_id),
-      $self->{JS}->make_var('global_pin', $pin),
+      $self->{JS}->make_var('global_live_search_query', $query),
+      $self->{JS}->make_var('global_live_search_filters', $filters),
+      $self->{JS}->make_var('global_live_search_pins', $pins),
       $self->{JS}->make_var('global_label',
-			    $term_info_hash->{$input_term_id}{'name'})
+			    $term_info_hash->{$input_term_id}{'name'}),
+      $self->{JS}->make_var('global_acc', $input_term_id)
      ],
      javascript_init =>
      [
@@ -1395,8 +1406,17 @@ sub mode_gene_product_details {
     if ! $params->{format} && $self->param('format');
   $self->{CORE}->kvetch(Dumper($params));
 
+  ## Standard inputs for page control.
   my $input_gp_id = $params->{gp};
   my $input_format = $params->{format} || 'html';
+
+  ## Optional RESTmark input for embedded search_pane.
+  my $query = $params->{q} || '';
+  my $filters = $params->{fq} || [];
+  my $pins = $params->{sfq} || [];
+  ## Ensure listref input on multi-inputs.
+  $pins = [$pins] if ref($pins) ne 'ARRAY';
+  $filters = [$filters] if ref($filters) ne 'ARRAY';
 
   ## Input sanity check.
   if( ! $input_gp_id ){
@@ -1492,6 +1512,9 @@ sub mode_gene_product_details {
       # $self->{JS}->make_var('global_count_data', $gpc_info),
       # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
       # $self->{JS}->make_var('global_acc_to_rand', $acc_to_rand),
+      $self->{JS}->make_var('global_live_search_query', $query),
+      $self->{JS}->make_var('global_live_search_filters', $filters),
+      $self->{JS}->make_var('global_live_search_pins', $pins),
       $self->{JS}->make_var('global_acc', $input_gp_id)
      ],
      javascript_init =>
