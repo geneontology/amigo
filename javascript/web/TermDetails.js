@@ -117,7 +117,8 @@ function TermDetailsInit(){
     relman.add_query_filter('document_category', 'bioentity', ['*']);
     relman.add_query_filter('regulates_closure', global_acc);
     //ll('qurl: ' + relman.get_query_url());
-    var relstate = encodeURIComponent(relman.get_state_url());
+    //var relstate = encodeURIComponent(relman.get_state_url());
+    var relstate = relman.get_filter_query_string();
 
     // Generate the link.
     var al = new amigo.linker();

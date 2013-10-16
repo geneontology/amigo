@@ -102,12 +102,22 @@ amigo.linker.prototype.url = function (id, xid, modifier){
     // Nothing returns nothing.
     if( id && id != '' ){
 	
+	// function _add_restmark_modifier(curr_url, r_mark){
+	//     var ret = curr_url;
+	//     if( r_mark ){
+	// 	ret = ret + '/?' + r_mark;
+	//     }
+	//     return ret;
+	// }
+
 	// AmiGO hard-coded link types.
 	if( xid ){
 	    if( this.ont_category[xid] ){
 		retval = this.app_base + '/amigo/term/' + id;
+		//retval = _add_restmark_modifier(retval, modifier);
             }else if( this.bio_category[xid] ){
 		retval = this.app_base + '/amigo/gene_product/' + id;
+		//retval = _add_restmark_modifier(retval, modifier);
             }else if( this.complex_annotation_category[xid] ){
 		retval = this.app_base + '/amigo/complex_annotation/'+ id;
             }else if( this.search_category[xid] ){
@@ -121,7 +131,16 @@ amigo.linker.prototype.url = function (id, xid, modifier){
 
 		retval = this.app_base + '/amigo/search' + search_path;
 		if( id ){
-		    retval = retval + '?bookmark='+ id;
+		    // Ugh...decide if the ID indicated a restmark or
+		    // a full http action bookmark.
+		    var http_re = new RegExp("^http");
+		    if( http_re.test(id) ){
+			// HTTP bookmark.
+			retval = retval + '?bookmark='+ id;
+		    }else{
+			// minimalist RESTy restmark.
+			retval = retval + '?' + id;
+		    }
 		}
 	    }
 	}
