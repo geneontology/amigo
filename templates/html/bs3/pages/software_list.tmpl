@@ -137,12 +137,6 @@
 <ul class="list-group">
   
   <li class="list-group-item">
-    <a href="[% interlink_simple_search %]">Simple search</a> is a
-    limited non-JavaScript search client for primitive access to
-    GOlr data.
-  </li>
-  
-  <li class="list-group-item">
     <p>
       For users unable to use JavaScript and spiders, the root GO
       terms can be found here.
@@ -164,6 +158,12 @@
     </ul>
   </li>
 
+  <li class="list-group-item">
+    <a href="[% interlink_simple_search %]">Simple search</a> is a
+    limited non-JavaScript search client for primitive access to
+    GOlr data.
+  </li>
+  
 </ul>
 
 [% IF BETA == 1 %]
@@ -212,7 +212,7 @@
 	   type="text"
 	   title="Throw pretty much anything in here."
 	   class="form-control"
-	   name="query"
+	   name="q"
 	   placeholder="Quick search"
 	   value=""
 	   id="medial-search-query">
