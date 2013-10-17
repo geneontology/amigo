@@ -149,9 +149,9 @@ sub input_profile {
   }elsif( $profile_name eq 'visualize_single' ){
     $self->_add_inline_p();
     $self->_add_loose_term();
-  }elsif( $profile_name eq 'visualize_subset' ){
-    $self->_add_inline_p();
-    $self->_add_simple_argument('subset', '');
+  # }elsif( $profile_name eq 'visualize_subset' ){
+  #   $self->_add_inline_p();
+  #   $self->_add_simple_argument('subset', '');
   }elsif( $profile_name eq 'gander' ){
     #$self->_add_visual_format();
     $self->_add_terms_string();
@@ -378,7 +378,7 @@ sub _add_visual_format {
   push @{$profile->{required}}, 'format';
   $profile->{defaults}{format} = $default_format;
   $profile->{constraint_methods}{format} =
-    $self->is_in_list_p('svg', 'svg_raw', 'png', 'dot', 'navi');
+    $self->is_in_list_p('svg', 'svg_raw', 'png', 'dot');
 }
 
 

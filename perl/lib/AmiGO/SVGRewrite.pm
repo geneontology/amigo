@@ -217,20 +217,20 @@ sub rewrite {
     $top .= $seg . "\n";
   }
 
-  ## Standard JS libraries for these graphs. TODO: the newer one
-  ## doesn't seem to like what is going on in carto...
-  $top .= $js->get_lib('net.mootools-old');
-  $top .= $js->get_lib('org.bbop.kvetch');
-  $top .= $js->get_lib('org.bbop.go');
-  $top .= $js->get_lib('org.bbop.AffineSVG');
-  $top .= $js->get_lib('org.bbop.SVG');
-  $top .= $js->get_lib('net.carto.helperFunctions');
-  $top .= $js->get_lib('net.carto.timer');
-  $top .= $js->get_lib('net.carto.button');
-  $top .= $js->get_lib('net.carto.checkboxAndRadiobutton');
-  $top .= $js->get_lib('net.carto.combobox');
-  $top .= $js->get_lib('net.carto.mapApp');
-  #$top .= $js->get_lib('org.bbop.Viewer');
+  # ## Standard JS libraries for these graphs. TODO: the newer one
+  # ## doesn't seem to like what is going on in carto...
+  # $top .= $js->get_lib('net.mootools-old');
+  # $top .= $js->get_lib('org.bbop.kvetch');
+  # $top .= $js->get_lib('org.bbop.go');
+  # $top .= $js->get_lib('org.bbop.AffineSVG');
+  # $top .= $js->get_lib('org.bbop.SVG');
+  # $top .= $js->get_lib('net.carto.helperFunctions');
+  # $top .= $js->get_lib('net.carto.timer');
+  # $top .= $js->get_lib('net.carto.button');
+  # $top .= $js->get_lib('net.carto.checkboxAndRadiobutton');
+  # $top .= $js->get_lib('net.carto.combobox');
+  # $top .= $js->get_lib('net.carto.mapApp');
+  # #$top .= $js->get_lib('org.bbop.Viewer');
 
   ## Requested JS initializer libraries.
   #$top .= $js->get_lib('RefGenome');

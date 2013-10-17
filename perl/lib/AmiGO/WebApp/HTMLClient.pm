@@ -1147,15 +1147,6 @@ sub mode_term_details {
   $self->set_template_parameter('TERM_INFO',
 				$term_info_hash->{$input_term_id});
 
-  ## TODO/BUG: Should this be a separate client?
-  if( $input_format eq 'json' ){
-    $self->header_add( -type => 'application/json' );
-    my $json_resp = AmiGO::JSON->new('term');
-    $json_resp->set_results($term_info_hash->{$input_term_id});
-    my $jdump = $json_resp->render();
-    return $jdump;
-  }
-
   ## First switch on internal term vs. external.
   my $is_term_acc_p = $self->{CORE}->is_term_acc_p($input_term_id);
   my $acc_list_for_gpc_info = [];
@@ -1195,6 +1186,20 @@ sub mode_term_details {
 		  ' please refer to the originating resource.');
   }
   $self->set_template_parameter('EXOTIC_P', $exotic_p);
+
+  ###
+  ### Bail with JS here is we're going to.
+  ###
+
+  ## TODO/BUG: Should this be a separate client sub-system?
+  if( $input_format eq 'json' ){
+    $self->header_add( -type => 'application/json' );
+    my $json_resp = AmiGO::JSON->new('term');
+    $json_resp->set_results($term_info_hash->{$input_term_id});
+    $json_resp->add_warning('exotic') if $exotic_p;
+    my $jdump = $json_resp->render();
+    return $jdump;
+  }
 
   ###
   ### Get neighborhood below term.

@@ -1108,10 +1108,6 @@ sub _fuse_hash {
   }
 
   return $retstr;
-  #   my 
-  #    $Ilink = 'visualize?mode=basic&inline=false&format=' . $format .
-  # # 	 '&term_data_type=' .  $data_type .
-  # # 	   '&term_data=' .  $self->uri_safe($data);
 }
 
 
@@ -1345,7 +1341,7 @@ sub get_interlink {
 		 action => 'visualize',
 		 arguments =>
 		 {
-		  mode => 'basic',
+		  mode => 'amigo',
 		  inline => 'false',
 		  format => $format,
 		  term_data_type => $data_type,
@@ -1369,7 +1365,7 @@ sub get_interlink {
 		 action => 'visualize',
 		 arguments =>
 		 {
-		  mode => 'basic',
+		  mode => 'amigo',
 		  inline => 'false',
 		  format => 'png',
 		  term_data_type => 'string',
@@ -1400,22 +1396,22 @@ sub get_interlink {
        $ilink = $self->_fuse_hash($ihash);
      },
 
-     'visualize_subset' =>
-     sub {
-       my $subset = $args->{subset} || '';
-       my $inline = $args->{inline} || 'false';
-       $ihash = {
-		 action => 'visualize',
-		 arguments =>
-		 {
-		  mode => 'subset',
-		  inline => $inline,
-		  subset => $subset,
-		 },
-		};
+     # 'visualize_subset' =>
+     # sub {
+     #   my $subset = $args->{subset} || '';
+     #   my $inline = $args->{inline} || 'false';
+     #   $ihash = {
+     # 		 action => 'visualize',
+     # 		 arguments =>
+     # 		 {
+     # 		  mode => 'subset',
+     # 		  inline => $inline,
+     # 		  subset => $subset,
+     # 		 },
+     # 		};
 
-       $ilink = $self->_fuse_hash($ihash);
-     },
+     #   $ilink = $self->_fuse_hash($ihash);
+     # },
 
      'simple_search' =>
      sub {

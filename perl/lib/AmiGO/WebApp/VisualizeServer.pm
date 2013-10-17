@@ -31,16 +31,16 @@ sub setup {
   $self->start_mode('status');
   $self->error_mode('mode_fatal');
   $self->run_modes(
-		   'quickgo'            => 'mode_quickgo', #TODO: fold into ...?
-#		   'subset'       => 'mode_subset',
-#		   'single'       => 'mode_single',
-		   'basic'              => 'mode_advanced', #TODO:'mode_single',
-		   'multi'              => 'mode_advanced', #TODO: 'mode_multi',
-		   'advanced'           => 'mode_advanced',
+		   'quickgo'            => 'mode_quickgo',
+		   'amigo'              => 'mode_advanced',
 		   'freeform'           => 'mode_freeform',
 		   'complex_annotation' => 'mode_complex_annotation',
 		   'status'             => 'mode_local_status',
 		   'AUTOLOAD'           => 'mode_exception'
+#		   'subset'       => 'mode_subset',
+#		   'single'       => 'mode_single', #TODO:'mode_single',
+#		   'multi'              => 'mode_advanced', #TODO: 'mode_multi',
+#		   'advanced'           => 'mode_advanced',
 		  );
 }
 
@@ -216,12 +216,12 @@ sub _produce_appropriate_output {
     ## amigo_terms could go too.
     my $svg_file = $gv->get_svg();
     my $svg_rewriter = AmiGO::SVGRewrite->new();
-    $svg_rewriter->add_js_variable('amigo_terms', $amigo_terms);
-    $svg_rewriter->add_js_variable('amigo_species_order', []);
-    $svg_rewriter->add_js_library('org.bbop.NodeDetails');
-    $svg_rewriter->add_js_initializer("org.bbop.NodeDetails('detail_context');");
-    $svg_rewriter->add_js_library('org.bbop.Viewer');
-    $svg_rewriter->add_js_initializer("org.bbop.Viewer('rgsvg','tform_matrix');");
+    # $svg_rewriter->add_js_variable('amigo_terms', $amigo_terms);
+    # $svg_rewriter->add_js_variable('amigo_species_order', []);
+    # $svg_rewriter->add_js_library('org.bbop.NodeDetails');
+    # $svg_rewriter->add_js_initializer("org.bbop.NodeDetails('detail_context');");
+    # $svg_rewriter->add_js_library('org.bbop.Viewer');
+    # $svg_rewriter->add_js_initializer("org.bbop.Viewer('rgsvg','tform_matrix');");
     $output = $svg_rewriter->rewrite($svg_file);
   }elsif( $format && $format eq 'svg_raw' ){
     $output = $gv->get_svg();

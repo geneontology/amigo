@@ -1492,8 +1492,8 @@ sub mode_exception {
 ### Utility functions for the applications.
 ###
 
-## Just a true|false sanity check on JSON arguments. TODO: May want to
-## move this to WebbApp/Input.pm.
+## Just a true|false sanity check on JSON arguments.
+## TODO: May want to move this to WebApp/Input.pm.
 sub json_parsable_p {
   my $self = shift;
   my $json_str = shift || die 'required json string not found';

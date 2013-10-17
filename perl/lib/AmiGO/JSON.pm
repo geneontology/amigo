@@ -28,10 +28,11 @@ sub new {
   my $self  = $class->SUPER::new();
   my $type  = shift || die "must declare type: $!";
 
-  $self->{JSON_success} = 1;
+  #$self->{JSON_success} = 1;
   $self->{JSON_type} = $type;
   $self->{JSON_errors} = [];
   $self->{JSON_warnings} = [];
+  $self->{JSON_info} = [];
   $self->{JSON_results} = {};
   $self->{JSON_arguments} = {};
 
@@ -70,21 +71,36 @@ sub add_warning {
 }
 
 
-=item failed
+=item add_info
 
-Arg: bool
+Arg: string
 
 =cut
-sub failed {
+sub add_info {
 
   my $self = shift;
-  my $bool = shift;
+  my $info = shift || '';
 
   ##
-  if( defined $bool && $bool == 1 ){
-    $self->{JSON_success} = 0;
-  }
+  push @{$self->{JSON_info}}, $info;
 }
+
+
+# =item failed
+
+# Arg: bool
+
+# =cut
+# sub failed {
+
+#   my $self = shift;
+#   my $bool = shift;
+
+#   ##
+#   if( defined $bool && $bool == 1 ){
+#     $self->{JSON_success} = 0;
+#   }
+# }
 
 
 =item set_results
@@ -131,7 +147,7 @@ sub render {
   ## Assemble.
   my $perl_var =
     {
-     success => $self->{JSON_success},
+     #success => $self->{JSON_success},
      type => $self->{JSON_type},
      errors => $self->{JSON_errors},
      warnings => $self->{JSON_warnings},

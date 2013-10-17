@@ -18,9 +18,6 @@ package AmiGO::Worker::Visualize;
 ## Use a slightly different base...
 use base ("AmiGO::Worker");
 
-use AmiGO::GraphViz;
-use AmiGO::JavaScript;
-use AmiGO::JSON;
 use AmiGO::KVStore::Filesystem::QuickGO;
 use AmiGO::KVStore::QuickGO;
 use AmiGO::External::QuickGO::OntGraphics;
