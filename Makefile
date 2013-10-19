@@ -165,3 +165,12 @@ clean-filesystem:
 rollout:
 	./install -v -e -g
 	./scripts/blank-kvetch.pl
+
+###
+### W3C HTML and CSS validation.
+### WARNING: This is currently hard-wired to the BETA instance.
+###
+
+.PHONY: w3c-validate
+w3c-validate:
+	./scripts/w3c-validate.pl -v --html --css
