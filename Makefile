@@ -171,6 +171,7 @@ rollout:
 ### WARNING: This is currently hard-wired to the BETA instance.
 ###
 
+## CSS is currently valid, so dropping --css flag for now.
 .PHONY: w3c-validate
 w3c-validate:
-	./scripts/w3c-validate.pl -v --html --css
+	./scripts/w3c-validate.pl -v --html

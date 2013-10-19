@@ -97,7 +97,7 @@ sub _validate {
     ## out).
 
     ## Get a temp file ready.
-    my $filehandle = File::Temp->new();
+    my $filehandle = File::Temp->new(SUFFIX=>'.html');
     my $filename = $filehandle->filename();
 
     ## Create a mechanize agent
@@ -111,13 +111,13 @@ sub _validate {
       ll($type . ' error with proxy mech: ' . $mech->status());
     }else{
       ## Okay, now run the validator.
-      ll($type . ' run thru file with proxy mech: ' . $filename);
+      #ll($type . ' run thru file with proxy mech: ' . $filename);
       $mech->save_content($filename,
 			  binmode=>':raw',
 			  decoded_by_headers=>1);
-      open(FILE, $filename) || die 'could not open proxy file';
-      while(<FILE>){ ll($_); }
-      #$success_p = $validator->validate(file=>$filename);
+      # open(FILE, $filename) || die 'could not open proxy file';
+      # while(<FILE>){ ll($_); }
+      $success_p = $validator->validate(file=>$filename);
     }
   }
 
@@ -136,7 +136,7 @@ sub _validate {
     if( $validator->is_valid() ){
       ll($type . ' okay: ' . $target_url);
     }else{
-      #ll('Bad: ' . $target_url);
+      ll($type . ' bad: ' . $target_url);
 
       ## Specific error messages.
       foreach my $err (@{$validator->errors()}){
