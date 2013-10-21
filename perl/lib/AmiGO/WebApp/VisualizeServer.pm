@@ -12,7 +12,7 @@ use CGI::Application::Plugin::TT;
 use Data::Dumper;
 use AmiGO::GraphViz;
 use AmiGO::SVGRewrite;
-use AmiGO::WebApp::Input;
+use AmiGO::Input;
 #use AmiGO::Aid;
 #use AmiGO::Worker::Subset;
 use AmiGO::Worker::Visualize;
@@ -90,7 +90,7 @@ sub mode_quickgo {
   my $output = '';
 
   ##
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('visualize_single');
   my $inline_p = $params->{inline};
   my $term = $params->{term};
@@ -240,7 +240,7 @@ sub mode_advanced {
   my $self = shift;
 
   ##
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('visualize');
   my $inline_p = $params->{inline};
   my $format = $params->{format};
@@ -430,7 +430,7 @@ sub mode_freeform {
   my $self = shift;
 
   ##
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('visualize_freeform');
   my $inline_p = $params->{inline};
   my $format = $params->{format};
@@ -464,7 +464,7 @@ sub mode_complex_annotation {
   my $self = shift;
 
   ##
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('visualize_complex_annotation');
   my $inline_p = $params->{inline};
   my $format = $params->{format};

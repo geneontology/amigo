@@ -375,7 +375,7 @@ sub clean_list {
   $in_str =~ s/[\r\s]+/\n/g;
   @ret_list = split /\s+/, $in_str;
 
-  $self->kvetch("" . scalar(@ret_list));
+  #$self->kvetch("" . scalar(@ret_list));
 
   return \@ret_list;
 }

@@ -10,7 +10,7 @@ use base 'AmiGO::WebApp';
 ## Basics.
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
-use AmiGO::WebApp::Input;
+use AmiGO::Input;
 
 ## Things for data transformation.
 use AmiGO::Worker::Gaffer;
@@ -66,7 +66,7 @@ sub mode_solr_to_id_list {
   my $self = shift;
 
   ## Input handling.
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('gaffer');
   my $data_url = $params->{data_url};
 
@@ -89,7 +89,7 @@ sub mode_solr_to_gaf {
   my $self = shift;
 
   ## Input handling.
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('gaffer');
   my $data_url = $params->{data_url};
 

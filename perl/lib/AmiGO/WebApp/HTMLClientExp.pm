@@ -30,7 +30,7 @@ use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::Redirect;
 
-use AmiGO::WebApp::Input;
+use AmiGO::Input;
 
 ## Real external workers.
 use AmiGO::Worker::GOlr::Term;
@@ -99,7 +99,7 @@ sub mode_ntree {
   my $self = shift;
 
   ## Incoming template.
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('external_resource');
   $self->_common_params_settings($params);
 
@@ -187,7 +187,7 @@ sub mode_ptree {
   my $self = shift;
 
   ## Incoming template.
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('id');
   $self->_common_params_settings($params);
 
@@ -266,7 +266,7 @@ sub mode_ptree {
 #   my $self = shift;
 
 #   ## Incoming template.
-#   my $i = AmiGO::WebApp::Input->new();
+#   my $i = AmiGO::Input->new($self->query());
 #   my $params = $i->input_profile();
 #   $self->_common_params_settings($params);
 
@@ -315,7 +315,7 @@ sub mode_drilldown_browser {
   my $self = shift;
 
   ## Incoming template.
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile();
   $self->_common_params_settings($params);
 
@@ -363,7 +363,7 @@ sub mode_scratch {
   my $self = shift;
 
   ## Incoming template.
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile();
   $self->_common_params_settings($params);
 
@@ -427,7 +427,7 @@ sub mode_visic {
   my $output = '';
 
   ##
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('term_info');
   my $input_term_list =
     $self->{CORE}->clean_term_list($params->{terms}) ||
@@ -692,7 +692,7 @@ sub mode_visic {
 #   my $self = shift;
 #   my $json_resp = AmiGO::JSON->new('workspace');
 
-#   my $i = AmiGO::WebApp::Input->new();
+#   my $i = AmiGO::Input->new($self->query());
 #   my $params = $i->input_profile('workspace');
 
 #   my $retstruct = {};

@@ -10,7 +10,7 @@ use base 'AmiGO::WebApp';
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
 
-use AmiGO::WebApp::Input;
+use AmiGO::Input;
 use AmiGO::Worker::PGraph;
 
 
@@ -19,20 +19,21 @@ sub setup {
 
   my $self = shift;
 
-  $self->{STATELESS} = 0;
 
-  ## Configure how the session stuff is going to be handled when and
-  ## if it is necessary.
-  $self->session_config(
-			CGI_SESSION_OPTIONS =>
-			["driver:File",
-			 $self->query,
-			 {Directory =>
-			  $self->{CORE}->amigo_env('AMIGO_SESSIONS_ROOT_DIR'),
-			 }
-			],
-			COOKIE_PARAMS => {-path  => '/',},
-			SEND_COOKIE => 1);
+  # ## Configure how the session stuff is going to be handled when and
+  # ## if it is necessary.
+  $self->{STATELESS} = 1;
+  # $self->{STATELESS} = 0;
+  # $self->session_config(
+  # 			CGI_SESSION_OPTIONS =>
+  # 			["driver:File",
+  # 			 $self->query,
+  # 			 {Directory =>
+  # 			  $self->{CORE}->amigo_env('AMIGO_SESSIONS_ROOT_DIR'),
+  # 			 }
+  # 			],
+  # 			COOKIE_PARAMS => {-path  => '/',},
+  # 			SEND_COOKIE => 1);
 
   ## Templates.
   $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
@@ -55,7 +56,7 @@ sub mode_exp {
   my $self = shift;
 
   ## Input handling.
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   #my $params = $i->input_profile('???');
   my $params = $i->input_profile();
   ## TODO: input stuff, see GOOSE.pm
@@ -107,7 +108,7 @@ sub mode_exp {
 sub mode_pthr10170 {
 
   my $self = shift;
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile();
   my $prep =
     {

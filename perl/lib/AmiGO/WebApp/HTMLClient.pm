@@ -16,7 +16,7 @@ use Data::Dumper;
 #use AmiGO::JavaS
 
 ##
-use AmiGO::WebApp::Input;
+use AmiGO::Input;
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::Redirect;
@@ -42,18 +42,19 @@ sub setup {
 
   my $self = shift;
 
-  $self->{STATELESS} = 0;
 
-  ## Configure how the session stuff is going to be handled when and
-  ## if it is necessary.
-  $self->session_config(CGI_SESSION_OPTIONS =>
-			["driver:File",
-			 $self->query,
-			 {Directory=>
-			  $self->{CORE}->amigo_env('AMIGO_SESSIONS_ROOT_DIR')}
-			],
-			COOKIE_PARAMS => {-path  => '/'},
-			SEND_COOKIE => 1);
+  # ## Configure how the session stuff is going to be handled when and
+  # ## if it is necessary.
+  $self->{STATELESS} = 1;
+  # $self->{STATELESS} = 0;
+  # $self->session_config(CGI_SESSION_OPTIONS =>
+  # 			["driver:File",
+  # 			 $self->query,
+  # 			 {Directory=>
+  # 			  $self->{CORE}->amigo_env('AMIGO_SESSIONS_ROOT_DIR')}
+  # 			],
+  # 			COOKIE_PARAMS => {-path  => '/'},
+  # 			SEND_COOKIE => 1);
 
   $self->mode_param('mode');
   $self->start_mode('landing');
@@ -87,7 +88,7 @@ sub mode_landing {
 
   my $self = shift;
 
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile();
 
   ## Page settings.
@@ -141,7 +142,7 @@ sub mode_browse {
 
   my $self = shift;
 
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile();
 
   ## Page settings.
@@ -202,7 +203,7 @@ sub mode_simple_search {
 
   my $self = shift;
 
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('simple_search');
 
   ## Tally up if we have insufficient information to do a query.
@@ -415,7 +416,7 @@ sub mode_medial_search {
 
   my $self = shift;
 
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('medial_search');
   ## Deal with the different types of dispatch we might be facing.
   $params->{q} = $self->param('q')
@@ -541,7 +542,7 @@ sub mode_software_list {
 
   my $self = shift;
 
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile();
 
   ## Page settings.
@@ -609,7 +610,7 @@ sub mode_schema_details {
 
   my $self = shift;
 
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile();
 
   ## Page settings.
@@ -668,7 +669,7 @@ sub mode_load_details {
 
   my $self = shift;
 
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile();
 
   ## Load in the GOlr timestamp details.
@@ -759,7 +760,7 @@ sub mode_visualize {
   my $output = '';
 
   ##
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('visualize');
   my $format = $params->{format};
   my $input_term_data_type = $params->{term_data_type};
@@ -860,7 +861,7 @@ sub mode_visualize_freeform {
   my $output = '';
 
   ##
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('visualize_freeform');
   my $format = $params->{format};
   my $input_term_data = $params->{term_data};
@@ -956,7 +957,7 @@ sub mode_search {
   my $self = shift;
 
   ## Pull out the bookmark parameter.
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('live_search');
   ## Deal with the different types of dispatch we might be facing.
   $params->{personality} = $self->param('personality')
@@ -1088,7 +1089,7 @@ sub mode_term_details {
   my $self = shift;
 
   ##
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('term');
   ## Deal with the different types of dispatch we might be facing.
   $params->{term} = $self->param('term')
@@ -1402,7 +1403,7 @@ sub mode_gene_product_details {
   my $self = shift;
 
   ##
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('gp');
   ## Deal with the different types of dispatch we might be facing.
   $params->{gp} = $self->param('gp')
@@ -1544,7 +1545,7 @@ sub mode_complex_annotation_details {
   my $self = shift;
 
   ##
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('complex_annotation');
   ## Deal with the different types of dispatch we might be facing.
   # $params->{annotation_group} = $self->param('annotation_group')
@@ -1665,7 +1666,7 @@ sub mode_phylo_graph {
   my $self = shift;
 
   ##
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('family');
   ## Deal with the different types of dispatch we might be facing.
   $params->{family} = $self->param('family')

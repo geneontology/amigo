@@ -14,7 +14,7 @@ use Data::Dumper;
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
 
-use AmiGO::WebApp::Input;
+use AmiGO::Input;
 
 use AmiGO::External::HTML::Wiki::LEAD;
 use AmiGO::External::LEAD::Status;
@@ -27,18 +27,19 @@ sub setup {
 
   my $self = shift;
 
-  $self->{STATELESS} = 0;
 
-  ## Configure how the session stuff is going to be handled when and
-  ## if it is necessary.
-  $self->session_config(CGI_SESSION_OPTIONS =>
-			["driver:File",
-			 $self->query,
-			 {Directory=>
-			  $self->{CORE}->amigo_env('AMIGO_SESSIONS_ROOT_DIR')}
-			],
-			COOKIE_PARAMS => {-path  => '/'},
-			SEND_COOKIE => 1);
+  # ## Configure how the session stuff is going to be handled when and
+  # ## if it is necessary.
+  $self->{STATELESS} = 1;
+  # $self->{STATELESS} = 0;
+  # $self->session_config(CGI_SESSION_OPTIONS =>
+  # 			["driver:File",
+  # 			 $self->query,
+  # 			 {Directory=>
+  # 			  $self->{CORE}->amigo_env('AMIGO_SESSIONS_ROOT_DIR')}
+  # 			],
+  # 			COOKIE_PARAMS => {-path  => '/'},
+  # 			SEND_COOKIE => 1);
 
   ## Templates.
   $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
@@ -190,7 +191,7 @@ sub mode_goose {
   my $self = shift;
 
   ## Input handling.
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('goose');
   my $in_format = $params->{format};
   my $in_limit = $self->{CORE}->atoi($params->{limit}); # convert to int

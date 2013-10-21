@@ -11,7 +11,7 @@ use Data::Dumper;
 #use AmiGO::JavaS
 
 ##
-use AmiGO::WebApp::Input;
+use AmiGO::Input;
 use CGI::Application::Plugin::TT;
 #use CGI::Application::Plugin::Redirect;
 
@@ -63,7 +63,7 @@ sub mode_term_ic {
   my $self = shift;
 
   ## Grab incoming.
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('term_info');
   my $input_term_list =
     $self->{CORE}->clean_term_list($params->{terms}) ||
@@ -108,7 +108,7 @@ sub mode_term_closure {
   my $self = shift;
 
   ## Grab incoming.
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('term_info');
   my $input_term_list =
     $self->{CORE}->clean_term_list($params->{terms}) ||
@@ -139,7 +139,7 @@ sub mode_term_ic_closure {
   my $self = shift;
 
   ## Grab incoming.
-  my $i = AmiGO::WebApp::Input->new();
+  my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('term_info');
   my $input_term_list =
     $self->{CORE}->clean_term_list($params->{terms}) ||

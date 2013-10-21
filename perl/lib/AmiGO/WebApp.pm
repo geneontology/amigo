@@ -26,7 +26,6 @@ use AmiGO::JavaScript;
 use AmiGO::CSS;
 use DBI;
 use Data::Dumper;
-#use AmiGO::Input.pm
 
 
 ## NOTE: This will run on app init (once even in a mod_perl env).
@@ -41,6 +40,9 @@ sub cgiapp_init {
   $self->{JS} = AmiGO::JavaScript->new();
   $self->{CSS} = AmiGO::CSS->new();
 
+  # ## Say goonight, Gracie.
+  # $self->{CORE}->kvetch('running: '. $self->get_current_runmode() || '???');
+
   ## What the default prefix looks like.
   $self->{SESSION_STRING} = 'cgisess_';
 
@@ -49,28 +51,33 @@ sub cgiapp_init {
 
   ## Pull the different search information that we'll use for the
   ## menus and pages.
-  ## Pulling: AMIGO_LAYOUT_SEARCH
-  my $search_list_to_try =
-    $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_SEARCH');
-  my $golr_conf = $self->{CORE}->golr_configuration();
-  my $search_list = [];
-  foreach my $search_entry (@$search_list_to_try){
-    my $search_entry_id = $search_entry->{'id'};
-    if( defined $golr_conf->{$search_entry_id} ){
-      ## Add in the search link.
-      my $item_conf = $golr_conf->{$search_entry_id};
-      $item_conf->{'amigo_interlink'} =
-	$self->{CORE}->get_interlink({mode=>'live_search',
-				      arg=>{type=>$search_entry_id}});
-      push @$search_list, $item_conf;
-      $self->{CORE}->kvetch('search layout a2i: '.
-			    $item_conf->{amigo_interlink});
-    }else{
-      $self->{CORE}->kvetch('unable to find search layout entry: ' .
-			    $search_entry_id);
+  if( defined $self->{AW_SEARCH_LIST} ){
+    $self->{CORE}->kvetch('already have assembled layouts');
+  }else{
+
+    ## Pulling: AMIGO_LAYOUT_SEARCH
+    my $search_list_to_try =
+      $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_SEARCH');
+    my $golr_conf = $self->{CORE}->golr_configuration();
+    my $search_list = [];
+    foreach my $search_entry (@$search_list_to_try){
+      my $search_entry_id = $search_entry->{'id'};
+      if( defined $golr_conf->{$search_entry_id} ){
+	## Add in the search link.
+	my $item_conf = $golr_conf->{$search_entry_id};
+	$item_conf->{'amigo_interlink'} =
+	  $self->{CORE}->get_interlink({mode=>'live_search',
+					arg=>{type=>$search_entry_id}});
+	push @$search_list, $item_conf;
+	$self->{CORE}->kvetch('search layout a2i: '.
+			      $item_conf->{amigo_interlink});
+      }else{
+	$self->{CORE}->kvetch('unable to find search layout entry: ' .
+			      $search_entry_id);
+      }
     }
+    $self->{AW_SEARCH_LIST} = $search_list;
   }
-  $self->{AW_SEARCH_LIST} = $search_list;
 
   ## TODO: change the default. I wanted to do the below, but it seemed
   ## to prevent the application's ability to recover a previous
@@ -903,78 +910,78 @@ sub add_template_bulk {
 }
 
 
-## 1 (default) is full page, 0 is empty (ultra-lite) page.
-sub generate_template_page {
+# ## 1 (default) is full page, 0 is empty (ultra-lite) page.
+# sub generate_template_page {
 
-  my $self = shift;
-  my $args = shift || {};
+#   my $self = shift;
+#   my $args = shift || {};
 
-  ## Check vs. defaults.
-  ## TODO: pull documentation up.
-  my $lite_p = 0;
-  $lite_p = 1 if defined $args->{lite} && $args->{lite} == 1;
-  my $footer_p = 1;
-  $footer_p = 0 if defined $args->{footer} && $args->{footer} == 0;
-  my $header_p = 1;
-  $header_p = 0 if defined $args->{header} && $args->{header} == 0;
-  # my $search_p = 1;
-  # $search_p = 0 if defined $args->{search} && $args->{search} == 0;
+#   ## Check vs. defaults.
+#   ## TODO: pull documentation up.
+#   my $lite_p = 0;
+#   $lite_p = 1 if defined $args->{lite} && $args->{lite} == 1;
+#   my $footer_p = 1;
+#   $footer_p = 0 if defined $args->{footer} && $args->{footer} == 0;
+#   my $header_p = 1;
+#   $header_p = 0 if defined $args->{header} && $args->{header} == 0;
+#   # my $search_p = 1;
+#   # $search_p = 0 if defined $args->{search} && $args->{search} == 0;
 
-  ## Generate the page output.
-  my @mbuf = ();
+#   ## Generate the page output.
+#   my @mbuf = ();
 
-  ## Do head. First CSS, then JS.
-  push @mbuf, $self->_eval_content('common/head_open.tmpl');
-  push @mbuf, $self->_eval_content('common/head_info_lite.tmpl') if ! $lite_p;
-  foreach my $css (@{$self->{WEBAPP_CSS}}){ push @mbuf, $css; }
-  foreach my $js (@{$self->{WEBAPP_JAVASCRIPT}}){ push @mbuf, $js; }
-  push @mbuf, $self->_eval_content('common/head_close.tmpl');
+#   ## Do head. First CSS, then JS.
+#   push @mbuf, $self->_eval_content('common/head_open.tmpl');
+#   push @mbuf, $self->_eval_content('common/head_info_lite.tmpl') if ! $lite_p;
+#   foreach my $css (@{$self->{WEBAPP_CSS}}){ push @mbuf, $css; }
+#   foreach my $js (@{$self->{WEBAPP_JAVASCRIPT}}){ push @mbuf, $js; }
+#   push @mbuf, $self->_eval_content('common/head_close.tmpl');
 
-  ## Do body.
-  push @mbuf, $self->_eval_content('common/body_open.tmpl');
+#   ## Do body.
+#   push @mbuf, $self->_eval_content('common/body_open.tmpl');
 
-  ## Optional debugging output.
-  if( $self->{CORE}->verbose_p() ){
-    push @mbuf, '<!-- DEBUG -->';
-    foreach my $key (keys %{$self->{WEBAPP_TEMPLATE_PARAMS}}){
-      my $val = $self->{WEBAPP_TEMPLATE_PARAMS}{$key} || '<undefined>';
-      push @mbuf, "<!-- $key : $val -->";
-    }
-  }
+#   ## Optional debugging output.
+#   if( $self->{CORE}->verbose_p() ){
+#     push @mbuf, '<!-- DEBUG -->';
+#     foreach my $key (keys %{$self->{WEBAPP_TEMPLATE_PARAMS}}){
+#       my $val = $self->{WEBAPP_TEMPLATE_PARAMS}{$key} || '<undefined>';
+#       push @mbuf, "<!-- $key : $val -->";
+#     }
+#   }
 
-  ## The usual everywhere header.
-  push @mbuf, $self->_eval_content('common/header.tmpl')
-    if ! $lite_p && $header_p;
+#   ## The usual everywhere header.
+#   push @mbuf, $self->_eval_content('common/header.tmpl')
+#     if ! $lite_p && $header_p;
 
-  ## Pre-main content output.
-  push @mbuf, $self->_eval_content('common/content_open.tmpl');
+#   ## Pre-main content output.
+#   push @mbuf, $self->_eval_content('common/content_open.tmpl');
 
-  ## TODO: It looks like RoR-stlye messages and the like should go
-  ## here.
-  ## First error (X), then warning (!), then notice (<check>).
-  #foreach my $queue (("error", "warning", "notice")){
-  foreach my $queue (("notice", "warning", "error")){
-    my $messages = $self->get_mq($queue);
-    foreach my $message (@$messages){
-      $self->{CORE}->kvetch('in queue output try: '. $queue . ": " . $message);
-      $self->{WEBAPP_TEMPLATE_PARAMS}{'mq_last_message_type'} = $queue;
-      $self->{WEBAPP_TEMPLATE_PARAMS}{'mq_last_message'} = $message;
-      push @mbuf, $self->_eval_content('common/mq_message.tmpl')
-    }
-  }
+#   ## TODO: It looks like RoR-stlye messages and the like should go
+#   ## here.
+#   ## First error (X), then warning (!), then notice (<check>).
+#   #foreach my $queue (("error", "warning", "notice")){
+#   foreach my $queue (("notice", "warning", "error")){
+#     my $messages = $self->get_mq($queue);
+#     foreach my $message (@$messages){
+#       $self->{CORE}->kvetch('in queue output try: '. $queue . ": " . $message);
+#       $self->{WEBAPP_TEMPLATE_PARAMS}{'mq_last_message_type'} = $queue;
+#       $self->{WEBAPP_TEMPLATE_PARAMS}{'mq_last_message'} = $message;
+#       push @mbuf, $self->_eval_content('common/mq_message.tmpl')
+#     }
+#   }
 
-  ## Main content output.
-  foreach my $content (@{$self->{WEBAPP_CONTENT}}){ push @mbuf, $content; }
-  push @mbuf, $self->_eval_content('common/content_close.tmpl');
-  push @mbuf, $self->_eval_content('common/footer.tmpl')
-    if ! $lite_p && $footer_p;
-  push @mbuf, $self->_eval_content('common/close.tmpl');
+#   ## Main content output.
+#   foreach my $content (@{$self->{WEBAPP_CONTENT}}){ push @mbuf, $content; }
+#   push @mbuf, $self->_eval_content('common/content_close.tmpl');
+#   push @mbuf, $self->_eval_content('common/footer.tmpl')
+#     if ! $lite_p && $footer_p;
+#   push @mbuf, $self->_eval_content('common/close.tmpl');
 
-  ## Merge and return.
-  my $output = '';
-  $output = join "\n", @mbuf;
-  return $output;
-}
+#   ## Merge and return.
+#   my $output = '';
+#   $output = join "\n", @mbuf;
+#   return $output;
+# }
 
 =item template_set
 
