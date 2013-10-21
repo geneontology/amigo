@@ -1,10 +1,10 @@
 <!-- Begin: simple_search_form.tmpl -->
 <!-- simple_search_form_info: [% simple_search_form_info %] -->
 
-<form roll="form"
-   action="[% interlink_simple_search %]"
-   id="query-form"
-   method="GET">
+<!-- roll="form" -->
+<form action="[% interlink_simple_search %]"
+      id="simple-query-form"
+      method="GET">
 
   <input type="hidden"
 	 name="mode"
@@ -30,8 +30,8 @@
     <label>
       <input type="radio"
 	     name="golr_class"
-	     [% IF golr_class == ssfi.id %]checked="yes"[% END %]
-	     [% IF ! golr_class OR golr_class == '' %][% IF ssfi_iter == 0 %]checked="yes"[% END %][% END %]
+	     [% IF golr_class == ssfi.id %]checked="checked"[% END %]
+	     [% IF ! golr_class OR golr_class == '' %][% IF ssfi_iter == 0 %]checked="checked"[% END %][% END %]
 	     value="[% ssfi.id %]">
       [% ssfi.display_name %]
     </label>

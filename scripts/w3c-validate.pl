@@ -176,10 +176,36 @@ if( $html ){
   my $html_vurl = 'http://validator.w3.org/check';
   my $html_urls =
     [
-     #'http://amigo2.berkeleybop.org/cgi-bin/amigo2/amigo/landing',
-     $ENV{AMIGO_CGI_URL} . '/amigo/landing',
-     #'http://amigo2.berkeleybop.org/cgi-bin/amigo2/amigo/term/GO:0022008',
-     #'http://amigo2.berkeleybop.org/cgi-bin/amigo2/amigo/gene_product/RGD:619756',
+     ## 'http://amigo2.berkeleybop.org/cgi-bin/amigo2/amigo/landing',
+     #$ENV{AMIGO_CGI_URL} . '/amigo/landing',
+     ## 'http://amigo2.berkeleybop.org/cgi-bin/amigo2/amigo/term/GO:0022008',
+     #$ENV{AMIGO_CGI_URL} . '/amigo/term/GO:0022008',
+     ## 'http://amigo2.berkeleybop.org/cgi-bin/amigo2/amigo/gene_product/MGI:MGI:1915747',
+     #$ENV{AMIGO_CGI_URL} . '/amigo/gene_product/MGI:MGI:1915747',
+     ## 'http://amigo2.berkeleybop.org/cgi-bin/amigo2/amigo/search/annotation',
+     #$ENV{AMIGO_CGI_URL} . '/amigo/search/annotation',
+     ## 'http://amigo2.berkeleybop.org/cgi-bin/amigo2/amigo/software_list',
+     #$ENV{AMIGO_CGI_URL} . '/amigo/software_list',
+     ## 'http://amigo2.berkeleybop.org/cgi-bin/amigo2/grebe',
+     #$ENV{AMIGO_CGI_URL} . '/grebe',
+     ## 'http://amigo2.berkeleybop.org/cgi-bin/amigo2/amigo/visualize',
+     #$ENV{AMIGO_CGI_URL} . '/amigo/visualize',
+     ## 'http://amigo2.berkeleybop.org/cgi-bin/amigo2/amigo/medial_search?q=pigment',
+     #$ENV{AMIGO_CGI_URL} . '/amigo/medial_search?q=pigment',
+     ## 'http://amigo2.berkeleybop.org/cgi-bin/amigo2/goose',
+     #$ENV{AMIGO_CGI_URL} . '/goose',
+     ## 'http://amigo2.berkeleybop.org/cgi-bin/amigo2/goose?query=SELECT+count%28*%29%0D%0AFROM+++gene_product%3B%0D%0A&mirror=ebi&limit=1000',
+     #$ENV{AMIGO_CGI_URL} . '/goose?query=SELECT+count%28*%29%0D%0AFROM+++gene_product%3B%0D%0A&mirror=ebi&limit=1000',
+     ## 'http://amigo2.berkeleybop.org/cgi-bin/amigo2/amigo/schema_details',
+     #$ENV{AMIGO_CGI_URL} . '/amigo/schema_details',
+     ## 'http://amigo2.berkeleybop.org/cgi-bin/amigo2/amigo/load_details',
+     #$ENV{AMIGO_CGI_URL} . '/amigo/load_details',
+     ## 'http://amigo2.berkeleybop.org/cgi-bin/amigo2/amigo/simple_search',
+     #$ENV{AMIGO_CGI_URL} . '/amigo/simple_search',
+     ## 'http://amigo2.berkeleybop.org/cgi-bin/amigo/simple_search?mode=simple_search&page=1&query=pigment&golr_class=ontology',
+     #$ENV{AMIGO_CGI_URL} . '/amigo/simple_search?mode=simple_search&page=1&query=pigment&golr_class=ontology',
+     ## TODO Lab.
+     ## TODO Garage.
     ];
 
   my $html_validator =

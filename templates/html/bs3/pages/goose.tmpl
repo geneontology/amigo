@@ -32,18 +32,17 @@
 <div class="panel panel-default">
   <div class="panel-body">
     
-    <form roll="form"
-	  action="[% interlink_goose %]"
+    <!-- roll="form" -->
+    <form action="[% interlink_goose %]"
 	  method="GET"
-	  name="goose_form"
-	  id="goose_form">
-      
+	  name="goose_form_query"
+	  id="goose_form_query">
       [% IF galaxy_url %]
       <input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
       [% END %]
 
       <div class="form-group">
-	<label for="term_data">Directly query GO data using SQL</label>
+	<label for="query">Directly query GO data using SQL</label>
 	<textarea id="query"
 		  class="form-control" 
 		  name="query"
@@ -60,7 +59,7 @@
 	[% FOREACH ex = lead_examples_list %]
 	[%   value = ex.sql %]
 	[%   title = ex.title %]
-	<option title="[% value %]" 
+	<option title="[% title %]" 
 		value="[% value %]">[% title %]</option>
 	[% END %]
       </select>
@@ -120,8 +119,8 @@
       </select>
 
       <div class="checkbox">
-	<label for="png">
-	  <input class="cbox" type="checkbox" name="format" value="text">
+	<label for="format_arg">
+	  <input class="cbox" id="format_arg" type="checkbox" name="format" value="text">
 	  Download results directly in a text format
 	</label>
       </div>
@@ -155,7 +154,7 @@
     </div>
   </div>
   <div class="panel-body">
-    <p id="results_generated">
+    <div id="results_generated">
 
       Your query generated      
       [% IF limit AND results_count > limit  %]
@@ -179,11 +178,11 @@
       the first [% terms_count %] terms found in this query.
       [% END %]
       
-      <form roll="form"
-	    action="goose"
+      <!-- roll="form" -->
+      <form action="[% interlink_goose %]"
 	    method="GET"
-	    name="goose_form"
-	    id="goose_form">
+	    name="goose_form_download"
+	    id="goose_form_download">
 	[% IF galaxy_url %]
 	<input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
 	[% END %]
@@ -194,9 +193,9 @@
 	<button type="submit" class="btn">Download in a text format</button>
       </form>
 
-    </p>
+    </div>
 
-    <table class="table table-striped table-hover" summary="Query results">
+    <table class="table table-striped table-hover">
       <thead>
 	<tr>
 	  [% FOREACH header = results_headers %]
@@ -212,7 +211,8 @@
 	[% FOREACH row = results %]
 	<tr class="">
 	  [%  FOREACH col = row %]
-	  <td rowspan="">
+	  <!-- rowspan="" -->
+	  <td>
 	    [%   col %]
 	  </td>
 	  [%  END %]
