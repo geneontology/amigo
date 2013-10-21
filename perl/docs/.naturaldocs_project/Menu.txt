@@ -50,6 +50,7 @@ Group: AmiGO  {
 
    File: Aid.pm  (AmiGO/Aid.pm)
    File: Aid/ReferenceGenome.pm  (AmiGO/Aid/ReferenceGenome.pm)
+   File: AmiGO::Input  (AmiGO/Input.pm)
    File: AmiGO::WebApp  (AmiGO/WebApp.pm)
    File: ChewableGraph.pm  (AmiGO/ChewableGraph.pm)
    File: CSS.pm  (AmiGO/CSS.pm)
@@ -124,7 +125,6 @@ Group: AmiGO  {
       File: Grebe.pm  (AmiGO/WebApp/Grebe.pm)
       File: HTMLClient  (AmiGO/WebApp/HTMLClient.pm)
       File: HTMLClientExp  (AmiGO/WebApp/HTMLClientExp.pm)
-      File: Input  (AmiGO/WebApp/Input.pm)
       File: Matrix.pm  (AmiGO/WebApp/Matrix.pm)
       File: PGraph  (AmiGO/WebApp/PGraph.pm)
       File: REPL.pm  (AmiGO/WebApp/REPL.pm)
