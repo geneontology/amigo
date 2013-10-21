@@ -18,11 +18,12 @@ for more control.
 <div class="panel panel-default">
   <div class="panel-body">
     
-    <form roll="form" action="[% interlink_visualize %]"
+    <!-- roll="form" -->
+    <form action="[% interlink_visualize %]"
 	  id="term_input_form" method="GET">
       
       <div class="form-group">
-	<label for="term_data">GO IDs or advanced format</label>
+	<label for="terms">GO IDs or advanced format</label>
 	<textarea rows="7"
 		  class="form-control" 
 		  placeholder="GO:1234567"
@@ -31,7 +32,7 @@ for more control.
       </div>
 
       <div class="checkbox">
-	<label for="png">Use
+	<label for="term_data_type">Use
 	  <a title="AmiGO Visualize documentation"
 	     href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Visualize">advanced format</a>
 	  <input type="checkbox"
@@ -42,7 +43,7 @@ for more control.
       </div>
 
       <h4>Output type:</h4>
-      <div name="format" class="radio">
+      <div class="radio">
 	<label for="png">
 	  <input type="radio"
 		 class="radio-inline"

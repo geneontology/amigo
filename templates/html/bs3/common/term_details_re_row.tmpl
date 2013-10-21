@@ -14,9 +14,11 @@
     <span class="nowrap">
       [% IF subject_chunk.inferred_p %]
       <img src="[% image_dir _ "/" _ subject_chunk.rel _ ".gif" %]"
+	   alt="[Inferred [% subject_chunk.rel %] relation]"
 	   title="Inferred [% subject_chunk.rel %] relation" />&nbsp;[% subject_chunk.rel %]&nbsp;(inferred)
       [% ELSE %]
       <img src="[% image_dir _ "/" _ subject_chunk.rel _ ".gif" %]"
+	   alt="[[% subject_chunk.rel %] relation]"
 	   title="[% subject_chunk.rel %] relation" />&nbsp;[% subject_chunk.rel %]&nbsp;
       [% END %]
     </span>
@@ -32,9 +34,11 @@
     <span class="nowrap">
       [% IF object_chunk.inferred_p %]
       <img src="[% image_dir _ "/" _ object_chunk.rel _ ".gif" %]"
+	   alt="[Inferred [% object_chunk.rel %] relation]"
 	   title="Inferred [% object_chunk.rel %] relation" />&nbsp;[% object_chunk.rel %]&nbsp;(inferred)
       [% ELSE %]
       <img src="[% image_dir _ "/" _ object_chunk.rel _ ".gif" %]"
+	   alt="[[% object_chunk.rel %] relation]"
 	   title="[% object_chunk.rel %] relation" />&nbsp;[% object_chunk.rel %]&nbsp;
       [% END %]
     </span>
