@@ -178,6 +178,7 @@ if( $html ){
     [
      #'/amigo/landing',
      #'/amigo/term/GO:0022008',
+     #'/amigo/term/CL:0001039',
      #'/amigo/gene_product/MGI:MGI:1915747',
      #'/amigo/search/annotation',
      #'/amigo/software_list',
