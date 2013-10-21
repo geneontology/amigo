@@ -1091,9 +1091,9 @@ sub generate_template_page_with {
   }
 
   ## Close up.
-  push @mbuf, $self->_eval_content('common/content_close.tmpl');
   push @mbuf, $self->_eval_content('common/footer.tmpl')
     if $footer_p;
+  push @mbuf, $self->_eval_content('common/content_close.tmpl');
   #push @mbuf, $self->_eval_content('common/content_close.tmpl');
 
   ## Merge and return.
