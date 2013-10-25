@@ -36,8 +36,8 @@ sub new {
 
   ##
   my $class = shift;
-  my $self  = $class->SUPER::new();
-  my $self->{A_QINPUT} = shift || undef;
+  my $self = $class->SUPER::new();
+  $self->{A_QINPUT} = shift || undef;
   #my $arg = shift || {};
 
   ## TODO: Junk below?
