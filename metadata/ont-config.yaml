@@ -119,47 +119,51 @@ fields:
       - "BFO:0000050"
     searchable: true
   - id: regulates_closure
-    description: "Closure of ids/accs over regulates."
+    description: "Closure of ids/accs over regulates and occurs in."
     display_name: Ancestor
     type: string
     cardinality: multi
     property:
       - "getRelationIDClosure"
       - "BFO:0000050"
+      - "BFO:0000066"
       - "RO:0002211"
       - "RO:0002212"
       - "RO:0002213"
   - id: regulates_closure_label
-    description: "Closure of labels over regulates."
+    description: "Closure of labels over regulates and occurs in."
     display_name: Ancestor
     type: string
     cardinality: multi
     property:
       - "getRelationLabelClosure"
       - "BFO:0000050"
+      - "BFO:0000066"
       - "RO:0002211"
       - "RO:0002212"
       - "RO:0002213"
     searchable: true
   - id: regulates_closure
-    description: "Closure of ids/accs over regulates."
+    description: "Closure of ids/accs over regulates and occurs in."
     display_name: Ancestor
     type: string
     cardinality: multi
     property:
       - "getRelationIDClosure"
       - "BFO:0000050"
+      - "BFO:0000066"
       - "RO:0002211"
       - "RO:0002212"
       - "RO:0002213"
   - id: regulates_closure_label
-    description: "Closure of labels over regulates."
+    description: "Closure of labels over regulates and occurs in."
     display_name: Ancestor
     type: string
     cardinality: multi
     property:
       - "getRelationLabelClosure"
       - "BFO:0000050"
+      - "BFO:0000066"
       - "RO:0002211"
       - "RO:0002212"
       - "RO:0002213"
@@ -168,13 +172,25 @@ fields:
     description: JSON blob form of the local stepwise topology graph.
     display_name: Topology graph (JSON)
     type: string
-    property: [getSegmentShuntGraphJSON]
+    property:
+      - "getSegmentShuntGraphJSON"
+      - "BFO:0000050"
+      - "BFO:0000066"
+      - "RO:0002211"
+      - "RO:0002212"
+      - "RO:0002213"
     indexed: false
   - id: regulates_transitivity_graph_json
     description: JSON blob form of the local relation transitivity graph.
     display_name: Regulates transitivity graph (JSON)
     type: string
-    property: [getLineageShuntGraphJSON]
+    property:
+      - "getLineageShuntGraphJSON"
+      - "BFO:0000050"
+      - "BFO:0000066"
+      - "RO:0002211"
+      - "RO:0002212"
+      - "RO:0002213"
     indexed: false
   - id: only_in_taxon
     description: "Only in taxon."
