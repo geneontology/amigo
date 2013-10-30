@@ -37,6 +37,11 @@ my $super_data =
     readable => 'has part',
     color => 'cornflowerblue',
    },
+   'BFO_0000066' =>
+   {
+    readable => 'occurs in',
+    color => 'aquamarine4',
+   },
    'RO_0002202' =>
    {
     readable => 'develops from',
@@ -119,6 +124,9 @@ my $super_alias =
    'part_of' => 'BFO_0000050',
    'http://purl.obolibrary.org/obo/BFO_0000051' => 'BFO_0000051',
    'has_part' => 'BFO_0000051',
+   'http://purl.obolibrary.org/obo/BFO_0000066' => 'BFO_0000066',
+   'occurs_in' => 'BFO_0000066',
+   'occurs in' => 'BFO_0000066',
    ## RO.
    'http://purl.obolibrary.org/obo/RO_0002211' => 'RO_0002211',
    'http://purl.obolibrary.org/obo/RO_0002212' => 'RO_0002212',

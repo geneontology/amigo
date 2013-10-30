@@ -153,6 +153,9 @@ sub get_child_info_for {
     my $rel_acc = $child_rel->{pred};
     my $sub_acc = $child_rel->{sub};
 
+    ## Spaces to underscore.
+    $rel_acc =~ s/ /_/;
+
     ## A little wiggle to get the label.
     my $sub_label = $cgraph->node_label($sub_acc);
     $the_single_representative_child->{$sub_acc} =
@@ -255,6 +258,9 @@ sub get_ancestor_info {
 
       ## Looks like it's not a member of this "reduced" graph.
       if( ! defined $rel ){ $rel = 'fatal'; }
+
+      ## Spaces to underscore.
+      $rel =~ s/ /_/;
 
       #$self->kvetch("_rel: " . $rel);
       push @{$nodes_by_depth->{$depth}},
