@@ -186,8 +186,8 @@
     <!--An easily searchable (TextField tokenized) version of enabled_by_label.-->
     <field name="enabled_by_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="enabled_by_label" dest="enabled_by_label_searchable"></copyField>
-    <!-- ontology: Closure of ids/accs over regulates. -->
-    <!-- ontology: Closure of ids/accs over regulates. -->
+    <!-- ontology: Closure of ids/accs over regulates and occurs in. -->
+    <!-- ontology: Closure of ids/accs over regulates and occurs in. -->
     <!-- bioentity: Closure of ids/accs over regulates. -->
     <!-- annotation: Closure of ids/accs over regulates. -->
     <field name="regulates_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
@@ -276,8 +276,8 @@
     <!--An easily searchable (TextField tokenized) version of function_class_label.-->
     <field name="function_class_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="function_class_label" dest="function_class_label_searchable"></copyField>
-    <!-- ontology: Closure of labels over regulates. -->
-    <!-- ontology: Closure of labels over regulates. -->
+    <!-- ontology: Closure of labels over regulates and occurs in. -->
+    <!-- ontology: Closure of labels over regulates and occurs in. -->
     <!-- bioentity: Closure of labels over regulates. -->
     <!-- annotation: Closure of labels over regulates. -->
     <field name="regulates_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
