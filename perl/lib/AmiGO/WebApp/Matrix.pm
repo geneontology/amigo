@@ -32,10 +32,6 @@ sub setup {
   # 			COOKIE_PARAMS => {-path  => '/'},
   # 			SEND_COOKIE => 1);
 
-  ## Templates.
-  $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
-			 '/templates/html');
-
   $self->mode_param('mode');
   $self->start_mode('matrix');
   $self->error_mode('mode_fatal');
@@ -54,46 +50,49 @@ sub mode_matrix {
   ## Incoming template.
   my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile();
-  $self->_common_params_settings($params);
 
   ## Page settings.
-  $self->set_template_parameter('page_title',
-				'Matrix');
-  $self->set_template_parameter('content_title',
-				'Matrix');
+  $self->set_template_parameter('page_title', 'Matrix');
+  $self->set_template_parameter('content_title', 'Matrix');
   ##
   my $prep =
     {
      css_library =>
      [
-      'standard', # basic GO-styles
+      #'standard',
+      'com.bootstrap',
       'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
      ],
      javascript_library =>
      [
       'org.d3',
       'com.jquery',
+      'com.bootstrap',
       'com.jquery-ui',
-      'com.jquery.jstree',
+      #'com.jquery.jstree',
       'bbop',
-      'amigo',
+      'amigo'
      ],
      javascript =>
      [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('Matrix.js')
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();',
+      'MatrixInit()',
+     ],
+     content =>
+     [
+      'pages/matrix.tmpl'
      ]
     };
   $self->add_template_bulk($prep);
 
-  ## Initialize javascript app.
-  my $jsinit ='MatrixInit();';
-  $self->add_template_javascript($self->{JS}->initializer_jquery($jsinit));
-
-  $self->add_template_content('pages/matrix.tmpl');
-  #$output = $self->generate_template_page({header=>0});
-  $output = $self->generate_template_page();
-
-  return $output;
+  return $self->generate_template_page_with();
 }
 
 
