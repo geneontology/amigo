@@ -7,11 +7,8 @@
  * results. To be used for GAF column 16 stuff.
  */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'json');
-bbop.core.require('amigo', 'linker');
-bbop.core.namespace('amigo', 'handlers', 'owl_class_expression');
+if ( typeof amigo == "undefined" ){ var amigo = {}; }
+if ( typeof amigo.handlers == "undefined" ){ amigo.handlers = {}; }
 
 /*
  * Function: owl_class_expression

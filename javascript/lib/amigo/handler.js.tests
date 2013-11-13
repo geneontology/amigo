@@ -1,15 +1,11 @@
 ////
 //// Some unit testing for handler.js (even though its data is generated).
 ////
-//// Usage:
-////    Command line: "rhino -f handler.js.tests"
-////    Interactive: "rhino -f handler.js.tests -f -"
-////
 
-// Load testing and correct environment.
-load('../../../_data/bbop.js');
+// Correct environment, ready testing.
+var bbop = require('bbop').bbop;
+var amigo = require('amigo').amigo;
 var mr_t = new bbop.test();
-load('handler.js');
 
 ///
 /// Start unit testing.
@@ -18,11 +14,11 @@ load('handler.js');
 // Try it with the real stuff.
 (function(){
 
-     load('data/server.js');
-     load('data/xrefs.js');
-     load('linker.js');
-     load('data/dispatch.js');
-     load('handlers/owl_class_expression.js');
+     // load('data/server.js');
+     // load('data/xrefs.js');
+     // load('linker.js');
+     // load('data/dispatch.js');
+     // load('handlers/owl_class_expression.js');
 
      var h = new amigo.handler();
 
@@ -42,10 +38,10 @@ load('handler.js');
 
 // Try it trivially with play data.
 //
-var amigo;
+//var amigo;
 (function(){
 
-     load('handlers/echo.js');
+     // load('handlers/echo.js');
 
      // Override the real data that might be in this environment.
      // Like:

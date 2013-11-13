@@ -1,17 +1,11 @@
 ////
 //// Some unit testing for linker.js (even though its data is generated).
 ////
-//// Usage:
-////    Command line: "rhino -f linker.js.tests"
-////    Interactive: "rhino -f linker.js.tests -f -"
-////
 
-// Load testing and correct environment.
-load('../../../_data/bbop.js');
-load('data/server.js');
-load('data/xrefs.js');
+// Correct environment, ready testing.
+var bbop = require('bbop').bbop;
+var amigo = require('amigo').amigo;
 var mr_t = new bbop.test();
-load('linker.js');
 
 ///
 /// Start unit testing.

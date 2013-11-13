@@ -1,16 +1,11 @@
 ////
 //// Some unit testing for version.js (even though it is generated).
 ////
-//// Usage:
-////    Command line: "js -f version.js.tests"
-////    Interactive: "js -f version.js.tests -f -"
-////
 
-
-// Load testing and correct environment.
-load('../../../_data/bbop.js');
+// Correct environment, ready testing.
+var bbop = require('bbop').bbop;
+var amigo = require('amigo').amigo;
 var mr_t = new bbop.test();
-load('version.js');
 
 ///
 /// Start unit testing.

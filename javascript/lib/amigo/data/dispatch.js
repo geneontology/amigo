@@ -19,8 +19,8 @@
  */
 
 // All of the server/instance-specific meta-data.
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('amigo', 'data', 'dispatch');
+if ( typeof amigo == "undefined" ){ var amigo = {}; }
+if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
 
 /*
  * Variable: dispatch

@@ -1,16 +1,15 @@
 ////
 //// Some unit testing for linker.js (even though its data is generated).
+//// Not a normal test since it uses the internet.
 ////
 //// Usage:
-////    Command line: "rhino -f xrefs.js.tests"
-////    Interactive: "rhino -f xrefs.js.tests -f -"
+////  rhino  -modules _data/bbop.js -modules javascript/staging/amigo.js -opt -1 -f javascript/lib/amigo/data/xrefs.js.hidden_tests
 ////
 
-// Load testing and correct environment.
-load('../../../../_data/bbop.js');
+// Correct environment, ready testing.
+var bbop = require('bbop').bbop;
+var amigo = require('amigo').amigo;
 var mr_t = new bbop.test();
-load('server.js');
-load('xrefs.js');
 
 ///
 /// Start unit testing.

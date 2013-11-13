@@ -1,23 +1,11 @@
 ////
 //// Some unit testing for owl_class_expression.js
 ////
-//// Usage:
-////    Command line: "rhino -f owl_class_expression.js.tests"
-////    Interactive: "rhino -f owl_class_expression.js.tests -f -"
-////
 
-// Correct environment.
-load('../../../../_data/bbop.js');
-load('../data/server.js');
-load('../data/xrefs.js');
-load('../data/dispatch.js');
-load('../linker.js');
-load('../handler.js');
-load('owl_class_expression.js');
-
-// Load testing.
+// Correct environment, ready testing.
+var bbop = require('bbop').bbop;
+var amigo = require('amigo').amigo;
 var mr_t = new bbop.test();
-
 
 ///
 /// Start unit testing.

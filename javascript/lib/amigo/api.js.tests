@@ -1,18 +1,11 @@
 ////
 //// Some unit testing for api.js
 ////
-//// Usage:
-////    Command line: "js -f api.js.tests"
-////    Interactive: "js -f api.js.tests -f -"
-////
 
-
-// Load testing.
-load('../../../_data/bbop.js');
+// Correct environment, ready testing.
+var bbop = require('bbop').bbop;
+var amigo = require('amigo').amigo;
 var mr_t = new bbop.test();
-
-// Correct environment.
-load('api.js');
 
 ///
 /// Start unit testing.

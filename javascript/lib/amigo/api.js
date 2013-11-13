@@ -17,8 +17,7 @@
  */
 
 // Module and namespace checking.
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('amigo', 'api');
+if( typeof amigo == "undefined" ){ var amigo = {}; }
 
 /*
  * Constructor: api

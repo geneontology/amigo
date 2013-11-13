@@ -15,8 +15,8 @@
  */
 
 // Module and namespace checking.
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('amigo', 'data', 'server');
+if ( typeof amigo == "undefined" ){ var amigo = {}; }
+if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
 
 /*
  * Constructor: server

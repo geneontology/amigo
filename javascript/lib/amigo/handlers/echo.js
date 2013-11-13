@@ -7,10 +7,8 @@
  * teaching and testing.
  */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-//bbop.core.require('amigo', 'linker');
-bbop.core.namespace('amigo', 'handlers', 'echo');
+if ( typeof amigo == "undefined" ){ var amigo = {}; }
+if ( typeof amigo.handlers == "undefined" ){ amigo.handlers = {}; }
 
 /*
  * Function: echo

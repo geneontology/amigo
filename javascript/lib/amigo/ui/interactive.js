@@ -1,6 +1,6 @@
 ////////////
 ////
-//// bbop.amigo.ui.interactive
+//// amigo.ui.interactive
 ////
 //// Purpose: Provide standard HTML UI production functions. Also adds
 //// a few GUI elements that can be used as the app needs.
@@ -17,16 +17,12 @@
 
 
 // Module and namespace checking.
-// TODO: Will we need a ui class up there?
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'amigo');
-bbop.core.require('bbop', 'amigo', 'go_meta');
-bbop.core.namespace('bbop', 'amigo', 'ui', 'interactive');
-
+if ( typeof amigo == "undefined" ){ var amigo = {}; }
+if ( typeof amigo.ui == "undefined" ){ amigo.ui = {}; }
+if ( typeof amigo.ui.interactive == "undefined" ){ amigo.ui.interactive = {}; }
 
 //
-bbop.amigo.ui.interactive.multi_model = function(in_data){
+amigo.ui.interactive.multi_model = function(in_data){
 
     var anchor = this; // top-level this
 
@@ -180,8 +176,8 @@ bbop.amigo.ui.interactive.multi_model = function(in_data){
 
     
 //
-bbop.amigo.ui.interactive.multi_widget = function(in_id, in_name,
-						  in_size, in_label){
+amigo.ui.interactive.multi_widget = function(in_id, in_name,
+					     in_size, in_label){
 
     var anchor = this; // top-level this
 

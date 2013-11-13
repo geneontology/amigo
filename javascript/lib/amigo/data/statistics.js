@@ -15,8 +15,9 @@
  */
 
 // Module and namespace checking.
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('amigo', 'data', 'statistics');
+if ( typeof amigo == "undefined" ){ var amigo = {}; }
+if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
+if ( typeof amigo.data.statistics == "undefined" ){ amigo.data.statistics = {}; }
 
 /*
  * Variable: annotation_evidence

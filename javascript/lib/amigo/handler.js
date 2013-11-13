@@ -7,9 +7,8 @@
  * the BBOP JS documentation), fed by <amigo.data.dispatch>.
  */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('amigo', 'handler');
+// Module and namespace checking.
+if( typeof amigo == "undefined" ){ var amigo = {}; }
 
 /*
  * Constructor: handler

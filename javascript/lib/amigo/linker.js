@@ -10,11 +10,8 @@
  * package. However, the future should be here.
  */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-//bbop.core.require('amigo', 'data', 'server');
-//bbop.core.require('amigo', 'data', 'xrefs');
-bbop.core.namespace('amigo', 'linker');
+// Module and namespace checking.
+if( typeof amigo == "undefined" ){ var amigo = {}; }
 
 /*
  * Constructor: linker

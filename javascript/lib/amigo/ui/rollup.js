@@ -30,8 +30,9 @@
  * Again, this is a method, not an object constructor.
  */
 
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('amigo', 'ui', 'rollup');
+// Module and namespace checking.
+if ( typeof amigo == "undefined" ){ var amigo = {}; }
+if ( typeof amigo.ui == "undefined" ){ amigo.ui = {}; }
 
 /*
  * Method: rollup

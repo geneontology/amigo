@@ -1,6 +1,6 @@
 ////////////
 ////
-//// bbop.amigo.ui.widgets
+//// amigo.ui.widgets
 ////
 //// Purpose: Provide standard HTML UI production functions. Also adds
 //// a few GUI elements that can be used as the app needs.
@@ -9,25 +9,18 @@
 //// into the document (hidden until used).
 ////
 //// DEPENDS: bbop.core
-//// DEPENDS: bbop.amigo
-//// DEPENDS: bbop.amigo.go_meta
+//// DEPENDS: amigo
+//// DEPENDS: amigo.go_meta
 //// DEPENDS: com.jquery (1.3.2)
 ////
 //////////
 
-
 // Module and namespace checking.
-// TODO: Will we need a ui class up there?
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'amigo');
-bbop.core.require('bbop', 'amigo', 'go_meta');
-bbop.core.namespace('bbop', 'amigo', 'ui');
-
+if ( typeof amigo == "undefined" ){ var amigo = {}; }
+if ( typeof amigo.ui == "undefined" ){ amigo.ui = {}; }
 
 //
-//bbop.amigo.ui.widgets = function(wid){  
-bbop.amigo.ui.widgets = function(){  
+amigo.ui.widgets = function(){  
 
     // Bring in utilities.
     var amigo = new bbop.amigo();

@@ -1,17 +1,11 @@
 ////
 //// Some unit testing for statistics.js (even though it is generated).
 ////
-//// Usage:
-////    Command line: "js -f statistics.js.tests"
-////    Interactive: "js -f statistics.js.tests -f -"
-////
 
-
-// Load testing and correct environment.
-load('../../../../_data/bbop.js');
-load('../../../staging/amigo.js');
+// Correct environment, ready testing.
+var bbop = require('bbop').bbop;
+var amigo = require('amigo').amigo;
 var mr_t = new bbop.test();
-load('statistics.js');
 
 ///
 /// Start unit testing.
