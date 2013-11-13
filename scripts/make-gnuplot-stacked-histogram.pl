@@ -13,6 +13,7 @@ use Getopt::Long;
 
 my $verbose = '';
 my $help = '';
+my $percent = '';
 my $input = '';
 my $output = '';
 my $title = '';
@@ -20,6 +21,7 @@ my $xlabel = '';
 my $ylabel = '';
 GetOptions ('verbose' => \$verbose,
 	    'help' => \$help,
+	    'percent' => \$percent,
 	    'input=s' => \$input,
 	    'output=s' => \$output,
 	    'title=s' => \$title,
@@ -51,6 +53,27 @@ if( ! $output ){
   ll("Using output: " . $output);
 }
 
+## Absolute (default) or percent handling.
+my $key_loc_str = '';
+my $yaxis_str = '';
+my $plotter_str = '';
+if( $percent ){
+  ll("Will make percent axis");
+
+  $key_loc_str = 'set key invert reverse Left outside';
+  $yaxis_str = 'set yrange [0:100]';
+  #$plotter_str = 'plot for [i=2:7] "'. $input .'" using i:xtic(1) ti col';
+  #$plotter_str = "plot '$input' using 1:xtic(1) ti col, for [i=2:7] '' using (100.*column(i)/column(8)) title column(i)";
+  $plotter_str = "plot for [i=2:7] '$input' using (100.*column(i)/column(8)):xtic(1) ti col";
+}else{
+  ll("Will make absolute axis");
+
+  $key_loc_str = 'set key invert reverse Left inside';
+  $yaxis_str = '';
+  $plotter_str = 'plot for [i=2:7] "'. $input .'" using i:xtic(1) ti col';
+
+}
+
 my $pset =
   [
    'set term png size 1400, 600',
@@ -62,8 +85,10 @@ my $pset =
    'set boxwidth 0.8', #
    'set style fill solid 1.0 border -1', #
    #'set key invert reverse Left outside',
-   'set key invert reverse Left inside',
+   #'set key invert reverse Left inside',
+   $key_loc_str,
    #'set yrange [0:*]',
+   $yaxis_str,
    #'set key autotitle columnheader',
    'set ylabel "'. $ylabel . '"',
    'set xlabel "' . $xlabel . '"',
@@ -78,7 +103,8 @@ my $pset =
    #'set xtics norotate nomirror',
    'set xtic rotate by -45 scale 0 font ",8"',
    'set datafile separator "\t"',
-   'plot for [i=2:9] "'. $input .'" using i:xtic(1) ti col',
+   #'plot for [i=2:7] "'. $input .'" using i:xtic(1) ti col',
+   $plotter_str
    ];
 
 open GP, '| gnuplot' or die "Couldn't open gnuplot: $!";

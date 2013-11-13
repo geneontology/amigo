@@ -162,7 +162,7 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 
 	// Cycle over the sources we want to look at while collecting
 	// data.
-	print('AXES' + "\t" + our_ev_of_interest.join("\t"));
+	print('AXES' + "\t" + our_ev_of_interest.join("\t") + "\t" + 'TOTAL');
 	// each([our_sources_of_interest[0],
 	//       our_sources_of_interest[1]],
 	each(our_sources_of_interest,
@@ -173,6 +173,7 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 		 // ll('isrc: ' + isrc);
 		 
 		 var resp = gm_ann.fetch();
+
 		 // The evidence facet.
 		 var facet_list = resp.facet_field_list();
 		 var ev_fasc_hash =
@@ -189,6 +190,8 @@ for( var flag_index = 0; flag_index <= (arguments.length -1); flag_index++ ){
 				    //print("\n");
 				    row_cache.push(ev_cnt);
 				});
+		 var total_count = resp.total_documents();
+		 row_cache.push(total_count);
 		 print(row_cache.join("\t"));
 	     });
 	
