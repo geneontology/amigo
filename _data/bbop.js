@@ -11,89 +11,7 @@
 // Module and namespace checking.
 if ( typeof bbop == "undefined" ){ var bbop = {}; }
 if ( typeof bbop.core == "undefined" ){ bbop.core = {}; }
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-
-/*
- * Variable: global
- * 
- * Capture the global object for later reference.
- * 
- * Used by namespace and require.
- * 
- * TODO: There is a temporary workaround for NodeJS here
- * TODO: Creates loop; problem?
- * 
- * Also see:
- *  <namespace>
- *  <requires>
- */
-bbop.core.global = this;
-if( typeof GLOBAL !== 'undefined' ){ // TODO: Better probe of NodeJS-ness.
-    (function(){
-	 var global_context = {};
-	 global_context['bbop'] = GLOBAL['bbop'];
-	 global_context['amigo'] = GLOBAL['amigo'];
-	 bbop.core.global = global_context;
-	 //bbop.core.global = GLOBAL;
-     })();
-}
-
-///
-/// Utility functions can hang as prototypes.
-///
-
-/*
- * Function: namespace
- * 
- * Create a namespace (chained object) in the global environment.
- * 
- * Parameters: An arbitrary number of strings.
- * 
- * Returns: Nothing. Side-effects: this function extends the global
- * object for easy namespace creation.
- * 
- * Also See: <require>
- */
-bbop.core.namespace = function(){
-
-    // Go through the arguments and add them to the namespace,
-    // starting at global.
-    var current_object = bbop.core.global;
-    for ( var i = 0; i < arguments.length; i++ ) {
-	var ns = arguments[i];
-	if( ! current_object[ns] ){
-	    current_object[ns] = {};
-	}
-	current_object = current_object[ns];
-    }
-    return current_object;
-};
-
-/*
- * Function: require
- * 
- * Throw an error unless a specified namespace is defined.
- * 
- * Parameters: An arbitrary number of strings.
- * 
- * Returns: Nothing. Side-effects: throws an error if the namespace
- * defined by the strings is not currently found.
- * 
- * Also See: <namespace>
- */
-bbop.core.require = function(){
-
-    // Walk through from global namespace, checking.
-    var current_object = bbop.core.global;
-    for ( var i = 0; i < arguments.length; i++ ) {
-	var ns = arguments[i];
-	if( ! current_object[ns] ){
-	    throw new Error("Could not find required NS: " + ns);
-	}
-	current_object = current_object[ns];
-    }
-    return current_object;
-};
+//if ( typeof amigo == "undefined" ){ var amigo = {}; }
 
 /*
  * Function: crop
@@ -1291,1075 +1209,6 @@ bbop.core.extend = function(subclass, baseclass){
     // subclass.parent_class = baseclass.prototype;
 };
 /* 
- * Package: version.js
- * 
- * Namespace: bbop.version
- * 
- * This package was automatically created during the release process
- * and contains its version information--this is the release of the 
- * API that you have.
- */
-
-bbop.core.namespace('bbop', 'version');
-bbop.version = {};
-
-/*
- * Variable: revision
- *
- * Partial version for this library; revision (major/minor version numbers)
- * information.
- */
-bbop.version.revision = "2.0b1";
-
-/*
- * Variable: release
- *
- * Partial version for this library: release (date-like) information.
- */
-bbop.version.release = "20131106";
-/* 
- * Package: json.js
- * 
- * Namespace: bbop.json
- * 
- * JSON stringifying and parsing capabilities.  This package is a
- * small modification of json2.js (in the Public Domain from
- * https://raw.github.com/douglascrockford/JSON-js/master/json2.js and
- * http://json.org) to fit in a little more with the style of BBOP
- * JS. As well, the Date prototypes were removed. See json2.js in the
- * source directory for this package for the original.
- * 
- * As much of the original documentation and structure was kept as
- * possible while converting to Naturaldocs and the bbop namespace.
- * 
- * Purpose: Ensure that JSON parsing capabilites exist on all
- * platforms that BBOP JS runs on.
- */
-
-/*
- * Function: stringify
- * 
- * This method produces a JSON text from a JavaScript value.
- * 
- * When an object value is found, if the object contains a toJSON
- * method, its toJSON method will be called and the result will be
- * stringified. A toJSON method does not serialize: it returns the
- * value represented by the name/value pair that should be serialized,
- * or undefined if nothing should be serialized. The toJSON method
- * will be passed the key associated with the value, and this will be
- * bound to the value.
-
- * For example, this would serialize Dates as ISO strings.
- * 
- * : Date.prototype.toJSON = function (key) {
- * :         function f(n) {
- * :               // Format integers to have at least two digits.
- * :                    return n < 10 ? '0' + n : n;
- * :                }
- * :
- * :                return this.getUTCFullYear()   + '-' +
- * :                  f(this.getUTCMonth() + 1) + '-' +
- * :                     f(this.getUTCDate())      + 'T' +
- * :                     f(this.getUTCHours())     + ':' +
- * :                     f(this.getUTCMinutes())   + ':' +
- * :                     f(this.getUTCSeconds())   + 'Z';
- * :            };
- * 
- * You can provide an optional replacer method. It will be passed the
- * key and value of each member, with this bound to the containing
- * object. The value that is returned from your method will be
- * serialized. If your method returns undefined, then the member will
- * be excluded from the serialization.
- * 
- * If the replacer parameter is an array of strings, then it will be
- * used to select the members to be serialized. It filters the results
- * such that only members with keys listed in the replacer array are
- * stringified.
- * 
- * Values that do not have JSON representations, such as undefined or
- * functions, will not be serialized. Such values in objects will be
- * dropped; in arrays they will be replaced with null. You can use
- * a replacer function to replace those with JSON values.
- * JSON.stringify(undefined) returns undefined.
- * 
- * The optional space parameter produces a stringification of the
- * value that is filled with line breaks and indentation to make it
- * easier to read.
- * 
- * If the space parameter is a non-empty string, then that string will
- * be used for indentation. If the space parameter is a number, then
- * the indentation will be that many spaces. For example:
- * 
- * : text = JSON.stringify(['e', {pluribus: 'unum'}]);
- * : // text is '["e",{"pluribus":"unum"}]'
- * : 
- * : text = JSON.stringify(['e', {pluribus: 'unum'}], null, '\t');
- * : // text is '[\n\t"e",\n\t{\n\t\t"pluribus": "unum"\n\t}\n]'
- * :
- * : text = JSON.stringify([new Date()], function (key, value) {
- * :          return this[key] instanceof Date ?
- * :                 'Date(' + this[key] + ')' : value;
- * :  });
- * :  // text is '["Date(---current time---)"]'
- *
- * Parameters:
- *  value - any JavaScript value, usually an object or array.
- *  replacer - an optional parameter that determines how object values are stringified for objects. It can be a function or an array of strings.
- *  space - an optional parameter that specifies the indentation of nested structures. If it is omitted, the text will be packed without extra whitespace. If it is a number, it will specify the number of spaces to indent at each level. If it is a string (such as '\t' or '&nbsp;'), it contains the characters used to indent at each level.
- * 
- * Returns: string
- */
-
-/*
- * Function: parse
- * (text, reviver)
- * 
- * This method parses a JSON text to produce an object or array.
- * It can throw a SyntaxError exception.
- * 
- * The optional reviver parameter is a function that can filter and
- * transform the results. It receives each of the keys and values,
- * and its return value is used instead of the original value.
- * If it returns what it received, then the structure is not modified.
- * If it returns undefined then the member is deleted. For example:
- * 
- * : // Parse the text. Values that look like ISO date strings will
- * : // be converted to Date objects.
- * :
- * : myData = JSON.parse(text, function (key, value) {
- * :     var a;
- * :     if (typeof value === 'string') {
- * :         a =
-/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
- * :         if (a) {
- * :             return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
- * :                 +a[5], +a[6]));
- * :         }
- * :     }
- * :     return value;
- * : });
- * :
- * : myData = JSON.parse('["Date(09/09/2001)"]', function (key, value) {
- * :     var d;
- * :     if (typeof value === 'string' &&
- * :             value.slice(0, 5) === 'Date(' &&
- * :             value.slice(-1) === ')') {
- * :         d = new Date(value.slice(5, -1));
- * :                   if (d) {
- * :             return d;
- * :         }
- * :     }
- * :     return value;
- * : });
- * 
- * Parameters:
- *  text - the string to parse to a JavaScript entity.
- *  reviver - *[optional]* optional transforming function for modifying results; see the documentation above for more details.
- * 
- * Returns: well, pretty much anything you put in...
- */
-
-/*jslint evil: true, regexp: true */
-
-/*members "", "\b", "\t", "\n", "\f", "\r", "\"", JSON, "\\", apply,
-    call, charCodeAt, getUTCDate, getUTCFullYear, getUTCHours,
-    getUTCMinutes, getUTCMonth, getUTCSeconds, hasOwnProperty, join,
-    lastIndex, length, parse, prototype, push, replace, slice, stringify,
-    test, toJSON, toString, valueOf
-*/
-
-
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('bbop', 'json', 'stringify');
-bbop.core.namespace('bbop', 'json', 'parse');
-
-(function () {
-    //'use strict';
-
-    // function f(n) {
-    //     // Format integers to have at least two digits.
-    //     return n < 10 ? '0' + n : n;
-    // }
-
-    // if (typeof Date.prototype.toJSON !== 'function') {
-
-    //     Date.prototype.toJSON = function (key) {
-
-    //         return isFinite(this.valueOf())
-    //             ? this.getUTCFullYear()     + '-' +
-    //                 f(this.getUTCMonth() + 1) + '-' +
-    //                 f(this.getUTCDate())      + 'T' +
-    //                 f(this.getUTCHours())     + ':' +
-    //                 f(this.getUTCMinutes())   + ':' +
-    //                 f(this.getUTCSeconds())   + 'Z'
-    //             : null;
-    //     };
-
-    //     String.prototype.toJSON      =
-    //         Number.prototype.toJSON  =
-    //         Boolean.prototype.toJSON = function (key) {
-    //             return this.valueOf();
-    //         };
-    // }
-
-    var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-        escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-        gap,
-        indent,
-        meta = {    // table of character substitutions
-            '\b': '\\b',
-            '\t': '\\t',
-            '\n': '\\n',
-            '\f': '\\f',
-            '\r': '\\r',
-            '"' : '\\"',
-            '\\': '\\\\'
-        },
-        rep;
-
-
-    function quote(string) {
-
-// If the string contains no control characters, no quote characters, and no
-// backslash characters, then we can safely slap some quotes around it.
-// Otherwise we must also replace the offending characters with safe escape
-// sequences.
-
-        escapable.lastIndex = 0;
-        return escapable.test(string) ? '"' + string.replace(escapable, function (a) {
-            var c = meta[a];
-            return typeof c === 'string'
-                ? c
-                : '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-        }) + '"' : '"' + string + '"';
-    }
-
-
-    function str(key, holder) {
-
-// Produce a string from holder[key].
-
-        var i,          // The loop counter.
-            k,          // The member key.
-            v,          // The member value.
-            length,
-            mind = gap,
-            partial,
-            value = holder[key];
-
-// If the value has a toJSON method, call it to obtain a replacement value.
-
-        if (value && typeof value === 'object' &&
-                typeof value.toJSON === 'function') {
-            value = value.toJSON(key);
-        }
-
-// If we were called with a replacer function, then call the replacer to
-// obtain a replacement value.
-
-        if (typeof rep === 'function') {
-            value = rep.call(holder, key, value);
-        }
-
-// What happens next depends on the value's type.
-
-        switch (typeof value) {
-        case 'string':
-            return quote(value);
-
-        case 'number':
-
-// JSON numbers must be finite. Encode non-finite numbers as null.
-
-            return isFinite(value) ? String(value) : 'null';
-
-        case 'boolean':
-        case 'null':
-
-// If the value is a boolean or null, convert it to a string. Note:
-// typeof null does not produce 'null'. The case is included here in
-// the remote chance that this gets fixed someday.
-
-            return String(value);
-
-// If the type is 'object', we might be dealing with an object or an array or
-// null.
-
-        case 'object':
-
-// Due to a specification blunder in ECMAScript, typeof null is 'object',
-// so watch out for that case.
-
-            if (!value) {
-                return 'null';
-            }
-
-// Make an array to hold the partial results of stringifying this object value.
-
-            gap += indent;
-            partial = [];
-
-// Is the value an array?
-
-            if (Object.prototype.toString.apply(value) === '[object Array]') {
-
-// The value is an array. Stringify every element. Use null as a placeholder
-// for non-JSON values.
-
-                length = value.length;
-                for (i = 0; i < length; i += 1) {
-                    partial[i] = str(i, value) || 'null';
-                }
-
-// Join all of the elements together, separated with commas, and wrap them in
-// brackets.
-
-                v = partial.length === 0
-                    ? '[]'
-                    : gap
-                    ? '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']'
-                    : '[' + partial.join(',') + ']';
-                gap = mind;
-                return v;
-            }
-
-// If the replacer is an array, use it to select the members to be stringified.
-
-            if (rep && typeof rep === 'object') {
-                length = rep.length;
-                for (i = 0; i < length; i += 1) {
-                    if (typeof rep[i] === 'string') {
-                        k = rep[i];
-                        v = str(k, value);
-                        if (v) {
-                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
-                        }
-                    }
-                }
-            } else {
-
-// Otherwise, iterate through all of the keys in the object.
-
-                for (k in value) {
-                    if (Object.prototype.hasOwnProperty.call(value, k)) {
-                        v = str(k, value);
-                        if (v) {
-                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
-                        }
-                    }
-                }
-            }
-
-// Join all of the member texts together, separated with commas,
-// and wrap them in braces.
-
-            v = partial.length === 0
-                ? '{}'
-                : gap
-                ? '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}'
-                : '{' + partial.join(',') + '}';
-            gap = mind;
-            return v;
-        }
-    }
-
-// If the JSON object does not yet have a stringify method, give it one.
-
-//    if (typeof bbop.json.stringify !== 'function') {
-        bbop.json.stringify = function (value, replacer, space) {
-
-// The stringify method takes a value and an optional replacer, and an optional
-// space parameter, and returns a JSON text. The replacer can be a function
-// that can replace values, or an array of strings that will select the keys.
-// A default replacer method can be provided. Use of the space parameter can
-// produce text that is more easily readable.
-
-            var i;
-            gap = '';
-            indent = '';
-
-// If the space parameter is a number, make an indent string containing that
-// many spaces.
-
-            if (typeof space === 'number') {
-                for (i = 0; i < space; i += 1) {
-                    indent += ' ';
-                }
-
-// If the space parameter is a string, it will be used as the indent string.
-
-            } else if (typeof space === 'string') {
-                indent = space;
-            }
-
-// If there is a replacer, it must be a function or an array.
-// Otherwise, throw an error.
-
-            rep = replacer;
-            if (replacer && typeof replacer !== 'function' &&
-                    (typeof replacer !== 'object' ||
-                    typeof replacer.length !== 'number')) {
-                throw new Error('bbop.json.stringify');
-            }
-
-// Make a fake root object containing our value under the key of ''.
-// Return the result of stringifying the value.
-
-            return str('', {'': value});
-        };
-//    }
-
-
-// If the JSON object does not yet have a parse method, give it one.
-
-//    if (typeof bbop.json.parse !== 'function') {
-        bbop.json.parse = function (text, reviver) {
-
-// The parse method takes a text and an optional reviver function, and returns
-// a JavaScript value if the text is a valid JSON text.
-
-            var j;
-
-            function walk(holder, key) {
-
-// The walk method is used to recursively walk the resulting structure so
-// that modifications can be made.
-
-                var k, v, value = holder[key];
-                if (value && typeof value === 'object') {
-                    for (k in value) {
-                        if (Object.prototype.hasOwnProperty.call(value, k)) {
-                            v = walk(value, k);
-                            if (v !== undefined) {
-                                value[k] = v;
-                            } else {
-                                delete value[k];
-                            }
-                        }
-                    }
-                }
-                return reviver.call(holder, key, value);
-            }
-
-
-// Parsing happens in four stages. In the first stage, we replace certain
-// Unicode characters with escape sequences. JavaScript handles many characters
-// incorrectly, either silently deleting them, or treating them as line endings.
-
-            text = String(text);
-            cx.lastIndex = 0;
-            if (cx.test(text)) {
-                text = text.replace(cx, function (a) {
-                    return '\\u' +
-                        ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-                });
-            }
-
-// In the second stage, we run the text against regular expressions that look
-// for non-JSON patterns. We are especially concerned with '()' and 'new'
-// because they can cause invocation, and '=' because it can cause mutation.
-// But just to be safe, we want to reject all unexpected forms.
-
-// We split the second stage into 4 regexp operations in order to work around
-// crippling inefficiencies in IE's and Safari's regexp engines. First we
-// replace the JSON backslash pairs with '@' (a non-JSON character). Second, we
-// replace all simple value tokens with ']' characters. Third, we delete all
-// open brackets that follow a colon or comma or that begin the text. Finally,
-// we look to see that the remaining characters are only whitespace or ']' or
-// ',' or ':' or '{' or '}'. If that is so, then the text is safe for eval.
-
-            if (/^[\],:{}\s]*$/
-                    .test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@')
-                        .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']')
-                        .replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
-
-// In the third stage we use the eval function to compile the text into a
-// JavaScript structure. The '{' operator is subject to a syntactic ambiguity
-// in JavaScript: it can begin a block or an object literal. We wrap the text
-// in parens to eliminate the ambiguity.
-
-                j = eval('(' + text + ')');
-
-// In the optional fourth stage, we recursively walk the new structure, passing
-// each name/value pair to a reviver function for possible transformation.
-
-                return typeof reviver === 'function'
-                    ? walk({'': j}, '')
-                    : j;
-            }
-
-// If the text is not JSON parseable, then a SyntaxError is thrown.
-
-            throw new SyntaxError('bbop.json.parse: ' + text);
-        };
-//    }
-}());
-/*
- * Package: logger.js
- * 
- * Namespace: bbop.logger
- * 
- * BBOP JS logger object. Using .kvetch(), you can automatically log a
- * message in almost any environment you find yourself in--browser,
- * server wherever. Also, if you have jQuery available and an element
- * with the id "bbop-logger-console-textarea",
- * "bbop-logger-console-text", or "bbop-logger-console-html", the
- * logger will append to that element (with a "\n" (autoscroll), "\n",
- * or "<br />" terminator respectively) instead.
- */
-
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('bbop', 'logger');
-
-/*
- * Constructor: logger
- * 
- * Arguments: (optional) initial context.
- */
-bbop.logger = function(initial_context){
-
-    /*
-     * Variable: DEBUG 
-     * 
-     * Different debugging available per object. Externally toggle
-     * between true and false to switch on and off the logging.
-     */
-    this.DEBUG = false;
-
-    var anchor = this;
-
-    // Define an optional context to tag onto the front of messages.
-    this._context = [];
-    if( initial_context ){
-	this._context = [initial_context];
-    }
-
-    /*
-     * Function: reset_context
-     * 
-     * Define the ability to reset the contex.
-     * 
-     * Arguments:
-     *  new_initial_context - (optional) New context to start with.
-     */
-    this.reset_context = function(new_initial_context){
-	if( new_initial_context ){
-	    this._context = [new_initial_context];
-	}else{
-	    this._context = [];	    
-	}
-    };
-
-    /*
-     * Function: push_context
-     * 
-     * Add an additional logging context to the stack.
-     * 
-     * Arguments:
-     *  new_context - New context to add to the context stack.
-     */
-    this.push_context = function(new_context){
-	this._context.push(new_context);
-    };
-
-    /*
-     * Function: pop_context
-     * 
-     * Remove the last context if it's there.
-     */
-    this.pop_context = function(){
-	var popped_context = null;
-	if( this._context.length > 0 ){
-	    popped_context = this._context.pop();
-	}
-	return popped_context;
-    };
-
-    // Generalizer console (or whatever) printing.
-    this._console_sayer = function(){};
-
-    // // Check for: Opera, FF, Safari, Chrome, console, etc.
-    // if( typeof(jQuery) != 'undefined' &&
-    // 	jQuery('#' + 'bbop-logger-console-textarea') != 'undefined' ){
-    // 	    // Our own logging console takes precedence. 
-    // 	    this._console_sayer = function(msg){
-    // 		var area = jQuery('#'+ 'bbop-logger-console-textarea');
-    // 		area.append(msg + "\n");
-    // 		try{
-    // 		    area.scrollTop(area[0].scrollHeight);
-    // 		} catch (x) {
-    // 		    // could scroll
-    // 		}
-    // 	    };
-    // }else if( typeof(jQuery) != 'undefined' &&
-    // 	jQuery('#' + 'bbop-logger-console-text') != 'undefined' &&
-    // 	jQuery('#' + 'bbop-logger-console-text').length != 0 ){
-    // 	    // Our own logging console takes precedence. 
-    // 	    this._console_sayer = function(msg){
-    // 		jQuery('#' + 'bbop-logger-console-text').append(msg + "\n");
-    // 	    };
-    // }else
-    if( typeof(jQuery) != 'undefined' &&
-	jQuery('#' + 'bbop-logger-console-html') != 'undefined' &&
-	jQuery('#' + 'bbop-logger-console-html').length ){
-	    // Our own logging console takes precedence. 
-	    this._console_sayer = function(msg){
-		var area = jQuery('#'+ 'bbop-logger-console-html');
-		area.append(msg + "<br />");
-		try{
-    		    area.scrollTop(area[0].scrollHeight);
-		} catch (x) {
-		    // could scroll
-		}
-		//jQuery('#' + 'bbop-logger-console-html').append(msg + "<br />");
-	    };
-    }else if( typeof(console) != 'undefined' &&
-	      typeof(console.log) == 'function' ){
-	// This may be okay for Chrome and a subset of various console
-	// loggers. This should now include FF's Web Console.
-	this._console_sayer = function(msg){ console.log(msg + "\n"); };
-    }else if( typeof(opera) != 'undefined' &&
-	typeof(opera.postError) == 'function' ){
-	// If Opera is in there, probably Opera.
-	this._console_sayer = function(msg){ opera.postError(msg + "\n"); };
-    }else if( typeof(window) != 'undefined' &&
-	      typeof(window.dump) == 'function' ){
-	// From developer.mozilla.org: To see the dump output you have
-	// to enable it by setting the preference
-	// browser.dom.window.dump.enabled to true. You can set the
-	// preference in about:config or in a user.js file. Note: this
-	// preference is not listed in about:config by default, you
-	// may need to create it (right-click the content area -> New
-	// -> Boolean).
-	this._console_sayer = function(msg){ dump( msg + "\n"); };
-    }else if( typeof(window) != 'undefined' &&
-	      typeof(window.console) != 'undefined' &&
-	      typeof(window.console.log) == 'function' ){
-	// From developer.apple.com: Safari's "Debug" menu allows you
-	// to turn on the logging of JavaScript errors. To display the
-	// debug menu in Mac OS X, open a Terminal window and type:
-	// "defaults write com.apple.Safari IncludeDebugMenu 1" Need
-	// the wrapper function because safari has personality
-	// problems.
-	this._console_sayer = function(msg){ window.console.log(msg + "\n"); };
-    }else if( typeof(build) == 'function' &&
-	      typeof(getpda) == 'function' &&
-	      typeof(pc2line) == 'function' &&
-	      typeof(print) == 'function' ){
-	// This may detect SpiderMonkey on the comand line.
-	this._console_sayer = function(msg){ print(msg); };
-    }else if( typeof(org) != 'undefined' &&
-	      typeof(org.rhino) != 'undefined' &&
-	      typeof(print) == 'function' ){
-	// This may detect Rhino on the comand line.
-	this._console_sayer = function(msg){ print(msg); };
-    }
-    
-    /*
-     * Function: kvetch
-     * 
-     * Log a string to somewhere. Also return a string to (mostly for
-     * the unit tests).
-     * 
-     * Arguments:
-     *  string - The string to print out to wherever we found.
-     */
-    this.kvetch = function(string){
-	var ret_str = null;
-	if( anchor.DEBUG == true ){
-
-	    // Make sure there is something there no matter what.
-	    if( typeof(string) == 'undefined' ){ string = ''; }
-
-	    // Redefined the string a little if we have contexts.
-	    if( anchor._context.length > 0 ){
-		var cstr = anchor._context.join(':');
-		string = cstr + ': '+ string;
-	    }
-
-	    // Actually log to the console.
-	    anchor._console_sayer(string);
-
-	    // Bind for output.
-	    ret_str = string;
-	}
-	return ret_str;
-    };
-};
-/*
- * Package: template.js
- * 
- * Namespace: bbop.template
- * 
- * BBOP JS template object/enginette.
- * 
- * Some (nonsensical) usage is like:
- * 
- * : var tt = new bbop.template("{{foo}} {{bar}} {{foo}}");
- * : 'A B A' == tt.fill({'foo': 'A', 'bar': 'B'});
- */
-
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('bbop', 'template');
-
-/*
- * Constructor: template
- * 
- * Arguments:
- *  template_string - the string template to use for future fill calls
- * 
- * Returns:
- *  self
- */
-bbop.template = function(template_string){
-    this.is_a = 'bbop.template';
-
-    var anchor = this;
-
-    anchor._template_string = template_string;
-
-    // First break the template string into ordered sections which we
-    // will interleve later.
-    var split_re = /\{\{[A-Za-z0-9_-]+\}\}/;
-    anchor._template_split_strings =
-	template_string.split(split_re);
-
-    // Now map out which variables are at which locations.
-    var var_id_re = /\{\{[A-Za-z0-9_-]+\}\}/g;
-    anchor._var_id_matches =
-	template_string.match(var_id_re);
-    // Trim off the '{{' and '}}' from the matches.
-    bbop.core.each(anchor._var_id_matches,
-		  function(item, index){
-		      var new_item = item.substring(2, item.length -2);
-		      anchor._var_id_matches[index] = new_item;
-		  });
-
-    /*
-     * Function: fill
-     * 
-     * Fill the template with the corresponding hash items. Undefined
-     * variables are replaced with ''.
-     * 
-     * Arguments:
-     *  fill_hash - the template with the hashed values
-     * 
-     * Returns:
-     *  string
-     */
-    this.fill = function(fill_hash){
-	var ret_str = '';
-
-	bbop.core.each(anchor._template_split_strings,
-		       function(str, index){
-
-			   // Add the next bit.
-			   ret_str += str;
-
-			   // Add the replacement value if we can make
-			   // sense of it.
-			   if( index < anchor._var_id_matches.length ){
-			       var use_str = '';
-			       var varname = anchor._var_id_matches[index];
-			       if( varname &&
-				   bbop.core.is_defined(fill_hash[varname]) ){
-				   use_str = fill_hash[varname];
-			       }
-			       ret_str += use_str;
-			   }
-		       });
-
-	return ret_str;
-    };
-
-    /*
-     * Function: variables
-     * 
-     * Return a hash of the variables used in the template.
-     * 
-     * Arguments:
-     *  n/a
-     * 
-     * Returns:
-     *  a hash like: {'foo': true, 'bar': true, ...}
-     */
-    this.variables = function(){
-	return bbop.core.hashify(anchor._var_id_matches);
-    };
-
-};
-/*
- * Package: logic.js
- * 
- * Namespace: bbop.logic
- * 
- * BBOP object to try and take some of the pain out of managing the
- * boolean logic that seems to show up periodically. Right now mostly
- * aimed at dealing with Solr/GOlr.
- * 
- * Anatomy of a core data bundle.
- * 
- * : data_bundle => {op: arg}
- * : op => '__AND__', '__OR__', '__NOT__'
- * : arg => <string>, array, data_bundle
- * : array => [array_item*]
- * : array_item => <string>, data
- * 
- * Example:
- * 
- * : {and: [{or: ...}, {or: ...}, {and: ...} ]}
- * : var filters = {'and': []};
- *
- * TODO: parens between levels
- */
-
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.namespace('bbop', 'logic');
-
-/*
- * Constructor: logic
- * 
- * Contructor for the bbop.logic object. NOTE: during processing,
- * binary operators with a single argument cease to exist as they will
- * never make it to output.
- * 
- * Arguments:
- *  default_conjuntion - *[optional]* "and" or "or"; defaults to "and"
- * 
- * Returns:
- *  bbop logic object
- */
-bbop.logic = function(default_conjunction){
-    this._is_a = 'bbop.logic';
-
-    // Add logging.
-    var logger = new bbop.logger();
-    //logger.DEBUG = true;
-    logger.DEBUG = false;
-    function ll(str){ logger.kvetch(str); }
-
-    var logic_anchor = this;
-
-    // // Handling conjunctions.
-    // this._and = '__AND__';
-    // this._or = '__OR__';
-    // this._not = '__NOT__';
-    // function _is_token(possible_token){
-    // 	var retval = false;
-    // 	if( possible_token == this._and ||
-    // 	    possible_token == this._or ||
-    // 	    possible_token == this._not ){
-    // 	   retval = true; 
-    // 	}
-    // 	return retval;
-    // }
-    // // Convert the internal
-    // function _usable
-
-    // // Set the internal default conjunction. Default to "and".
-    // if( ! default_conjunction ){
-    // 	default_conjunction = this._and;
-    // }else if( default_conjunction == this._or ){
-    // 	default_conjunction = this._or;
-    // }else{
-    // 	default_conjunction = this._and;
-    // }
-    if( ! default_conjunction ){
-    	default_conjunction = 'and';
-    }
-    this.default_conjunction = default_conjunction;
-
-    // Set initial state.
-    // ie: this._bundle = {'__AND__': []};
-    //this._bundle = {};
-    //this._bundle[this.default_conjunction] = [];
-    // See documentation for empty().
-    var _empty = function(){
-	logic_anchor._bundle = {};
-	logic_anchor._bundle[logic_anchor.default_conjunction] = [];
-    };
-    _empty();
-
-    /*
-     * Function: add
-     * 
-     * Add to the current stored logic bundle.
-     * 
-     * Parameters:
-     *  item - string or bbop.logic object
-     * 
-     * Returns:
-     *  n/a
-     */
-    //this.and = function(){
-    //this.or = function(){
-    //this.not = function(){
-    this.add = function(item){
-
-	// Add things a little differently if it looks like a bit of
-	// logic.
-	if(  bbop.core.what_is(item) == 'bbop.logic' ){
-	    this._bundle[this.default_conjunction].push(item._bundle);
-	}else{
-	    this._bundle[this.default_conjunction].push(item);
-	}
-    };
-
-    /*
-     * Function: negate
-     * 
-     * Negate the current stored logic.
-     * 
-     * TODO/BUG: I think this might cause an unreleasable circular
-     * reference.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  n/a
-     */
-    this.negate = function(){
-	var nega = {};
-	nega['not'] = this._bundle;
-	this._bundle = nega;
-    };
-    
-    // Walk the data structure...
-    this._read_walk = function(data_bundle, in_encoder, lvl){
-	
-	// The encoder defaults to whatever--no transformations
-	var encoder = in_encoder || function(in_out){ return in_out; };
-
-	ll("LRW: with: " + bbop.core.dump(data_bundle));
-
-	// If level is not defined, we just started and we're on level
-	// one, the first level.
-	var l_enc = '(';
-	var r_enc = ')';
-	if( typeof(lvl) == 'undefined' ){
-	    lvl = 1;
-	    l_enc = '';
-	    r_enc = '';
-	}	
-
-	var read = '';
-	
-	// The task of walking is broken into the terminal case (a
-	// string) or things that we need to operate on (arrays or
-	// sub-data_bundles).
-	if( bbop.core.what_is(data_bundle) == 'string' ){
-	    ll("LRW: trigger string");
-	    read = data_bundle;
-	}else{
-	    ll("LRW: trigger non-string");
-
-	    // Always single op.
-	    var op = bbop.core.get_keys(data_bundle)[0];
-	    var arg = data_bundle[op];
-
-	    // We can treat the single data_bundle/string case like a
-	    // degenerate array case.
-	    if( ! bbop.core.is_array(arg) ){
-		arg = [arg];
-	    }
-
-	    // Recure through the array and join the results with the
-	    // current op.
-	    //ll('L: arg: ' + bbop.core.what_is(arg));
-	    var stack = [];
-	    bbop.core.each(arg, function(item, i){
-			       stack.push(logic_anchor._read_walk(item,
-								  encoder,
-								  lvl + 1));
-			   });
-
-	    // Slightly different things depending on if it's a unary
-	    // or binary op.
-	    if( op == 'not' ){
-		// TODO: I believe that it should no be possible
-		// (i.e. policy by code) to have a 'not' with more
-		// that a single argument.
-		read = op + ' ' + stack.join('');
-	    }else{
-		read = l_enc + stack.join(' ' + op + ' ') + r_enc;
-	    }
-	}
-
-	
-	ll("LRW: returns: " + read);
-	return read;
-    };
-
-    /*
-     * Function: to_string
-     * 
-     * Dump the current data out to a string.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  n/a
-     */
-    this.to_string = function(){
-	return logic_anchor._read_walk(logic_anchor._bundle);
-    };
-
-    /*
-     * Function: url
-     * 
-     * TODO
-     * 
-     * Dump the current data out to a URL.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  n/a
-     */
-    this.url = function(){
-	return logic_anchor._read_walk(logic_anchor._bundle);
-    };
-
-    /*
-     * Function: empty
-     * 
-     * Empty/reset self.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  n/a
-     */
-    // Staggered declaration so I can use it above during initialization.
-    this.empty = _empty;
-
-    /*
-     * Function: parse
-     * 
-     * TODO: I think I can grab the shunting yard algorithm for a
-     * similar problem in the old AmiGO 1.x codebase.
-     * 
-     * Parse an incoming string into the internal data structure.
-     * 
-     * Parameters:
-     *  in_str - the incoming string to parse
-     * 
-     * Returns:
-     *  n/a
-     */
-    this.parse = function(in_str){
-	return null;
-    };
-
-};
-/* 
  * Package: test.js
  * 
  * Namespace: bbop.test
@@ -2995,6 +1844,1071 @@ bbop.test = function(){
     };
 };
 /* 
+ * Package: version.js
+ * 
+ * Namespace: bbop.version
+ * 
+ * This package was automatically generated during the build process
+ * and contains its version information--this is the release of the
+ * API that you have.
+ */
+
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.version == "undefined" ){ bbop.version = {}; }
+bbop.version = {};
+
+/*
+ * Variable: revision
+ *
+ * Partial version for this library; revision (major/minor version numbers)
+ * information.
+ */
+bbop.version.revision = "2.0b1";
+
+/*
+ * Variable: release
+ *
+ * Partial version for this library: release (date-like) information.
+ */
+bbop.version.release = "20131112";
+/*
+ * Package: logger.js
+ * 
+ * Namespace: bbop.logger
+ * 
+ * BBOP JS logger object. Using .kvetch(), you can automatically log a
+ * message in almost any environment you find yourself in--browser,
+ * server wherever. Also, if you have jQuery available and an element
+ * with the id "bbop-logger-console-textarea",
+ * "bbop-logger-console-text", or "bbop-logger-console-html", the
+ * logger will append to that element (with a "\n" (autoscroll), "\n",
+ * or "<br />" terminator respectively) instead.
+ */
+
+// Module and namespace checking.
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+
+/*
+ * Constructor: logger
+ * 
+ * Arguments: (optional) initial context.
+ */
+bbop.logger = function(initial_context){
+
+    /*
+     * Variable: DEBUG 
+     * 
+     * Different debugging available per object. Externally toggle
+     * between true and false to switch on and off the logging.
+     */
+    this.DEBUG = false;
+
+    var anchor = this;
+
+    // Define an optional context to tag onto the front of messages.
+    this._context = [];
+    if( initial_context ){
+	this._context = [initial_context];
+    }
+
+    /*
+     * Function: reset_context
+     * 
+     * Define the ability to reset the contex.
+     * 
+     * Arguments:
+     *  new_initial_context - (optional) New context to start with.
+     */
+    this.reset_context = function(new_initial_context){
+	if( new_initial_context ){
+	    this._context = [new_initial_context];
+	}else{
+	    this._context = [];	    
+	}
+    };
+
+    /*
+     * Function: push_context
+     * 
+     * Add an additional logging context to the stack.
+     * 
+     * Arguments:
+     *  new_context - New context to add to the context stack.
+     */
+    this.push_context = function(new_context){
+	this._context.push(new_context);
+    };
+
+    /*
+     * Function: pop_context
+     * 
+     * Remove the last context if it's there.
+     */
+    this.pop_context = function(){
+	var popped_context = null;
+	if( this._context.length > 0 ){
+	    popped_context = this._context.pop();
+	}
+	return popped_context;
+    };
+
+    // Generalizer console (or whatever) printing.
+    this._console_sayer = function(){};
+
+    // // Check for: Opera, FF, Safari, Chrome, console, etc.
+    // if( typeof(jQuery) != 'undefined' &&
+    // 	jQuery('#' + 'bbop-logger-console-textarea') != 'undefined' ){
+    // 	    // Our own logging console takes precedence. 
+    // 	    this._console_sayer = function(msg){
+    // 		var area = jQuery('#'+ 'bbop-logger-console-textarea');
+    // 		area.append(msg + "\n");
+    // 		try{
+    // 		    area.scrollTop(area[0].scrollHeight);
+    // 		} catch (x) {
+    // 		    // could scroll
+    // 		}
+    // 	    };
+    // }else if( typeof(jQuery) != 'undefined' &&
+    // 	jQuery('#' + 'bbop-logger-console-text') != 'undefined' &&
+    // 	jQuery('#' + 'bbop-logger-console-text').length != 0 ){
+    // 	    // Our own logging console takes precedence. 
+    // 	    this._console_sayer = function(msg){
+    // 		jQuery('#' + 'bbop-logger-console-text').append(msg + "\n");
+    // 	    };
+    // }else
+    if( typeof(jQuery) != 'undefined' &&
+	jQuery('#' + 'bbop-logger-console-html') != 'undefined' &&
+	jQuery('#' + 'bbop-logger-console-html').length ){
+	    // Our own logging console takes precedence. 
+	    this._console_sayer = function(msg){
+		var area = jQuery('#'+ 'bbop-logger-console-html');
+		area.append(msg + "<br />");
+		try{
+    		    area.scrollTop(area[0].scrollHeight);
+		} catch (x) {
+		    // could scroll
+		}
+		//jQuery('#' + 'bbop-logger-console-html').append(msg + "<br />");
+	    };
+    }else if( typeof(console) != 'undefined' &&
+	      typeof(console.log) == 'function' ){
+	// This may be okay for Chrome and a subset of various console
+	// loggers. This should now include FF's Web Console.
+	this._console_sayer = function(msg){ console.log(msg + "\n"); };
+    }else if( typeof(opera) != 'undefined' &&
+	typeof(opera.postError) == 'function' ){
+	// If Opera is in there, probably Opera.
+	this._console_sayer = function(msg){ opera.postError(msg + "\n"); };
+    }else if( typeof(window) != 'undefined' &&
+	      typeof(window.dump) == 'function' ){
+	// From developer.mozilla.org: To see the dump output you have
+	// to enable it by setting the preference
+	// browser.dom.window.dump.enabled to true. You can set the
+	// preference in about:config or in a user.js file. Note: this
+	// preference is not listed in about:config by default, you
+	// may need to create it (right-click the content area -> New
+	// -> Boolean).
+	this._console_sayer = function(msg){ dump( msg + "\n"); };
+    }else if( typeof(window) != 'undefined' &&
+	      typeof(window.console) != 'undefined' &&
+	      typeof(window.console.log) == 'function' ){
+	// From developer.apple.com: Safari's "Debug" menu allows you
+	// to turn on the logging of JavaScript errors. To display the
+	// debug menu in Mac OS X, open a Terminal window and type:
+	// "defaults write com.apple.Safari IncludeDebugMenu 1" Need
+	// the wrapper function because safari has personality
+	// problems.
+	this._console_sayer = function(msg){ window.console.log(msg + "\n"); };
+    }else if( typeof(build) == 'function' &&
+	      typeof(getpda) == 'function' &&
+	      typeof(pc2line) == 'function' &&
+	      typeof(print) == 'function' ){
+	// This may detect SpiderMonkey on the comand line.
+	this._console_sayer = function(msg){ print(msg); };
+    }else if( typeof(org) != 'undefined' &&
+	      typeof(org.rhino) != 'undefined' &&
+	      typeof(print) == 'function' ){
+	// This may detect Rhino on the comand line.
+	this._console_sayer = function(msg){ print(msg); };
+    }
+    
+    /*
+     * Function: kvetch
+     * 
+     * Log a string to somewhere. Also return a string to (mostly for
+     * the unit tests).
+     * 
+     * Arguments:
+     *  string - The string to print out to wherever we found.
+     */
+    this.kvetch = function(string){
+	var ret_str = null;
+	if( anchor.DEBUG == true ){
+
+	    // Make sure there is something there no matter what.
+	    if( typeof(string) == 'undefined' ){ string = ''; }
+
+	    // Redefined the string a little if we have contexts.
+	    if( anchor._context.length > 0 ){
+		var cstr = anchor._context.join(':');
+		string = cstr + ': '+ string;
+	    }
+
+	    // Actually log to the console.
+	    anchor._console_sayer(string);
+
+	    // Bind for output.
+	    ret_str = string;
+	}
+	return ret_str;
+    };
+};
+/* 
+ * Package: json.js
+ * 
+ * Namespace: bbop.json
+ * 
+ * JSON stringifying and parsing capabilities.  This package is a
+ * small modification of json2.js (in the Public Domain from
+ * https://raw.github.com/douglascrockford/JSON-js/master/json2.js and
+ * http://json.org) to fit in a little more with the style of BBOP
+ * JS. As well, the Date prototypes were removed. See json2.js in the
+ * source directory for this package for the original.
+ * 
+ * As much of the original documentation and structure was kept as
+ * possible while converting to Naturaldocs and the bbop namespace.
+ * 
+ * Purpose: Ensure that JSON parsing capabilites exist on all
+ * platforms that BBOP JS runs on.
+ */
+
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.json == "undefined" ){ bbop.json = {}; }
+
+/*
+ * Function: stringify
+ * 
+ * This method produces a JSON text from a JavaScript value.
+ * 
+ * When an object value is found, if the object contains a toJSON
+ * method, its toJSON method will be called and the result will be
+ * stringified. A toJSON method does not serialize: it returns the
+ * value represented by the name/value pair that should be serialized,
+ * or undefined if nothing should be serialized. The toJSON method
+ * will be passed the key associated with the value, and this will be
+ * bound to the value.
+
+ * For example, this would serialize Dates as ISO strings.
+ * 
+ * : Date.prototype.toJSON = function (key) {
+ * :         function f(n) {
+ * :               // Format integers to have at least two digits.
+ * :                    return n < 10 ? '0' + n : n;
+ * :                }
+ * :
+ * :                return this.getUTCFullYear()   + '-' +
+ * :                  f(this.getUTCMonth() + 1) + '-' +
+ * :                     f(this.getUTCDate())      + 'T' +
+ * :                     f(this.getUTCHours())     + ':' +
+ * :                     f(this.getUTCMinutes())   + ':' +
+ * :                     f(this.getUTCSeconds())   + 'Z';
+ * :            };
+ * 
+ * You can provide an optional replacer method. It will be passed the
+ * key and value of each member, with this bound to the containing
+ * object. The value that is returned from your method will be
+ * serialized. If your method returns undefined, then the member will
+ * be excluded from the serialization.
+ * 
+ * If the replacer parameter is an array of strings, then it will be
+ * used to select the members to be serialized. It filters the results
+ * such that only members with keys listed in the replacer array are
+ * stringified.
+ * 
+ * Values that do not have JSON representations, such as undefined or
+ * functions, will not be serialized. Such values in objects will be
+ * dropped; in arrays they will be replaced with null. You can use
+ * a replacer function to replace those with JSON values.
+ * JSON.stringify(undefined) returns undefined.
+ * 
+ * The optional space parameter produces a stringification of the
+ * value that is filled with line breaks and indentation to make it
+ * easier to read.
+ * 
+ * If the space parameter is a non-empty string, then that string will
+ * be used for indentation. If the space parameter is a number, then
+ * the indentation will be that many spaces. For example:
+ * 
+ * : text = JSON.stringify(['e', {pluribus: 'unum'}]);
+ * : // text is '["e",{"pluribus":"unum"}]'
+ * : 
+ * : text = JSON.stringify(['e', {pluribus: 'unum'}], null, '\t');
+ * : // text is '[\n\t"e",\n\t{\n\t\t"pluribus": "unum"\n\t}\n]'
+ * :
+ * : text = JSON.stringify([new Date()], function (key, value) {
+ * :          return this[key] instanceof Date ?
+ * :                 'Date(' + this[key] + ')' : value;
+ * :  });
+ * :  // text is '["Date(---current time---)"]'
+ *
+ * Parameters:
+ *  value - any JavaScript value, usually an object or array.
+ *  replacer - an optional parameter that determines how object values are stringified for objects. It can be a function or an array of strings.
+ *  space - an optional parameter that specifies the indentation of nested structures. If it is omitted, the text will be packed without extra whitespace. If it is a number, it will specify the number of spaces to indent at each level. If it is a string (such as '\t' or '&nbsp;'), it contains the characters used to indent at each level.
+ * 
+ * Returns: string
+ */
+
+/*
+ * Function: parse
+ * (text, reviver)
+ * 
+ * This method parses a JSON text to produce an object or array.
+ * It can throw a SyntaxError exception.
+ * 
+ * The optional reviver parameter is a function that can filter and
+ * transform the results. It receives each of the keys and values,
+ * and its return value is used instead of the original value.
+ * If it returns what it received, then the structure is not modified.
+ * If it returns undefined then the member is deleted. For example:
+ * 
+ * : // Parse the text. Values that look like ISO date strings will
+ * : // be converted to Date objects.
+ * :
+ * : myData = JSON.parse(text, function (key, value) {
+ * :     var a;
+ * :     if (typeof value === 'string') {
+ * :         a =
+/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
+ * :         if (a) {
+ * :             return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
+ * :                 +a[5], +a[6]));
+ * :         }
+ * :     }
+ * :     return value;
+ * : });
+ * :
+ * : myData = JSON.parse('["Date(09/09/2001)"]', function (key, value) {
+ * :     var d;
+ * :     if (typeof value === 'string' &&
+ * :             value.slice(0, 5) === 'Date(' &&
+ * :             value.slice(-1) === ')') {
+ * :         d = new Date(value.slice(5, -1));
+ * :                   if (d) {
+ * :             return d;
+ * :         }
+ * :     }
+ * :     return value;
+ * : });
+ * 
+ * Parameters:
+ *  text - the string to parse to a JavaScript entity.
+ *  reviver - *[optional]* optional transforming function for modifying results; see the documentation above for more details.
+ * 
+ * Returns: well, pretty much anything you put in...
+ */
+
+/*jslint evil: true, regexp: true */
+
+/*members "", "\b", "\t", "\n", "\f", "\r", "\"", JSON, "\\", apply,
+    call, charCodeAt, getUTCDate, getUTCFullYear, getUTCHours,
+    getUTCMinutes, getUTCMonth, getUTCSeconds, hasOwnProperty, join,
+    lastIndex, length, parse, prototype, push, replace, slice, stringify,
+    test, toJSON, toString, valueOf
+*/
+
+(function () {
+    //'use strict';
+
+    // function f(n) {
+    //     // Format integers to have at least two digits.
+    //     return n < 10 ? '0' + n : n;
+    // }
+
+    // if (typeof Date.prototype.toJSON !== 'function') {
+
+    //     Date.prototype.toJSON = function (key) {
+
+    //         return isFinite(this.valueOf())
+    //             ? this.getUTCFullYear()     + '-' +
+    //                 f(this.getUTCMonth() + 1) + '-' +
+    //                 f(this.getUTCDate())      + 'T' +
+    //                 f(this.getUTCHours())     + ':' +
+    //                 f(this.getUTCMinutes())   + ':' +
+    //                 f(this.getUTCSeconds())   + 'Z'
+    //             : null;
+    //     };
+
+    //     String.prototype.toJSON      =
+    //         Number.prototype.toJSON  =
+    //         Boolean.prototype.toJSON = function (key) {
+    //             return this.valueOf();
+    //         };
+    // }
+
+    var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+        escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+        gap,
+        indent,
+        meta = {    // table of character substitutions
+            '\b': '\\b',
+            '\t': '\\t',
+            '\n': '\\n',
+            '\f': '\\f',
+            '\r': '\\r',
+            '"' : '\\"',
+            '\\': '\\\\'
+        },
+        rep;
+
+
+    function quote(string) {
+
+// If the string contains no control characters, no quote characters, and no
+// backslash characters, then we can safely slap some quotes around it.
+// Otherwise we must also replace the offending characters with safe escape
+// sequences.
+
+        escapable.lastIndex = 0;
+        return escapable.test(string) ? '"' + string.replace(escapable, function (a) {
+            var c = meta[a];
+            return typeof c === 'string'
+                ? c
+                : '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+        }) + '"' : '"' + string + '"';
+    }
+
+
+    function str(key, holder) {
+
+// Produce a string from holder[key].
+
+        var i,          // The loop counter.
+            k,          // The member key.
+            v,          // The member value.
+            length,
+            mind = gap,
+            partial,
+            value = holder[key];
+
+// If the value has a toJSON method, call it to obtain a replacement value.
+
+        if (value && typeof value === 'object' &&
+                typeof value.toJSON === 'function') {
+            value = value.toJSON(key);
+        }
+
+// If we were called with a replacer function, then call the replacer to
+// obtain a replacement value.
+
+        if (typeof rep === 'function') {
+            value = rep.call(holder, key, value);
+        }
+
+// What happens next depends on the value's type.
+
+        switch (typeof value) {
+        case 'string':
+            return quote(value);
+
+        case 'number':
+
+// JSON numbers must be finite. Encode non-finite numbers as null.
+
+            return isFinite(value) ? String(value) : 'null';
+
+        case 'boolean':
+        case 'null':
+
+// If the value is a boolean or null, convert it to a string. Note:
+// typeof null does not produce 'null'. The case is included here in
+// the remote chance that this gets fixed someday.
+
+            return String(value);
+
+// If the type is 'object', we might be dealing with an object or an array or
+// null.
+
+        case 'object':
+
+// Due to a specification blunder in ECMAScript, typeof null is 'object',
+// so watch out for that case.
+
+            if (!value) {
+                return 'null';
+            }
+
+// Make an array to hold the partial results of stringifying this object value.
+
+            gap += indent;
+            partial = [];
+
+// Is the value an array?
+
+            if (Object.prototype.toString.apply(value) === '[object Array]') {
+
+// The value is an array. Stringify every element. Use null as a placeholder
+// for non-JSON values.
+
+                length = value.length;
+                for (i = 0; i < length; i += 1) {
+                    partial[i] = str(i, value) || 'null';
+                }
+
+// Join all of the elements together, separated with commas, and wrap them in
+// brackets.
+
+                v = partial.length === 0
+                    ? '[]'
+                    : gap
+                    ? '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']'
+                    : '[' + partial.join(',') + ']';
+                gap = mind;
+                return v;
+            }
+
+// If the replacer is an array, use it to select the members to be stringified.
+
+            if (rep && typeof rep === 'object') {
+                length = rep.length;
+                for (i = 0; i < length; i += 1) {
+                    if (typeof rep[i] === 'string') {
+                        k = rep[i];
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
+                        }
+                    }
+                }
+            } else {
+
+// Otherwise, iterate through all of the keys in the object.
+
+                for (k in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
+                        }
+                    }
+                }
+            }
+
+// Join all of the member texts together, separated with commas,
+// and wrap them in braces.
+
+            v = partial.length === 0
+                ? '{}'
+                : gap
+                ? '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}'
+                : '{' + partial.join(',') + '}';
+            gap = mind;
+            return v;
+        }
+    }
+
+// If the JSON object does not yet have a stringify method, give it one.
+
+//    if (typeof bbop.json.stringify !== 'function') {
+        bbop.json.stringify = function (value, replacer, space) {
+
+// The stringify method takes a value and an optional replacer, and an optional
+// space parameter, and returns a JSON text. The replacer can be a function
+// that can replace values, or an array of strings that will select the keys.
+// A default replacer method can be provided. Use of the space parameter can
+// produce text that is more easily readable.
+
+            var i;
+            gap = '';
+            indent = '';
+
+// If the space parameter is a number, make an indent string containing that
+// many spaces.
+
+            if (typeof space === 'number') {
+                for (i = 0; i < space; i += 1) {
+                    indent += ' ';
+                }
+
+// If the space parameter is a string, it will be used as the indent string.
+
+            } else if (typeof space === 'string') {
+                indent = space;
+            }
+
+// If there is a replacer, it must be a function or an array.
+// Otherwise, throw an error.
+
+            rep = replacer;
+            if (replacer && typeof replacer !== 'function' &&
+                    (typeof replacer !== 'object' ||
+                    typeof replacer.length !== 'number')) {
+                throw new Error('bbop.json.stringify');
+            }
+
+// Make a fake root object containing our value under the key of ''.
+// Return the result of stringifying the value.
+
+            return str('', {'': value});
+        };
+//    }
+
+
+// If the JSON object does not yet have a parse method, give it one.
+
+//    if (typeof bbop.json.parse !== 'function') {
+        bbop.json.parse = function (text, reviver) {
+
+// The parse method takes a text and an optional reviver function, and returns
+// a JavaScript value if the text is a valid JSON text.
+
+            var j;
+
+            function walk(holder, key) {
+
+// The walk method is used to recursively walk the resulting structure so
+// that modifications can be made.
+
+                var k, v, value = holder[key];
+                if (value && typeof value === 'object') {
+                    for (k in value) {
+                        if (Object.prototype.hasOwnProperty.call(value, k)) {
+                            v = walk(value, k);
+                            if (v !== undefined) {
+                                value[k] = v;
+                            } else {
+                                delete value[k];
+                            }
+                        }
+                    }
+                }
+                return reviver.call(holder, key, value);
+            }
+
+
+// Parsing happens in four stages. In the first stage, we replace certain
+// Unicode characters with escape sequences. JavaScript handles many characters
+// incorrectly, either silently deleting them, or treating them as line endings.
+
+            text = String(text);
+            cx.lastIndex = 0;
+            if (cx.test(text)) {
+                text = text.replace(cx, function (a) {
+                    return '\\u' +
+                        ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+                });
+            }
+
+// In the second stage, we run the text against regular expressions that look
+// for non-JSON patterns. We are especially concerned with '()' and 'new'
+// because they can cause invocation, and '=' because it can cause mutation.
+// But just to be safe, we want to reject all unexpected forms.
+
+// We split the second stage into 4 regexp operations in order to work around
+// crippling inefficiencies in IE's and Safari's regexp engines. First we
+// replace the JSON backslash pairs with '@' (a non-JSON character). Second, we
+// replace all simple value tokens with ']' characters. Third, we delete all
+// open brackets that follow a colon or comma or that begin the text. Finally,
+// we look to see that the remaining characters are only whitespace or ']' or
+// ',' or ':' or '{' or '}'. If that is so, then the text is safe for eval.
+
+            if (/^[\],:{}\s]*$/
+                    .test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@')
+                        .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']')
+                        .replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+
+// In the third stage we use the eval function to compile the text into a
+// JavaScript structure. The '{' operator is subject to a syntactic ambiguity
+// in JavaScript: it can begin a block or an object literal. We wrap the text
+// in parens to eliminate the ambiguity.
+
+                j = eval('(' + text + ')');
+
+// In the optional fourth stage, we recursively walk the new structure, passing
+// each name/value pair to a reviver function for possible transformation.
+
+                return typeof reviver === 'function'
+                    ? walk({'': j}, '')
+                    : j;
+            }
+
+// If the text is not JSON parseable, then a SyntaxError is thrown.
+
+            throw new SyntaxError('bbop.json.parse: ' + text);
+        };
+//    }
+}());
+/*
+ * Package: template.js
+ * 
+ * Namespace: bbop.template
+ * 
+ * BBOP JS template object/enginette.
+ * 
+ * Some (nonsensical) usage is like:
+ * 
+ * : var tt = new bbop.template("{{foo}} {{bar}} {{foo}}");
+ * : 'A B A' == tt.fill({'foo': 'A', 'bar': 'B'});
+ */
+
+// Module and namespace checking.
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+
+/*
+ * Constructor: template
+ * 
+ * Arguments:
+ *  template_string - the string template to use for future fill calls
+ * 
+ * Returns:
+ *  self
+ */
+bbop.template = function(template_string){
+    this.is_a = 'bbop.template';
+
+    var anchor = this;
+
+    anchor._template_string = template_string;
+
+    // First break the template string into ordered sections which we
+    // will interleve later.
+    var split_re = /\{\{[A-Za-z0-9_-]+\}\}/;
+    anchor._template_split_strings =
+	template_string.split(split_re);
+
+    // Now map out which variables are at which locations.
+    var var_id_re = /\{\{[A-Za-z0-9_-]+\}\}/g;
+    anchor._var_id_matches =
+	template_string.match(var_id_re);
+    // Trim off the '{{' and '}}' from the matches.
+    bbop.core.each(anchor._var_id_matches,
+		  function(item, index){
+		      var new_item = item.substring(2, item.length -2);
+		      anchor._var_id_matches[index] = new_item;
+		  });
+
+    /*
+     * Function: fill
+     * 
+     * Fill the template with the corresponding hash items. Undefined
+     * variables are replaced with ''.
+     * 
+     * Arguments:
+     *  fill_hash - the template with the hashed values
+     * 
+     * Returns:
+     *  string
+     */
+    this.fill = function(fill_hash){
+	var ret_str = '';
+
+	bbop.core.each(anchor._template_split_strings,
+		       function(str, index){
+
+			   // Add the next bit.
+			   ret_str += str;
+
+			   // Add the replacement value if we can make
+			   // sense of it.
+			   if( index < anchor._var_id_matches.length ){
+			       var use_str = '';
+			       var varname = anchor._var_id_matches[index];
+			       if( varname &&
+				   bbop.core.is_defined(fill_hash[varname]) ){
+				   use_str = fill_hash[varname];
+			       }
+			       ret_str += use_str;
+			   }
+		       });
+
+	return ret_str;
+    };
+
+    /*
+     * Function: variables
+     * 
+     * Return a hash of the variables used in the template.
+     * 
+     * Arguments:
+     *  n/a
+     * 
+     * Returns:
+     *  a hash like: {'foo': true, 'bar': true, ...}
+     */
+    this.variables = function(){
+	return bbop.core.hashify(anchor._var_id_matches);
+    };
+
+};
+/*
+ * Package: logic.js
+ * 
+ * Namespace: bbop.logic
+ * 
+ * BBOP object to try and take some of the pain out of managing the
+ * boolean logic that seems to show up periodically. Right now mostly
+ * aimed at dealing with Solr/GOlr.
+ * 
+ * Anatomy of a core data bundle.
+ * 
+ * : data_bundle => {op: arg}
+ * : op => '__AND__', '__OR__', '__NOT__'
+ * : arg => <string>, array, data_bundle
+ * : array => [array_item*]
+ * : array_item => <string>, data
+ * 
+ * Example:
+ * 
+ * : {and: [{or: ...}, {or: ...}, {and: ...} ]}
+ * : var filters = {'and': []};
+ *
+ * TODO: parens between levels
+ */
+
+// Module and namespace checking.
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+
+/*
+ * Constructor: logic
+ * 
+ * Contructor for the bbop.logic object. NOTE: during processing,
+ * binary operators with a single argument cease to exist as they will
+ * never make it to output.
+ * 
+ * Arguments:
+ *  default_conjuntion - *[optional]* "and" or "or"; defaults to "and"
+ * 
+ * Returns:
+ *  bbop logic object
+ */
+bbop.logic = function(default_conjunction){
+    this._is_a = 'bbop.logic';
+
+    // Add logging.
+    var logger = new bbop.logger();
+    //logger.DEBUG = true;
+    logger.DEBUG = false;
+    function ll(str){ logger.kvetch(str); }
+
+    var logic_anchor = this;
+
+    // // Handling conjunctions.
+    // this._and = '__AND__';
+    // this._or = '__OR__';
+    // this._not = '__NOT__';
+    // function _is_token(possible_token){
+    // 	var retval = false;
+    // 	if( possible_token == this._and ||
+    // 	    possible_token == this._or ||
+    // 	    possible_token == this._not ){
+    // 	   retval = true; 
+    // 	}
+    // 	return retval;
+    // }
+    // // Convert the internal
+    // function _usable
+
+    // // Set the internal default conjunction. Default to "and".
+    // if( ! default_conjunction ){
+    // 	default_conjunction = this._and;
+    // }else if( default_conjunction == this._or ){
+    // 	default_conjunction = this._or;
+    // }else{
+    // 	default_conjunction = this._and;
+    // }
+    if( ! default_conjunction ){
+    	default_conjunction = 'and';
+    }
+    this.default_conjunction = default_conjunction;
+
+    // Set initial state.
+    // ie: this._bundle = {'__AND__': []};
+    //this._bundle = {};
+    //this._bundle[this.default_conjunction] = [];
+    // See documentation for empty().
+    var _empty = function(){
+	logic_anchor._bundle = {};
+	logic_anchor._bundle[logic_anchor.default_conjunction] = [];
+    };
+    _empty();
+
+    /*
+     * Function: add
+     * 
+     * Add to the current stored logic bundle.
+     * 
+     * Parameters:
+     *  item - string or bbop.logic object
+     * 
+     * Returns:
+     *  n/a
+     */
+    //this.and = function(){
+    //this.or = function(){
+    //this.not = function(){
+    this.add = function(item){
+
+	// Add things a little differently if it looks like a bit of
+	// logic.
+	if(  bbop.core.what_is(item) == 'bbop.logic' ){
+	    this._bundle[this.default_conjunction].push(item._bundle);
+	}else{
+	    this._bundle[this.default_conjunction].push(item);
+	}
+    };
+
+    /*
+     * Function: negate
+     * 
+     * Negate the current stored logic.
+     * 
+     * TODO/BUG: I think this might cause an unreleasable circular
+     * reference.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  n/a
+     */
+    this.negate = function(){
+	var nega = {};
+	nega['not'] = this._bundle;
+	this._bundle = nega;
+    };
+    
+    // Walk the data structure...
+    this._read_walk = function(data_bundle, in_encoder, lvl){
+	
+	// The encoder defaults to whatever--no transformations
+	var encoder = in_encoder || function(in_out){ return in_out; };
+
+	ll("LRW: with: " + bbop.core.dump(data_bundle));
+
+	// If level is not defined, we just started and we're on level
+	// one, the first level.
+	var l_enc = '(';
+	var r_enc = ')';
+	if( typeof(lvl) == 'undefined' ){
+	    lvl = 1;
+	    l_enc = '';
+	    r_enc = '';
+	}	
+
+	var read = '';
+	
+	// The task of walking is broken into the terminal case (a
+	// string) or things that we need to operate on (arrays or
+	// sub-data_bundles).
+	if( bbop.core.what_is(data_bundle) == 'string' ){
+	    ll("LRW: trigger string");
+	    read = data_bundle;
+	}else{
+	    ll("LRW: trigger non-string");
+
+	    // Always single op.
+	    var op = bbop.core.get_keys(data_bundle)[0];
+	    var arg = data_bundle[op];
+
+	    // We can treat the single data_bundle/string case like a
+	    // degenerate array case.
+	    if( ! bbop.core.is_array(arg) ){
+		arg = [arg];
+	    }
+
+	    // Recure through the array and join the results with the
+	    // current op.
+	    //ll('L: arg: ' + bbop.core.what_is(arg));
+	    var stack = [];
+	    bbop.core.each(arg, function(item, i){
+			       stack.push(logic_anchor._read_walk(item,
+								  encoder,
+								  lvl + 1));
+			   });
+
+	    // Slightly different things depending on if it's a unary
+	    // or binary op.
+	    if( op == 'not' ){
+		// TODO: I believe that it should no be possible
+		// (i.e. policy by code) to have a 'not' with more
+		// that a single argument.
+		read = op + ' ' + stack.join('');
+	    }else{
+		read = l_enc + stack.join(' ' + op + ' ') + r_enc;
+	    }
+	}
+
+	
+	ll("LRW: returns: " + read);
+	return read;
+    };
+
+    /*
+     * Function: to_string
+     * 
+     * Dump the current data out to a string.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  n/a
+     */
+    this.to_string = function(){
+	return logic_anchor._read_walk(logic_anchor._bundle);
+    };
+
+    /*
+     * Function: url
+     * 
+     * TODO
+     * 
+     * Dump the current data out to a URL.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  n/a
+     */
+    this.url = function(){
+	return logic_anchor._read_walk(logic_anchor._bundle);
+    };
+
+    /*
+     * Function: empty
+     * 
+     * Empty/reset self.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  n/a
+     */
+    // Staggered declaration so I can use it above during initialization.
+    this.empty = _empty;
+
+    /*
+     * Function: parse
+     * 
+     * TODO: I think I can grab the shunting yard algorithm for a
+     * similar problem in the old AmiGO 1.x codebase.
+     * 
+     * Parse an incoming string into the internal data structure.
+     * 
+     * Parameters:
+     *  in_str - the incoming string to parse
+     * 
+     * Returns:
+     *  n/a
+     */
+    this.parse = function(in_str){
+	return null;
+    };
+
+};
+/* 
  * Package: registry.js
  * 
  * Namespace: bbop.registry
@@ -3002,8 +2916,8 @@ bbop.test = function(){
  * BBOP generic lightweight listener/callback registry system.
  */
 
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('bbop', 'registry');
+// Module and namespace checking.
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
 
 /*
  * Constructor: registry
@@ -3211,15 +3125,14 @@ bbop.registry = function(evt_list){
  * This package takes all of the bbop.html.* namespace.
  */
 
-bbop.core.require('bbop', 'core');
-//bbop.core.require('bbop', 'logger');
-//bbop.core.require('bbop', 'amigo');
-bbop.core.namespace('bbop', 'html');
-bbop.core.namespace('bbop', 'html', 'tag');
-bbop.core.namespace('bbop', 'html', 'accordion');
-bbop.core.namespace('bbop', 'html', 'list');
-bbop.core.namespace('bbop', 'html', 'input');
-bbop.core.namespace('bbop', 'html', 'img');
+// Module and namespace checking.
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.html == "undefined" ){ bbop.html = {}; }
+if ( typeof bbop.html.tag == "undefined" ){ bbop.html.tag = {}; }
+if ( typeof bbop.html.accordion == "undefined" ){ bbop.html.accordion = {}; }
+if ( typeof bbop.html.list == "undefined" ){ bbop.html.list = {}; }
+if ( typeof bbop.html.input == "undefined" ){ bbop.html.input = {}; }
+if ( typeof bbop.html.img == "undefined" ){ bbop.html.img = {}; }
 
 /*
  * Namespace: bbop.html.tag
@@ -4182,6 +4095,51 @@ bbop.html.span.prototype.get_id = function(){
     return this._span_stack.get_id();
 };
 /* 
+ * Package: handler.js
+ * 
+ * Namespace: bbop.handler
+ * 
+ * This package contains a "useable", but utterly worthless reference
+ * implementation of a handler.
+ */
+
+// Module and namespace checking.
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+
+/*
+ * Constructor: handler
+ *
+ * Partial version for this library; revision (major/minor version numbers)
+ * information.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  n/a
+ */
+bbop.handler = function(){
+    this._is_a = 'bbop.handler';
+};
+
+/*
+ * Function: url
+ * 
+ * Return a url string.
+ * 
+ * Arguments:
+ *  data - the incoming thing to be handled
+ *  name - the field name to be processed
+ *  context - *[optional]* a string to add extra context to the call
+ *  fallback - *[optional]* a fallback function to call in case nothing is found
+ * 
+ * Returns:
+ *  null
+ */
+bbop.handler.prototype.dispatch = function(data, name, context, fallback){
+    return null;
+};
+/* 
  * Package: linker.js
  * 
  * Namespace: bbop.linker
@@ -4190,7 +4148,8 @@ bbop.html.span.prototype.get_id = function(){
  * implementation of a linker.
  */
 
-bbop.core.namespace('bbop', 'linker');
+// Module and namespace checking.
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
 
 /*
  * Constructor: linker
@@ -4240,50 +4199,6 @@ bbop.linker.prototype.anchor = function(id, xid){
     return null;
 };
 /* 
- * Package: handler.js
- * 
- * Namespace: bbop.handler
- * 
- * This package contains a "useable", but utterly worthless reference
- * implementation of a handler.
- */
-
-bbop.core.namespace('bbop', 'handler');
-
-/*
- * Constructor: handler
- *
- * Partial version for this library; revision (major/minor version numbers)
- * information.
- * 
- * Arguments:
- *  n/a
- * 
- * Returns:
- *  n/a
- */
-bbop.handler = function(){
-    this._is_a = 'bbop.handler';
-};
-
-/*
- * Function: url
- * 
- * Return a url string.
- * 
- * Arguments:
- *  data - the incoming thing to be handled
- *  name - the field name to be processed
- *  context - *[optional]* a string to add extra context to the call
- *  fallback - *[optional]* a fallback function to call in case nothing is found
- * 
- * Returns:
- *  null
- */
-bbop.handler.prototype.dispatch = function(data, name, context, fallback){
-    return null;
-};
-/* 
  * Package: model.js
  * 
  * Namespace: bbop.model
@@ -4304,10 +4219,8 @@ bbop.handler.prototype.dispatch = function(data, name, context, fallback){
  */
 
 // Module and namespace checking.
-bbop.core.require('bbop', 'core'); // not needed, but want the habit
-bbop.core.require('bbop', 'logger');
-bbop.core.namespace('bbop', 'model');
-
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.model == "undefined" ){ bbop.model = {}; }
 
 /*
  * Variable: default_predicate
@@ -5393,11 +5306,9 @@ bbop.model.graph.prototype.load_json = function(json_object){
  */
 
 // Module and namespace checking.
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'model');
-bbop.core.namespace('bbop', 'model', 'tree');
-
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.model == "undefined" ){ bbop.model = {}; }
+if ( typeof bbop.model.tree == "undefined" ){ bbop.model.tree = {}; }
 
 // // BUG/TODO: remove later...or something...
 // bbop.model.tree.logger = new bbop.logger();
@@ -5915,9 +5826,10 @@ bbop.core.extend(bbop.model.tree.graph, bbop.model.graph);
  */
 
 // Module and namespace checking.
-bbop.core.require('bbop', 'core'); // not needed, but want the habit
-bbop.core.require('bbop', 'model');
-bbop.core.namespace('bbop', 'model', 'bracket', 'graph');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.model == "undefined" ){ bbop.model = {}; }
+if ( typeof bbop.model.bracket == "undefined" ){ bbop.model.bracket = {}; }
+//if ( typeof bbop.model.bracket.graph == "undefined" ){ bbop.model.bracket.graph = {}; }
 
 /*
  * Namespace: bbop.model.bracket.graph
@@ -6275,9 +6187,9 @@ bbop.core.extend(bbop.model.bracket.graph, bbop.model.graph);
  * drive the OWLTools-Solr parts of GOlr.
  */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('bbop', 'golr');
+// Module and namespace checking.
+if( typeof bbop == "undefined" ){ var bbop = {}; }
+if( typeof bbop.golr == "undefined" ){ bbop.golr = {}; }
 
 /*
  * Namespace: bbop.golr.conf_field
@@ -6793,9 +6705,9 @@ bbop.golr.conf = function (golr_conf_var){
  * what parameters were passed, etc.
  */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('bbop', 'golr', 'response');
+// Module and namespace checking.
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.golr == "undefined" ){ bbop.golr = {}; }
 
 /*
  * Constructor: response
@@ -7626,12 +7538,9 @@ bbop.golr.response.prototype.query_filters = function(){
  * and <get_query> should only return <bbop.logic>.
  */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'registry');
-bbop.core.require('bbop', 'golr', 'conf');
-bbop.core.require('bbop', 'golr', 'response');
-bbop.core.namespace('bbop', 'golr', 'manager');
+// Module and namespace checking.
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.golr == "undefined" ){ bbop.golr = {}; }
 
 /*
  * Constructor: manager
@@ -10156,13 +10065,9 @@ bbop.golr.manager.prototype.update = function(callback_type, rows, start){
  * This is mostly for testing purposes.
  */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'registry');
-bbop.core.require('bbop', 'golr', 'conf');
-bbop.core.require('bbop', 'golr', 'response');
-bbop.core.require('bbop', 'golr', 'manager');
-bbop.core.namespace('bbop', 'golr', 'manager', 'preload');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.golr == "undefined" ){ bbop.golr = {}; }
+if ( typeof bbop.golr.manager == "undefined" ){ bbop.golr.manager = {}; }
 
 /*
  * Constructor: preload
@@ -10256,13 +10161,9 @@ bbop.golr.manager.preload.prototype.update = function(callback_type,
  * This may be madness.
  */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'registry');
-bbop.core.require('bbop', 'golr', 'conf');
-bbop.core.require('bbop', 'golr', 'response');
-bbop.core.require('bbop', 'golr', 'manager');
-bbop.core.namespace('bbop', 'golr', 'manager', 'nodejs');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.golr == "undefined" ){ bbop.golr = {}; }
+if ( typeof bbop.golr.manager == "undefined" ){ bbop.golr.manager = {}; }
 
 /*
  * Constructor: nodejs
@@ -10374,13 +10275,9 @@ bbop.golr.manager.nodejs.prototype.update = function(callback_type,
  * This may be madness.
  */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'registry');
-bbop.core.require('bbop', 'golr', 'conf');
-bbop.core.require('bbop', 'golr', 'response');
-bbop.core.require('bbop', 'golr', 'manager');
-bbop.core.namespace('bbop', 'golr', 'manager', 'rhino');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.golr == "undefined" ){ bbop.golr = {}; }
+if ( typeof bbop.golr.manager == "undefined" ){ bbop.golr.manager = {}; }
 
 /*
  * Constructor: rhino
@@ -10500,13 +10397,9 @@ bbop.golr.manager.rhino.prototype.fetch = function(){
  * parsing) even outside of a jQuery environment.
  */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'registry');
-bbop.core.require('bbop', 'golr', 'conf');
-bbop.core.require('bbop', 'golr', 'response');
-bbop.core.require('bbop', 'golr', 'manager');
-bbop.core.namespace('bbop', 'golr', 'manager', 'jquery');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.golr == "undefined" ){ bbop.golr = {}; }
+if ( typeof bbop.golr.manager == "undefined" ){ bbop.golr.manager = {}; }
 
 /*
  * Constructor: jquery
@@ -10825,9 +10718,8 @@ bbop.golr.faux_ajax = function (){
  * handler that needs to be overridden (see subclasses).
  */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('bbop', 'rest', 'response');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.rest == "undefined" ){ bbop.rest = {}; }
 
 /*
  * Constructor: response
@@ -10882,12 +10774,18 @@ bbop.rest.response.prototype.raw = function(){
  */
 bbop.rest.response.prototype.okay = function(){
 
-    if( this._raw != null ){
-	this._okay = true;
-    }else{
-	this._okay = false;
+    print('a: ' + this._okay);
+    if( this._okay == null ){ // only go if answer not cached
+	print('b: ' + this._raw);
+	if( ! this._raw || this._raw == '' ){
+	    print('c: if');
+	    this._okay = false;
+	}else{
+	    print('c: else');
+	    this._okay = true;
+	}
     }
-
+    
     return this._okay;
 };
 /* 
@@ -10899,11 +10797,9 @@ bbop.rest.response.prototype.okay = function(){
  * responses from a REST JSON server.
  */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'json');
-bbop.core.require('bbop', 'rest', 'response');
-bbop.core.namespace('bbop', 'rest', 'response', 'json');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.rest == "undefined" ){ bbop.rest = {}; }
+if ( typeof bbop.rest.response == "undefined" ){ bbop.rest.response = {}; }
 
 /*
  * Constructor: json
@@ -10938,20 +10834,20 @@ bbop.rest.response.json = function(json_data){
 };
 bbop.core.extend(bbop.rest.response.json, bbop.rest.response);
 
-/*
- * Function: raw
- * 
- * returns a pointer to the parsed response object
- * 
- * Arguments:
- *  n/a
- * 
- * Returns:
- *  raw response
- */
-bbop.rest.response.json.prototype.raw = function(){
-    return this._raw;
-};
+// /*
+//  * Function: raw
+//  * 
+//  * returns a pointer to the parsed response object
+//  * 
+//  * Arguments:
+//  *  n/a
+//  * 
+//  * Returns:
+//  *  raw response
+//  */
+// bbop.rest.response.json.prototype.raw = function(){
+//     return this._raw;
+// };
 
 /*
  * Function: string
@@ -10968,27 +10864,31 @@ bbop.rest.response.json.prototype.string = function(){
     return this._raw_string;
 };
 
-/*
- * Function: okay
- * 
- * Simple return verification of sane response from server.
- * 
- * Okay caches its return value.
- * 
- * Arguments:
- *  n/a
- * 
- * Returns:
- *  boolean
- */
-bbop.rest.response.prototype.okay = function(){
+// /*
+//  * Function: okay
+//  * 
+//  * Simple return verification of sane response from server.
+//  * 
+//  * Okay caches its return value.
+//  * 
+//  * Arguments:
+//  *  n/a
+//  * 
+//  * Returns:
+//  *  boolean
+//  */
+// bbop.rest.response.json.prototype.okay = function(){
 
-    if( this._okay == null ){
-	this._okay = false;
-    }
+//     if( this._okay == null ){ // only go if answer not cached
+// 	if( ! this._raw || this._raw == '' ){
+// 	    this._okay = false;
+// 	}else{
+// 	    this._okay = true;
+// 	}
+//     }
 
-    return this._okay;
-};
+//     return this._okay;
+// };
 /* 
  * Package: manager.js
  * 
@@ -11003,12 +10903,8 @@ bbop.rest.response.prototype.okay = function(){
  * itself (this as anchor) should be passed to the callbacks.
  */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'registry');
-// Instance by instance.
-//bbop.core.require('bbop', 'rest', 'response');
-bbop.core.namespace('bbop', 'rest', 'manager');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.rest == "undefined" ){ bbop.rest = {}; }
 
 /*
  * Constructor: manager
@@ -11182,12 +11078,9 @@ bbop.rest.manager.prototype.update = function(callback_type){
  * This may be madness.
  */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'registry');
-bbop.core.require('bbop', 'rest', 'response');
-bbop.core.require('bbop', 'rest', 'manager');
-bbop.core.namespace('bbop', 'rest', 'manager', 'rhino');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.rest == "undefined" ){ bbop.rest = {}; }
+if ( typeof bbop.rest.manager == "undefined" ){ bbop.rest.manager = {}; }
 
 /*
  * Constructor: rhino
@@ -11290,12 +11183,9 @@ bbop.rest.manager.rhino.prototype.fetch = function(url){
  * This may be madness.
  */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'registry');
-bbop.core.require('bbop', 'rest', 'response');
-bbop.core.require('bbop', 'rest', 'manager');
-bbop.core.namespace('bbop', 'rest', 'manager', 'ringo');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.rest == "undefined" ){ bbop.rest = {}; }
+if ( typeof bbop.rest.manager == "undefined" ){ bbop.rest.manager = {}; }
 
 /*
  * Constructor: ringo
@@ -11421,10 +11311,9 @@ bbop.rest.manager.ringo.prototype.fetch = function(url){
  * This is a method, not a constructor.
  */
 
-bbop.core.require('bbop', 'core');
-//bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'html');
-bbop.core.namespace('bbop', 'widget', 'display', 'clickable_object');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
+if ( typeof bbop.widget.display == "undefined" ){ bbop.widget.display = {}; }
 
 /*
  * Method: clickable_object
@@ -11485,10 +11374,9 @@ bbop.widget.display.clickable_object = function(label, source, id){
  * Note: this is a method, not a constructor.
  */
 
-bbop.core.require('bbop', 'core');
-//bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'html');
-bbop.core.namespace('bbop', 'widget', 'display', 'text_button_sim');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
+if ( typeof bbop.widget.display == "undefined" ){ bbop.widget.display = {}; }
 
 /*
  * Method: text_button_sim
@@ -11544,10 +11432,10 @@ bbop.widget.display.text_button_sim = function(label, title, id, add_attrs){
  * Note: this is a collection of methods, not a constructor/object.
  */
 
-bbop.core.require('bbop', 'core');
-//bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'html');
-bbop.core.namespace('bbop', 'widget', 'display', 'button_templates');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
+if ( typeof bbop.widget.display == "undefined" ){ bbop.widget.display = {}; }
+if ( typeof bbop.widget.display.button_templates == "undefined" ){ bbop.widget.display.button_templates = {}; }
 
 /*
  * Method: field_download
@@ -11983,9 +11871,9 @@ bbop.widget.display.button_templates.flexible_download = function(label, count,
  * Subclass of <bbop.html.tag>.
  */
 
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'html');
-bbop.core.namespace('bbop', 'widget', 'display', 'results_table_by_class_conf');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
+if ( typeof bbop.widget.display == "undefined" ){ bbop.widget.display = {}; }
 
 /*
  * Function: results_table_by_class_conf
@@ -12393,9 +12281,9 @@ bbop.widget.display.results_table_by_class = function(cclass,
  * Subclass of <bbop.html.tag>.
  */
 
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'html');
-bbop.core.namespace('bbop', 'widget', 'display', 'two_column_layout');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
+if ( typeof bbop.widget.display == "undefined" ){ bbop.widget.display = {}; }
 
 /*
  * Constructor: two_column_layout
@@ -12444,13 +12332,9 @@ bbop.widget.display.two_column_layout.prototype = new bbop.html.tag;
  * pane genre.
  */
 
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-//bbop.core.require('bbop', 'model');
-//bbop.core.require('bbop', 'model', 'graph', 'bracket');
-bbop.core.require('bbop', 'html');
-bbop.core.require('bbop', 'golr', 'manager', 'jquery');
-bbop.core.namespace('bbop', 'widget', 'display', 'filter_shield');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
+if ( typeof bbop.widget.display == "undefined" ){ bbop.widget.display = {}; }
 
 /*
  * Constructor: filter_shield
@@ -12650,12 +12534,9 @@ bbop.widget.display.filter_shield = function(spinner_img_src){
  *  <search_pane.js>
  */
 
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'widget', 'display', 'clickable_object');
-bbop.core.require('bbop', 'widget', 'display', 'results_table_by_class_conf');
-bbop.core.require('bbop', 'widget', 'display', 'two_column_layout');
-bbop.core.namespace('bbop', 'widget', 'live_search');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
+if ( typeof bbop.widget.display == "undefined" ){ bbop.widget.display = {}; }
 
 /*
  * Constructor: live_search
@@ -14325,10 +14206,8 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
  * This is a completely self-contained UI.
  */
 
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'html');
-bbop.core.namespace('bbop', 'widget', 'spinner');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
 
 /*
  * Constructor: spinner
@@ -14544,10 +14423,8 @@ bbop.widget.spinner = function(host_elt_id, img_src, argument_hash){
 
 // YANKED: ...apply the classes "even_row" and "odd_row" to the table.
 
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'widget', 'display', 'text_button_sim');
-bbop.core.require('bbop', 'widget', 'spinner');
-bbop.core.namespace('bbop', 'widget', 'filter_table');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
 
 /*
  * Method: filter_table
@@ -14709,13 +14586,8 @@ bbop.widget.filter_table = function(elt_id, table_id, img_src,
  * This is a completely self-contained UI and manager.
  */
 
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'model');
-bbop.core.require('bbop', 'model', 'bracket', 'graph');
-bbop.core.require('bbop', 'html');
-bbop.core.require('bbop', 'golr', 'manager', 'jquery');
-bbop.core.namespace('bbop', 'widget', 'browse');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
 
 /*
  * Constructor: browse
@@ -15018,11 +14890,8 @@ bbop.core.extend(bbop.widget.browse, bbop.golr.manager.jquery);
  * This is a completely self-contained UI and manager.
  */
 
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'template');
-bbop.core.require('bbop', 'golr', 'manager', 'jquery');
-bbop.core.namespace('bbop', 'widget', 'search_box');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
 
 /*
  * Constructor: search_box
@@ -15193,10 +15062,8 @@ bbop.core.extend(bbop.widget.search_box, bbop.golr.manager.jquery);
  * This is a completely self-contained UI.
  */
 
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'html');
-bbop.core.namespace('bbop', 'widget', 'dialog');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
 
 /*
  * Constructor: dialog
@@ -15277,13 +15144,8 @@ bbop.widget.dialog = function(item, in_argument_hash){
  * This is a completely self-contained UI and manager.
  */
 
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-//bbop.core.require('bbop', 'model');
-//bbop.core.require('bbop', 'model', 'graph', 'bracket');
-bbop.core.require('bbop', 'html');
-bbop.core.require('bbop', 'golr', 'manager', 'jquery');
-bbop.core.namespace('bbop', 'widget', 'term_shield');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
 
 /*
  * Constructor: term_shield
@@ -15458,13 +15320,8 @@ bbop.core.extend(bbop.widget.term_shield, bbop.golr.manager.jquery);
  * This is a completely self-contained UI and manager.
  */
 
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-//bbop.core.require('bbop', 'model');
-//bbop.core.require('bbop', 'model', 'graph', 'bracket');
-bbop.core.require('bbop', 'html');
-bbop.core.require('bbop', 'golr', 'manager', 'jquery');
-bbop.core.namespace('bbop', 'widget', 'list_select_shield');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
 
 /*
  * Constructor: list_select_shield
@@ -15695,13 +15552,8 @@ bbop.widget.list_select_shield = function(in_argument_hash){
  * This is a completely self-contained UI and manager.
  */
 
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-//bbop.core.require('bbop', 'model');
-//bbop.core.require('bbop', 'model', 'graph', 'bracket');
-bbop.core.require('bbop', 'html');
-bbop.core.require('bbop', 'golr', 'manager', 'jquery');
-bbop.core.namespace('bbop', 'widget', 'drop_select_shield');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
 
 /*
  * Constructor: drop_select_shield
@@ -15911,11 +15763,8 @@ bbop.widget.drop_select_shield = function(in_argument_hash){
  * not to display the "more" option for the filters.
  */
 
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'html');
-bbop.core.require('bbop', 'golr', 'manager', 'jquery');
-bbop.core.namespace('bbop', 'widget', 'search_pane');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
 
 /*
  * Constructor: search_pane
@@ -16330,11 +16179,8 @@ bbop.core.extend(bbop.widget.search_pane, bbop.golr.manager.jquery);
  * log.
  */
 
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'html');
-//bbop.core.require('bbop', 'golr', 'manager', 'jquery');
-bbop.core.namespace('bbop', 'widget', 'repl');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
 
 /*
  * Constructor: repl
@@ -16772,12 +16618,9 @@ bbop.widget.repl = function(interface_id, initial_commands, in_argument_hash){
 
 
 // Module and namespace checking.
-//bbop.core.require('Raphael');
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'model');
-bbop.core.require('bbop', 'model', 'tree');
-bbop.core.namespace('bbop', 'widget', 'phylo_old');
-//bbop.core.namespace('bbop', 'widget', 'phylo_old', 'renderer');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
+if ( typeof bbop.widget.phylo_old == "undefined" ){ bbop.widget.phylo_old = {}; }
 
 ///
 /// PNodes (phylonode) object.
@@ -17788,8 +17631,9 @@ bbop.widget.phylo_old.renderer = function (element_id, info_box_p){
     };
 
 };
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('bbop', 'widget', 'phylo_tree');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
+if ( typeof bbop.widget.phylo_tree == "undefined" ){ bbop.widget.phylo_tree = {}; }
 
 (function() {
 
@@ -18568,9 +18412,9 @@ function sum(list) {
 }
 
 })();
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'widget', 'phylo_tree');
-bbop.core.namespace('bbop', 'widget', 'phylo');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
+if ( typeof bbop.widget.phylo == "undefined" ){ bbop.widget.phylo = {}; }
 
 (function() {
 
@@ -18922,9 +18766,9 @@ renderer.prototype.render_tree = function() {
 };
 
 })();
-bbop.core.require('bbop', 'core');
-//bbop.core.require('jQuery');
-bbop.core.namespace('bbop', 'widget', 'matrix');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
+if ( typeof bbop.widget.matrix == "undefined" ){ bbop.widget.matrix = {}; }
 
 (function() {
 
@@ -19300,10 +19144,8 @@ renderer.prototype.show_cols = function(col_list) {
  * This is a completely self-contained UI.
  */
 
-bbop.core.require('bbop', 'core');
-bbop.core.require('bbop', 'logger');
-bbop.core.require('bbop', 'html');
-bbop.core.namespace('bbop', 'widget', 'message');
+if ( typeof bbop == "undefined" ){ var bbop = {}; }
+if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
 
 /*
  * Constructor: message
@@ -19409,164 +19251,12 @@ bbop.widget.message = function(){
     };
 
 };
-/*
- * Package: overlay.js
- * 
- * Namespace: bbop.contrib.go.overlay
- * 
- * This package contributes some very high-level functions to make
- * using things like the web REPL easier to use with GOlr data
- * sources.
- * 
- * It is suggested that you *[not]* use this if you are seriously
- * programming for BBOP JS since it plays fast and loose with the
- * dynamic environment, as well as polluting the global namespace.
- * 
- * NOTE: Again, this overlay is only usable in a (jQuery) browser
- * environment--the JS environments are too varied for this to work
- * arbitrarily, but similar approaches might work in other
- * envorinments.
- */
 
-// Setup the internal requirements.
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('bbop', 'contrib', 'go', 'overlay');
+// If it looks like we're in an environment that supports CommonJS
+// Modules 1.0, take the bbop namespace whole and export it. Otherwise
+// (browser environment, etc.), take no action and depend on the
+// global namespace.
+if( typeof(exports) != 'undefined' ){
+    exports.bbop = bbop;    
+}
 
-/*
- * Function: overlay
- * 
- * Put a set of useful functions into the global namespace for use
- * with REPLs and the like.
- * 
- * Arguments:
- *  manager_type - the manager type to use, or null (no sublcass)
- * 
- * Returns:
- *  boolean on whether any errors were thrown
- */
-bbop.contrib.go.overlay = function(manager_type){
-
-    //var anchor = this;
-    var global_ret = true;
-
-    // Either the base manager, or a manager subclass.
-    var mtype = '';
-    if( manager_type ){
-	mtype = '.' + manager_type;
-    }
-
-    // Well, for now, this is what we will do--see bbop.core.evaluate
-    // for a start on a more general ability. I could likely remove
-    // the "var" and have everything out in the global, but it looks
-    // like that might case errors too.
-    if( manager_type != 'jquery' ){
-	throw new Error('Cannot create non-jquery overlays at this time!');
-    }
-
-    var env = [
-	'var loop = bbop.core.each;',
-	'var dump = bbop.core.dump;',
-	'var what_is = bbop.core.what_is;',
-
-	// Defined a global logger.
-	'var logger = new bbop.logger();',
-	'logger.DEBUG = true;',
-	'function ll(str){ return logger.kvetch(str); }',
-	
-	// Get our data env right.
-	'var server_meta = new amigo.data.server();',
-	'var gloc = server_meta.golr_base();',
-	'var gconf = new bbop.golr.conf(amigo.data.golr);',
-
-	// Support a call back to data.
-	'var data = null;',
-	"function callback(json){ ll('// Returned with \"data\".'); data = new bbop.golr.response(json); }",
-
-	// Get a global manager.
-	'var go = new bbop.golr.manager' + mtype + '(gloc, gconf);',
-	"go.register('search', 's', callback);",
-
-	// Add GO-specific methods to our manager.
-	"bbop.golr.manager.prototype.gaf_url = function(){ return this.get_download_url(['source', 'bioentity_label', 'annotation_class', 'reference', 'evidence_type', 'evidence_with', 'taxon', 'date', 'annotation_extension_class', 'bioentity']); };",
-	"bbop.golr.manager.prototype.doc_type = function(t){ return this.add_query_filter('document_type', t); };",
-	"bbop.golr.manager.prototype.filter = function(f, t, p){ var pol = p || \'+'; return this.add_query_filter(f, t, [p]); };"
-    ];
-
-    var jquery_env = [
-	"var empty = function(did){ jQuery('#' + did).empty(); };",
-	"var append = function(did, str){ jQuery('#' + did).append(str); };"
-    ];
-
-    function _b_eval(to_eval){
-	return window.eval(to_eval);
-    }
-    function _s_eval(to_eval){
-	return eval(to_eval);
-    }
-
-    // The main evaluation function.
-    function _eval(to_eval){
-	
-	var retval = '';
-
-	// Try and detect our environment.
-	var env_type = 'server';
-	try{
-	    if( bbop.core.is_defined(window) &&
-		bbop.core.is_defined(window.eval) &&
-		bbop.core.what_is(window.eval) == 'function' ){
-		    env_type = 'browser';
-		}
-	} catch (x) {
-	    // Probably not a browser then, right?
-	}
-
-	// Now try for the execution.
-	try{
-	    // Try and generically evaluate.
-	    var tmp_ret = null;
-	    if( env_type == 'browser' ){
-		tmp_ret = _b_eval(to_eval);
-	    }else{
-		// TODO: Does this work?
-		tmp_ret = _s_eval(to_eval);		
-	    }
-
-	    // Make whatever the tmp_ret is prettier for the return
-	    // val.
-	    if( bbop.core.is_defined(tmp_ret) ){
-		if( bbop.core.what_is(tmp_ret) == 'string' ){
-		    retval = '"' + tmp_ret + '"';
-		}else{
-		    retval = tmp_ret;
-		}
-	    }else{
-		// ...
-	    }
-	}catch (x){
-	    // Bad things happened.
-	    //print('fail on: (' + tmp_ret +'): ' + to_eval);
-	    retval = '[n/a]';
-	    global_ret = false;
-	}
-	
-	return retval;
-    }
-
-    // Now cycle through the command list.
-    bbop.core.each(env,
-		   function(line){
-		       _eval(line);
-		   });
-    
-    // Add a few specific things if we're in a jQuery REPL
-    // environment.
-    if( manager_type && manager_type == 'jquery' ){	
-	bbop.core.each(jquery_env,
-		       function(line){
-			   _eval(line);
-		       });
-    }
-    
-    return global_ret;
-};
