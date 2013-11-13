@@ -6,11 +6,12 @@
 ####
 
 METADATA ?= $(wildcard metadata/*.yaml)
-JS ?= rhino # or smjs
-JSFLAGS ?= -opt -1
+TEST_JS ?= rhino # or smjs
+## Use our local bbop-js.
+TEST_JS_FLAGS ?= -modules _data/bbop.js -modules javascript/staging/amigo.js -opt -1
 #JSENGINES = node smjs rhino
 BBOP_JS ?= ../bbop-js/
-TESTS = \
+JS_TESTS = \
  $(wildcard javascript/lib/amigo/*.js.tests) \
  $(wildcard javascript/lib/amigo/data/*.js.tests) \
  $(wildcard javascript/lib/amigo/ui/*.js.tests) \
@@ -18,7 +19,7 @@ TESTS = \
 #BENCHMARKS = $(wildcard _benchmark/*.js)
 
 all:
-	@echo "Default JS engine: $(JS)"
+	@echo "Default JS engine: $(TEST_JS)"
 	@echo "See: http://wiki.geneontology.org/index.php/AmiGO_Manual:_Installation_2.0"
 	@echo "for more details."
 #	@echo "All JS engines: $(JSENGINES)"
@@ -28,11 +29,12 @@ all:
 ### Tests.
 ###
 
-.PHONY: test $(TESTS)
-test: $(TESTS)
-$(TESTS): bundle
+.PHONY: test $(JS_TESTS)
+test: $(JS_TESTS)
+$(JS_TESTS): bundle
 	echo "trying: $@"
-	cd $(@D) && $(JS) $(JSFLAGS) -f $(@F)
+	$(TEST_JS) $(TEST_JS_FLAGS) -f $(@D)/$(@F)
+#	cd $(@D) && $(TEST_JS) $(TEST_JS_FLAGS) -f $(@F)
 
 ###
 ### Check the metadata using kwalify.

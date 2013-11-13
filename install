@@ -636,8 +636,8 @@ sub xref_abbs_to_meta_js {
  */
 
 // All of the server/instance-specific meta-data.
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('amigo', 'data', 'xrefs');
+if ( typeof amigo == "undefined" ){ var amigo = {}; }
+if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
 
 /*
  * Variable: xrefs
@@ -764,8 +764,8 @@ sub golr_config_to_meta_js {
  */
 
 // All of the server/instance-specific meta-data.
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('amigo', 'data', 'golr');
+if ( typeof amigo == "undefined" ){ var amigo = {}; }
+if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
 
 /*
  * Variable: golr
@@ -863,8 +863,8 @@ sub handlers_yaml_to_dispatch_js {
  */
 
 // All of the server/instance-specific meta-data.
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('amigo', 'data', 'dispatch');
+if ( typeof amigo == "undefined" ){ var amigo = {}; }
+if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
 
 /*
  * Variable: dispatch
@@ -1020,8 +1020,8 @@ sub amigo_env_to_js {
  */
 
 // Module and namespace checking.
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('amigo', 'data', 'server');
+if ( typeof amigo == "undefined" ){ var amigo = {}; }
+if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
 
 /*
  * Constructor: server
@@ -1147,8 +1147,9 @@ sub golr_stats_to_js {
  */
 
 // Module and namespace checking.
-bbop.core.require('bbop', 'core');
-bbop.core.namespace('amigo', 'data', 'statistics');
+if ( typeof amigo == "undefined" ){ var amigo = {}; }
+if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
+if ( typeof amigo.data.statistics == "undefined" ){ amigo.data.statistics = {}; }
 
 /*
  * Variable: annotation_evidence
