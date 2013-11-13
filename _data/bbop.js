@@ -10253,7 +10253,7 @@ bbop.golr.manager.nodejs.prototype.update = function(callback_type,
     }
     //debugger;
     // WARNING: This should actually be passed in by the context.
-    //var http = require('http');
+    var http = require('http');
     var req = http.request(qurl, on_connect);
     req.on('error', on_error);
     
