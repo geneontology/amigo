@@ -18,6 +18,9 @@ JS_TESTS = \
  $(wildcard javascript/lib/amigo/handlers/*.js.tests)
 #BENCHMARKS = $(wildcard _benchmark/*.js)
 
+## JSs for (currently) non-core purposes.
+RINGO_JS ?= /usr/bin/ringo
+
 all:
 	@echo "Default JS engine: $(TEST_JS)"
 	@echo "See: http://wiki.geneontology.org/index.php/AmiGO_Manual:_Installation_2.0"
@@ -177,3 +180,10 @@ rollout:
 .PHONY: w3c-validate
 w3c-validate:
 	./scripts/w3c-validate.pl -v --html
+
+###
+### Example on how to start the (RingoJS) opensearch server.
+###
+
+start-opensearch-ringo:
+	RINGO_MODULE_PATH="../stick/lib:_data:javascript/staging" $(RINGO_JS) javascript/bin/opensearch.js --port 8910
