@@ -3468,14 +3468,14 @@ amigo.data.xrefs = {
       "object" : "Identifier",
       "uri_prefix" : null,
       "name" : null,
-      "url_example" : "http://my.linkbaton.com/get?lbCC=q&nC=q&genre=book&item=0781702534",
+      "url_example" : "https://en.wikipedia.org/w/index.php?title=Special%3ABookSources&isbn=0123456789",
       "database" : "International Standard Book Number",
       "example_id" : "ISBN:0781702534",
       "generic_url" : "http://isbntools.com/",
       "fullname" : null,
       "id" : null,
       "abbreviation" : "ISBN",
-      "url_syntax" : "http://my.linkbaton.com/get?lbCC=q&nC=q&genre=book&item=[example_id]",
+      "url_syntax" : "https://en.wikipedia.org/w/index.php?title=Special%3ABookSources&isbn=[example_id]",
       "datatype" : null
    },
    "rgdid" : {
