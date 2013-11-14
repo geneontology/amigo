@@ -11192,7 +11192,9 @@ if ( typeof bbop.rest.manager == "undefined" ){ bbop.rest.manager = {}; }
  * 
  * Contructor for the REST query manager; RingoJS-style.
  * 
- * Be aware that this version is a synchronous call.
+ * Be aware that this version is a synchronous call. Also be aware
+ * that this assumes we're in a ringo environment so that the require
+ * for commonjs is around.
  * 
  * Arguments:
  *  response_handler
