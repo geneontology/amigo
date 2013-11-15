@@ -185,5 +185,8 @@ w3c-validate:
 ### Example on how to start the (RingoJS) opensearch server.
 ###
 
-start-opensearch-ringo:
+start-ringo-example:
+	RINGO_MODULE_PATH="../stick/lib:_data:javascript/staging" $(RINGO_JS) javascript/bin/ringo-example.js --port 8910
+
+start-opensearch:
 	RINGO_MODULE_PATH="../stick/lib:_data:javascript/staging" $(RINGO_JS) javascript/bin/opensearch.js --port 8910
