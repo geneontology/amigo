@@ -25,11 +25,14 @@ var port = 8910;
 // libs.
 var bbop = require('bbop').bbop;
 var amigo = require('amigo').amigo;
+//var bbop = require('bbop').bbop;
+//var amigo = require('amigo').amigo;
 
 // Figure out our base and URLs we'll need to aim this locally.
+var linker = new amigo.linker();
 var sd = new amigo.data.server();
 var app_base = sd.app_base();
-var medial_query = app_base + '/amigo/medial_search?q=';
+var medial_query = linker.url('', 'medial_search');
 
 ///
 /// Various static documents.
@@ -119,7 +122,6 @@ app.get('/osd.xml',
 // Aaaand a linker.
 // Will need Deferred later to make things more "serial"; only req once.
 var gconf = new bbop.golr.conf(amigo.data.golr);
-var linker = new amigo.linker();
 var Deferred = require('ringo/promise').Deferred;
 
 // Dynamic GOlr output.
