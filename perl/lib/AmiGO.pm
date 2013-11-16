@@ -1142,7 +1142,6 @@ sub _fuse_arguments {
 
 =item get_interlink
 
-TODO: how would this play properly with a templating system?
 Gets an environmental variable, including (and specically for)
 variables designated in config.pl.
 
