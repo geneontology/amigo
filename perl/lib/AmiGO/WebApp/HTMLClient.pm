@@ -1706,7 +1706,7 @@ sub mode_phylo_graph {
      css_library =>
      [
       #'standard',
-      #'com.bootstrap',
+      'com.bootstrap',
       'com.jquery.jqamigo.custom',
       'amigo',
       'bbop'
@@ -1714,7 +1714,7 @@ sub mode_phylo_graph {
      javascript_library =>
      [
       'com.jquery',
-      #'com.bootstrap',
+      'com.bootstrap',
       'com.jquery-ui',
       #'com.raphael',
       #'com.raphael.graffle',
@@ -1750,8 +1750,8 @@ sub mode_phylo_graph {
 
   ## Nothing for now.
   return $self->generate_template_page_with({
-					     header=>0,
-					     footer=>0,
+					     #header=>0,
+					     #footer=>0,
 					    });
 }
 

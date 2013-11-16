@@ -1870,7 +1870,7 @@ bbop.version.revision = "2.0b1";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20131114";
+bbop.version.release = "20131115";
 /*
  * Package: logger.js
  * 
@@ -17803,7 +17803,9 @@ function renderer(parent, config){
         border: "1px solid black",
         "transition-property": "top, left",
         "transition-duration": this.config.transition_time,
-        "transition-timing-function": "ease-in-out, ease-in-out"
+        "transition-timing-function": "ease-in-out, ease-in-out",
+        "box-sizing": "content-box",
+        "-moz-box-sizing": "content-box"
     };
 
     this.leaf_style = {
@@ -17842,7 +17844,9 @@ function renderer(parent, config){
         "white-space": "nowrap",
         "transition-property": "top, left",
         "transition-duration": this.config.transition_time,
-        "transition-timing-function": "ease-in-out, ease-in-out"
+        "transition-timing-function": "ease-in-out, ease-in-out",
+        "box-sizing": "content-box",
+        "-moz-box-sizing": "content-box"
     };
 
     if (this.config.leaf_border > 0) {
@@ -18525,7 +18529,7 @@ function renderer(parent, golr_loc, golr_conf, config) {
         // vertical space between the contents of adjacent rows
         row_spacing: 2,
         font: "Helvetica, Arial, sans-serif",
-        mat_cell_width: 22,
+        mat_cell_width: 15,
         transition_time: "0.8s"
     };
 
@@ -18538,7 +18542,6 @@ function renderer(parent, golr_loc, golr_conf, config) {
         "phylo_graph_json",
         "score"
     ].join(",");
-    //].join("%2C");
     this.ann_facet_list = [
         "id",
         "bioentity",
@@ -18548,8 +18551,6 @@ function renderer(parent, golr_loc, golr_conf, config) {
         "annotation_class_list_map",
         "score"
     ].join(",");
-    // ].join("%2C");
-    //this.ann_facet_list = "*%2Cscore";
 
     var golr = new bbop.golr.manager.jquery(golr_loc, golr_conf);
     golr.set_personality('bbop_bio');
@@ -18625,36 +18626,58 @@ renderer.prototype.match_pnodes = function(pnodes, bioentities) {
             //console.log("no non-panther IDs for " + pnodes[n].id);
         }
     }
-    console.log(pnodes.length + " phylo nodes");
-    console.log(bioentities.length + " bioentities");
+    //console.log(pnodes.length + " phylo nodes");
+    //console.log(bioentities.length + " bioentities");
     
-    console.log(bioents_matched + " matched");
+    //console.log(bioents_matched + " matched");
     return bioents_by_pthr_id;
 };
 
 renderer.prototype.show_pgraph = function(pgraph) {
+    var self = this;
     this.parent = ( ( "string" == typeof this.parent )
 		    ? document.getElementById(this.parent)
 		    : this.parent );
     jQuery(this.parent).empty();
 
-    var parent_width = jQuery(this.parent).width();
-
     var tree_container = document.createElement("div");
-    tree_container.style = "position:absolute; top: 0px; bottom: 100%; left: 0px;";
+    tree_container.style.cssText = "position: absolute; top: 0px; bottom: 100%; left: 0px;";
     
     var mat_container = document.createElement("div");
-    mat_container.style = "position:absolute; top: 0px; bottom: 100%;";
+    mat_container.style.cssText = "position: absolute; top: 0px; bottom: 100%; background-color: #ddd;";
 
-    var col_count = 10;
-    var coldescs = new Array(col_count);
-    for (var ci = 0; ci < col_count; ci++) {
-        coldescs[ci] = "C" + ci;
+    var all_go_terms = {};
+    var go_term_list = [];
+    var node_go_annots = {};
+    for (var nid in this.bioentity_map) {
+        var bioent = this.bioentity_map[nid];
+        var annots = JSON.parse(bioent.annotation_class_list_map);
+        node_go_annots[nid] = annots;
+        for (var goterm in annots) {
+            var term_desc = all_go_terms[goterm];
+            if (term_desc === undefined) {
+                term_desc = {
+                    count: 0,
+                    id: goterm,
+                    name: annots[goterm]
+                };
+                all_go_terms[goterm] = term_desc;
+                go_term_list.push(term_desc);
+            }
+            term_desc.count += 1;
+        }            
     }
-    var mat_width = col_count * this.config.mat_cell_width;
-    tree_container.style.width = (parent_width - mat_width) + "px";
+
+    go_term_list.sort( function(a, b) { return b.count - a.count; } );
+    var coldescs = go_term_list.map( function(x) { return x.id; } );
+    //console.log(coldescs);
+
+    var mat_width = coldescs.length * this.config.mat_cell_width;
+    var tree_width = 500;
+    tree_container.style.width = tree_width + "px";
     mat_container.style.width = mat_width + "px";
-    mat_container.style.left = (parent_width - mat_width) + "px";
+    mat_container.style.left = tree_width + "px";
+    this.parent.style.width = (tree_width + mat_width) + "px";
 
     this.parent.appendChild(tree_container);
     this.parent.appendChild(mat_container);
@@ -18674,14 +18697,13 @@ renderer.prototype.show_pgraph = function(pgraph) {
     var edges = pgraph.edges;
     //console.log(nodes.length + " nodes");
     //console.log(edges.length + " edges");
-
-    for (var i = 0; i < nodes.length; i++) {
+    function node_label(node) {
         var bioe =
-            nodes[i].id in this.bioentity_map ?
-            this.bioentity_map[nodes[i].id] :
+            node.id in self.bioentity_map ?
+            self.bioentity_map[node.id] :
             null;
 
-        var label = nodes[i].lbl;
+        var label = node.lbl;
         // abbreviate genus
         if (bioe) {
             var taxon_words = [];
@@ -18693,9 +18715,13 @@ renderer.prototype.show_pgraph = function(pgraph) {
             }
             label = taxon_words.join(" ") + ":" + bioe.bioentity_label;
         }
+        return label
+    }
+        
 
+    for (var i = 0; i < nodes.length; i++) {
         tree_renderer.add_node(nodes[i].id,
-                               label,
+                               node_label(nodes[i]),
                                nodes[i].meta);
     }
 
@@ -18709,7 +18735,6 @@ renderer.prototype.show_pgraph = function(pgraph) {
         return parseInt(a.meta.layout_index) - parseInt(b.meta.layout_index);
     });
 
-    var self = this;
     tree_renderer.node_clicked = function(node, node_elem) {
         if (tree_renderer.subtree_hidden(node.id)) {
             tree_renderer.show_subtree(node.id);
@@ -18773,22 +18798,36 @@ renderer.prototype.show_pgraph = function(pgraph) {
     this.tree_renderer = tree_renderer;
     this.render_tree();
 
-    var node_id_list = nodes.map(function(x) { return x.id });
-    
-    function cell_renderer(cell, row, col) {
-        cell.style.backgroundColor = (Math.random() > 0.8) ? "#aaa" : "#fff";
+    var node_id_list = tree_renderer.leaves().map(function(x) { return x.id });
+    var node_id_map = {};
+    for (var i = 0; i < nodes.length; i++) {
+        node_id_map[nodes[i].id] = nodes[i];
     }
-    var mat_renderer = new bbop.widget.matrix.renderer(mat_container,
-                                                       node_id_list,
-                                                       coldescs,
-                                                       cell_renderer,
-                                                       {
-                                                           cell_width: this.config.mat_cell_width,
-                                                           cell_height: this.config.row_height + 2,
-                                                           header_height: 0,
-                                                           show_headers: false,
-                                                           transition_time: this.config.transition_time
-                                                       });
+
+    function cell_renderer(cell, row, col) {
+        var cell_bg = "#fff";
+        var node_go = node_go_annots[row];
+        if (node_go !== undefined) {
+            if (col in node_go) {
+                cell_bg = "#555";
+            }
+        }
+        cell.style.backgroundColor = cell_bg;
+        cell.title =
+            node_label(node_id_map[row]) + " - " + all_go_terms[col].name;
+    }
+    
+    var mat_config = {
+        cell_width: this.config.mat_cell_width,
+        cell_height: this.config.row_height + 2,
+        header_height: 0,
+        show_headers: false,
+        transition_time: this.config.transition_time
+    };
+    var mat_renderer =
+        new bbop.widget.matrix.renderer(mat_container, node_id_list,
+                                        coldescs, cell_renderer, mat_config);
+
     var leaf_id_list = tree_renderer.leaves().map(
         function(x) { return x.id }
     );
@@ -18939,17 +18978,18 @@ function renderer(parent, row_descriptors, col_descriptors,
     this.rowindex_map = Array(row_descriptors.length);
     //colindex_map: displayed col index -> matrix col index
     this.colindex_map = Array(col_descriptors.length);
-    //create the header row
+
     for (var i = 0; i < col_descriptors.length; i++) {
-        var cell = document.createElement("div");
-        cell.className = header_class;
-        cell.title = col_descriptors[i];
         if (this.config.show_headers) {
+            //create the header cells
+            var cell = document.createElement("div");
+            cell.className = header_class;
+            cell.title = col_descriptors[i];
             cell.appendChild(document.createTextNode(col_descriptors[i]));
+            cell.style.top = "0px";
+            this.parent.appendChild(cell);
+            this.headers.push(cell);
         }
-        cell.style.top = "0px";
-        this.parent.appendChild(cell);
-        this.headers.push(cell);
         this.colindex_map[i] = i;
         this.coldesc_map[col_descriptors[i]] = i;
     }
@@ -18960,8 +19000,8 @@ function renderer(parent, row_descriptors, col_descriptors,
             var cell = document.createElement("div");
             cell.className = cell_class;
             cell_renderer(cell, row_descriptors[ri], col_descriptors[ci]);
-            cell.title = row_descriptors[ri] + ", " + col_descriptors[ci];
-            cell.style.top = ( this.config.header_height
+            cell.style.top = ( (this.config.show_headers ?
+                                this.config.header_height : 0)
                                + (ri * this.config.cell_height) ) + "px";
             this.parent.appendChild(cell);
             row.push(cell);
@@ -18982,7 +19022,9 @@ function renderer(parent, row_descriptors, col_descriptors,
         "  margin: 0px;",
         "  font: " + cell_font_size + "px" + " " + this.config.cell_font + ";",
         "  line-height: 0.7em;",
-        "  overflow: hidden;"
+        "  overflow: hidden;",
+        "  box-sizing: content-box;",
+        "  -moz-box-sizing: content-box;"
     ].join("\n");
 
     this.header_style = [
@@ -18995,7 +19037,9 @@ function renderer(parent, row_descriptors, col_descriptors,
         "  font: " + header_font_size + "px" + " "
             + this.config.header_font + ";",
         "  line-height: 0.7em;",
-        "  overflow: hidden;"
+        "  overflow: hidden;",
+        "  box-sizing: content-box;",
+        "  -moz-box-sizing: content-box;"
     ].join("\n");
 
     this.transition_style = [
@@ -19032,8 +19076,8 @@ function renderer(parent, row_descriptors, col_descriptors,
 }
 
 renderer.prototype.update_height = function() {
-    this.height = ( this.config.header_height + 
-                    ( this.config.cell_height * this.rowindex_map.length ) );
+    this.height = ( (this.config.show_headers ? this.config.header_height : 0)
+                    + (this.config.cell_height * this.rowindex_map.length) );
     this.parent.style.height = this.height + this.config.cell_border + "px";
 };
 
@@ -19101,7 +19145,10 @@ renderer.prototype.update_widths = function() {
         }
     }
 
-    set_widths(this.headers, this.colindex_map, widths, this.offset_size_delta);
+    if (this.config.show_headers) {
+        set_widths(this.headers, this.colindex_map, widths,
+                   this.offset_size_delta);
+    }
     for (var ri = 0; ri < this.matrix.length; ri++) {
         set_widths(this.matrix[ri], this.colindex_map, widths,
                    this.offset_size_delta);
@@ -19126,24 +19173,27 @@ renderer.prototype.show_rows = function(row_list) {
 
     // set new row y-positions
     for( var ri = 0; ri < row_list.length; ri++ ){
-        var matrix_row_index = this.rowdesc_map[row_list[ri]];
-        var row = this.matrix[matrix_row_index];
+        if (row_list[ri] in this.rowdesc_map) {
+            var matrix_row_index = this.rowdesc_map[row_list[ri]];
+            var row = this.matrix[matrix_row_index];
 
-        for (var ci = 0; ci < this.num_cols; ci++) {
-            var cell = row[ci];
-            cell.style.top = ( this.config.header_height
-                               + (ri * this.config.cell_height) ) + "px";
+            for (var ci = 0; ci < this.num_cols; ci++) {
+                var cell = row[ci];
+                cell.style.top = ( (this.config.show_headers ?
+                                    this.config.header_height : 0)
+                                   + (ri * this.config.cell_height) ) + "px";
 
-            var displayed_colindex = displayed_colindices[ci];
-            if (displayed_colindex == undefined) {
-                cell.style.display = "none";
-            } else {
-                cell.style.display = "";
+                var displayed_colindex = displayed_colindices[ci];
+                if (displayed_colindex == undefined) {
+                    cell.style.display = "none";
+                } else {
+                    cell.style.display = "";
+                }
             }
-        }
 
-        new_rowindex_map[ri] = matrix_row_index;
-        new_row_map[row_list[ri]] = 1;
+            new_rowindex_map[ri] = matrix_row_index;
+            new_row_map[row_list[ri]] = 1;
+        }
     }
 
     this.rowindex_map = new_rowindex_map;
@@ -19187,8 +19237,10 @@ renderer.prototype.show_cols = function(col_list) {
                 cell.style.display = "";
             }
         }
-        this.headers[matrix_col_index].style.left = left + "px";
-        this.headers[matrix_col_index].style.display = "";
+        if (this.show_headers) {
+            this.headers[matrix_col_index].style.left = left + "px";
+            this.headers[matrix_col_index].style.display = "";
+        }
 
         new_colindex_map[ci] = matrix_col_index;
         new_col_map[col_list[ci]] = 1;
@@ -19206,7 +19258,9 @@ renderer.prototype.show_cols = function(col_list) {
                 var cell = this.matrix[j][matrix_col_index];
                 cell.style.display = "none";
             }
-            this.headers[matrix_col_index].style.display = "none";
+            if (this.config.show_headers) {
+                this.headers[matrix_col_index].style.display = "none";
+            }
         }
     }
 
