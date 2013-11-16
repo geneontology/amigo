@@ -11,7 +11,6 @@ var mr_t = new bbop.test();
 /// Start unit testing.
 ///
 
-
 //(function(){
 var sd = new amigo.data.server();
 var wa = sd.app_base();
@@ -61,6 +60,26 @@ mr_t.is_same_atom(l.url('PAINT_REF:PTHR10046'),
 mr_t.is_not_defined(l.url(null), 'null url');
 mr_t.is_not_defined(l.url(''), "'' url");
 mr_t.is_not_defined(l.anchor(null), 'null anchor');
+
+// Some hard-wirder internal link testing.
+mr_t.is_same_atom(l.url(null, 'medial_search'),
+		  'http://localhost/cgi-bin/amigo2/amigo/medial_search',
+		  'interlink: medial_search special (1)');
+mr_t.is_same_atom(l.url('', 'medial_search'),
+		  'http://localhost/cgi-bin/amigo2/amigo/medial_search?q=',
+		  'interlink: medial_search special (2)');
+mr_t.is_same_atom(l.url('foo', 'medial_search'),
+		  'http://localhost/cgi-bin/amigo2/amigo/medial_search?q=foo',
+		  'interlink: medial_search special (3)');
+mr_t.is_same_atom(l.url(null, 'grebe'),
+		  'http://localhost/cgi-bin/amigo2/grebe',
+		  'interlink: grebe not special (1)');
+mr_t.is_same_atom(l.url('', 'grebe'),
+		  'http://localhost/cgi-bin/amigo2/grebe',
+		  'interlink: grebe not special (2)');
+mr_t.is_same_atom(l.url('foo', 'grebe'),
+		  'http://localhost/cgi-bin/amigo2/grebe',
+		  'interlink: grebe not special (3): ' + l.url('foo', 'grebe'));
 
 // })();
 

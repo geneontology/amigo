@@ -63,11 +63,12 @@ amigo.linker = function (){
         'annotation_group': true
         //'annotation_unit': true
     };
-    this.search_category = {
+    this.search_category = { // not including the trivial medial_search below
         'search': true,
 	'live_search': true
     };
     this.search_modifier = {
+	// Possibly "dynamic".
 	'gene_product': '/bioentity',
 	'bioentity': '/bioentity',
 	'ontology': '/ontology',
@@ -76,6 +77,18 @@ amigo.linker = function (){
 	'family': '/family',
 	'lego_unit': '/lego_unit',
 	'general': '/general'
+    };
+    this.other_interlinks = {
+	'medial_search': '/amigo/medial_search',
+	'landing': '/amigo/landing',
+	'tools': '/amigo/software_list',
+	'schema_details': '/amigo/schema_details',
+	'load_details': '/amigo/load_details',
+	'browse': '/amigo/browse',
+	'goose': '/goose',
+	'grebe': '/grebe',
+	'gannet': '/gannet',
+	'repl': '/repl'	
     };
 };
 
@@ -96,19 +109,17 @@ amigo.linker.prototype.url = function (id, xid, modifier){
     
     var retval = null;
 
-    // Nothing returns nothing.
-    if( id && id != '' ){
-	
-	// function _add_restmark_modifier(curr_url, r_mark){
-	//     var ret = curr_url;
-	//     if( r_mark ){
-	// 	ret = ret + '/?' + r_mark;
-	//     }
-	//     return ret;
-	// }
+    ///
+    /// AmiGO hard-coded internal link types.
+    ///
 
-	// AmiGO hard-coded link types.
-	if( xid ){
+    // For us, having an xid means that we will be doing some more
+    // complicated routing.
+    if( xid && xid != '' ){
+
+	// First let's do the ones that need an associated id to
+	// function--either data urls or searches.
+	if( id && id != '' ){
 	    if( this.ont_category[xid] ){
 		retval = this.app_base + '/amigo/term/' + id;
 		//retval = _add_restmark_modifier(retval, modifier);
@@ -118,6 +129,7 @@ amigo.linker.prototype.url = function (id, xid, modifier){
             }else if( this.complex_annotation_category[xid] ){
 		retval = this.app_base + '/amigo/complex_annotation/'+ id;
             }else if( this.search_category[xid] ){
+
 		// First, try and get the proper path out. Will
 		// hardcode for now since some paths don't map
 		// directly to the personality.
@@ -125,7 +137,7 @@ amigo.linker.prototype.url = function (id, xid, modifier){
 		if( this.search_modifier[modifier] ){
 		    search_path = this.search_modifier[modifier];
 		}
-
+		
 		retval = this.app_base + '/amigo/search' + search_path;
 		if( id ){
 		    // Ugh...decide if the ID indicated a restmark or
@@ -142,26 +154,50 @@ amigo.linker.prototype.url = function (id, xid, modifier){
 	    }
 	}
 
-	// Since we couldn't find anything with our explicit local
-	// transformation set, drop into the great abyss of the xref data.
+	// Things that do not need an id to function--like just
+	// popping somebody over to Grebe or the medial search.
 	if( ! retval ){
-	    if( ! amigo.data.xrefs ){
-		throw new Error('amigo.data.xrefs is missing!');
-	    }
-	    
-	    // First, extract the probable source and break it into parts.
-	    var full_id_parts = bbop.core.first_split(':', id);
-	    if( full_id_parts && full_id_parts[0] && full_id_parts[1] ){
-		var src = full_id_parts[0];
-		var sid = full_id_parts[1];
-		
-		// Now, check to see if it is indeed in our store.
-		var lc_src = src.toLowerCase();
-		var xref = amigo.data.xrefs[lc_src];
-		if( xref && xref['url_syntax'] ){
-		    retval =
-			xref['url_syntax'].replace('[example_id]', sid, 'g');
+	    if( this.other_interlinks[xid] ){
+		var extension = this.other_interlinks[xid];
+		retval = this.app_base + extension;
+
+		// Well, for medial search really, but it might be
+		// general?
+		if( xid == 'medial_search' ){
+		    // The possibility of just tossing back an empty
+		    // search for somebody downstream to fill in.
+		    if( bbop.core.is_defined(id) && id != null ){
+			retval = retval + '?q=' + id;
+		    }
 		}
+	    }
+	}
+    }
+
+    ///
+    /// External resources. For us, if we haven't found something
+    /// so far, try the data xrefs.
+    ///
+    
+    // Since we couldn't find anything with our explicit local
+    // transformation set, drop into the great abyss of the xref data.
+    if( ! retval && id && id != '' ){ // not internal, but still has an id
+	if( ! amigo.data.xrefs ){
+	    throw new Error('amigo.data.xrefs is missing!');
+	}
+	
+	// First, extract the probable source and break it into parts.
+	var full_id_parts = bbop.core.first_split(':', id);
+	if( full_id_parts && full_id_parts[0] && full_id_parts[1] ){
+	    var src = full_id_parts[0];
+	    var sid = full_id_parts[1];
+	    
+	    // Now, check to see if it is indeed in our store.
+	    var lc_src = src.toLowerCase();
+	    var xref = amigo.data.xrefs[lc_src];
+	    if( xref && xref['url_syntax'] ){
+		retval =
+		    xref['url_syntax'].replace('[example_id]', sid, 'g');
 	    }
 	}
     }
