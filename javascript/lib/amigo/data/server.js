@@ -3,7 +3,7 @@
  * 
  * Namespace: amigo.data.server
  * 
- * This package was automatically created during an AmiGO 2 installation.
+ * This package was automatically created during AmiGO 2 installation.
  * 
  * Purpose: Useful information about GO and the AmiGO installation.
  *          Also serves as a repository and getter for web
