@@ -20,6 +20,7 @@ JS_TESTS = \
 
 ## JSs for (currently) non-core purposes.
 RINGO_JS ?= /usr/bin/ringo
+NODE_JS ?= /usr/bin/node
 
 all:
 	@echo "Default JS engine: $(TEST_JS)"
@@ -190,3 +191,6 @@ start-ringo-example:
 
 start-ringo-opensearch:
 	RINGO_MODULE_PATH="../stick/lib:_data:javascript/staging" $(RINGO_JS) javascript/bin/ringo-opensearch.js
+
+start-node-opensearch:
+	NODE_PATH="_data:javascript/staging" $(NODE_JS) javascript/bin/node-opensearch.js
