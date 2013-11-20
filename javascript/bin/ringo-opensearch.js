@@ -5,9 +5,6 @@
  * 
  * Start an http service and return opensearch-style responses.
  * 
- * NOTE: However, I'm still working in it, so it's just a label lookup
- * for GO IDs right now while I work out the mechanisms.
- * 
  * Usage like:
  *  : RINGO_MODULE_PATH="../stick/lib:_data:javascript/staging" $(RINGO_JS) javascript/bin/ringo-opensearch.js
  * 
