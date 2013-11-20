@@ -5,14 +5,15 @@
  * 
  * Start an http service and return opensearch-style responses.
  * 
+ * Requires: express, mustache (as well as amigo, bbop)
+ * 
  * Usage like:
- *  : ???
+ *  : NODE_PATH="_data:javascript/staging" node javascript/bin/node-opensearch.js
  * 
  * Then visit URLs like:
  *  : http://localhost:8910
  *  : http://localhost:8910/term/GO:0022008
  *  : http://localhost:8910/gene_product/foo
- * 
  */
 
 // Easier to access in here.
@@ -69,9 +70,8 @@ var indexdoc = [
     '</html>'
 ].join(' ');
 
-
 // Use mustache for XML generation.
-var mustache = require('ringo/mustache');
+var mustache = require('mustache');
 var osddoc_tmpl = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<OpenSearchDescription',
@@ -104,75 +104,72 @@ var gp_tmpl_args = {
     'readable_type': 'gene product'
 };
 var osddoc_gp = mustache.to_html(osddoc_tmpl, gp_tmpl_args);
-		 
-///
-/// Helper functions.
-///
-
-// Wrapper for the common returns.
-function common_doc(string, status, type){
-    if( ! string ){ string = ''; }
-    if( ! status ){ status = 200; }
-    if( ! type ){ type = 'text/html'; }
-    return {
-	body: [string],
-	headers: {'Content-Type': type},
-	status: status
-    };
-}
 
 ///
-/// Configure the app and routes.
+/// Response helper.
 ///
 
-// Ready the actual webapp bit using stick.
-// https://github.com/ringo/stick.git
-var Application = require('stick').Application;
-//var {Application} = require('stick');
-exports.app = new Application();
-var app = exports.app;
-app.configure('route');
+var standard_response = function(res, code, type, body){
+    res.setHeader('Content-Type', type);
+    res.setHeader('Content-Length', body.length);
+    res.end(body);
+    return res;
+};
 
-app.get('/', function(request){ return common_doc(indexdoc); });
-	
-app.get('/osd_term.xml',
-	function(request){ return common_doc(osddoc_term, 200,
-					     'application/xml'); });
-app.get('/osd_gp.xml',
-	function(request){ return common_doc(osddoc_gp, 200,
-				     'application/xml'); });
+///
+/// The "static" server.
+///
+
+var fs = require('fs');
+var http = require('http');
+var url = require('url') ;
+var express = require('express');
+var app = express();
+
+app.get('/', function(req, res){
+            standard_response(res, 200, 'text/html', indexdoc);
+	});
+app.get('/osd_term.xml', function(req, res){
+            standard_response(res, 200, 'application/xml', osddoc_term);
+	});
+app.get('/osd_gp.xml', function(req, res){
+            standard_response(res, 200, 'application/xml', osddoc_gp);
+	});
 // TODO: This obviously does not do anything than supress some types
 // of error messages.
-app.get('/favicon.ico',
-	function(request){ return common_doc('', 200,
-					     'image/x-icon'); });
+app.get('/favicon.ico', function(req, res){
+	    standard_response(res, 200, 'image/x-icon', '');
+	});
+
+///
+/// Dynamic OpenSearch components.
+///
 
 // Define the GOlr request conf.
 // Aaaand a linker.
 // Will need Deferred later to make things more "serial"; only req once.
 var server_loc = 'http://golr.berkeleybop.org/';
 var gconf = new bbop.golr.conf(amigo.data.golr);
-var Deferred = require('ringo/promise').Deferred;
 
 // The request functions I use are very similar.
 function create_request_function(personality, doc_type,
 				 id_field, label_field, link_type){
 
-    return function(request, query) {
+    return function(req, res) {
 
-	// Declare a delayed response.
-	var response = new Deferred();
-	//response.wait(5000); // 5s wait for resolution
+	//console.log(req.route);
+	//console.log(req.route.params['query']);
+	var query = req.route.params['query'] || '';
 
-	// New agent on every call.
-	var go = new bbop.golr.manager.ringo(server_loc, gconf);
+	// Try AmiGO 2 action.
+	var go = new bbop.golr.manager.nodejs(server_loc, gconf);
 	go.set_personality(personality); // profile in gconf
 	go.add_query_filter('document_category', doc_type);
-	
+
 	// Define what we do when our GOlr (async) information
 	// comes back within the scope of the deferred response
 	// variable.
-	function golr_callback_action(resp){
+	function golr_callback_action(gresp){
 
 	    // Return caches for the values we'll collect.
 	    var ret_terms = [];
@@ -180,8 +177,8 @@ function create_request_function(personality, doc_type,
 	    var ret_links = [];
 
 	    // Gather document info if available.
-	    //var found_docs = resp.documents();		
-	    bbop.core.each(resp.documents(),
+	    //var found_docs = gresp.documents();		
+	    bbop.core.each(gresp.documents(),
 			   function(doc){
 			       var id = doc[id_field];
 			       var label = doc[label_field];
@@ -197,21 +194,16 @@ function create_request_function(personality, doc_type,
 	    ret_body.push(ret_terms);
 	    ret_body.push(ret_descs);
 	    ret_body.push(ret_links);
-	    var ans = {
-		status: 200,
-		headers: {'Content-Type': 'application/json'},
-		body: [bbop.core.to_string(ret_body)]
-	    };
-	    response.resolve(ans);
+
+	    // Back to res?
+	    standard_response(res, 200, 'application/json',
+	    		      bbop.core.to_string(ret_body));
 	}
 
 	// Run the agent action.
-	//go.set_query(query);
 	go.set_comfy_query(query);
 	go.register('search', 'do', golr_callback_action);
 	go.update('search');
-
-	return response.promise;
     };
 }
 
@@ -226,15 +218,7 @@ app.get('/gene_product/:query',
 				'gene_product'));
 
 ///
-/// Runner.
+/// Start service.
 ///
 
-// Module juggle.
-if (require.main == module) {
-    //require('ringo/httpserver').main(module.id);
-    //var {Server} = require('ringo/httpserver');
-    var Server = require('ringo/httpserver').Server;
-    //var server = new Server({app: app, port: port});  
-    var server = new Server({app: app, host: host, port: port});  
-    server.start();  
-}
+app.listen(port);
