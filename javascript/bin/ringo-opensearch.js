@@ -1,5 +1,5 @@
 /*
- * Package: opensearch.js
+ * Package: ringo-opensearch.js
  * 
  * This is a RingoJS script.
  * 
@@ -9,12 +9,12 @@
  * for GO IDs right now while I work out the mechanisms.
  * 
  * Usage like:
- *  : RINGO_MODULE_PATH="../stick/lib:_data:javascript/staging" $(RINGO_JS) javascript/bin/opensearch.js --port 8910
+ *  : RINGO_MODULE_PATH="../stick/lib:_data:javascript/staging" $(RINGO_JS) javascript/bin/ringo-opensearch.js
  * 
  * Then visit URLs like:
  *  : http://localhost:8910
- *  : http://localhost:8910/GO:0022008
- *  : http://localhost:8910/foo
+ *  : http://localhost:8910/term/GO:0022008
+ *  : http://localhost:8910/gene_product/foo
  * 
  */
 
