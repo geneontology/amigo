@@ -23,8 +23,6 @@ var port = 8910;
 // libs.
 var bbop = require('bbop').bbop;
 var amigo = require('amigo').amigo;
-//var bbop = require('bbop').bbop;
-//var amigo = require('amigo').amigo;
 
 // Figure out our base and URLs we'll need to aim this locally.
 var linker = new amigo.linker();
@@ -68,7 +66,6 @@ var indexdoc = [
     '</body>',
     '</html>'
 ].join(' ');
-
 
 // Use mustache for XML generation.
 var mustache = require('ringo/mustache');

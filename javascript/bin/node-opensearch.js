@@ -24,8 +24,6 @@ var port = 8910;
 // libs.
 var bbop = require('bbop').bbop;
 var amigo = require('amigo').amigo;
-//var bbop = require('bbop').bbop;
-//var amigo = require('amigo').amigo;
 
 // Figure out our base and URLs we'll need to aim this locally.
 var linker = new amigo.linker();
@@ -146,8 +144,6 @@ app.get('/favicon.ico', function(req, res){
 ///
 
 // Define the GOlr request conf.
-// Aaaand a linker.
-// Will need Deferred later to make things more "serial"; only req once.
 var server_loc = 'http://golr.berkeleybop.org/';
 var gconf = new bbop.golr.conf(amigo.data.golr);
 
@@ -167,8 +163,7 @@ function create_request_function(personality, doc_type,
 	go.add_query_filter('document_category', doc_type);
 
 	// Define what we do when our GOlr (async) information
-	// comes back within the scope of the deferred response
-	// variable.
+	// comes back within the scope of the response we need to end.
 	function golr_callback_action(gresp){
 
 	    // Return caches for the values we'll collect.
