@@ -14,6 +14,19 @@
     <link rel="shortcut icon" href="[% image_dir %]/go-logo-favicon.ico">
     <link rel="icon" href="[% image_dir %]/go-logo-favicon.ico">
 
+    [% IF public_opensearch AND public_opensearch != "" %]
+    <link
+       rel="search"
+       type="application/opensearchdescription+xml"
+       href="[% public_opensearch %]/osd_term.xml"
+       title="GO Search (term)" />
+    <link
+       rel="search"
+       type="application/opensearchdescription+xml"
+       href="[% public_opensearch %]/osd_gp.xml"
+       title="GO Search (gene product)" />
+    [% END %]
+
     <title>[% page_title %]</title>
     <!-- <link rel="icon"  -->
     <!-- 	  type="image/x-icon"  -->
