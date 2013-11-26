@@ -85,6 +85,11 @@ AMIGO_PUBLIC_GALAXY_URL:
   comment: Please enter the public URL of the Galaxy server.
   type: url
 
+AMIGO_PUBLIC_OPENSEARCH_URL:
+  value: ""
+  comment: Please enter the public URL of the GO-defined OpenSearch server.
+  type: url
+
 ###
 ### AmiGO internal variables.
 ###
