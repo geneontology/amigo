@@ -183,7 +183,7 @@ w3c-validate:
 	./scripts/w3c-validate.pl -v --html
 
 ###
-### Example on how to start the (RingoJS) opensearch server.
+### Example on how to start the (RingoJS) OpenSearch server.
 ###
 
 start-ringo-example:
@@ -191,6 +191,3 @@ start-ringo-example:
 
 start-ringo-opensearch:
 	RINGO_MODULE_PATH="../stick/lib:_data:javascript/staging" $(RINGO_JS) javascript/bin/ringo-opensearch.js
-
-start-node-opensearch:
-	NODE_PATH="_data:javascript/staging" $(NODE_JS) javascript/bin/node-opensearch.js
