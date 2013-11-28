@@ -1863,14 +1863,14 @@ bbop.version = {};
  * Partial version for this library; revision (major/minor version numbers)
  * information.
  */
-bbop.version.revision = "2.0b1";
+bbop.version.revision = "2.0.0-rc1";
 
 /*
  * Variable: release
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20131126";
+bbop.version.release = "20131127";
 /*
  * Package: logger.js
  * 
