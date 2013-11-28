@@ -87,9 +87,9 @@ bundle-uncompressed:
 
 .PHONY: npm
 npm: bundle
-	./scripts/release-npm.pl -v -i javascript/staging/amigo.js -o javascript/npm/amigo-js -r $(AMIGO_VERSION)
-	npm unpublish amigo-js@$(AMIGO_VERSION)
-	npm publish javascript/npm/amigo-js
+	./scripts/release-npm.pl -v -i javascript/staging/amigo.js -o javascript/npm/amigo2 -r $(AMIGO_VERSION)
+	npm unpublish amigo2@$(AMIGO_VERSION)
+	npm publish javascript/npm/amigo2
 
 # ###
 # ### Produce static statistics data files for landing page.

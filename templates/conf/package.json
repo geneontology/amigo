@@ -1,5 +1,5 @@
 {
-    "name": "amigo-js",
+    "name": "amigo2",
     "version": "[% version %]",
     "license": "BSD",
     "description": "AmiGO 2 JS namespace bundle.",
