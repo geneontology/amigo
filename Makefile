@@ -21,6 +21,8 @@ JS_TESTS = \
 ## JSs for (currently) non-core purposes.
 RINGO_JS ?= /usr/bin/ringo
 NODE_JS ?= /usr/bin/node
+##
+AMIGO_VERSION ?= 2.0.0-rc1
 
 all:
 	@echo "Default JS engine: $(TEST_JS)"
@@ -79,6 +81,16 @@ bundle:
 bundle-uncompressed:
 	./install -b -u
 
+###
+### Create exportable JS NPM directory.
+###
+
+.PHONY: npm
+npm: bundle
+	./scripts/release-npm.pl -v -i javascript/staging/amigo.js -o javascript/npm/amigo-js -r $(AMIGO_VERSION)
+	npm unpublish amigo-js@$(AMIGO_VERSION)
+	npm publish javascript/npm/amigo-js
+
 # ###
 # ### Produce static statistics data files for landing page.
 # ###
@@ -118,7 +130,7 @@ dummy:
 	cp conf/.dummy_values.yaml conf/amigo.yaml
 
 ###
-### Release: docs and bundle; then to an upload.
+### Release: docs and bundle; then do an upload.
 ###
 
 .PHONY: release

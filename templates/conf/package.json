@@ -1,0 +1,25 @@
+{
+    "name": "amigo-js",
+    "version": "[% version %]",
+    "license": "BSD",
+    "description": "AmiGO 2 JS namespace bundle.",
+    "author": {
+	"name": "Seth Carbon",
+	"email": "http://github.com/kltm/amigo"
+    },
+    "repository": {
+      "type": "git",
+      "url": "http://github.com/kltm/amigo"
+    },
+    "keywords": [
+	"amigo",
+	"bbop",
+	"gene ontology",
+	"cross-platform"
+    ],
+    "engines": {"node" : ">=0.10.0"},
+    "dependencies": {
+	"bbop": "[% version %]"
+    },
+    "main": "./amigo.js"
+}
