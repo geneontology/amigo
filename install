@@ -8,6 +8,7 @@
 use utf8;
 use strict;
 use Config::YAML;
+use Template;
 use File::Basename;
 use File::Find;
 use Cwd;
@@ -620,32 +621,17 @@ sub xref_abbs_to_meta_js {
     unlink $file_str if -f $file_str;
     open(FILE, ">$file_str") or die "cannot open $file_str: $!";
 
-    ## 
-    print FILE <<EOJS;
-/* 
- * Package: xrefs.js
- * 
- * Namespace: amigo.data.xrefs
- * 
- * This package was automatically created during an AmiGO 2 installation
- * from the GO.xrf_abbs file at: "$xrefs_url".
- *
- * NOTE: This file is generated dynamically at installation time.
- * Hard to work with unit tests--hope it's not too bad. You have to
- * occasionally copy back to keep the unit tests sane.
- */
-
-// All of the server/instance-specific meta-data.
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
-
-/*
- * Variable: xrefs
- * 
- * All the external references that we know about.
- */
-amigo.data.xrefs = $js_str;
-EOJS
+    ## Template to string output.
+    my $output = '';
+    my $tt = Template->new();
+    $tt->process('templates/conf/xrefs.js',
+		 {
+		  xrefs_data => $js_str,
+		  xrefs_url => $xrefs_url,
+		 },
+		 \$output)
+      || die $tt->error;
+    print FILE $output;
 
     ## Close file.
     close(FILE);
@@ -740,42 +726,12 @@ sub golr_config_to_meta_js {
   unlink $js_file_str if -f $js_file_str;
   open(FILE, ">$js_file_str") or die "cannot open $js_file_str: $!";
 
-  ## 
-  print FILE <<EOJS;
-/* 
- * Package: golr.js
- * 
- * Namespace: amigo.data.golr
- * 
- * This package was automatically created during an AmiGO 2 installation
- * from the YAML configuration files that AmiGO pulls in.
- *
- * Useful information about GOlr. See the package <golr_conf.js>
- * for the API to interact with this data file.
- *
- * NOTE: This file is generated dynamically at installation time.
- * Hard to work with unit tests--hope it's not too bad. You have to
- * occasionally copy back to keep the unit tests sane.
- *
- * NOTE: This file has a slightly different latout from the YAML
- * configurations files--in addition instead of the fields
- * being in lists (fields), they are in hashes keyed by the
- * field id (fields_hash).
- */
-
-// All of the server/instance-specific meta-data.
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
-
-/*
- * Variable: golr
- * 
- * The configuration for the data.
- * Essentially a JSONification of the OWLTools YAML files.
- * This should be consumed directly by <bbop.golr.conf>.
- */
-amigo.data.golr = $js_str;
-EOJS
+  ## Template to string output.
+  my $output = '';
+  my $tt = Template->new();
+  $tt->process('templates/conf/golr.js', {golr_data => $js_str}, \$output)
+    || die $tt->error;
+  print FILE $output;
 
   ## Close file.
   close(FILE);
@@ -840,41 +796,13 @@ sub handlers_yaml_to_dispatch_js {
   unlink $js_file_str if -f $js_file_str;
   open(FILE, ">$js_file_str") or die "cannot open $js_file_str: $!";
 
-  ## 
-  print FILE <<EOJS;
-/* 
- * Package: dispatch.js
- * 
- * Namespace: amigo.data.dispatch
- * 
- * This package was automatically created during an AmiGO 2 installation
- * from the YAML configuration files that AmiGO pulls in.
- *
- * The mapping file for data fields and contexts to functions, often
- * used for displays. See the package <handler.js> for the API to interact
- * with this data file.
- *
- * NOTE: This file is generated dynamically at installation time.
- * Hard to work with unit tests--hope it's not too bad. You have to
- * occasionally copy back to keep the unit tests sane.
- *
- * NOTE: This file has a slightly different latout from the YAML
- * configuration file.
- */
-
-// All of the server/instance-specific meta-data.
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
-
-/*
- * Variable: dispatch
- * 
- * The configuration for the data.
- * Essentially a JSONification of the YAML file.
- * This should be consumed directly by <amigo.handler>.
- */
-amigo.data.dispatch = $js_str;
-EOJS
+  ## Template to string output.
+  my $output = '';
+  my $tt = Template->new();
+  $tt->process('templates/conf/dispatch.js',
+	       {dispatch_data => $js_str}, \$output)
+    || die $tt->error;
+  print FILE $output;
 
   ## Close file.
   close(FILE);
@@ -1001,94 +929,16 @@ sub amigo_env_to_js {
   }
   my $acc_string = join("\n", @$acc_strings);
 
-  ##
-  print FILE <<EOJS;
-/*
- * Package: server.js
- * 
- * Namespace: amigo.data.server
- * 
- * This package was automatically created during AmiGO 2 installation.
- * 
- * Purpose: Useful information about GO and the AmiGO installation.
- *          Also serves as a repository and getter for web
- *          resources such as images.
- * 
- * NOTE: This file is generated dynamically at installation time.
- *       Hard to work with unit tests--hope it's not too bad.
- *       Want to keep this real simple.
- */
-
-// Module and namespace checking.
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
-
-/*
- * Constructor: server
- * 
- * The configuration for the server settings.
- * Essentially a JSONification of the config.pl AmiGO 2 file.
- * 
- * Arguments:
- *  n/a
- */
-amigo.data.server = function(){
-
-    // All of the server/instance-specific meta-data.
-    var meta_data = $json_str;
-
-    ///
-    /// Break out the data and various functions to access them...
-    ///
-
-$acc_string
-
-    // Does it look like a term?
-    var tre_str = meta_data.term_regexp;
-    var tre = new RegExp(tre_str);
-
-    /*
-     * Function: term_id_p
-     * 
-     * True or false on whether or not a string looks like a GO term id.
-     * 
-     * Parameters:
-     *  term_id - the string to test
-     * 
-     * Returns:
-     *  boolean
-     */
-    this.term_id_p = function(term_id){
-       var retval = false;
-       if( tre.test(term_id) ){
-          retval = true;
-       }
-       return retval;
-    };
-
-    /*
-     * Function: get_image_resource
-     * 
-     * Get a named resource from the meta_data hash if possible.
-     * 
-     * Parameters:
-     *  resource - the string id of the resource
-     * 
-     * Returns:
-     * string (url) of resource
-     */
-    this.get_image_resource = function(resource){
-
-       var retval = null;
-       var mangled_res = 'bbop_img_' + resource;
-
-       if( meta_data[mangled_res] ){
-          retval = meta_data[mangled_res];
-       }
-       return retval;
-    };
-};
-EOJS
+  ## Template to string output.
+  my $output = '';
+  my $tt = Template->new();
+  $tt->process('templates/conf/server.js',
+	       {
+		meta_data => $json_str,
+		acc_strings_str => $acc_string,
+	       }, \$output)
+    || die $tt->error;
+  print FILE $output;
 
   ## Close file.
   close(FILE);
@@ -1128,50 +978,18 @@ sub golr_stats_to_js {
   # $core->kvetch('file_str: ' . $file_str);
   # $core->kvetch('core: ' . $core);
 
-  ##
-  print FILE <<EOJS;
-/*
- * Package: statistics.js
- * 
- * Namespace: amigo.data.statistics
- * 
- * This package was automatically created during an AmiGO 2 installation.
- * 
- * Purpose: Useful numbers about the current data in the store.
- * 
- * Requirements: amigo.js for bbop.amigo namespace.
- * 
- * NOTE: This file is generated dynamically at installation time.
- *       Hard to work with unit tests--hope it's not too bad.
- *       Want to keep this real simple.
- */
-
-// Module and namespace checking.
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
-if ( typeof amigo.data.statistics == "undefined" ){ amigo.data.statistics = {}; }
-
-/*
- * Variable: annotation_evidence
- * 
- * TBD
- */
-amigo.data.statistics.annotation_source = $ann_src_str;
-
-/*
- * Variable: annotation_source
- * 
- * TBD
- */
-amigo.data.statistics.annotation_evidence = $ann_ev_str;
-
-/*
- * Variable: annotation_overview
- * 
- * TBD
- */
-amigo.data.statistics.annotation_overview = $ann_overview_str;
-EOJS
+  ## Template to string output.
+  my $output = '';
+  my $tt = Template->new();
+  $tt->process('templates/conf/statistics.js',
+	       {
+		ann_src => $ann_src_str,
+		ann_ev => $ann_ev_str,
+		ann_overview => $ann_overview_str,
+	       },
+	       \$output)
+    || die $tt->error;
+  print FILE $output;
 
   ## Close file.
   close(FILE);
