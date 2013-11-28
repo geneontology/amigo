@@ -1855,7 +1855,6 @@ bbop.test = function(){
 
 if ( typeof bbop == "undefined" ){ var bbop = {}; }
 if ( typeof bbop.version == "undefined" ){ bbop.version = {}; }
-bbop.version = {};
 
 /*
  * Variable: revision

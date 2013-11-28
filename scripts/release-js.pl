@@ -7,6 +7,7 @@
 
 use utf8;
 use strict;
+use Template;
 use File::Basename;
 use Cwd;
 use vars qw(
@@ -157,40 +158,6 @@ if( $opt_u ){
 ### Helper functions.
 ###
 
-# ## Create a JS file: manifest.js
-# sub manifest_to_js {
-
-#   ## Incoming argument is the version.
-#   my $namespace = shift || die 'wot? we need a namespace argument';
-#   my $dirs = shift || die 'wot? we need a location argument';
-
-#   my $location = $dirs . '/manifest.js';
-
-#   ## If the file is already there, blow it away.
-#   unlink $location if -f $location;
-#   open(FILE, ">$location") or die "cannot open $location: $!";
-
-#   ## 
-#   print FILE <<EOJS;
-# /* 
-#  * Package: manifest.js
-#  * 
-#  * Namespace: $namespace.*
-#  * 
-#  * This package was automatically generated during the build process
-#  * and contains all package/namespace mapping.
-#  */
-
-# if ( typeof $namespace == "undefined" ){ var $namespace = {}; }
-
-# EOJS
-
-#   ## Close file.
-#   close(FILE);
-#   make_readable($location);
-#   ll("Created manifest file: \"$location\".");
-# }
-
 ## Create a JS file: version.js
 sub version_to_js {
 
@@ -202,48 +169,22 @@ sub version_to_js {
 
   my $location = $dirs . '/version.js';
 
-  # ## Make nice namespace call through BBOPJS.
-  # my $ns_head = "bbop.core.namespace('";
-  # my $ns_tail = "')";
-  # my @nss = split('.', $namespace);
-  # push @nss, $namespace if scalar(@nss) == 0; # use if no split
-  # push @nss, 'version';
-  # my $ns_call = $ns_head . join("', '", @nss) . $ns_tail;
-
   ## If the file is already there, blow it away.
   unlink $location if -f $location;
   open(FILE, ">$location") or die "cannot open $location: $!";
 
-  ## 
-  print FILE <<EOJS;
-/* 
- * Package: version.js
- * 
- * Namespace: $namespace.version
- * 
- * This package was automatically generated during the build process
- * and contains its version information--this is the release of the
- * API that you have.
- */
-
-if ( typeof $namespace == "undefined" ){ var $namespace = {}; }
-if ( typeof $namespace.version == "undefined" ){ $namespace.version = {}; }
-
-/*
- * Variable: revision
- *
- * Partial version for this library; revision (major/minor version numbers)
- * information.
- */
-$namespace.version.revision = "$revision";
-
-/*
- * Variable: release
- *
- * Partial version for this library: release (date-like) information.
- */
-$namespace.version.release = "$release";
-EOJS
+  ## Template to string output.
+  my $output = '';
+  my $tt = Template->new();
+  $tt->process('templates/conf/version.js',
+	       {
+		namespace => $namespace,
+		revision => $revision,
+		release => $release,
+	       },
+	       \$output)
+    || die $tt->error;
+  print FILE $output;
 
   ## Close file.
   close(FILE);
