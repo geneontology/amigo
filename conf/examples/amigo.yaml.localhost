@@ -71,10 +71,6 @@ AMIGO_VERBOSE:
   comment: Log verbose AmiGO debugging messages.
   type: boolean
   value: 1
-AMIGO_VERSION:
-  comment: Displayed AmiGO version string. This string is also used to create the AmiGO JS versioning.
-  type: string
-  value: 2.0b1
 GOLR_TIMESTAMP_LOCATION:
   comment: "This is the *full* path to the timestamp file that is optionally produced by OWLTools during GOlr loading. It contains information about download attempt times for the different loaded files. If not found or unusable, AmiGO 2 will gracefully ignore it.\n"
   type: file

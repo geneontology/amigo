@@ -139,11 +139,6 @@ AMIGO_SERVER_NAME:
     not be reported, leave blank.
   type: string
 
-AMIGO_VERSION:
-  value: 2.0b1
-  comment: "Displayed AmiGO version string. This string is also used to create the AmiGO JS versioning."
-  type: string
-
 AMIGO_GOOGLE_ANALYTICS_ID:
   value: ''
   comment: Google analytics ID. Optional.

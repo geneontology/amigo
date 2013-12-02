@@ -21,12 +21,13 @@ use vars qw(
 	     $opt_g
 	     $opt_b
 	     $opt_u
+	     $opt_V
 	  );
 use Getopt::Std;
 
 
 ## Since internal checks are done, get ready for user input.
-getopts('hvgdbu');
+getopts('hvgdbuV:');
 
 ## Embedded help through perldoc.
 if( $opt_h ){
@@ -39,12 +40,27 @@ my @args = ();
 
 ## Check our options.
 ll("Will print verbose messages.");
-if ( $opt_g ) {
+if( $opt_g ){
   ll("Will also install GOOSE, Gannet, Grebe, and REPL.");
 }
-if ( $opt_b ) {
+if( $opt_b ){
   ll("Will do what is necessary to just produce the JS bundle.");
 }
+## Version.
+my $version = undef;
+if( defined $opt_V && $opt_V ){
+  ll("Explicitly defining version.");
+  $version = $opt_V;
+}else{
+  ll("No version defined, looking elsewhere...");
+  if( $ENV{AMIGO_VERSION} ){
+    ll("Environmentally defining version.");
+    $version = $ENV{AMIGO_VERSION};
+  }else{
+    die "Unable to figure out version!";
+  }
+}
+ll('Version is: "' . $version . '"');
 
 ## First check that we are in the proper directory. Installation
 ## should only occur in the top directory.
@@ -126,6 +142,11 @@ for my $var (keys %$yconf){
 ### wanted environment, so let's make new (synthetic) variables,
 ### directories.
 ###
+
+## Our version comes explicitly from the CLI or environment, not from
+## the config files--we have AMIGO_VERSION too many places if we don't
+## do this.
+$env_conf{AMIGO_VERSION} = $version;
 
 ## Htdocs root directory for AmiGO on the filesystem.
 $env_conf{AMIGO_HTDOCS_ROOT_DIR} =
