@@ -31,7 +31,7 @@ amigo.version.revision = "2.0.0-rc1";
  *
  * Partial version for this library: release (date-like) information.
  */
-amigo.version.release = "20131128";
+amigo.version.release = "20131202";
 /*
  * Package: api.js
  * 
@@ -703,7 +703,7 @@ amigo.api = function(){
  * Generic AmiGO link generator, fed by <amigo.data.server> for local
  * links and <amigo.data.xrefs> for non-local links.
  * 
- * NOTE: A lot of this is lifted from the (defunct) amigo.js
+ * NOTE: A lot of this is lifted from the (defunct) amigo2.js
  * package. However, the future should be here.
  */
 
@@ -9859,7 +9859,7 @@ amigo.data.dispatch = {
  * 
  * Purpose: Useful numbers about the current data in the store.
  * 
- * Requirements: amigo.js for bbop.amigo namespace.
+ * Requirements: amigo2.js for bbop.amigo namespace.
  * 
  * NOTE: This file is generated dynamically at installation time.
  *       Hard to work with unit tests--hope it's not too bad.

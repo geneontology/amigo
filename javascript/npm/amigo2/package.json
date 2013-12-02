@@ -13,6 +13,7 @@
     },
     "keywords": [
 	"amigo",
+	"amigo2",
 	"bbop",
 	"gene ontology",
 	"cross-platform"
@@ -21,5 +22,5 @@
     "dependencies": {
 	"bbop": "2.0.0-rc1"
     },
-    "main": "./amigo.js"
+    "main": "./amigo2.js"
 }
