@@ -98,7 +98,7 @@ sub mode_facet_matrix {
 	'com.jquery-ui',
 	'com.jquery.tablesorter',
 	'bbop',
-	'amigo'
+	'amigo2'
        ],
        javascript =>
        [

@@ -7,7 +7,7 @@
  * 
  * Purpose: Useful numbers about the current data in the store.
  * 
- * Requirements: amigo.js for bbop.amigo namespace.
+ * Requirements: amigo2.js for bbop.amigo namespace.
  * 
  * NOTE: This file is generated dynamically at installation time.
  *       Hard to work with unit tests--hope it's not too bad.

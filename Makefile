@@ -8,7 +8,7 @@
 METADATA ?= $(wildcard metadata/*.yaml)
 TEST_JS ?= rhino # or smjs
 ## Use our local bbop-js.
-TEST_JS_FLAGS ?= -modules _data/bbop.js -modules javascript/staging/amigo.js -opt -1
+TEST_JS_FLAGS ?= -modules _data/bbop.js -modules javascript/staging/amigo2.js -opt -1
 #JSENGINES = node smjs rhino
 BBOP_JS ?= ../bbop-js/
 JS_TESTS = \
@@ -87,7 +87,7 @@ bundle-uncompressed:
 
 .PHONY: npm
 npm: bundle
-	./scripts/release-npm.pl -v -i javascript/staging/amigo.js -o javascript/npm/amigo2 -r $(AMIGO_VERSION)
+	./scripts/release-npm.pl -v -i javascript/staging/amigo2.js -o javascript/npm/amigo2 -r $(AMIGO_VERSION)
 	npm unpublish amigo2@$(AMIGO_VERSION)
 	npm publish javascript/npm/amigo2
 

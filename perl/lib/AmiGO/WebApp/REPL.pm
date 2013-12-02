@@ -120,7 +120,7 @@ sub mode_bbop_js {
       'com.jquery-ui',
       #'com.jquery.tablesorter',
       'bbop',
-      'amigo'
+      'amigo2'
      ],
      javascript =>
      [

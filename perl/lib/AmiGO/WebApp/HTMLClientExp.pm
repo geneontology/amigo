@@ -260,54 +260,6 @@ sub mode_ptree {
 }
 
 
-# ## BBOP web REPL.
-# sub mode_repl {
-
-#   my $self = shift;
-
-#   ## Incoming template.
-#   my $i = AmiGO::Input->new($self->query());
-#   my $params = $i->input_profile();
-#   $self->_common_params_settings($params);
-
-#   ###
-#   ### Page settings.
-#   ###
-
-#   ## Our AmiGO services CSS.
-#   my $prep =
-#     {
-#      css_library =>
-#      [
-#       'standard', # basic GO-styles
-#       'com.jquery.jqamigo.custom',
-#       #'bbop.amigo.ui.widgets',
-#      ],
-#      javascript_library =>
-#      [
-#       'com.jquery',
-#       'com.jquery-ui',
-#       'com.jquery.jstree',
-#       'bbop',
-#       'amigo',
-#      ],
-#      javascript =>
-#      [
-#       $self->{JS}->get_lib('REPL.js')
-#      ]
-#     };
-#   $self->add_template_bulk($prep);
-
-#   ## Initialize javascript app.
-#   $self->add_template_javascript($self->{JS}->initializer_jquery('REPLInit();'));
-
-#   ##
-#   #$self->set_template_parameter('filler_n', 10);
-#   $self->add_template_content('pages/repl.tmpl');
-#   return $self->generate_template_page();
-# }
-
-
 ## A naive AJAX drilldown browser based off of the GOlr backend for
 ## data.
 sub mode_drilldown_browser {
@@ -338,7 +290,7 @@ sub mode_drilldown_browser {
       'com.jquery-ui',
       'com.jquery.jstree',
       'bbop',
-      'amigo',
+      'amigo2',
      ],
      javascript =>
      [

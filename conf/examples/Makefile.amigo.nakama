@@ -8,7 +8,7 @@
 METADATA ?= $(wildcard metadata/*.yaml)
 TEST_JS ?= rhino # or smjs
 ## Use our local bbop-js.
-TEST_JS_FLAGS ?= -modules _data/bbop.js -modules javascript/staging/amigo.js -opt -1
+TEST_JS_FLAGS ?= -modules _data/bbop.js -modules javascript/staging/amigo2.js -opt -1
 #JSENGINES = node smjs rhino
 BBOP_JS ?= ../bbop-js/
 JS_TESTS = \

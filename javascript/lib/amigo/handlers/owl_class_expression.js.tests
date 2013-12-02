@@ -4,7 +4,7 @@
 
 // Correct environment, ready testing.
 var bbop = require('bbop').bbop;
-var amigo = require('amigo').amigo;
+var amigo = require('amigo2').amigo;
 var mr_t = new bbop.test();
 
 ///

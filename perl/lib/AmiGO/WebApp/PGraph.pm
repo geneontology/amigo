@@ -82,7 +82,7 @@ sub mode_exp {
       # 'bbop.model.tree',
       # 'bbop.graph.render.phylo',
       'bbop',
-      'amigo'
+      'amigo2'
      ],
      javascript =>
      [
@@ -126,7 +126,7 @@ sub mode_pthr10170 {
       # 'bbop.model.tree',
       # 'bbop.graph.render.phylo',
       'bbop',
-      'amigo'
+      'amigo2'
      ],
      javascript =>
      [

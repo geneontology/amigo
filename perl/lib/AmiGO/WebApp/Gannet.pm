@@ -569,7 +569,7 @@ sub mode_gannet {
 	'com.bootstrap',
 	'com.jquery-ui',
 	'bbop',
-	'amigo'
+	'amigo2'
        ],
        javascript =>
        [

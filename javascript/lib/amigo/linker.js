@@ -6,7 +6,7 @@
  * Generic AmiGO link generator, fed by <amigo.data.server> for local
  * links and <amigo.data.xrefs> for non-local links.
  * 
- * NOTE: A lot of this is lifted from the (defunct) amigo.js
+ * NOTE: A lot of this is lifted from the (defunct) amigo2.js
  * package. However, the future should be here.
  */
 

@@ -19,7 +19,7 @@
 // Awkwardly (but correctly?) bring on our prescious AmiGO/BBOP JS
 // libs.
 var bbop = require('bbop').bbop;
-var amigo = require('amigo').amigo;
+var amigo = require('amigo2').amigo;
 
 // Defined the GOlr request conf.
 var gconf = new bbop.golr.conf(amigo.data.golr);

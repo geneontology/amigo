@@ -24,7 +24,7 @@
 
 // Load the base files.
 load('../../_data/bbop.js');
-load('../staging/amigo.js');
+load('../staging/amigo2.js');
 
 // For debugging.
 var logger = new bbop.logger('static data gen');

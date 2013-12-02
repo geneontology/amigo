@@ -179,7 +179,7 @@ sub mode_grebe {
       'com.bootstrap',
       'com.jquery-ui',
       'bbop',
-      'amigo'
+      'amigo2'
      ],
      javascript =>
      [

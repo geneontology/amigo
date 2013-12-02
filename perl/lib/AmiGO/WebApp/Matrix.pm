@@ -73,7 +73,7 @@ sub mode_matrix {
       'com.jquery-ui',
       #'com.jquery.jstree',
       'bbop',
-      'amigo'
+      'amigo2'
      ],
      javascript =>
      [

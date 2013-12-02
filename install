@@ -309,7 +309,7 @@ xref_abbs_to_meta_js($xrefs_js_data_fname, $xrefs_url, 'js');
 ll("Created GO XRefs JavaScript data file: \"$xrefs_js_data_fname\".");
 
 ## Dump out the discoverable stats, but only generate the statistics
-## package if there is already amigo.js files in the javascript
+## package if there is already amigo2.js files in the javascript
 ## staging area.
 my $amigo_stats_fname = 'javascript/lib/amigo/data/statistics.js';
 golr_stats_to_js($amigo_stats_fname);
@@ -324,7 +324,7 @@ my $release_args_compressed =
   [
    './scripts/release-js.pl', '-v',
    '-i', 'scripts/release-js-file-map.txt',
-   '-o', 'javascript/staging/amigo.js',
+   '-o', 'javascript/staging/amigo2.js',
    '-n', 'amigo',
    '-d', 'javascript/lib/amigo',
    '-r', $env_conf{AMIGO_VERSION}
@@ -336,7 +336,7 @@ if( $opt_u ){
      './scripts/release-js.pl', '-v',
      '-u',
      '-i', 'scripts/release-js-file-map.txt',
-     '-o', 'javascript/staging/amigo.js',
+     '-o', 'javascript/staging/amigo2.js',
      '-n', 'amigo',
      '-d', 'javascript/lib/amigo',
      '-r', $env_conf{AMIGO_VERSION}
@@ -407,7 +407,7 @@ if( ! $opt_b ){
   force_copy($env_conf{GO_BBOPJS_LOCATION},
 	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
   ## Our AmiGO bundle.
-  force_copy(Cwd::cwd() . '/javascript/staging/amigo.js',
+  force_copy(Cwd::cwd() . '/javascript/staging/amigo2.js',
 	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
   ## The AmiGO frontends.
   force_copy(Cwd::cwd() . '/javascript/web/',

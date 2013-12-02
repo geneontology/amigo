@@ -13,7 +13,6 @@ use base 'AmiGO::WebApp';
 use strict;
 use utf8;
 use Data::Dumper;
-#use AmiGO::JavaS
 
 ##
 use AmiGO::Input;
@@ -113,7 +112,7 @@ sub mode_landing {
       'com.bootstrap',
       'com.jquery-ui',
       'bbop',
-      'amigo'
+      'amigo2'
      ],
      javascript =>
      [
@@ -175,7 +174,7 @@ sub mode_browse {
       'com.bootstrap',
       'com.jquery-ui',
       'bbop',
-      'amigo'
+      'amigo2'
      ],
      javascript =>
      [
@@ -389,7 +388,7 @@ sub mode_simple_search {
       'com.bootstrap',
       'com.jquery-ui',
       'bbop',
-      'amigo'
+      'amigo2'
      ],
      javascript =>
      [
@@ -516,7 +515,7 @@ sub mode_medial_search {
       'com.bootstrap',
       'com.jquery-ui',
       'bbop',
-      'amigo'
+      'amigo2'
      ],
      javascript =>
      [
@@ -584,7 +583,7 @@ sub mode_software_list {
       'com.jquery-ui',
       #'com.jquery.tablesorter',
       'bbop',
-      'amigo'
+      'amigo2'
      ],
      javascript =>
      [
@@ -641,7 +640,7 @@ sub mode_schema_details {
       'com.jquery-ui',
       'com.jquery.tablesorter',
       'bbop',
-      'amigo'
+      'amigo2'
      ],
      javascript =>
      [
@@ -730,7 +729,7 @@ sub mode_load_details {
       'com.jquery-ui',
       'com.jquery.tablesorter',
       'bbop',
-      'amigo'
+      'amigo2'
      ],
      javascript =>
      [
@@ -795,7 +794,7 @@ sub mode_visualize {
 	'com.bootstrap',
 	'com.jquery-ui',
 	'bbop',
-	'amigo'
+	'amigo2'
        ],
        javascript =>
        [
@@ -897,7 +896,7 @@ sub mode_visualize_freeform {
 	'com.bootstrap',
 	'com.jquery-ui',
 	'bbop',
-	'amigo'
+	'amigo2'
        ],
        javascript =>
        [
@@ -1055,7 +1054,7 @@ sub mode_search {
       'com.bootstrap',
       'com.jquery-ui',
       'bbop',
-      'amigo'
+      'amigo2'
      ],
      javascript =>
      [
@@ -1364,7 +1363,7 @@ sub mode_term_details {
       'com.jquery-ui',
       'com.jquery.tablesorter',
       'bbop',
-      'amigo'
+      'amigo2'
      ],
      javascript =>
      [
@@ -1509,7 +1508,7 @@ sub mode_gene_product_details {
       'com.bootstrap',
       'com.jquery-ui',
       'bbop',
-      'amigo'
+      'amigo2'
      ],
      javascript =>
      [
@@ -1632,7 +1631,7 @@ sub mode_complex_annotation_details {
       'com.bootstrap',
       'com.jquery-ui',
       'bbop',
-      'amigo'
+      'amigo2'
      ],
      javascript =>
      [
@@ -1719,7 +1718,7 @@ sub mode_phylo_graph {
       #'com.raphael',
       #'com.raphael.graffle',
       'bbop',
-      'amigo'
+      'amigo2'
       #'bbop.model',
       #'bbop.model.tree',
       #'bbop.graph.render.phylo',

@@ -597,7 +597,7 @@ sub mode_goose {
 	'com.jquery-ui',
 	#'com.jquery.tablesorter',
 	'bbop',
-	'amigo'
+	'amigo2'
        ],
        javascript =>
        [
