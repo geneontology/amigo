@@ -119,7 +119,7 @@ fields:
       - "BFO:0000050"
     searchable: true
   - id: regulates_closure
-    description: "Closure of ids/accs over regulates and occurs in."
+    description: "Closure of ids/accs over various relations (including regulates, occurs in, capable_of)."
     display_name: Ancestor
     type: string
     cardinality: multi
@@ -130,8 +130,10 @@ fields:
       - "RO:0002211"
       - "RO:0002212"
       - "RO:0002213"
+      - "RO:0002215"
+      - "RO:0002216"
   - id: regulates_closure_label
-    description: "Closure of labels over regulates and occurs in."
+    description: "Closure of labels over various relations (including regulates, occurs in, capable_of)."
     display_name: Ancestor
     type: string
     cardinality: multi
@@ -142,34 +144,11 @@ fields:
       - "RO:0002211"
       - "RO:0002212"
       - "RO:0002213"
-    searchable: true
-  - id: regulates_closure
-    description: "Closure of ids/accs over regulates and occurs in."
-    display_name: Ancestor
-    type: string
-    cardinality: multi
-    property:
-      - "getRelationIDClosure"
-      - "BFO:0000050"
-      - "BFO:0000066"
-      - "RO:0002211"
-      - "RO:0002212"
-      - "RO:0002213"
-  - id: regulates_closure_label
-    description: "Closure of labels over regulates and occurs in."
-    display_name: Ancestor
-    type: string
-    cardinality: multi
-    property:
-      - "getRelationLabelClosure"
-      - "BFO:0000050"
-      - "BFO:0000066"
-      - "RO:0002211"
-      - "RO:0002212"
-      - "RO:0002213"
+      - "RO:0002215"
+      - "RO:0002216"
     searchable: true
   - id: topology_graph_json
-    description: JSON blob form of the local stepwise topology graph.
+    description: "JSON blob form of the local stepwise topology graph. Uses various relations (including regulates, occurs in, capable_of)."
     display_name: Topology graph (JSON)
     type: string
     property:
@@ -179,9 +158,11 @@ fields:
       - "RO:0002211"
       - "RO:0002212"
       - "RO:0002213"
+      - "RO:0002215"
+      - "RO:0002216"
     indexed: false
   - id: regulates_transitivity_graph_json
-    description: JSON blob form of the local relation transitivity graph.
+    description: "JSON blob form of the local relation transitivity graph. Uses various relations (including regulates, occurs in, capable_of)."
     display_name: Regulates transitivity graph (JSON)
     type: string
     property:
@@ -191,6 +172,8 @@ fields:
       - "RO:0002211"
       - "RO:0002212"
       - "RO:0002213"
+      - "RO:0002215"
+      - "RO:0002216"
     indexed: false
   - id: only_in_taxon
     description: "Only in taxon."
