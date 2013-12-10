@@ -1869,7 +1869,7 @@ bbop.version.revision = "2.0.0-rc1";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20131206";
+bbop.version.release = "20131210";
 /*
  * Package: logger.js
  * 
@@ -1992,8 +1992,10 @@ bbop.logger = function(initial_context){
     }else if( typeof(console) != 'undefined' &&
 	      typeof(console.log) == 'function' ){
 	// This may be okay for Chrome and a subset of various console
-	// loggers. This should now include FF's Web Console.
-	this._console_sayer = function(msg){ console.log(msg + "\n"); };
+	// loggers. This should now include FF's Web Console and NodeJS.
+	//this._console_sayer = function(msg){ console.log(msg + "\n"); };
+	// These usually seem to have "\n" incorporated now.
+	this._console_sayer = function(msg){ console.log(msg); };
     }else if( typeof(opera) != 'undefined' &&
 	typeof(opera.postError) == 'function' ){
 	// If Opera is in there, probably Opera.
