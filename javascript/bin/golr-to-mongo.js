@@ -58,7 +58,7 @@ var num_inserts_done = 0;
 function golr_iter(resp){
     num_pages_done++;
 
-    _ll('Total: ' + resp.total_documents() + ', ' +
+    _ll('GOlr iter; total: ' + resp.total_documents() + ', ' +
 	'start: ' + resp.start_document() + ', ' +
 	'end: ' + resp.end_document() + ', ' + 
 	'page: ' + num_pages_done);
@@ -86,7 +86,7 @@ function _insert_into_mongo(resp){
 
 		     // Log our current count.
 		     mcoll.count(function(err, count){
-				     _ll("coll count = " + count);
+				     _ll("MonGO; total inserts: " + count);
 
 				     // Close the database connection
 				     // when we have wrapped up.
