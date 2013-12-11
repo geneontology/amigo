@@ -31,7 +31,7 @@ amigo.version.revision = "2.0.0-rc1";
  *
  * Partial version for this library: release (date-like) information.
  */
-amigo.version.release = "20131204";
+amigo.version.release = "20131210";
 /*
  * Package: api.js
  * 
@@ -2363,7 +2363,7 @@ amigo.data.golr = {
          },
          {
             "transform" : [],
-            "description" : "Closure of ids/accs over regulates and occurs in.",
+            "description" : "Closure of ids/accs over various relations (including regulates, occurs in, capable_of).",
             "display_name" : "Ancestor",
             "indexed" : "true",
             "searchable" : "false",
@@ -2377,12 +2377,14 @@ amigo.data.golr = {
                "BFO:0000066",
                "RO:0002211",
                "RO:0002212",
-               "RO:0002213"
+               "RO:0002213",
+               "RO:0002215",
+               "RO:0002216"
             ]
          },
          {
             "transform" : [],
-            "description" : "Closure of labels over regulates and occurs in.",
+            "description" : "Closure of labels over various relations (including regulates, occurs in, capable_of).",
             "display_name" : "Ancestor",
             "indexed" : "true",
             "searchable" : "true",
@@ -2396,50 +2398,14 @@ amigo.data.golr = {
                "BFO:0000066",
                "RO:0002211",
                "RO:0002212",
-               "RO:0002213"
+               "RO:0002213",
+               "RO:0002215",
+               "RO:0002216"
             ]
          },
          {
             "transform" : [],
-            "description" : "Closure of ids/accs over regulates and occurs in.",
-            "display_name" : "Ancestor",
-            "indexed" : "true",
-            "searchable" : "false",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "regulates_closure",
-            "property" : [
-               "getRelationIDClosure",
-               "BFO:0000050",
-               "BFO:0000066",
-               "RO:0002211",
-               "RO:0002212",
-               "RO:0002213"
-            ]
-         },
-         {
-            "transform" : [],
-            "description" : "Closure of labels over regulates and occurs in.",
-            "display_name" : "Ancestor",
-            "indexed" : "true",
-            "searchable" : "true",
-            "required" : "false",
-            "cardinality" : "multi",
-            "type" : "string",
-            "id" : "regulates_closure_label",
-            "property" : [
-               "getRelationLabelClosure",
-               "BFO:0000050",
-               "BFO:0000066",
-               "RO:0002211",
-               "RO:0002212",
-               "RO:0002213"
-            ]
-         },
-         {
-            "transform" : [],
-            "description" : "JSON blob form of the local stepwise topology graph.",
+            "description" : "JSON blob form of the local stepwise topology graph. Uses various relations (including regulates, occurs in, capable_of).",
             "display_name" : "Topology graph (JSON)",
             "indexed" : "false",
             "searchable" : "false",
@@ -2453,12 +2419,14 @@ amigo.data.golr = {
                "BFO:0000066",
                "RO:0002211",
                "RO:0002212",
-               "RO:0002213"
+               "RO:0002213",
+               "RO:0002215",
+               "RO:0002216"
             ]
          },
          {
             "transform" : [],
-            "description" : "JSON blob form of the local relation transitivity graph.",
+            "description" : "JSON blob form of the local relation transitivity graph. Uses various relations (including regulates, occurs in, capable_of).",
             "display_name" : "Regulates transitivity graph (JSON)",
             "indexed" : "false",
             "searchable" : "false",
@@ -2472,7 +2440,9 @@ amigo.data.golr = {
                "BFO:0000066",
                "RO:0002211",
                "RO:0002212",
-               "RO:0002213"
+               "RO:0002213",
+               "RO:0002215",
+               "RO:0002216"
             ]
          },
          {
@@ -2580,7 +2550,7 @@ amigo.data.golr = {
          },
          "regulates_transitivity_graph_json" : {
             "transform" : [],
-            "description" : "JSON blob form of the local relation transitivity graph.",
+            "description" : "JSON blob form of the local relation transitivity graph. Uses various relations (including regulates, occurs in, capable_of).",
             "display_name" : "Regulates transitivity graph (JSON)",
             "indexed" : "false",
             "searchable" : "false",
@@ -2594,7 +2564,9 @@ amigo.data.golr = {
                "BFO:0000066",
                "RO:0002211",
                "RO:0002212",
-               "RO:0002213"
+               "RO:0002213",
+               "RO:0002215",
+               "RO:0002216"
             ]
          },
          "database_xref" : {
@@ -2658,7 +2630,7 @@ amigo.data.golr = {
          },
          "topology_graph_json" : {
             "transform" : [],
-            "description" : "JSON blob form of the local stepwise topology graph.",
+            "description" : "JSON blob form of the local stepwise topology graph. Uses various relations (including regulates, occurs in, capable_of).",
             "display_name" : "Topology graph (JSON)",
             "indexed" : "false",
             "searchable" : "false",
@@ -2672,7 +2644,9 @@ amigo.data.golr = {
                "BFO:0000066",
                "RO:0002211",
                "RO:0002212",
-               "RO:0002213"
+               "RO:0002213",
+               "RO:0002215",
+               "RO:0002216"
             ]
          },
          "subset" : {
@@ -2791,7 +2765,7 @@ amigo.data.golr = {
          },
          "regulates_closure_label" : {
             "transform" : [],
-            "description" : "Closure of labels over regulates and occurs in.",
+            "description" : "Closure of labels over various relations (including regulates, occurs in, capable_of).",
             "display_name" : "Ancestor",
             "indexed" : "true",
             "searchable" : "true",
@@ -2805,7 +2779,9 @@ amigo.data.golr = {
                "BFO:0000066",
                "RO:0002211",
                "RO:0002212",
-               "RO:0002213"
+               "RO:0002213",
+               "RO:0002215",
+               "RO:0002216"
             ]
          },
          "description" : {
@@ -2824,7 +2800,7 @@ amigo.data.golr = {
          },
          "regulates_closure" : {
             "transform" : [],
-            "description" : "Closure of ids/accs over regulates and occurs in.",
+            "description" : "Closure of ids/accs over various relations (including regulates, occurs in, capable_of).",
             "display_name" : "Ancestor",
             "indexed" : "true",
             "searchable" : "false",
@@ -2838,7 +2814,9 @@ amigo.data.golr = {
                "BFO:0000066",
                "RO:0002211",
                "RO:0002212",
-               "RO:0002213"
+               "RO:0002213",
+               "RO:0002215",
+               "RO:0002216"
             ]
          },
          "isa_partof_closure" : {
