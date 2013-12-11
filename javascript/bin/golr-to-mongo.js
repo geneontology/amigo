@@ -77,7 +77,7 @@ function golr_iter(resp){
 
 function _insert_into_mongo(resp){
 
-    _ll('insert a bunch of docs');
+    //_ll('insert a bunch of docs');
 
     var solr_docs = resp.documents();
     mcoll.insert(solr_docs,
