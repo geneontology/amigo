@@ -18,6 +18,11 @@ var bbop = require('bbop').bbop;
 var amigo = require('amigo2').amigo;
 var mc = require('mongodb').MongoClient;
 
+// Aliases.
+var each = bbop.core.each;
+var what_is = bbop.core.what_is;
+var is_defined = bbop.core.is_defined;
+
 // Logger.
 var logger = new bbop.logger();
 logger.DEBUG = true;
@@ -26,6 +31,9 @@ function _ll(str){ logger.kvetch('g2m: ' + str); }
 // User variables.
 var golr_location = 'http://localhost:8080/solr/';
 var golr_page_size = 1000;
+var golr_field_blacklist = { // fields we will not port
+  'phylo_graph_json': true
+};
 //var golr_location = 'http://localhost:8080/solr/';
 var mongo_dbname = 'amigo';
 var mongo_location = 'mongodb://127.0.0.1:27017/' + mongo_dbname;
@@ -54,6 +62,9 @@ var done_paging_p = false;
 var num_pages_done = 0;
 var num_inserts_done = 0;
 
+// Rexexp to match JSON blobs.
+var json_blob_field_re = /_json$/;
+
 // Define what we do when our (async) information comes back.
 function golr_iter(resp){
     num_pages_done++;
@@ -75,16 +86,68 @@ function golr_iter(resp){
     }
 }
 
+function _process_solr_doc(in_doc){
+    var out_doc = {};
+
+    // For each return doc...
+    each(in_doc,
+	 function(field, value){
+
+	     // Filter out things we don't want from the blacklist.
+	     if( golr_field_blacklist[field] ){
+		 // Skipped.
+	     }else if( is_defined(value) && json_blob_field_re.test(field) ){
+		 // Try and convert JSON strings and lists to actual
+		 // objects.
+		 try {
+		     if( what_is(value) == 'string' ){ // a single string?
+			 var deblobbed = JSON.parse(value);
+			 out_doc[field] = deblobbed;
+		     }else{ // or a list then
+			 var list = [];
+			 each(value,
+			      function(val){
+				  list.push = JSON.parse(val);
+			      });
+			 out_doc[field] = list;
+		     }
+		 } catch (x) {
+		     //_ll('converted field: ' + field);
+		     throw new Error('die on bad field (' +
+				     field + '): ' + value + '; for ' +
+				     in_doc['id']);
+		 }
+		 //_ll('converted field: ' + field);
+	     }else{
+		 // Otherwise, just pass the stuff through.
+		 out_doc[field] = value; 
+	     }
+	 });
+
+    return out_doc;
+}
+
 function _insert_into_mongo(resp){
 
     //_ll('insert a bunch of docs');
 
     var solr_docs = resp.documents();
-    mcoll.insert(solr_docs,
+
+    // Process the docs, turning "blob" fields into the real deal.
+    // TODO: Check to see if it is a blacklisted field.
+    var processed_solr_docs = [];
+    each(solr_docs,
+	 function(solr_doc){
+	     processed_solr_docs.push(_process_solr_doc(solr_doc));
+	 });
+
+    // Insert the processed version.
+    mcoll.insert(processed_solr_docs,
 		 function(err, docs){
 		     num_inserts_done++;
 
-		     // Log our current count.
+		     // Post insert action: log our current count and
+		     // test to see if we're done.
 		     mcoll.count(function(err, count){
 				     _ll("MonGO; total inserts: " + count);
 
@@ -106,6 +169,7 @@ function _on_mongodb_connect(err, db){
     _ll('mongodb connect');
     mdb = db; // finally defined the db connection
     mcoll = db.collection(golr_dcat_target);
+    _ll('mongodb pre-clean (' + golr_dcat_target + ')');
     mcoll.remove(_on_mongodb_clear);
 }
 
