@@ -52,26 +52,26 @@ AMIGO_PROJECT_NAME:
     
 AMIGO_HTDOCS_PARTIAL_PATH:
   value: /srv/www/htdocs
-  comment: Please enter the full path to a usable static document directory.
+  comment: Please enter the full path to a usable static document directory. AMIGO_PROJECT_NAME will be used as a new directory name in this directory.
   type: directory
 
-AMIGO_HTDOCS_PARTIAL_URL:
-  value: http://localhost
-  comment: Please enter the URL that this path maps to.
+AMIGO_HTDOCS_BASE_URL:
+  value: http://localhost/amigo2
+  comment: Please enter the URL that this path (plus the AMIGO_PROJECT_NAME) maps to.
   type: url
 
 AMIGO_CGI_PARTIAL_PATH:
   value: /srv/www/cgi-bin
-  comment: Please enter the full path to a usable CGI enabled directory.
+  comment: Please enter the full path to a usable CGI enabled directory. AMIGO_PROJECT_NAME will be used as a new directory name in this directory.
   type: directory
 
-AMIGO_CGI_PARTIAL_URL:
-  value: http://localhost/cgi-bin
-  comment: Please enter the URL that this path maps to.
+AMIGO_CGI_BASE_URL:
+  value: http://localhost/cgi-bin/amigo2
+  comment: Please enter the URL that this path (plus the AMIGO_PROJECT_NAME) maps to.
   type: url
 
-AMIGO_PUBLIC_CGI_PARTIAL_URL:
-  value: http://amigo.geneontology.org/cgi-bin
+AMIGO_PUBLIC_CGI_BASE_URL:
+  value: http://amigo.geneontology.org/cgi-bin/amigo
   comment: Please enter the partial public URL.
   type: true
 

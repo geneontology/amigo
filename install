@@ -168,25 +168,22 @@ safe_make_dir( $env_conf{AMIGO_CGI_ROOT_DIR} );
 $env_conf{AMIGO_CGI_URL} =
   eval {
     my $foo = '';
-    ( $foo = $env_conf{AMIGO_CGI_PARTIAL_URL} ) =~ s/\/$//;
-    $foo; } . '/' . $env_conf{AMIGO_PROJECT_NAME};
+    ( $foo = $env_conf{AMIGO_CGI_BASE_URL} ) =~ s/\/$//;
+    $foo; };
 
 ## URL for AmiGO services.
 $env_conf{AMIGO_SERVICE_URL} = $env_conf{AMIGO_CGI_URL} . '/aserve';
 
 ## URL for the public production AmiGO.
-$env_conf{AMIGO_PUBLIC_CGI_URL} =
-  eval {
-    my $foo = '';
-    ( $foo = $env_conf{AMIGO_PUBLIC_CGI_PARTIAL_URL} ) =~ s/\/$//;
-    $foo; } . '/amigo';
+$env_conf{AMIGO_PUBLIC_CGI_BASE_URL} =
+  $env_conf{AMIGO_PUBLIC_CGI_BASE_URL} =~ s/\/$//;
 
 ## Root AmiGO URL.
 $env_conf{AMIGO_HTML_URL} =
   eval {
     my $foo = '';
-    ( $foo = $env_conf{AMIGO_HTDOCS_PARTIAL_URL} ) =~ s/\/$//;
-    $foo; } . '/' . $env_conf{AMIGO_PROJECT_NAME};
+    ( $foo = $env_conf{AMIGO_HTDOCS_BASE_URL} ) =~ s/\/$//;
+    $foo; };
 
 ## Image URL and dir.
 $env_conf{AMIGO_IMAGE_DIR} =

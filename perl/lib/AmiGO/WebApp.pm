@@ -738,7 +738,8 @@ sub _common_params_settings {
 
   ## Create and add to output buffer.
   $params->{base} = $self->{CORE}->amigo_env('AMIGO_CGI_URL');
-  $params->{public_base} = $self->{CORE}->amigo_env('AMIGO_PUBLIC_CGI_URL');
+  $params->{public_base} =
+    $self->{CORE}->amigo_env('AMIGO_PUBLIC_CGI_BASE_URL');
   $params->{public_opensearch} =
     $self->{CORE}->amigo_env('AMIGO_PUBLIC_OPENSEARCH_URL');
   $params->{BETA} = $self->_atoi($self->{CORE}->amigo_env('AMIGO_BETA'));

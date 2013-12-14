@@ -549,9 +549,9 @@ sub mode_software_list {
   $self->set_template_parameter('page_title', 'AmiGO 2: Tools and Resources');
   $self->set_template_parameter('content_title', 'Tools and Resources');
 
-  ## Where would the ancient demos page hide...?
-  my $foo = $self->{CORE}->amigo_env('AMIGO_CGI_PARTIAL_URL');
-  $self->set_template_parameter('OLD_LOC', $foo);
+  # ## Where would the ancient demos page hide...?
+  # my $foo = $self->{CORE}->amigo_env('AMIGO_CGI_PARTIAL_URL');
+  # $self->set_template_parameter('OLD_LOC', $foo);
 
   ## Get Galaxy, and add a variable for it in the page.
   $self->set_template_parameter('GO_GALAXY',
