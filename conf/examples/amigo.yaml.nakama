@@ -7,14 +7,14 @@ AMIGO_BETA:
   comment: "Mark the AmiGO site as BETA (triggers some changes in variables and installed features).\n"
   type: boolean
   value: 1
-AMIGO_CGI_PARTIAL_PATH:
-  comment: Please enter the full path to a usable CGI enabled directory.
-  type: directory
-  value: /srv/www-amigo2/cgi-bin
-AMIGO_CGI_PARTIAL_URL:
-  comment: Please enter the URL that this path maps to.
+AMIGO_CGI_BASE_URL:
+  comment: Please enter the URL that this path (plus the AMIGO_PROJECT_NAME) maps to.
   type: url
   value: http://amigo2.berkeleybop.org/cgi-bin
+AMIGO_CGI_PARTIAL_PATH:
+  comment: Please enter the full path to a usable CGI enabled directory. AMIGO_PROJECT_NAME will be used as a new directory name in this directory.
+  type: directory
+  value: /srv/www-amigo2/cgi-bin
 AMIGO_CONFIGURED:
   comment: "This variable must be edited (to 1) before installing AmiGO.\n"
   type: boolean
@@ -23,26 +23,26 @@ AMIGO_GOOGLE_ANALYTICS_ID:
   comment: Google analytics ID. Optional.
   type: string
   value: UA-42073879-1
+AMIGO_HTDOCS_BASE_URL:
+  comment: Please enter the URL that this path (plus the AMIGO_PROJECT_NAME) maps to.
+  type: url
+  value: http://amigo2.berkeleybop.org/amigo2
 AMIGO_HTDOCS_PARTIAL_PATH:
-  comment: Please enter the full path to a usable static document directory.
+  comment: Please enter the full path to a usable static document directory. AMIGO_PROJECT_NAME will be used as a new directory name in this directory.
   type: directory
   value: /srv/www-amigo2/htdocs
-AMIGO_HTDOCS_PARTIAL_URL:
-  comment: Please enter the URL that this path maps to.
-  type: url
-  value: http://amigo2.berkeleybop.org
 AMIGO_LAYOUT_SEARCH:
   comment: A whitespace separated list of class IDs to use for live search tabs on the search page.
   type: string
-  value: annotation ontology bioentity complex_annotation
+  value: annotation ontology bioentity complex_annotation family general bbop_term_ac
 AMIGO_PROJECT_NAME:
   comment: Please enter the name of this AmiGO installation.
   type: string
   value: amigo2
-AMIGO_PUBLIC_CGI_PARTIAL_URL:
+AMIGO_PUBLIC_CGI_BASE_URL:
   comment: Please enter the partial public URL.
   type: true
-  value: http://amigo.geneontology.org/cgi-bin
+  value: http://amigo.geneontology.org/cgi-bin/amigo
 AMIGO_PUBLIC_GALAXY_URL:
   comment: Please enter the public URL of the Galaxy server.
   type: url
@@ -51,6 +51,10 @@ AMIGO_PUBLIC_GOLR_URL:
   comment: Please enter the public URL of the GOlr server.
   type: url
   value: http://toaster.lbl.gov:9000/solr/
+AMIGO_PUBLIC_OPENSEARCH_URL:
+  comment: Please enter the public URL of the GO-defined OpenSearch server.
+  type: url
+  value: http://go-opensearch.berkeleybop.org
 AMIGO_ROOT:
   comment: 'Please enter the full path to the git repo amigo[/trunk] directory.'
   type: directory

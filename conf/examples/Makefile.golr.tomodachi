@@ -10,9 +10,6 @@
 ### things, like with Jenkins for example.
 ###
 
-SOLR_LOAD_LOG ?= /home/bbop/local/src/git/amigo/golr/golr_timestamp.log
-AMIGO_CGI_ROOT_DIR ?= /srv/www-amigo2/cgi-bin/amigo2/
-
 ## Options.
 OWLTOOLS_MAX_MEMORY ?= 192G
 OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS = --merge-support-ontologies --reasoner elk
@@ -30,7 +27,7 @@ PANTHER_FILES_DIR ?= ~/local/src/svn/geneontology.org/trunk/experimental/trees/p
 SOLR_DATA_ROOT ?= /srv/solr
 
 ## Files.
-SOLR_LOAD_LOG ?= /tmp/golr_timestamp.log
+SOLR_LOAD_LOG ?= /home/bbop/local/src/git/amigo/golr/golr_timestamp.log
 
 ## File lists.
 SCHEMA_METADATA ?= \

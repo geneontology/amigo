@@ -11,7 +11,7 @@
 ###
 
 ## Options.
-OWLTOOLS_MAX_MEMORY ?= 32G
+OWLTOOLS_MAX_MEMORY ?= 4G
 OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS = --merge-support-ontologies --reasoner elk
 
 ## Bins.
