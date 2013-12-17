@@ -77,6 +77,10 @@ my $sig2path =
    #'com/jquery-ui-1.8.13.custom.min.js',
 
    ## And plugin for trees.
+   'com.jsplumb' =>
+   'com/jquery.jsPlumb-1.5.5.js', # default route to jQuery version
+
+   ## And plugin for trees.
    'com.jquery.jstree' =>
    'com/jquery.jstree.js',
 
