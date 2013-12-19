@@ -1869,7 +1869,7 @@ bbop.version.revision = "2.0.0-rc1";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20131217";
+bbop.version.release = "20131218";
 /*
  * Package: logger.js
  * 
@@ -6731,6 +6731,7 @@ bbop.layout.sugiyama.render = function(){
 	// TODO: Sugiyama method. Temporarily did naive method.
 	var real_vertex_locations = [];
 	var vertex_registry = {};
+	var virtual_vertex_locations = []; // 
 	var m = partitions.max_partition_width();
 	for( var i = 0; i < vertex_partitions.length; i++ ){
 	    var l = vertex_partitions[i].length;
@@ -6744,6 +6745,8 @@ bbop.layout.sugiyama.render = function(){
 		vertex_registry[ vid ] = {x: locale, y: i};
 		if( ! vertex_partitions[i][v].is_virtual ){
 		    real_vertex_locations.push({x: locale, y: i, id: vid});
+		}else{
+		    virtual_vertex_locations.push({x: locale, y: i, id: vid});
 		}
 		ll( vid + ', x:' + locale + ' y:' + i);
 	    }
@@ -6751,14 +6754,18 @@ bbop.layout.sugiyama.render = function(){
 	
 	// Convert logical paths to actual paths.
 	var logical_paths = partitions.get_logical_paths();
-	var actual_paths = new Array(logical_paths.length);
+	var described_paths = [];
 	for( var i = 0; i < logical_paths.length; i++ ){
-	    actual_paths[i] = [];
+	    var node_trans = [];
+	    var waypoints = [];
 	    for( var j = 0; j < logical_paths[i].length; j++ ){
 		var cursor = logical_paths[i][j];
-		actual_paths[i].push({x: vertex_registry[cursor].x,
-				      y: vertex_registry[cursor].y });
+		node_trans.push(cursor);
+		waypoints.push({x: vertex_registry[cursor].x,
+				y: vertex_registry[cursor].y });
 	    }
+	    described_paths.push({'nodes': node_trans,
+				  'waypoints': waypoints});
 	}
 	
 	// Create a return array 
@@ -6774,10 +6781,11 @@ bbop.layout.sugiyama.render = function(){
 	//   ll('');
 	
 	// Return this baddy to the world.
-	return { locations: real_vertex_locations,
-		 paths: actual_paths,
-		 width: partitions.max_partition_width(),
-		 height: partitions.number_of_vertex_partitions()};
+	return { nodes: real_vertex_locations,
+		 virtual_nodes: virtual_vertex_locations,
+		 paths: described_paths,
+		 height: partitions.max_partition_width(),
+		 width: partitions.number_of_vertex_partitions()};
     };
 };
 //bbop.core.extend(bbop.model.sugiyama.graph, bbop.model.graph);
