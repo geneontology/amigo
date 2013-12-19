@@ -10,7 +10,7 @@ AMIGO_BETA:
 AMIGO_CGI_BASE_URL:
   comment: Please enter the URL that this path (plus the AMIGO_PROJECT_NAME) maps to.
   type: url
-  value: http://amigo2.berkeleybop.org/cgi-bin
+  value: http://amigo2.berkeleybop.org/cgi-bin/amigo2
 AMIGO_CGI_PARTIAL_PATH:
   comment: Please enter the full path to a usable CGI enabled directory. AMIGO_PROJECT_NAME will be used as a new directory name in this directory.
   type: directory
