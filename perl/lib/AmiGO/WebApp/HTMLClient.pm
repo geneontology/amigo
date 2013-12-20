@@ -1570,7 +1570,6 @@ sub mode_complex_annotation_details {
   ## Get the data from the store.
   #AmiGO::Worker::GOlr::ComplexAnnotationUnit->new($input_id);
   my $ca_worker =
-
     AmiGO::Worker::GOlr::ComplexAnnotationGroup->new($input_id);
   my $ca_info_hash = $ca_worker->get_info();
 
