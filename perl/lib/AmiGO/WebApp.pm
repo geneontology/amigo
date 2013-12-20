@@ -239,7 +239,7 @@ sub cgiapp_prerun {
   my $reportable_error = undef;
   if( $self->{CORE}->amigo_env('AMIGO_BALANCER') ){
     #foreach my $queue (("warning", "error")){
-    foreach my $queue (("error")){ # warnings aren't alway bad?
+    foreach my $queue (("error")){ # warnings aren't always bad?
       my $messages = $self->get_mq($queue);
       foreach my $message (@$messages){
 	## Grab the last message.
