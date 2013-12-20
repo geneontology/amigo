@@ -29,15 +29,20 @@ use File::Find;
 use File::stat;
 use Time::localtime;
 use File::Temp qw(tempfile);
+use Data::UUID;
 
 my $verbose = '';
 my $help = '';
 my $clear = '';
+my $success = '';
+my $notice = '';
 my $warning = '';
 my $error = '';
 GetOptions ('verbose' => \$verbose,
 	    'help' => \$help,
 	    'clear' => \$clear,
+	    'success=s' => \$success,
+	    'notice=s' => \$notice,
 	    'warning=s' => \$warning,
 	    'error=s' => \$error);
 
@@ -67,7 +72,10 @@ if( $clear ){
   my @root_a_files = glob($root_dir . '/.amigo.*');
   foreach my $afile (@root_a_files){
     ll("Found: " . $afile);
-    if( $afile =~ /\.amigo\.warning.*/ || $afile =~ /\.amigo\.error.*/ ){
+    if( $afile =~ /\.amigo\.success.*/ ||
+	$afile =~ /\.amigo\.notice.*/ ||
+	$afile =~ /\.amigo\.warning.*/ ||
+	$afile =~ /\.amigo\.error.*/ ){
       ll(" Deleting: " . $afile);
       unlink $afile or warn "Could not unlink $afile: $!";
     }else{
@@ -88,8 +96,13 @@ sub _write_to_file {
   ll("Wrote to $final_fname: \"$cont\"");
 }
 
-if( $warning ){ _write_to_file(".amigo.warning", $warning); }
-if( $error ){ _write_to_file(".amigo.error", $error); }
+my $uuid = Data::UUID->new();
+my $ustr = $uuid->to_string( $uuid->create());
+
+if( $success ){ _write_to_file(".amigo.success." . $ustr, $success); }
+if( $notice ){ _write_to_file(".amigo.notice." . $ustr, $notice); }
+if( $warning ){ _write_to_file(".amigo.warning." . $ustr, $warning); }
+if( $error ){ _write_to_file(".amigo.error." . $ustr, $error); }
 
 
 =head1 NAME
@@ -98,7 +111,7 @@ global-message.pl
 
 =head1 SYNOPSIS
 
-global-message.pl [-h/--help] [-v/--verbose] [-c/--clear] [-w/--warning MESSAGE] [-e/--error MESSAGE]
+global-message.pl [-h/--help] [-v/--verbose] [-c/--clear] [-s/--success MESSAGE] [-n/--notice MESSAGE] [-w/--warning MESSAGE] [-e/--error MESSAGE]
 
 =head1 DESCRIPTION
 
@@ -119,6 +132,14 @@ Help.
 =item -c/--clear
 
 Clear out/remove all warning and error messages.
+
+=item -s/--success MESSAGE
+
+Add a success message.
+
+=item -n/--notice MESSAGE
+
+Add a notice message.
 
 =item -w/--warning MESSAGE
 

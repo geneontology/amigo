@@ -217,7 +217,13 @@ sub cgiapp_prerun {
   my $root_dir = $self->{CORE}->amigo_env('AMIGO_CGI_ROOT_DIR');
   my @root_a_files = glob($root_dir . '/.amigo.*');
   foreach my $afile (@root_a_files){
-    if( $afile =~ /\.amigo\.warning.*/ ){
+    if( $afile =~ /\.amigo\.success.*/ ){
+      my $cstr = _min_slurp($afile);
+      $self->add_mq('success', $cstr) if $cstr;
+    }elsif( $afile =~ /\.amigo\.notice.*/ ){
+      my $cstr = _min_slurp($afile);
+      $self->add_mq('notice', $cstr) if $cstr;
+    }elsif( $afile =~ /\.amigo\.warning.*/ ){
       my $cstr = _min_slurp($afile);
       $self->add_mq('warning', $cstr) if $cstr;
     }elsif( $afile =~ /\.amigo\.error.*/ ){
@@ -232,7 +238,8 @@ sub cgiapp_prerun {
   ## environment is bad and we have the balancer flag set.
   my $reportable_error = undef;
   if( $self->{CORE}->amigo_env('AMIGO_BALANCER') ){
-    foreach my $queue (("warning", "error")){
+    #foreach my $queue (("warning", "error")){
+    foreach my $queue (("error")){ # warnings aren't alway bad?
       my $messages = $self->get_mq($queue);
       foreach my $message (@$messages){
 	## Grab the last message.
