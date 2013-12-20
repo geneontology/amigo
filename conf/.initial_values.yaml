@@ -126,7 +126,7 @@ AMIGO_BALANCER:
   comment: >
     Mark this AmiGO 2 installation as behind a load balanacer or
     similar system. The practical effect of this flag is that if AmiGO
-    detects *.error or *.warning files (usually created by the
+    detects *.error files (usually created by the
     global-message.pl script), it will return a 503 page signalling
     any upstream system that the instance is not currently ready.
   type: boolean
