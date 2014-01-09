@@ -7730,6 +7730,9 @@ bbop.rest.manager.node.prototype.update = function(callback_type){
  * 
  * This should still be able to limp along (no ajax and no error
  * parsing) even outside of a jQuery environment.
+ * 
+ * Use <use_jsonp> is you are working against a JSONP service instead
+ * of a non-cross-site JSON service.
  */
 
 if ( typeof bbop == "undefined" ){ var bbop = {}; }
@@ -7754,6 +7757,8 @@ bbop.rest.manager.jquery = function(response_handler){
     bbop.rest.manager.call(this, response_handler);
     this._is_a = 'bbop.rest.manager.jquery';
 
+    this._use_jsonp = false;
+
     // Before anything else, if we cannot find a viable jQuery library
     // for use, we're going to create a fake one so we can still test
     // and work in a non-browser/networked environment.
@@ -7775,6 +7780,29 @@ bbop.rest.manager.jquery = function(response_handler){
     }
 };
 bbop.core.extend(bbop.rest.manager.jquery, bbop.rest.manager);
+
+/*
+ * Function: use_jsonp
+ *
+ * Set the jQuery engine to use JSONP handling instead of the default
+ * JSON. If set, the callback function to use will be given my the
+ * argument "json.wrf" (like Solr), so consider that special.
+ * 
+ * Parameters: 
+ *  use_p - *[optional]* external setter for 
+ *
+ * Returns:
+ *  boolean
+ */
+bbop.rest.manager.jquery.prototype.use_jsonp = function(use_p){
+    var anchor = this;
+    if( bbop.core.is_defined(use_p) ){
+	if( use_p == true || use_p == false ){
+	    anchor._use_jsonp = use_p;
+	}
+    }
+    return anchor._use_jsonp;
+};
 
 /*
  * Function: update
@@ -7806,12 +7834,18 @@ bbop.rest.manager.jquery.prototype.update = function(callback_type){
     // The base jQuery Ajax args we need with the setup we have.
     var jq_vars = {
     	url: final_url,
-    	//dataType: 'jsonp',
     	dataType: 'json',
     	type: "GET"
     };
 
+    // If we're going to use JSONP instead of the defaults, set that now.
+    if( anchor.use_jsonp() ){
+	jq_vars['dataType'] = 'jsonp';
+	jq_vars['jsonp'] = 'json.wrf';
+    }
+
     // What to do if an error is triggered.
+    // Remember that with jQuery, when using JSONP, there is no error.
     function on_error(xhr, status, error) {
 	var response = new anchor._response_handler(null);
 	response.okay(false);
