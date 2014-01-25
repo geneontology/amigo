@@ -124,7 +124,7 @@ amigo.data.xrefs = {
       "datatype" : null
    },
    "patric" : {
-      "object" : "Feature identifieer",
+      "object" : "Feature identifier",
       "uri_prefix" : null,
       "name" : null,
       "url_example" : "http://patric.vbi.vt.edu/gene/overview.php?fid=cds.000002.436951",
@@ -2339,6 +2339,18 @@ amigo.data.xrefs = {
       "id" : null,
       "abbreviation" : "SABIO-RK",
       "url_syntax" : "http://sabio.villa-bosch.de/reacdetails.jsp?reactid=[example_id]",
+      "datatype" : null
+   },
+   "parkinsonsuk-ucl" : {
+      "uri_prefix" : null,
+      "name" : null,
+      "url_example" : null,
+      "database" : "Parkinsons Disease Gene Ontology Initiative",
+      "generic_url" : "http://www.ucl.ac.uk/cardiovasculargeneontology",
+      "fullname" : null,
+      "id" : null,
+      "abbreviation" : "ParkinsonsUK-UCL",
+      "url_syntax" : null,
       "datatype" : null
    },
    "cog_function" : {

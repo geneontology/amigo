@@ -1880,7 +1880,7 @@ bbop.version.revision = "2.0.0-rc1";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20140113";
+bbop.version.release = "20140124";
 /*
  * Package: logger.js
  * 
@@ -6439,58 +6439,183 @@ bbop.layout.sugiyama.partitioner = function(graph){
 	return logical_paths;
     };
 
-    // Define the partitioner. Recursively walk the graph.
+    // // Define the partitioner. Recursively walk the graph. BFS.
+    // //function recursivePartitioner(graph, node, relation, level){
+    // function recursivePartitioner(graph, node, level){
+	
+    // 	var curr_level = level;
+    // 	var next_level = level +1;
+
+    // 	ll("Saw " + node.id() + " at level " + level + "!");
+
+    // 	// Have we seen it before or is it new?
+    // 	var was_seen = false;
+    // 	if( ! vertex_set[ node.id() ] ){
+
+    // 	    // Create new vertex and add to set.
+    // 	    var new_vertex = new bbop.layout.sugiyama.simple_vertex(node.id());
+    // 	    new_vertex.level = level;
+    // 	    vertex_set[ new_vertex.id() ] = new_vertex;
+
+    // 	    // Check the node in to the 'seen' references.
+    // 	    first_seen_reference[ new_vertex.id() ] = level;
+    // 	    last_seen_reference[ new_vertex.id() ] = level;
+
+    // 	}else{
+
+    // 	    if( first_seen_reference[ node.id() ] > level ){
+    // 		first_seen_reference[ node.id() ] = level;
+    // 	    }
+    // 	    if( last_seen_reference[ node.id() ] < level ){
+    // 		last_seen_reference[ node.id() ] = level;
+    // 	    }
+
+    // 	    was_seen = true;
+    // 	}
+	
+    // 	// Get all the child nodes and down we go!
+    // 	//var child_nodes = graph.getExtantChildren(node.id(), relation);
+    // 	var child_nodes = graph.get_child_nodes(node.id());
+    // 	// TODO: Better way?
+    // 	//var child_nodes = graph.getChildren(node.id(), relation);
+    // 	for( var i = 0; i < child_nodes.length; i++ ){
+    // 	    // Add edge and descend.
+    // 	    var new_edge =
+    // 		new bbop.layout.sugiyama.simple_edge(child_nodes[i].id(),
+    // 						    node.id());
+    // 	    edge_set[ new_edge.id() ] = new_edge;
+
+    // 	    // Do not recur on seen nodes.
+    // 	    if( ! was_seen ){
+    // 		//recursivePartitioner(graph, child_nodes[i], relation, level +1);
+    // 		recursivePartitioner(graph, child_nodes[i], level +1);
+    // 	    }
+    // 	}
+    // }
+    
+    // Detect a cycle by seeing if the ID in question appears in the
+    // search history stack.
+    // TODO/BUG: make this less hyper-dumb and/or slow.
+    function _cycle_p(node, stack){
+	var ret = false;
+
+	var id = node.id();
+	each(stack,
+	     function(item){
+		 if( item == id ){
+		     ret = true;
+		 }
+	     });
+
+	return ret;
+    }
+
+    // Add a new node to the global variables.
+    function _new_node_at(bnode, level){
+
+	ll("adding " + bnode.id() + " at level " + level + "!");
+
+	// Create new vertex and add to set.
+	var new_vertex = new bbop.layout.sugiyama.simple_vertex(bnode.id());
+	new_vertex.level = level;
+	vertex_set[ new_vertex.id() ] = new_vertex;
+	
+	// Check the node in to the 'seen' references.
+	first_seen_reference[ new_vertex.id() ] = level;
+	last_seen_reference[ new_vertex.id() ] = level;		 
+    }
+
+    // Define the partitioner. Recursively walk the graph. BFS.
     //function recursivePartitioner(graph, node, relation, level){
-    function recursivePartitioner(graph, node, level){
+    function recursivePartitioner(graph, node, call_stack){
 	
-	ll("Saw " + node.id() + " at level " + level + "!");
+	var curr_level = call_stack.length -1;
+	var next_level = curr_level +1;
 
-	// Have we seen it before or is it new?
-	if( ! vertex_set[ node.id() ] ){
+	ll("recur on " + node.id() + " at level " + curr_level);
 
-	    // Create new vertex and add to set.
-	    var new_vertex = new bbop.layout.sugiyama.simple_vertex(node.id());
-	    new_vertex.level = level;
-	    vertex_set[ new_vertex.id() ] = new_vertex;
-
-	    // Check the node in to the 'seen' references.
-	    first_seen_reference[ new_vertex.id() ] = level;
-	    last_seen_reference[ new_vertex.id() ] = level;
-
-	}else{
-
-	    if( first_seen_reference[ node.id() ] > level ){
-		first_seen_reference[ node.id() ] = level;
-	    }
-	    if( last_seen_reference[ node.id() ] < level ){
-		last_seen_reference[ node.id() ] = level;
-	    }
-	}
-	
-	// Get all the child nodes and down we go!
-	//var child_nodes = graph.getExtantChildren(node.id(), relation);
+	// Get children and see where there are.
+	//var child_nodes = graph.get_child_nodes(node.id(), relation);
 	var child_nodes = graph.get_child_nodes(node.id());
-	// TODO: Better way?
-	//var child_nodes = graph.getChildren(node.id(), relation);
+	ll(node.id() + " has " + (child_nodes.length || 'no' ) + ' child(ren)');
 	for( var i = 0; i < child_nodes.length; i++ ){
-	    // Add edge and descend.
-	    var new_edge =
-		new bbop.layout.sugiyama.simple_edge(child_nodes[i].id(),
-						    node.id());
-	    edge_set[ new_edge.id() ] = new_edge;
-	    //recursivePartitioner(graph, child_nodes[i], relation, level +1);
-	    recursivePartitioner(graph, child_nodes[i], level +1);
+	    var cnode = child_nodes[i];
+
+	    ll("looking at " + cnode.id());
+
+	    if( _cycle_p(cnode, call_stack) ){
+		ll('no update to ' + cnode.id() + ': cycle');
+	    }else{
+
+		// Add edges--safe since they're definition-based and will
+		// clobber if they're already in.
+		var new_edge =
+		    new bbop.layout.sugiyama.simple_edge(cnode.id(), node.id());
+		edge_set[ new_edge.id() ] = new_edge;
+
+		// Nodes we have to be a little more careful with since
+		// they're what we're using for traversal.
+		if( ! vertex_set[ cnode.id() ] ){
+		
+		    _new_node_at(cnode, next_level);
+		    
+		    // // Create new vertex and add to set.
+		    // var new_vertex =
+		    //     new bbop.layout.sugiyama.simple_vertex(cnode.id());
+		    // new_vertex.level = next_level;
+		    // vertex_set[ new_vertex.id() ] = new_vertex;
+		    
+		    // // Check the node in to the 'seen' references.
+		    // first_seen_reference[ new_vertex.id() ] = next_level;
+		    // last_seen_reference[ new_vertex.id() ] = next_level;
+		    
+		    // Since it is a new node, we traverse it.
+		    ll('cs (a): ' + call_stack);
+		    var new_cs = bbop.core.clone(call_stack);
+		    ll('cs (b): ' + new_cs);
+		    new_cs.push(cnode.id());
+		    ll('cs (c): ' + new_cs);
+		    recursivePartitioner(graph, cnode, new_cs);
+		    
+		}else{
+		    
+		    ll('update ' + cnode.id() + ' level to ' + next_level);
+		    
+		    // Otherwise, just update the levels that we've seen
+		    // the child at--do not descend.
+		    if( first_seen_reference[ cnode.id() ] > next_level ){
+			first_seen_reference[ cnode.id() ] = next_level;
+		    }
+		    if( last_seen_reference[ cnode.id() ] < next_level ){
+			last_seen_reference[ cnode.id() ] = next_level;
+		    }
+		}
+	    }
 	}
     }
     
-    // Run the partitioner.
-    //var roots = graph.getRoots(rel);
-    //var roots = graph.getRootNodes(rel);
+
+    // Run the partitioner after getting the root values (or whatever)
+    // bootstrapped in.
+    //var roots = graph.get_root_nodes(rel);
     var roots = graph.get_root_nodes();
-    for( var i = 0; i < roots.length; i++ ){
-	last_seen_reference[ roots[i].id() ] = 0;
-	//recursivePartitioner(graph, roots[i], 'is_a', 0);
-	recursivePartitioner(graph, roots[i], 0);
+    if( roots.length > 0 ){
+	//partitionerBootstrap(roots);
+	for( var i = 0; i < roots.length; i++ ){
+	    _new_node_at(roots[i], 0);
+	    recursivePartitioner(graph, roots[i], [roots[i].id()]);
+	}
+    }else{
+    	// If there is no root (think of a "top-level" cycle),
+    	// a node should be picked randomly.
+    	// TODO: Test this.
+    	var a_node = graph.all_nodes()[0] || null;
+    	if( ! a_node ){
+    	    throw new Error('apparently the graph is empty--stop it!');
+    	}else{
+	    _new_node_at(a_node, 0);
+    	    recursivePartitioner(graph, a_node, [a_node.id()]);
+    	}
     }
 
     // Now we have a listing of the first and last level that a node
@@ -6619,6 +6744,7 @@ bbop.layout.sugiyama.bmatrix = function(object_vertex_partition,
     }
 
     // DEBUG relation matrix:
+    // BUG: subject _vector occasionally undefined
     for( var m = 0; m <= object_vector.length -1; m++ ){
 	ll("obj: <<o: " + object_vector[m].id() + ">>"); }
     for( var n = 0; n <= subject_vector.length -1; n++ ){
@@ -6750,6 +6876,7 @@ bbop.layout.sugiyama.render = function(){
 	//var partitions = new bbop.layout.sugiyama.partitioner(anchor);
 
 	// DEBUG:
+	ll('Dump paritions:');
 	partitions.dump();
 	ll('');
 
@@ -6763,19 +6890,29 @@ bbop.layout.sugiyama.render = function(){
 	// BUG: Need to catch num_partitions < 2 Create an instatiation of
 	// all of the matrix representations of the partitions.
 	for( var i = 0; i < partitions.number_of_edge_partitions(); i++ ){
-	    edge_partitions.push(partitions.get_edge_partition(i));
+	    var epart = partitions.get_edge_partition(i);
+	    if( ! epart ){
+	    	throw new Error('null edge partition at level: ' + i);
+	    }else{
+		edge_partitions.push(epart);
+	    }
 	}
 
 	//
 	for( var i = 0; i < partitions.number_of_vertex_partitions(); i++ ){
-	    vertex_partitions.push(partitions.get_vertex_partition(i));
+	    var vpart = partitions.get_vertex_partition(i);
+	    if( ! vpart ){
+	    	throw new Error('null vertex partition at level: ' + i);
+	    }else{
+		vertex_partitions.push(vpart);
+	    }
 	}  
 	
 	//
 	for( var i = 0; i < edge_partitions.length; i++ ){
 	    var m = new bbop.layout.sugiyama.bmatrix(vertex_partitions[i],
-						    vertex_partitions[i +1],
-						    edge_partitions[i]);
+						     vertex_partitions[i +1],
+						     edge_partitions[i]);
 	    
 	    ll('Matrix: ' + i);
 	    m.dump();
@@ -7181,11 +7318,14 @@ bbop.rest.response.mmm = function(raw_data){
 
 		    var odata = data['data'] || null;
 		    var cdata = data['commentary'] || null;
-		    if( odata && bbop.core.what_is(odata) != 'object'){
+		    // If data, object or array.
+		    if( odata && bbop.core.what_is(odata) != 'object' &&
+			bbop.core.what_is(odata) != 'array' ){
 			this.message('data not object');
 			this.message_type('error');
 		    }else{
-			if( cdata && bbop.core.what_is(cdata) != 'object'){
+			// If commentary, object.
+			if( cdata && bbop.core.what_is(cdata) != 'object' ){
 			    this.message('commentary not object');
 			    this.message_type('error');
 			}else{
@@ -7193,10 +7333,9 @@ bbop.rest.response.mmm = function(raw_data){
 			    this.okay(true);
 			    this.message_type(data['message_type']);
 			    this.message(data['message']);
-			    this.message_type('success');
 
 			    // Add any additional fields.
-			    if( cdata ){ this._commantary = cdata; }
+			    if( cdata ){ this._commentary = cdata; }
 			    if( odata ){ this._data = odata; }
 			}
 		    }
@@ -7947,6 +8086,7 @@ bbop.rest.manager.jquery = function(response_handler){
     this._is_a = 'bbop.rest.manager.jquery';
 
     this._use_jsonp = false;
+    this._headers = null;
 
     // Before anything else, if we cannot find a viable jQuery library
     // for use, we're going to create a fake one so we can still test
@@ -7994,6 +8134,25 @@ bbop.rest.manager.jquery.prototype.use_jsonp = function(use_p){
 };
 
 /*
+ * Function: headers
+ *
+ * Try and control the server with the headers.
+ * 
+ * Parameters: 
+ *  header_set - *[optional]* hash of headers; jQuery internal default
+ *
+ * Returns:
+ *  hash of headers
+ */
+bbop.rest.manager.jquery.prototype.headers = function(header_set){
+    var anchor = this;
+    if( bbop.core.is_defined(header_set) ){
+	anchor._headers = header_set;
+    }
+    return anchor._headers;
+};
+
+/*
  * Function: update
  *
  *  See the documentation in <manager.js> on update to get more
@@ -8024,6 +8183,7 @@ bbop.rest.manager.jquery.prototype.update = function(callback_type){
     var jq_vars = {
     	url: final_url,
     	dataType: 'json',
+	headers: { "Content-Type": "application/javascript", "Accept": "application/javascript" },
     	type: "GET"
     };
 
@@ -8031,6 +8191,9 @@ bbop.rest.manager.jquery.prototype.update = function(callback_type){
     if( anchor.use_jsonp() ){
 	jq_vars['dataType'] = 'jsonp';
 	jq_vars['jsonp'] = 'json.wrf';
+    }
+    if( anchor.headers() ){
+    	jq_vars['headers'] = anchor.headers();
     }
 
     // What to do if an error is triggered.
@@ -8060,7 +8223,8 @@ bbop.rest.manager.jquery.prototype.update = function(callback_type){
 		response.message('bad response');
 	    }
 	    //anchor.apply_callbacks('error', [response, anchor]);
-	    anchor.apply_callbacks('error', [raw_data, anchor]);
+	    //anchor.apply_callbacks('error', [raw_data, anchor]);
+	    anchor.apply_callbacks('error', [response, anchor]);
 	}
     }
 
@@ -19448,6 +19612,10 @@ renderer.prototype._do_layout = function() {
 // call this when the width of the tree's parent element changes
 renderer.prototype.width_changed = function(parent_width) {
     var leaves = this.leaves();
+    var avail_width = ( parent_width 
+                        - (this.config.node_size / 2)
+                        - (this.config.parent_padding * 2)
+                        - this.config.leaf_margin );
 
     var min_width = Number.MAX_VALUE;
     for (var li = 0; li < leaves.length; li++) {
@@ -19460,14 +19628,10 @@ renderer.prototype.width_changed = function(parent_width) {
         // all the potential widths we calculate here.
         var potential_width =
             // dividing px by 100 because px is in percentage units
-            (parent_width - phynode.width()) / (phynode.px / 100)
+            (avail_width - phynode.width()) / (phynode.px / 100)
         min_width = Math.min(min_width, potential_width);
     }
-    var new_width = Math.max(0, ( min_width
-				  - (this.config.node_size / 2)
-				  - (this.config.parent_padding * 2)
-                                  - this.config.leaf_margin ) );
-    this.container.style.width = new_width + "px";
+    this.container.style.width = Math.max(0, min_width | 0) + "px";
 };
 
 // hides the subtree under the given node_id; for that node,
@@ -19993,13 +20157,19 @@ renderer.prototype.show_pgraph = function(pgraph) {
     this.parent = ( ( "string" == typeof this.parent )
 		    ? document.getElementById(this.parent)
 		    : this.parent );
+
     jQuery(this.parent).empty();
 
-    var tree_container = document.createElement("div");
-    tree_container.style.cssText = "position: absolute; top: 0px; bottom: 100%; left: 0px;";
+    var parentPos = getStyle(this.parent, "position");
+    if (! (("absolute" == parentPos) || ("relative" == parentPos))) {
+        this.parent.style.position = "relative";
+    }
+
+    this.tree_container = document.createElement("div");
+    this.tree_container.style.cssText = "position: absolute; top: 0px; bottom: 100%; left: 0px;";
     
-    var mat_container = document.createElement("div");
-    mat_container.style.cssText = "position: absolute; top: 0px; bottom: 100%; background-color: #ddd;";
+    this.mat_container = document.createElement("div");
+    this.mat_container.style.cssText = "position: absolute; top: 0px; bottom: 100%;";
 
     var all_go_terms = {};
     var go_term_list = [];
@@ -20029,14 +20199,14 @@ renderer.prototype.show_pgraph = function(pgraph) {
 
     var mat_width = coldescs.length * this.config.mat_cell_width;
     var tree_width = 500;
-    tree_container.style.width = tree_width + "px";
-    mat_container.style.width = mat_width + "px";
-    mat_container.style.left = tree_width + "px";
-    this.parent.style.width = (tree_width + mat_width) + "px";
+    this.tree_container.style.width = tree_width + "px";
+    this.mat_container.style.width = mat_width + "px";
+    this.mat_container.style.left = tree_width + "px";
+    //this.parent.style.width = (tree_width + mat_width) + "px";
 
-    this.parent.appendChild(tree_container);
-    this.parent.appendChild(mat_container);
-    var tree_renderer = new bbop.widget.phylo_tree.renderer(tree_container, {
+    this.parent.appendChild(this.tree_container);
+    this.parent.appendChild(this.mat_container);
+    var tree_renderer = new bbop.widget.phylo_tree.renderer(this.tree_container, {
         box_height: this.config.row_height,
         box_spacing: this.config.row_spacing,
         leaf_font: this.config.font,
@@ -20160,16 +20330,15 @@ renderer.prototype.show_pgraph = function(pgraph) {
     }
 
     function cell_renderer(cell, row, col) {
-        var cell_bg = "#fff";
         var node_go = node_go_annots[row];
-        if (node_go !== undefined) {
-            if (col in node_go) {
-                cell_bg = "#555";
-            }
+        if ((node_go !== undefined) && (col in node_go)) {
+            var cell = document.createElement("div");
+            cell.style.backgroundColor = "#555";
+            cell.title =
+                node_label(node_id_map[row]) + " - " + all_go_terms[col].name;
+            return cell;
         }
-        cell.style.backgroundColor = cell_bg;
-        cell.title =
-            node_label(node_id_map[row]) + " - " + all_go_terms[col].name;
+        return null;
     }
     
     var mat_config = {
@@ -20180,7 +20349,7 @@ renderer.prototype.show_pgraph = function(pgraph) {
         transition_time: this.config.transition_time
     };
     var mat_renderer =
-        new bbop.widget.matrix.renderer(mat_container, node_id_list,
+        new bbop.widget.matrix.renderer(this.mat_container, node_id_list,
                                         coldescs, cell_renderer, mat_config);
 
     var leaf_id_list = tree_renderer.leaves().map(
@@ -20253,6 +20422,15 @@ renderer.prototype.render_tree = function() {
     );
 
 };
+
+function getStyle(el, styleProp) {
+    if (el.currentStyle) {
+        var y = el.currentStyle[styleProp];
+    } else if (window.getComputedStyle) {
+        var y = window.getComputedStyle(el,null).getPropertyValue(styleProp);
+    }
+    return y;
+}
 
 })();
 if ( typeof bbop == "undefined" ){ var bbop = {}; }
@@ -20333,6 +20511,59 @@ function renderer(parent, row_descriptors, col_descriptors,
     this.rowindex_map = Array(row_descriptors.length);
     //colindex_map: displayed col index -> matrix col index
     this.colindex_map = Array(col_descriptors.length);
+    this.grid_vert = [];
+    this.grid_horiz = [];
+
+    var vert_class = css_prefix + "_vert";
+    //create vertical grid lines
+    for (var i = 0; i < col_descriptors.length; i++) {
+        var gridline = document.createElement("div");
+        gridline.className = vert_class;
+        gridline.style.top = "0px";
+        this.parent.appendChild(gridline);
+        this.grid_vert.push(gridline);
+    }
+    this.first_vert_gridline = document.createElement("div");
+    this.first_vert_gridline.className = vert_class;
+    this.first_vert_gridline.style.cssText = [
+        "top: 0px;", "width: 0px;", "left: 0px;",
+        "margin-left: 0px;", "margin-right: 0px;",
+        "padding-left: 0px;", "padding-right: 0px;"
+    ].join("\n");
+    this.parent.appendChild(this.first_vert_gridline);
+
+    var horiz_class = css_prefix + "_horiz";
+    //create horizontal grid lines
+    for (var i = 0; i < row_descriptors.length; i++) {
+        var gridline = document.createElement("div");
+        gridline.className = horiz_class;
+        gridline.style.left = "0px";
+        gridline.style.top = ( (this.config.show_headers ?
+                                this.config.header_height : 0)
+                               + (i * this.config.cell_height) ) + "px";
+        this.parent.appendChild(gridline);
+        this.grid_horiz.push(gridline);
+    }
+    this.first_horiz_gridline = document.createElement("div");
+    this.first_horiz_gridline.className = horiz_class;
+    this.first_horiz_gridline.style.cssText = [
+        "top: 0px;", "height: 0px;", "left: 0px;",
+        "margin-top: 0px;", "margin-bottom: 0px;",
+        "padding-top: 0px;", "padding-bottom: 0px;"
+    ].join("\n");
+    this.parent.appendChild(this.first_horiz_gridline);
+    if (this.config.show_headers) {
+        this.header_gridline = document.createElement("div");
+        this.header_gridline.className = horiz_class;
+        this.header_gridline.style.cssText = [
+            "top: " + ( this.config.header_height 
+                        - this.config.cell_border ) + "px;",
+            "height: 0px;", "left: 0px;",
+            //"margin-bottom: 0px;",
+            "padding-top: 0px;", "padding-bottom: 0px;"
+        ].join("\n");
+        this.parent.appendChild(this.header_gridline);
+    }
 
     for (var i = 0; i < col_descriptors.length; i++) {
         if (this.config.show_headers) {
@@ -20348,17 +20579,20 @@ function renderer(parent, row_descriptors, col_descriptors,
         this.colindex_map[i] = i;
         this.coldesc_map[col_descriptors[i]] = i;
     }
+
     for( var ri = 0; ri < row_descriptors.length; ri++ ){
         var row = [];
 
         for (var ci = 0; ci < col_descriptors.length; ci++) {
-            var cell = document.createElement("div");
-            cell.className = cell_class;
-            cell_renderer(cell, row_descriptors[ri], col_descriptors[ci]);
-            cell.style.top = ( (this.config.show_headers ?
-                                this.config.header_height : 0)
-                               + (ri * this.config.cell_height) ) + "px";
-            this.parent.appendChild(cell);
+            var cell = cell_renderer(cell, row_descriptors[ri],
+                                     col_descriptors[ci]);
+            if (null != cell) {
+                cell.className += " " + cell_class;
+                cell.style.top = ( (this.config.show_headers ?
+                                    this.config.header_height : 0)
+                                   + (ri * this.config.cell_height) ) + "px";
+                this.parent.appendChild(cell);
+            }
             row.push(cell);
         }
 
@@ -20367,14 +20601,40 @@ function renderer(parent, row_descriptors, col_descriptors,
         this.rowdesc_map[row_descriptors[ri]] = ri;
     }
 
+    this.vert_style = [
+        "  position: absolute;",
+        "  border-right: " + this.config.cell_border + "px solid black;",
+        "  padding: " + this.config.cell_padding + "px;",
+        "  margin-left: " + this.config.cell_border + "px;",
+        "  overflow: hidden;",
+        "  z-index: 0;",
+        "  box-sizing: content-box;",
+        "  -moz-box-sizing: content-box;"
+    ].join("\n");
+
+    this.horiz_style = [
+        "  position: absolute;",
+        "  border-bottom: " + this.config.cell_border + "px solid black;",
+        "  padding: " + this.config.cell_padding + "px;",
+        "  height: " + (this.config.cell_height
+                        - this.offset_size_delta) + "px;",
+        "  margin: 0px;",
+        "  margin-top: " + this.config.cell_border + "px;",
+        "  z-index: 1;",
+        "  overflow: hidden;",
+        "  box-sizing: content-box;",
+        "  -moz-box-sizing: content-box;"
+    ].join("\n");
+
     this.cell_style = [
         "  position: absolute;",
         "  white-space: nowrap;",
         "  height: " + (this.config.cell_height
                         - this.offset_size_delta) + "px;",
-        "  border: " + this.config.cell_border + "px solid black;",
+        "  margin: " + this.config.cell_border + "px;",
         "  padding: " + this.config.cell_padding + "px;",
-        "  margin: 0px;",
+        //"  margin: 0px;",
+        "  z-index: 10;",
         "  font: " + cell_font_size + "px" + " " + this.config.cell_font + ";",
         "  line-height: 0.7em;",
         "  overflow: hidden;",
@@ -20387,7 +20647,8 @@ function renderer(parent, row_descriptors, col_descriptors,
         "  white-space: nowrap;",
         "  height: " + (this.config.header_height
                         - this.offset_size_delta) + "px;",
-        "  border: " + this.config.cell_border + "px solid black;",
+        //"  border: " + this.config.cell_border + "px solid black;",
+        "  margin: " + this.config.cell_border + "px;",
         "  padding: " + this.config.cell_padding + "px;",
         "  font: " + header_font_size + "px" + " "
             + this.config.header_font + ";",
@@ -20411,11 +20672,17 @@ function renderer(parent, row_descriptors, col_descriptors,
         "}",
         "div." + cell_class + " { ",
         this.cell_style,
+        "}",
+        "div." + vert_class + " { ",
+        this.vert_style,
+        "}",
+        "div." + horiz_class + " { ",
+        this.horiz_style,
         "}"
     ].join("\n"));
 
     this.update_height();
-    this.width = this.update_widths() + this.offset_size_delta;
+    this.width = this.update_widths();// + this.offset_size_delta;
     this.parent.style.width = this.width + this.config.cell_border + "px";
 
     this.set_styles([
@@ -20426,6 +20693,14 @@ function renderer(parent, row_descriptors, col_descriptors,
         "div." + cell_class + " { ",
         this.cell_style,
         this.transition_style,
+        "}",
+        "div." + vert_class + " { ",
+        this.vert_style,
+        this.transition_style,
+        "}",
+        "div." + horiz_class + " { ",
+        this.horiz_style,
+        this.transition_style,
         "}"
     ].join("\n"));
 }
@@ -20433,7 +20708,13 @@ function renderer(parent, row_descriptors, col_descriptors,
 renderer.prototype.update_height = function() {
     this.height = ( (this.config.show_headers ? this.config.header_height : 0)
                     + (this.config.cell_height * this.rowindex_map.length) );
-    this.parent.style.height = this.height + this.config.cell_border + "px";
+    var grid_height = ( this.height - this.offset_size_delta
+                        + (2 * this.config.cell_border) ) + "px";
+    for (var ci = 0; ci < this.colindex_map.length; ci++) {
+        this.grid_vert[this.colindex_map[ci]].style.height = grid_height;
+    }
+    this.first_vert_gridline.style.height = grid_height;
+    this.parent.style.height = (this.height + this.config.cell_border) + "px";
 };
 
 renderer.prototype.set_styles = function(css_string) {
@@ -20461,7 +20742,7 @@ renderer.prototype.update_widths = function() {
         for (var row = 0; row < matrix.length; row++) {
             for (var col = 0; col < matrix[row].length; col++) {
                 var cell = matrix[row][col];
-                if (cell !== undefined) {
+                if (cell) {
                     cell.style.width = "";
                     if (! (col in widths)) widths[col] = 0;
                     widths[col] = Math.max(widths[col], cell.offsetWidth);
@@ -20475,8 +20756,11 @@ renderer.prototype.update_widths = function() {
         var left = 0;
         for (var col = 0; col < colindex_map.length; col++) {
             var cell = row[colindex_map[col]];
-            cell.style.width = (widths[colindex_map[col]] - offset_delta) + "px";
-            cell.style.left = left + "px";
+            if (cell) {
+                cell.style.width =
+                    (widths[colindex_map[col]] - offset_delta) + "px";
+                cell.style.left = left + "px";
+            }
             left += widths[col];
         }
     }
@@ -20508,9 +20792,21 @@ renderer.prototype.update_widths = function() {
         set_widths(this.matrix[ri], this.colindex_map, widths,
                    this.offset_size_delta);
     }
+    set_widths(this.grid_vert, this.colindex_map, widths,
+               this.offset_size_delta);
 
+    var grid_width = ( totalWidth - this.offset_size_delta
+                       + (2 * this.config.cell_border) ) + "px";
+    for (var ri = 0; ri < this.grid_horiz.length; ri++) {
+        this.grid_horiz[ri].style.width = grid_width;
+    }
+    this.first_horiz_gridline.style.width = grid_width;
+    if (this.config.show_headers) {
+        this.header_gridline.style.width = grid_width;
+    }
+        
     this.widths = widths;
-    return totalWidth - this.offset_size_delta;
+    return totalWidth;
 };
 
 renderer.prototype.show_rows = function(row_list) {
@@ -20521,28 +20817,30 @@ renderer.prototype.show_rows = function(row_list) {
     for (var dci = 0; dci < this.colindex_map.length; dci++) {
         displayed_colindices[this.colindex_map[dci]] = dci;
     }
-    var displayed_rowindices = Array(this.num_rows);
-    for (var dri = 0; dri < this.rowindex_map.length; dri++) {
-        displayed_rowindices[this.rowindex_map[dri]] = dri;
-    }
 
     // set new row y-positions
     for( var ri = 0; ri < row_list.length; ri++ ){
         if (row_list[ri] in this.rowdesc_map) {
             var matrix_row_index = this.rowdesc_map[row_list[ri]];
             var row = this.matrix[matrix_row_index];
+            var row_top = ( (this.config.show_headers ?
+                             this.config.header_height : 0)
+                            + (ri * this.config.cell_height) ) + "px";
+
+            var horiz_gridline = this.grid_horiz[matrix_row_index];
+            horiz_gridline.style.top = row_top;
+            horiz_gridline.style.display = "";
 
             for (var ci = 0; ci < this.num_cols; ci++) {
                 var cell = row[ci];
-                cell.style.top = ( (this.config.show_headers ?
-                                    this.config.header_height : 0)
-                                   + (ri * this.config.cell_height) ) + "px";
-
-                var displayed_colindex = displayed_colindices[ci];
-                if (displayed_colindex == undefined) {
-                    cell.style.display = "none";
-                } else {
-                    cell.style.display = "";
+                if (cell) {
+                    cell.style.top = row_top;
+                    var displayed_colindex = displayed_colindices[ci];
+                    if (displayed_colindex == undefined) {
+                        cell.style.display = "none";
+                    } else {
+                        cell.style.display = "";
+                    }
                 }
             }
 
@@ -20557,9 +20855,14 @@ renderer.prototype.show_rows = function(row_list) {
     for(var i = 0; i < this.row_descriptors.length; i++) {
         var rowdesc = this.row_descriptors[i];
         if (! (rowdesc in new_row_map)) {
-            var row = this.matrix[this.rowdesc_map[rowdesc]];
+            var row_index = this.rowdesc_map[rowdesc];
+
+            this.grid_horiz[row_index].style.display = "none";
+
+            var row = this.matrix[row_index];
             for (var j = 0; j < row.length; j++) {
-                row[j].style.display = "none";
+                var cell = row[j];
+                if (cell) cell.style.display = "none";
             }
         }
     }
@@ -20580,19 +20883,24 @@ renderer.prototype.show_cols = function(col_list) {
     for( var ci = 0; ci < col_list.length; ci++ ){
         matrix_col_index = this.coldesc_map[col_list[ci]];
 
+        var vert_gridline = this.grid_vert[matrix_col_index];
+        vert_gridline.style.left = left + "px";
+        vert_gridline.style.display = "";
         for (var ri = 0; ri < this.num_rows; ri++) {
             var row = this.matrix[ri];
             var cell = row[matrix_col_index];
-            cell.style.left = left + "px";
+            if (cell) {
+                cell.style.left = left + "px";
 
-            var displayed_rowindex = displayed_rowindices[ri];
-            if (displayed_rowindex == undefined) {
-                cell.style.display = "none";
-            } else {
-                cell.style.display = "";
+                var displayed_rowindex = displayed_rowindices[ri];
+                if (displayed_rowindex == undefined) {
+                    cell.style.display = "none";
+                } else {
+                    cell.style.display = "";
+                }
             }
         }
-        if (this.show_headers) {
+        if (this.config.show_headers) {
             this.headers[matrix_col_index].style.left = left + "px";
             this.headers[matrix_col_index].style.display = "";
         }
@@ -20611,8 +20919,9 @@ renderer.prototype.show_cols = function(col_list) {
             matrix_col_index = this.coldesc_map[coldesc];
             for (var j = 0; j < this.matrix.length; j++) {
                 var cell = this.matrix[j][matrix_col_index];
-                cell.style.display = "none";
+                if (cell) cell.style.display = "none";
             }
+            this.grid_vert[matrix_col_index].style.display = "none";
             if (this.config.show_headers) {
                 this.headers[matrix_col_index].style.display = "none";
             }
@@ -20620,6 +20929,15 @@ renderer.prototype.show_cols = function(col_list) {
     }
 
     this.width = left;
+    var grid_width = ( left - this.offset_size_delta
+                       + (2 * this.config.cell_border) ) + "px";
+    for (var ri = 0; ri < this.rowindex_map.length; ri++) {
+        this.grid_horiz[this.rowindex_map[ri]].style.width = grid_width;
+    }
+    this.first_horiz_gridline.style.width = grid_width;
+    if (this.config.show_headers) {
+        this.header_gridline.style.width = grid_width;
+    }
     this.parent.style.width = this.width + this.config.cell_border + "px";
 };
 
