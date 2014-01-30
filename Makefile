@@ -106,13 +106,13 @@ npm: bundle
 
 .PHONY: install
 install: test docs
-	./install -v -e -g -V $(AMIGO_VERSION)
+	./install -v -g -V $(AMIGO_VERSION)
 #	 AMIGO_VERSION = $(AMIGO_VERSION) ./install -v -e -g
 
 ## This target skips testing.
 .PHONY: install-uncompressed
 install-uncompressed: docs
-	./install -v -e -g -u -V $(AMIGO_VERSION)
+	./install -v -g -u -V $(AMIGO_VERSION)
 
 ###
 ### Copy in the standard inital values for installation.
@@ -162,7 +162,7 @@ refresh: tags bundle
 	cp $(BBOP_JS)/staging/bbop.js ./_data
 	cp ./javascript/lib/amigo/data/*.js $(BBOP_JS)/_data/
 	cp ./javascript/lib/amigo/data/golr.js $(BBOP_JS)/demo/
-	./install -v -e -g -V $(AMIGO_VERSION)
+	./install -v -g -V $(AMIGO_VERSION)
 	./scripts/blank-kvetch.pl
 
 ###
@@ -182,7 +182,7 @@ clean-filesystem:
 
 .PHONY: rollout
 rollout:
-	./install -v -e -g -V $(AMIGO_VERSION)
+	./install -v -g -V $(AMIGO_VERSION)
 	./scripts/blank-kvetch.pl
 
 ###
