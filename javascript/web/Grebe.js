@@ -57,10 +57,17 @@ function GrebeInit(){
 	    'list_select_callback': _do_nothing
 	    //'list_select_callback': forward
 	},
-	bbop_bio: {
+	bioentity: {
 	    'label_template':
 	    '{{bioentity_label}} ({{id}}/{{taxon_label}})',
 	    'value_template': '{{bioentity}}',
+	    'list_select_callback': _do_nothing
+	    //'list_select_callback': forward
+	},
+	general: {
+	    'label_template':
+	    '{{entity_label}} ({{entity}})',
+	    'value_template': '{{entity}}',
 	    'list_select_callback': _do_nothing
 	    //'list_select_callback': forward
 	}
@@ -103,6 +110,8 @@ function GrebeInit(){
 		      // Pull out the important fields of this item.
 		      var field_id = field_translation['field_id'];
 		      var field_filter = field_translation['field_filter'];
+		      // var field_personality =
+		      // 	  field_translation['field_personality'];
 		      var widget_personality =
 			  field_translation['widget_personality'];
 		      var widget_document =
@@ -122,6 +131,7 @@ function GrebeInit(){
 		      var auto = new search_box(sd.golr_base(), gconf,
 						field_id, widget_args);
 		      auto.set_personality(widget_personality);
+		      // auto.set_personality(field_personality);
 		      auto.add_query_filter('document_category',
 					    widget_document);
 		      // We don't need much here, just return the

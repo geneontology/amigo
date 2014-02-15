@@ -1,6 +1,11 @@
 ####
 #### A list of questions for presentation in the search wizard (Grebe).
 ####
+#### field_id: the element id of the field
+#### field_filter: the query_filter to use on the content on the field
+#### widget_personality: the personality profile in Grebe.js for a particular field AND the personality used in the manager
+#### widget_document: the document_category for a particular field
+####
 ---
 - group_label: Term annotations
 - question_id: q1
@@ -10,9 +15,11 @@
   field_translations:
     - field_id: q1f1
       field_filter: annotation_class
-      # field_placeholder: GO:0004632 or autophagosome
-      widget_personality: bbop_term_ac
-      widget_document: ontology_class
+      # placeholder_text: GO:0004632 or autophagosome
+      widget_personality: general
+      widget_filters:
+        - 'category:ontology_class'
+      widget_document: general
 - question_id: q2
   question: What are the direct and indirect annotations to term {{q2f1}}?
   personality: annotation

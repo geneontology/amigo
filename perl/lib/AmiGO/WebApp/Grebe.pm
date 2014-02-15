@@ -131,7 +131,7 @@ sub mode_grebe {
       foreach my $trans (@$translations){
 
 	my $field_id = $trans->{'field_id'};
-	my $field_placeholder = $trans->{'field_placeholder'} || '';
+	my $field_placeholder = $trans->{'placeholder_text'} || '';
 
 	my $from = '{{' . $field_id . '}}';
 	my $to = '<input id="'. $field_id . '"' .
