@@ -131,11 +131,13 @@ sub mode_grebe {
       foreach my $trans (@$translations){
 
 	my $field_id = $trans->{'field_id'};
+	my $field_placeholder = $trans->{'field_placeholder'} || '';
 
 	my $from = '{{' . $field_id . '}}';
 	my $to = '<input id="'. $field_id . '"' .
 	  ' type="text"' .
-	    ' class="amigo-grebe-input-box amigo-grebe-tooltip"' .
+	    ' placeholder="' . $field_placeholder . '"' .
+	      ' class="amigo-grebe-input-box amigo-grebe-tooltip"' .
 		' title="Hint: add a space after completing a word to' .
 		  ' narrow the search."' .
 		    '>';

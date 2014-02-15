@@ -10,6 +10,7 @@
   field_translations:
     - field_id: q1f1
       field_filter: annotation_class
+      # field_placeholder: GO:0004632 or autophagosome
       widget_personality: bbop_term_ac
       widget_document: ontology_class
 - question_id: q2
