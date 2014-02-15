@@ -812,6 +812,19 @@ amigo.data.xrefs = {
       "url_syntax" : "http://vega.sanger.ac.uk/perl/searchview?species=all&idx=All&q=[example_id]",
       "datatype" : null
    },
+   "gorel" : {
+      "uri_prefix" : null,
+      "name" : null,
+      "url_example" : null,
+      "description" : "Additional relations pending addition into RO",
+      "database" : "GO Extensions to OBO Relation Ontology Ontology",
+      "generic_url" : "http://purl.obolibrary.org/obo/ro",
+      "fullname" : null,
+      "id" : null,
+      "abbreviation" : "GOREL",
+      "url_syntax" : null,
+      "datatype" : null
+   },
    "ddb_ref" : {
       "object" : "Literature Reference Identifier",
       "name" : null,
@@ -918,6 +931,7 @@ amigo.data.xrefs = {
       "url_example" : "http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?PF00046",
       "description" : "Pfam is a collection of protein families represented by sequence alignments and hidden Markov models (HMMs)",
       "database" : "Pfam database of protein families",
+      "!entity_type" : "SO:0000110 ! sequence feature",
       "example_id" : "Pfam:PF00046",
       "generic_url" : "http://www.sanger.ac.uk/Software/Pfam/",
       "fullname" : null,
@@ -1018,14 +1032,14 @@ amigo.data.xrefs = {
       "object" : "Protein family tree identifier",
       "uri_prefix" : null,
       "name" : null,
-      "url_example" : "http://pantree.org/node/annotationNode.jsp?id=PTN000000084",
+      "url_example" : "http://www.pantherdb.org/panther/family.do?clsAccession=PTHR11455",
       "database" : "Protein ANalysis THrough Evolutionary Relationships Classification System",
-      "example_id" : "PANTHER:PTN000000084",
+      "example_id" : "PANTHER:PTHR11455",
       "generic_url" : "http://www.pantherdb.org/",
       "fullname" : null,
       "id" : null,
       "abbreviation" : "PANTHER",
-      "url_syntax" : "http://pantree.org/node/annotationNode.jsp?id=[example_id]",
+      "url_syntax" : "http://www.pantherdb.org/panther/family.do?clsAccession=[example_id]",
       "datatype" : null
    },
    "jcvi_tba1" : {
@@ -1182,6 +1196,19 @@ amigo.data.xrefs = {
       "abbreviation" : "ECOCYC_REF",
       "id" : null,
       "url_syntax" : "http://biocyc.org/ECOLI/reference.html?type=CITATION-FRAME&object=[example_id]",
+      "datatype" : null
+   },
+   "syscilia_ccnet" : {
+      "uri_prefix" : null,
+      "name" : null,
+      "url_example" : null,
+      "description" : "A systems biology approach to dissect cilia function and its disruption in human genetic disease",
+      "database" : "Syscilia",
+      "generic_url" : "http://syscilia.org/",
+      "fullname" : null,
+      "id" : null,
+      "abbreviation" : "SYSCILIA_CCNET",
+      "url_syntax" : null,
       "datatype" : null
    },
    "metacyc" : {
@@ -3378,20 +3405,6 @@ amigo.data.xrefs = {
       "url_syntax" : "http://db.yeastgenome.org/cgi-bin/locus.pl?dbid=[example_id]",
       "datatype" : null
    },
-   "pato" : {
-      "object" : "Identifier",
-      "uri_prefix" : null,
-      "name" : null,
-      "url_example" : null,
-      "database" : "Phenotypic quality ontology",
-      "example_id" : "PATO:0001420",
-      "generic_url" : "http://www.bioontology.org/wiki/index.php/PATO:Main_Page",
-      "fullname" : null,
-      "id" : null,
-      "abbreviation" : "PATO",
-      "url_syntax" : null,
-      "datatype" : null
-   },
    "sgn" : {
       "object" : "Gene identifier",
       "uri_prefix" : null,
@@ -3404,6 +3417,20 @@ amigo.data.xrefs = {
       "id" : null,
       "abbreviation" : "SGN",
       "url_syntax" : "http://www.sgn.cornell.edu/phenome/locus_display.pl?locus_id=[example_id]",
+      "datatype" : null
+   },
+   "pato" : {
+      "object" : "Identifier",
+      "uri_prefix" : null,
+      "name" : null,
+      "url_example" : null,
+      "database" : "Phenotypic quality ontology",
+      "example_id" : "PATO:0001420",
+      "generic_url" : "http://www.bioontology.org/wiki/index.php/PATO:Main_Page",
+      "fullname" : null,
+      "id" : null,
+      "abbreviation" : "PATO",
+      "url_syntax" : null,
       "datatype" : null
    },
    "goc" : {
@@ -4114,7 +4141,7 @@ amigo.data.xrefs = {
       "local_id_syntax" : "^\\d{7}$",
       "example_id" : "SO:0000195",
       "generic_url" : "http://sequenceontology.org/",
-      "entity_type" : "SO:0000400 ! sequence attribute ",
+      "entity_type" : "SO:0000110 ! sequence feature",
       "fullname" : null,
       "id" : null,
       "abbreviation" : "SO",
@@ -4173,10 +4200,10 @@ amigo.data.xrefs = {
       "name" : null,
       "url_example" : "http://www.pombase.org/spombe/result/SPBC11B10.09",
       "database" : "PomBase",
-      "!entity_type" : "SO:0000704 ! gene ",
       "local_id_syntax" : "^S\\w+(\\.)?\\w+(\\.)?$",
       "example_id" : "PomBase:SPBC11B10.09",
       "generic_url" : "http://www.pombase.org/",
+      "entity_type" : "SO:0000704 ! gene ",
       "fullname" : null,
       "id" : null,
       "abbreviation" : "PomBase",
