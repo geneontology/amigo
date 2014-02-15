@@ -2,9 +2,9 @@
 #### A list of questions for presentation in the search wizard (Grebe).
 ####
 #### field_id: the element id of the field
-#### field_filter: the query_filter to use on the content on the field
+#### field_filter: the query_filter for the question to use from the content on the field
 #### widget_personality: the personality profile in Grebe.js for a particular field AND the personality used in the manager
-#### widget_document: the document_category for a particular field
+#### widget_document: the document_category for a particular field to look at
 ####
 ---
 - group_label: Term annotations
