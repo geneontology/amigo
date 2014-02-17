@@ -9,9 +9,9 @@ use AmiGO::ChewableGraph;
 ## Also often the #1 doc when using luke to examine the index.
 my $json_graph_target = 'GO:0003334';
 my $json_graph_string =
-  '{"nodes":[{"id":"GO:0009987","label":"cellular process"},{"id":"GO:0048468","label":"cell development"},{"id":"GO:0048869","label":"cellular developmental process"},{"id":"GO:0048513","label":"organ development"},{"id":"GO:0007275","label":"multicellular organismal development"},{"id":"GO:0048731","label":"system development"},{"id":"GO:0030154","label":"cell differentiation"},{"id":"GO:0003335","label":"corneocyte development"},{"id":"GO:0048856","label":"anatomical structure development"},{"id":"GO:0003334","label":"keratinocyte development"},{"id":"GO:0008150","label":"biological_process"},{"id":"GO:0009913","label":"epidermal cell differentiation"},{"id":"GO:0030855","label":"epithelial cell differentiation"},{"id":"GO:0032502","label":"developmental process"},{"id":"GO:0032501","label":"multicellular organismal process"},{"id":"GO:0002064","label":"epithelial cell development"},{"id":"GO:0008544","label":"epidermis development"},{"id":"GO:0030216","label":"keratinocyte differentiation"},{"id":"GO:0009888","label":"tissue development"},{"id":"GO:0060429","label":"epithelium development"}],"edges":[{"subject_id":"GO:0002064","object_id":"GO:0030855","predicate_id":"part_of"},{"subject_id":"GO:0048513","object_id":"GO:0048731","predicate_id":"part_of"},{"subject_id":"GO:0048731","object_id":"GO:0048856","predicate_id":"is_a"},{"subject_id":"GO:0030216","object_id":"GO:0009913","predicate_id":"is_a"},{"subject_id":"GO:0009913","object_id":"GO:0030154","predicate_id":"is_a"},{"subject_id":"GO:0048869","object_id":"GO:0032502","predicate_id":"is_a"},{"subject_id":"GO:0048468","object_id":"GO:0048869","predicate_id":"is_a"},{"subject_id":"GO:0048513","object_id":"GO:0048856","predicate_id":"is_a"},{"subject_id":"GO:0003335","object_id":"GO:0003334","predicate_id":"part_of"},{"subject_id":"GO:0030216","object_id":"GO:0030855","predicate_id":"is_a"},{"subject_id":"GO:0009913","object_id":"GO:0008544","predicate_id":"part_of"},{"subject_id":"GO:0030855","object_id":"GO:0030154","predicate_id":"is_a"},{"subject_id":"GO:0048731","object_id":"GO:0007275","predicate_id":"part_of"},{"subject_id":"GO:0008544","object_id":"GO:0048513","predicate_id":"part_of"},{"subject_id":"GO:0030855","object_id":"GO:0060429","predicate_id":"part_of"},{"subject_id":"GO:0009888","object_id":"GO:0048856","predicate_id":"is_a"},{"subject_id":"GO:0002064","object_id":"GO:0048468","predicate_id":"is_a"},{"subject_id":"GO:0032501","object_id":"GO:0008150","predicate_id":"is_a"},{"subject_id":"GO:0032502","object_id":"GO:0008150","predicate_id":"is_a"},{"subject_id":"GO:0060429","object_id":"GO:0009888","predicate_id":"is_a"},{"subject_id":"GO:0007275","object_id":"GO:0032501","predicate_id":"is_a"},{"subject_id":"GO:0048869","object_id":"GO:0009987","predicate_id":"is_a"},{"subject_id":"GO:0048856","object_id":"GO:0032502","predicate_id":"is_a"},{"subject_id":"GO:0007275","object_id":"GO:0032502","predicate_id":"is_a"},{"subject_id":"GO:0048468","object_id":"GO:0030154","predicate_id":"part_of"},{"subject_id":"GO:0009987","object_id":"GO:0008150","predicate_id":"is_a"},{"subject_id":"GO:0008544","object_id":"GO:0009888","predicate_id":"is_a"},{"subject_id":"GO:0030154","object_id":"GO:0048869","predicate_id":"is_a"},{"subject_id":"GO:0048468","object_id":"GO:0048856","predicate_id":"is_a"},{"subject_id":"GO:0003334","object_id":"GO:0030216","predicate_id":"part_of"},{"subject_id":"GO:0003334","object_id":"GO:0002064","predicate_id":"is_a"}]}';
+  '{"nodes":[{"id":"GO:0009987","lbl":"cellular process"},{"id":"GO:0048468","lbl":"cell development"},{"id":"GO:0048869","lbl":"cellular developmental process"},{"id":"GO:0048513","lbl":"organ development"},{"id":"GO:0007275","lbl":"multicellular organismal development"},{"id":"GO:0048731","lbl":"system development"},{"id":"GO:0030154","lbl":"cell differentiation"},{"id":"GO:0003335","lbl":"corneocyte development"},{"id":"GO:0048856","lbl":"anatomical structure development"},{"id":"GO:0003334","lbl":"keratinocyte development"},{"id":"GO:0008150","lbl":"biological_process"},{"id":"GO:0009913","lbl":"epidermal cell differentiation"},{"id":"GO:0030855","lbl":"epithelial cell differentiation"},{"id":"GO:0032502","lbl":"developmental process"},{"id":"GO:0032501","lbl":"multicellular organismal process"},{"id":"GO:0002064","lbl":"epithelial cell development"},{"id":"GO:0008544","lbl":"epidermis development"},{"id":"GO:0030216","lbl":"keratinocyte differentiation"},{"id":"GO:0009888","lbl":"tissue development"},{"id":"GO:0060429","lbl":"epithelium development"}],"edges":[{"sub":"GO:0002064","obj":"GO:0030855","pred":"part_of"},{"sub":"GO:0048513","obj":"GO:0048731","pred":"part_of"},{"sub":"GO:0048731","obj":"GO:0048856","pred":"is_a"},{"sub":"GO:0030216","obj":"GO:0009913","pred":"is_a"},{"sub":"GO:0009913","obj":"GO:0030154","pred":"is_a"},{"sub":"GO:0048869","obj":"GO:0032502","pred":"is_a"},{"sub":"GO:0048468","obj":"GO:0048869","pred":"is_a"},{"sub":"GO:0048513","obj":"GO:0048856","pred":"is_a"},{"sub":"GO:0003335","obj":"GO:0003334","pred":"part_of"},{"sub":"GO:0030216","obj":"GO:0030855","pred":"is_a"},{"sub":"GO:0009913","obj":"GO:0008544","pred":"part_of"},{"sub":"GO:0030855","obj":"GO:0030154","pred":"is_a"},{"sub":"GO:0048731","obj":"GO:0007275","pred":"part_of"},{"sub":"GO:0008544","obj":"GO:0048513","pred":"part_of"},{"sub":"GO:0030855","obj":"GO:0060429","pred":"part_of"},{"sub":"GO:0009888","obj":"GO:0048856","pred":"is_a"},{"sub":"GO:0002064","obj":"GO:0048468","pred":"is_a"},{"sub":"GO:0032501","obj":"GO:0008150","pred":"is_a"},{"sub":"GO:0032502","obj":"GO:0008150","pred":"is_a"},{"sub":"GO:0060429","obj":"GO:0009888","pred":"is_a"},{"sub":"GO:0007275","obj":"GO:0032501","pred":"is_a"},{"sub":"GO:0048869","obj":"GO:0009987","pred":"is_a"},{"sub":"GO:0048856","obj":"GO:0032502","pred":"is_a"},{"sub":"GO:0007275","obj":"GO:0032502","pred":"is_a"},{"sub":"GO:0048468","obj":"GO:0030154","pred":"part_of"},{"sub":"GO:0009987","obj":"GO:0008150","pred":"is_a"},{"sub":"GO:0008544","obj":"GO:0009888","pred":"is_a"},{"sub":"GO:0030154","obj":"GO:0048869","pred":"is_a"},{"sub":"GO:0048468","obj":"GO:0048856","pred":"is_a"},{"sub":"GO:0003334","obj":"GO:0030216","pred":"part_of"},{"sub":"GO:0003334","obj":"GO:0002064","pred":"is_a"}]}';
 my $json_lineage_graph_string =
-  '{"nodes":[{"id":"GO:0009987","label":"cellular process"},{"id":"GO:0048468","label":"cell development"},{"id":"GO:0048869","label":"cellular developmental process"},{"id":"GO:0048513","label":"organ development"},{"id":"GO:0007275","label":"multicellular organismal development"},{"id":"GO:0048731","label":"system development"},{"id":"GO:0030154","label":"cell differentiation"},{"id":"GO:0048856","label":"anatomical structure development"},{"id":"GO:0003334","label":"keratinocyte development"},{"id":"GO:0008150","label":"biological_process"},{"id":"GO:0009913","label":"epidermal cell differentiation"},{"id":"GO:0030855","label":"epithelial cell differentiation"},{"id":"GO:0032502","label":"developmental process"},{"id":"GO:0032501","label":"multicellular organismal process"},{"id":"GO:0002064","label":"epithelial cell development"},{"id":"GO:0008544","label":"epidermis development"},{"id":"GO:0030216","label":"keratinocyte differentiation"},{"id":"GO:0009888","label":"tissue development"},{"id":"GO:0060429","label":"epithelium development"}],"edges":[{"subject_id":"GO:0003334","object_id":"GO:0048869","predicate_id":"part_of"},{"subject_id":"GO:0003334","object_id":"GO:0032502","predicate_id":"is_a"},{"subject_id":"GO:0003334","object_id":"GO:0009913","predicate_id":"part_of"},{"subject_id":"GO:0003334","object_id":"GO:0008544","predicate_id":"part_of"},{"subject_id":"GO:0003334","object_id":"GO:0048856","predicate_id":"part_of"},{"subject_id":"GO:0003334","object_id":"GO:0008150","predicate_id":"is_a"},{"subject_id":"GO:0003334","object_id":"GO:0060429","predicate_id":"part_of"},{"subject_id":"GO:0003334","object_id":"GO:0009987","predicate_id":"part_of"},{"subject_id":"GO:0003334","object_id":"GO:0048731","predicate_id":"part_of"},{"subject_id":"GO:0003334","object_id":"GO:0048468","predicate_id":"is_a"},{"subject_id":"GO:0003334","object_id":"GO:0048869","predicate_id":"is_a"},{"subject_id":"GO:0003334","object_id":"GO:0007275","predicate_id":"part_of"},{"subject_id":"GO:0003334","object_id":"GO:0030154","predicate_id":"part_of"},{"subject_id":"GO:0003334","object_id":"GO:0009888","predicate_id":"part_of"},{"subject_id":"GO:0003334","object_id":"GO:0032501","predicate_id":"part_of"},{"subject_id":"GO:0003334","object_id":"GO:0032502","predicate_id":"part_of"},{"subject_id":"GO:0003334","object_id":"GO:0030216","predicate_id":"part_of"},{"subject_id":"GO:0003334","object_id":"GO:0030855","predicate_id":"part_of"},{"subject_id":"GO:0003334","object_id":"GO:0008150","predicate_id":"part_of"},{"subject_id":"GO:0003334","object_id":"GO:0009987","predicate_id":"is_a"},{"subject_id":"GO:0003334","object_id":"GO:0002064","predicate_id":"is_a"},{"subject_id":"GO:0003334","object_id":"GO:0048856","predicate_id":"is_a"},{"subject_id":"GO:0003334","object_id":"GO:0048513","predicate_id":"part_of"}]}';
+  '{"nodes":[{"id":"GO:0009987","lbl":"cellular process"},{"id":"GO:0048468","lbl":"cell development"},{"id":"GO:0048869","lbl":"cellular developmental process"},{"id":"GO:0048513","lbl":"organ development"},{"id":"GO:0007275","lbl":"multicellular organismal development"},{"id":"GO:0048731","lbl":"system development"},{"id":"GO:0030154","lbl":"cell differentiation"},{"id":"GO:0048856","lbl":"anatomical structure development"},{"id":"GO:0003334","lbl":"keratinocyte development"},{"id":"GO:0008150","lbl":"biological_process"},{"id":"GO:0009913","lbl":"epidermal cell differentiation"},{"id":"GO:0030855","lbl":"epithelial cell differentiation"},{"id":"GO:0032502","lbl":"developmental process"},{"id":"GO:0032501","lbl":"multicellular organismal process"},{"id":"GO:0002064","lbl":"epithelial cell development"},{"id":"GO:0008544","lbl":"epidermis development"},{"id":"GO:0030216","lbl":"keratinocyte differentiation"},{"id":"GO:0009888","lbl":"tissue development"},{"id":"GO:0060429","lbl":"epithelium development"}],"edges":[{"sub":"GO:0003334","obj":"GO:0048869","pred":"part_of"},{"sub":"GO:0003334","obj":"GO:0032502","pred":"is_a"},{"sub":"GO:0003334","obj":"GO:0009913","pred":"part_of"},{"sub":"GO:0003334","obj":"GO:0008544","pred":"part_of"},{"sub":"GO:0003334","obj":"GO:0048856","pred":"part_of"},{"sub":"GO:0003334","obj":"GO:0008150","pred":"is_a"},{"sub":"GO:0003334","obj":"GO:0060429","pred":"part_of"},{"sub":"GO:0003334","obj":"GO:0009987","pred":"part_of"},{"sub":"GO:0003334","obj":"GO:0048731","pred":"part_of"},{"sub":"GO:0003334","obj":"GO:0048468","pred":"is_a"},{"sub":"GO:0003334","obj":"GO:0048869","pred":"is_a"},{"sub":"GO:0003334","obj":"GO:0007275","pred":"part_of"},{"sub":"GO:0003334","obj":"GO:0030154","pred":"part_of"},{"sub":"GO:0003334","obj":"GO:0009888","pred":"part_of"},{"sub":"GO:0003334","obj":"GO:0032501","pred":"part_of"},{"sub":"GO:0003334","obj":"GO:0032502","pred":"part_of"},{"sub":"GO:0003334","obj":"GO:0030216","pred":"part_of"},{"sub":"GO:0003334","obj":"GO:0030855","pred":"part_of"},{"sub":"GO:0003334","obj":"GO:0008150","pred":"part_of"},{"sub":"GO:0003334","obj":"GO:0009987","pred":"is_a"},{"sub":"GO:0003334","obj":"GO:0002064","pred":"is_a"},{"sub":"GO:0003334","obj":"GO:0048856","pred":"is_a"},{"sub":"GO:0003334","obj":"GO:0048513","pred":"part_of"}]}';
 
 ## A helper function for when we're debugging...
 sub _ll {
@@ -103,29 +103,29 @@ my $cr1 = $cgraph->get_child_relationships('GO:0030154');
 #_ll("DUMP: ", Dumper($cr1));
 is( scalar(@$cr1), 3, "three child rels");
 foreach my $cri1 (@$cr1){
-  if( $cri1->{subject_id} eq 'GO:0048468' ){
+  if( $cri1->{sub} eq 'GO:0048468' ){
     pass('the right child in rel (a)');
-    if( $cri1->{predicate_id} eq 'part_of' ){
+    if( $cri1->{pred} eq 'part_of' ){
       pass('the right child rel in rel (a)');
     }else{
-      fail('the wrong child rel in rel (a): ' . $cri1->{predicate_id});
+      fail('the wrong child rel in rel (a): ' . $cri1->{pred});
     }
-  }elsif( $cri1->{subject_id} eq 'GO:0030855' ){
+  }elsif( $cri1->{sub} eq 'GO:0030855' ){
     pass('the right child in rel (b)');
-    if( $cri1->{predicate_id} eq 'is_a' ){
+    if( $cri1->{pred} eq 'is_a' ){
       pass('the right child rel in rel (b)');
     }else{
-      fail('the wrong child rel in rel (b): ' . $cri1->{predicate_id});
+      fail('the wrong child rel in rel (b): ' . $cri1->{pred});
     }
-  }elsif( $cri1->{subject_id} eq 'GO:0009913' ){
+  }elsif( $cri1->{sub} eq 'GO:0009913' ){
     pass('the right child in rel (c)');
-    if( $cri1->{predicate_id} eq 'is_a' ){
+    if( $cri1->{pred} eq 'is_a' ){
       pass('the right child rel in rel (c)');
     }else{
-      fail('the wrong child rel in rel (c): ' . $cri1->{predicate_id});
+      fail('the wrong child rel in rel (c): ' . $cri1->{pred});
     }
   }else{
-    fail('what child rel is that?: ' . $cri1->{subject_id});
+    fail('what child rel is that?: ' . $cri1->{sub});
   }
 }
 
@@ -134,34 +134,34 @@ my $pr1 = $cgraph->get_parent_relationships('GO:0048468');
 #_ll("DUMP: ", Dumper($pr1));
 is( scalar(@$pr1), 3, "three parent rels");
 foreach my $pri1 (@$pr1){
-  if( $pri1->{object_id} eq 'GO:0030154' ){
+  if( $pri1->{obj} eq 'GO:0030154' ){
     pass('the right parent in rel (a)');
-    if( $pri1->{predicate_id} eq 'part_of' ){
+    if( $pri1->{pred} eq 'part_of' ){
       pass('the right parent rel in rel (a)');
     }else{
-      fail('the wrong parent rel in rel (a): ' . $pri1->{predicate_id});
+      fail('the wrong parent rel in rel (a): ' . $pri1->{pred});
     }
-  }elsif( $pri1->{object_id} eq 'GO:0048869' ){
+  }elsif( $pri1->{obj} eq 'GO:0048869' ){
     pass('the right parent in rel (b)');
-    if( $pri1->{predicate_id} eq 'is_a' ){
+    if( $pri1->{pred} eq 'is_a' ){
       pass('the right parent rel in rel (b)');
     }else{
-      fail('the wrong parent rel in rel (b): ' . $pri1->{predicate_id});
+      fail('the wrong parent rel in rel (b): ' . $pri1->{pred});
     }
-  }elsif( $pri1->{object_id} eq 'GO:0048856' ){
+  }elsif( $pri1->{obj} eq 'GO:0048856' ){
     pass('the right parent in rel (c)');
-    if( $pri1->{predicate_id} eq 'is_a' ){
+    if( $pri1->{pred} eq 'is_a' ){
       pass('the right parent rel in rel (c)');
     }else{
-      fail('the wrong parent rel in rel (c): ' . $pri1->{predicate_id});
+      fail('the wrong parent rel in rel (c): ' . $pri1->{pred});
     }
   }else{
-    fail('what parent rel is that?: ' . $pri1->{object_id});
+    fail('what parent rel is that?: ' . $pri1->{obj});
   }
 }
 
 ## Check the distance information.
-_ll(Dumper($cgraph->_ensure_max_distance_info()));
+# _ll(Dumper($cgraph->_ensure_max_distance_info()));
 is($cgraph->max_distance('GO:0008150'), 0, "root distance 0");
 is($cgraph->max_distance('GO:0003334'), 8, "target node is deep");
 is($cgraph->max_distance('GO:0009987'), 3, "layer 1 (a)");
