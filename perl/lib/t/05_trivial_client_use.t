@@ -30,5 +30,5 @@ my $results = $json_parser->decode($json_doc);
 
 ## Run tests.
 is($results->{'response'}{'numFound'}, 1, 'found just one');
-is($results->{'response'}{'docs'}[0]->{'label'},
+is($results->{'response'}{'docs'}[0]->{'annotation_class_label'},
    'neurogenesis', 'we are neurogenesis');
