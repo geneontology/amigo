@@ -604,47 +604,140 @@ sub _ensure_max_distance_info {
 }
 
 
+# ## Another helper function, this time for _ensure_max_distance_info.
+# ## This is the actual path climbing agent.
+# sub _max_info_climber {
+#   my $self = shift;
+#   my $curr = shift || die 'need an incoming argument';
+
+#   ## We either initialize there (first run) or pull them in.
+#   my $curr_distance = shift || 0;
+#   my $max_hist = shift || {};
+#   my $encounter_hist = shift || {};
+
+#   ## DEBUG.
+#   sub _ll {}
+#   # sub _ll {
+#   #   my $str = shift || '';
+#   #   print STDERR 'MIC: ' . $str . "\n";
+#   # }
+
+#   ## Only recur if our encounter history sez that either this node
+#   ## is new or if we have a higher distance count (in which case we add
+#   ## it and continue on our merry way).
+#   if( ! defined $encounter_hist->{$curr} ){
+#     _ll('first time encountering: ' . $curr . ', @:' . $curr_distance);
+
+#     ## Note that we have encountered this node before.
+#     $encounter_hist->{$curr} = 1;
+
+#     ## Our first distance is the current one!
+#     $max_hist->{$curr} = $curr_distance;
+
+#     ## Increment our distance.
+#     $curr_distance++;
+
+#     ## 
+#     foreach my $p (@{$self->get_parents($curr)}){
+#       _ll('   look upwards: ' . $p);
+
+#       ## Since this is a new node encounter, let's see what else is
+#       ## out there to discover.
+#       $self->_max_info_climber($p, $curr_distance, $max_hist, $encounter_hist);
+#     }
+
+#   }elsif( $encounter_hist->{$curr} ){
+#     _ll('have seen before: ' . $curr);
+
+#     ## If we're seeing this node again, but with a separate history,
+#     ## we'll add the length or our history to the current, but will
+#     ## not recur in any case (we've been here before).
+#     if( $max_hist->{$curr} < $curr_distance ){
+#       _ll('   new high at current: ' . $curr_distance);
+#       $max_hist->{$curr} = $curr_distance;
+#     }else{
+#       _ll('   keeping current: ' . $max_hist->{$curr});
+#     }
+#   }
+
+#   ## Return the collected histories.
+#   return $max_hist;
+# }
+
 ## Another helper function, this time for _ensure_max_distance_info.
 ## This is the actual path climbing agent.
 sub _max_info_climber {
   my $self = shift;
-  my $curr = shift || die 'need an incoming argument';
 
+  ## Of form [$args, $to, $process]
+  my $curr_list = shift || die 'need an incoming argument list ref';
+  ## We start with a list no matter what.
+  if( ref($curr_list) ne 'ARRAY' ){ $curr_list = [$curr_list]; }
   ## We either initialize there (first run) or pull them in.
   my $curr_distance = shift || 0;
   my $max_hist = shift || {};
   my $encounter_hist = shift || {};
 
-  ## Only recur if our encounter history sez that either this node
-  ## is new or if we have a higher distance count (in which case we add
-  ## it and continue on our merry way).
-  if( ! defined $encounter_hist->{$curr} ){
+  ## DEBUG.
+  sub _ll {}
+  # sub _ll {
+  #   my $str = shift || '';
+  #   print STDERR 'MIC: ' . $str . "\n";
+  # }
 
-    ## Note that we have encountered this node before.
-    $encounter_hist->{$curr} = 1;
+  sub _update_info_for {
+    my $update_item = shift;
+    my $update_distance = shift;
+    if( ! defined $encounter_hist->{$update_item} ){
+      _ll('first time encountering: ' . $update_item .', @:'. $update_distance);
+      ## Note that we have encountered this node before.
+      $encounter_hist->{$update_item} = 1;
+      ## Our first distance is the current one!
+      $max_hist->{$update_item} = $update_distance;
+    }else{
+      _ll('have seen before: ' . $update_item . '...' .
+	  $max_hist->{$update_item} .'/'. $update_distance );
+      ## If we're seeing this node again, but with a separate history,
+      ## we'll add the length or our history to the current, but will
+      ## not recur in any case (we've been here before).
+      if( $max_hist->{$update_item} < $update_distance ){
+	_ll('   new high at current: ' . $update_distance);
+	$max_hist->{$update_item} = $update_distance;
+      }else{
+	_ll('   keeping current: ' . $max_hist->{$update_item});
+      }
+    }
+  }
 
-    ## Our first distance is the current one!
-    $max_hist->{$curr} = $curr_distance;
+  ##
+  _ll('new set @' . $curr_distance . ' looks like: ' . Dumper($curr_list));
+
+  ## Only work if we have things in our list.
+  if( scalar(@$curr_list) > 0 ){
+
+    ## Process everything in the list.
+    foreach my $item (@$curr_list){
+      _update_info_for($item, $curr_distance);
+    }
+
+    ## Collect the parents of everything in the list.
+    my $next_round = {};
+    foreach my $item (@$curr_list){
+      foreach my $p (@{$self->get_parents($item)}){
+	$next_round->{$p} = 1;
+      }
+    }
+    my @next_list = keys(%$next_round);
 
     ## Increment our distance.
     $curr_distance++;
 
-    ## 
-    foreach my $p (@{$self->get_parents($curr)}){
+    ##
+    _ll('future @' . $curr_distance . ' looks like: ' . Dumper(\@next_list));
 
-      ## Since this is a new node encounter, let's see what else is
-      ## out there to discover.
-      $self->_max_info_climber($p, $curr_distance, $max_hist, $encounter_hist);
-    }
-
-  }elsif( $encounter_hist->{$curr} ){
-
-    ## If we're seeing this node again, but with a separate history,
-    ## we'll add the length or our history to the current, but will
-    ## not recur in any case (we've been here before).
-    if( $max_hist->{$curr} < $curr_distance ){
-      $max_hist->{$curr} = $curr_distance;
-    }
+    ## Recur on new parent list.
+    $self->_max_info_climber(\@next_list, $curr_distance,
+			     $max_hist, $encounter_hist);
   }
 
   ## Return the collected histories.
