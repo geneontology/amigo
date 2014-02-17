@@ -18,6 +18,12 @@ JS_TESTS = \
  $(wildcard javascript/lib/amigo/handlers/*.js.tests)
 #BENCHMARKS = $(wildcard _benchmark/*.js)
 
+## Perl lib test setup.
+TEST_PERL ?= perl
+TEST_PERL_FLAGS ?= -I ./perl/lib/
+PERL_TESTS = \
+ $(wildcard perl/lib/t/*.t)
+
 ## JSs for (currently) non-core purposes.
 RINGO_JS ?= /usr/bin/ringo
 NODE_JS ?= /usr/bin/node
@@ -41,6 +47,13 @@ $(JS_TESTS): bundle
 	echo "trying: $@"
 	$(TEST_JS) $(TEST_JS_FLAGS) -f $(@D)/$(@F)
 #	cd $(@D) && $(TEST_JS) $(TEST_JS_FLAGS) -f $(@F)
+
+## Unit tests for the perl.
+.PHONY: test-perl $(PERL_TESTS)
+test-perl: $(PERL_TESTS)
+$(PERL_TESTS):
+	echo "trying: $@"
+	$(TEST_PERL) $(TEST_PERL_FLAGS) $(@D)/$(@F)
 
 ###
 ### Check the metadata using kwalify.
