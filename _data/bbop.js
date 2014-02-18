@@ -1880,7 +1880,7 @@ bbop.version.revision = "2.0.0-rc1";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20140204";
+bbop.version.release = "20140217";
 /*
  * Package: logger.js
  * 
@@ -5920,7 +5920,7 @@ bbop.model.bracket.graph = function(){
     this._is_a = 'bbop.model.bracket.graph';
 
     var anchor = this;
-    var loop = bbop.core.each;
+    var each = bbop.core.each;
     anchor._logger.DEBUG = true;
     function ll(str){ anchor._logger.kvetch(str); }
 
@@ -5946,63 +5946,141 @@ bbop.model.bracket.graph = function(){
      */
     this.bracket_layout = function(term_acc){
 	
+	// // This is the actual path climbing agent.
+	// function max_info_climber(in_curr_term, in_curr_term_dist,
+	// 			  in_max_hist, in_enc_hist){
+
+	//     // We either bootstrap (first run) or pull them in.
+	//     var curr_term = in_curr_term || term_acc;
+	//     var curr_term_distance = in_curr_term_dist || 0;
+	//     var max_hist = in_max_hist || {};
+	//     var encounter_hist = in_enc_hist || {};
+
+	//     // ll('looking at: ' + curr_term + ' at ' + curr_term_distance);
+
+	//     // Only recur if our encounter history sez that either
+	//     // this node is new or if we have a higher distance count
+	//     // (in which case we add it and continue on our merry
+	//     // way).
+	//     if( ! bbop.core.is_defined(encounter_hist[curr_term]) ){
+	// 	// ll(curr_term + ' is a new encounter at distance ' +
+	// 	//    curr_term_distance);
+
+	// 	// Note that we have encountered this node before.
+	// 	encounter_hist[curr_term] = 1;
+
+	// 	// Our first distance is the current one!
+	// 	max_hist[curr_term] = curr_term_distance;
+
+	// 	// Increment our distance.
+	// 	curr_term_distance++;
+
+	// 	// Take a look at all the parents of our current term.
+	// 	each(anchor.get_parent_nodes(curr_term),
+	// 	     function(p){
+	// 		 // Since this is a new node encounter, let's
+	// 		 // see what else is out there to discover.
+	// 		 max_info_climber(p.id(), curr_term_distance,
+	// 				  max_hist, encounter_hist);
+	// 	     });
+
+	//     }else if( encounter_hist[curr_term] ){
+	// 	// ll(curr_term + ' has been seen before');
+
+	// 	// If we're seeing this node again, but with a
+	// 	// separate history, we'll add the length or our
+	// 	// history to the current, but will not recur in any
+	// 	// case (we've been here before).
+	// 	if( max_hist[curr_term] < curr_term_distance ){
+	// 	    // ll(curr_term +' has a new max of '+ curr_term_distance);
+	// 	    max_hist[curr_term] = curr_term_distance;
+	// 	}
+	//     }
+
+	//     // Return the collected histories.
+	//     return max_hist;
+	// }
+
 	// This is the actual path climbing agent.
-	function max_info_climber(in_curr_term, in_curr_term_dist,
+	function max_info_climber(in_curr_list, in_curr_term_dist,
 				  in_max_hist, in_enc_hist){
 
 	    // We either bootstrap (first run) or pull them in.
-	    var curr_term = in_curr_term || term_acc;
+	    var curr_list = in_curr_list || [];
+	    // curr_list must be a list.
+	    if( ! bbop.core.is_array(curr_list) ){ curr_list = [curr_list]; }
 	    var curr_term_distance = in_curr_term_dist || 0;
 	    var max_hist = in_max_hist || {};
 	    var encounter_hist = in_enc_hist || {};
 
-	    // ll('looking at: ' + curr_term + ' at ' + curr_term_distance);
+	    function update_info_for(update_item, update_distance){
+		if( ! encounter_hist[update_item] ){
+		    // ll('first time encountering: ' +
+		    //    update_item + ', @:' + update_distance);
+		    // Note that we have encountered this node before.
+		    encounter_hist[update_item] = 1;
+		    // Our first distance is the current one!
+		    max_hist[update_item] = update_distance;
+		}else{
+		    // ll('have seen before: ' + update_item + '...' +
+		    //    max_hist[update_item] + '/' + update_distance);
+		    // If we're seeing this node again, but with a
+		    // separate history, we'll add the length or our
+		    // history to the current, but will not recur in
+		    // any case (we've been here before).
+		    if( max_hist[update_item] < update_distance ){
+			// ll('   new high at current: ' + update_distance);
+			max_hist[update_item] = update_distance;
+		    }else{
+			// ll('   keeping current: ' + max_hist[update_item]);
+		    }
+		}
+	    }
 
-	    // Only recur if our encounter history sez that either
-	    // this node is new or if we have a higher distance count
-	    // (in which case we add it and continue on our merry
-	    // way).
-	    if( ! bbop.core.is_defined(encounter_hist[curr_term]) ){
-		// ll(curr_term + ' is a new encounter at distance ' +
-		//    curr_term_distance);
+	    // //
+	    // ll('new set @' + curr_term_distance + ' looks like: ' +
+	    //    bbop.core.dump(curr_list));
 
-		// Note that we have encountered this node before.
-		encounter_hist[curr_term] = 1;
+	    // Only work if we have things in our list.
+	    if( curr_list && curr_list.length > 0 ){
 
-		// Our first distance is the current one!
-		max_hist[curr_term] = curr_term_distance;
+		// Process everything in the list.
+		each(curr_list,
+		     function(item){
+			 update_info_for(item, curr_term_distance);
+		     });
+
+		// Collect the parents of everything in the list.
+		var next_round = {};
+		each(curr_list,
+		     function(item){
+			 each(anchor.get_parent_nodes(item),
+			      function(p){
+				  var pid = p.id();
+				  next_round[pid] = true;
+			      });
+		     });
+		var next_list = bbop.core.get_keys(next_round);
 
 		// Increment our distance.
 		curr_term_distance++;
 
-		// Take a look at all the parents of our current term.
-		loop(anchor.get_parent_nodes(curr_term),
-		     function(p){
-			 // Since this is a new node encounter, let's
-			 // see what else is out there to discover.
-			 max_info_climber(p.id(), curr_term_distance,
-					  max_hist, encounter_hist);
-		     });
+		// //
+		// ll('future @' + curr_term_distance + ' looks like: ' +
+		//    bbop.core.dump(next_list));
 
-	    }else if( encounter_hist[curr_term] ){
-		// ll(curr_term + ' has been seen before');
-
-		// If we're seeing this node again, but with a
-		// separate history, we'll add the length or our
-		// history to the current, but will not recur in any
-		// case (we've been here before).
-		if( max_hist[curr_term] < curr_term_distance ){
-		    // ll(curr_term +' has a new max of '+ curr_term_distance);
-		    max_hist[curr_term] = curr_term_distance;
-		}
+		// Recur on new parent list.
+		max_info_climber(next_list, curr_term_distance,
+				 max_hist, encounter_hist);
 	    }
 
 	    // Return the collected histories.
 	    return max_hist;
 	}
+
 	// A hash of the maximum distance from the node-in-question to
 	// the roots.
-	var max_node_dist_from_root = max_info_climber();
+	var max_node_dist_from_root = max_info_climber(term_acc);
 	// ll('max_node_dist_from_root: ' +
 	//    bbop.core.dump(max_node_dist_from_root));
 
@@ -6013,7 +6091,7 @@ bbop.model.bracket.graph = function(){
 	// First, invert hash.
 	// E.g. from {x: 1, y: 1, z: 2} to {1: [x, y], 2: [z]} 
 	var lvl_lists = {};
-	loop(max_node_dist_from_root,
+	each(max_node_dist_from_root,
 	    function(node_id, lvl){
 		// Make sure that level is defined before we push.
 		if( ! bbop.core.is_defined(lvl_lists[lvl]) ){
@@ -6030,10 +6108,10 @@ bbop.model.bracket.graph = function(){
 	var levels = bbop.core.get_keys(lvl_lists);
 	levels.sort(bbop.core.numeric_sort_ascending);
 	// ll('levels: ' + bbop.core.dump(levels));
-	loop(levels,
+	each(levels,
 	    function(level){
 		var bracket = [];
-		loop(lvl_lists[level],
+		each(lvl_lists[level],
 		     function(item){
 			 bracket.push(item);
 		     });
@@ -6048,7 +6126,7 @@ bbop.model.bracket.graph = function(){
 	// Only add another level when there are actually kids.
 	if( c_nodes && ! bbop.core.is_empty(c_nodes) ){ 
 	    var kid_bracket = [];
-	    loop(c_nodes,
+	    each(c_nodes,
 		 function(c){
 		     kid_bracket.push(c.id());
 		 });
@@ -6181,10 +6259,10 @@ bbop.model.bracket.graph = function(){
 	// So, let's go through all the rows, looking on the
 	// transitivity graph to see if we can find the predicates.
 	var bracket_list = [];
-	loop(layout,
+	each(layout,
 	    function(layout_level){
 		var bracket = [];
-		loop(layout_level,
+		each(layout_level,
 		     function(layout_item){
 
 			 // The defaults for what we'll pass back out.
@@ -7262,7 +7340,7 @@ bbop.rest.response.mmm = function(raw_data){
     bbop.rest.response.call(this);
     this._is_a = 'bbop.rest.response.mmm';
 
-    // Add the required commentary and data
+    // Add the required commentary, inconsistency, and data.
     this._commentary = null;
     this._data = null;
 
@@ -7318,6 +7396,7 @@ bbop.rest.response.mmm = function(raw_data){
 
 		    var odata = data['data'] || null;
 		    var cdata = data['commentary'] || null;
+
 		    // If data, object or array.
 		    if( odata && bbop.core.what_is(odata) != 'object' &&
 			bbop.core.what_is(odata) != 'array' ){
@@ -7370,7 +7449,7 @@ bbop.rest.response.mmm.prototype.commentary = function(){
  * Function: data
  * 
  * Returns the data object (whatever that might be in any given
- * case).
+ * case). This grossly returns all response data, if any.
  * 
  * Arguments:
  *  n/a
@@ -7382,6 +7461,107 @@ bbop.rest.response.mmm.prototype.data = function(){
     var ret = null;
     if( this._data ){
 	ret = bbop.core.clone(this._data);
+    }
+    return ret;
+};
+
+/*
+ * Function: model_id
+ * 
+ * Returns the model id of the response.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  string or null
+ */
+bbop.rest.response.mmm.prototype.model_id = function(){
+    var ret = null;
+    if( this._data && this._data['id'] ){
+	ret = this._data['id'];
+    }
+    return ret;
+};
+
+/*
+ * Function: inconsistent_p
+ * 
+ * Returns true or false on whether or not the returned model is
+ * thought to be inconsistent. Starting assumption is that it is not.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  true or false
+ */
+bbop.rest.response.mmm.prototype.inconsistent_p = function(){
+    var ret = false;
+    if( this._data &&
+	typeof(this._data['inconsistent_p']) !== 'undefined' &&
+	this._data['inconsistent_p'] == true ){
+	ret = true;
+    }
+    return ret;
+};
+
+/*
+ * Function: facts
+ * 
+ * Returns a list of the facts in the response. Empty list if none.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  list
+ */
+bbop.rest.response.mmm.prototype.facts = function(){
+    var ret = [];
+    if( this._data && this._data['facts'] && 
+	bbop.core.is_array(this._data['facts']) ){
+	ret = this._data['facts'];
+    }
+    return ret;
+};
+
+/*
+ * Function: properties
+ * 
+ * Returns a list of the properties in the response. Empty list if none.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  list
+ */
+bbop.rest.response.mmm.prototype.properties = function(){
+    var ret = [];
+    if( this._data && this._data['properties'] && 
+	bbop.core.is_array(this._data['properties']) ){
+	ret = this._data['properties'];
+    }
+    return ret;
+};
+
+/*
+ * Function: individuals
+ * 
+ * Returns a list of the individuals in the response. Empty list if none.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  list
+ */
+bbop.rest.response.mmm.prototype.individuals = function(){
+    var ret = [];
+    if( this._data && this._data['individuals'] && 
+	bbop.core.is_array(this._data['individuals']) ){
+	ret = this._data['individuals'];
     }
     return ret;
 };
