@@ -28,7 +28,7 @@ PERL_TESTS = \
 RINGO_JS ?= /usr/bin/ringo
 NODE_JS ?= /usr/bin/node
 ##
-AMIGO_VERSION ?= 2.0.0-rc1
+AMIGO_VERSION ?= 2.0.0-rc1.1
 
 all:
 	@echo "Default JS engine: $(TEST_JS)"
