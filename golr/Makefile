@@ -66,16 +66,12 @@ GENE_ASSOCIATION_FILES ?= \
 	http://www.geneontology.org/gene-associations/gene_association.dictyBase.gz \
 	http://www.geneontology.org/gene-associations/gene_association.ecocyc.gz \
 	http://www.geneontology.org/gene-associations/gene_association.fb.gz \
-	http://www.geneontology.org/gene-associations/gene_association.goa_arabidopsis.gz \
 	http://www.geneontology.org/gene-associations/gene_association.goa_chicken.gz \
 	http://www.geneontology.org/gene-associations/gene_association.goa_cow.gz \
 	http://www.geneontology.org/gene-associations/gene_association.goa_dog.gz \
 	http://www.geneontology.org/gene-associations/gene_association.goa_human.gz \
-	http://www.geneontology.org/gene-associations/gene_association.goa_mouse.gz \
 	http://www.geneontology.org/gene-associations/gene_association.goa_pig.gz \
-	http://www.geneontology.org/gene-associations/gene_association.goa_rat.gz \
 	http://www.geneontology.org/gene-associations/gene_association.goa_uniprot_noiea.gz \
-	http://www.geneontology.org/gene-associations/gene_association.goa_zebrafish.gz \
 	http://www.geneontology.org/gene-associations/gene_association.gonuts.gz \
 	http://www.geneontology.org/gene-associations/gene_association.gramene_oryza.gz \
 	http://www.geneontology.org/gene-associations/gene_association.jcvi.gz \
