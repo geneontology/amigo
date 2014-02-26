@@ -26,15 +26,13 @@ use Data::Dumper;
 
 
 ## A helper function for when we're debugging...
-sub _ll {
-  # foreach my $arg (@_){
-  #   if( ref($arg) eq 'ARRAY'){
-  #     print("" . join(', ', @$arg) . "\n");
-  #   }else{
-  #     print("" . $arg . "\n");
-  #   }
-  # }
-}
+## DEBUG.
+sub _ll {}
+# sub _ll {
+#   my $str = shift || '';
+#   print STDERR 'MIC: ' . $str . "\n";
+# }
+
 
 
 ## Internal helper function for creating a commonly used hashref
@@ -678,14 +676,7 @@ sub _max_info_climber {
   my $max_hist = shift || {};
   my $encounter_hist = shift || {};
 
-  ## DEBUG.
-  sub _ll {}
-  # sub _ll {
-  #   my $str = shift || '';
-  #   print STDERR 'MIC: ' . $str . "\n";
-  # }
-
-  sub _update_info_for {
+  my $update_info_for = sub {
     my $update_item = shift;
     my $update_distance = shift;
     if( ! defined $encounter_hist->{$update_item} ){
@@ -707,7 +698,7 @@ sub _max_info_climber {
 	_ll('   keeping current: ' . $max_hist->{$update_item});
       }
     }
-  }
+  };
 
   ##
   _ll('new set @' . $curr_distance . ' looks like: ' . Dumper($curr_list));
@@ -717,7 +708,7 @@ sub _max_info_climber {
 
     ## Process everything in the list.
     foreach my $item (@$curr_list){
-      _update_info_for($item, $curr_distance);
+      &$update_info_for($item, $curr_distance);
     }
 
     ## Collect the parents of everything in the list.
