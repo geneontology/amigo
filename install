@@ -174,9 +174,10 @@ $env_conf{AMIGO_CGI_URL} =
 ## URL for AmiGO services.
 $env_conf{AMIGO_SERVICE_URL} = $env_conf{AMIGO_CGI_URL} . '/aserve';
 
-## URL for the public production AmiGO.
-$env_conf{AMIGO_PUBLIC_CGI_BASE_URL} =
-  $env_conf{AMIGO_PUBLIC_CGI_BASE_URL} =~ s/\/$//;
+## URL for the public production AmiGO
+my $tmp_pbase = $env_conf{AMIGO_PUBLIC_CGI_BASE_URL};
+$tmp_pbase =~ s/\/$//;
+$env_conf{AMIGO_PUBLIC_CGI_BASE_URL} = $tmp_pbase;
 
 ## Root AmiGO URL.
 $env_conf{AMIGO_HTML_URL} =
