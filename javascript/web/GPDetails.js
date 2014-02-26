@@ -38,6 +38,7 @@ function GPDetailsInit(){
     var gps_args = {
 	'linker': linker,
 	'handler': handler,
+    	'spinner_shield_message' : 'Loading and using this widget may take a long time on some large filter sets. If it takes too long, please close it and further narrow your results using other facets or the text search.<br />Waiting...',
 	'spinner_search_source' : sd.image_base() + '/waiting_ajax.gif'
     };
     var gps = new bbop.widget.search_pane(solr_server, gconf,

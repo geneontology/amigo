@@ -203,6 +203,7 @@ function LiveSearchGOlrInit(){
     	//'spinner_search_source' : '',
     	'spinner_search_source' : sd.image_base() + '/waiting_ajax.gif',
     	//'spinner_shield_source' : sd.image_base() + '/waiting_poll.gif'
+    	'spinner_shield_message' : 'Loading and using this widget may take a long time on some large filter sets. If it takes too long, please close it and further narrow your results using other facets or the text search.<br />Waiting...',
     	'spinner_shield_source' : sd.image_base() + '/waiting_ajax.gif'
 	//
     	//'icon_clear_label' : _button_wrapper('X', 'Clear text from query'),
