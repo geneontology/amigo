@@ -21,6 +21,9 @@ package AmiGO;
 ## Try to get the local environment sane. This is necessary for *any*
 ## operation, so we're really going to die.
 BEGIN {
+  ## The "if" is necessary for using in-place make commands and the
+  ## like, places where it won't affect the run and the config.pl file
+  ## does not (yet) exist.
   require "config.pl" if -f "config.pl" ;
 }
 

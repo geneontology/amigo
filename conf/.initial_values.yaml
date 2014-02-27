@@ -85,6 +85,11 @@ AMIGO_PUBLIC_GALAXY_URL:
   comment: Please enter the public URL of the Galaxy server.
   type: url
 
+AMIGO_1X_PUBLIC_CGI_BASE_URL:
+  value: http://amigo1.geneontology.org/cgi-bin/amigo
+  comment: Please enter the partial public URL of an available AmiGO 1.x instance.
+  type: url
+
 AMIGO_PUBLIC_OPENSEARCH_URL:
   value: ""
   comment: Please enter the public URL of the GO-defined OpenSearch server.
