@@ -257,7 +257,12 @@ sub get_ancestor_info {
       my $inf = $lnode_rel_inf->{$acc};
 
       ## Looks like it's not a member of this "reduced" graph.
-      if( ! defined $rel ){ $rel = 'fatal'; }
+      if( ! defined $rel ){
+	#$rel = 'fatal';
+	## It's definitely "related to", but somehow it barfed.
+	## Generic fall-through.
+	$rel = 'related_to';
+      }
 
       ## Spaces to underscore.
       $rel =~ s/ /_/;

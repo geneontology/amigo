@@ -22,7 +22,9 @@ relations = [
 
              'regulates',
              'positively_regulates',
-             'negatively_regulates'
+             'negatively_regulates',
+
+             'related_to' # generic fall-through
             ]
 
 
