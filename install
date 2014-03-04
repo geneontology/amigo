@@ -396,6 +396,8 @@ if( ! $opt_b ){
 	  pgraph
 	  matrix
 	  facet_matrix
+	  rte
+	  xrefs
        );
   }
 
