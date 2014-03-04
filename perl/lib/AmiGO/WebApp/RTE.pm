@@ -11,6 +11,7 @@ use Clone;
 use Data::Dumper;
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
+use AmiGO::External::XML::PANTHERTermEnrichment;
 use AmiGO::Input;
 
 ##
@@ -73,6 +74,18 @@ sub mode_rte {
       #return '';
     }else{
       ## Otherwise, display ourselves.
+      my $te_args =
+	{
+	 'ontology' => $ontology,
+	 'input' => $input,
+	 'species' => $species,
+	 'correction' => $correction,
+	 'format' => $format
+	};
+      my $te = AmiGO::External::XML::PANTHERTermEnrichment->new($te_args);
+
+      ## TODO:
+
       return $self->mode_fatal("display not yet implemented");
     }
 

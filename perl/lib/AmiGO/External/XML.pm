@@ -80,10 +80,57 @@ sub get_external_data {
 }
 
 
+=item post_external_data
+
+Sets up internal data structures.
+Returns the XML string if you really want to play with it.
+
+=cut
+sub post_external_data {
+
+  ##
+  my $self = shift;
+  my $url = shift || '';
+  my $form = shift || {};
+  my $mech = $self->{MECH};
+
+  ## Go and try and get the external document.
+  my $doc = '';
+  eval {
+    $mech->post($url, $form);
+  };
+  if( $@ ){
+    $self->kvetch("error in POSTing to: '$url': $@");
+  }else{
+
+    if ( ! $mech->success() ){
+      $self->kvetch("failed to contact data source at: $url");
+    }else{
+
+      ## Chew the document.
+      $doc = $mech->content();
+      eval {
+	$self->{EXT_DATA} = XML::XPath->new( xml => $doc );
+      };
+
+      ## Check for errors.
+      if( $@ ){
+	$@ =~ s/at \/.*?$//s;
+	$self->kvetch("error in document from: '$url': $@");
+      }else{
+	## Looks like it's well-formed--yay!
+      }
+    }
+  }
+
+  return $doc;
+}
+
+
 =item try
 
 Tries to extract a path from a document. May take an optional second
-arguemtn for what to return in the case of failure.
+argument for what to return in the case of failure.
 
 =cut
 sub try {
