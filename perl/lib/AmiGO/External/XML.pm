@@ -138,11 +138,16 @@ sub try {
   my $self = shift;
   my $path = shift || '';
   my $retval = shift || 0;
+  my $context = shift || undef;
 
   ## Make a safe attempt at a path.
   my $try = undef;
   eval {
-    $try = $self->{EXT_DATA}->find($path);
+    if( $context ){
+      $try = $self->{EXT_DATA}->find($path, $context);
+    }else{
+      $try = $self->{EXT_DATA}->find($path);
+    }
   };
   if($@){
     $self->kvetch("error in path from: '$path': $@");

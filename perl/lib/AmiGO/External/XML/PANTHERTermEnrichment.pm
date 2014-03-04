@@ -101,8 +101,7 @@ sub remote_call {
   return $ret;
 }
 
-
-# =item get_mapped
+=item get_mapped
 
 # Return list of mapped IDs.
 
@@ -140,7 +139,38 @@ Return an aref of hashrefs, containing the above keys
 =cut
 sub get_terms {
   my $self = shift;
-  return $self->try('/results/input/unmapped', []);
+
+  my $ret = [];
+  my $results = $self->try('/results/result', []);
+  if( ! $results->isa('XML::XPath::NodeSet') ){
+    ## TODO: bad res
+  }else{
+    foreach my $result ($results->get_nodelist()){
+
+      my $id = $self->try('./term/id', '', $result);
+      my $label = $self->try('./term/label', '', $result);
+      my $number_in_population =
+	$self->try('./number_in_population', '', $result);
+      my $number_in_sample = $self->try('./number_in_sample', '', $result);
+      my $expected = $self->try('./expected', '', $result);
+      my $plus_or_minus = $self->try('./plus_or_minus', '', $result);
+      my $p_value = $self->try('./p_value', '', $result);
+
+      my $rhash =
+	{
+	 id => $id,
+	 label => $label,
+	 number_in_population => $number_in_population,
+	 number_in_sample => $number_in_sample,
+	 expected => $expected,
+	 plus_or_minus => $plus_or_minus,
+	 p_value => $p_value
+	};
+      push @$ret, $rhash;
+    }
+  }
+
+  return $ret;
 }
 
 
