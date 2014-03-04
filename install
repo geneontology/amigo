@@ -588,10 +588,11 @@ sub xref_abbs_to_meta_js {
        datatype => undef,
        database => undef,
        object => undef,
+       example_id => undef,
        generic_url => undef,
        url_syntax => undef,
        url_example => undef,
-       uri_prefix => undef,
+       uri_prefix => undef
        #synonym => [], # legit use?
       };
     ## Split on ':' and trim; add it to the above template.
