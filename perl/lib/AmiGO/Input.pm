@@ -150,6 +150,18 @@ sub input_profile {
   # }elsif( $profile_name eq 'visualize_subset' ){
   #   $self->_add_inline_p();
   #   $self->_add_simple_argument('subset', '');
+  }elsif( $profile_name eq 'remote_term_enrichment' ){
+    # ontology=(biological_process|molecular_function|cellular_component)&
+    # input=WHITESPACE-SEPARATED-LIST-OF-IDS&
+    # species=TAXON_ID&
+    # correction=Bonferroni|None [DEFAULT=Bonferroni]
+    # format=(html|xml)
+    $self->_add_simple_argument('ontology', ''); # which?
+    $self->_add_simple_argument('input', ''); # input ids
+    $self->_add_simple_argument('species', ''); # taxon id
+    $self->_add_simple_argument('correction', 'bonferroni'); # default
+    $self->_add_simple_argument('format', 'xml'); # /my/ default
+    $self->_add_simple_argument('resource', ''); # /my/ default
   }elsif( $profile_name eq 'gander' ){
     #$self->_add_visual_format();
     $self->_add_terms_string();

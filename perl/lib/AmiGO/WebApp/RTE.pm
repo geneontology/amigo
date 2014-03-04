@@ -12,7 +12,6 @@ use Data::Dumper;
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
 use AmiGO::Input;
-use AmiGO::External::HTML::Wiki::BBOPJS;
 
 ##
 sub setup {
@@ -37,49 +36,65 @@ sub setup {
   # 			 '/templates/html');
 
   $self->mode_param('mode');
-  $self->start_mode('facet_matrix');
+  $self->start_mode('rte');
   $self->error_mode('mode_fatal');
   $self->run_modes(
-		   'facet_matrix'    => 'mode_facet_matrix',
+		   'rte'      => 'mode_rte',
 		   'AUTOLOAD' => 'mode_exception'
 		  );
 }
 
 
 ## Maybe how things should look in this framework?
-sub mode_facet_matrix {
+sub mode_rte {
 
   my $self = shift;
 
-  ## Incoming template.
+  ## Do what I can with parameters.
   my $i = AmiGO::Input->new($self->query());
-  my $params = $i->input_profile('facet_matrix');
+  my $params = $i->input_profile('remote_term_enrichment');
+  my $ontology = $params->{ontology};
+  my $input = $params->{input};
+  my $species = $params->{species};
+  my $correction = $params->{correction};
+  my $format = $params->{format}; # forward or process locally
+  my $resource = $params->{resource};
   $self->_common_params_settings($params);
 
-  ## 
-  my $facet1 = $params->{facet1};
-  my $facet2 = $params->{facet2};
-  my $manager = $params->{manager};
+  ## If arguments are good, forward or process. Otherwise, if any
+  ## argument is out of sort, drop into filled form mode.
+  if( $ontology && $input && $species && $correction && $format && $resource ){
 
-  if( ! $facet1 ){
-    $self->add_mq('warning', "The parameter \"facet1\" needs to be defined.");
-  }
-  if( ! $facet2 ){
-    $self->add_mq('warning', "The parameter \"facet2\" needs to be defined.");
-  }
-  if( ! $manager ){
-    $self->add_mq('warning', "The parameter \"manager\" needs to be defined.");
-  }
+    ## TODO: 
+    ## Forward on HTML argument.
+    if( $format eq 'html' ){
+      ## TODO: forward
+      return $self->mode_fatal("forwarding not yet implemented");
+      #return '';
+    }else{
+      ## Otherwise, display ourselves.
+      return $self->mode_fatal("display not yet implemented");
+    }
 
-  ## Page settings.
-  $self->set_template_parameter('page_title',
-				'Facet Matrix');
-  $self->set_template_parameter('content_title',
-				#'Facet Matrix: Compare Facet Counts');
-				'Compare Facet Counts');
+  }else{
 
-  ## Only attempt launch if everything is fine.
-  if( $facet1 && $facet2 && $manager ){
+    ## Allow people to put in what they want.
+
+    ## Page settings.
+    $self->set_template_parameter('page_title',
+				  'Remote Term Enrichment');
+    $self->set_template_parameter('content_title',
+				  'Remote Term Enrichment');
+
+    ## If we are going to display a page, fill in what we can.
+    $self->set_template_parameter('rte_ontology', $ontology);
+    $self->set_template_parameter('rte_input', $input);
+    $self->set_template_parameter('rte_species', $species);
+    $self->set_template_parameter('rte_correction', $correction);
+    $self->set_template_parameter('rte_format', $format);
+    $self->set_template_parameter('rte_resource', $resource);
+
+    ## 
     my $prep =
       {
        css_library =>
@@ -90,9 +105,8 @@ sub mode_facet_matrix {
 	'amigo',
 	'bbop'
        ],
-     javascript_library =>
+       javascript_library =>
        [
-	'org.d3',
 	'com.jquery',
 	'com.bootstrap',
 	'com.jquery-ui',
@@ -102,30 +116,28 @@ sub mode_facet_matrix {
        ],
        javascript =>
        [
-	$self->{JS}->make_var('global_facet1', $facet1),
-	$self->{JS}->make_var('global_facet2', $facet2),
-	$self->{JS}->make_var('global_manager', $manager),
-	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
-	$self->{JS}->get_lib('RTE.js')
+	#$self->{JS}->make_var('global_facet1', $facet1),
+	#$self->{JS}->make_var('global_facet2', $facet2),
+	#$self->{JS}->make_var('global_manager', $manager),
+	$self->{JS}->get_lib('GeneralSearchForwarding.js')#,
+	#$self->{JS}->get_lib('RTE.js')
        ],
        javascript_init =>
        [
-	'GeneralSearchForwardingInit();',
-	'RTEInit();'
+	'GeneralSearchForwardingInit();'#,
+	#'RTEInit();'
        ],
        content =>
        [
-	'pages/facet_matrix.tmpl'
+	'pages/rte.tmpl'
        ]
       };
     $self->add_template_bulk($prep);
     $output = $self->generate_template_page_with();
-    return $output;
-  }else{
-    return $self->mode_fatal("Not enough information to bootstrap process.");
   }
-}
 
+  return $output;
+}
 
 
 1;
