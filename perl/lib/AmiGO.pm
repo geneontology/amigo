@@ -1216,6 +1216,8 @@ sub get_interlink {
      'grebe' => sub { $ilink = 'grebe'; },
      'gannet' => sub { $ilink = 'gannet'; },
      'repl' => sub { $ilink = 'repl'; },
+     'xrefs' => sub { $ilink = 'xrefs'; },
+     'rte' => sub { $ilink = 'rte'; },
 
      'gp_details' =>
      sub {

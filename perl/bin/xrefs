@@ -1,0 +1,11 @@
+#!/usr/bin/perl -w
+####
+#### A replacement for the xrefs.cgi script on the old GO site.
+####
+
+BEGIN { require "config.pl"; }
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
+
+use AmiGO::WebApp::Xrefs;
+my $xrf = AmiGO::WebApp::Xrefs->new(PARAMS => {});
+$xrf->run();

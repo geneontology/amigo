@@ -732,6 +732,10 @@ sub _common_params_settings {
     $self->{CORE}->get_interlink({mode=>'gannet'});
   $params->{interlink_repl} =
     $self->{CORE}->get_interlink({mode=>'repl'});
+  $params->{interlink_xrefs} =
+    $self->{CORE}->get_interlink({mode=>'xrefs'});
+  $params->{interlink_rte} =
+    $self->{CORE}->get_interlink({mode=>'rte'});
   ## Since there is no default search page, arrange for one.
   my $def_search = $self->{CORE}->get_amigo_search_default();
   $params->{interlink_search_default} =
