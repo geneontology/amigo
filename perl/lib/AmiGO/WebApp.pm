@@ -756,7 +756,6 @@ sub _common_params_settings {
   $params->{public_1x_base} =
     $self->{CORE}->amigo_env('AMIGO_1X_PUBLIC_CGI_BASE_URL') ||
       $params->{public_base};
-  print STDERR ">>>: " . $params->{public_1x_base} . "\n";
   $params->{BETA} =
     $self->_atoi($self->{CORE}->amigo_env('AMIGO_BETA'));
   $params->{VERBOSE} =

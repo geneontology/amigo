@@ -1010,7 +1010,7 @@ sub database_bulk {
       };
   }
 
-  print STDERR Dumper($ret);
+  #print STDERR Dumper($ret);
 
   return $ret;
 }
