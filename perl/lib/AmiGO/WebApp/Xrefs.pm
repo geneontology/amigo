@@ -12,7 +12,6 @@ use Data::Dumper;
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
 use AmiGO::Input;
-use AmiGO::External::HTML::Wiki::BBOPJS;
 
 ##
 sub setup {
@@ -37,93 +36,82 @@ sub setup {
   # 			 '/templates/html');
 
   $self->mode_param('mode');
-  $self->start_mode('facet_matrix');
+  $self->start_mode('xrefs');
   $self->error_mode('mode_fatal');
   $self->run_modes(
-		   'facet_matrix'    => 'mode_facet_matrix',
+		   'xrefs'    => 'mode_xrefs',
 		   'AUTOLOAD' => 'mode_exception'
 		  );
 }
 
 
 ## Maybe how things should look in this framework?
-sub mode_facet_matrix {
+sub mode_xrefs {
 
   my $self = shift;
 
-  ## Incoming template.
-  my $i = AmiGO::Input->new($self->query());
-  my $params = $i->input_profile('facet_matrix');
+  ## No parameters.
   $self->_common_params_settings($params);
-
-  ## 
-  my $facet1 = $params->{facet1};
-  my $facet2 = $params->{facet2};
-  my $manager = $params->{manager};
-
-  if( ! $facet1 ){
-    $self->add_mq('warning', "The parameter \"facet1\" needs to be defined.");
-  }
-  if( ! $facet2 ){
-    $self->add_mq('warning', "The parameter \"facet2\" needs to be defined.");
-  }
-  if( ! $manager ){
-    $self->add_mq('warning', "The parameter \"manager\" needs to be defined.");
-  }
 
   ## Page settings.
   $self->set_template_parameter('page_title',
-				'Facet Matrix');
+				'Cross References');
   $self->set_template_parameter('content_title',
 				#'Facet Matrix: Compare Facet Counts');
-				'Compare Facet Counts');
+				'Current Cross Reference Abbreviations');
 
-  ## Only attempt launch if everything is fine.
-  if( $facet1 && $facet2 && $manager ){
-    my $prep =
-      {
-       css_library =>
-       [
-	#'standard',
-	'com.bootstrap',
-	'com.jquery.jqamigo.custom',
-	'amigo',
-	'bbop'
-       ],
-     javascript_library =>
-       [
-	'org.d3',
-	'com.jquery',
-	'com.bootstrap',
-	'com.jquery-ui',
-	'com.jquery.tablesorter',
-	'bbop',
-	'amigo2'
-       ],
-       javascript =>
-       [
-	$self->{JS}->make_var('global_facet1', $facet1),
-	$self->{JS}->make_var('global_facet2', $facet2),
-	$self->{JS}->make_var('global_manager', $manager),
-	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
-	$self->{JS}->get_lib('Xrefs.js')
-       ],
-       javascript_init =>
-       [
-	'GeneralSearchForwardingInit();',
-	'XrefsInit();'
-       ],
-       content =>
-       [
-	'pages/facet_matrix.tmpl'
-       ]
-      };
-    $self->add_template_bulk($prep);
-    $output = $self->generate_template_page_with();
-    return $output;
-  }else{
-    return $self->mode_fatal("Not enough information to bootstrap process.");
+  ## Assemble something that can be nicely rendered in order.
+  my $all = $self->{CORE}->database_bulk();
+  my @unsorted_all = ();
+  foreach my $db (keys $all){
+    my $entry = $all->{$db};
+    push @unsorted_all, $entry;
   }
+  my @sorted_all = sort {$a->{id} cmp $b->{id}} @unsorted_all;
+
+  $self->set_template_parameter('xref_data', \@sorted_all);
+
+  ## 
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui',
+      #'com.jquery.tablesorter',
+      'bbop',
+      'amigo2'
+     ],
+     javascript =>
+     [
+      #$self->{JS}->make_var('global_facet1', $facet1),
+      #$self->{JS}->make_var('global_facet2', $facet2),
+      #$self->{JS}->make_var('global_manager', $manager),
+      $self->{JS}->get_lib('GeneralSearchForwarding.js')#,
+      #$self->{JS}->get_lib('Xrefs.js')
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();'#,
+	#'XrefsInit();'
+     ],
+     content =>
+     [
+      'pages/xrefs.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+  $output = $self->generate_template_page_with();
+  return $output;
 }
 
 

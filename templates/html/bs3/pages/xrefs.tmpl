@@ -1,0 +1,36 @@
+<!-- Start: xrefs.tmpl -->
+
+[% INCLUDE common/noscript_js_necessary.tmpl %]
+
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Information about Cross References" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<p>
+  This page is also available as a
+  <a href="http://geneontology.org/doc/GO.xrf_abbs" title="GO database abbreviations in plain text format">plain text
+  file</a>. Further documentation on database abbreviations is
+  available in the <a href="http://geneontology.org/doc/GO.xrf_abbs_spec" title="GO database abbreviations in plain text format">database abbreviations
+  specifications (plain text format)</a>. To suggest new entries
+  please use
+  the <a href="http://geneontology.org/form/contact-go">GO
+  contact form</a>.
+</p>
+[% INCLUDE "common/info_rollup_end.tmpl" %]
+
+[% FOREACH entry IN xref_data %]
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">[% entry.abbreviation %]</h3>
+  </div>
+  <div class="panel-body">
+    [% entry.database %]
+    <br />
+    [% entry.generic_url %]
+    <br />
+    [% entry.url_syntax %]
+    <br />
+    [% entry.url_example %]
+  </div>
+</div>
+[% END %]
+<!-- End: xrefs.tmpl -->

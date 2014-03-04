@@ -586,6 +586,8 @@ sub xref_abbs_to_meta_js {
        name => undef,
        fullname => undef,
        datatype => undef,
+       database => undef,
+       object => undef,
        generic_url => undef,
        url_syntax => undef,
        url_example => undef,

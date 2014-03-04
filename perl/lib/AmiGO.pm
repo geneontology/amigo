@@ -900,6 +900,20 @@ sub unknown_header{ print "content-type:unknown\n\n"; }
 #   return $self->{GPTYPE};
 # }
 
+## Make sure that our info is read and cached.
+sub _ensure_xref_data {
+  my $self = shift;
+  ## Revive the cache from the JSON if we don't have it.
+
+  if( ! defined($self->{DB_INFO}) ){
+    ## Populate our hash.
+    #my($ret_hash) = _read_frozen_file($self, '/db_info.pl');
+    my($ret_hash) = _read_json_file($self, 'xrefs.json');
+    $self->{DB_INFO} = $ret_hash || {};
+    #print STDERR "_init_...\n";
+    #print STDERR "_keys: " . scalar(keys %$ret_hash) . "\n";
+  }
+}
 
 =item database_link
 
@@ -931,14 +945,7 @@ sub database_link {
   # }
 
   ## Revive the cache from the JSON if we don't have it.
-  if( ! defined($self->{DB_INFO}) ){
-    ## Populate our hash.
-    #my($ret_hash) = _read_frozen_file($self, '/db_info.pl');
-    my($ret_hash) = _read_json_file($self, 'xrefs.json');
-    $self->{DB_INFO} = $ret_hash || {};
-    #print STDERR "_init_...\n";
-    #print STDERR "_keys: " . scalar(keys %$ret_hash) . "\n";
-  }
+  $self->_ensure_xref_data();
 
   #$self->kvetch("DB_INFO: " . Dumper($self->{DB_INFO}));
 
@@ -970,6 +977,40 @@ sub database_link {
   return $retval;
 }
 
+=item database_bulk
+
+Args: n/a
+Returns: hashref keyed on database id for database xref info
+
+=cut
+sub database_bulk {
+
+  my $self = shift;
+
+  ## Revive the cache from the JSON if we don't have it.
+  $self->_ensure_xref_data();
+
+  ## Copy it out.
+  my $ret = {};
+  foreach my $db (keys %{$self->{DB_INFO}}){
+    $ret->{$db} =
+      {
+       id => $self->{DB_INFO}{$db}{id} || $db,
+       abbreviation => $self->{DB_INFO}{$db}{abbreviation} || undef,
+       name => $self->{DB_INFO}{$db}{name} || undef,
+       fullname => $self->{DB_INFO}{$db}{fullname} || undef,
+       datatype => $self->{DB_INFO}{$db}{datatype} || undef,
+       generic_url => $self->{DB_INFO}{$db}{generic_url} || undef,
+       url_syntax => $self->{DB_INFO}{$db}{url_syntax} || undef,
+       url_example => $self->{DB_INFO}{$db}{url_example} || undef,
+       uri_prefix => $self->{DB_INFO}{$db}{uri_prefix} || undef,
+      };
+  }
+
+  print STDERR Dumper($ret);
+
+  return $ret;
+}
 
 =item database_link_set
 
