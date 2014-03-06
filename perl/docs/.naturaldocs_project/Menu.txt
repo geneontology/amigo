@@ -96,6 +96,7 @@ Group: AmiGO  {
       File: Raw.pm  (AmiGO/External/Raw.pm)
       File: XML  (AmiGO/External/XML.pm)
       File: XML::GONUTS  (AmiGO/External/XML/GONUTS.pm)
+      File: XML::PANTHERTermEnrichment  (AmiGO/External/XML/PANTHERTermEnrichment.pm)
       }  # Group: External
 
    File: External.pm  (AmiGO/External.pm)
