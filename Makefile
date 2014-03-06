@@ -27,12 +27,17 @@ PERL_TESTS = \
 ## JSs for (currently) non-core purposes.
 RINGO_JS ?= /usr/bin/ringo
 NODE_JS ?= /usr/bin/node
-##
-AMIGO_VERSION ?= 2.0.0
+
+## Handle versioning. The patch level is automatically incremented on
+## after every release.
+AMIGO_BASE_VERSION = 2.0
+AMIGO_PATCH_LEVEL = `cat version-patch.lvl`
+AMIGO_VERSION_TAG = "" # e.g. -alpha
+AMIGO_VERSION ?= $(AMIGO_BASE_VERSION).$(AMIGO_PATCH_LEVEL)$(AMIGO_VERSION_TAG)
 
 all:
 	@echo "Default JS engine: $(TEST_JS)"
-	@echo "See: http://wiki.geneontology.org/index.php/AmiGO_Manual:_Installation_2.0"
+	@echo "See: http://wiki.geneontology.org/index.php/AmiGO_Manual:_Installation_2"
 	@echo "for more details."
 #	@echo "All JS engines: $(JSENGINES)"
 #	@echo "Try make: 'test', 'docs', 'install', 'bundle', 'data', or 'release'"
@@ -95,6 +100,22 @@ bundle-uncompressed:
 	./install -b -u -V $(AMIGO_VERSION)
 
 ###
+### Build version control.
+###
+
+.PHONY: version
+version:
+	@echo Current version: $(AMIGO_VERSION)
+
+.PHONY: patch-reset
+patch-reset:
+	echo 0 > version-patch.lvl
+
+.PHONY: patch-incr
+patch-incr:
+	echo $$(( $(AMIGO_PATCH_LEVEL) + 1 )) > version-patch.lvl
+
+###
 ### Create exportable JS NPM directory.
 ###
 
@@ -103,6 +124,7 @@ npm: bundle
 	./scripts/release-npm.pl -v -i javascript/staging/amigo2.js -o javascript/npm/amigo2 -r $(AMIGO_VERSION)
 	npm unpublish amigo2@$(AMIGO_VERSION)
 	npm publish javascript/npm/amigo2
+	make patch-incr
 
 # ###
 # ### Produce static statistics data files for landing page.
