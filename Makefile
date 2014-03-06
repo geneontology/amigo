@@ -170,7 +170,7 @@ dummy:
 ###
 
 .PHONY: release
-release: bundle docs
+release: bundle npm docs
 	s3cmd -P put javascript/staging/amigo*.js s3://bbop/jsapi/
 
 ###
