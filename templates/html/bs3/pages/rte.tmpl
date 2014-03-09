@@ -19,11 +19,12 @@
 
     <form role="form" method="GET" action="[% interlink_rte %]">
 
-      <div class="form-group">
+      <!-- TODO: add "has-error" -->
+      <div class="form-group[% IF rte_input OR first_time_p %][% ELSE %][% END %]"
 	<label for="rte_input">Gene IDs</label>
 	<textarea
 	   id="rte_input"
-	   class="form-control[% IF NOT rte_input AND NOT first_time_p %] has-error[% END %]"
+	   class="form-control"
 	   rows="3"
 	   placeholder="Gene IDs..."
 	   name="input">[% rte_input %]</textarea>
