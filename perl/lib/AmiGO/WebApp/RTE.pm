@@ -115,11 +115,11 @@ sub mode_rte {
       my $got = $te->remote_call($rsrc->{webservice});
 
       ## Get the results out of the resource.
-      my $rfm = $te->get_reference_mapped();
-      my $rfum = $te->get_reference_unmapped();
-      my $ilm = $te->get_input_list_mapped();
-      my $ilum = $te->get_input_list_unmapped();
-      my $res = $te->get_results();
+      my $rfm = $te->get_reference_mapped() || 0;
+      my $rfum = $te->get_reference_unmapped() || 0;
+      my $ilm = $te->get_input_list_mapped() || 0;
+      my $ilum = $te->get_input_list_unmapped() || 0;
+      my $res = $te->get_results() || [];
 
       ## Try and sort the results.
       my @sorted_res = sort {
@@ -161,10 +161,9 @@ sub mode_rte {
 
     ## Allow people to put in what they want.
     ## Is it their first time?
-    my $first_time_p = 0;
-    if( ! $ontology && ! $input && ! $species &&
-	! $correction && ! $format && ! $resource ){
-      $first_time_p = 1;
+    my $first_time_p = 1;
+    if( $ontology || $input || $species || $correction || $format || $resource ){
+      $first_time_p = 0;
     }
 
     ## Page settings.

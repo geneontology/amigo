@@ -6,7 +6,8 @@
 [% rollup_anchor = "Information about Remote Term Enrichment" %]
 [% INCLUDE "common/info_rollup_start.tmpl" %]
 <p>
-  TODO
+  The Remote Term Enrichment tool is currently a test harness for
+  rendering remote term enrichment resources.
 </p>
 [% INCLUDE "common/info_rollup_end.tmpl" %]
 
@@ -22,7 +23,7 @@
 	<label for="rte_input">Gene IDs</label>
 	<textarea
 	   id="rte_input"
-	   class="form-control [% IF NOT rte_input AND first_time_p %]has-error[% END %]"
+	   class="form-control[% IF NOT rte_input AND NOT first_time_p %] has-error[% END %]"
 	   rows="3"
 	   placeholder="Gene IDs..."
 	   name="input">[% rte_input %]</textarea>
@@ -34,12 +35,12 @@
 	   id="species"
 	   class="form-control"
 	   name="species">
-	  <option value="HUMAN">human</option>
+	  <option value="HUMAN">HUMAN</option>
 	</select>
       </div>
 
       <div class="form-group">
-	<label for="rte_ontology">Species</label>
+	<label for="rte_ontology">Ontology</label>
 	<select
 	   id="rte_ontology"
 	   class="form-control"
@@ -71,7 +72,7 @@
 	   class="form-control"
 	   name="format">
 	  <option value="xml">XML</option>
-	  <option value="html">HTML</option>
+	  <!-- <option value="html">HTML</option> -->
 	</select>
       </div>
       
