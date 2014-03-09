@@ -22,7 +22,7 @@
 	<label for="rte_input">Gene IDs</label>
 	<textarea
 	   id="rte_input"
-	   class="form-control"
+	   class="form-control [% IF NOT rte_input AND first_time_p %]has-error[% END %]"
 	   rows="3"
 	   placeholder="Gene IDs..."
 	   name="input">[% rte_input %]</textarea>
@@ -34,8 +34,7 @@
 	   id="species"
 	   class="form-control"
 	   name="species">
-	  <option value="MSE">moose</option>
-	  <option value="SQRL">squirrel</option>
+	  <option value="HUMAN">human</option>
 	</select>
       </div>
 
@@ -71,8 +70,8 @@
 	   id="rte_format"
 	   class="form-control"
 	   name="format">
-	  <option value="html">HTML</option>
 	  <option value="xml">XML</option>
+	  <option value="html">HTML</option>
 	</select>
       </div>
       
@@ -82,7 +81,7 @@
 	   id="rte_resource"
 	   class="form-control"
 	   name="resource">
-	  <option value="http://pantherdb.org/">PANTHER</option>
+	  <option value="PANTHER">PANTHER</option>
 	</select>
       </div>
 

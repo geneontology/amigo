@@ -1,6 +1,14 @@
 =head1 AmiGO::WebApp::RTE
 
-...
+P31946
+P62258
+Q04917
+P61981
+P31947
+P27348
+P63104
+Q96QU6
+Q8NCW5
 
 =cut
 
@@ -11,7 +19,7 @@ use Clone;
 use Data::Dumper;
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
-use AmiGO::External::XML::PANTHERTermEnrichment;
+use AmiGO::External::XMLFast::RemoteTermEnrichment;
 use AmiGO::Input;
 
 ##
@@ -66,6 +74,27 @@ sub mode_rte {
   ## argument is out of sort, drop into filled form mode.
   if( $ontology && $input && $species && $correction && $format && $resource ){
 
+    ## First things first: decode the resource.
+    ## TODO: this will be from an external file in the future, but
+    ## just PANTHER for now.
+    my $resources =
+      {
+       'PANTHER' =>
+       {
+	'id' => 'PANTHER', # same as above
+	'label' => 'PANTHER',
+	'description' => '',
+	'website' =>'http://173.255.211.222:8050/',
+	'webservice' => 'http://173.255.211.222:8050/webservices/go/overrep.jsp',
+	'remote_logo' => '',
+	'local_logo' => 'logo_panther.jpg',
+       }
+      };
+    my $rsrc = $resources->{$resource};
+    if( ! $rsrc ){
+      die 'could not resolve incoming resource id';
+    }
+
     ## TODO: 
     ## Forward on HTML argument.
     if( $format eq 'html' ){
@@ -82,16 +111,61 @@ sub mode_rte {
 	 'correction' => $correction,
 	 'format' => $format
 	};
-      my $te = AmiGO::External::XML::PANTHERTermEnrichment->new($te_args);
+      my $te = AmiGO::External::XMLFast::RemoteTermEnrichment->new($te_args);
+      my $got = $te->remote_call($rsrc->{webservice});
 
-      ## TODO:
+      ## Get the results out of the resource.
+      my $rfm = $te->get_reference_mapped();
+      my $rfum = $te->get_reference_unmapped();
+      my $ilm = $te->get_input_list_mapped();
+      my $ilum = $te->get_input_list_unmapped();
+      my $res = $te->get_results();
 
-      return $self->mode_fatal("display not yet implemented");
+      ## Try and sort the results.
+      my @sorted_res = sort {
+	my $bp_str = $b->{p_value};
+	my $ap_str = $b->{p_value};
+	return $ap_str <=> $bp_str;
+      } @$res;
+
+      ## Page settings.
+      $self->set_template_parameter('page_title',
+				    'Remote Term Enrichment Results');
+      $self->set_template_parameter('content_title',
+				    'Remote Term Enrichment Results');
+
+      ## If we are going to display a page, fill in what we can.
+      $self->set_template_parameter('rte_resource', $rsrc);
+      $self->set_template_parameter('rte_reference_mapped', $rfm);
+      $self->set_template_parameter('rte_reference_unmapped', $rfum);
+      $self->set_template_parameter('rte_input_list_mapped', $ilm);
+      $self->set_template_parameter('rte_input_list_unmapped', $ilum);
+      $self->set_template_parameter('rte_results', \@sorted_res);
+
+      ## 
+      my $prep =
+	{
+	 css_library =>['com.bootstrap', 'com.jquery.jqamigo.custom',
+			'amigo','bbop'],
+	 javascript_library =>['com.jquery','com.bootstrap','com.jquery-ui',
+			       'com.jquery.tablesorter','bbop','amigo2'],
+	 javascript =>[$self->{JS}->get_lib('GeneralSearchForwarding.js')],
+	 javascript_init =>['GeneralSearchForwardingInit();'],
+	 content => ['pages/rte_results.tmpl']
+	};
+      $self->add_template_bulk($prep);
+      $output = $self->generate_template_page_with();
     }
 
   }else{
 
     ## Allow people to put in what they want.
+    ## Is it their first time?
+    my $first_time_p = 0;
+    if( ! $ontology && ! $input && ! $species &&
+	! $correction && ! $format && ! $resource ){
+      $first_time_p = 1;
+    }
 
     ## Page settings.
     $self->set_template_parameter('page_title',
@@ -100,6 +174,7 @@ sub mode_rte {
 				  'Remote Term Enrichment');
 
     ## If we are going to display a page, fill in what we can.
+    $self->set_template_parameter('first_time_p', $first_time_p);
     $self->set_template_parameter('rte_ontology', $ontology);
     $self->set_template_parameter('rte_input', $input);
     $self->set_template_parameter('rte_species', $species);
@@ -110,40 +185,13 @@ sub mode_rte {
     ## 
     my $prep =
       {
-       css_library =>
-       [
-	#'standard',
-	'com.bootstrap',
-	'com.jquery.jqamigo.custom',
-	'amigo',
-	'bbop'
-       ],
-       javascript_library =>
-       [
-	'com.jquery',
-	'com.bootstrap',
-	'com.jquery-ui',
-	'com.jquery.tablesorter',
-	'bbop',
-	'amigo2'
-       ],
-       javascript =>
-       [
-	#$self->{JS}->make_var('global_facet1', $facet1),
-	#$self->{JS}->make_var('global_facet2', $facet2),
-	#$self->{JS}->make_var('global_manager', $manager),
-	$self->{JS}->get_lib('GeneralSearchForwarding.js')#,
-	#$self->{JS}->get_lib('RTE.js')
-       ],
-       javascript_init =>
-       [
-	'GeneralSearchForwardingInit();'#,
-	#'RTEInit();'
-       ],
-       content =>
-       [
-	'pages/rte.tmpl'
-       ]
+       css_library =>['com.bootstrap', 'com.jquery.jqamigo.custom',
+		      'amigo','bbop'],
+       javascript_library =>['com.jquery','com.bootstrap','com.jquery-ui',
+			     'com.jquery.tablesorter','bbop','amigo2'],
+       javascript =>[$self->{JS}->get_lib('GeneralSearchForwarding.js')],
+       javascript_init =>['GeneralSearchForwardingInit();'],
+       content => ['pages/rte.tmpl']
       };
     $self->add_template_bulk($prep);
     $output = $self->generate_template_page_with();

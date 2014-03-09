@@ -1,0 +1,114 @@
+<!-- Start: rte_results.tmpl -->
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">[% rte_resource.id %] Information</h3>
+  </div>
+  <div class="panel-body">
+
+    [% IF rte_resource.local_logo %]
+    <p>
+      <a href="[% rte_resource.website %]">
+	<img src="[% image_dir %]/[% rte_resource.local_logo %]"
+	     alt="Logo for: [% rte_resource.id %]" />
+      </a>
+    </p>
+    [% ELSIF rte_resource.remote_logo %]
+    <p>
+      <a href="[% rte_resource.website %]">
+	<img src="[% rte_resource.remote_logo %]"
+	     alt="Logo for: [% rte_resource.id %]" />
+      </a>
+    </p>
+    [% END %]
+
+    <p>
+      These results were produced by
+      <a href="[% rte_resource.website %]">[% rte_resource.label %]</a>.
+    </p>
+    
+    [% IF rte_resource.description %]
+    <p>
+      [% rte_resource.description %]
+    </p>
+    [% END %]
+
+    <p>
+      For more information, please see the resource
+      <a href="[% rte_resource.website %]">website</a>.
+    </p>
+    
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Results by [% rte_resource.label %]</h3>
+  </div>
+  <div class="panel-body">
+
+    <ul class="list-inline">
+      <li>
+	<strong>Reference mapped/unmapped</strong>:
+	[% rte_reference_mapped %]/[% rte_reference_unmapped %]
+      </li>
+      <li>
+	<strong>Input list mapped/unmapped</strong>:
+	[% rte_input_list_mapped %]/[% rte_input_list_unmapped %]
+      </li>
+    </ul>
+
+    <table class="table table-striped table-bordered table-hover table-condensed">
+      <thead>
+	<tr>
+	  <td>
+	    Term
+	  </td>
+	  <td>
+	    #&nbsp;Population
+	  </td>
+	  <td>
+	    #&nbsp;Sample
+	  </td>
+	  <td>
+	    Expected
+	  </td>
+	  <td>
+	    +/-
+	  </td>
+	  <td>
+	    P-value
+	  </td>
+	</tr>
+      </thead>
+      <tbody>
+	[% FOR res IN rte_results %]
+	<tr>
+	  <td>
+	    [% res.label %]
+	    (<a href="[% res.link %]"
+	       title="Jump to [% res.id %]">[% res.id %]</a>)
+	  </td>
+	  <td>
+	   [% res.number_in_population %]
+	  </td>
+	  <td>
+	   [% res.number_in_sample %]
+	  </td>
+	  <td>
+	    [% res.expected %]
+	  </td>
+	  <td>
+	    [% res.plus_or_minus %]
+	  </td>
+	  <td>
+	    [% res.p_value %]
+	  </td>	  
+	</tr>
+	[% END %]
+      </tbody>
+    </table>
+
+  </div>
+</div>
+<!-- End: rte_results.tmpl -->
