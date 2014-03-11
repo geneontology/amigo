@@ -165,8 +165,11 @@ sub get_results {
   my $self = shift;
 
   my $ret = [];
-  my $results = $self->{EXT_DATA}->findnodes('/results/result') || [];
-  foreach my $rnode (@$results){
+
+  eval {
+
+    my $results = $self->{EXT_DATA}->findnodes('/results/result') || [];
+    foreach my $rnode (@$results){
 
       my $id = $rnode->findvalue('./term/id') || '';
       my $link = $self->get_interlink({mode=>'term_details', arg=>{acc=>$id}});
@@ -191,7 +194,11 @@ sub get_results {
 	};
       push @$ret, $rhash;
     }
-  
+  };
+  if( $@ ){
+    die 'An error occured processing the response from the resource:';
+  }
+
   return $ret;
 }
 

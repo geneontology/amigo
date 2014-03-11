@@ -53,7 +53,7 @@ sub get_external_data {
     $mech->get($url);
   };
   if( $@ ){
-    $self->kvetch("error in GETing the document from: '$url': $@");
+    $self->kvetch("Error in GETing the document from: '$url': $@");
   }else{
 
     if ( ! $mech->success() ){
@@ -70,7 +70,7 @@ sub get_external_data {
       ## Check for errors.
       if( $@ ){
 	$@ =~ s/at \/.*?$//s;
-	$self->kvetch("error in document from: '$url': $@");
+	$self->kvetch("Error in document from: '$url': $@");
       }else{
 	## Looks like it's well-formed--yay!
       }
