@@ -58,20 +58,20 @@ gm_ann.set('rows', 0);
 var dat = [];
 
 var our_species_of_interest = [
-      ['human', '9606'],
-      ['mouse', '10090'],
-      ['rat', '10116'],
-      ['chicken', '9031'],
-      ['zebrafish', '7955'],
-      ['fly', '7227'],
-      ['worm', '6239'],
-      ['dicty', '44689'],
-      ['S. pombe', '4896'],
-      ['S. cer.', '4932'],
-      ['arabidopsis', '3702'],
-      ['E. coli', '562'],
-      ['aspergilus', '5062'],
-      ['candida', '237561']
+      ['Homo sapiens', '9606'],
+      ['Mus musculus', '10090'],
+      ['Rattus norvegicus', '10116'],
+      ['Gallus gallus', '9031'],
+      ['Danio rerio', '7955'],
+      ['Drosophila melanogaster', '7227'],
+      ['Caenorhabditis elegans', '6239'],
+      ['Dictyostelium discoideum', '44689'],
+      ['Schizosaccharomyces pombe', '4896'],
+      ['Saccharomyces cerevisiae', '4932'],
+      ['Arabidopsis thaliana', '3702'],
+      ['Escherichia coli', '562'],
+      ['Aspergillus oryzae', '5062'],
+      ['Candida albicans', '5476']
 ];
 
 each(our_species_of_interest,
