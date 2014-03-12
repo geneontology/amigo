@@ -116,6 +116,13 @@ sub mode_rte {
       my $te = AmiGO::External::XMLFast::RemoteTermEnrichment->new($te_args);
       my $got = $te->remote_call($rsrc->{webservice});
 
+      my $play_url = $rsrc->{webservice} . '?' .
+	$ontology . '&' .
+	  $input . '&' .
+	    $species . '&' .
+	      $correction . '&' .
+		$format;
+
       ## Get the results out of the resource.
       my $rfm = $te->get_reference_mapped() || 0;
       my $rfum = $te->get_reference_unmapped() || 0;
@@ -125,9 +132,16 @@ sub mode_rte {
 
       ## Try and sort the results.
       my @sorted_res = sort {
+
+	## Try and sort on p-value.
 	my $bp_str = $b->{p_value};
-	my $ap_str = $b->{p_value};
-	return $ap_str <=> $bp_str;
+	my $ap_str = $a->{p_value};
+	if( $ap_str != $bp_str ){
+	  return $ap_str <=> $bp_str;
+	}
+
+	## Otherwise, try expected value.
+	return $a->{expected} <=> $b->{expected};
       } @$res;
 
       ## Page settings.
@@ -137,6 +151,7 @@ sub mode_rte {
 				    'Remote Term Enrichment Results');
 
       ## If we are going to display a page, fill in what we can.
+      $self->set_template_parameter('rte_play_url', $play_url);
       $self->set_template_parameter('rte_resource', $rsrc);
       $self->set_template_parameter('rte_reference_mapped', $rfm);
       $self->set_template_parameter('rte_reference_unmapped', $rfum);
