@@ -175,8 +175,8 @@ sub get_results {
       my $link = $self->get_interlink({mode=>'term_details', arg=>{acc=>$id}});
       my $label = $rnode->findvalue('./term/label') || '';
       my $number_in_population =
-	$rnode->findvalue('./number_in_reference') || '';
-      my $number_in_sample = $rnode->findvalue('./number_in_list') || '';
+	$rnode->findvalue('./number_in_reference') || 0;
+      my $number_in_sample = $rnode->findvalue('./number_in_list') || 0;
       my $expected = $rnode->findvalue('./expected') || '';
       my $plus_or_minus = $rnode->findvalue('./plus_minus') || '';
       my $p_value = $rnode->findvalue('./pValue') || '';
