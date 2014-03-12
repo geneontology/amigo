@@ -84,8 +84,10 @@ sub mode_rte {
 	'id' => 'PANTHER', # same as above
 	'label' => 'PANTHER',
 	'description' => '',
-	'website' =>'http://173.255.211.222:8050/',
-	'webservice' => 'http://173.255.211.222:8050/webservices/go/overrep.jsp',
+	# 'website' =>'http://173.255.211.222:8050/',
+	# 'webservice' => 'http://173.255.211.222:8050/webservices/go/overrep.jsp',
+	'website' => 'http://panthertest2.usc.edu:8086',
+	'webservice' => 'http://panthertest2.usc.edu:8086/webservices/go/overrep.jsp',
 	'remote_logo' => '',
 	'local_logo' => 'logo_panther.jpg',
        }
