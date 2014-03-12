@@ -58,20 +58,20 @@ gm_ann.set('rows', 0);
 var dat = [];
 
 var our_species_of_interest = [
-      ['Homo sapiens', '9606'],
-      ['Mus musculus', '10090'],
-      ['Rattus norvegicus', '10116'],
-      ['Gallus gallus', '9031'],
-      ['Danio rerio', '7955'],
-      ['Drosophila melanogaster', '7227'],
-      ['Caenorhabditis elegans', '6239'],
-      ['Dictyostelium discoideum', '44689'],
-      ['Schizosaccharomyces pombe', '4896'],
-      ['Saccharomyces cerevisiae', '4932'],
-      ['Arabidopsis thaliana', '3702'],
-      ['Escherichia coli', '562'],
-      ['Aspergillus oryzae', '5062'],
-      ['Candida albicans', '5476']
+      ['H. sapiens', '9606'],
+      ['M. musculus', '10090'],
+      ['R. norvegicus', '10116'],
+      ['G. gallus', '9031'],
+      ['D. rerio', '7955'],
+      ['D. melanogaster', '7227'],
+      ['C. elegans', '6239'],
+      ['D. discoideum', '44689'],
+      ['S. pombe', '4896'],
+      ['S. cerevisiae', '4932'],
+      ['A. thaliana', '3702'],
+      ['E. coli', '562'],
+      ['A. oryzae', '5062'],
+      ['C. albicans', '5476']
 ];
 
 each(our_species_of_interest,
