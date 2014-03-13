@@ -113,15 +113,16 @@ sub mode_rte {
 	 'correction' => $correction,
 	 'format' => $format
 	};
+      my $srv = $rsrc->{webservice};
       my $te = AmiGO::External::XMLFast::RemoteTermEnrichment->new($te_args);
-      my $got = $te->remote_call($rsrc->{webservice});
+      my $got = $te->remote_call($srv);
 
-      my $play_url = $rsrc->{webservice} . '?' .
-	$ontology . '&' .
-	  $input . '&' .
-	    $species . '&' .
-	      $correction . '&' .
-		$format;
+      my $play_url = $srv . '?' .
+	'ontology=' . $ontology . '&' .
+	  'input=' . $input . '&' .
+	    'species=' . $species . '&' .
+	      'correction=' . $correction . '&' .
+		'format=' . $format;
 
       ## Get the results out of the resource.
       my $rfm = $te->get_reference_mapped() || 0;
@@ -152,6 +153,14 @@ sub mode_rte {
 
       ## If we are going to display a page, fill in what we can.
       $self->set_template_parameter('rte_play_url', $play_url);
+      #
+      $self->set_template_parameter('rte_web_service', $srv);
+      $self->set_template_parameter('rte_format', $format);
+      $self->set_template_parameter('rte_input', $input);
+      $self->set_template_parameter('rte_species', $species);
+      $self->set_template_parameter('rte_ontology', $ontology);
+      $self->set_template_parameter('rte_correction', $correction);
+      #
       $self->set_template_parameter('rte_resource', $rsrc);
       $self->set_template_parameter('rte_reference_mapped', $rfm);
       $self->set_template_parameter('rte_reference_unmapped', $rfum);

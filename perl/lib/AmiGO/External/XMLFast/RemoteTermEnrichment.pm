@@ -192,7 +192,15 @@ sub get_results {
 	 plus_or_minus => $plus_or_minus,
 	 p_value => $p_value
 	};
-      push @$ret, $rhash;
+
+      ## NOTE: This technically should not be necessary, but remove
+      ## cases where there is nothing in the population but something
+      ## in the sample.
+      if( $number_in_population == 0 && $number_in_sample > 0 ){
+	## Skip.
+      }else{
+	push @$ret, $rhash;
+      }
     }
   };
   if( $@ ){

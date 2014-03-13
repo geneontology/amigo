@@ -56,6 +56,19 @@
 	<strong>Input list mapped/unmapped</strong>:
 	[% rte_input_list_mapped %]/[% rte_input_list_unmapped %]
       </li>
+      <li>
+	<form action="[% rte_web_service %]" target="_blank" method="POST">
+	  <input type="hidden" name="format" value="[%  rte_format %]" />
+	  <input type="hidden" name="input" value="[%  rte_input %]" />
+	  <input type="hidden" name="species" value="[% rte_species %]" />
+	  <input type="hidden" name="ontology" value="[% rte_ontology %]" />
+	  <input type="hidden" name="correction" value="[% rte_correction %]" />
+	  <small>
+	    <button type="submit"
+		    class="btn btn-default">raw [% rte_format %]</button>
+	  </small>
+	<form>
+      </li>
     </ul>
 
     <table class="table table-striped table-bordered table-hover table-condensed">
