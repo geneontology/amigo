@@ -46,6 +46,18 @@
     <h3 class="panel-title">Results by [% rte_resource.label %]</h3>
   </div>
   <div class="panel-body">
+    
+    <ul class="list-inline">
+      <li>
+	Run with different parameters from <a href="[% interlink_rte %]">RTE</a> 
+	/ current: 
+      </li>
+      <li><strong>format</strong>: [%  rte_format %]</li>
+      <li><strong>input count</strong> [%  size(rte_input) %]</li>
+      <li><strong>species</strong> [% rte_species %]</li>
+      <li><strong>ontology</strong> [% rte_ontology %]</li>
+      <li><strong>correction</strong> [% rte_correction %]</li>
+    </ul>
 
     <ul class="list-inline">
       <li>
