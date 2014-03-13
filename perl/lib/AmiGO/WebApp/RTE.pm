@@ -131,6 +131,8 @@ sub mode_rte {
       my $ilum = $te->get_input_list_unmapped() || 0;
       my $res = $te->get_results() || [];
 
+      my $input_count = $ilm + $ilum;
+
       ## Try and sort the results.
       my @sorted_res = sort {
 
@@ -157,6 +159,7 @@ sub mode_rte {
       $self->set_template_parameter('rte_web_service', $srv);
       $self->set_template_parameter('rte_format', $format);
       $self->set_template_parameter('rte_input', $input);
+      $self->set_template_parameter('rte_input_count', $input_count);
       $self->set_template_parameter('rte_species', $species);
       $self->set_template_parameter('rte_ontology', $ontology);
       $self->set_template_parameter('rte_correction', $correction);
