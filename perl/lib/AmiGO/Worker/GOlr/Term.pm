@@ -215,13 +215,14 @@ sub get_ancestor_info {
   #$self->{AW_TG}->verbose(1);
 
   #$self->kvetch("Start lineage arg: " . Dumper($arg));
+  #$self->kvetch("Start lineage");
   my($lnodes, $lnode_rel, $lnode_rel_inf, $lnode_depth, $max_ldepth) =
     $cgraph->lineage_info($arg);
   # $self->kvetch('lnodes: ' . Dumper($lnodes));
   # $self->kvetch('lnode_rel: ' . Dumper($lnode_rel));
   # $self->kvetch('lnode_depth: ' . Dumper($lnode_depth));
   # $self->kvetch('max_depth: ' . Dumper($max_ldepth));
-  # $self->kvetch("Stop lineage");
+  #$self->kvetch("Stop lineage");
   #die;
 
   ## Adjust if we want depth done to reflexive levels.
