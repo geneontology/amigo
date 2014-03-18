@@ -11660,18 +11660,9 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	// Structure of the necessary invariant parts.	
 	var qurl = anchor._solr_url + 'select?';
 
-	print('a');
-
 	// Filters to assemble.
 	var assemf = anchor.get_query_filters();
 	var fq = anchor.filter_list_to_assemble_hash(assemf);
-
-	print('b');
-	print('b1: ' + bbop.core.dump(anchor.query_variants));
-	print('b2: ' + bbop.core.dump(anchor.current_facet_field_limits));
-	print('b3: ' + bbop.core.dump({'fq': fq}));
-	print('b4: ' + bbop.core.dump({'facet.field': bbop.core.get_keys(anchor.facet_fields)}));
-	print('b5: ' + bbop.core.dump({'q': anchor.query}));
 
 	// Add all of our different specialized hashes.
 	var things_to_add = [
@@ -11686,7 +11677,6 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	    bbop.core.get_assemble({'q': anchor.query}),
 	    anchor.query_extra
 	];
-	print('c');
 	// Add query_fields ('qf') iff query ('q') is set and it is
 	// not length 0.
 	if( anchor.query &&
@@ -11698,8 +11688,6 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 		things_to_add.push(in_qf);
 	    }
 	
-	print('d');
-
 	// Assemble the assemblies into a single URL, throw out
 	// everything that seems like it isn't real to keep the URL as
 	// clean a possible.
