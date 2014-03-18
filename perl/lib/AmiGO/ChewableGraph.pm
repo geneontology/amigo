@@ -824,6 +824,11 @@ sub lineage_info {
   my $node_distance = {};
   my $max_distance = 0;
 
+  # ## DEBUG
+  # my $debug_counter = 0;
+  # my $debug_href = {};
+  # $self->kvetch('for: ' . $sub_acc);
+
   ## 1) Process $nodes.
   ## Copy them out.
   foreach my $obj_acc (keys %{$self->{ACG_TOPOLOGY}{NODES}}){
@@ -858,7 +863,16 @@ sub lineage_info {
 
       ## 4) Process $node_distance.
       $node_distance->{$obj_acc} = $self->max_distance($obj_acc);
+
+      # ## DEBUG
+      # $self->kvetch("inner: $obj_acc");
     }
+
+    # ## DEBUG
+    # $debug_counter++;
+    # my $debug_val = $debug_href->{$obj_acc} || 0;
+    # $debug_href->{$obj_acc} = 1;
+    # $self->kvetch("outer ($debug_counter/$debug_val): $obj_acc");
   }
 
   ## 5) Process $max_distance.
