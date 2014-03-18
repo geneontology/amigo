@@ -688,84 +688,88 @@ bbop.core.get_assemble = function(qargs){
     for( var qname in qargs ){
 	var qval = qargs[qname];
 
-	if( typeof qval == 'string' || typeof qval == 'number' ){
-	    // Is standard name/value pair.
-	    var nano_buffer = [];
-	    nano_buffer.push(qname);
-	    nano_buffer.push('=');
-	    nano_buffer.push(qval);
-	    mbuff.push(nano_buffer.join(''));
-	}else if( typeof qval == 'object' ){
-	    if( typeof qval.length != 'undefined' ){
-		// Is array (probably).
-		// Iterate through and double on.
-		for(var qval_i = 0; qval_i < qval.length ; qval_i++){
-		    var nano_buff = [];
-		    nano_buff.push(qname);
-		    nano_buff.push('=');
-		    nano_buff.push(qval[qval_i]);
-		    mbuff.push(nano_buff.join(''));
-		}
-	    }else{
-		// // TODO: The "and" case is pretty much like
-		// // the array, the "or" case needs to be
-		// // handled carefully. In both cases, care will
-		// // be needed to show which filters are marked.
-		// Is object (probably).
-		// Special "Solr-esque" handling.
-		for( var sub_name in qval ){
-		    var sub_vals = qval[sub_name];
-
-		    // Since there might be an array down there,
-		    // ensure that there is an iterate over it.
-		    if( bbop.core.what_is(sub_vals) != 'array' ){
-			sub_vals = [sub_vals];
+	// null is technically an object, but we don't want to render
+	// it.
+	if( qval != null ){
+	    if( typeof qval == 'string' || typeof qval == 'number' ){
+		// Is standard name/value pair.
+		var nano_buffer = [];
+		nano_buffer.push(qname);
+		nano_buffer.push('=');
+		nano_buffer.push(qval);
+		mbuff.push(nano_buffer.join(''));
+	    }else if( typeof qval == 'object' ){
+		if( typeof qval.length != 'undefined' ){
+		    // Is array (probably).
+		    // Iterate through and double on.
+		    for(var qval_i = 0; qval_i < qval.length ; qval_i++){
+			var nano_buff = [];
+			nano_buff.push(qname);
+			nano_buff.push('=');
+			nano_buff.push(qval[qval_i]);
+			mbuff.push(nano_buff.join(''));
 		    }
-
-		    var loop = bbop.core.each;
-		    loop(sub_vals,
-			 function(sub_val){
-			     var nano_buff = [];
-			     nano_buff.push(qname);
-			     nano_buff.push('=');
-			     nano_buff.push(sub_name);
-			     nano_buff.push(':');
-			     if( typeof sub_val !== 'undefined' && sub_val ){
-				 // Do not double quote strings.
-				 // Also, do not requote if we already
-				 // have parens in place--that
-				 // indicates a complicated
-				 // expression. See the unit tests.
-				 var val_is_a = bbop.core.what_is(sub_val);
-				 if( val_is_a == 'string' &&
-				     sub_val.charAt(0) == '"' &&
-				     sub_val.charAt(sub_val.length -1) == '"' ){
-				     nano_buff.push(sub_val);
-				 }else if( val_is_a == 'string' &&
-				     sub_val.charAt(0) == '(' &&
-				     sub_val.charAt(sub_val.length -1) == ')' ){
-				     nano_buff.push(sub_val);
+		}else{
+		    // // TODO: The "and" case is pretty much like
+		    // // the array, the "or" case needs to be
+		    // // handled carefully. In both cases, care will
+		    // // be needed to show which filters are marked.
+		    // Is object (probably).
+		    // Special "Solr-esque" handling.
+		    for( var sub_name in qval ){
+			var sub_vals = qval[sub_name];
+			
+			// Since there might be an array down there,
+			// ensure that there is an iterate over it.
+			if( bbop.core.what_is(sub_vals) != 'array' ){
+			    sub_vals = [sub_vals];
+			}
+			
+			var loop = bbop.core.each;
+			loop(sub_vals,
+			     function(sub_val){
+				 var nano_buff = [];
+				 nano_buff.push(qname);
+				 nano_buff.push('=');
+				 nano_buff.push(sub_name);
+				 nano_buff.push(':');
+				 if( typeof sub_val !== 'undefined' && sub_val ){
+				     // Do not double quote strings.
+				     // Also, do not requote if we already
+				     // have parens in place--that
+				     // indicates a complicated
+				     // expression. See the unit tests.
+				     var val_is_a = bbop.core.what_is(sub_val);
+				     if( val_is_a == 'string' &&
+					 sub_val.charAt(0) == '"' &&
+					 sub_val.charAt(sub_val.length -1) == '"' ){
+					     nano_buff.push(sub_val);
+					 }else if( val_is_a == 'string' &&
+						   sub_val.charAt(0) == '(' &&
+						   sub_val.charAt(sub_val.length -1) == ')' ){
+						       nano_buff.push(sub_val);
+						   }else{
+						       nano_buff.push('"' + sub_val + '"');
+						   }
 				 }else{
-				     nano_buff.push('"' + sub_val + '"');
+				     nano_buff.push('""');
 				 }
-			     }else{
-				 nano_buff.push('""');
-			     }
-			     mbuff.push(nano_buff.join(''));
-			 });
+				 mbuff.push(nano_buff.join(''));
+			     });
+		    }
 		}
+	    }else if( typeof qval == 'undefined' ){
+		// This happens in some cases where a key is tried, but no
+		// value is found--likely equivalent to q="", but we'll
+		// let it drop.
+		// var nano_buff = [];
+		// nano_buff.push(qname);
+		// nano_buff.push('=');
+		// mbuff.push(nano_buff.join(''));	    
+	    }else{
+		throw new Error("bbop.core.get_assemble: unknown type: " + 
+				typeof(qval));
 	    }
-	}else if( typeof qval == 'undefined' ){
-	    // This happens in some cases where a key is tried, but no
-	    // value is found--likely equivalent to q="", but we'll
-	    // let it drop.
-	    // var nano_buff = [];
-	    // nano_buff.push(qname);
-	    // nano_buff.push('=');
-	    // mbuff.push(nano_buff.join(''));	    
-	}else{
-	    throw new Error("bbop.core.get_assemble: unknown type: " + 
-			    typeof(qval));
 	}
     }
     
@@ -1880,7 +1884,7 @@ bbop.version.revision = "2.0.2";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20140311";
+bbop.version.release = "20140318";
 /*
  * Package: logger.js
  * 
@@ -11656,9 +11660,18 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	// Structure of the necessary invariant parts.	
 	var qurl = anchor._solr_url + 'select?';
 
+	print('a');
+
 	// Filters to assemble.
 	var assemf = anchor.get_query_filters();
 	var fq = anchor.filter_list_to_assemble_hash(assemf);
+
+	print('b');
+	print('b1: ' + bbop.core.dump(anchor.query_variants));
+	print('b2: ' + bbop.core.dump(anchor.current_facet_field_limits));
+	print('b3: ' + bbop.core.dump({'fq': fq}));
+	print('b4: ' + bbop.core.dump({'facet.field': bbop.core.get_keys(anchor.facet_fields)}));
+	print('b5: ' + bbop.core.dump({'q': anchor.query}));
 
 	// Add all of our different specialized hashes.
 	var things_to_add = [
@@ -11673,6 +11686,7 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	    bbop.core.get_assemble({'q': anchor.query}),
 	    anchor.query_extra
 	];
+	print('c');
 	// Add query_fields ('qf') iff query ('q') is set and it is
 	// not length 0.
 	if( anchor.query &&
@@ -11684,6 +11698,8 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 		things_to_add.push(in_qf);
 	    }
 	
+	print('d');
+
 	// Assemble the assemblies into a single URL, throw out
 	// everything that seems like it isn't real to keep the URL as
 	// clean a possible.
