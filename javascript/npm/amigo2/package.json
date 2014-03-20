@@ -1,6 +1,6 @@
 {
     "name": "amigo2",
-    "version": "2.0.0-rc1.2",
+    "version": "2.0.2",
     "license": "BSD",
     "description": "AmiGO 2 JS namespace bundle.",
     "author": {
@@ -20,7 +20,7 @@
     ],
     "engines": {"node" : ">=0.10.0"},
     "dependencies": {
-	"bbop": "2.0.0-rc1.2"
+	"bbop": "2.0.2"
     },
     "main": "./amigo2.js"
 }
