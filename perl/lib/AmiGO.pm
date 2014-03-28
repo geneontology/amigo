@@ -1652,14 +1652,16 @@ sub render_json {
       ref($perl_var) eq "ARRAY" ){
     ## Try the new version, if not, use the old version.
     eval{
-      $retval = $self->{JSON}->encode($perl_var);
+      $retval = JSON::XS->new->utf8->allow_blessed->encode($perl_var);
     };
     if ($@) {
       #    $retval = $self->{JSON}->to_json($perl_var);
-      $retval = JSON::XS->new->utf8->allow_blessed->encode($perl_var);
+      $retval = $self->{JSON}->encode($perl_var);
     }
   }else{
-    $retval = $self->emit_json_scalar($perl_var);
+    #$retval = $self->emit_json_scalar($perl_var);
+    $retval =
+      JSON::XS->new->utf8->allow_blessed->allow_nonref->encode($perl_var);
   }
 
   return $retval;

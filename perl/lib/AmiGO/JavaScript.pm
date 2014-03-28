@@ -347,6 +347,8 @@ sub make_var {
   #my $as_is_p = shift || 0;
 
   my @mbuf = ();
+
+  ## The start of the variable buffer.
   push @mbuf, '<script type="text/javascript">';
   #push @mbuf, "\n<!--//--><![CDATA[//><!--\n";
   push @mbuf, 'var ';
@@ -360,8 +362,10 @@ sub make_var {
   my $conv_var = $self->render_json($perl_var);
   # }
   $conv_var =~ s/\n+//g;
+
   push @mbuf, $conv_var;
 
+  ## Add the ending to make this work.
   push @mbuf, ';';
   #push @mbuf, "\n//--><!]]>\n";
   push @mbuf, '</script>';
