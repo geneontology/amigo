@@ -65,6 +65,7 @@ sub setup {
 		   'search'              => 'mode_search',
 		   'specific_search'     => 'mode_search',
 		   'browse'              => 'mode_browse',
+		   'free_browse'         => 'mode_free_browse',
 		   'term'                => 'mode_term_details',
 		   'gene_product'        => 'mode_gene_product_details',
 		   'complex_annotation'  => 'mode_complex_annotation_details',
@@ -73,7 +74,7 @@ sub setup {
 		   'software_list'       => 'mode_software_list',
 		   'schema_details'      => 'mode_schema_details',
 		   'load_details'        => 'mode_load_details',
-		   'medial_search'       =>  'mode_medial_search',
+		   'medial_search'       => 'mode_medial_search',
 		   ## ???
 		   'phylo_graph'         => 'mode_phylo_graph',
 		   ## Fallback.
@@ -189,6 +190,68 @@ sub mode_browse {
      content =>
      [
       'pages/browse.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page_with();
+}
+
+
+##
+sub mode_free_browse {
+
+  my $self = shift;
+
+  my $i = AmiGO::Input->new($self->query());
+  my $params = $i->input_profile();
+
+  ## Page settings.
+  $self->set_template_parameter('page_name', 'free_browse');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Free Browse');
+  $self->set_template_parameter('content_title', 'Free Browse');
+
+  ## Get the layout info to describe which buttons should be
+  ## generated.
+  #my $bbinfo = $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_BROWSE');
+  #$self->set_template_parameter('browse_button_info', $bbinfo);
+  ## Pick the first to be the default.
+  #my $sb = $$bbinfo[0]->{id};
+  #$self->set_template_parameter('starting_button', $sb);
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui',
+      'org.cytoscape',
+      'bbop',
+      'amigo2'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('FreeBrowse.js')
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();',
+      'FreeBrowseInit();'
+     ],
+     content =>
+     [
+      'pages/free_browse.tmpl'
      ]
     };
   $self->add_template_bulk($prep);
