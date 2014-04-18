@@ -305,48 +305,58 @@ sub mode_advanced {
 
       ## Pull out the raw graph info out.
       my $tinfo_item = $tinfo_hash->{$acc};
-      my $topo_graph_raw = $tinfo_item->{topology_graph_json};
-      my $topo_graph = $self->{CORE}->_read_json_string($topo_graph_raw);
 
-      ## Also, use the chewable graph as a filter to eliminate excess
-      ## child nodes from displays.
-      my $cgraph = $tinfo_item->{chewable_graph};
-      my $children_list = $cgraph->get_children($acc);
-      my %children_hash = map { $_ => 1 } @$children_list;
-      $self->{CORE}->kvetch(Dumper(\%children_hash));
-      $self->{CORE}->kvetch(Dumper($term_hash));
+      ## Error check for "legit" but otherwise currently unresolvable
+      ## input. For example, somebody using an alternate id instead of
+      ## the canonical one: https://github.com/kltm/amigo/issues/91
+      if( ! $tinfo_item ){
+	$self->add_mq('error', 'The term ID that you are using '. $acc .' could not be satisfactorily resolved. Please make sure that you are using canonical IDs (rather than synonyms or alternate IDs) when using this tool.');
+	die "The term ID that you're using could not be satisfactorily resolved";
+      }else{
 
-      ## Simply process the edges.
-      foreach my $edge (@{$topo_graph->{'edges'}}){
-	my $sid = $edge->{'sub'};
-	my $oid = $edge->{'obj'};
-	my $pid = $edge->{'pred'} || '.';
-	## Filter child rels out.
-	if( ! $children_hash->{$sid} && ! $term_hash->{$oid} ){
-	  my $vid = $sid . $pid . $oid;
-	  $all_edges->{$vid} =
-	    {
-	     'sub' => $sid,
-	     'obj' => $oid,
-	     'pred' => $pid,
-	    };
-	  $self->{CORE}->kvetch("edge: $sid $pid $oid");
+	my $topo_graph_raw = $tinfo_item->{topology_graph_json};
+	my $topo_graph = $self->{CORE}->_read_json_string($topo_graph_raw);
+
+	## Also, use the chewable graph as a filter to eliminate excess
+	## child nodes from displays.
+	my $cgraph = $tinfo_item->{chewable_graph};
+	my $children_list = $cgraph->get_children($acc);
+	my %children_hash = map { $_ => 1 } @$children_list;
+	$self->{CORE}->kvetch(Dumper(\%children_hash));
+	$self->{CORE}->kvetch(Dumper($term_hash));
+
+	## Simply process the edges.
+	foreach my $edge (@{$topo_graph->{'edges'}}){
+	  my $sid = $edge->{'sub'};
+	  my $oid = $edge->{'obj'};
+	  my $pid = $edge->{'pred'} || '.';
+	  ## Filter child rels out.
+	  if( ! $children_hash->{$sid} && ! $term_hash->{$oid} ){
+	    my $vid = $sid . $pid . $oid;
+	    $all_edges->{$vid} =
+	      {
+	       'sub' => $sid,
+	       'obj' => $oid,
+	       'pred' => $pid,
+	      };
+	    $self->{CORE}->kvetch("edge: $sid $pid $oid");
+	  }
 	}
-      }
 
-      ## A more complicates processing of the nodes.
-      foreach my $node (@{$topo_graph->{'nodes'}}){
-	my $acc = $node->{'id'};
-	my $label = $node->{'lbl'};
+	## A more complicates processing of the nodes.
+	foreach my $node (@{$topo_graph->{'nodes'}}){
+	  my $acc = $node->{'id'};
+	  my $label = $node->{'lbl'};
 
-	## Filter child nodes out.
-	if( ! $children_hash{$acc} ){
-	  $all_nodes->{$acc} =
-	    {
-	     'acc' => $acc,
-	     'label' => $label
-	    };
-	  $self->{CORE}->kvetch("node: $acc ($label)");
+	  ## Filter child nodes out.
+	  if( ! $children_hash{$acc} ){
+	    $all_nodes->{$acc} =
+	      {
+	       'acc' => $acc,
+	       'label' => $label
+	      };
+	    $self->{CORE}->kvetch("node: $acc ($label)");
+	  }
 	}
       }
     }
