@@ -845,7 +845,7 @@ amigo.data.golr = {
       "display_name" : "Ontology",
       "description" : "Ontology classes for GO.",
       "schema_generating" : "true",
-      "boost_weights" : "annotation_class^3.0 annotation_class_label^5.5 description^1.0 comment^0.5 synonym^1.0 alternate_id^2.0",
+      "boost_weights" : "annotation_class^3.0 annotation_class_label^5.5 description^1.0 comment^0.5 synonym^1.0 alternate_id^1.0",
       "fields" : [
          {
             "transform" : [],
@@ -2484,7 +2484,7 @@ amigo.data.golr = {
       "display_name" : "Term autocomplete",
       "description" : "Easily find ontology classes in GO. For personality only - not a schema configuration.",
       "schema_generating" : "false",
-      "boost_weights" : "annotation_class^5.0 annotation_class_label^5.0 synonym^3.0 alternate_id^3.0",
+      "boost_weights" : "annotation_class^5.0 annotation_class_label^5.0 synonym^1.0 alternate_id^1.0",
       "fields" : [
          {
             "transform" : [],
