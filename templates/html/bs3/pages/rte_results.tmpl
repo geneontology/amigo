@@ -69,6 +69,12 @@
 	[% rte_input_list_mapped %]/[% rte_input_list_unmapped %]
       </li>
       <li>
+	<strong>Unmapped inputs</strong>:
+	[% FOR ui IN rte_input_list_unmapped_list %]
+	<em>[% ui %]</em>
+	[% END %]
+      </li>
+      <li>
 	<form action="[% rte_web_service %]" target="_blank" method="POST">
 	  <input type="hidden" name="format" value="[%  rte_format %]" />
 	  <input type="hidden" name="input" value="[%  rte_input %]" />

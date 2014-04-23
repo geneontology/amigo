@@ -10,6 +10,23 @@ P63104
 Q96QU6
 Q8NCW5
 
+AKT1
+CRIM1
+EIF2AK3
+GHR
+GIGYF1
+GIGYF2
+GRB10
+IGF1
+IGF1R
+IGF2R
+IRS1
+PIK3R1
+PLCB1
+TSC2
+fluffier
+fluffiest
+
 =cut
 
 package AmiGO::WebApp::RTE;
@@ -125,15 +142,16 @@ sub mode_rte {
 		'format=' . $format;
 
       ## Get the results out of the resource.
-      my $rfm = $te->get_reference_mapped() || 0;
-      my $rfum = $te->get_reference_unmapped() || 0;
-      my $ilm = $te->get_input_list_mapped() || 0;
-      my $ilum = $te->get_input_list_unmapped() || 0;
+      my $rfm = $te->get_reference_mapped_count() || 0;
+      my $rfum = $te->get_reference_unmapped_count() || 0;
+      my $ilm = $te->get_input_list_mapped_count() || 0;
+      my $ilum = $te->get_input_list_unmapped_count() || 0;
+      my $inunm = $te->get_input_list_unmapped_list() || [];
       my $res = $te->get_results() || [];
 
       my $input_count = $ilm + $ilum;
 
-      ## Try and sort the results.
+      ## Try to sort the results.
       my @sorted_res = sort {
 
 	## Try and sort on p-value.
@@ -169,6 +187,7 @@ sub mode_rte {
       $self->set_template_parameter('rte_reference_unmapped', $rfum);
       $self->set_template_parameter('rte_input_list_mapped', $ilm);
       $self->set_template_parameter('rte_input_list_unmapped', $ilum);
+      $self->set_template_parameter('rte_input_list_unmapped_list', $inunm);
       $self->set_template_parameter('rte_results', \@sorted_res);
 
       ## 
