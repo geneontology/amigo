@@ -22,22 +22,30 @@
 
 <!-- <div class="col-xs-12 col-sm-9"> -->
 
+[% manual_classes = "col-xs-12 col-sm-6 col-md-4 col-lg-3" %]
 <div class="row">
 
-  <div class="col-6 col-sm-6 col-lg-4">
+  [% landing_item_header = "Get Started with Grebe" %]
+  [% landing_item_classes = manual_classes %]
+  [% landing_item_image = image_dir _ "/grebe.50.png" %]
+  [% landing_item_body = "Use the Grebe Search Wizard to <strong>get started</strong> in exploring the Gene Ontology data." %]
+  [% landing_item_link = interlink_grebe %]
+  [% INCLUDE "common/landing_item.tmpl" %]
+  
+  <div class="[% manual_classes %]">
     <div class="panel panel-default">
       <div class="panel-heading">
-	<h3 class="panel-title">Search</h3>
+	<h3 class="panel-title">Advanced Search</h3>
       </div>
       <div class="panel-body">
 	<img src="[% image_dir %]/magnifying-glass.50.png"
-	     title="Go to a Search page."
+	     title="Go to an Advanced Search page."
 	     class="img-rounded img-responsive amigo-landing-img"
 	     alt="[Search]" />
 	<p>
 	  Interactively <strong>search</strong> the Gene Ontology data
 	  for annotations, gene products, and terms using a powerful
-	  search syntax.
+	  search syntax and filters.
 	</p>
 	<div class="dropdown">
 	  <a href="#" class="dropdown-toggle btn btn-primary"
@@ -61,11 +69,78 @@
     </div>
   </div>
   
-  [% landing_item_header = "Grebe" %]
-  [% landing_item_image = image_dir _ "/grebe.50.png" %]
-  [% landing_item_body = "Use the Grebe Search Wizard to <strong>get started</strong> in exploring the Gene Ontology data." %]
-  [% landing_item_link = interlink_grebe %]
-  [% INCLUDE "common/landing_item.tmpl" %]
+  <div class="[% manual_classes %]">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+	<h3 class="panel-title">Term Enrichment Service</h3>
+      </div>
+      <div class="panel-body">
+	<img src="[% image_dir %]/term-enrichment.50.png"
+	     title="Go to the Remote Term Enrichment page."
+	     class="img-rounded img-responsive amigo-landing-img"
+	     alt="[Search]" />
+
+<!-- Mostly a copy from beta.geneontology.org, with a few changes to
+make it less tall and more integrated with the A2 environment.  -->
+	<p>
+	  <form action="[% interlink_rte %]"
+		class="form-inline" role="form" method="POST">
+	    <input type="hidden" name="correction" value="bonferroni" />
+	    <input type="hidden" name="format" value="xml" />
+	    <input type="hidden" name="resource" value="PANTHER" />
+	    <textarea id="landing_gene_input" class="form-control" rows="2" name="input" placeholder="Your genes here..." ></textarea>
+	    
+	    <div class="form-group">
+	      <!--	<label for="rte_ontology">Ontology</label> -->
+	      <select
+		 id="rte_ontology"
+		 class="form-control"
+		 name="ontology">
+		<option value="biological_process">biological process</option>
+		<option value="molecular_function">molecular function</option>
+		<option value="cellular_component">cellular component</option>
+		<option value="biological_process_exp">biological process (experimental only)</option>
+		<option value="molecular_function_exp">molecular function (experimental only)</option>
+		<option value="cellular_component_exp">cellular component (experimental only)</option>
+	      </select>
+	    </div>
+	    
+	    <div class="form-group">
+	      <!--	<label for="rte_species">Species</label> -->
+	      <select
+		 id="rte_species"
+		 class="form-control"
+		 name="species">
+		<option value="HUMAN">H. sapiens</option>
+		<option value="MOUSE">M. musculus</option>
+		<option value="RAT">R. norvegicus</option>
+		<option value="CHICK">G. gallus</option>
+		<option value="DANRE">D. rerio</option>
+		<option value="DROME">D. melanogaster</option>
+		<option value="CAEEL">C. elegans</option>
+		<option value="DICDI">D. discoideum</option>
+		<option value="SCHPO">S. pombe</option>
+		<option value="YEAST">S. cerevisiae</option>
+		<option value="ARATH">A. thaliana</option>
+		<option value="ECOLI">E. coli</option>
+		<!-- <option value="5062">A. oryzae</option> -->
+		<option value="CANAL">C. albicans</option>
+	      </select>
+	    </div>
+	    
+	    <button type="submit" class="btn btn-primary">Submit</button>
+	  </form>
+	</p>
+	<p>
+	  <small><a href="[% interlink_rte %]">Advanced options</a></small>
+	  <br />
+	  <small>Powered by <a href="http://173.255.211.222:8050/">PANTHER</a></small>
+	</p>
+	<!-- -->
+
+      </div>
+    </div>
+  </div>
   
   <!--   <a href="[% interlink_browse %]"> -->
   <!-- 	<img src="[% image_dir %]/browse-icon.50.png" -->
