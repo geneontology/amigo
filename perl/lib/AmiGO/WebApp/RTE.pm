@@ -117,7 +117,7 @@ sub mode_rte {
 
     ## Pre-process the input a little bit.
     #$input =~ s/\r\n/ /g;
-    $input =~ s/\s+/ /g;
+    #$input =~ s/\s+/ /g;
 
     ## URL useful for forwarding and examination.
     my $srv = $rsrc->{webservice};
@@ -171,44 +171,68 @@ sub mode_rte {
 	return $a->{expected} <=> $b->{expected};
       } @$res;
 
-      ## Page settings.
-      $self->set_template_parameter('page_title',
-				    'Remote Term Enrichment Results');
-      $self->set_template_parameter('content_title',
-				    'Remote Term Enrichment Results');
+      ## Tab results get outputted directly, "xml" results get the
+      ## page treatment.
+      if( $format eq 'tab' ){
 
-      ## If we are going to display a page, fill in what we can.
-      $self->set_template_parameter('rte_play_url', $play_url);
-      #
-      $self->set_template_parameter('rte_web_service', $srv);
-      $self->set_template_parameter('rte_format', $format);
-      $self->set_template_parameter('rte_input', $input);
-      $self->set_template_parameter('rte_input_count', $input_count);
-      $self->set_template_parameter('rte_species', $species);
-      $self->set_template_parameter('rte_ontology', $ontology);
-      $self->set_template_parameter('rte_correction', $correction);
-      #
-      $self->set_template_parameter('rte_resource', $rsrc);
-      $self->set_template_parameter('rte_reference_mapped', $rfm);
-      $self->set_template_parameter('rte_reference_unmapped', $rfum);
-      $self->set_template_parameter('rte_input_list_mapped', $ilm);
-      $self->set_template_parameter('rte_input_list_unmapped', $ilum);
-      $self->set_template_parameter('rte_input_list_unmapped_list', $inunm);
-      $self->set_template_parameter('rte_results', \@sorted_res);
+	## Assemble tab output.
+	my $lines = [];
+	foreach my $r (@$res){
+	  push @$lines, join "\t", (
+				    $r->{id},
+				    $r->{number_in_population},
+				    $r->{number_in_sample},
+				    $r->{expected},
+				    $r->{plus_or_minus},
+				    $r->{p_value}
+				   );
+	}
+	$output = join "\n", @$lines;
 
-      ## 
-      my $prep =
-	{
-	 css_library =>['com.bootstrap', 'com.jquery.jqamigo.custom',
-			'amigo','bbop'],
-	 javascript_library =>['com.jquery','com.bootstrap','com.jquery-ui',
-			       'com.jquery.tablesorter','bbop','amigo2'],
-	 javascript =>[$self->{JS}->get_lib('GeneralSearchForwarding.js')],
-	 javascript_init =>['GeneralSearchForwardingInit();'],
-	 content => ['pages/rte_results.tmpl']
-	};
-      $self->add_template_bulk($prep);
-      $output = $self->generate_template_page_with();
+	## Change header type.
+	$self->header_add( -type => 'text/plain' );
+
+      }else{
+
+	## Page settings.
+	$self->set_template_parameter('page_title',
+				      'Remote Term Enrichment Results');
+	$self->set_template_parameter('content_title',
+				      'Remote Term Enrichment Results');
+
+	## If we are going to display a page, fill in what we can.
+	$self->set_template_parameter('rte_play_url', $play_url);
+	#
+	$self->set_template_parameter('rte_web_service', $srv);
+	$self->set_template_parameter('rte_format', $format);
+	$self->set_template_parameter('rte_input', $input);
+	$self->set_template_parameter('rte_input_count', $input_count);
+	$self->set_template_parameter('rte_species', $species);
+	$self->set_template_parameter('rte_ontology', $ontology);
+	$self->set_template_parameter('rte_correction', $correction);
+	#
+	$self->set_template_parameter('rte_resource', $rsrc);
+	$self->set_template_parameter('rte_reference_mapped', $rfm);
+	$self->set_template_parameter('rte_reference_unmapped', $rfum);
+	$self->set_template_parameter('rte_input_list_mapped', $ilm);
+	$self->set_template_parameter('rte_input_list_unmapped', $ilum);
+	$self->set_template_parameter('rte_input_list_unmapped_list', $inunm);
+	$self->set_template_parameter('rte_results', \@sorted_res);
+
+	## 
+	my $prep =
+	  {
+	   css_library =>['com.bootstrap', 'com.jquery.jqamigo.custom',
+			  'amigo','bbop'],
+	   javascript_library =>['com.jquery','com.bootstrap','com.jquery-ui',
+				 'com.jquery.tablesorter','bbop','amigo2'],
+	   javascript =>[$self->{JS}->get_lib('GeneralSearchForwarding.js')],
+	   javascript_init =>['GeneralSearchForwardingInit();'],
+	   content => ['pages/rte_results.tmpl']
+	  };
+	$self->add_template_bulk($prep);
+	$output = $self->generate_template_page_with();
+      }
     }
 
   }else{
