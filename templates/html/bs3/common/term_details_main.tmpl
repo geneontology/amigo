@@ -86,6 +86,13 @@
       </dd>
       [% END %]
 
+      <!-- Optional GO history. -->
+      [% IF GO_HISTORY_LINK %]
+      <dt>History</dt>
+      <dd>See term <a href="[% GO_HISTORY_LINK %]"
+		      title="See term history.">history for [% TERM_INFO.acc %]</a> at QuickGO</dd>
+      [% END %]
+
       <!-- Subsets -->
       <dt>Subset</dt>
       [% IF TERM_INFO.subsets.size != 0 %]

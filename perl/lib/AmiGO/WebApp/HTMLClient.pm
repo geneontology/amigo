@@ -1250,6 +1250,14 @@ sub mode_term_details {
   }
   $self->set_template_parameter('EXOTIC_P', $exotic_p);
 
+  ## Link to GO histories if available; obviously only for GO terms.
+  my $go_hist = undef;
+  if( $input_term_id =~ /^GO\:\d{7}/ ){
+    my $qg_term = AmiGO::External::QuickGO::Term->new();
+    $go_hist = $qg_term->get_term_link($input_term_id) . '#term=history';
+   }
+  $self->set_template_parameter('GO_HISTORY_LINK', $go_hist);
+
   ###
   ### Bail with JS here is we're going to.
   ###
