@@ -36,6 +36,7 @@ use Clone;
 use Data::Dumper;
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
+use CGI::Application::Plugin::Redirect;
 use AmiGO::External::XMLFast::RemoteTermEnrichment;
 use AmiGO::Input;
 
@@ -114,12 +115,25 @@ sub mode_rte {
       die 'could not resolve incoming resource id';
     }
 
-    ## TODO: 
+    ## Pre-process the input a little bit.
+    #$input =~ s/\r\n/ /g;
+    $input =~ s/\s+/ /g;
+
+    ## URL useful for forwarding and examination.
+    my $srv = $rsrc->{webservice};
+    my $play_url = $srv . '?' .
+      'ontology=' . $ontology . '&' .
+	'input=' . $input . '&' .
+	  'species=' . $species . '&' .
+	    'correction=' . $correction . '&' .
+	      'format=' . $format;
+
     ## Forward on HTML argument.
     if( $format eq 'html' ){
-      ## TODO: forward
-      return $self->mode_fatal("forwarding not yet implemented");
-      #return '';
+
+      return $self->redirect($play_url, '303 See Other');
+      #return $self->mode_fatal("forwarding not yet implemented");
+
     }else{
       ## Otherwise, display ourselves.
       my $te_args =
@@ -130,16 +144,8 @@ sub mode_rte {
 	 'correction' => $correction,
 	 'format' => $format
 	};
-      my $srv = $rsrc->{webservice};
       my $te = AmiGO::External::XMLFast::RemoteTermEnrichment->new($te_args);
       my $got = $te->remote_call($srv);
-
-      my $play_url = $srv . '?' .
-	'ontology=' . $ontology . '&' .
-	  'input=' . $input . '&' .
-	    'species=' . $species . '&' .
-	      'correction=' . $correction . '&' .
-		'format=' . $format;
 
       ## Get the results out of the resource.
       my $rfm = $te->get_reference_mapped_count() || 0;

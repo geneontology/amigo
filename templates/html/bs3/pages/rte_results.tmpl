@@ -49,8 +49,8 @@
     
     <ul class="list-inline">
       <li>
-	Run with different parameters from <a href="[% interlink_rte %]">RTE</a> 
-	/ current: 
+	Run with different parameters from
+	<a href="[% interlink_rte %]">RTE</a>; currently: 
       </li>
       <li><strong>format</strong>: [%  rte_format %]</li>
       <li><strong>input count</strong>: [% rte_input_count %]</li>
@@ -74,16 +74,39 @@
 	<em>[% ui %]</em>
 	[% END %]
       </li>
+    </ul>
+
+    <ul class="list-inline">
       <li>
+	<strong>Download as</strong>:
+      </li>
+      <li>
+	[% rte_ex_input = "xml" %]
+	[% rte_ex_format = "XML" %]
 	<form action="[% rte_web_service %]" target="_blank" method="POST">
 	  <input type="hidden" name="format" value="[%  rte_format %]" />
-	  <input type="hidden" name="input" value="[%  rte_input %]" />
+	  <input type="hidden" name="input" value="[%  rte_ex_input %]" />
 	  <input type="hidden" name="species" value="[% rte_species %]" />
 	  <input type="hidden" name="ontology" value="[% rte_ontology %]" />
 	  <input type="hidden" name="correction" value="[% rte_correction %]" />
 	  <small>
 	    <button type="submit"
-		    class="btn btn-default">raw [% rte_format %]</button>
+		    class="btn btn-default">raw [% rte_ex_format %]</button>
+	  </small>
+	<form>
+      </li>
+      <li>
+	[% rte_ex_input = "tab" %]
+	[% rte_ex_format = "tab-delimited" %]
+	<form action="[% rte_web_service %]" target="_blank" method="POST">
+	  <input type="hidden" name="format" value="[%  rte_format %]" />
+	  <input type="hidden" name="input" value="[%  rte_ex_input %]" />
+	  <input type="hidden" name="species" value="[% rte_species %]" />
+	  <input type="hidden" name="ontology" value="[% rte_ontology %]" />
+	  <input type="hidden" name="correction" value="[% rte_correction %]" />
+	  <small>
+	    <button type="submit"
+		    class="btn btn-default">raw [% rte_ex_format %]</button>
 	  </small>
 	<form>
       </li>
