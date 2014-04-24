@@ -196,9 +196,9 @@ sub mode_rte {
 
 	## Page settings.
 	$self->set_template_parameter('page_title',
-				      'Remote Term Enrichment Results');
+				      'Term Enrichment Results');
 	$self->set_template_parameter('content_title',
-				      'Remote Term Enrichment Results');
+				      'Term Enrichment Results');
 
 	## If we are going to display a page, fill in what we can.
 	$self->set_template_parameter('rte_play_url', $play_url);
@@ -246,9 +246,9 @@ sub mode_rte {
 
     ## Page settings.
     $self->set_template_parameter('page_title',
-				  'Remote Term Enrichment');
+				  'Term Enrichment Service');
     $self->set_template_parameter('content_title',
-				  'Remote Term Enrichment');
+				  'Term Enrichment Service');
 
     ## If we are going to display a page, fill in what we can.
     $self->set_template_parameter('first_time_p', $first_time_p);

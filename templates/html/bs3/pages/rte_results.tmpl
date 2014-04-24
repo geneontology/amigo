@@ -1,49 +1,24 @@
 <!-- Start: rte_results.tmpl -->
 
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">[% rte_resource.id %] Information</h3>
-  </div>
-  <div class="panel-body">
+[% INCLUDE common/noscript_js_necessary.tmpl %]
 
-    [% IF rte_resource.local_logo %]
-    <p>
-      <a href="[% rte_resource.website %]">
-	<img src="[% image_dir %]/[% rte_resource.local_logo %]"
-	     alt="Logo for: [% rte_resource.id %]" />
-      </a>
-    </p>
-    [% ELSIF rte_resource.remote_logo %]
-    <p>
-      <a href="[% rte_resource.website %]">
-	<img src="[% rte_resource.remote_logo %]"
-	     alt="Logo for: [% rte_resource.id %]" />
-      </a>
-    </p>
-    [% END %]
-
-    <p>
-      These results were produced by
-      <a href="[% rte_resource.website %]">[% rte_resource.label %]</a>.
-    </p>
-    
-    [% IF rte_resource.description %]
-    <p>
-      [% rte_resource.description %]
-    </p>
-    [% END %]
-
-    <p>
-      For more information, please see the resource
-      <a href="[% rte_resource.website %]">website</a>.
-    </p>
-    
-  </div>
-</div>
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Information about Term Enrichment Results" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<p>
+  Current documentation and discussion of term enrichment with the GO
+  can be found
+  <a href="http://beta.geneontology.org/page/go-enrichment-analysis">here</a>. 
+</p>
+<p>
+  This is a work in progress, so your feedback is appreciated.
+</p>
+[% INCLUDE "common/info_rollup_end.tmpl" %]
 
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title">Results by [% rte_resource.label %]</h3>
+    <h3 class="panel-title">Results Produced by
+      <a href="#resource_information_panel">[% rte_resource.label %]&nbsp;<img height="15" alt="[Click to display more information.]" src="[% image_dir %]/question.icon.png" /></a></h3>
   </div>
   <div class="panel-body">
     
@@ -166,6 +141,47 @@
       </tbody>
     </table>
 
+  </div>
+</div>
+
+<div id="resource_information_panel" class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">[% rte_resource.id %] Information</h3>
+  </div>
+  <div class="panel-body">
+
+    [% IF rte_resource.local_logo %]
+    <p>
+      <a href="[% rte_resource.website %]">
+	<img src="[% image_dir %]/[% rte_resource.local_logo %]"
+	     alt="Logo for: [% rte_resource.id %]" />
+      </a>
+    </p>
+    [% ELSIF rte_resource.remote_logo %]
+    <p>
+      <a href="[% rte_resource.website %]">
+	<img src="[% rte_resource.remote_logo %]"
+	     alt="Logo for: [% rte_resource.id %]" />
+      </a>
+    </p>
+    [% END %]
+
+    <p>
+      These results were produced by
+      <a href="[% rte_resource.website %]">[% rte_resource.label %]</a>.
+    </p>
+    
+    [% IF rte_resource.description %]
+    <p>
+      [% rte_resource.description %]
+    </p>
+    [% END %]
+
+    <p>
+      For more information, please see the resource
+      <a href="[% rte_resource.website %]">website</a>.
+    </p>
+    
   </div>
 </div>
 <!-- End: rte_results.tmpl -->
