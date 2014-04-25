@@ -12,6 +12,8 @@ function GeneralSearchForwardingInit(){
 	logger.kvetch(str);
     }
     
+    var wired_name = 'gsf-query';
+
     // Use jQuery UI to tooltip-ify doc.
     var tt_args = {
 	'position': {'my': 'left+5 top', 'at': 'right top'},
@@ -59,7 +61,17 @@ function GeneralSearchForwardingInit(){
 
     // Widget, default personality and filter.
     function forward(doc){
+
 	if( doc && doc['entity'] && doc['category'] ){
+
+	    // Erase any val, change the placeholder (to try and
+	    // prevent races where the user selects and then hits
+	    // "search" before the forwarding finishes).
+	    jQuery('#' + wired_name).val('');
+	    jQuery('#' + wired_name).attr('placeholder', 'Forwarding to ' +
+					  doc['entity'] + '...');
+
+	    // Forward to the new doc.
 	    if( doc['category'] == 'ontology_class' ){
 		window.location.href =
 		    linker.url(doc['entity'], 'term');
@@ -72,12 +84,13 @@ function GeneralSearchForwardingInit(){
 
     // Set for the initial search box autocompleter.
     var general_args = {
+	'fill_p': false,
 	'label_template':
 	'{{entity_label}} ({{entity}})',
 	'value_template': '{{entity}}',
 	'list_select_callback': forward
     };
-    var auto = new a_widget(sd.golr_base(), gconf, 'gsf-query', general_args);
+    var auto = new a_widget(sd.golr_base(), gconf, wired_name, general_args);
     auto.set_personality('general'); // profile in gconf
     auto.add_query_filter('document_category', 'general');
     auto.add_query_filter('category', 'family', ['-']);
