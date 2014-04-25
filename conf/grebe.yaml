@@ -42,7 +42,7 @@
       field_filter: bioentity
       widget_personality: bioentity
       widget_document: bioentity
-- group_label: Gene products directly or indirectly associated with terms
+- group_label: Gene products associated with terms
 - question_id: q6
   question: What are the gene products annotated to term {{q6f1}} but <em>not</em> term {{q6f2}}? 
   personality: bioentity
