@@ -8,18 +8,6 @@
 ####
 ---
 - group_label: Term annotations
-- question_id: q1
-  question: What are the direct annotations to term {{q1f1}}?
-  personality: annotation
-  document_category: annotation
-  field_translations:
-    - field_id: q1f1
-      field_filter: annotation_class
-      # placeholder_text: GO:0004632 or autophagosome
-      widget_personality: general
-      widget_filters:
-        - 'category:ontology_class'
-      widget_document: general
 - question_id: q2
   question: What are the direct and indirect annotations to term {{q2f1}}?
   personality: annotation
@@ -27,21 +15,6 @@
   field_translations:
     - field_id: q2f1
       field_filter: isa_partof_closure
-      widget_personality: bbop_term_ac
-      widget_document: ontology_class
-- question_id: q3
-  question:  What are the direct annotations for organism (scientific name) {{q3f1}} to term {{q3f2}}?
-  personality: annotation
-  document_category: annotation
-  field_translations:
-    - field_id: q3f1
-      field_filter: taxon_closure
-      widget_personality: bbop_term_ac
-      widget_document: ontology_class
-      widget_filters:
-        - 'source:ncbi_taxonomy'
-    - field_id: q3f2
-      field_filter: annotation_class
       widget_personality: bbop_term_ac
       widget_document: ontology_class
 - question_id: q4
@@ -106,3 +79,31 @@
       field_filter: panther_family
       widget_personality: bbop_family
       widget_document: family
+- group_label: Curator tools
+- question_id: q1
+  question: What are the direct annotations to term {{q1f1}}?
+  personality: annotation
+  document_category: annotation
+  field_translations:
+    - field_id: q1f1
+      field_filter: annotation_class
+      # placeholder_text: GO:0004632 or autophagosome
+      widget_personality: general
+      widget_filters:
+        - 'category:ontology_class'
+      widget_document: general
+- question_id: q3
+  question:  What are the direct annotations for organism (scientific name) {{q3f1}} to term {{q3f2}}?
+  personality: annotation
+  document_category: annotation
+  field_translations:
+    - field_id: q3f1
+      field_filter: taxon_closure
+      widget_personality: bbop_term_ac
+      widget_document: ontology_class
+      widget_filters:
+        - 'source:ncbi_taxonomy'
+    - field_id: q3f2
+      field_filter: annotation_class
+      widget_personality: bbop_term_ac
+      widget_document: ontology_class
