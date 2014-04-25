@@ -16861,8 +16861,8 @@ bbop.widget.search_box = function(golr_loc,
 	// What to do when an element is selected.
 	select: function(event, ui){
 
-	    // Prevent default selection filling action (from jQuery
-	    // UI) when non-default marked.
+	    // Prevent default selection input filling action (from
+	    // jQuery UI) when non-default marked.
 	    if( ! anchor._fill_p ){
 		event.preventDefault();		
 	    }
