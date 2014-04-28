@@ -1884,7 +1884,7 @@ bbop.version.revision = "2.0.3";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20140425";
+bbop.version.release = "20140428";
 /*
  * Package: logger.js
  * 
@@ -7278,7 +7278,8 @@ bbop.rest.response.json = function(json_data){
 		this._okay = false;
 	    }
 
-	}else if( bbop.core.what_is(json_data) == 'object' ){
+	}else if( bbop.core.what_is(json_data) == 'object' ||
+		  bbop.core.what_is(json_data) == 'array' ){
 
 	    // Looks like somebody else got here first.
 	    this._raw = json_data;
