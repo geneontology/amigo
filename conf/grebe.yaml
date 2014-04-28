@@ -17,7 +17,7 @@
     - field_id: q2f1
       field_filter: isa_partof_closure
       widget_options: bbop_term_ac
-      widget_personality: bbop_term_ac
+      widget_personality: ontology
       widget_document: ontology_class
 - question_id: q4
   question: What are the direct and indirect annotations for organism (scientific name) {{q4f1}} to term {{q4f2}}?
@@ -27,14 +27,14 @@
     - field_id: q4f1
       field_filter: taxon_closure
       widget_options: bbop_term_ac
-      widget_personality: bbop_term_ac
+      widget_personality: ontology
       widget_document: ontology_class
       widget_filters:
         - 'source:ncbi_taxonomy'
     - field_id: q4f2
       field_filter: isa_partof_closure
       widget_options: bbop_term_ac
-      widget_personality: bbop_term_ac
+      widget_personality: ontology
       widget_document: ontology_class
 - group_label: Gene product annotations
 - question_id: q5
@@ -56,12 +56,12 @@
     - field_id: q6f1
       field_filter: isa_partof_closure
       widget_options: bbop_term_ac
-      widget_personality: bbop_term_ac
+      widget_personality: ontology
       widget_document: ontology_class
     - field_id: q6f2
       field_filter: -isa_partof_closure
       widget_options: bbop_term_ac
-      widget_personality: bbop_term_ac
+      widget_personality: ontology
       widget_document: ontology_class
 - question_id: q7
   question: What are the gene products annotated to term {{q7f1}} <em>and</em> term {{q7f2}}?
@@ -71,12 +71,12 @@
     - field_id: q7f1
       field_filter: isa_partof_closure
       widget_options: bbop_term_ac
-      widget_personality: bbop_term_ac
+      widget_personality: ontology
       widget_document: ontology_class
     - field_id: q7f2
       field_filter: isa_partof_closure
       widget_options: bbop_term_ac
-      widget_personality: bbop_term_ac
+      widget_personality: ontology
       widget_document: ontology_class
 - group_label: Protein family
 - question_id: q8
@@ -111,12 +111,12 @@
     - field_id: q3f1
       field_filter: taxon_closure
       widget_options: bbop_term_ac
-      widget_personality: bbop_term_ac
+      widget_personality: ontology
       widget_document: ontology_class
       widget_filters:
         - 'source:ncbi_taxonomy'
     - field_id: q3f2
       field_filter: annotation_class
       widget_options: bbop_term_ac
-      widget_personality: bbop_term_ac
+      widget_personality: ontology
       widget_document: ontology_class
