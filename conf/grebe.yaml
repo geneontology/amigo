@@ -3,7 +3,8 @@
 ####
 #### field_id: the element id of the field
 #### field_filter: the query_filter for the question to use from the content on the field
-#### widget_personality: the personality profile in Grebe.js for a particular field AND the personality used in the manager
+#### widget_options: the personality profile in Grebe.js for a particular field
+#### widget_personality: the personality used in the manager for a filter field
 #### widget_document: the document_category for a particular field to look at
 ####
 ---
@@ -15,6 +16,7 @@
   field_translations:
     - field_id: q2f1
       field_filter: isa_partof_closure
+      widget_options: bbop_term_ac
       widget_personality: bbop_term_ac
       widget_document: ontology_class
 - question_id: q4
@@ -24,12 +26,14 @@
   field_translations:
     - field_id: q4f1
       field_filter: taxon_closure
+      widget_options: bbop_term_ac
       widget_personality: bbop_term_ac
       widget_document: ontology_class
       widget_filters:
         - 'source:ncbi_taxonomy'
     - field_id: q4f2
       field_filter: isa_partof_closure
+      widget_options: bbop_term_ac
       widget_personality: bbop_term_ac
       widget_document: ontology_class
 - group_label: Gene product annotations
@@ -40,6 +44,7 @@
   field_translations:
     - field_id: q5f1
       field_filter: bioentity
+      widget_options: bioentity
       widget_personality: bioentity
       widget_document: bioentity
 - group_label: Gene products associated with terms
@@ -50,10 +55,12 @@
   field_translations:
     - field_id: q6f1
       field_filter: isa_partof_closure
+      widget_options: bbop_term_ac
       widget_personality: bbop_term_ac
       widget_document: ontology_class
     - field_id: q6f2
       field_filter: -isa_partof_closure
+      widget_options: bbop_term_ac
       widget_personality: bbop_term_ac
       widget_document: ontology_class
 - question_id: q7
@@ -63,10 +70,12 @@
   field_translations:
     - field_id: q7f1
       field_filter: isa_partof_closure
+      widget_options: bbop_term_ac
       widget_personality: bbop_term_ac
       widget_document: ontology_class
     - field_id: q7f2
       field_filter: isa_partof_closure
+      widget_options: bbop_term_ac
       widget_personality: bbop_term_ac
       widget_document: ontology_class
 - group_label: Protein family
@@ -77,7 +86,8 @@
   field_translations:
     - field_id: q8f1
       field_filter: panther_family
-      widget_personality: bbop_family
+      widget_options: bbop_family
+      widget_personality: family
       widget_document: family
 - group_label: Curator tools
 - question_id: q1
@@ -88,6 +98,7 @@
     - field_id: q1f1
       field_filter: annotation_class
       #placeholder_text: GO:0022008 or neurogenesis
+      widget_options: general
       widget_personality: general
       widget_filters:
         - 'category:ontology_class'
@@ -99,11 +110,13 @@
   field_translations:
     - field_id: q3f1
       field_filter: taxon_closure
+      widget_options: bbop_term_ac
       widget_personality: bbop_term_ac
       widget_document: ontology_class
       widget_filters:
         - 'source:ncbi_taxonomy'
     - field_id: q3f2
       field_filter: annotation_class
+      widget_options: bbop_term_ac
       widget_personality: bbop_term_ac
       widget_document: ontology_class

@@ -112,6 +112,8 @@ function GrebeInit(){
 		      var field_filter = field_translation['field_filter'];
 		      // var field_personality =
 		      // 	  field_translation['field_personality'];
+		      var widget_options =
+			  field_translation['widget_options'];
 		      var widget_personality =
 			  field_translation['widget_personality'];
 		      var widget_document =
@@ -125,7 +127,7 @@ function GrebeInit(){
 
 		      // Sort out which widget args template we'll use.
 		      var widget_args =
-			  widget_args_templates[widget_personality];
+			  widget_args_templates[widget_options];
 
 		      // Generate the autocomplete widget.
 		      var auto = new search_box(sd.golr_base(), gconf,
