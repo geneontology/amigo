@@ -87,7 +87,7 @@
   field_translations:
     - field_id: q1f1
       field_filter: annotation_class
-      # placeholder_text: GO:0004632 or autophagosome
+      #placeholder_text: GO:0022008 or neurogenesis
       widget_personality: general
       widget_filters:
         - 'category:ontology_class'
