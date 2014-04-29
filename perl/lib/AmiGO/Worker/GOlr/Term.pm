@@ -50,7 +50,7 @@ sub new {
 	 ontology_readable => $found_doc->{source},
 	 ontology => $found_doc->{source},
 	 term_link =>
-	 $self->get_interlink({mode=>'term-details',
+	 $self->get_interlink({mode=>'term_details',
 			       arg=>{acc=>$found_doc->{id}}}),
 	 definition => $found_doc->{description},
 	 comment => $found_doc->{comment},
