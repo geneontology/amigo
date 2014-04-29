@@ -19,13 +19,18 @@
      <ul class="list-group">
        <li class="list-group-item">
 	 <a href="[% TERM_INFO.term_link %]" class="btn btn-primary">Link</a>
-	 to detailed information about [% TERM_INFO.name %].
+	 to <strong>detailed information</strong> about [% TERM_INFO.name %].
        </li>
        <!-- Additional links exposed with the assistance of a JS
 	    manager in the live document. -->
        <li id="prob_ann" class="list-group-item hidden">
-	 <a href="#" class="btn btn-primary">Link</a>
-	 to all direct and indirect annotations to [% TERM_INFO.name %].
+	 <a id="prob_ann_href" href="#" class="btn btn-primary">Link</a>
+	 to all direct and indirect <strong>annotations</strong>
+	 to [% TERM_INFO.name %].
+       </li>
+       <li id="prob_bio" class="list-group-item hidden">
+	 <a id="prob_bio_href" href="#" class="btn btn-primary">Link</a>
+	 to all <strong>bioentities</strong> associated to [% TERM_INFO.name %].
        </li>
      </ul>
 

@@ -498,6 +498,7 @@ sub mode_medial_search {
 
   ## Try and figure out if the user might be trying to get annotation
   ## information about a specific internal term.
+  my $probable_term = undef;
   my $probable_term_info = undef;
   if( $q ){
     ## Clean input and make sure it is a single item.
@@ -513,6 +514,7 @@ sub mode_medial_search {
 	my $tworker = AmiGO::Worker::GOlr::Term->new($tid);
 	my $tinfo_hash = $tworker->get_info();
 	if( defined($tinfo_hash) ){ # check again
+	  $probable_term = $tid;
 	  $probable_term_info = $tinfo_hash->{$tid};
 	}
       }
@@ -609,11 +611,14 @@ sub mode_medial_search {
      ],
      javascript =>
      [
-      $self->{JS}->get_lib('GeneralSearchForwarding.js')
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('Medial.js'),
+      $self->{JS}->make_var('global_acc', $probable_term)
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();'
+      'GeneralSearchForwardingInit();',
+      'MedialInit();'
      ],
      content =>
      [
