@@ -1,10 +1,42 @@
 <!-- START: medial_search.tmpl -->
 [% USE HTML %]
 
+[% IF TERM_INFO  %]
 <div class="panel panel-default">
   <div class="panel-heading">
     <div class="panel-title">
-      Sub-search selection
+      Were you looking for information on <em>[% TERM_INFO.name %]</em> 
+      ([% TERM_INFO.acc %])?
+    </div>
+  </div>
+  <div class="panel-body">
+
+    <p>
+      Specific information on <strong>[% TERM_INFO.name %]</strong>
+      ([% TERM_INFO.acc%]) can be found at the following locations.
+    </p>
+
+     <ul class="list-group">
+       <li class="list-group-item">
+	 <a href="[% TERM_INFO.term_link %]" class="btn btn-primary">Link</a>
+	 to detailed information about [% TERM_INFO.name %].
+       </li>
+       <!-- Additional links exposed with the assistance of a JS
+	    manager in the live document. -->
+       <li class="list-group-item hidden">
+	 <a href="#" class="btn btn-primary">Link</a>
+	 to all direct and indirect annotations to [% TERM_INFO.name %].
+       </li>
+     </ul>
+
+  </div>
+</div>
+[% END %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      Text-search selection
     </div>
   </div>
   <div class="panel-body">
@@ -15,9 +47,13 @@
     </p>
     [% ELSE %]
     <p>
-      The following results were found for <strong>[% query %]</strong>.
-      <br />
-      Select the type of document that you want to search for.
+      The following results were found for <strong>[% query %]</strong>
+      using a general search over all text fields.
+     </p>
+     <p>
+      To narrow your search, select the type of document that you
+      would like to search for and continue narrowing your search from
+      the linked search page.
     </p>
     
     <ul class="list-group">

@@ -472,8 +472,9 @@ sub mode_simple_search {
 }
 
 
-## WARNING: Without pivot tables, this is expensive, taking multiple
-## passes at the server to assemble the necessarily grouped data.
+## WARNING/TODO: Without pivot tables, this is expensive, taking
+## multiple passes at the server to assemble the necessarily grouped
+## data.
 sub mode_medial_search {
 
   my $self = shift;
@@ -494,6 +495,32 @@ sub mode_medial_search {
 
   $self->set_template_parameter('query', $q);
   $self->{CORE}->kvetch('query: ' . $q);
+
+  ## Try and figure out if the user might be trying to get annotation
+  ## information about a specific internal term.
+  my $probable_term_info = undef;
+  if( $q ){
+    ## Clean input and make sure it is a single item.
+    my $tlist = $self->{CORE}->clean_term_list($q);
+    $self->{CORE}->kvetch('have query: ' . $q);
+    if( @$tlist && scalar(@$tlist) == 1 ){
+      ## Make sure the one item is an internal term that we'll have
+      ## info about.
+      my $tid = $tlist->[0];
+      $self->{CORE}->kvetch('have t: ' . $tid);
+      if( $self->{CORE}->is_term_acc_p($tid) ){
+	## Okay, we're good--get info.
+	my $tworker = AmiGO::Worker::GOlr::Term->new($tid);
+	my $tinfo_hash = $tworker->get_info();
+	if( defined($tinfo_hash) ){ # check again
+	  $probable_term_info = $tinfo_hash->{$tid};
+	}
+      }
+    }
+  }
+  ## The consumable from the above.
+  $self->set_template_parameter('TERM_INFO', $probable_term_info);
+
 
   ## Get the layout info to describe which personalities are
   ## available.
