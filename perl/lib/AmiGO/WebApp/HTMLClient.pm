@@ -585,8 +585,8 @@ sub mode_medial_search {
   ## Page settings.
   $self->set_template_parameter('page_name', 'medial_search');
   $self->set_template_parameter('page_title',
-				'AmiGO 2: Advanced Search Directory');
-  $self->set_template_parameter('content_title', 'Advanced Search Directory');
+				'AmiGO 2: Search Directory');
+  $self->set_template_parameter('content_title', 'Search Directory');
 
   ## The rest of our environment.
   my $prep =
