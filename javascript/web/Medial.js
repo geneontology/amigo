@@ -48,23 +48,7 @@ function MedialInit(){
 	 })();
     }
     
-	// Get bookmark for annotations.
-	(function(){
-	     var man = new bbop.golr.manager.jquery(solr_server, gconf);
-	     man.set_personality('annotation');
-	     man.add_query_filter('document_category', 'annotation', ['*']);
-	     man.add_query_filter('regulates_closure', global_acc);
-	     //ll('qurl: ' + man.get_query_url());
-	     //var lstate = encodeURIComponent(man.get_state_url());
-	     var lstate = man.get_filter_query_string();
-	     var lurl = al.url(lstate, 'search', 'annotation');
-	     
-	     // Add it to the DOM.
-	     jQuery('#prob_ann_href').attr('href', lurl);
-	     jQuery('#prob_ann').removeClass('hidden');
-	 })();
-    
-    // Get bookmark for annotations.
+    // Get bookmark for bioentities.
     (function(){
 	 var man = new bbop.golr.manager.jquery(solr_server, gconf);
 	 man.set_personality('annotation');
