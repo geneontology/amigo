@@ -114,12 +114,20 @@
       <dd>None</dd>
       [% END %]
       
-      <dt>Related</dt>
-      <dd><span id="related-terms-span">Not available</span></dd>
-      
-      [% # Note that wikipedia is in here too...rename community? %]
+      [% # Note that wikipedia is in here too. %]
       [% INCLUDE common/term_details_community.tmpl %]
 
+      <dt id="prob_related" class="hidden">Related</dt>
+      <dd id="prob_bio" class="hidden">
+	<a id="prob_bio_href" href="#" class="btn btn-primary btn-xs">Link</a>
+	to all <strong>bioentities</strong> associated to [% TERM_INFO.name %].
+      </dd>
+      <dd id="prob_ann" class="hidden">
+	<a id="prob_ann_href" href="#" class="btn btn-primary btn-xs">Link</a>
+	to all direct and indirect <strong>annotations</strong>
+	to [% TERM_INFO.name %].
+      </dd>
+      
     </dl>
 
   </div>
