@@ -1,5 +1,6 @@
 ////
 //// Trying an ontology browser using cytoscapejs.
+//// Fun places: GO:0002296 GO:0014811
 ////
 
 ///
@@ -468,6 +469,8 @@ function FreeBrowseInit(){
     var tt_args = {'position': {'my': 'left bottom', 'at': 'right top'}};
     jQuery('.bbop-js-tooltip').tooltip(tt_args);
 
+    // 
+
     ///
     /// General setup--resource locations.
     /// Solr server, GOlr config, etc.
@@ -481,9 +484,10 @@ function FreeBrowseInit(){
     function jumper(doc){
 	var term_to_draw = doc['annotation_class'];
 	var graph_json = doc['topology_graph_json'];
-	var graph = new bbop.model.graph();
-	graph.load_json(JSON.parse(graph_json));
-	draw_graph(graph, term_to_draw);
+	var new_graph = new bbop.model.graph();
+	new_graph.load_json(JSON.parse(graph_json));
+	add_to_graph(new_graph, term_to_draw);
+	draw_graph();
     }
 
     //    
@@ -504,13 +508,33 @@ function FreeBrowseInit(){
     ///
     ///
     ///
-    
+
+    // The global graph object which is always rendered.
+    var graph = new bbop.model.graph();
+    var focus_nodes = {};
+   
+    // Destroy cytoscape graph as well as the resetting the global
+    // graph object.
+    function empty_graph(graph, focus_id){
+	graph = new bbop.model.graph();
+	focus_nodes = {};
+	jQuery('#grcon').empty();
+    }
+
     //
-    function draw_graph(graph, focus_id){
+    function add_to_graph(new_graph, focus_id){
+
+	// Add another focus.
+	focus_nodes[focus_id] = true;
+
+	// Merge new graph into global graph.
+	// TODO: neeed merge in bbop-js first
+	graph = new_graph;
+    }
+
+    function draw_graph(){
 
 	ll('in');
-
-	jQuery('#grcon').empty();
 
 	// Nodes.
 	var cyroots = [];
@@ -526,10 +550,6 @@ function FreeBrowseInit(){
 		 if( graph.is_root_node(node.id()) ){
 		     cyroots.push(node.id());
 		 }
-		 var clr;
-		 if( focus && node.id() == focus_id ){
-		     
-		 }
 		 var node_opts = {
 		     //'group': 'nodes',
 		     'data': {
@@ -539,7 +559,7 @@ function FreeBrowseInit(){
 		     'grabbable': true
 		 };
 		 // Highlight the focus if there.
-		 if( focus_id && node.id() == focus_id ){
+		 if( focus_nodes[node.id()] ){
 		     node_opts['css'] = { 'background-color': '#111111' };
 		 }
 		 cynodes.push(node_opts);
@@ -689,6 +709,17 @@ function FreeBrowseInit(){
 	ll('done');
     }
     
+    ///
+    /// ...
+    ///
+
+    jQuery('#fb_add').click(function(){
+				alert('TODO');
+			    });
+    jQuery('#fb_clr').click(function(){
+				empty_graph();
+			    });
+
     ///
     /// Ontologies shortcut selector buttons.
     ///
