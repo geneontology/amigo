@@ -123,7 +123,7 @@ function TermDetailsInit(){
 	 man.add_query_filter('regulates_closure', global_acc);
 	 //var lstate = man.get_filter_query_string();
 	 var lstate = man.get_filter_query_string();
-	 //var lurl = linker.url(lstate, 'search', 'annotation');
+	 var lurl = linker.url(lstate, 'search', 'annotation');
 	 // Add it to the DOM.
 	 jQuery('#prob_ann_href').attr('href', lurl);
 	 jQuery('#prob_ann').removeClass('hidden');
