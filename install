@@ -904,6 +904,7 @@ sub amigo_env_to_js {
      html_base => $core->amigo_env('AMIGO_HTML_URL'),
      image_base => $core->amigo_env('AMIGO_IMAGE_URL'),
      term_regexp => $core->amigo_env('AMIGO_TERM_REGEXP'),
+     beta => $core->amigo_env('AMIGO_BETA'),
 
      ## Data.
      evidence_codes => $evcodes,
