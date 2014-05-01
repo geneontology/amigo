@@ -29,6 +29,7 @@ function GPDetailsInit(){
     // Ready the configuration that we'll use.
     var gconf = new bbop.golr.conf(amigo.data.golr);
     var sd = new amigo.data.server();
+    var defs = new amigo.data.definitions();
     var solr_server = sd.golr_base();
 
     // Setup the annotation profile and make the annotation document
@@ -53,8 +54,7 @@ function GPDetailsInit(){
     gps.add_query_filter('bioentity', global_acc, ['*']);
 
     // Download limit.
-    //var dlimit = 7500;
-    var dlimit = 100000;
+    var dlimit = defs.download_limit();
 
     // Add a term id download button.
     var btmpl = bbop.widget.display.button_templates;
