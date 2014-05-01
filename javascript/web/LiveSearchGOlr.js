@@ -103,6 +103,7 @@ function LiveSearchGOlrInit(){
 
     var gconf = new bbop.golr.conf(amigo.data.golr);
     var sd = new amigo.data.server();
+    var defs = new amigo.data.definitions();
     var linker = new amigo.linker();
     var solr_server = sd.golr_base();
     var div_id = 'display-general-search';
@@ -112,8 +113,7 @@ function LiveSearchGOlrInit(){
     ///
 
     // Download limit.    
-    //var dlimit = 7500;
-    var dlimit = 100000;
+    var dlimit = defs.download_limit();
 
     // Global download properties.
     var _dl_props = {
@@ -122,25 +122,7 @@ function LiveSearchGOlrInit(){
     };
 
     // Define the rows that we'll use to create a psuedo-GAF.
-    var _gaf_fl = [
-	'source', // c1
-	'bioentity_internal_id', // c2; not bioentity
-	'bioentity_label', // c3
-	'qualifier', // c4
-	'annotation_class', // c5
-	'reference', // c6
-	'evidence_type', // c7
-	'evidence_with', // c8
-	'aspect', // c9
-	'bioentity_name', // c10
-	'synonym', // c11
-	'type', // c12
-	'taxon', // c13
-	'date', // c14
-	'assigned_by', // c15
-	'annotation_extension_class', // c16
-	'bioentity_isoform' // c17
-    ];
+    var _gaf_fl = defs.gaf_from_golr_fields();
 
     // Create button templates to use from our library.
     var btmpl = bbop.widget.display.button_templates;
