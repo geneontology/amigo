@@ -490,6 +490,15 @@ function FreeBrowseInit(){
 	draw_graph();
     }
 
+    // function on_list_select(doc){
+    // 	var term_to_draw = doc['annotation_class'];
+    // 	var graph_json = doc['topology_graph_json'];
+    // 	var new_graph = new bbop.model.graph();
+    // 	new_graph.load_json(JSON.parse(graph_json));
+    // 	add_to_graph(new_graph, term_to_draw);
+    // 	draw_graph();
+    // }
+
     //    
     var spin = new bbop.widget.spinner("grcon",
 				       sd.image_base() + '/waiting_ajax.gif');
@@ -515,9 +524,10 @@ function FreeBrowseInit(){
    
     // Destroy cytoscape graph as well as the resetting the global
     // graph object.
-    function empty_graph(graph, focus_id){
+    function empty_graph(){
 	graph = new bbop.model.graph();
 	focus_nodes = {};
+	//jQuery('#grcon').cytoscape();
 	jQuery('#grcon').empty();
     }
 
@@ -529,7 +539,7 @@ function FreeBrowseInit(){
 
 	// Merge new graph into global graph.
 	// TODO: neeed merge in bbop-js first
-	graph = new_graph;
+	graph.merge_in(new_graph);
     }
 
     function draw_graph(){
@@ -714,6 +724,7 @@ function FreeBrowseInit(){
     ///
 
     jQuery('#fb_add').click(function(){
+				//jumper();
 				alert('TODO');
 			    });
     jQuery('#fb_clr').click(function(){
@@ -779,11 +790,13 @@ function FreeBrowseInit(){
     each(shortcuts,
 	 function(skey, shortcut){
 	     var sid = shortcut['id'];
+	     var trm = shortcut['term'];
 	     jQuery('#' + sid).click(
 		 function(){
-		     man.set_id(shortcut['term']);
-		     spin.show();
-		     man.search();
+		     man.set_id(trm);
+		     jQuery('#jumper').val(trm);
+		     //spin.show();
+		     //man.search();
 		     // var sc_g = new bbop.model.graph();
 		     // sc_g.load_json(shortcut['graph']);
 		     // draw_graph(sc_g, shortcut['term']);
