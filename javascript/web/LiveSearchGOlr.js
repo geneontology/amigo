@@ -31,7 +31,10 @@ function LiveSearchGOlrInit(){
 	ll('Using _establish_buttons');
 	if( personality == 'annotation' ){
 	    manager.clear_buttons();
-	    manager.add_button(facet_matrix_button);
+	    // Only add matrix button for labs for now.
+	    if( sd.beta() && sd.beta() == '1' ){
+		manager.add_button(facet_matrix_button);		
+	    }
 	    manager.add_button(gaf_download_button);
 	    manager.add_button(ann_flex_download_button);
 	    //manager.add_button(gaf_galaxy_button);
