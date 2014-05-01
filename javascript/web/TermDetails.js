@@ -73,16 +73,19 @@ function TermDetailsInit(){
     // TODO: And or this in as well.
     //gps.add_query_filter('annotation_class', global_acc, ['*']);
 
-    // Download limit.
-    //var dlimit = 7500;
-    var dlimit = 100000;
-
     // Add a bioentity download button.
     var btmpl = bbop.widget.display.button_templates;
-    var id_download_button =
-	btmpl.field_download('Download bioentity IDs (up to ' + dlimit + ')',
-			     dlimit, ['bioentity']);
-    gps.add_button(id_download_button);
+    // var id_download_button =
+    // 	btmpl.field_download('Download bioentity IDs (up to ' + dlimit + ')',
+    // 			     dlimit, ['bioentity']);
+    // gps.add_button(id_download_button);
+    var ont_flex_download_button =
+	btmpl.flexible_download('Flex download (up to ' + dlimit + ')',
+				dlimit,
+				['annotation_class', 'annotation_class_label'],
+				'ontology',
+				gconf);
+    gps.add_button(ont_flex_download_button);
 
     // Experiment.
     // Process incoming queries, pins, and filters (into

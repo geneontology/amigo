@@ -58,10 +58,17 @@ function GPDetailsInit(){
 
     // Add a term id download button.
     var btmpl = bbop.widget.display.button_templates;
-    var id_download_button =
-	btmpl.field_download('Download term IDs (up to ' + dlimit + ')',
-			     dlimit, ['annotation_class']);
-    gps.add_button(id_download_button);
+    // var id_download_button =
+    // 	btmpl.field_download('Download term IDs (up to ' + dlimit + ')',
+    // 			     dlimit, ['annotation_class']);
+    // gps.add_button(id_download_button);
+     var bio_flex_download_button =
+	btmpl.flexible_download('Flex download (up to ' + dlimit + ')',
+				dlimit,
+				['bioentity', 'bioentity_label'],
+				'bioentity',
+				gconf);   
+    gps.add_button(bio_flex_download_button);
 
     // Experiment.
     // Process incoming queries, pins, and filters (into
