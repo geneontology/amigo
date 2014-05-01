@@ -33,17 +33,19 @@ function LiveSearchGOlrInit(){
 	    manager.clear_buttons();
 	    manager.add_button(facet_matrix_button);
 	    manager.add_button(gaf_download_button);
+	    manager.add_button(ann_flex_download_button);
 	    //manager.add_button(gaf_galaxy_button);
 	    manager.add_button(bookmark_button);
 	}else if( personality == 'ontology' ){
 	    manager.clear_buttons();
-	    manager.add_button(id_label_download_button);
+	    //manager.add_button(id_label_download_button);
 	    manager.add_button(ont_flex_download_button);
 	    //manager.add_button(id_term_label_galaxy_button);
 	    manager.add_button(bookmark_button);
 	}else if( personality == 'bioentity' ){
 	    manager.clear_buttons();
-	    manager.add_button(id_download_button);
+	    //manager.add_button(id_download_button);
+	    manager.add_button(bio_flex_download_button);
 	    //manager.add_button(id_symbol_galaxy_button);
 	    manager.add_button(bookmark_button);
 	}else if( personality == 'complex_annotation' ){
@@ -140,11 +142,24 @@ function LiveSearchGOlrInit(){
 	btmpl.field_download('GAF chunk download (up to ' +
 			     dlimit + ')',
 			     dlimit, _gaf_fl);
+    // Flexible download buttons.
     var ont_flex_download_button =
-	btmpl.flexible_download('Flex download test (up to ' + dlimit + ')',
+	btmpl.flexible_download('Flex download (up to ' + dlimit + ')',
 				dlimit,
 				['annotation_class', 'annotation_class_label'],
 				'ontology',
+				gconf);
+    var bio_flex_download_button =
+	btmpl.flexible_download('Flex download (up to ' + dlimit + ')',
+				dlimit,
+				['bioentity', 'bioentity_label'],
+				'bioentity',
+				gconf);
+    var ann_flex_download_button =
+	btmpl.flexible_download('Flex download (up to ' + dlimit + ')',
+				dlimit,
+				defs.gaf_from_golr_fields(),
+				'annotation',
 				gconf);
     //var bookmark_button = btmpl.bookmark(linker);
     var bookmark_button = btmpl.restmark(linker);
