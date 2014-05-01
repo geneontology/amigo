@@ -12,17 +12,17 @@ result_weights: annotation_class^8.0 description^6.0 source^4.0 synonym^3.0 alte
 filter_weights: source^4.0 subset^3.0 regulates_closure_label^1.0 is_obsolete^0.0
 fields:
   - id: id
-    description: Term acc/ID.
+    description: Term identifier.
     display_name: Acc
     type: string
     property: [getIdentifier]
   - id: annotation_class
-    description: Term acc/ID.
+    description: Term identifier.
     display_name: Term
     type: string
     property: [getIdentifier]
   - id: annotation_class_label
-    description: Common term name.
+    description: Identifier.
     display_name: Term
     type: string
     property: [getLabel]
@@ -66,7 +66,7 @@ fields:
     cardinality: multi
     searchable: true
   - id: alternate_id
-    description: Alternate term id.
+    description: Alternate term identifier.
     display_name: Alt ID
     type: string
     property: [getAnnotationPropertyValues, alt_id]
@@ -84,7 +84,7 @@ fields:
     property: [getAnnotationPropertyValues, consider]
     cardinality: multi
   - id: subset
-    description: Term subset.
+    description: "Special use collections of terms."
     display_name: Subset
     type: string
     property: [getSubsets]
@@ -102,7 +102,7 @@ fields:
     property: [getXref]
     cardinality: multi
   - id: isa_partof_closure
-    description: "Closure of ids/accs over isa and partof."
+    description: "Ancestral terms (is_a/part_of)."
     display_name: Is-a/part-of
     type: string
     cardinality: multi
@@ -110,7 +110,7 @@ fields:
       - "getRelationIDClosure"
       - "BFO:0000050"
   - id: isa_partof_closure_label
-    description: "Closure of labels over isa and partof."
+    description: "Ancestral terms (is_a/part_of)."
     display_name: Is-a/part-of
     type: string
     cardinality: multi
@@ -119,7 +119,7 @@ fields:
       - "BFO:0000050"
     searchable: true
   - id: regulates_closure
-    description: "Closure of ids/accs over various relations (including regulates, occurs in, capable_of)."
+    description: "Ancestral terms (regulates, occurs in, capable_of)."
     display_name: Ancestor
     type: string
     cardinality: multi
@@ -133,7 +133,7 @@ fields:
       - "RO:0002215"
       - "RO:0002216"
   - id: regulates_closure_label
-    description: "Closure of labels over various relations (including regulates, occurs in, capable_of)."
+    description: "Ancestral terms (regulates, occurs in, capable_of)."
     display_name: Ancestor
     type: string
     cardinality: multi
