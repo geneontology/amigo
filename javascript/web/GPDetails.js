@@ -96,6 +96,44 @@ function GPDetailsInit(){
     //gps.reset();
     gps.search();
 
+     ///
+    /// Create a bookmark for searching annotations and
+    /// bioentities with this term. Generate links and activate
+    /// hidden stubs in the doc.
+    ///
+
+    jQuery('#prob_related').removeClass('hidden');
+
+    // Get bookmark for annotations.
+    (function(){
+	 // Ready bookmark.
+	 var man = new bbop.golr.manager.jquery(solr_server, gconf);
+	 man.set_personality('annotation');
+	 man.add_query_filter('document_category', 'annotation', ['*']);
+	 man.add_query_filter('bioentity', global_acc);
+	 var lstate = man.get_filter_query_string();
+	 var lurl = linker.url(lstate, 'search', 'annotation');
+	 // Add it to the DOM.
+	 jQuery('#prob_ann_href').attr('href', lurl);
+	 jQuery('#prob_ann').removeClass('hidden');
+     })();
+    
+    // Get bookmark for annotation download.
+    (function(){
+	 // Ready bookmark.
+	 var man = new bbop.golr.manager.jquery(solr_server, gconf);
+	 man.set_personality('annotation');
+	 man.add_query_filter('document_category', 'annotation', ['*']);
+	 man.add_query_filter('bioentity', global_acc);
+	 var dstate = man.get_download_url(defs.gaf_from_golr_fields(),
+					   {
+					       'rows': dlimit,
+					       'encapsulator': ''
+					   });
+	 jQuery('#prob_ann_dl_href').attr('href', dstate);
+	 jQuery('#prob_ann_dl').removeClass('hidden');
+     })();
+
     //
     ll('GPDetailsInit done.');
 }
