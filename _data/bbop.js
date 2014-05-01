@@ -5262,6 +5262,42 @@ bbop.model.graph.prototype.get_ancestor_subgraph = function(nb_id_or_list, pid){
 };
 
 /*
+ * Function: merge_in
+ * 
+ * Add a graph to the current graph, without sharing any of the merged
+ * in graph's structure.
+ * 
+ * TODO: a work in progress 'type' not currently imported (just as
+ * not exported)
+ * 
+ * Parameters:
+ *  bbop.model.graph
+ * 
+ * Returns:
+ *  true; side-effects: more graph
+ */
+bbop.model.graph.prototype.merge_in = function(in_graph){
+
+    var anchor = this;
+
+    // First, load nodes; scrape out what we can.
+    bbop.core.each(in_graph.all_nodes(),
+		   function(in_node){
+		       var new_node = in_node.clone();
+		       anchor.add_node(new_node);
+		   });
+
+    // Now try to load edges; scrape out what we can.
+    bbop.core.each(in_graph.all_edges(),
+		   function(in_edge){
+		       var new_edge = in_edge.clone();
+		       anchor.add_edge(new_edge);
+		   });
+
+    return true;
+};
+
+/*
  * Function: load_json
  * 
  * Load the graph from the specified JSON object (not string).
