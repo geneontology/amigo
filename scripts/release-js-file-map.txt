@@ -11,6 +11,7 @@ javascript/lib/amigo/handlers/owl_class_expression.js
 // Auto-generated data.
 javascript/lib/amigo/data/golr.js
 javascript/lib/amigo/data/server.js
+javascript/lib/amigo/data/definitions.js
 javascript/lib/amigo/data/xrefs.js
 javascript/lib/amigo/data/dispatch.js
 javascript/lib/amigo/data/statistics.js
