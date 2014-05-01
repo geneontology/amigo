@@ -43,8 +43,12 @@ function TermDetailsInit(){
     // Ready the configuration that we'll use.
     var gconf = new bbop.golr.conf(amigo.data.golr);
     var sd = new amigo.data.server();
+    var defs = new amigo.data.definitions();
     var solr_server = sd.golr_base();
     var linker = new amigo.linker();
+
+    // Download limit.    
+    var dlimit = defs.download_limit();
 
     // Setup the annotation profile and make the annotation document
     // category and the current acc sticky in the filters.
@@ -114,6 +118,20 @@ function TermDetailsInit(){
 
     jQuery('#prob_related').removeClass('hidden');
 
+    // Get bookmark for bioentities.
+    (function(){
+	 // Ready bookmark.
+	 var man = new bbop.golr.manager.jquery(solr_server, gconf);
+	 man.set_personality('annotation');
+	 man.add_query_filter('document_category', 'bioentity', ['*']);
+	 man.add_query_filter('regulates_closure', global_acc);
+	 var lstate = man.get_filter_query_string();
+	 var lurl = linker.url(lstate, 'search', 'bioentity');
+	 // Add it to the DOM.
+	 jQuery('#prob_bio_href').attr('href', lurl);
+	 jQuery('#prob_bio').removeClass('hidden');
+     })();
+    
     // Get bookmark for annotations.
     (function(){
 	 // Ready bookmark.
@@ -129,18 +147,20 @@ function TermDetailsInit(){
 	 jQuery('#prob_ann').removeClass('hidden');
      })();
     
-    // Get bookmark for bioentities.
+    // Get bookmark for annotation download.
     (function(){
 	 // Ready bookmark.
 	 var man = new bbop.golr.manager.jquery(solr_server, gconf);
 	 man.set_personality('annotation');
-	 man.add_query_filter('document_category', 'bioentity', ['*']);
+	 man.add_query_filter('document_category', 'annotation', ['*']);
 	 man.add_query_filter('regulates_closure', global_acc);
-	 var lstate = man.get_filter_query_string();
-	 var lurl = linker.url(lstate, 'search', 'bioentity');
-	 // Add it to the DOM.
-	 jQuery('#prob_bio_href').attr('href', lurl);
-	 jQuery('#prob_bio').removeClass('hidden');
+	 var dstate = man.get_download_url(defs.gaf_from_golr_fields(),
+					   {
+					       'rows': dlimit,
+					       'encapsulator': ''
+					   });
+	 jQuery('#prob_ann_dl_href').attr('href', dstate);
+	 jQuery('#prob_ann_dl').removeClass('hidden');
      })();
     
     //
