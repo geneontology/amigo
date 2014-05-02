@@ -46,6 +46,8 @@ ONTOLOGIES ?= \
  http://purl.obolibrary.org/obo/eco.owl \
  http://geneontology.org/ontology/extensions/gorel.owl \
  http://purl.obolibrary.org/obo/ma.owl \
+ http://purl.obolibrary.org/obo/pato.owl \
+ http://purl.obolibrary.org/obo/po.owl \
  http://purl.obolibrary.org/obo/emap.owl
 ## Next:
 # http://purl.obolibrary.org/obo/go/extensions/go-plus.owl \
