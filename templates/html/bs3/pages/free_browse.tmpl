@@ -6,7 +6,29 @@
 [% rollup_anchor = "Browse Ontologies" %]
 [% INCLUDE "common/info_rollup_start.tmpl" %]
 <p>
-  Freely browse the ontology.
+  The loaded ontologies can be browsed using this interface. To add
+  more nodes to the graph, add IDs to the input and click the "&plus;"
+  button. You can also add nodes by clicking on visible nodes. Added
+  nodes will also add their immediate children and themselves be
+  highlighted in black.
+</p>
+<p>
+  <ul>
+    <li>
+      You can zoom in and out of the graph using the mouse wheel or
+      touch controls. Node label will disappear after a certain zoom
+      level; labels can still be viewed by hover over a node.
+    </li>
+    <li>
+      You can pan around the graph by clicking and draggin the background.
+    </li>
+    <li>
+      You can move nodes by clicking and dragging them.
+    </li>
+    <li>
+      The graph and input can be cleared by clicking on the "&times;" button.
+    </li>
+  </ul>
 </p>
 [% INCLUDE "common/info_rollup_end.tmpl" %]
 
@@ -17,7 +39,7 @@
   <!-- </div> -->
   <div class="panel-body">
 
-    <h4>Shortcuts</h4>
+    <h4>Starter shortcuts</h4>
     <div id="graph_radio" class="btn-group" data-toggle="buttons">
       <!-- <div id="graph_radio"> -->
 	<!-- Ontology browsing shortcuts: -->
@@ -31,7 +53,7 @@
     </div>
 
     <div style="margin-top: 1em;">
-      <form class="form-inline" role="form">
+      <div class="form-inline" role="form">
 	<div class="form-group">
 	  <!-- <label class="sr-only" -->
 	  <!--        for="jumper">Search for term (any loaded ontology)</label> -->
@@ -46,12 +68,14 @@
 	</div>
 	<button id="fb_add" type="button" title="Add term to graph"
 		class="btn btn-success">&plus;</button>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<button id="fb_clr" type="button" title="Clear graph and input" 
 		class="btn btn-danger">
 	  &times;
 	  <!-- <span class="glyphicon glyphicon-remove"></span> -->
 	</button>
-      </form>
+	<span id="spn"></span>
+      </div>
     </div>
 
     <!-- <h4>View</h4> -->

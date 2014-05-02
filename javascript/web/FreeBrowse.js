@@ -469,8 +469,6 @@ function FreeBrowseInit(){
     var tt_args = {'position': {'my': 'left bottom', 'at': 'right top'}};
     jQuery('.bbop-js-tooltip').tooltip(tt_args);
 
-    // 
-
     ///
     /// General setup--resource locations.
     /// Solr server, GOlr config, etc.
@@ -490,23 +488,19 @@ function FreeBrowseInit(){
 	draw_graph();
     }
 
-    // function on_list_select(doc){
-    // 	var term_to_draw = doc['annotation_class'];
-    // 	var graph_json = doc['topology_graph_json'];
-    // 	var new_graph = new bbop.model.graph();
-    // 	new_graph.load_json(JSON.parse(graph_json));
-    // 	add_to_graph(new_graph, term_to_draw);
-    // 	draw_graph();
-    // }
+    function on_list_select(doc){
+	var term_to_draw = doc['annotation_class'];
+	jQuery('#jumper').val(term_to_draw);
+    }
 
     //    
-    var spin = new bbop.widget.spinner("grcon",
-				       sd.image_base() + '/waiting_ajax.gif');
-
+    var spin =
+	new bbop.widget.spinner("spn", sd.image_base() + '/waiting_ajax.gif');
+    spin.hide();
+   
     //
     var man = new bbop.golr.manager.jquery(sd.golr_base(), gconf);
     man.add_query_filter('document_category', 'ontology_class');
-    //relman.add_query_filter('document_category', 'ontology_class', ['*']);
     man.set_personality('ontology');
     man.register('search', 'foo',
 		 function(response, manager){
@@ -515,7 +509,7 @@ function FreeBrowseInit(){
 		 });
     
     ///
-    ///
+    /// ...
     ///
 
     // The global graph object which is always rendered.
@@ -527,7 +521,6 @@ function FreeBrowseInit(){
     function empty_graph(){
 	graph = new bbop.model.graph();
 	focus_nodes = {};
-	//jQuery('#grcon').cytoscape();
 	jQuery('#grcon').empty();
     }
 
@@ -538,7 +531,6 @@ function FreeBrowseInit(){
 	focus_nodes[focus_id] = true;
 
 	// Merge new graph into global graph.
-	// TODO: neeed merge in bbop-js first
 	graph.merge_in(new_graph);
     }
 
@@ -724,10 +716,15 @@ function FreeBrowseInit(){
     ///
 
     jQuery('#fb_add').click(function(){
-				//jumper();
-				alert('TODO');
+				var inp = jQuery('#jumper').val();
+				if( inp ){
+				    man.set_id(inp);
+				}
+				spin.show();
+				man.search();
 			    });
     jQuery('#fb_clr').click(function(){
+				jQuery('#jumper').val('');
 				empty_graph();
 			    });
 
@@ -769,7 +766,6 @@ function FreeBrowseInit(){
 		 'class' : 'btn btn-default',
 		 'for': sid
 	     };
-	     //var ltag = new bbop.html.tag('label', ltag_attr, label);
 	     var ltag = new bbop.html.tag('label', ltag_attr);
 
 	     // 
@@ -786,7 +782,6 @@ function FreeBrowseInit(){
 	 });
 
     // Now, make our different shortcut buttons active.
-    //    jQuery("#graph_radio").buttonset();
     each(shortcuts,
 	 function(skey, shortcut){
 	     var sid = shortcut['id'];
@@ -795,11 +790,6 @@ function FreeBrowseInit(){
 		 function(){
 		     man.set_id(trm);
 		     jQuery('#jumper').val(trm);
-		     //spin.show();
-		     //man.search();
-		     // var sc_g = new bbop.model.graph();
-		     // sc_g.load_json(shortcut['graph']);
-		     // draw_graph(sc_g, shortcut['term']);
 		 }
 	     );
 	 });
@@ -816,17 +806,8 @@ function FreeBrowseInit(){
     			 'label_template':
     			 '{{annotation_class_label}} ({{annotation_class}})',
     			 'value_template': '{{annotation_class}}',
-    			 'list_select_callback': jumper
+    			 'list_select_callback': on_list_select
     		     });
-    //auto.set_personality('ontology'); // profile in gconf
     auto.set_personality('bbop_term_ac');
     auto.add_query_filter('document_category', 'ontology_class');
-
-    // Initialize on BP.
-    man.set_id(shortcuts['bp']['term']);
-    spin.show();
-    man.search();
-    // var init_g = new bbop.model.graph();
-    // init_g.load_json(shortcuts['bp']['graph']);
-    // draw_graph(init_g, shortcuts['bp']['term']);
 }
