@@ -1,0 +1,35 @@
+<!-- START: bulk_search.tmpl -->
+
+[% INCLUDE common/noscript_js_necessary.tmpl %]
+
+[% INCLUDE common/noscript_js_limited_search.tmpl %]
+
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Information about <strong>" _ personality_name _  "</strong> bulk search" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<p>
+  This Bulk Search is specialized on the <em>[% personality_name
+  %]</em> search personality: [% personality_description %]
+</p>
+<p>
+  Bulk Search will let you get information on lists of input
+  identifiers.
+</p>
+<p>
+  For a detailed explanation on how to search, please view the AmiGO 2
+  <a title="Go to Bulk Search AmiGO 2 search documentation"
+     href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Bulk_Search">bulk search</a>
+  documentation.
+</p>
+[% INCLUDE "common/info_rollup_end.tmpl" %]
+  
+<div class="panel panel-default">
+  <div class="panel-body">
+    
+    <div id="display-general-search">
+      Pending...
+    </div>
+  
+  </div>
+</div>
+<!-- END: bulk_search.tmpl -->
