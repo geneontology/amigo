@@ -1510,6 +1510,25 @@ sub get_interlink {
        }
      },
 
+     'bulk_search' =>
+     sub {
+       if( ! $self->empty_hash_p($args) ){
+	 my $type = $args->{type} ||
+	   die "require a type for non-default searches";
+	 $ilink = 'amigo/bulk_search/' . $type;
+
+	 # ## In the case that we also have an incoming query, add that.
+	 # if( defined $args->{query} && $args->{query} ne '' ){
+	 #   $ilink = $ilink . '?q=' . $args->{query};
+	 # }
+
+       }else{
+	 ## Just the most generic search we have.
+	 ## TODO/BUG: Likely DEFUNCT at this point.
+	 $ilink = 'amigo/bulk_search';
+       }
+     },
+
      'id_request' =>
      sub {
        my $data = $args->{data} || '';

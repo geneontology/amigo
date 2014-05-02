@@ -65,12 +65,20 @@ sub cgiapp_init {
       if( defined $golr_conf->{$search_entry_id} ){
 	## Add in the search link.
 	my $item_conf = $golr_conf->{$search_entry_id};
-	$item_conf->{'amigo_interlink'} =
+	## Add live search link.
+	$item_conf->{'amigo_live_search_interlink'} =
 	  $self->{CORE}->get_interlink({mode=>'live_search',
 					arg=>{type=>$search_entry_id}});
+	$self->{CORE}->kvetch('live search layout a2i: '.
+			      $item_conf->{amigo_live_search_interlink});
+	## Add bulk search link.
+	$item_conf->{'amigo_bulk_search_interlink'} =
+	  $self->{CORE}->get_interlink({mode=>'bulk_search',
+					arg=>{type=>$search_entry_id}});
+	$self->{CORE}->kvetch('bulk search layout a2i: '.
+			      $item_conf->{amigo_bulk_search_interlink});
+	## Add to generic list.
 	push @$search_list, $item_conf;
-	$self->{CORE}->kvetch('search layout a2i: '.
-			      $item_conf->{amigo_interlink});
       }else{
 	$self->{CORE}->kvetch('unable to find search layout entry: ' .
 			      $search_entry_id);

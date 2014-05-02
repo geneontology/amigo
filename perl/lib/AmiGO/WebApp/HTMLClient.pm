@@ -64,6 +64,7 @@ sub setup {
 		   #'search'              => 'mode_live_search',
 		   'search'              => 'mode_search',
 		   'specific_search'     => 'mode_search',
+		   'bulk_search'         => 'mode_bulk_search',
 		   'browse'              => 'mode_browse',
 		   'free_browse'         => 'mode_free_browse',
 		   'term'                => 'mode_term_details',
@@ -1169,6 +1170,109 @@ sub mode_search {
      content =>
      [
       'pages/live_search_golr.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+  return $self->generate_template_page_with();
+}
+
+
+## Largely the same as mode_search. Simpiler in some cases, like no
+## bookmarking, not particularly dynamic, etc.
+sub mode_bulk_search {
+
+  my $self = shift;
+
+  ## Pull out the bookmark parameter.
+  my $i = AmiGO::Input->new($self->query());
+  my $params = $i->input_profile('live_search');
+  ## Deal with the different types of dispatch we might be facing.
+  $params->{personality} = $self->param('personality')
+    if ! $params->{personality} && $self->param('personality');
+
+  ## Page settings.
+  $self->set_template_parameter('page_title', 'AmiGO 2: Bulk Search');
+  $self->set_template_parameter('page_name', 'bulk_search');
+  $self->set_template_parameter('content_title', 'Bulk Search');
+
+  ## Make sure the personality is in our known set if it's even
+  ## defined.
+  my $personality = $params->{personality} || '';
+  my $personality_name = 'n/a';
+  my $personality_desc = 'No description.';
+  if( $personality ){
+
+    ## Get the layout info to describe which personalities are
+    ## available.
+    my $stinfo = $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_SEARCH');
+
+    ## Check that it is in our search set.
+    my $allowed_personality = 0;
+    foreach my $sti (@$stinfo){
+      my $stid = $sti->{id};
+      if( $personality eq $stid ){
+	$allowed_personality = 1;
+	$personality_name = $sti->{display_name};
+	$personality_desc = $sti->{description};
+	last;
+      }
+    }
+
+    ## If not, kick out to error.
+    if( ! $allowed_personality ){
+      $self->set_template_parameter('content_title', '');
+      #$self->set_template_parameter('STANDARD_CSS', 'yes');
+      return $self->mode_not_found($personality, 'search personality');
+    }
+  }else{
+    ## No incoming personality.
+    return $self->mode_not_found('undefined', 'search personality');
+  }
+
+  ## Set personality for template, and later JS var.
+  $self->set_template_parameter('personality', $personality);
+  $self->set_template_parameter('content_subtitle', $personality_name);
+  $self->set_template_parameter('personality_name', $personality_name);
+  $self->set_template_parameter('personality_description', $personality_desc);
+
+  # ## Temporary test of new template system based on BS3.
+  # my $template_system = $self->template_set() || die 'no template system set';
+  # if( $template_system && $template_system eq 'bs3' ){
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui',
+      'bbop',
+      'amigo2'
+     ],
+     javascript =>
+     [
+      $self->{JS}->make_var('global_live_search_personality', $personality),
+      # $self->{JS}->make_var('global_live_search_query', $query),
+      # $self->{JS}->make_var('global_live_search_filters', $filters),
+      # $self->{JS}->make_var('global_live_search_pins', $pins),
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('BulkSearch.js')
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();',
+      'BulkSearchInit();'
+     ],
+     content =>
+     [
+      'pages/bulk_search.tmpl'
      ]
     };
   $self->add_template_bulk($prep);
