@@ -538,6 +538,26 @@ function FreeBrowseInit(){
 
 	ll('in');
 
+	// First, figure out what layout to use.
+	var lchoice = jQuery('#layout_input').val();
+
+	// Get the layout information into the position object
+	// required by cytoscape.js for sugiyama in grid, if required.
+	var position_object = {};
+	if( lchoice == 'sugiyama' ){
+	    var renderer = new bbop.layout.sugiyama.render();
+	    var layout = renderer.layout(graph);
+	    var layout_nodes = layout.nodes;
+	    each(layout_nodes,
+		 function(ln){
+		     position_object[ln['id']] = {x: ln['x'], y: ln['y']};
+		 });
+	}
+	function get_pos(cn){
+	    var po = position_object[cn.id()];
+	    return {row: po['y'], col: po['x']};
+	}
+	
 	// Nodes.
 	var cyroots = [];
 	var cynodes = [];
@@ -597,26 +617,35 @@ function FreeBrowseInit(){
 	// Render.
 	var elements = {nodes: cynodes, edges: cyedges};
 	
+	var layout_opts = {
+	    'sugiyama': {
+                'name': 'grid',
+		'padding': 30,
+		'position': get_pos
+	    },
+	    'breadthfirst': {
+                'name': 'breadthfirst',
+                'directed': true,
+                //'fit': true,
+		//'maximalAdjustments': 0,
+		'circle': false,
+		'roots': cyroots
+	    },
+	    'cose': {
+                'name': 'cose'//,
+                // 'directed': true,
+                // //'fit': true,
+	        // //'maximalAdjustments': 0,
+	        // 'circle': false,
+	        // 'roots': cyroots
+	    }   
+	};
+
 	jQuery('#grcon').cytoscape(
             {
 		userPanningEnabled: true, // pan over box select
 		'elements': elements,
-		'layout': {
-                    'name': 'breadthfirst',
-                    'directed': true,
-                    //'fit': true,
-		    //'maximalAdjustments': 0,
-		    'circle': false,
-		    'roots': cyroots
-		},
-		// 'layout': {
-                //     'name': 'cose'//,
-                //     // 'directed': true,
-                //     // //'fit': true,
-		//     // //'maximalAdjustments': 0,
-		//     // 'circle': false,
-		//     // 'roots': cyroots
-		// },
+		'layout': layout_opts[lchoice],
 		hideLabelsOnViewport: true, // opt
 		hideEdgesOnViewport: true, // opt
 		textureOnViewport: true, // opt
