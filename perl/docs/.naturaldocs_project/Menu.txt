@@ -78,6 +78,7 @@ Group: AmiGO  {
          Group: Solr  {
 
             File: AmiGO...GOlr::Status  (AmiGO/External/JSON/Solr/GOlr/Status.pm)
+            File: GOlr/BulkSearch.pm  (AmiGO/External/JSON/Solr/GOlr/BulkSearch.pm)
             File: GOlr/Document.pm  (AmiGO/External/JSON/Solr/GOlr/Document.pm)
             File: GOlr/SafeQuery.pm  (AmiGO/External/JSON/Solr/GOlr/SafeQuery.pm)
             File: GOlr/Search.pm  (AmiGO/External/JSON/Solr/GOlr/Search.pm)
