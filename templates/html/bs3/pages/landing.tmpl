@@ -94,7 +94,7 @@
   <div class="row">
 
     <!-- TE -->
-    <div class="[% two_row_classes %]">
+    <div class="[% three_row_classes %]">
       <div class="panel panel-default">
 	<div class="panel-heading">
 	  <h3 class="panel-title">Term Enrichment Service</h3>
@@ -172,10 +172,18 @@
     
     <!-- stat -->
     [% landing_item_header = "Statistics" %]
-    [% landing_item_classes = two_row_classes %]
+    [% landing_item_classes = three_row_classes %]
     [% landing_item_image = image_dir _ "/stats-generic.50.png" %]
     [% landing_item_body = "View the most recent <strong>statistics</strong> about the Gene Ontology data on the main site." %]
     [% landing_item_link = "http://beta.geneontology.org/page/current-go-statistics" %]
+    [% INCLUDE "common/landing_item.tmpl" %]
+    
+    <!-- stat -->
+    [% landing_item_header = "And Much More..." %]
+    [% landing_item_classes = three_row_classes %]
+    [% landing_item_image = image_dir _ "/tools.50.png" %]
+    [% landing_item_body = "Many <strong>more tools</strong> are available from the software list, such as Bulk Search, Visualize, and non-JavaScript pages." %]
+    [% landing_item_link = interlink_tools %]
     [% INCLUDE "common/landing_item.tmpl" %]
     
     <!--       <a href="[% base %]/amigo/visualize"> -->
