@@ -2,8 +2,6 @@
 
 [% INCLUDE common/noscript_js_necessary.tmpl %]
 
-[% INCLUDE common/noscript_js_limited_search.tmpl %]
-
 [% rollup_id = "info_header" %]
 [% rollup_anchor = "Information about <strong>" _ personality_name _  "</strong> bulk search" %]
 [% INCLUDE "common/info_rollup_start.tmpl" %]
@@ -26,8 +24,48 @@
 <div class="panel panel-default">
   <div class="panel-body">
     
-    <div id="display-general-search">
-      Pending...
+    <div class="row">
+      <form role="form" method="GET" action="[% interlink_rte %]">
+
+	<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+
+	  <!-- TODO: add "has-error" -->
+	  <div class="form-group[% IF rte_input OR first_time_p %][% ELSE %][% END %]">
+	    <label for="rte_input">[% personality_name %] identifiers</label>
+	    <textarea
+	       id="rte_input"
+	       class="form-control"
+	       rows="15"
+	       placeholder="[% personality_name %] identifiers..."
+	       name="input">[% rte_input %]</textarea>
+	  </div>
+
+	  <button id="submit-button" type="submit"
+		  class="btn btn-default disabled">Submit</button>
+
+	</div>
+	
+	<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+	  <div>
+	    <h4>Search filters</h4>
+	    
+	    <div id="input-filter-accordion">
+	      Loading...
+	    </div>
+
+	  </div>	  
+	</div>
+
+	<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">	  
+	  <h4>Search fields</h4>
+
+	  <div id="input-query-fields" class="checkbox">
+	    Loading...
+	  </div>
+	  
+	</div>
+
+      </form>      
     </div>
   
   </div>
