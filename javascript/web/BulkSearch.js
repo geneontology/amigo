@@ -67,7 +67,11 @@ function BulkSearchInit(){
     // 	'spinner_shield_message' : 'Loading and using this widget may take a long time on some large filter sets. If it takes too long, please close it and further narrow your results using other facets or the text search.<br />Waiting...',
     // 	'spinner_shield_source' : sd.image_base() + '/waiting_ajax.gif'
     // };
-    // var search = new bbop.widget.search_pane(solr_server, gconf, div_id, hargs);
+    var hargs = {
+	
+    };
+    var search = new bbop.widget.live_filters(solr_server, gconf,
+					      filter_accordion, hargs);
     // // We like highlights; they should be included automatically
     // // through the widget.
     // search.include_highlighting(true);
@@ -91,6 +95,8 @@ function BulkSearchInit(){
 	// // _on_search_select(global_live_search_personality);
 	// search.set_personality(global_live_search_personality);
 	// search.lite(true);
+	search.set_personality(global_bulk_search_personality);
+	search.establish_display();
 
 	// Add search fields to input form.
 	jQuery(input_fields_elt).empty();	
