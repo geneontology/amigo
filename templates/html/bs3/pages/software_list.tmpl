@@ -138,25 +138,6 @@
     made templates.
   </li>
   
-  <li class="list-group-item">
-    <p>
-      <strong>Bulk search</strong> the GO data for groups of identifiers.
-    </p>
-    <ul class="list-unstyled">
-      [% FOREACH a2_search_blob = search_layout_list %]
-      [%   a2_search_id = a2_search_blob.id %]
-      [%   a2_search_name = a2_search_blob.display_name %]
-      [%   a2_search_desc = a2_search_blob.description %]
-      [%   a2_search_link = a2_search_blob.amigo_bulk_search_interlink %]
-      <li>
-	<a href="[% a2_search_link %]"
-	   title="[% a2_search_desc %]">[% a2_search_name %]</a>:
-	[% a2_search_desc %]
-      </li>
-      [% END %]
-    </ul>
-  </li>
-  
 </ul>
 
 <h2>Instance information</h2>
@@ -225,6 +206,25 @@
 <!-- <h3>Beta features being tested and functional demos:</h3> -->
 
 <ul class="list-group">
+  
+  <li class="list-group-item">
+    <p>
+      <strong>Bulk search</strong> the GO data for groups of identifiers.
+    </p>
+    <ul class="list-unstyled">
+      [% FOREACH a2_search_blob = search_layout_list %]
+      [%   a2_search_id = a2_search_blob.id %]
+      [%   a2_search_name = a2_search_blob.display_name %]
+      [%   a2_search_desc = a2_search_blob.description %]
+      [%   a2_search_link = a2_search_blob.amigo_bulk_search_interlink %]
+      <li>
+	<a href="[% a2_search_link %]"
+	   title="[% a2_search_desc %]">[% a2_search_name %]</a>:
+	[% a2_search_desc %]
+      </li>
+      [% END %]
+    </ul>
+  </li>
   
   <li class="list-group-item">
     <a href="[% interlink_browse %]">Browse</a> the Gene Ontology
