@@ -18309,6 +18309,10 @@ bbop.core.extend(bbop.widget.search_pane, bbop.golr.manager.jquery);
  * Very much like a separated accordion and filter from the search
  * pane.
  * 
+ * This is a Bootstrap 3 widget.
+ * 
+ * TODO/BUG: Needs a wait spinner to something.
+ * 
  * See Also:
  *  <search_pane.js>
  *  <live_search.js>
@@ -18929,7 +18933,8 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
     			 // Create ul lists of the facet contents.
     			 var tbl_id = mangle + 'filter-list-' + in_field;
     			 var facet_list_tbl_attrs = {
-    			     id: tbl_id
+			     'class': 'table table-hover table-striped table-condensed',
+    			     'id': tbl_id
     			 };
 
     			 var facet_list_tbl =
@@ -18980,15 +18985,23 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
     				      // activation with callbacks to
     				      // the manager.
     				      var b_plus =
-    					  bbop.widget.display.clickable_object(
+    					  new bbop.html.button(
     					      ui_icon_positive_label,
-    					      ui_icon_positive_source,
-    					      null); // generate_id
+					      {
+						  'generate_id': true,
+						  'type': 'button',
+						  'class':
+						  'btn btn-success btn-xs'
+					      });
     				      var b_minus =
-    					  bbop.widget.display.clickable_object(
+    					  new bbop.html.button(
     					      ui_icon_negative_label,
-    					      ui_icon_negative_source,
-    					      null); // generate_id
+					      {
+						  'generate_id': true,
+						  'type': 'button',
+						  'class':
+						  'btn btn-danger btn-xs'
+					      });
 				      
     				      // Store in hash for later keying to
     				      // event.
@@ -19027,11 +19040,16 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
     				      // add a span that can be clicked on
     				      // to get the full filter list.
     				      //ll("Overflow for " + in_field);
-    				      var bgn =
-					  bbop.widget.display.text_button_sim;
-    				      var b_over =
-    					  new bgn('more...',
-    						  'Display the complete list');
+    				      var b_over = new bbop.html.button(
+    					  'more...',
+					  {
+					      'generate_id': true,
+					      'type': 'button',
+					      'title':
+					      'Display the complete list',
+					      'class':
+					      'btn btn-default btn-xs'
+					  });
     				      facet_list_tbl.add_to([b_over.to_string(),
     				  			     '', '']);
     				      overflow_hash[b_over.get_id()] = in_field;
@@ -19199,10 +19217,16 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
 
 		// First, we need to make the filter clear button for the top
 		// of the table.
-		var b_cf =
-		    new bbop.widget.display.text_button_sim('X', 
-							    'Clear all user filters',
-							    clear_user_filter_span_id);
+		var b_cf = new bbop.html.button('&times;',
+						{
+		     				    'type': 'button',
+						    'id':
+						    clear_user_filter_span_id,
+						    'class':
+						    'btn btn-danger btn-xs',
+						    'title':
+						    'Clear all user filters'
+						});
 
 		var in_query_filters = response.query_filters();
 		//var sticky_query_filters = manager.get_sticky_query_filters();
@@ -19210,7 +19234,8 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
 		var fq_list_tbl =
 		    new bbop.html.table(['', 'User filters', b_cf.to_string()],
 					[],
-				       	{'class': 'bbop-js-search-pane-filter-table'});
+//				       	{'class': 'bbop-js-search-pane-filter-table'});
+				       	{'class': 'table table-hover table-striped table-condensed'});
 		var has_fq_p = false; // assume there are no filters to begin with
 		var button_hash = {};
 		each(in_query_filters,
@@ -19229,21 +19254,24 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
 				      has_fq_p = true;
 
 				      // Boolean value to a character.
-				      var polstr = '-';
-				      if( polarity ){ polstr = '+'; }
+				      var polstr = '&minus;';
+				      if( polarity ){ polstr = '&plus;'; }
 
-				      // Generate a button with a unique id.
-				      var label_str = polstr+' '+ field +':'+field_val;
 
 				      // Argh! Real jQuery buttons are way too slow!
 				      // var b = new bbop.html.button('remove filter',
 				      // 		  {'generate_id': true});
 
-				      // Is the "button" a span or an image?
-				      var b = bbop.widget.display.clickable_object(
+				      // Generate a button with a unique id.
+				      var b = new bbop.html.button(
 					  ui_icon_remove_label,
-					  ui_icon_remove_source,
-					  null); // generate_id
+					  {
+					      'generate_id': true,
+					      'type': 'button',
+					      'title': 'Remove filter',
+					      'class':
+					      'btn btn-danger btn-xs'
+					  });
 
 				      // Tie the button it to the filter for
 				      // jQuery and events attachment later on.
@@ -19252,7 +19280,7 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
 	
 				      //ll(label_str +' '+ bid);
 				      //fq_list_tbl.add_to(label_str +' '+ b.to_string());
-				      fq_list_tbl.add_to(['<b>'+ polstr +'</b>',
+				      fq_list_tbl.add_to(['<strong>'+ polstr +'</strong>',
 							  field + ': ' + field_val,
 							  b.to_string()]);
 				      //label_str +' '+ b.to_string());
@@ -19337,7 +19365,7 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
     	    var fq_list_tbl =
     		new bbop.html.table(['', 'Your search is pinned to these filters'],
     				    [],
-    			       	    {'class': 'bbop-js-search-pane-filter-table'});
+    			       	    {'class': 'table table-hover table-striped table-condensed'});
     	    // [{'filter': A, 'value': B, 'negative_p': C, 'sticky_p': D}, ...]
     	    each(sticky_query_filters,
     		 function(fset){
@@ -19348,8 +19376,8 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
 
     		     // Boolean value to a character.
     		     var polarity = fset['negative_p'];
-    		     var polstr = '+';
-    		     if( polarity ){ polstr = '-'; }
+    		     var polstr = '&minus;';
+    		     if( polarity ){ polstr = '&plus;'; }
 
     		     // Generate a button with a unique id.
     		     var label_str = polstr + ' ' + sfield + ':' + sfield_val;
