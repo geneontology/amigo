@@ -1884,7 +1884,7 @@ bbop.version.revision = "2.1.0";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20140505";
+bbop.version.release = "20140506";
 /*
  * Package: logger.js
  * 
@@ -19059,7 +19059,7 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
 					      'title':
 					      'Display the complete list',
 					      'class':
-					      'btn btn-default btn-xs'
+					      'btn btn-primary btn-xs'
 					  });
     				      facet_list_tbl.add_to([b_over.to_string(),
     				  			     '', '']);
