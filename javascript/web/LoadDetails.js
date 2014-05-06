@@ -14,5 +14,5 @@ function LoadDetailsInit(){
     jQuery('#' + 'details_ont').tablesorter(); 
     jQuery('#' + 'details_gaf').tablesorter(); 
     
-    ll('LoadDetailsInit done.');
+    //ll('LoadDetailsInit done.');
 }
