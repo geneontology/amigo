@@ -16604,27 +16604,39 @@ bbop.widget.filter_table = function(elt_id, table_id, img_src,
     // Create a label, input field, and a clear button.
     var input_attrs = {
 	'type': 'text',
-	'class': 'textBox',
-	'value': "",
+	'class': 'form-control bbop-js-filter-table-input',
+	'value': '',
 	'generate_id': true
     };
     var input = new bbop.html.input(input_attrs);
+
     var lbl_attrs = {
 	'for': input.get_id(),
 	'generate_id': true
     };
-    var lbl = new bbop.html.tag('label', lbl_attrs);
-    lbl.add_to(anchor.label);
+    var lbl = new bbop.html.tag('label', lbl_attrs, anchor.label);
+
+    var clear_button_attrs ={
+	'type': 'button',
+	'class': 'btn btn-danger',
+	'title': 'Clear filter',
+	'generate_id': true
+    };
     var clear_button =
-	new bbop.widget.display.text_button_sim('X', 'Clear filter');
+	//new bbop.widget.display.text_button_sim('&times;', 'Clear filter');
+	new bbop.html.button('&times;', clear_button_attrs);
+
+    var cont_attrs = {
+	'class': 'form-inline'
+    };
+    var cont = new bbop.html.tag('div', cont_attrs, [lbl, input,
+						     clear_button]);
 
     ll('widget gen done');
 
     // And add them to the DOM at the location.
     jQuery('#' + elt_id).empty();
-    jQuery('#' + elt_id).append(lbl.to_string());
-    jQuery('#' + elt_id).append(input.to_string());
-    jQuery('#' + elt_id).append(clear_button.to_string());
+    jQuery('#' + elt_id).append(cont.to_string());
 
     // Also, attach a spinner.
     var spinner = null;
