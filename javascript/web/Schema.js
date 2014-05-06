@@ -52,11 +52,6 @@ function SchemaInit(){
 	return retval;
     }
 
-    function _recolor_table(tid){
-	jQuery('table#' + tid + ' tr:even').attr('class', 'even_row');
-	jQuery('table#' + tid + ' tr:odd').attr('class', 'odd_row');
-    }
-
     //ll('');
     ll('SchemaInit start...');
 
@@ -190,7 +185,8 @@ function SchemaInit(){
 
     // Generate the table itself.
     var tbl_attrs = {
-	generate_id: true
+	generate_id: true,
+	'class': 'table table-hover table-striped'
     };
     var tbl = new bbop.html.tag('table', tbl_attrs);
     tbl.add_to(thead);
@@ -207,21 +203,13 @@ function SchemaInit(){
     /// Sorting, coloring, etc.
     ///
 
-    // Apply a first round of coloring.
-    _recolor_table(tbl.get_id());
-
     // Apply the tablesorter to what we got.
     jQuery('#' + tbl.get_id()).tablesorter(); 
-    // Recolor on sort.
-    jQuery('#' + tbl.get_id()).bind("sortEnd",
-				    function(){ 
-					_recolor_table(tbl.get_id());
-				    });
 
     // Add filtering to table.
     var ft = new bbop.widget.filter_table(filter_inject_id, tbl.get_id(),
 					  sd.image_base() + '/waiting_ajax.gif',
-					  null, 'Filter:');
+					  null, 'Filter:&nbsp;');
     
     ll('SchemaInit done.');
 }

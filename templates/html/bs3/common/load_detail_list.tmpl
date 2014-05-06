@@ -1,5 +1,5 @@
 <!-- Begin: load_detail_list.tmpl -->
-<table id="[% list_table_id %]">
+<table id="[% list_table_id %]" class="table table-hover table-striped">
   <thead>
     <tr>
       <th>version<img style="border: 0px;" src="[% image_dir %]/reorder.gif" title="Reorder by version" alt="[Reorder by version]" /></th>
@@ -8,14 +8,8 @@
     </tr>
   </thead>
   <tbody>
-    [% i = 0 %]
     [% FOREACH item IN load_detail_list %]
-    [%    IF i % 2 == 0 %]
-    <tr class="even_row">
-    [%    ELSE %]
-    <tr class="odd_row">
-      [%  END %]
-      [% i = i + 1 %]
+    <tr>
       <td>[% item.version %]</td>
       <td>[% item.time %]</td>
       <td>[% item.file %]</td>
