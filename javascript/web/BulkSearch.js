@@ -68,7 +68,9 @@ function BulkSearchInit(){
     // 	'spinner_shield_source' : sd.image_base() + '/waiting_ajax.gif'
     // };
     var hargs = {
-	
+	meta_label: 'Remaining:&nbsp;',
+	free_text_placeholder:
+	'Input text to filter against all remaining documents'
     };
     var search = new bbop.widget.live_filters(solr_server, gconf,
 					      filter_accordion, hargs);

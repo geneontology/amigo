@@ -4276,6 +4276,7 @@ bbop.html.collapsible.prototype.add_to = function(section_info,
     //    <div class="panel-body">
     var body_attrs = {
     	'class': 'panel-body',
+	'style': 'overflow-x: auto;', // emergency overflow scrolling
     	'id': cont_id
     };
     var body = new bbop.html.tag('div', body_attrs, content_blob);
@@ -18374,8 +18375,10 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
     // Our argument default hash.
     var default_hash =
 	{
+	    'meta_label': 'Documents:&nbsp;',
 	    'display_meta_p': true,
 	    'display_free_text_p': true,
+	    'free_text_placeholder': 'Free-text filter',
 	    'display_accordion_p': true,
 	    'minimum_free_text_length': 3, // wait for three characters or more
 	    'on_update_callback': function(){}
@@ -18385,7 +18388,9 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
     // 
     this._interface_id = interface_id;
     this._display_meta_p = arg_hash['display_meta_p'];
+    this._meta_label = arg_hash['meta_label'];
     this._display_free_text_p = arg_hash['display_free_text_p'];
+    this._free_text_placeholder = arg_hash['free_text_placeholder'];
     this._display_accordion_p = arg_hash['display_accordion_p'];
     this._minimum_free_text_length = arg_hash['minimum_free_text_length'];
     this._on_update_callback = arg_hash['on_update_callback'];
@@ -18459,16 +18464,6 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
     // 					  ui_spinner_search_source,
     // 					  spinner_args);
     // }
-    // function _spin_up(){
-    // 	if( spinner ){
-    // 	    spinner.start_wait();
-    // 	}
-    // }
-    // function _spin_down(){
-    // 	if( spinner ){
-    // 	    spinner.finish_wait();
-    // 	}
-    // }
 
     // // Additional id hooks for easy callbacks. While these are not as
     // // easily changable as the above, we use them often enough and
@@ -18478,7 +18473,21 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
     // // These pointers are used in multiple functions (e.g. both
     // // *_setup and *_draw).
     var filter_accordion_widget = null;
+    var spinner_div = null;
     // //var current_filters_div = null;
+
+    function _spin_up(){
+    	if( spinner_div ){
+	    jQuery('#' + spinner_div.get_id()).removeClass('hidden');
+	    jQuery('#' + spinner_div.get_id()).addClass('active');
+    	}
+    }
+    function _spin_down(){
+    	if( spinner_div ){
+	    jQuery('#' + spinner_div.get_id()).addClass('hidden');
+	    jQuery('#' + spinner_div.get_id()).removeClass('active');
+    	}
+    }
 
     /*
      * Function: establish_display
@@ -18521,13 +18530,13 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
 	    var ms_attrs = {
 		id: meta_count_id,
 		//'class': 'label label-default pull-right'
-		'class': 'label label-default'
+		//'class': 'label label-default'
+		'class': 'badge'
 	    };
-	    var ms = new bbop.html.tag('div', ms_attrs, 'n/a');
+	    var ms = new bbop.html.tag('span', ms_attrs, 'n/a');
 
-	    // Get a progress bar assembled.	
-	    var inspan = new bbop.html.tag('span', {'class': 'sr-only'},
-				   'Loading...');
+	    // Get a progress bar assembled.
+	    var inspan = new bbop.html.tag('span', {'class': 'sr-only'}, '...');
 	    var indiv = new bbop.html.tag('div', {'class': 'progress-bar',
 						  'role': 'progressbar',
 						  'aria-valuenow': '100',
@@ -18535,18 +18544,21 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
 						  'aria-valuemax': '100',
 						  'style': 'width: 100%;'},
 					  inspan);
-	    var prog =
+	    spinner_div =
 		new bbop.html.tag('div',
-				  {'class': 'progress progress-striped active'
-				  },//'style': '3em;'},
+				  {'generate_id': true,
+				   'class':
+				   'progress progress-striped active pull-right',
+				   'style': 'width: 3em;'},
 				  indiv);
 
-	    // The container area.
+	    // The container area; add in the label and count.
 	    var mdiv_args = {
 		'class': 'well well-sm',
 		'id': meta_div_id
 	    };
-	    var mdiv = new bbop.html.tag('div', mdiv_args, [ms]);
+	    var mdiv = new bbop.html.tag('div', mdiv_args,
+					 [this._meta_label, ms, spinner_div]);
 	    
 	    jQuery('#' + container_div.get_id()).append(mdiv.to_string());
 	};
@@ -18559,13 +18571,13 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
 	// 
 	// If no icon_clear_source is defined, icon_clear_label will be
 	// used as the defining text.
-	this.setup_query = function(label_str){
+	this.setup_query = function(){
 	    ll('setup_query for: ' + query_input_div_id);
 	    
-	    // Some defaults.
-	    if( ! label_str ){ label_str = ''; }
-	    // if( ! icon_clear_label ){ icon_clear_label = ''; }
-	    // if( ! icon_clear_source ){ icon_clear_source = ''; }
+	    // // Some defaults.
+	    // if( ! label_str ){ label_str = ''; }
+	    // // if( ! icon_clear_label ){ icon_clear_label = ''; }
+	    // // if( ! icon_clear_source ){ icon_clear_source = ''; }
 	    
 	    // The incoming label.
 	    var query_label_attrs = {
@@ -18576,7 +18588,7 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
 	    // The text area.
 	    var ta_args = {
 		//'class': 'bbop-js-search-pane-textarea',
-		'placeholder': label_str,
+		'placeholder': this._free_text_placeholder,
 		'class': 'form-control',
 		'id': query_input_div_id
 	    };
@@ -18611,8 +18623,7 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
 	    jQuery('#' + container_div.get_id()).append(gen_div.to_string());
 	};
 	if( this._display_free_text_p ){
-	    this.setup_query('Foo!');
-	    //this.setup_query();
+	    this.setup_query();
 	}
 
 	// Setup sticky filters display under contructed tags for later
@@ -18842,7 +18853,7 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
     			    manager.search();
 
     			    // We are now searching--show it.
-    			    //_spin_up();
+    			    _spin_up();
     			}else{
     			    ll('rolling back query: ' + tmp_q);		    
     			    manager.set_query(tmp_q);
@@ -18859,7 +18870,7 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
     		    anchor.set_query_field('');
     		    manager.search();
     		    // We are now searching--show it.
-    		    //_spin_up();
+    		    _spin_up();
     		});
 	};
 	if( this._display_free_text_p ){
@@ -19131,7 +19142,7 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
     			  			 [call_polarity]);
     			manager.search();
     			// We are now searching--show it.
-    			//_spin_up();
+    			_spin_up();
     		    });
     	    }
 
@@ -19305,7 +19316,7 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
 	   		    manager.reset_query_filters();
 	   		    manager.search();
 			    // We are now searching--show it.
-			    //_spin_up();
+			    _spin_up();
 			}		
 		    );
 
@@ -19338,7 +19349,7 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
 				     manager.remove_query_filter(field, value);
 				     manager.search();
 				     // We are now searching--show it.
-				     //_spin_up();
+				     _spin_up();
 				 });
 			 });
 		}
@@ -19404,6 +19415,31 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
     	    anchor.register('search', 'sticky_first',
 			    this.draw_sticky_filters, 3);
 	}
+
+	/*
+	 * Function: draw_error
+	 *
+	 * Somehow report an error to the user.
+	 * 
+	 * Parameters:
+	 *  error_message - a string(?) describing the error
+	 *  manager - <bbop.golr.manager> that we initially registered with
+	 *
+	 * Returns:
+	 *  n/a
+	 */
+	this.draw_error = function(error_message, manager){
+    	    ll("draw_error: " + error_message);
+    	    alert("Runtime error: " + error_message);
+    	    _spin_down();
+	};
+    	anchor.register('error', 'error_first', this.draw_error, 0);
+
+	// 
+	function spin_down_wait(){
+	    _spin_down();
+	}
+    	anchor.register('search', 'donedonedone', spin_down_wait, -100);
 
 	///
     	// /// Things to do on every reset event. Essentially re-draw
@@ -19515,24 +19551,6 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
     // 	manager.reset_query();
 
     // 	anchor.draw_query(response, manager);
-    // };
-
-    // /*
-    //  * Function: draw_error
-    //  *
-    //  * Somehow report an error to the user.
-    //  * 
-    //  * Parameters:
-    //  *  error_message - a string(?) describing the error
-    //  *  manager - <bbop.golr.manager> that we initially registered with
-    //  *
-    //  * Returns:
-    //  *  n/a
-    //  */
-    // this.draw_error = function(error_message, manager){
-    // 	ll("draw_error: " + error_message);
-    // 	alert("Runtime error: " + error_message);
-    // 	_spin_down();
     // };
 
     // /*
