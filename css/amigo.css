@@ -65,15 +65,6 @@ a:hover .hilite, a:active .hilite {
     /* margin-bottom: 5px; */
 }
 
-.amigo-grebe-action-icon {
-    cursor: pointer;
-    height: 25px;
-    vertical-align:middle;
-}
-.amigo-grebe-input-box {
-    border:1px solid black;
-}
-
 /* .amigo-facet-matrix-bookmark-list { */
 /* } */
 

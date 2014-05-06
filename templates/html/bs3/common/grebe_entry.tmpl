@@ -4,6 +4,10 @@
 [% ELSE %]
 <li class="list-group-item odd_row">
 [% END %]
-[% grebe_question %]
+<div class="form-inline">
+  <div class="form-group">
+    [% grebe_question %]
+  </div>
+</div>
 </li>
 [% IF VERBOSE %]<!-- END: grebe_entry.tmpl -->[% END %]

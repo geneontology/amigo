@@ -171,7 +171,7 @@ function GrebeInit(){
 	     
 	     // Finally, set the icon to open a new window when
 	     // clicked.
-	     jQuery('#' + question_id).find('.amigo-grebe-action-icon').click(
+	     jQuery('#' + question_id).find('.amigo-grebe-action').click(
 		 function(){
 
 		     // First, create a new manager for this line item.

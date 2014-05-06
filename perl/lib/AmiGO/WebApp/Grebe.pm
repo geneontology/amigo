@@ -137,9 +137,10 @@ sub mode_grebe {
 	my $to = '<input id="'. $field_id . '"' .
 	  ' type="text"' .
 	    ' placeholder="' . $field_placeholder . '"' .
-	      ' class="amigo-grebe-input-box amigo-grebe-tooltip"' .
+	      ' class="form-control amigo-grebe-tooltip"'.
 		' title="Hint: add a space after completing a word to' .
 		  ' narrow the search."' .
+		    ' style="width: 10em;"' .
 		    '>';
 	my $ind = index($question, $from);
 	substr($question, $ind, length($from)) = $to;
@@ -151,8 +152,10 @@ sub mode_grebe {
       ## Finally, tag the jump image onto the end.
       $question_info->{'question'} = '<span id="' .
 	$question_id . '">' .
-	  $question_info->{'question'} . ' ' .
-	    '<img class="amigo-grebe-action-icon" title="Jump to AmiGO 2 Search" alt="[search]" src="' . $self->{CORE}->amigo_env('AMIGO_IMAGE_URL') . '/info-jump.png" />' . '</span>';
+	  $question_info->{'question'} . ' &nbsp;&nbsp;' .
+	    # '<img class="amigo-grebe-action-icon" title="Jump to AmiGO 2 Search" alt="[search]" src="' . $self->{CORE}->amigo_env('AMIGO_IMAGE_URL') . '/info-jump.png" />' .
+	    '<button type="button" class="amigo-grebe-action btn btn-primary" title="Jump to AmiGO 2 Search" alt="[search]">Go &raquo;</button>' .
+	      '</span>';
     }
   }
 
