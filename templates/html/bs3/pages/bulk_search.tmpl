@@ -31,12 +31,12 @@
 
 	  <!-- TODO: add "has-error" -->
 	  <div class="form-group[% IF rte_input OR first_time_p %][% ELSE %][% END %]">
-	    <label for="rte_input">[% personality_name %] identifiers</label>
+	    <label for="rte_input">Identifiers for [% personality_name %]</label>
 	    <textarea
 	       id="rte_input"
 	       class="form-control"
 	       rows="15"
-	       placeholder="[% personality_name %] identifiers..."
+	       placeholder="ID1 ID2 ID3..."
 	       name="input">[% rte_input %]</textarea>
 	  </div>
 
