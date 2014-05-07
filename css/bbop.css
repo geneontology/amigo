@@ -226,6 +226,10 @@
     outline: red solid 3px;
 }
 
+.bbop-js-live-filters-textarea {
+    height: 1em;
+}
+
 /* Actually make the input box visible given all of the stuff above. */
 /* To some extent, this needs to be relative */
 /* to the size of .twocol-leftcolumn */
