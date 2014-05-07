@@ -1884,7 +1884,7 @@ bbop.version.revision = "2.1.0";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20140506";
+bbop.version.release = "20140507";
 /*
  * Package: logger.js
  * 
@@ -7073,8 +7073,8 @@ bbop.layout.sugiyama.bmatrix = function(object_vertex_partition,
     function ll(str){ logger.kvetch(str); }
 
     var relation_matrix = {};
-    var object_vector = object_vertex_partition;
-    var subject_vector = subject_vertex_partition;
+    var object_vector = object_vertex_partition || [];
+    var subject_vector = subject_vertex_partition || [];
 
     for( var i = 0; i < edge_partition.length; i++ ){
 
@@ -14907,6 +14907,7 @@ bbop.widget.display.live_search = function(interface_id, conf_class){
 	// The text area.
 	var ta_args = {
 	    'id': ui_query_input_id,
+	    'rows': '1',
 	    'class': 'bbop-js-search-pane-textarea'
 	};
 	var query_area = new bbop.html.tag('textarea', ta_args);
