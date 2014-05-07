@@ -18602,7 +18602,9 @@ bbop.widget.live_filters = function(golr_loc, golr_conf_obj,
 	    var ta_args = {
 		//'class': 'bbop-js-search-pane-textarea',
 		'placeholder': this._free_text_placeholder,
-		'class': 'form-control',
+		'class': 'form-control bbop-js-live-filters-textarea',
+		//'style': 'height: 1em;',
+		'rows': '1',
 		'id': query_input_div_id
 	    };
 	    var query_area = new bbop.html.tag('textarea', ta_args);
