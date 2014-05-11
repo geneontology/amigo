@@ -243,6 +243,7 @@ sub mode_free_browse {
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('CytoDraw.js'),
       $self->{JS}->get_lib('FreeBrowse.js')
      ],
      javascript_init =>

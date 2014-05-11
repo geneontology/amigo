@@ -26,12 +26,23 @@ function FreeBrowseInit(){
     var each = bbop.core.each;
 
     function jumper(doc){
+
+	// Extract data.
 	var term_to_draw = doc['annotation_class'];
 	var graph_json = doc['topology_graph_json'];
+
+	// Add to global graph.
 	var new_graph = new bbop.model.graph();
 	new_graph.load_json(JSON.parse(graph_json));
 	add_to_graph(new_graph, term_to_draw);
-	draw_graph();
+
+	// Figure out layout.
+	var lchoice = jQuery('#layout_input').val();
+
+	// Render.
+	CytoDraw(graph, bbop.core.get_keys(focus_nodes),
+		 lchoice, context, 'grcon',
+		 _start_wait, _stop_wait, man);
     }
 
     function on_list_select(doc){
@@ -39,11 +50,18 @@ function FreeBrowseInit(){
 	jQuery('#jumper').val(term_to_draw);
     }
 
-    //    
+    // Define spinner and helper functions; stop first wait.
     var spin =
 	new bbop.widget.spinner("spn", sd.image_base() + '/waiting_ajax.gif');
     spin.hide();
-   
+    function _start_wait(){
+	spin.show();
+    }
+    function _stop_wait(){
+	spin.hide();
+    }
+    _stop_wait();
+
     //
     var man = new bbop.golr.manager.jquery(sd.golr_base(), gconf);
     man.add_query_filter('document_category', 'ontology_class');
@@ -80,211 +98,211 @@ function FreeBrowseInit(){
 	graph.merge_in(new_graph);
     }
 
-    function draw_graph(){
+    // function draw_graph(){
 
-	ll('in');
+    // 	ll('in');
 
-	// First, figure out what layout to use.
-	var lchoice = jQuery('#layout_input').val();
+    // 	// First, figure out what layout to use.
+    // 	var lchoice = jQuery('#layout_input').val();
 
-	// Get the layout information into the position object
-	// required by cytoscape.js for sugiyama in grid, if required.
-	var position_object = {};
-	if( lchoice == 'sugiyama' ){
-	    var renderer = new bbop.layout.sugiyama.render();
-	    var layout = renderer.layout(graph);
-	    var layout_nodes = layout.nodes;
-	    each(layout_nodes,
-		 function(ln){
-		     position_object[ln['id']] = {x: ln['x'], y: ln['y']};
-		 });
-	}
-	function get_pos(cn){
-	    var po = position_object[cn.id()];
-	    return {row: po['y'], col: po['x']};
-	}
+    // 	// Get the layout information into the position object
+    // 	// required by cytoscape.js for sugiyama in grid, if required.
+    // 	var position_object = {};
+    // 	if( lchoice == 'sugiyama' ){
+    // 	    var renderer = new bbop.layout.sugiyama.render();
+    // 	    var layout = renderer.layout(graph);
+    // 	    var layout_nodes = layout.nodes;
+    // 	    each(layout_nodes,
+    // 		 function(ln){
+    // 		     position_object[ln['id']] = {x: ln['x'], y: ln['y']};
+    // 		 });
+    // 	}
+    // 	function get_pos(cn){
+    // 	    var po = position_object[cn.id()];
+    // 	    return {row: po['y'], col: po['x']};
+    // 	}
 	
-	// Nodes.
-	var cyroots = [];
-	var cynodes = [];
-	var info_lookup = {};
-	each(graph.all_nodes(),
-	     function(node){
-		 ll('node: ' + node.id());
-		 info_lookup[node.id()] = {
-		     'id': node.id(), 
-		     'label': node.label() || node.id()
-		 };
-		 if( graph.is_root_node(node.id()) ){
-		     cyroots.push(node.id());
-		 }
-		 var node_opts = {
-		     //'group': 'nodes',
-		     'data': {
-			 'id': node.id(), 
-			 'label': node.label() || node.id()
-		     },
-		     'grabbable': true
-		 };
-		 // Highlight the focus if there.
-		 if( focus_nodes[node.id()] ){
-		     node_opts['css'] = { 'background-color': '#111111' };
-		 }
-		 cynodes.push(node_opts);
-	     });
+    // 	// Nodes.
+    // 	var cyroots = [];
+    // 	var cynodes = [];
+    // 	var info_lookup = {};
+    // 	each(graph.all_nodes(),
+    // 	     function(node){
+    // 		 ll('node: ' + node.id());
+    // 		 info_lookup[node.id()] = {
+    // 		     'id': node.id(), 
+    // 		     'label': node.label() || node.id()
+    // 		 };
+    // 		 if( graph.is_root_node(node.id()) ){
+    // 		     cyroots.push(node.id());
+    // 		 }
+    // 		 var node_opts = {
+    // 		     //'group': 'nodes',
+    // 		     'data': {
+    // 			 'id': node.id(), 
+    // 			 'label': node.label() || node.id()
+    // 		     },
+    // 		     'grabbable': true
+    // 		 };
+    // 		 // Highlight the focus if there.
+    // 		 if( focus_nodes[node.id()] ){
+    // 		     node_opts['css'] = { 'background-color': '#111111' };
+    // 		 }
+    // 		 cynodes.push(node_opts);
+    // 	     });
 
-	// Edges.
-	var cyedges = [];
-	each(graph.all_edges(),
-	     function(edge){
-		 var sub = edge.subject_id();
-		 var obj = edge.object_id();
-		 var prd = edge.predicate_id();
-		 var clr = context.color(prd);
-                 var eid = '' + prd + '_' + sub + '_' + obj;
-		 ll('edge: ' + eid);
-		 cyedges.push(
-                     {
-			 //'group': 'edges',
-			 'data': {
-                             'id': eid,
-                             'pred': prd,
-                             // 'source': sub,
-                             // 'target': obj
-                             'source': obj,
-                             'target': sub
-			 },
-			 css: {
-			     'line-color': clr
-			 }
-                     });
-	     });
+    // 	// Edges.
+    // 	var cyedges = [];
+    // 	each(graph.all_edges(),
+    // 	     function(edge){
+    // 		 var sub = edge.subject_id();
+    // 		 var obj = edge.object_id();
+    // 		 var prd = edge.predicate_id();
+    // 		 var clr = context.color(prd);
+    //              var eid = '' + prd + '_' + sub + '_' + obj;
+    // 		 ll('edge: ' + eid);
+    // 		 cyedges.push(
+    //                  {
+    // 			 //'group': 'edges',
+    // 			 'data': {
+    //                          'id': eid,
+    //                          'pred': prd,
+    //                          // 'source': sub,
+    //                          // 'target': obj
+    //                          'source': obj,
+    //                          'target': sub
+    // 			 },
+    // 			 css: {
+    // 			     'line-color': clr
+    // 			 }
+    //                  });
+    // 	     });
 
-	// Render.
-	var elements = {nodes: cynodes, edges: cyedges};
+    // 	// Render.
+    // 	var elements = {nodes: cynodes, edges: cyedges};
 	
-	var layout_opts = {
-	    'sugiyama': {
-                'name': 'grid',
-		'padding': 30,
-		'position': get_pos
-	    },
-	    'breadthfirst': {
-                'name': 'breadthfirst',
-                'directed': true,
-                //'fit': true,
-		//'maximalAdjustments': 0,
-		'circle': false,
-		'roots': cyroots
-	    },
-	    'cose': {
-                'name': 'cose'//,
-                // 'directed': true,
-                // //'fit': true,
-	        // //'maximalAdjustments': 0,
-	        // 'circle': false,
-	        // 'roots': cyroots
-	    }   
-	};
+    // 	var layout_opts = {
+    // 	    'sugiyama': {
+    //             'name': 'grid',
+    // 		'padding': 30,
+    // 		'position': get_pos
+    // 	    },
+    // 	    'breadthfirst': {
+    //             'name': 'breadthfirst',
+    //             'directed': true,
+    //             //'fit': true,
+    // 		//'maximalAdjustments': 0,
+    // 		'circle': false,
+    // 		'roots': cyroots
+    // 	    },
+    // 	    'cose': {
+    //             'name': 'cose'//,
+    //             // 'directed': true,
+    //             // //'fit': true,
+    // 	        // //'maximalAdjustments': 0,
+    // 	        // 'circle': false,
+    // 	        // 'roots': cyroots
+    // 	    }   
+    // 	};
 
-	jQuery('#grcon').cytoscape(
-            {
-		userPanningEnabled: true, // pan over box select
-		'elements': elements,
-		'layout': layout_opts[lchoice],
-		hideLabelsOnViewport: true, // opt
-		hideEdgesOnViewport: true, // opt
-		textureOnViewport: true, // opt
-		'style': [
-                    {
-			selector: 'node',
-			css: {
-                            'content': 'data(label)',
-			    'font-size': 8,
-			    'min-zoomed-font-size': 6, //10,
-                            'text-valign': 'center',
-                            'color': 'white',
-			    'shape': 'roundrectangle',
-                            'text-outline-width': 2,
-                            'text-outline-color': '#222222'
-			}
-                    },
-                    {
-			selector: 'edge',
-			css: {
-                            //'content': 'data(pred)', // opt
-                            'width': 2,
-			    //'curve-style': 'haystack', // opt
-                            'line-color': '#6fb1fc'
-                            //'source-arrow-shape': 'triangle' // opt
-			}
-                    }
-		]
-            });
+    // 	jQuery('#grcon').cytoscape(
+    //         {
+    // 		userPanningEnabled: true, // pan over box select
+    // 		'elements': elements,
+    // 		'layout': layout_opts[lchoice],
+    // 		hideLabelsOnViewport: true, // opt
+    // 		hideEdgesOnViewport: true, // opt
+    // 		textureOnViewport: true, // opt
+    // 		'style': [
+    //                 {
+    // 			selector: 'node',
+    // 			css: {
+    //                         'content': 'data(label)',
+    // 			    'font-size': 8,
+    // 			    'min-zoomed-font-size': 6, //10,
+    //                         'text-valign': 'center',
+    //                         'color': 'white',
+    // 			    'shape': 'roundrectangle',
+    //                         'text-outline-width': 2,
+    //                         'text-outline-color': '#222222'
+    // 			}
+    //                 },
+    //                 {
+    // 			selector: 'edge',
+    // 			css: {
+    //                         //'content': 'data(pred)', // opt
+    //                         'width': 2,
+    // 			    //'curve-style': 'haystack', // opt
+    //                         'line-color': '#6fb1fc'
+    //                         //'source-arrow-shape': 'triangle' // opt
+    // 			}
+    //                 }
+    // 		]
+    //         });
 
-	var cy = jQuery('#grcon').cytoscape('get');
+    // 	var cy = jQuery('#grcon').cytoscape('get');
 
-	// Bind event.
-	cy.nodes().bind('click',
-			function(e){
-			    e.stopPropagation();
-			    var nid = e.cyTarget.id();
-			    man.set_id(nid);
-			    spin.show();
-			    man.search();
-			});
-	cy.nodes().bind('mouseover',
-			function(e){
-			    e.stopPropagation();
-			    var nid = e.cyTarget.id();
-			    var nlbl = info_lookup[nid]['label'];
- 			    var popt = {
-				title: nid,
-				content: nlbl,
-				animation: false,
-				placement: 'top',
-				trigger: 'manual'
-			    };
-			    //jQuery(this).popover(popt);
-			    //jQuery(this).popover('show');
-			    // TODO/BUG: this popover positioning got out of
-			    // hand; just rewrite doing it manually with a
-			    // div from bootstrap like normal people.
-			    // (couldn't do it the obvious way because the
-			    // canvas elements are just layers with nothing
-			    // to adere to).
-			    var epos = e.cyRenderedPosition;
-			    jQuery(e.originalEvent.target).popover(popt);
-			    jQuery(e.originalEvent.target).popover('show');
-			    jQuery('.arrow').hide();
-			    jQuery('.popover').css('top', epos.y -100);
-			    jQuery('.popover').css('left', epos.x -100);
-			    //ll('node: ' + nid);
-			});
-	cy.nodes().bind('mouseout',
-			function(e){
-			    e.stopPropagation();
-			    jQuery(e.originalEvent.target).popover('destroy');
-			});
-	// each(cy.nodes(),
-	//      function(nkey, node){
-	// 	 jQuery(node.element()).popover(popt);
-	//      });
+    // 	// Bind event.
+    // 	cy.nodes().bind('click',
+    // 			function(e){
+    // 			    e.stopPropagation();
+    // 			    var nid = e.cyTarget.id();
+    // 			    man.set_id(nid);
+    // 			    spin.show();
+    // 			    man.search();
+    // 			});
+    // 	cy.nodes().bind('mouseover',
+    // 			function(e){
+    // 			    e.stopPropagation();
+    // 			    var nid = e.cyTarget.id();
+    // 			    var nlbl = info_lookup[nid]['label'];
+    // 			    var popt = {
+    // 				title: nid,
+    // 				content: nlbl,
+    // 				animation: false,
+    // 				placement: 'top',
+    // 				trigger: 'manual'
+    // 			    };
+    // 			    //jQuery(this).popover(popt);
+    // 			    //jQuery(this).popover('show');
+    // 			    // TODO/BUG: this popover positioning got out of
+    // 			    // hand; just rewrite doing it manually with a
+    // 			    // div from bootstrap like normal people.
+    // 			    // (couldn't do it the obvious way because the
+    // 			    // canvas elements are just layers with nothing
+    // 			    // to adere to).
+    // 			    var epos = e.cyRenderedPosition;
+    // 			    jQuery(e.originalEvent.target).popover(popt);
+    // 			    jQuery(e.originalEvent.target).popover('show');
+    // 			    jQuery('.arrow').hide();
+    // 			    jQuery('.popover').css('top', epos.y -100);
+    // 			    jQuery('.popover').css('left', epos.x -100);
+    // 			    //ll('node: ' + nid);
+    // 			});
+    // 	cy.nodes().bind('mouseout',
+    // 			function(e){
+    // 			    e.stopPropagation();
+    // 			    jQuery(e.originalEvent.target).popover('destroy');
+    // 			});
+    // 	// each(cy.nodes(),
+    // 	//      function(nkey, node){
+    // 	// 	 jQuery(node.element()).popover(popt);
+    // 	//      });
 
-	cy.edges().unselectify(); // opt
-	cy.boxSelectionEnabled(false);
-	cy.resize();
+    // 	cy.edges().unselectify(); // opt
+    // 	cy.boxSelectionEnabled(false);
+    // 	cy.resize();
 
-	// Make sure re respect resizing.
-	jQuery(window).off('resize');
-	jQuery(window).on('resize',
-			  function(){
-			      cy.resize(); 
-			  });
+    // 	// Make sure re respect resizing.
+    // 	jQuery(window).off('resize');
+    // 	jQuery(window).on('resize',
+    // 			  function(){
+    // 			      cy.resize(); 
+    // 			  });
 
-	spin.hide();
-	ll('done');
-    }
+    // 	spin.hide();
+    // 	ll('done');
+    // }
     
     ///
     /// ...
@@ -295,7 +313,7 @@ function FreeBrowseInit(){
 				if( inp ){
 				    man.set_id(inp);
 				}
-				spin.show();
+				_start_wait();
 				man.search();
 			    });
     jQuery('#fb_clr').click(function(){
