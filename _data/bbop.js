@@ -2675,14 +2675,20 @@ if ( typeof bbop == "undefined" ){ var bbop = {}; }
  * Initial take from go-mme/js/bbop-mme-context.js
  * 
  * Arguments:
- *  
+ *  entities - a hash defining all of the properties to unscramble
+ * default_color - the color to use when a color cannot be found (#800800)
  * 
  * Returns:
  *  aiding object
  */
 
-bbop.context = function(entities){
-
+bbop.context = function(entities, default_color){
+    
+    // Make sure some kind of color is there.
+    if( ! default_color ){
+	default_color = '#808080'; // grey
+    }
+    
     // Compile entity aliases.
     var entity_aliases = {};
     bbop.core.each(entities,
@@ -2743,7 +2749,7 @@ bbop.context = function(entities){
      */
     this.color = function(ind){
 	
-	var ret = '#808080'; // grey
+	var ret = default_color;
 
 	var data = this._dealias_data(ind);
 	if( data && data['color'] ){
