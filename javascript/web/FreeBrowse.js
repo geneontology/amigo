@@ -42,7 +42,7 @@ function FreeBrowseInit(){
 	// Render.
 	CytoDraw(graph, bbop.core.get_keys(focus_nodes),
 		 lchoice, context, 'grcon',
-		 _start_wait, _stop_wait, man);
+		 _start_wait, _stop_wait, _data_call);
     }
 
     function on_list_select(doc){
@@ -52,15 +52,14 @@ function FreeBrowseInit(){
 
     // Define spinner and helper functions; stop first wait.
     var spin =
-	new bbop.widget.spinner("spn", sd.image_base() + '/waiting_ajax.gif');
-    spin.hide();
+	new bbop.widget.spinner("spn", sd.image_base() + '/waiting_ajax.gif',
+				{'visible_p': false});
     function _start_wait(){
 	spin.show();
     }
     function _stop_wait(){
 	spin.hide();
     }
-    _stop_wait();
 
     //
     var man = new bbop.golr.manager.jquery(sd.golr_base(), gconf);
@@ -71,7 +70,12 @@ function FreeBrowseInit(){
 		     var doc = response.get_doc(0);
 		     jumper(doc);
 		 });
-    
+    // Function to use for data calls in the cytoscape renderer.
+    function _data_call(nid){
+	man.set_id(nid);
+	man.search();
+    }
+
     ///
     /// ...
     ///

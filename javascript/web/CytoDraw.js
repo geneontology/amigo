@@ -4,7 +4,7 @@
 
 function CytoDraw(graph, focus_node_list,
 		  layout_name, context, elt_id,
-		  start_wait, stop_wait, manager){
+		  start_wait, stop_wait, data_call){
     
     var logger = new bbop.logger('CD');
     logger.DEBUG = true;
@@ -185,9 +185,8 @@ function CytoDraw(graph, focus_node_list,
 		    function(e){
 			e.stopPropagation();
 			var nid = e.cyTarget.id();
-			manager.set_id(nid);
 			start_wait(),
-			manager.search();
+			data_call(nid);
 		    });
     cy.nodes().bind('mouseover',
 		    function(e){
