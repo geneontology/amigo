@@ -31,7 +31,7 @@ ebi:
   login: go_select
   password: amigo
   database: go_latest
-  host: mysql.ebi.ac.uk
+  host: mysql-amigo.ebi.ac.uk
   type: lead_full
   port: 4085
 
