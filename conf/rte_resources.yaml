@@ -1,0 +1,9 @@
+####
+#### Known resources for RTE.
+####
+- id: PANTHER
+  label: PANTHER
+  description: ""
+  website: http://panthertest2.usc.edu:8086
+  webservice: http://panthertest2.usc.edu:8086/webservices/go/overrep.jsp
+  logo: logo_panther.jpg

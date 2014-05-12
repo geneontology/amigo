@@ -32,6 +32,7 @@ fluffiest
 package AmiGO::WebApp::RTE;
 use base 'AmiGO::WebApp';
 
+use YAML qw(LoadFile);
 use Clone;
 use Data::Dumper;
 use CGI::Application::Plugin::Session;
@@ -92,24 +93,24 @@ sub mode_rte {
   ## argument is out of sort, drop into filled form mode.
   if( $ontology && $input && $species && $correction && $format && $resource ){
 
-    ## First things first: decode the resource.
-    ## TODO: this will be from an external file in the future, but
-    ## just PANTHER for now.
-    my $resources =
-      {
-       'PANTHER' =>
-       {
-	'id' => 'PANTHER', # same as above
-	'label' => 'PANTHER',
-	'description' => '',
-	# 'website' =>'http://173.255.211.222:8050/',
-	# 'webservice' => 'http://173.255.211.222:8050/webservices/go/overrep.jsp',
-	'website' => 'http://panthertest2.usc.edu:8086',
-	'webservice' => 'http://panthertest2.usc.edu:8086/webservices/go/overrep.jsp',
-	'remote_logo' => '',
-	'local_logo' => 'logo_panther.jpg',
-       }
-      };
+    ## First things first: decode the file and unfold the resources.
+    my $rte_rsrc_loc =
+      $self->{CORE}->amigo_env('AMIGO_ROOT') . '/conf/rte_resources.yaml';
+    my $resources_list = LoadFile($rte_rsrc_loc);
+    my $resources = {};
+    foreach my $rli (@$resources_list){
+      my $rid = $rli->{id};
+      $resources->{$rid} = $rli;
+      ## Decide if it is a local or remote logo image.
+      my $logo_loc = $resources->{$rid}{logo};
+      if( $logo_loc =~ /^http\:\/\// ){
+	$resources->{$rid}{local_logo} = '';
+	$resources->{$rid}{remote_logo} = $logo_loc;
+      }else{
+	$resources->{$rid}{local_logo} = $logo_loc;
+	$resources->{$rid}{remote_logo} = '';
+      }
+    }
     my $rsrc = $resources->{$resource};
     if( ! $rsrc ){
       die 'could not resolve incoming resource id';
