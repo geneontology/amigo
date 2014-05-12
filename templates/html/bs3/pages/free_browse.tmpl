@@ -34,14 +34,16 @@
 
 <div class="panel panel-default">
   <!-- <div class="panel-heading"> -->
-    <!-- <div class="panel-title"> -->
-    <!-- </div> -->
+  <!-- <div class="panel-title"> -->
+  <!-- </div> -->
   <!-- </div> -->
   <div class="panel-body">
 
-    <h4>Starter shortcuts</h4>
-    <div id="graph_radio" class="btn-group" data-toggle="buttons">
-      <!-- <div id="graph_radio"> -->
+    <div class="row">
+
+      <h4>Starter shortcuts</h4>
+      <div id="graph_radio" class="btn-group" data-toggle="buttons">
+	<!-- <div id="graph_radio"> -->
 	<!-- Ontology browsing shortcuts: -->
 	<!-- <input type="radio" id="bp" name="graph_radio" checked="checked" /> -->
 	<!-- <label for="bp">Biological process</label> -->
@@ -49,51 +51,63 @@
 	<!-- <label for="cc">Cellular Component</label> -->
 	<!-- <input type="radio" id="mf" name="graph_radio" /> -->
 	<!-- <label for="mf">Molecular function</label> -->
-      <!-- </div> -->
-    </div>
-
-    <div style="margin-top: 1em;">
-      <div class="form-inline" role="form">
-	<div class="form-group">
-	  <!-- <label class="sr-only" -->
-	  <!--        for="jumper">Search for term (any loaded ontology)</label> -->
-	  <input type="text"
-		 class="form-control" 
-		 name="jumper"
-		 title="Search for term (any loaded ontology)"
-		 placeholder="Search for term (any loaded ontology)"
-		 size="35"
-		 value=""
-		 id="jumper" />
-	</div>
-
-	<select id="layout_input" class="form-control"style="width:10em;">
-	  <!-- <option>random</option> -->
-	  <option>sugiyama</option>
-	  <option>grid</option>
-	  <option>circle</option>
-	  <option>concentric</option>
-	  <option selected="selected">breadthfirst</option>
-	  <!-- <option>arbor</option> -->
-	  <option>cose</option>
-	</select>
-
-	<button id="fb_add" type="button" title="Add term to graph"
-		class="btn btn-success">&plus;</button>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<button id="fb_clr" type="button" title="Clear graph and input" 
-		class="btn btn-danger">
-	  &times;
-	  <!-- <span class="glyphicon glyphicon-remove"></span> -->
-	</button>
-	<span id="spn"></span>
+	<!-- </div> -->
       </div>
-    </div>
 
-    <!-- <h4>View</h4> -->
-    <div id="grcon" style="margin-top: 1em; height:600px; border-style:solid; border-color: black; border-width:1px;"></div>
-    <div class="clearfix"></div>
+      <div style="margin-top: 1em;">
+	<div class="form-inline" role="form">
+	  <div class="form-group">
+	    <!-- <label class="sr-only" -->
+	    <!--        for="jumper">Search for term (any loaded ontology)</label> -->
+	    <input type="text"
+		   class="form-control" 
+		   name="jumper"
+		   title="Search for term (any loaded ontology)"
+		   placeholder="Search for term (any loaded ontology)"
+		   size="35"
+		   value=""
+		   id="jumper" />
+	  </div>
 
+	  <select id="layout_input" class="form-control"style="width:10em;">
+	    <!-- <option>random</option> -->
+	    <option>sugiyama</option>
+	    <option>grid</option>
+	    <option>circle</option>
+	    <option>concentric</option>
+	    <option selected="selected">breadthfirst</option>
+	    <!-- <option>arbor</option> -->
+	    <option>cose</option>
+	  </select>
+
+	  <button id="fb_add" type="button" title="Add term to graph"
+		  class="btn btn-success">&plus;</button>
+	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	  <button id="fb_clr" type="button" title="Clear graph and input" 
+		  class="btn btn-danger">
+	    &times;
+	    <!-- <span class="glyphicon glyphicon-remove"></span> -->
+	  </button>
+	  <span id="spn"></span>
+	</div>
+      </div>
+
+      <div class="col-xs-12 col-sm-10">
+
+	<!-- <h4>View</h4> -->
+	<div id="grcon" style="margin-top: 1em; height:600px; border-style:solid; border-color: black; border-width:1px;"></div>
+	<div class="clearfix"></div>
+
+      </div>
+
+      <!-- color display -->
+      <div class="col-xs-6 col-sm-2">
+	<div id="color_exp" style="margin-top: 1em;">
+	</div>
+      </div>
+      
+    </div> <!-- row -->
+    
   </div>
 </div>
 <!-- End: free_browse.tmpl -->

@@ -43,6 +43,33 @@ function FreeBrowseInit(){
 	CytoDraw(graph, bbop.core.get_keys(focus_nodes),
 		 lchoice, context, 'grcon',
 		 _start_wait, _stop_wait, _data_call);
+
+	// Update color explanations to the newest.
+	var color_clust = [];
+	var erels = graph.all_predicates();
+	each(erels,
+	     function(erel){
+		 color_clust.push({
+				      'label': context.readable(erel),
+				      'color': context.color(erel),
+				      'priority': context.priority(erel)
+				  });
+	     });
+	color_clust.sort(function(a, b){ return b.priority - a.priority; });
+	// Assemble HTML for label display.
+	var fc = [];
+	fc.push('<ul class="list-unstyled">');
+	each(color_clust,
+	     function(c){
+		 fc.push('<li>');
+		 fc.push('<span class="label" style="background-color:' +
+			 c.color + ';">' + c.label + '</span>');
+		 fc.push('</li>');
+	     });
+	fc.push('</ul>');
+	// Add to DOM.
+	jQuery('#color_exp').empty();
+	jQuery('#color_exp').append(fc.join(''));
     }
 
     function on_list_select(doc){
@@ -90,6 +117,7 @@ function FreeBrowseInit(){
 	graph = new bbop.model.graph();
 	focus_nodes = {};
 	jQuery('#grcon').empty();
+	jQuery('#color_exp').empty();
     }
 
     //
