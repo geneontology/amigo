@@ -5,7 +5,7 @@
 
 * Overview
 
-  Documentation os now available at http://kltm.github.io/amigo
+  Documentation is now available at http://kltm.github.io/amigo
 
   This README file will be filled out more in the future. However, for
   the time being, please see the [[http://wiki.geneontology.org/index.php/AmiGO_2_Manual][AmiGO 2 Manual]] for more details about
