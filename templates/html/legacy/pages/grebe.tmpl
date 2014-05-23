@@ -1,0 +1,80 @@
+<!-- START: grebe.tmpl -->
+
+[% INCLUDE common/noscript_js_limited.tmpl %]
+
+<div class="block">
+
+  [% IF galaxy_url && galaxy_url_external_p %]
+  <input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
+  [% END %]
+  
+  <h2>Ask Grebe</h2>
+
+  [% rollup_id = "inf01" %]
+  [% rollup_anchor = "Information about Grebe" %]
+  [% INCLUDE "common/info_rollup_start.tmpl" %]
+  <dl>
+    <dt>Grebe /'gri:b/, n.</dt> 
+    <dd>
+      <p>
+	1: A small compact-bodied freshwater diving bird that builds
+	floating nests; similar to loons but smaller and with lobate
+	rather than webbed feet.
+      </p>
+      <p>
+	2: A simple fill-in-the-blank wizard interface to AmiGO 2
+	users that are either unfamiliar with how to search in AmiGO
+	2 or for users that want to simplify common queries. To use,
+	fill in the necessary blank columns with IDs, selecting from
+	the autocomplete results; hit the go icon at the end of the
+	question when done.
+      </p>
+    </dd>
+  </dl>
+     <h4>More information...</h4>
+      <p>
+	For more information, please see the Grebe
+	<a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Grebe">manual page</a>.
+      </p>
+  [% INCLUDE "common/info_rollup_end.tmpl" %]
+  
+  <!-- <h3 class="first">Find your query from the list:</h3> -->
+  
+  <div>
+
+    [% IF questions %]
+    <ul>
+      [%  eo = 0 %]
+      [%  FOREACH q = questions %]
+      [%     IF q.group_label %]
+      [%        eo = 0 %]
+      <li class="crossed_row">
+	<h4>[% q.group_label %]</h4>
+      </li>
+      [%     ELSE %]
+      [%        IF eo % 2 == 0 %]
+      <li class="even_row">
+	[%      ELSE %]
+      <li class="odd_row">
+	[%      END %]
+	[%      eo = eo + 1 %]
+	[%      q.question %]
+      </li>
+      [%     END %]
+      [%  END %]
+    </ul>
+    [% END %]
+    
+  </div>
+
+  <div style="text-align:center;">
+    <!-- <a href="http://www.fws.gov/pictures/lineart/bobhines/"> -->
+      <img src="[% image_dir %]/grebe.png" title="U. S. Fish and Wildlife Service/Bob Hines" alt="[Image to make page constant size when autocomplete opens on final grebe.]" height="200px" />
+    <!-- </a> -->
+  </div>
+  
+  <hr class="clearL">
+  
+</div>
+
+<!-- END: grebe.tmpl -->

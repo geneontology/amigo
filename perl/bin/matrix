@@ -1,0 +1,11 @@
+#!/usr/bin/perl -w
+####
+#### A bootstrap for a matrix experiment.
+####
+
+BEGIN { require "config.pl"; }
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
+
+use AmiGO::WebApp::Matrix;
+my $matrix = AmiGO::WebApp::Matrix->new(PARAMS => {});
+$matrix->run();

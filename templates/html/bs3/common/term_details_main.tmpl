@@ -1,0 +1,141 @@
+<!-- START template: term_details_main.tmpl -->
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">[% IF TERM_INFO.is_obsolete == "true" OR TERM_INFO.is_obsolete == 1 %]<strong>Obsolete</strong> [% END %]Term Information</h3>
+  </div>
+  <div class="panel-body">
+    
+    <dl class="dl-horizontal amigo-detail-info">
+      
+      <!-- Acc, name, and ont. -->
+      <dt>Accession</dt>
+      <dd>[% TERM_INFO.acc %]</dd>
+      <dt>Name</dt>
+      <dd>[% TERM_INFO.name %]</dd>
+      <dt>Ontology</dt>
+      <dd>[% TERM_INFO.ontology_readable %]</dd>
+      
+      <!-- Synonyms -->
+      <dt>Synonyms</dt>
+      [% al = TERM_INFO.alternate_ids %]
+      [% sl = TERM_INFO.synonyms %]
+      [% IF sl.size == 0 AND al.size == 0 %]
+      <dd>None</dd>
+      [% ELSE %]
+      [%    FOREACH alth IN al %]
+      <dd><strong>alt. id</strong>: [% alth %]</dd>
+      [%    END %]
+      [%    FOREACH synh IN sl %]
+      <!-- BUG/TODO: Like this when we have scope available. -->
+      <!-- <dd>[% IF synh.scope %]<span>[% synh.scope %]</span>: [% END %][% synh.acc %]</dd> -->
+      <dd>[% synh %]</dd>
+      [%    END %]
+      [% END %]
+
+      <!-- Definition -->
+      <dt>Definition</dt>
+      [% wikipedia_label = "" %]
+      [% wikipedia_link = "" %]
+      [% IF TERM_INFO.definition %]
+      <dd>[% TERM_INFO.definition %]
+	[% IF TERM_INFO.term_dbxref_links && TERM_INFO.term_dbxref_links.size > 0 %]
+	<em>Source:</em>
+	[%    txref_count = TERM_INFO.term_dbxref_links.size %]
+	[%    txref_counter = 1 %]
+	[%    FOREACH txref_link = TERM_INFO.term_dbxref_links %]
+	[%      href = txref_link.link %]
+	[%      vis = txref_link.id %]
+	[%      IF txref_link.dbname == "URL" %]
+	[%         href = txref_link.key %]
+	[%         vis = txref_link.key %]
+	[%      END %]
+	[%      IF txref_link.dbname == "Wikipedia" %]
+	[%         wikipedia_label = txref_link.key %]
+	[%         wikipedia_link = txref_link.link %]
+	[%      END %]
+	[%      IF  txref_link.dbname == 'PMID' || txref_link.dbname == 'DOI' %]<cite>[% ELSE %]<cite>[% END %][% IF href %]<a title="Go to [% vis %]" href="[% href %]">[% vis %]</a>[% ELSE %][% txref_link.id %][% END %]</cite>[% IF txref_counter < txref_count; txref_counter = txref_counter + 1 %],[% END %]
+																															 [%   END %]
+																															[% ELSE %]
+																															 [source: unknown]
+																															 [% END %]
+																															 </dd>
+      [% ELSE %]
+      <dd>None</dd>
+      [% END %]
+
+      <!-- Comment. -->
+      <dt>Comment</dt>
+      [% IF TERM_INFO.comment %]
+      <dd>[% TERM_INFO.comment %]</dd>
+      [% ELSE %]
+      <dd>None</dd>
+      [% END %]
+      [% FOREACH rbi IN TERM_INFO.replaced_by_info %]
+      <dd>
+	<strong>replaced by</strong>:
+	<a href="[% rbi.link %]">[% rbi.acc %]</a>
+	<!-- <a href="[% rbi.link %]">[% rbi.acc %]; [% rbi.name %]</a> -->
+      </dd>
+      [% END %]
+      [% FOREACH cni IN TERM_INFO.consider_info %]
+      <dd>
+	<strong>consider</strong>:
+	<a href="[% cni.link %]">[% cni.acc %]</a>
+	<!-- <a href="[% cni.link %]">[% cni.acc %]; [% cni.name %]</a> -->
+      </dd>
+      [% END %]
+
+      <!-- Optional GO history. -->
+      [% IF GO_HISTORY_LINK %]
+      <dt>History</dt>
+      <dd>See term <a href="[% GO_HISTORY_LINK %]"
+		      title="See term history.">history for [% TERM_INFO.acc %]</a> at QuickGO</dd>
+      [% END %]
+
+      <!-- Subsets -->
+      <dt>Subset</dt>
+      [% IF TERM_INFO.subsets.size != 0 %]
+      <!-- <dd> -->
+	<!-- <ul> -->
+	  [% FOREACH sub = TERM_INFO.subsets %]
+	  [% #   TODO/BUG: need more info through for links %]	 
+	  [% #   IF sub.search('goslim') %]
+	  <!-- <li><a href="[% sub.link %]" title="View details of the [% sub.name %] GO slim">[% sub.name %]</a></li> -->
+	  [% #   ELSE %]
+	  <!-- <li>Unavailable</li> -->
+	  <!-- <li>[% sub %]</li> -->
+	  <dd>[% sub %]</dd>
+	  [% #   END %]
+	  [% END %]
+	<!-- </ul> -->
+      <!-- </dd> -->
+      [% ELSE %]
+      <dd>None</dd>
+      [% END %]
+      
+      [% # Note that wikipedia is in here too. %]
+      [% INCLUDE common/term_details_community.tmpl %]
+
+      <!-- JS dynamic links created by manager. -->
+      <dt id="prob_related" class="hidden">Related</dt>
+      <dd id="prob_bio" class="hidden">
+	<a id="prob_bio_href" href="#" class="btn btn-primary btn-xs">Link</a>
+	to all <strong>genes and gene products</strong> associated to [% TERM_INFO.name %].
+      </dd>
+      <dd id="prob_ann" class="hidden">
+	<a id="prob_ann_href" href="#" class="btn btn-primary btn-xs">Link</a>
+	to all direct and indirect <strong>annotations</strong>
+	to [% TERM_INFO.name %].
+      </dd>
+      <dd id="prob_ann_dl" class="hidden">
+	<a id="prob_ann_dl_href" href="#" class="btn btn-primary btn-xs">Link</a>
+	to all direct and indirect <strong>annotations download</strong> (limited to first 10,000)
+	for [% TERM_INFO.name %].
+      </dd>
+      
+    </dl>
+
+  </div>
+</div>
+<!-- END template: term_details_main.tmpl -->

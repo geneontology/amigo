@@ -1,0 +1,72 @@
+<!-- START template: visualize_freeform.tmpl -->
+
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Information about Visualize Freeform" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<p>
+  This is a simple interface to the abstract visualizations
+  engine/service in AmiGO 2. A description of the input format and service and be found <a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Visualize_Freeform">here</a>.
+</p>
+[% INCLUDE "common/info_rollup_end.tmpl" %]
+    
+<div class="well">
+  <strong>Caution</strong>: The static image may be very large and
+  inappropriate for viewing within a web browser.
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    
+    <!-- roll="form" -->
+    <form action="[% interlink_visualize_freeform %]"
+	  id="term_input_form" method="POST">
+      
+      <div class="form-group">
+	<label for="graph_data">Graph definition</label>
+	<textarea rows="5"
+		  class="form-control" 
+		  placeholder="{&quot;nodes&quot;:[{&quot;id&quot;:&quot;GO:0008150&quot;,&quot;lbl&quot;:&quot;GO term&quot;},{&quot;id&quot;:&quot;butter&quot;}],&quot;edges&quot;:[{&quot;sub&quot;:&quot;GO:0008150&quot;,&quot;obj&quot;:&quot;butter&quot;}]}"
+		  name="graph_data"
+		  id="graph_data"></textarea>
+      </div>
+
+      <div class="form-group">
+	<label for="term_data">Graph formatting</label>
+	<textarea rows="4"
+		  class="form-control" 
+		  placeholder="{&quot;GO:0008150&quot;:{&quot;title&quot;: &quot;TERM&quot;,&quot;body&quot;:  &quot;hello&quot;,&quot;fill&quot;:  &quot;#ccccff&quot;,&quot;font&quot;:  &quot;#0000ff&quot;,&quot;border&quot;:&quot;red&quot;}}"
+		  name="term_data"
+		  id="term_data"></textarea>
+      </div>
+
+      <h4>Output type:</h4>
+      <div class="radio">
+	<label for="png">
+	  <input type="radio"
+		 class="radio-inline"
+		 name="format"
+		 value="png"
+		 checked
+		 id="png" />
+	  static (png)
+	</label>
+      </div>
+      <div class="radio">
+	<label for="svg">
+	  <input type="radio"
+		 class="radio-inline"
+		 name="format"
+		 value="svg"
+		 id="svg"/>
+	  dynamic (svg+xml)
+	</label>
+      </div>
+      
+      <button type="submit" class="btn btn-primary">Visualize</button>
+    </form>
+    
+  </div>
+  
+</div>
+  
+<!-- END template: visualize_freeform.tmpl -->

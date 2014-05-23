@@ -1,0 +1,36 @@
+<!-- Begin: landing_search_form.tmpl -->
+<!-- landing_search_form_info: [% landing_search_form_info %] -->
+<form action="[% interlink_medial_search %]"
+      id="query-form"
+      role="form"
+      method="GET">
+  <div class="form-group">
+    <input
+       type="text"
+       title="Hint: add a space after completing a word to narrow the search."
+       class="form-control amigo-landing-tooltip"
+       name="q"
+       placeholder="Quick search"
+       value="[% query %]"
+       id="gsf-query" />
+  </div>
+  <button type="submit"
+ 	  title="Search for annotations, term, and gene products for the inputted text."
+	  class="btn btn-default">Search</button>
+  
+  [% # FOREACH infi IN landing_search_form_info %]
+  <!-- <input type="radio" -->
+  <!-- 	 name="golr_class" -->
+  [% #    IF golr_class == infi.id %]
+  <!-- value="[% infi.id %]" checked="yes" /> -->
+  [% #    ELSE %]
+  <!-- value="[% infi.id %]" /> -->
+  [% #    END %]
+  [% # infi.display_name %]
+  <!-- &nbsp;&nbsp; -->
+  [% # END %]
+  <!-- <br /> -->
+  
+</form>
+
+<!-- End: landing_search_form.tmpl -->

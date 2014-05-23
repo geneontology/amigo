@@ -1,0 +1,38 @@
+<!-- START: schema_details.tmpl -->
+
+[% INCLUDE common/noscript_js_limited.tmpl %]
+
+<div class="block">
+
+  <h2>Instance Schema</h2>
+      
+  [% rollup_id = "inf01" %]
+  [% rollup_anchor = "Additional information about the schema" %]
+  [% INCLUDE "common/info_rollup_start.tmpl" %]
+  <p>
+    Below is the current state of the schema as is handled through the
+    API. However, one hole in this are the "*_closure_map" and
+    "*_list_map" fields, which are normally only ever accessed during
+    rendering. These fields provide a JSON map between
+    "*_closure"/"*_closure_label" and "*_list"/"*_list_label"
+    fields. The existance of these fields is optional, but
+    automatically consumed by AmiGO 2 if present.
+  </p>
+  [% INCLUDE "common/info_rollup_end.tmpl" %]
+
+  <div id="schema_info_search_div"></div>
+       
+  <div id="schema_info_table_div">
+    Loading schema information from JavaScript API...
+    <img src="[% image_dir %]/waiting_ajax.gif" />
+  </div>
+
+  <!-- <hr class="clearL"> -->
+	      
+</div>
+  
+<!-- <div class="block"> -->
+<!--   <h2>Results</h2> -->
+<!--   <p>Your query did not return any results.</p> -->
+<!-- </div> -->
+<!-- END: schema_details.tmpl -->

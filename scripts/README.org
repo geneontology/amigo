@@ -1,0 +1,60 @@
+* Handy scripts and utility files
+
+  In general, for the perl utilities, you can get more detailed help
+  by invoking them with the "-h" or "--help" flags.
+
+** blank-kvetch.pl
+
+   TODO.
+
+   Standard AmiGO 2 utility.
+
+** global-message.pl
+
+   TODO.
+
+   Standard AmiGO 2 utility.
+
+** clean-filesystem.pl
+
+   TODO.
+
+   Standard AmiGO 2 utility.
+
+** schema.yaml
+   This file can be used with kwalify to make sure that metadata YAML
+   files (e.g. amigo/metadata/*.yaml) are following the correct
+   structure.
+
+** simulate.pl
+
+   A script to help aid in tracking down the dependencies during
+   install.
+
+   While this script currently runs, it still needs more modification
+   to take into account the changes from AmiGO 1.x to AmiGO 2.x.
+
+   TODO
+
+** version.pl
+
+   A script to help aid in tracking down the dependencies during
+   install.
+
+   While this script currently runs, it still needs more modification
+   to take into account the changes from AmiGO 1.x to AmiGO 2.x.
+
+   TODO
+
+** build-cpan-env.pl
+   This script is probably useful to only a subset of users, but for
+   those users it may be very useful indeed.
+
+   This is a perl dependency build script created by a user to take
+   care of getting the AmiGO 2 perl environment functional on an OS X
+   machine using CPAN.
+
+   YMMV.
+** Everybody else
+
+   We'll try to get around to mentioning the rest as they come up.

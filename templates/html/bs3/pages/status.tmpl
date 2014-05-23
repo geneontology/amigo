@@ -1,0 +1,26 @@
+<!-- Begin: status.tmpl -->
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Status</h3>
+  </div>
+  <div class="panel-body">
+
+    <p>
+      The service <strong>[% service_name %]</strong> is currently running.
+    </p>
+
+    [% IF server_name %]
+    <p>
+      Server name: [% server_name %]
+    </p>
+    [% END %]
+
+    [% IF hid %]
+    <p>
+      Heartbeat: [% hid %]
+    </p>
+    [% END %]
+
+  </div>
+</div>
+<!-- End: status.tmpl -->

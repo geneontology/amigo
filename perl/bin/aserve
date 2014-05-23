@@ -1,0 +1,11 @@
+#!/usr/bin/perl -w
+####
+#### Test services...
+####
+
+BEGIN { require "config.pl"; }
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
+
+use AmiGO::WebApp::Services;
+my $amigo = AmiGO::WebApp::Services->new(PARAMS => {});
+$amigo->run();

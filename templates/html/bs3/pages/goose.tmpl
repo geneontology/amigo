@@ -1,0 +1,228 @@
+<!-- START: goose.tmpl -->
+
+[% INCLUDE common/noscript_js_limited.tmpl %]
+
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Information about GOOSE" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<h5>General SQL</h5>
+<p>
+  If your query takes a long time or returns a blank screen,
+  you may want to try the download option. If your query is
+  long-running or fails, you may also want to try a "lite"
+  database from the mirror selection.
+</p>	
+<h5>LEAD SQL</h5>
+<p>
+  See some LEAD SQL <a href="http://wiki.geneontology.org/index.php/Example_LEAD_Queries">examples</a> and learn more about the LEAD <a href="http://www.geneontology.org/GO.database.shtml" title="LEAD database schema documentation">schema</a>.
+</p>
+<h5>Mirrors</h5>
+<p>
+  Select a mirror you believe will perform well for your
+  needs. Mirrors may have different load settings and
+  frequencies.
+</p>
+<h5>More information...</h5>
+<p>
+  For more information, please see the GOOSE
+  <a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_GOOSE">manual page</a>.
+</p>
+[% INCLUDE "common/info_rollup_end.tmpl" %]
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    
+    <!-- roll="form" -->
+    <form action="[% interlink_goose %]"
+	  method="GET"
+	  name="goose_form_query"
+	  id="goose_form_query">
+      [% IF galaxy_url %]
+      <input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
+      [% END %]
+
+      <div class="form-group">
+	<label for="query">Directly query GO data using SQL</label>
+	<textarea id="query"
+		  class="form-control" 
+		  name="query"
+		  placeholder="Enter your query here"
+		  rows="5">[% goose_query %]</textarea>
+      </div>
+      
+      <h5>Use an example query:</h5>
+      <!-- <div id="goose_lead_example_list"> -->
+      [% IF lead_examples_list %]
+      <!-- Assemble the examples table. -->
+      <select id="goose_lead_example_selection"
+	      class="form-control">
+	[% FOREACH ex = lead_examples_list %]
+	[%   value = ex.sql %]
+	[%   title = ex.title %]
+	<option title="[% title %]" 
+		value="[% value %]">[% title %]</option>
+	[% END %]
+      </select>
+      [% ELSE %]
+      <!-- Unable to assemble the examples table. -->
+      <p>
+	(The GO LEAD SQL wiki page could not be contacted so LEAD
+	SQL examples are not available.)
+      </p>
+      [% END %]
+
+      <h5>Available mirrors:</h5>
+      [% FOREACH mirror = all_mirrors %]
+      <div class="radio">
+	<label>
+	  <input type="radio" 
+		 name="mirror" 
+		 value="[% mirror %]" 
+		 [% IF my_mirror == mirror %]checked[% END %]
+		 class="cbox">
+	  <b>
+	    <!-- [% IF mirror_info.$mirror.is_alive_p == 0 %][UNAVAILABLE][% END %] -->
+	    [% mirror_info.$mirror.label %]
+	  </b>:
+	  Use the [% IF mirror_info.$mirror.type.search('solr') %]Solr[% ELSIF mirror_info.$mirror.type.search('lead') %]LEAD[% ELSIF mirror_info.$mirror.type.search('gold') %]GOLD[% ELSE %]???[% END %] [% IF mirror_info.$mirror.type.search('full') %]full[% ELSIF mirror_info.$mirror.type.search('lite') %]lite[% END %] [% IF mirror_info.$mirror.class.search('main') %]main[% ELSIF mirror_info.$mirror.class.search('aux') %]auxiliary[% ELSIF mirror_info.$mirror.class.search('exp') %]experimental[% END %] mirror [% mirror_info.$mirror.location %].
+	</label>
+      </div>
+      [% END %]	  
+      
+      <h5>Limit the number of results returned:</h5>
+      <select name="limit" class="form-control">
+	<option
+	   title="10" 
+	   value="10" 
+	   [% IF limit == 10 %]selected[% END %]
+	   class="" >10</option>
+	<option
+	   title="100" 
+	   value="100" 
+	   [% IF limit == 100 %]selected[% END %]
+	   class="">100</option>
+	<option
+	   title="1000" 
+	   value="1000" 
+	   [% IF limit == 1000 %]selected[% END %]
+	   class="">1000</option>
+	<option
+	   title="10000" 
+	   value="10000" 
+	   [% IF limit == 10000 %]selected[% END %]
+	   class="">10000</option>
+	<option
+	   title="unlimited" 
+	   value="0" 
+	   [% IF limit == 0 %]selected[% END %]
+	   class="">unlimited</option>
+      </select>
+
+      <div class="checkbox">
+	<label for="format_arg">
+	  <input class="cbox" id="format_arg" type="checkbox" name="format" value="text">
+	  Download results directly in a text format
+	</label>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Query</button>
+      
+    </form>
+    
+  </div>
+</div>		
+
+[% IF NOT results_count AND results_count == 0 %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      Results
+    </div>
+  </div>
+  <div class="panel-body">
+    <p>Your query did not return any results.</p>
+  </div>
+</div>
+
+[% ELSIF results_count %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      Results
+    </div>
+  </div>
+  <div class="panel-body">
+    <div id="results_generated">
+
+      Your query generated      
+      [% IF limit AND results_count > limit  %]
+      <b>[% limit %]</b>
+      (limited from <b>[% results_count %]</b>)
+      [% ELSE %]
+      <b>[% results_count %]</b>
+      [% END %]
+      
+      result(s).<br />
+      
+      [% IF terms_count > 0 AND terms_limit > terms_count %]
+      <a href="[% viz_link %]"
+	 title="Visualize the terms found in this query.">
+	Visualize</a>
+      the terms found in this query.
+      [% ELSIF terms_count > 0 %]
+      <a href="[% viz_link %]"
+	 title="Visualize the first [% terms_count %] terms found in this query.">
+	Visualize</a>
+      the first [% terms_count %] terms found in this query.
+      [% END %]
+      
+      <!-- roll="form" -->
+      <form action="[% interlink_goose %]"
+	    method="GET"
+	    name="goose_form_download"
+	    id="goose_form_download">
+	[% IF galaxy_url %]
+	<input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
+	[% END %]
+	<input type="hidden" name="mirror" value="[% my_mirror %]" />
+	<input type="hidden" name="query" value="[% query %]" />
+	<input type="hidden" name="limit" value="[% limit %]" />
+	<input type="hidden" name="format" value="text" />
+	<button type="submit" class="btn">Download in a text format</button>
+      </form>
+
+    </div>
+
+    <table class="table table-striped table-hover">
+      <thead>
+	<tr>
+	  [% FOREACH header = results_headers %]
+	  <th>
+	    [% header %]
+	  </th>
+	  [% END%]
+	</tr>
+      </thead>
+      
+      <tbody>
+	
+	[% FOREACH row = results %]
+	<tr class="">
+	  [%  FOREACH col = row %]
+	  <!-- rowspan="" -->
+	  <td>
+	    [%   col %]
+	  </td>
+	  [%  END %]
+	</tr>
+	[% END %]
+      </tbody>
+    </table>
+
+  </div>
+</div>
+  
+  [% END %]
+<!-- END: goose.tmpl -->

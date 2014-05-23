@@ -1,0 +1,138 @@
+<!-- Start: rte.tmpl -->
+
+[% INCLUDE common/noscript_js_necessary.tmpl %]
+
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Information about Term Enrichment Services" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<p>
+  Current documentation and discussion of term enrichment with the GO
+  can be found
+  <a href="http://beta.geneontology.org/page/go-enrichment-analysis">here</a>.
+</p>
+<p>
+  The Remote Term Enrichment tool is a basic querying and viewing
+  application for services that conform to
+  <a href="https://github.com/cmungall/term-enrichment-protocol">TERP</a>.
+</p>
+<p>
+  This is a work in progress, so your feedback is appreciated.
+</p>
+[% INCLUDE "common/info_rollup_end.tmpl" %]
+
+<div class="panel panel-default">
+  <!-- <div class="panel-heading"> -->
+  <!--   <h3 class="panel-title">Input</h3> -->
+  <!-- </div> -->
+  <div class="panel-body">
+
+    <div class="row">
+
+      <form role="form" method="GET" action="[% interlink_rte %]">
+
+	<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+
+	  <!-- TODO: add "has-error" -->
+	  <div class="form-group[% IF rte_input OR first_time_p %][% ELSE %][% END %]">
+	    <label for="rte_input">Gene IDs</label>
+	    <textarea
+	       id="rte_input"
+	       class="form-control"
+	       rows="15"
+	       placeholder="Gene IDs..."
+	       name="input">[% rte_input %]</textarea>
+	  </div>
+
+	</div>
+	
+	<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+
+	  <div class="form-group">
+	    <label for="species">Species</label>
+	    <select
+	       id="species"
+	       class="form-control"
+	       name="species">
+	      <option value="HUMAN">H. sapiens</option>
+	      <option value="MOUSE">M. musculus</option>
+	      <option value="RAT">R. norvegicus</option>
+	      <option value="CHICK">G. gallus</option>
+	      <option value="DANRE">D. rerio</option>
+	      <option value="DROME">D. melanogaster</option>
+	      <option value="CAEEL">C. elegans</option>
+	      <option value="DICDI">D. discoideum</option>
+	      <option value="SCHPO">S. pombe</option>
+	      <option value="YEAST">S. cerevisiae</option>
+	      <option value="ARATH">A. thaliana</option>
+	      <option value="ECOLI">E. coli</option>
+	      <!-- <option value="5062">A. oryzae</option> -->
+	      <option value="CANAL">C. albicans</option>
+	    </select>
+	  </div>
+	  
+	  <div class="form-group">
+	    <label for="rte_ontology">Ontology</label>
+	    <select
+	       id="rte_ontology"
+	       class="form-control"
+	       name="ontology">
+	      <option value="biological_process">biological process</option>
+	      <option value="molecular_function">molecular function</option>
+	      <option value="cellular_component">cellular component</option>
+	      <option value="biological_process_exp">biological process (experimental only)</option>
+	      <option value="molecular_function_exp">molecular function (experimental only)</option>
+	      <option value="cellular_component_exp">cellular component (experimental only)</option>
+	      <!-- <option value="panther_bp">PANTHER biological process</option> -->
+	      <!-- <option value="panther_mf">PANTHER molecular function</option> -->
+	      <!-- <option value="panther_cc">PANTHER cellular component</option> -->
+	      <!-- <option value="panther_pathway">PANTHER pathway</option> -->
+	    </select>
+	  </div>
+	  
+	  <div class="form-group">
+	    <label for="label_corr">Correction</label>
+	    <div id="label_corr" class="radio">
+	      <label for="rte_correction">
+		<input
+		   type="radio"
+		   name="correction"
+		   id="rte_correction"
+		   value="bonferroni"
+		   checked="checked" />
+		Use Bonferroni correction</label>
+	    </div>
+	  </div>
+	  
+	  <div class="form-group">
+	    <label for="rte_resource">Resource</label>
+	    <select
+	       id="rte_resource"
+	       class="form-control"
+	       name="resource">
+	      <option value="PANTHER">PANTHER</option>
+	    </select>
+	  </div>
+	  
+	  <div class="form-group">
+	    <label for="rte_format">Results viewer</label>
+	    <select
+	       id="rte_format"
+	       class="form-control"
+	       name="format">
+	      <option value="xml" checked="checked">AmiGO</option>
+	      <!-- <option value="tab" checked="checked">tab-delimited</option> -->
+	      <option value="html">Originating resource</option>
+	    </select>
+	  </div>
+	  
+	  <button type="submit" class="btn btn-default">Submit</button>
+
+	</div>
+
+      </form>
+      
+    </div>
+
+  </div>
+</div>
+<!-- End: rte.tmpl -->

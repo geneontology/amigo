@@ -1,0 +1,13 @@
+#!/usr/bin/perl -w
+####
+#### A version of GOOSE that is more integrated with the rest
+#### of AmiGO. Will eventually replace the current standalone
+#### version in amigo/amigo/cgi-bin.
+####
+
+BEGIN { require "config.pl"; }
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
+
+use AmiGO::WebApp::GOOSE;
+my $goose = AmiGO::WebApp::GOOSE->new(PARAMS => {});
+$goose->run();

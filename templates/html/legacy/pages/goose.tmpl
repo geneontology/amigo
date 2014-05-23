@@ -1,0 +1,292 @@
+<!-- START: goose.tmpl -->
+
+[% INCLUDE common/noscript_js_limited.tmpl %]
+
+  <form action="goose"
+	method="GET"
+	name="goose_form"
+	id="goose_form">
+    
+    <div class="block">
+
+      [% IF galaxy_url %]
+      <input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
+      [% END %]
+      
+      <h2>Directly query GO data using SQL</h2>
+      
+      [% rollup_id = "inf01" %]
+      [% rollup_anchor = "Information about GOOSE" %]
+      [% INCLUDE "common/info_rollup_start.tmpl" %]
+      <h4>General SQL</h4>
+      <p>
+	If your query takes a long time or returns a blank screen,
+	you may want to try the download option. If your query is
+	long-running or fails, you may also want to try a "lite"
+	database from the mirror selection.
+      </p>	
+      <h4>LEAD SQL</h4>
+      <p>
+	See some LEAD SQL <a href="http://wiki.geneontology.org/index.php/Example_LEAD_Queries">examples</a> and learn more about the LEAD <a href="http://www.geneontology.org/GO.database.shtml" title="LEAD database schema documentation">schema</a>.
+      </p>
+      <h4>Mirrors</h4>
+      <p>
+	Select a mirror you believe will perform well for your
+	needs. Mirrors may have different load settings and
+	frequencies.
+      </p>
+     <h4>More information...</h4>
+      <p>
+	For more information, please see the GOOSE
+	<a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_GOOSE">manual page</a>.
+      </p>
+      [% INCLUDE "common/info_rollup_end.tmpl" %]
+
+      [% rollup_id = "inf02" %]
+      [% rollup_anchor = "Available mirrors" %]
+      [% INCLUDE "common/info_rollup_start.tmpl" %]
+      <ul>
+	[% FOREACH mirror = all_mirrors %]
+	
+	<li>
+	  <input type="radio" 
+		 name="mirror" 
+	       value="[% mirror %]" 
+		 [% IF my_mirror == mirror %]checked[% END %]
+		 class="cbox">
+	  <b>
+	    <!-- [% IF mirror_info.$mirror.is_alive_p == 0 %][UNAVAILABLE][% END %] -->
+	    [% mirror_info.$mirror.label %]
+	  </b>:
+	  Use the [% IF mirror_info.$mirror.type.search('solr') %]Solr[% ELSIF mirror_info.$mirror.type.search('lead') %]LEAD[% ELSIF mirror_info.$mirror.type.search('gold') %]GOLD[% ELSE %]???[% END %] [% IF mirror_info.$mirror.type.search('full') %]full[% ELSIF mirror_info.$mirror.type.search('lite') %]lite[% END %] [% IF mirror_info.$mirror.class.search('main') %]main[% ELSIF mirror_info.$mirror.class.search('aux') %]auxiliary[% ELSIF mirror_info.$mirror.class.search('exp') %]experimental[% END %] mirror [% mirror_info.$mirror.location %].
+	</li>
+	
+	[% END %]	  
+      </ul>	      
+      [% INCLUDE "common/info_rollup_end.tmpl" %]
+  
+      <h3 class="first">Enter your query:</h3>
+      
+      <div>
+	<textarea id="query"
+		  name="query"
+		  cols="80"
+		  rows="5">[% query %]</textarea>
+      </div>
+    
+      [% rollup_id = "inf03" %]
+      [% rollup_anchor = "SQL options" %]
+      [% INCLUDE "common/info_rollup_start.tmpl" %]
+      <p>
+	Options only for use when making queries against an SQL database.
+      </p>
+      <p>
+	Limit the number of results returned:
+	<select name="limit" size="1">
+	  <option
+	     title="10" 
+	     value="10" 
+	     [% IF limit == 10 %]selected[% END %]
+	     class="" >10</option>
+	  <option
+	     title="100" 
+	     value="100" 
+	     [% IF limit == 100 %]selected[% END %]
+	     class="">100</option>
+	  <option
+	     title="1000" 
+	     value="1000" 
+	     [% IF limit == 1000 %]selected[% END %]
+	     class="">1000</option>
+	  <option
+	     title="10000" 
+	     value="10000" 
+	     [% IF limit == 10000 %]selected[% END %]
+	     class="">10000</option>
+	  <option
+	     title="unlimited" 
+	     value="0" 
+	     [% IF limit == 0 %]selected[% END %]
+	     class="">unlimited</option>
+	</select>
+      </p>
+      <p>
+        Download results directly in a text format
+	<input class="cbox" type="checkbox" name="format" value="text" />
+      </p>	
+      [% INCLUDE "common/info_rollup_end.tmpl" %]
+
+	<div style="" id="goose_lead_example_list">
+	  [% IF lead_examples_list %]
+	  <!-- Assemble the examples table. -->
+	  <!-- LEAD -->
+	  <select id="goose_lead_example_selection"
+		  class=""
+		  style=""
+		  size="1">
+	    [%    FOREACH ex = lead_examples_list %]
+	    [%       value = ex.sql %]
+	    [%       title = ex.title %]
+	    <option title="[% value %]" 
+		    value="[% value %]">[% title %]</option>
+	    [%    END %]
+	  </select>
+	  [% ELSE %]
+	  <!-- Unable to assemble the examples table. -->
+	  (The GO LEAD SQL wiki page could not be contacted so LEAD SQL examples
+	  are not available.)
+	  [% END %]
+	</div>
+
+      <hr class="clearL">
+      <input type="submit" class="button" value="Query!" />
+	      
+    </div>
+
+  </form>		
+	
+  [% IF NOT results_count AND results_count == 0 %]
+  
+  <div class="block">
+
+    <h2>Results</h2>
+
+    <p>Your query did not return any results.</p>
+
+  </div>
+
+  [% ELSIF results_count %]
+
+  <div class="block">
+
+    <h2>Results</h2>
+
+    <p id="results_generated">
+
+      Your query generated      
+      [% IF limit AND results_count > limit  %]
+      <b>[% limit %]</b>
+      (limited from <b>[% results_count %]</b>)
+      [% ELSE %]
+      <b>[% results_count %]</b>
+      [% END %]
+
+      result(s).<br />
+      
+      [% ## Using this to detect Solr vs. SQL. %]
+      [% IF direct_solr_url %]
+      Direct Solr results: <a href="[% direct_solr_url %]"
+	 title="Link to full Solr results.">[% direct_solr_url %]</a>
+      <br />
+      [%    IF galaxy_url AND direct_gaffer_id_url_safe AND direct_gaffer_gaf_url_safe %]
+
+      Direct download <a href="[% direct_gaffer_id_url_safe %]"
+	 title="Link to all downloadable ID results.">id list</a>
+      or <a href="[% direct_gaffer_gaf_url_safe %]"
+	    title="Link to complete GAF results.">GAF</a> (annotations only).
+      <br />
+
+      Export to GO Galaxy: 
+      <form id="galaxyform" action="[% galaxy_url %]" name="galaxyform"
+	    method="POST" target="_blank">
+	<input id="URL" type="hidden" name="URL"
+	       value="[% direct_gaffer_id_url_safe %]" />
+	<!-- <input id="queryXML" type="hidden" name="query"> -->
+	<!-- <input id="size" type="hidden" name="size"> -->
+	<!-- <input type="hidden" name="URL_method" value="post"> -->
+	<input type="hidden" name="URL_method" value="get">
+	<!-- <input id="data_type" type="hidden" name="data_type"> -->
+	<!-- <input id="dbkey" type="hidden" name="dbkey"> -->
+	<!-- <input id="info" type="hidden" name="info"> -->
+	<input name="submit" type="submit"
+	       value="Complete ID list" />
+      </form>
+
+      <form id="galaxyform" action="[% galaxy_url %]" name="galaxyform"
+	    method="POST" target="_blank">
+	<input id="URL" type="hidden" name="URL"
+	       value="[% direct_gaffer_gaf_url_safe %]" />
+	<!-- <input type="hidden" name="URL_method" value="post"> -->
+	<input type="hidden" name="URL_method" value="get">
+	<input name="submit" type="submit"
+	       value="Complete GAF" />
+      </form>
+      <br />
+
+      [%    END %]
+      [% ELSE %]
+
+      [%   IF terms_count > 0 AND terms_limit > terms_count %]
+      <a href="[% viz_link %]"
+	 title="Visualize the terms found in this query.">
+	Visualize</a>
+      the terms found in this query.
+      [%   ELSIF terms_count > 0 %]
+      <a href="[% viz_link %]"
+	 title="Visualize the first [% terms_count %] terms found in this query.">
+	Visualize</a>
+      the first [% terms_count %] terms found in this query.
+      [%   END %]
+      
+      <form style="display: inline;"
+	    action="goose"
+	    method="GET"
+	    name="goose_form"
+	    id="goose_form">
+	[% IF galaxy_url %]
+	<input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
+	[% END %]
+	<input type="hidden" name="mirror" value="[% my_mirror %]" />
+	<input type="hidden" name="query" value="[% query %]" />
+	<input type="hidden" name="limit" value="[% limit %]" />
+	<input type="hidden" name="format" value="text" />
+	<input type="submit"
+	       class="button"
+	       value="Download in a text format" />
+      </form>
+
+      [% END %]
+
+    </p>
+
+    <table summary="Query results">
+      <thead>
+	<tr>
+	  
+	  [% FOREACH header = results_headers %]
+	  <th style="">
+	    [% header %]
+	  </th>
+	  [% END%]
+	  
+	</tr>
+      </thead>
+
+      <tbody>
+
+	[% eo = 0 %]
+	[% FOREACH row = results %]
+	[%    IF eo % 2 == 0 %]
+	<tr class="even_row">
+	  [%  ELSE %]
+	<tr class="even_odd">
+	  [%  END %]
+	  [%  FOREACH col = row %]
+	  <td rowspan="1">
+	    [%   col %]
+	  </td>
+	  [%  END %]
+	</tr>
+	[%    eo = eo + 1 %]
+	[% END %]
+      </tbody>
+    </table>
+
+    <p class="toTop">
+      <a href="#top" title="Back to the top of the page">Back to top</a>
+    </p>
+
+  </div>
+  
+  [% END %]
+<!-- END: goose.tmpl -->

@@ -1,0 +1,18 @@
+#!/usr/bin/perl -w
+
+## TODO: Think of a way around this preamble.
+## Actually, making a perl package might be the best way...
+BEGIN { require "config.pl"; }
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
+use AmiGO;
+
+use AmiGO::WebApp::HTMLClientExp;
+my $amigo_exp =
+  AmiGO::WebApp::HTMLClientExp->new(
+				    PARAMS => {
+					       'thing_1' => 'some val',
+					       'thing_2' => 'some val',
+					      }
+				   );
+
+$amigo_exp->run();

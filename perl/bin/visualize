@@ -1,0 +1,11 @@
+#!/usr/bin/perl -w
+####
+#### TODO: fold more into Worker::Visualize...
+####
+
+BEGIN { require "config.pl"; }
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
+
+use AmiGO::WebApp::VisualizeServer;
+my $v = AmiGO::WebApp::VisualizeServer->new(PARAMS => {});
+$v->run();

@@ -1,0 +1,150 @@
+####
+#### AmiGO variables for installation.
+####
+---
+AMIGO_CONFIGURED:
+  value: 0
+  comment: >
+    This variable must be edited (to 1) before installing AmiGO.
+  type: boolean
+  
+###
+### Path and binary variables.
+###
+
+AMIGO_ROOT:
+  value: ''
+  comment: >
+    Please enter the full path to the git repo amigo[/trunk] directory.
+  type: directory
+    
+GO_YAML_LOCATION:
+  value: ''
+  comment: >
+    Please enter the full path to the YAML config files directory. In that directory, all files like *config.yaml will be scanned for use.
+  type: directory
+
+GO_BBOPJS_LOCATION:
+  comment: >
+    If this is not redefined to a new location (e.g. the BBOP-JS staging/ directory, it will use the bbop.js bundle packaged with AmiGO 2 (the one used in the unit tests) in the _data/ directory.
+  type: directory
+  value: ./_data/bbop.js
+
+GOLR_TIMESTAMP_LOCATION:
+  comment: >
+    This is the full path to the timestamp file that is optionally produced by OWLTools during GOlr loading. It contains information about download attempt times for the different loaded files. If not found or unusable, AmiGO 2 will gracefully ignore it.
+  type: file
+  value: ./golr_timestamp.log
+
+# - NAME: AMIGO_DOT_PATH
+#   value: /usr/bin/dot
+#   comment: "Please enter the full path for the \"dot\" command"
+#   type: executable
+
+###
+### AmiGO mapping variables.
+###
+
+AMIGO_PROJECT_NAME:
+  value: amigo2
+  comment: Please enter the name of this AmiGO installation.
+  type: string
+    
+AMIGO_HTDOCS_PARTIAL_PATH:
+  value: /srv/www/htdocs
+  comment: Please enter the full path to a usable static document directory. AMIGO_PROJECT_NAME will be used as a new directory name in this directory.
+  type: directory
+
+AMIGO_HTDOCS_BASE_URL:
+  value: http://localhost/amigo2
+  comment: Please enter the URL that this path (plus the AMIGO_PROJECT_NAME) maps to.
+  type: url
+
+AMIGO_CGI_PARTIAL_PATH:
+  value: /srv/www/cgi-bin
+  comment: Please enter the full path to a usable CGI enabled directory. AMIGO_PROJECT_NAME will be used as a new directory name in this directory.
+  type: directory
+
+AMIGO_CGI_BASE_URL:
+  value: http://localhost/cgi-bin/amigo2
+  comment: Please enter the URL that this path (plus the AMIGO_PROJECT_NAME) maps to.
+  type: url
+
+AMIGO_PUBLIC_CGI_BASE_URL:
+  value: http://amigo.geneontology.org/cgi-bin/amigo
+  comment: Please enter the partial public URL.
+  type: true
+
+AMIGO_PUBLIC_GOLR_URL:
+  value: http://localhost:8080/solr/
+  comment: Please enter the public URL of the GOlr server.
+  type: url
+
+AMIGO_PUBLIC_GALAXY_URL:
+  value: http://galaxy.berkeleybop.org/
+  comment: Please enter the public URL of the Galaxy server.
+  type: url
+
+AMIGO_1X_PUBLIC_CGI_BASE_URL:
+  value: http://amigo1.geneontology.org/cgi-bin/amigo
+  comment: Please enter the partial public URL of an available AmiGO 1.x instance.
+  type: url
+
+AMIGO_PUBLIC_OPENSEARCH_URL:
+  value: ""
+  comment: Please enter the public URL of the GO-defined OpenSearch server.
+  type: url
+
+###
+### AmiGO internal variables.
+###
+
+AMIGO_TERM_REGEXP:
+  value: all|GO:[0-9]{7}
+  comment: The regular expressions to identify internal ontology ids.
+  type: string
+
+AMIGO_LAYOUT_SEARCH:
+  comment: A whitespace separated list of class IDs to use for live search tabs on the search page.
+  type: string
+  value: annotation ontology bioentity
+
+AMIGO_SEARCH_DEFAULT:
+  comment: The default search personality to use.
+  type: string
+  value: annotation
+
+AMIGO_VERBOSE:
+  value: 0
+  comment: Log verbose AmiGO debugging messages.
+  type: boolean
+
+AMIGO_BETA:
+  value: 0
+  comment: >
+    Mark the AmiGO site as BETA (triggers some changes in
+    variables and installed features).
+  type: boolean
+
+AMIGO_BALANCER:
+  value: 0
+  comment: >
+    Mark this AmiGO 2 installation as behind a load balanacer or
+    similar system. The practical effect of this flag is that if AmiGO
+    detects *.error files (usually created by the
+    global-message.pl script), it will return a 503 page signalling
+    any upstream system that the instance is not currently ready.
+  type: boolean
+
+AMIGO_SERVER_NAME:
+  value: ""
+  comment: >
+    The name by which your AmiGO instance wishes to known--think load
+    balancer or cache situations. If you would rather this information
+    not be reported, leave blank.
+  type: string
+
+AMIGO_GOOGLE_ANALYTICS_ID:
+  value: ''
+  comment: Google analytics ID. Optional.
+  type: string

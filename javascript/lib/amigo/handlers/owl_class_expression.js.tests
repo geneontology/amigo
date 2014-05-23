@@ -1,0 +1,61 @@
+////
+//// Some unit testing for owl_class_expression.js
+////
+
+// Correct environment, ready testing.
+var bbop = require('bbop').bbop;
+var amigo = require('amigo2').amigo;
+var mr_t = new bbop.test();
+
+///
+/// Start unit testing.
+///
+
+// Simple OWLClassExpression.
+(function(){
+     
+     var owlo = {"relationship":
+		 {"relation": [{"id": "RO:001234", "label": "regulates"},
+			       {"id":"BFO:0003456", "label": "hp"}],
+		  "id": "MGI:MGI:185963",
+		  "label": "kidney"}};
+     
+     var h = new amigo.handler();
+     var t0 = h.dispatch(owlo, 'annotation_extension_json', 'bbop.widgets.search_pane');     
+     //mr_t.is_true(t0.success, "ran okay");
+     mr_t.is_same_atom(t0, '<a title="RO:001234 (go to the page for regulates)" href="http://purl.obolibrary.org/obo/RO_001234">regulates</a> &rarr; <a title="BFO:0003456 (go to the page for hp)" href="http://purl.obolibrary.org/obo/BFO_0003456">hp</a> <a title="MGI:MGI:185963 (go to the page for kidney)" href="http://www.informatics.jax.org/accession/MGI:185963">kidney</a>', 'complicated output');
+
+     var t1a = h.dispatch("foo", 'annotation_extension_json',
+			  'bbop.widgets.search_pane');
+     mr_t.is_same_atom(t1a, 'foo?', 'broken string output (a)');
+     
+     var t1b = h.dispatch('{"foo":', 'annotation_extension_json',
+			  'bbop.widgets.search_pane');
+     mr_t.is_same_atom(t1b, '{"foo":?', 'broken string output (b)');
+
+     var t2 = h.dispatch('', 'annotation_extension_json',
+			 'bbop.widgets.search_pane');
+     mr_t.is_same_atom(t2, '?', 'empty input output');
+
+     var t3 = h.dispatch('{}', 'annotation_extension_json',
+			 'bbop.widgets.search_pane');
+     mr_t.is_same_atom(t3, '', 'empty object output');
+
+     // var t4 = h.dispatch('{"foo"}', 'annotation_extension_json', 'bbop.widgets.search_pane');
+     // mr_t.is_same_atom(t4, '', 'broken object output');
+
+     var t5 = h.dispatch('{"foo":1}', 'annotation_extension_json',
+			 'bbop.widgets.search_pane');
+     mr_t.is_same_atom(t5, '', 'incorrect object output');
+
+    // var is_def = bbop.core.is_defined;
+    // var what_is = bbop.core.what_is;
+
+ })();
+
+///
+/// End unit testing.
+///
+
+// Final report.
+mr_t.report();

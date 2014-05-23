@@ -1,0 +1,27 @@
+////
+//// Some unit testing for version.js (even though it is generated).
+////
+
+// Correct environment, ready testing.
+var bbop = require('bbop').bbop;
+var amigo = require('amigo2').amigo;
+var mr_t = new bbop.test();
+
+///
+/// Start unit testing.
+///
+
+
+(function(){
+     
+     mr_t.is_defined(amigo.version.revision, 'revision defined');
+     mr_t.is_defined(amigo.version.release, 'release defined');
+
+ })();
+
+///
+/// End unit testing.
+///
+
+// Final report.
+mr_t.report();

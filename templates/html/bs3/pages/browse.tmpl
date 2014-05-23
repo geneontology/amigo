@@ -1,0 +1,77 @@
+<!-- Begin: browse.tmpl -->
+
+[% INCLUDE common/noscript_js_necessary.tmpl %]
+
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Browse Ontologies" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<p>
+  Unlike some ontology browsers, which give a direct topological
+  view of the graph relations of terms, this browser shows the
+  logical relations of the term in question to its ancestors and
+  children.
+</p>
+<p>
+  For example, if you were to select the term "neurogenesis"
+  (GO:0022008), you would see the current term in question with a
+  yellow triangle next to it. The current term's ancestors back to
+  the root would be arrayed above, with their relationship to the
+  current term next to it (e.g. "neurogenesis" is "part_of"
+  "developmental process"). Below the current term is the current
+  terms children, with a similar relationship next to them.
+</p>
+<p>
+  You may switch the top-level ontology by clicking one of the
+  top-level term buttons, or you may jump directly to a term by
+  typing some identifying text into the input field and selecting
+  the term from the dropdown.
+</p>
+<p>
+  More information can be found in the
+  <a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual">manual</a>.
+</p>
+[% INCLUDE "common/info_rollup_end.tmpl" %]
+
+<div class="panel panel-default">
+  <!-- <div class="panel-heading"> -->
+    <!-- <div class="panel-title"> -->
+    <!-- </div> -->
+  <!-- </div> -->
+  <div class="panel-body">
+
+    <h4>GO root shortcuts</h4>
+    <div id="graph_radio" class="btn-group" data-toggle="buttons">
+      <!-- <div id="graph_radio"> -->
+	<!-- Ontology browsing shortcuts: -->
+	<!-- <input type="radio" id="bp" name="graph_radio" checked="checked" /> -->
+	<!-- <label for="bp">Biological process</label> -->
+	<!-- <input type="radio" id="cc" name="graph_radio" /> -->
+	<!-- <label for="cc">Cellular Component</label> -->
+	<!-- <input type="radio" id="mf" name="graph_radio" /> -->
+	<!-- <label for="mf">Molecular function</label> -->
+      <!-- </div> -->
+    </div>
+
+    <div style="margin-top: 1em;">
+      <form class="form-inline" role="form">
+	<div class="form-group">
+	  <!-- <label class="sr-only" -->
+	  <!--        for="jumper">Search for term (any loaded ontology)</label> -->
+	  <input type="text"
+		 class="form-control" 
+		 name="jumper"
+		 title="Search for term (any loaded ontology)"
+		 placeholder="Search for term (any loaded ontology)"
+		 size="35"
+		 value=""
+		 id="jumper" />
+	</div>
+      </form>
+    </div>
+
+    <h4>Transitive term neighborhood</h4>
+    <div id="browser_id"></div>
+
+  </div>
+</div>
+<!-- End: browse.tmpl -->

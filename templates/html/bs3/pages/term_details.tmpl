@@ -1,0 +1,84 @@
+<!-- START template: term_details.tmpl -->
+
+[% INCLUDE common/noscript_js_limited.tmpl %]
+
+[% INCLUDE common/term_details_main.tmpl %]
+
+<!-- Hrm... -->
+[% UNLESS TERM_INFO.is_obsolete == "true" OR TERM_INFO.is_obsolete == 1 %]
+
+<!-- Display tabbing. -->
+<ul id="display-tabs" class="nav nav-tabs">
+  <!-- NOTE: As of RC3, "active" did not work, so still tabbed from JS. -->
+  <!-- <li class="active"> -->
+  <li>
+    <a href="#display-associations-tab" data-toggle="tab">Associations</a>
+  </li>
+  <li>
+    <a href="#display-graphics-tab" data-toggle="tab">Graph Views</a>
+  </li>
+  <li>
+    <a href="#display-lineage-tab" data-toggle="tab">Inferred Tree View</a>
+  </li>
+  <li>
+    <a href="#display-sentences-tab" data-toggle="tab">Ancestors and Children</a>
+  </li>
+  <li>
+    <a href="#display-xref-tab" data-toggle="tab">Mappings</a>
+  </li>  
+  <!-- <li> -->
+  <!-- 	 <a href="#display-out-tab" data-toggle="tab">Other Views</a> -->
+  <!-- </li> -->
+  <!-- <li> -->
+  <!-- 	 <a href="#display-down-tab" data-toggle="tab">Downloads</a> -->
+  <!-- </li> -->
+</ul>
+
+<div class="tab-content">
+  
+  <!-- <div class="container"> -->
+  <!-- </div> -->
+  <div id="display-associations-tab" class="tab-pane">
+    <div class="panel panel-default amigo-detail-tab-spacer">
+      <div class="panel-body">
+	[% INCLUDE "common/term_details_search.tmpl" %]
+      </div>
+    </div>
+  </div>
+  
+  <div id="display-graphics-tab" class="tab-pane">
+    <div class="panel panel-default amigo-detail-tab-spacer">
+      <div class="panel-body">
+	[% INCLUDE "common/term_details_graphics.tmpl" %]	  
+      </div>
+    </div>
+  </div>
+  
+  <div id="display-lineage-tab" class="tab-pane">
+    <div class="panel panel-default amigo-detail-tab-spacer">
+      <div class="panel-body">
+	[% INCLUDE "common/term_details_lineage.tmpl" %]	  
+      </div>
+    </div>
+  </div>
+
+  <div id="display-sentences-tab" class="tab-pane">
+    <div class="panel panel-default amigo-detail-tab-spacer">
+      <div class="panel-body">
+	[% INCLUDE "common/term_details_sentences.tmpl" %]
+      </div>
+    </div>
+  </div>
+  
+  <div id="display-xref-tab" class="tab-pane">
+    <div class="panel panel-default amigo-detail-tab-spacer">
+      <div class="panel-body">
+	[% INCLUDE "common/term_details_xrefs.tmpl" %]
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+[% END %]
+<!-- END template: term_details.tmpl -->

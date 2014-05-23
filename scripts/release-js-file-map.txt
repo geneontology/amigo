@@ -1,0 +1,22 @@
+// CommonJS Modules 1.0 wrapper.
+javascript/lib/amigo/commonjs-modules_1_0-bbop.js
+// Auto-generated version information.
+javascript/lib/amigo/version.js
+// AmiGO 2 specific JS libs.
+javascript/lib/amigo/api.js
+javascript/lib/amigo/linker.js
+javascript/lib/amigo/handler.js
+javascript/lib/amigo/handlers/echo.js
+javascript/lib/amigo/handlers/owl_class_expression.js
+// Auto-generated data.
+javascript/lib/amigo/data/golr.js
+javascript/lib/amigo/data/server.js
+javascript/lib/amigo/data/definitions.js
+javascript/lib/amigo/data/xrefs.js
+javascript/lib/amigo/data/dispatch.js
+javascript/lib/amigo/data/context.js
+javascript/lib/amigo/data/statistics.js
+// Reusable widgets.
+javascript/lib/amigo/ui/rollup.js
+// CommonJS Modules 1.0 wrapper.
+javascript/lib/amigo/commonjs-modules_1_0-shim.js

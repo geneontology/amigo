@@ -1,0 +1,122 @@
+####
+#### A list of questions for presentation in the search wizard (Grebe).
+####
+#### field_id: the element id of the field
+#### field_filter: the query_filter for the question to use from the content on the field
+#### widget_options: the personality profile in Grebe.js for a particular field
+#### widget_personality: the personality used in the manager for a filter field
+#### widget_document: the document_category for a particular field to look at
+####
+---
+- group_label: Term annotations
+- question_id: q2
+  question: What are the direct and indirect annotations to term {{q2f1}}?
+  personality: annotation
+  document_category: annotation
+  field_translations:
+    - field_id: q2f1
+      field_filter: isa_partof_closure
+      widget_options: bbop_term_ac
+      widget_personality: ontology
+      widget_document: ontology_class
+- question_id: q4
+  question: What are the direct and indirect annotations for organism (scientific name) {{q4f1}} to term {{q4f2}}?
+  personality: annotation
+  document_category: annotation
+  field_translations:
+    - field_id: q4f1
+      field_filter: taxon_closure
+      widget_options: bbop_term_ac
+      widget_personality: ontology
+      widget_document: ontology_class
+      widget_filters:
+        - 'source:ncbi_taxonomy'
+    - field_id: q4f2
+      field_filter: isa_partof_closure
+      widget_options: bbop_term_ac
+      widget_personality: ontology
+      widget_document: ontology_class
+- group_label: Gene product annotations
+- question_id: q5
+  question: What are all the annotations for gene product {{q5f1}}
+  personality: annotation
+  document_category: annotation
+  field_translations:
+    - field_id: q5f1
+      field_filter: bioentity
+      widget_options: bioentity
+      widget_personality: bioentity
+      widget_document: bioentity
+- group_label: Gene products associated with terms
+- question_id: q6
+  question: What are the gene products annotated to term {{q6f1}} but <em>not</em> term {{q6f2}}? 
+  personality: bioentity
+  document_category: bioentity
+  field_translations:
+    - field_id: q6f1
+      field_filter: isa_partof_closure
+      widget_options: bbop_term_ac
+      widget_personality: ontology
+      widget_document: ontology_class
+    - field_id: q6f2
+      field_filter: -isa_partof_closure
+      widget_options: bbop_term_ac
+      widget_personality: ontology
+      widget_document: ontology_class
+- question_id: q7
+  question: What are the gene products annotated to term {{q7f1}} <em>and</em> term {{q7f2}}?
+  personality: bioentity
+  document_category: bioentity
+  field_translations:
+    - field_id: q7f1
+      field_filter: isa_partof_closure
+      widget_options: bbop_term_ac
+      widget_personality: ontology
+      widget_document: ontology_class
+    - field_id: q7f2
+      field_filter: isa_partof_closure
+      widget_options: bbop_term_ac
+      widget_personality: ontology
+      widget_document: ontology_class
+- group_label: Protein family
+- question_id: q8
+  question: What are the annotations associated with the protein family {{q8f1}}?
+  personality: annotation
+  document_category: annotation
+  field_translations:
+    - field_id: q8f1
+      field_filter: panther_family
+      widget_options: bbop_family
+      widget_personality: family
+      widget_document: family
+- group_label: Curator tools
+- question_id: q1
+  question: What are the direct annotations to term {{q1f1}}?
+  personality: annotation
+  document_category: annotation
+  field_translations:
+    - field_id: q1f1
+      field_filter: annotation_class
+      #placeholder_text: GO:0022008 or neurogenesis
+      widget_options: general
+      widget_personality: general
+      widget_filters:
+        - 'category:ontology_class'
+      widget_document: general
+- question_id: q3
+  question:  What are the direct annotations for organism (scientific name) {{q3f1}} to term {{q3f2}}?
+  personality: annotation
+  document_category: annotation
+  field_translations:
+    - field_id: q3f1
+      field_filter: taxon_closure
+      widget_options: bbop_term_ac
+      widget_personality: ontology
+      widget_document: ontology_class
+      widget_filters:
+        - 'source:ncbi_taxonomy'
+    - field_id: q3f2
+      field_filter: annotation_class
+      widget_options: bbop_term_ac
+      widget_personality: ontology
+      widget_document: ontology_class

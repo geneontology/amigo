@@ -1,0 +1,235 @@
+<!-- START template: gene_product_details.tmpl -->
+  
+  <ul id="navPage" class="inline C">
+    <li><a href="#info" title="View gene product information">
+	Gene product information
+	<img src="[% image_dir %]/down.png" alt="in-page link" />
+      </a>
+    </li>
+    <li><a href="#additional" title="View additional information">
+    	Additional information
+    	<img src="[% image_dir %]/down.png" alt="in-page link to additional information" />
+      </a>
+    </li>
+    <!-- <li><a href="#sequence" -->
+    <!-- 	   title="View peptide sequence" -->
+    <!-- 	   id="barSeqToggle">Peptide sequence -->
+    <!-- 	<img src="[% image_dir %]/down.png" alt="in-page link" /> -->
+    <!--   </a> -->
+    <!-- </li> -->
+    <!-- <li><a href="#seq-info" title="View sequence information"> -->
+    <!-- 	Sequence information -->
+    <!-- 	<img src="[% image_dir %]/down.png" alt="in-page link" /> -->
+    <!--   </a> -->
+    <!-- </li> -->
+    <!-- <li> -->
+    <!--   [% IF TERM_ASSOCIATIONS_LINK || ( TERM_ASSOCIATIONS_COUNT && TERM_ASSOCIATIONS_COUNT == 0 ) %] -->
+    <!--   <a href="[% TERM_ASSOCIATIONS_LINK %]" -->
+    <!-- 	 title="View terms associated with this term"> -->
+    <!-- 	[%    IF TERM_ASSOCIATIONS_COUNT %] -->
+    <!-- 	[%       IF TERM_ASSOCIATIONS_COUNT == 1 %] -->
+    <!-- 	1 term association -->
+    <!-- 	[%       ELSE %] -->
+    <!-- 	[% TERM_ASSOCIATIONS_COUNT %] term associations -->
+    <!-- 	[%       END %] -->
+    <!-- 	[%    ELSE %] -->
+    <!-- 	Term associations -->
+    <!-- 	[%    END %] -->
+    <!-- 	<img src="[% image_dir %]/left.png" -->
+    <!-- 	     alt="link to term association page" /> -->
+    <!--   </a> -->
+    <!--   [%   ELSE %] -->
+    <!--   No term associations -->
+    <!--   [%   END %] -->
+    <!-- </li> -->
+  </ul>
+  
+  <div class="block" id="info">
+
+    <h2>Gene Product Information</h2>
+
+      <dl class="gp">
+	
+	<dt>Symbol</dt> 
+	[% IF GP_INFO.label %]
+	<dd class="symbol">[% GP_INFO.label %]</dd>
+	[% ELSE %]
+	<dd class="symbol">(n/a)</dd>
+	[% END %]
+	
+	<dt>Name(s)</dt>
+	[% IF GP_INFO.name %]
+	<dd class="full_name">[% GP_INFO.name %]</dd>
+	[% ELSE %]
+	<dd class="full_name">(n/a)</dd>
+	[% END %]
+	
+	<dt>Type</dt> 
+	<dd class="type">[% GP_INFO.type %]</dd>
+	
+	<dt>Taxon</dt>
+	<dd class="spp">[% GP_INFO.taxon_readable %]</dd>
+	<!-- TODO: Oo! Copy below. -->
+	<!-- <dd class="spp"><a href="http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=44689" title="View Dictyostelium discoideum details on the NCBI taxonomy website">Dictyostelium discoideum</a></dd> -->
+	
+	<!-- Synonyms -->
+	<dt>Synonyms</dt>
+	[% sl = GP_INFO.synonyms %]
+	[% IF sl.size == 0 %]
+	<dd>None</dd>
+	[% ELSE %]
+	[%    FOREACH synh IN sl %]
+	<!-- <dd class="syn">[% IF synh.scope %]<span class="type">[% synh.scope %]</span>: [% END %][% synh.acc %]</dd> -->
+	[%       ## Something broken in the GAF or pipeline? %]
+	[%       IF synh == "" %]
+	<dd class="syn">(n/a)</dd>
+	[%       ELSE %]
+	<dd class="syn">[% synh %]</dd>
+	[%       END %]
+	[%    END %]
+	[% END %]
+
+	<dt>Database</dt>
+	<dd>[% GP_INFO.source %], <a href="[% GP_INFO.db_link %]" title="View details of [% GP_INFO.internal_id %] at [% GP_INFO.source %]">[% GP_INFO.internal_id %]</a>
+	</dd>
+
+	<!-- <dt>Sequence</dt>				 -->
+	<!-- <dd><a href="#sequence" title="View DDB_G0267178_RTE sequence" id="seqToggle">View sequence</a>;  -->
+	<!--   <a class="blast-link" href="blast.cgi?action=blast&amp;seq_id=dictyBase:DDB_G0267178" title="Use sequence as BLAST query">use as BLAST query sequence</a></dd> -->
+
+	[% IF PHYLO_TREE_LINK %]
+	<dt>PANTHER Family</dt>				
+	<dd><a title="View PANTHER tree" href="[% PHYLO_TREE_LINK %]">View PANTHER tree</a> 
+	[% END %]
+	
+	<!-- DEV BREAK -->
+
+      </dl>
+
+    <p class="toTop">
+      <a href="#top" title="Back to the top of the page">Back to top</a> 
+    </p>
+  </div>
+ 
+  <!-- Hrm... -->
+  <noscript>
+    <div class="block warning">
+      <h2>Notice</h2>
+      <p>
+	Enable JavaScript in your browser and reload for gene product
+	count filters and links.
+      </p>
+    </div>
+  </noscript>
+
+ <noscript>
+   <div class="block warning">
+     <h2>Notice</h2>
+     <p>
+       Enable JavaScript in your browser and reload for advanced features.
+     </p>
+   </div>
+ </noscript>
+
+ <div class="block" id="additional">
+   <h2>Additional Information for [% GP_INFO.name %] ([% GP_INFO.acc %])</h2>
+   
+   <!-- Display tabbing. -->
+   <div id="display-tabs" style="font-size:100%;">
+     <ul>
+       <li>
+	 <a href="#display-associations"
+	    class="override"><span>Associations</span></a>
+       </li>
+       <!-- <li> -->
+       <!-- 	 <a href="#display-down" -->
+       <!-- 	    class="override"><span>Downloads</span></a> -->
+       <!-- </li> -->
+       <!-- <li> -->
+       <!-- 	 <a href="#display-xref" -->
+       <!-- 	    class="override"><span>TODO: Mappings</span></a> -->
+       <!-- </li> -->
+     </ul>
+
+     <div id="display-associations">
+       Contacting server...
+     </div>
+
+     <!-- <div id="display-down"> -->
+     <!--   <p> -->
+     <!-- 	 <ul> -->
+     <!-- 	   <li><b>Downloads in...</b></li> -->
+     <!-- 	   <li><a href="[% cgi %].cgi?[% vbridge %]&amp;format=obo" title="Download the tree in OBO text format">OBO</a></li> -->
+     <!-- 	   <li><a href="[% cgi %].cgi?[% vbridge %]&amp;format=rdfxml" title="Download the tree in RDF-XML format">RDF-XML</a></li> -->
+     <!-- 	   <li><a href="[% cgi %].cgi?[% vbridge %]&amp;format=dot" title="Download the tree in GraphViz dot format">GraphViz dot</a></li> -->
+     <!-- 	 </ul> -->
+     <!--   </p>        -->
+     <!-- </div> -->
+
+     <!-- <div id="display-xref"> -->
+
+       <!-- <p> -->
+       <!-- 	 TODO: Need to find a way of getting mapping information -->
+       <!-- 	 without sequences. -->
+       <!-- </p> -->
+
+       <!-- [% IF GP_INFO.dbxrefs && GP_INFO.dbxrefs.size > 0 %] -->
+       <!-- [% xref_hash = {} %] -->
+       <!-- [% FOREACH xref = GP_INFO.dbxrefs %] -->
+       <!-- [% db = xref.dbname %] -->
+       <!-- [% IF xref_hash.$db %] -->
+       <!-- [% xref_list = xref_hash.$db %] -->
+       <!-- [% xref_list.push(xref) %] -->
+       <!-- [% xref_hash.$db = xref_list %] -->
+       <!-- [% ELSE %] -->
+       <!-- [% xref_list = [] %] -->
+       <!-- [% xref_list.push(xref) %] -->
+       <!-- [% xref_hash.$db = xref_list %] -->
+       <!-- [% END %] -->
+       <!-- [% END %] -->
+     <!--   <dl class="ext-ref"> -->
+     <!-- 	 [% FOREACH db =  xref_hash.keys.sort %] -->
+     <!-- 	 <dt> -->
+     <!-- 	   <a class="img" -->
+     <!-- 	      href="#[% db %]"><img src="[% image_dir %]/toggle-open.gif" -->
+     <!-- 				    alt="toggle" id="[% db %]Img"></a> -->
+     <!-- 	   [% db %] ([% xref_hash.$db.size %]) -->
+     <!-- 	 </dt> -->
+     <!-- 	 <dd id="[% db %]"><ul> -->
+     <!-- 	     [% FOREACH xref_item = xref_hash.$db %] -->
+     <!-- 	     <li> -->
+     	       <!-- [% xref_key = xref_item.key %] -->
+     	       <!-- [% db_link = xref_item.link %] -->
+     	       <!-- [% IF db_link %] -->
+     	       <!-- <a href="[% db_link %]" -->
+     	       <!-- 	  title="View [% xref_key %] in [% db %]">[% xref_key %]</a> -->
+     	       <!-- [% ELSE %] -->
+     	       <!-- [%    xref_key %] -->
+     	       <!-- [% END %] -->
+     	       <!-- [% IF xref_item.xref_desc %] [% xref_item.xref_desc %][% END %] -->
+     <!-- 	     </li> -->
+     <!-- 	     [% END %] -->
+     <!-- 	 </ul></dd> -->
+     <!-- 	 [% END %] -->
+     <!--   </dl> -->
+       
+     <!--   [% ELSE %] -->
+     <!--   <p>???</p> -->
+     <!--   [% END %] -->
+       
+     <!-- </div> -->
+     
+     <div class="clearall"></div>
+
+   </div>
+
+   <!-- <div class="filters"> -->
+   <!--   [% # INCLUDE filter_term_details2.tmpl %] -->
+   <!-- </div> -->
+   [% # INCLUDE treeview.tmpl %]
+   <p class="toTop">
+     <a href="#top" title="Back to the top of the page">Back to top</a> 
+   </p>
+ </div>
+
+<!-- END template: gene_product_details.tmpl -->

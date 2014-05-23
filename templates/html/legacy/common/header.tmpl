@@ -1,0 +1,120 @@
+<!-- START template: header.tmpl -->
+<!-- page_name          = [% page_name %] -->
+<!-- image_dir          = [% image_dir %] -->
+<!-- show_blast         = [% show_blast %] -->
+<!-- bookmark           = [% bookmark %] -->
+<!-- session_id         = [% session_id %] -->
+<!-- session_id_for_url = [% session_id_for_url %] -->
+<div id="header">
+  <a class="logo floatL" href="http://geneontology.org"><img class="logo-img-left" src="[% image_dir %]/go-logo.png" alt="GO logo" title="Gene Ontology front page"></a>
+  <a class="logo floatR" href="[% public_base %]/go.cgi"><img class="logo-img-right" src="[% image_dir %]/logo-sm.png" alt="AmiGO logo" title="AmiGO front page"></a>
+  [% IF BETA == 1 %]
+  <!-- <a class="logo floatR" href="[% public_base %]/search"><img class="logo-img-right" src="[% image_dir %]/logo-amigolabs-sm.png" alt="AmiGO logo" title="AmiGO front page"></a> -->
+  [% ELSE %]
+  <!-- <a class="logo floatR" href="[% public_base %]/search"><img class="logo-img-right" src="[% image_dir %]/logo-sm.png" alt="AmiGO logo" title="AmiGO front page"></a> -->
+  [% END %]
+</div>
+
+[% IF BETA == 1 %]
+<div id="searchbarlabs">
+[% ELSE %]
+<div id="searchbar">
+[% END %]
+  <ul id="menuToggle">
+
+    [% IF page_name == 'landing' %]
+    <li class="here">Home</li>
+    [% ELSE %] 
+    <li>
+      <a href="[% base %]/amigo/landing" title="The AmiGO 2 landing page.">Home</a>
+    </li>
+    [% END %] 
+
+    [% IF page_name == 'search' %] 
+    <li class="here">Search</li>
+    [% ELSE %] 
+    <li>
+      <a href="[% base %]/amigo/search" title="Search for GO terms, gene product annotations, and other entities.">Search</a>
+    </li>
+    [% END %] 
+
+    [% IF page_name == 'browse' %] 
+    <!-- <li class="here">Browse</li> -->
+    [% ELSE %] 
+    <!-- <li> -->
+    <!--   <a href="[% base %]/amigo/browse" title="Browse GO terms.">Browse</a> -->
+    <!-- </li> -->
+    [% END %] 
+
+    [%# Link out to the stuff in the newer framework. %]
+    [% IF page_name == "software_list" %]
+    <li class="here">
+      <a style="border: 0; background-color: #e9effa; color: #006;"
+	 href="[% base %]/amigo/software_list"
+         title="More tools to explore the Gene Ontology">Tools&nbsp;&amp;&nbsp;Resources</a> 
+    </li>
+    [% ELSE %]
+    <li>
+      <a href="[% base %]/amigo/software_list"
+         title="More tools to explore the Gene Ontology">Tools&nbsp;&amp;&nbsp;Resources</a> 
+    </li>
+    [% END %]
+
+    [% help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual" %]
+    [% IF page_name == 'landing' %]
+    [%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Home" %]
+    [% ELSIF page_name == 'goose' %]
+    [%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_GOOSE" %]
+    [% ELSIF page_name == 'gannet' %]
+    [%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Gannet" %]
+    [% ELSIF page_name == 'grebe' %]
+    [%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Grebe" %]
+    [% ELSIF page_name == 'visualize' %]
+    [%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Visualize" %]
+    [% ELSIF page_name == 'live_search' %]
+    [%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Search" %]
+    [% ELSIF page_name == 'term' %]
+    [%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Term_Page" %]
+    [% ELSIF page_name == 'gene_product' %]
+    [%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Gene_Product_Page" %]
+    [% END %]
+
+    <li>
+      <a href="[% help_link %]" title="Help guide for AmiGO 2">Help</a> 
+    </li>
+
+    [% IF BETA == 1 %]
+    <li>
+      <a href="http://wiki.geneontology.org/index.php/AmiGO_2:_Feedback" title="Give feddback on AmiGO 2">Feedback</a> 
+    </li>    
+    [% END %]
+
+    <li>
+      <a href="http://wiki.geneontology.org/index.php/AmiGO_2" title="About AmiGO 2">About</a> 
+    </li>
+
+<!--
+    [% IF BETA == 1 %]
+    <li><a href="http://amigo.geneontology.org" title="Use the stable public version of AmiGO"><small>[Use stable AmiGO]</small></a></li>
+    [% ELSE %]
+    <li><a href="http://wiki.geneontology.org/index.php/AmiGO_Labs" title="Try out an experimental version of AmiGO"><small>[Try AmiGO Labs]</small></a></li>
+    [% END %]
+-->
+  </ul>
+
+  [% IF page_name == 'landing' || page_name == 'visualize' || page_name == 'goose' || page_name == 'gannet' || page_name == 'repl' || page_name == 'simple_search' || page_name == 'amigo' || page_name == 'schema_details' || page_name == 'load_details' %]
+  [% ELSE %]
+  [%    INCLUDE "common/header_search.tmpl" %]
+  [% END %] 
+</div>
+
+[% IF BETA == 1 %]
+<h2 id="shout">
+  <a title="Go to AmiGO Labs explanation page"
+     href="http://wiki.geneontology.org/index.php/AmiGO_Labs">
+      You are using AmiGO Labs
+  </a>
+</h2>
+[% END %]
+
+<!-- END template: header.tmpl -->

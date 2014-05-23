@@ -1,0 +1,36 @@
+/*
+ * TODO: Couldn't this be JSified?
+ */
+
+.org_bbop_amigo_ui_widget_base{
+    z-index: 100;
+    position: fixed;
+    /* width: 25em; */
+    /* margin-top: 3px; */
+    /* margin-right: 3px; */
+    margin-top: 1em;
+    margin-right: 1em;
+    /* width: 100%; */
+    top: 0%;
+    right: 0em;
+    font-weight: bold;
+    background-color: white;
+    padding: 0.5em;
+    padding-left: 1em;
+    padding-right: 1em;
+    /* color: blue; */
+}
+
+.org_bbop_amigo_ui_widget_for_waiting{
+    opacity: .67;
+    outline:  #3875d7 solid 3px;
+}
+.org_bbop_amigo_ui_widget_for_notice{
+    outline: green solid 3px;
+}
+.org_bbop_amigo_ui_widget_for_warning{
+    outline: yellow solid 3px;
+}
+.org_bbop_amigo_ui_widget_for_error{
+    outline: red solid 3px;
+}

@@ -1,0 +1,11 @@
+#!/usr/bin/perl -w
+####
+#### A bootstrap for launch an arbitrary X/Y facet matrix tool.
+####
+
+BEGIN { require "config.pl"; }
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
+
+use AmiGO::WebApp::FacetMatrix;
+my $facet_matrix = AmiGO::WebApp::FacetMatrix->new(PARAMS => {});
+$facet_matrix->run();

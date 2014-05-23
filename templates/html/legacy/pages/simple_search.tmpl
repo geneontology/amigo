@@ -1,0 +1,61 @@
+<!-- START: simple_search.tmpl -->
+[% USE HTML %]
+
+<div class="block">
+  <h2>Search GO</h2>
+  
+  [% INCLUDE common/simple_search_form.tmpl %]
+
+  <br />
+
+</div>
+
+[% IF search_performed_p %]
+
+<div class="block" id="nav_anchor">
+  <h2>Search Results</h2>
+  
+  [% IF results_p == 0 %]
+  <p>
+    No results were found for "[% HTML.escape(query) %]"
+    in "[% HTML.escape(document_category) %]"
+    on page [% HTML.escape(page_number) %].
+    <br />
+    Please search again.
+  </p>
+  [% ELSE %]
+  <p>
+  <p>
+    [% results_total %] results were found for "[% HTML.escape(query) %]"
+    in [% HTML.escape(golr_class) %]'s [% document_category %].
+    <br />
+    Currently viewing [% range %]
+    results on page [% HTML.escape(page_number) %]
+    ([% range_low %]-[% range_high %]).
+
+    [% INCLUDE common/simple_search_results.tmpl %]
+
+  </p>
+  [% END %]
+
+</div>
+
+[% END %]
+
+<!-- <noscript> -->
+<!--   <div class="block warning"> -->
+<!--     <h2>Notice</h2> -->
+<!--     <p> -->
+<!-- 	Currently, the functionality of this page depends on -->
+<!-- 	Javascript. To use this page, enable JavaScript in your -->
+<!-- 	browser and reload. -->
+<!--     </p> -->
+<!--   </div> -->
+<!-- </noscript> -->
+
+<!-- TODO/DEBUG: remove this later on. -->
+<!-- <div> -->
+<!--   DEBUG: <span id="DEBUG"></span> -->
+<!-- </div> -->
+
+<!-- END: simple_search.tmpl -->

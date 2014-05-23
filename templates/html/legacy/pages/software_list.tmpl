@@ -1,0 +1,175 @@
+<!-- Begin: software_list.tmpl -->
+  <div class="block">
+
+    <h2>Interactively explore GO data</h2>
+    <!-- <h2>Tools and Resources in AmiGO</h2> -->
+
+    <p>
+      <a href="[% base %]/amigo/landing">Home</a> allows simple quick
+      searches using autocomplete and the new GOlr backend.
+    </p>
+    
+    <p>
+      <a href="[% base %]/amigo/search">Search</a> interactively
+      searches and filters the GO data as you type. Also allows you to
+      use a powerful search syntax (including boolean operators).
+      <!-- This page can interact with the -->
+      <!-- <a title="GO Galaxy" href="[% GO_GALAXY %]">GO Galaxy</a> instance. -->
+    </p>
+    
+    <p>
+      <a href="[% base %]/grebe" title="Grebe Search Wizard">Search
+      Wizard</a> (Grebe) can be used to quickly answer common
+      questions using a fill-in-the-blank approach.
+    </p>
+
+    <p>
+      <a href="[% base %]/amigo/visualize">Visualization</a>s
+      of the GO graph. Freely make
+      your own ontology graph, including label and color
+      changes. Please see the documentation for
+      more <a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Visualize">details</a>.
+    </p>
+    
+    <!-- <p> -->
+    <!--   <a href="[% base %]/amigo?mode=term&term=GO:0022008">Term Details</a> -->
+    <!--   (trying to make the page work off of the Solr backend). -->
+    <!-- </p> -->
+    
+    <!-- <p> -->
+    <!--   <a href="[% base %]/amigo?mode=gene_product&gp=dictyBase:DDB_G0291524">Gene Product Details</a> -->
+    <!--   (trying to make the page work off of the Solr backend). -->
+    <!-- </p> -->
+  </div>
+    
+  <div class="block">
+
+    <h2>Directly query GO data</h2>
+
+    <p>
+      <!-- http://goose.berkeleybop.org -->
+      <a href="[% base %]/goose" title="GO Online SQL Environment: query the GO database directly">GOOSE</a> is the GO
+      Online SQL Environment. Using this, users may query the GO
+      database directly using SQL, or edit one of the already made
+      templates.
+    </p>
+
+  </div>
+
+  <div class="block">
+
+    <h2>Instance information</h2>
+
+    <p>
+      <a href="[% base %]/amigo/schema_details" title="Instance schema details">Schema details</a> what fields are recognized by
+	 AmiGO on the Solr server.
+      <!-- This page may be useful in -->
+      <!-- conjunction with -->
+      <!-- <a href="[% base %]/gannet" -->
+      <!-- 	 title="Gannet: query the SOlr index directly">Gannet</a>. -->
+    </p>
+
+    <p>
+      <a href="[% base %]/amigo/load_details" title="Data load details">Load details</a> about which files are being used in
+	 this instance of AmiGO and when they were loaded.
+    </p>
+
+  </div>
+
+  [% IF BETA == 1 %]
+
+  <div class="block">
+
+    <h2>AmiGO 2 Software in the Lab</h2>
+
+    <h3>Beta features being tested and functional demos:</h3>
+
+    <p>
+      <a href="[% base %]/amigo/browse">Browse</a> the Gene Ontology
+      term data in an interactive hierarchical form.
+    </p>
+    
+    <p>
+      <a href="[% base %]/amigo/simple_search">Simple search</a> is a
+      limited non-JavaScript search client for primitive access to
+      GOlr data.
+    </p>
+    
+    <p>
+      <!-- http://gannet.berkeleybop.org -->
+      <a href="[% base %]/gannet" title="Gannet: query the SOlr index directly">Gannet</a> is the Solr analog to GOOSE. This page can
+      interact with the <a title="GO Galaxy" href="[% GO_GALAXY %]">GO
+      Galaxy</a> instance. Also see the <a href="[% base %]/amigo/schema_details" title="Instance schema details">schema details</a>.
+    </p>
+
+    <p>
+      <a href="[% base %]/repl">REPL</a> is an interactive JavaScript
+      environment for working with BBOP JS against the GO data.
+    </p>
+    
+  </div>
+    
+  <div class="block">
+
+    <h2>AmiGO 2 Software in the Garage</h2>
+
+    <h3>Alpha features:</h3>
+
+    <p>
+      <a href="[% base %]/pgraph">Phylotree/Graph</a> test using new generic graph system (single static data set).
+    </p>
+
+    <p>
+      <a href="[% base %]/pgraph?mode=pthr10170">Phylotree/Graph of PTHR10170</a> test using new generic graph system (hand-coded test of PTHR10170).
+    </p>
+
+    <!-- <p> -->
+    <!--   <a href="[% base %]/phylotree">Phylotree</a> data using PANTHER and old Newick system. -->
+    <!-- </p> -->
+    
+    <!-- <p> -->
+    <!--   <a href="[% base %]/amigo_exp?mode=front_page">Front Page</a> (including mock-up of the with the autocompleter).</p> -->
+    
+    <!-- <p> -->
+    <!--   <a href="[% base %]/amigo_exp?mode=workspace_client">Workspace</a> is a workspace and session system interface. -->
+    <!-- </p> -->
+
+    <!-- <p> -->
+    <!--   <a href="[% base %]/amigo_exp?mode=exhibit">Ajax-Solr -->
+    <!--   Search</a> is a secondary attempt to create a fast search backed -->
+    <!--   by Solr, using the Ajax-Solr MVC(ish) library as the jumping-off -->
+    <!--   point. -->
+    <!-- </p> -->
+
+    <!-- <p> -->
+    <!--   <a href="[% base %]/amigo_exp?mode=ntree">Phylogenic Tree</a> browser in JavaScript. -->
+    <!-- </p> -->
+    
+    <h3>Proofs of concept:</h3>
+
+    <p>
+      <a href="[% base %]/matrix">Matrix</a> showing shared
+      association information.
+    </p>
+
+    <p>
+      <a href="[% base %]/amigo_exp?mode=drill">Drill Down</a>
+      experimental tree browser using a jQuery plugin. Not too smart,
+      but lightweight.
+    </p>
+    
+    <p>
+      <a href="[% base %]/amigo_exp?mode=visic">Visual IC</a> lets you
+      enter terms and see them in the graph along with their
+      information content in a static image.
+    </p>
+    
+    <p>
+      <a href="[% base %]/amigo_exp?mode=scratch">Scratch</a> space
+      for pieces not part of something else; a rotating guest list.
+    </p>
+    
+  </div>
+
+  [% END %]
+<!-- End: software_list.tmpl -->

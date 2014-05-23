@@ -1,0 +1,44 @@
+<!-- START template: term_details_graphics.tmpl -->
+[% IF EXOTIC_P %]
+<h5>External term view.</h5>
+<p>
+  <a href="[% VIZ_STATIC_LINK %]"
+     title="Stand-alone graphic for [% TERM_INFO.acc %]">
+    <img src="[% VIZ_STATIC_LINK %]"
+	 alt="Graph of [% TERM_INFO.acc %]" />
+  </a>
+</p>
+[% ELSE %]
+<h5>
+  View this term in
+  <a href="[% QUICKGO_TERM_LINK %]"
+     title="Go to the QuickGO term page for [% TERM_INFO.acc %]">QuickGO</a>.
+</h5>
+<p>
+  <a href="[% QUICKGO_TERM_LINK %]"
+     title="Go to the QuickGO term page for [% TERM_INFO.acc %]">
+    <img src="[% VIZ_QUICKGO_LINK %]"
+	 alt="Graph of [% TERM_INFO.acc %] from QuickGO" />
+  </a>
+</p>    
+[% END %]
+
+<h5>Additional external viewing options</h5>
+<ul class="list-unstyled">
+  <li><a href="[% OLSVIS_GO_LINK %]"
+	 title="View the graph in the OLSVis viewer">OLSVis (interactive)</a></li>
+</ul>
+
+<h5>Additional internal viewing options</h5>
+<ul class="list-unstyled">
+  <!-- TODO: do this with breadcrumbsy string (taken from REST URL) --> 
+  <!-- <li>Last action: [% last_action || 'unknown' %]</li> -->
+  <li><a href="[% VIZ_STATIC_LINK %]"
+	 title="View the graph as a static PNG image">Graphical view (PNG)</a></li>
+  <li><a href="[% VIZ_DYNAMIC_LINK %]"
+	 title="View the graph as an interactive SVG+JS document">Graphical view (SVG)</a></li>
+  <!-- One day this will be out of experimental. -->
+  <!-- <li><a href="[% NAVIGATION_LINK %]" -->
+  <!-- 	      title="Navigate the GO, using the current term as a seed">GO Navigation</a></li> -->
+</ul>
+<!-- END template: term_details_graphics.tmpl -->

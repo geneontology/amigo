@@ -1,0 +1,39 @@
+<!-- START: live_search_golr.tmpl -->
+
+[% INCLUDE common/noscript_js_necessary.tmpl %]
+
+[% INCLUDE common/noscript_js_limited_search.tmpl %]
+
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Information about <strong>" _ personality_name _  "</strong> search" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<p>
+  This Live Search is specialized on the <em>[% personality_name
+  %]</em> search personality: [% personality_description %]
+</p>
+<p>
+  Live Search will return results from the Gene Ontology as you
+  type. No results will be returned until the search input is at
+  least three characters. After that, you may also use the filters
+  to limit or reduce the results.
+</p>
+<p>
+  For a detailed explanation on how to search, a list of what fields
+  can be used in the search string, or an explanation for how to get
+  the results you want, please view the AmiGO 2
+  <a title="Go to Search AmiGO 2 live search documentation"
+     href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Search">search</a>
+  documentation.
+</p>
+[% INCLUDE "common/info_rollup_end.tmpl" %]
+  
+<div class="panel panel-default">
+  <div class="panel-body">
+    
+    <div id="display-general-search">
+      Pending...
+    </div>
+  
+  </div>
+</div>
+<!-- END: live_search_golr.tmpl -->

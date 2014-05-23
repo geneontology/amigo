@@ -1,0 +1,11 @@
+#!/usr/bin/perl -w
+####
+#### A view for remote term enrichment offered as a service.
+####
+
+BEGIN { require "config.pl"; }
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
+
+use AmiGO::WebApp::RTE;
+my $rte = AmiGO::WebApp::RTE->new(PARAMS => {});
+$rte->run();

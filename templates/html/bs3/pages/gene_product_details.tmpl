@@ -1,0 +1,98 @@
+<!-- START template: gene_product_details.tmpl -->
+
+[% INCLUDE common/noscript_js_limited.tmpl %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Gene Product Information</h3>
+  </div>
+  <div class="panel-body">
+
+    <dl class="dl-horizontal amigo-detail-info">
+      
+      <dt>Symbol</dt> 
+      [% IF GP_INFO.label %]
+      <dd>[% GP_INFO.label %]</dd>
+      [% ELSE %]
+      <dd>(n/a)</dd>
+      [% END %]
+      
+      <dt>Name(s)</dt>
+      [% IF GP_INFO.name %]
+      <dd>[% GP_INFO.name %]</dd>
+      [% ELSE %]
+      <dd>(n/a)</dd>
+      [% END %]
+      
+      <dt>Type</dt> 
+      <dd>[% GP_INFO.type %]</dd>
+      
+      <dt>Taxon</dt>
+      <dd>[% GP_INFO.taxon_readable %]</dd>
+      <!-- TODO: Oo! Copy below. -->
+      <!-- <dd><a href="http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=44689" title="View Dictyostelium discoideum details on the NCBI taxonomy website">Dictyostelium discoideum</a></dd> -->
+      
+      <!-- Synonyms -->
+      <dt>Synonyms</dt>
+      [% sl = GP_INFO.synonyms %]
+      [% IF sl.size == 0 %]
+      <dd>None</dd>
+      [% ELSE %]
+      [%    FOREACH synh IN sl %]
+      <!-- <dd class="syn">[% IF synh.scope %]<span class="type">[% synh.scope %]</span>: [% END %][% synh.acc %]</dd> -->
+      [%       ## Something broken in the GAF or pipeline? %]
+      [%       IF synh == "" %]
+      <dd>(n/a)</dd>
+      [%       ELSE %]
+      <dd>[% synh %]</dd>
+      [%       END %]
+      [%    END %]
+      [% END %]
+
+      <dt>Database</dt>
+      <dd>[% GP_INFO.source %], <a href="[% GP_INFO.db_link %]" title="View details of [% GP_INFO.internal_id %] at [% GP_INFO.source %]">[% GP_INFO.internal_id %]</a>
+      </dd>
+
+      <!-- <dt>Sequence</dt>				 -->
+      <!-- <dd><a href="#sequence" title="View DDB_G0267178_RTE sequence" id="seqToggle">View sequence</a>;  -->
+      <!--   <a class="blast-link" href="blast.cgi?action=blast&amp;seq_id=dictyBase:DDB_G0267178" title="Use sequence as BLAST query">use as BLAST query sequence</a></dd> -->
+
+      [% IF PHYLO_TREE_LINK %]
+      <dt>PANTHER Family</dt>				
+      <dd><a title="View PANTHER tree" href="[% PHYLO_TREE_LINK %]">View PANTHER tree</a></dd> 
+      [% END %]
+
+      <!-- JS dynamic links created by manager. -->
+      <dt id="prob_related" class="hidden">Related</dt>
+      <!-- <dd id="prob_bio" class="hidden"> -->
+      <!-- 	<a id="prob_bio_href" href="#" class="btn btn-primary btn-xs">Link</a> -->
+      <!-- 	to all <strong>bioentities</strong> associated to [% GP_INFO.label %]. -->
+      <!-- </dd> -->
+      <dd id="prob_ann" class="hidden">
+	<a id="prob_ann_href" href="#" class="btn btn-primary btn-xs">Link</a>
+	to all direct and indirect <strong>annotations</strong>
+	to [% GP_INFO.label %].
+      </dd>
+      <dd id="prob_ann_dl" class="hidden">
+	<a id="prob_ann_dl_href" href="#" class="btn btn-primary btn-xs">Link</a>
+	to all direct and indirect <strong>annotations download</strong> (limited to first 10,000)
+	for [% GP_INFO.label %].
+      </dd>
+
+    </dl>
+
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Gene Product Associations</h3>
+  </div>
+  <div class="panel-body">
+    <div id="display-associations">
+      Contacting server...
+    </div>
+  </div>
+</div>
+
+<!-- END template: gene_product_details.tmpl -->

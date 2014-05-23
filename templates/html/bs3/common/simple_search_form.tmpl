@@ -1,0 +1,48 @@
+<!-- Begin: simple_search_form.tmpl -->
+<!-- simple_search_form_info: [% simple_search_form_info %] -->
+
+<!-- roll="form" -->
+<form action="[% interlink_simple_search %]"
+      id="simple-query-form"
+      method="GET">
+
+  <input type="hidden"
+	 name="mode"
+	 value="simple_search" />
+  <input type="hidden"
+	 name="page"
+	 value="[% page || 1 %]" />
+
+  <div class="form-group">
+    <input
+       type="text"
+       class="form-control"
+       name="query"
+       placeholder="Simple search"
+       size="35"
+       value="[% query %]"
+       id="query" />
+  </div>
+
+  [% ssfi_iter = 0 %]
+  [% FOREACH ssfi IN simple_search_form_info %]
+  <div class="radio">
+    <label>
+      <input type="radio"
+	     name="golr_class"
+	     [% IF golr_class == ssfi.id %]checked="checked"[% END %]
+	     [% IF ! golr_class OR golr_class == '' %][% IF ssfi_iter == 0 %]checked="checked"[% END %][% END %]
+	     value="[% ssfi.id %]">
+      [% ssfi.display_name %]
+    </label>
+  </div>
+  [%   ssfi_iter = ssfi_iter + 1 %]
+  [% END %]
+
+  <button type="submit"
+ 	  title="Search for terms and gene products with the inputted text."
+	  class="btn btn-default">Search</button>
+
+</form>
+
+<!-- End: simple_search_form.tmpl -->

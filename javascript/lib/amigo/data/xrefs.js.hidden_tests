@@ -1,0 +1,29 @@
+////
+//// Some unit testing for linker.js (even though its data is generated).
+//// Not a normal test since it uses the internet.
+////
+//// Usage:
+////  rhino  -modules _data/bbop.js -modules javascript/staging/amigo2.js -opt -1 -f javascript/lib/amigo/data/xrefs.js.hidden_tests
+////
+
+// Correct environment, ready testing.
+var bbop = require('bbop').bbop;
+var amigo = require('amigo2').amigo;
+var mr_t = new bbop.test();
+
+///
+/// Start unit testing.
+///
+
+//(function(){
+
+// ...
+//mr_t.is_same_atom(l.url('GO:0022008'), 'http://amigo.geneontology.org/cgi-bin/amigo/term-details.cgi?term=GO:0022008', 'linker: go');
+// })();
+
+///
+/// End unit testing.
+///
+
+// Final report.
+mr_t.report();

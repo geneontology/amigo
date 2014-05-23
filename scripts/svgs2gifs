@@ -1,0 +1,63 @@
+#!/usr/bin/ruby -w
+
+##
+## TODO: add decent file checking, and maybe 
+##
+
+require 'RMagick'
+include Magick
+
+
+##
+relations = [
+             'is_a',
+             'part_of',
+             'occurs_in',
+
+             'develops_from',
+
+             'has_component',
+             'has_function',
+             'has_process',
+
+             'regulates',
+             'positively_regulates',
+             'negatively_regulates',
+
+             'related_to' # generic fall-through
+            ]
+
+
+##
+def convert(rel)
+  
+  rpath = '../amigo/images'
+  in_svg_name = rpath + '/' + rel + ".svg"
+  out_gif_name = rpath + '/' + rel + ".gif"
+  
+  begin
+
+    if File.stat(in_svg_name).readable?
+
+      svg_img = Image.read(in_svg_name)
+      #gif_img = svg_img[0].resize_to_fit(22,11) # read returns an array.
+      gif_img = svg_img[0].resize_to_fit(22,15) # read returns an array.
+      gif_img.write( out_gif_name )
+    
+      puts "Converted: " + out_gif_name
+
+    end
+
+  rescue
+
+    puts "Not found: " + in_svg_name
+
+  end
+
+end
+
+
+## Iterate.
+relations.each { |r| 
+  convert(r)
+}

@@ -1,0 +1,23 @@
+<!-- Begin: message_generic.tmpl -->
+[% IF title AND title != '' %]
+<div class="page-header">  
+  <h1>[% title %]</h1>
+</div>
+[% END %]
+
+<div class="panel [% IF error %]panel-danger[% ELSE %]panel-primary[% END %]">
+  <div class="panel-heading">
+    <h3 class="panel-title">[% header %]</h3>
+  </div>
+  <div class="panel-body">
+    <div class="well">
+      [% message %]
+    </div>
+    <p>
+      If you feel that you have reached this message in error, please contact
+      <a title="Contact the GO Helpdesk"
+	 href="http://www.geneontology.org/GO.contacts.shtml">GO Helpdesk</a>.
+    </p>
+  </div>
+</div>
+<!-- End: message_generic.tmpl -->

@@ -1,0 +1,49 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.bbop</groupId>
+  <artifactId>EvAggXForm</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>EvAgg X-Form</name>
+  <description>A bit to transform the evidence aggregate in place on the solr server.</description>
+  <build>
+  	<plugins>
+  		<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+  	</plugins>
+  </build>
+  <dependencies>
+  	<dependency>
+  		<groupId>org.apache.solr</groupId>
+  		<artifactId>solr-core</artifactId>
+  		<version>1.4.0</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.apache.solr</groupId>
+  		<artifactId>solr-solrj</artifactId>
+  		<version>1.4.0</version>
+  		<exclusions>
+  			<exclusion>
+  				<artifactId>slf4j-api</artifactId>
+  				<groupId>org.slf4j</groupId>
+  			</exclusion>
+  		</exclusions>
+  	</dependency>
+  	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-log4j12</artifactId>
+		<version>1.6.4</version>
+	</dependency>
+  	<dependency>
+  		<groupId>log4j</groupId>
+  		<artifactId>log4j</artifactId>
+  		<version>1.2.16</version>
+  	</dependency>
+  </dependencies>
+</project>

@@ -1,0 +1,25 @@
+<!-- START template: header_search.tmpl -->
+<!-- page_name          = [% page_name %] -->
+<form action="[% interlink_medial_search %]"
+      id="query-form"
+      class="navbar-form navbar-right"
+      role="search"
+      method="GET">
+  <div class="form-group">
+    <input
+       type="text"
+       title="Hint: add a space after completing a word to narrow the search."
+       class="form-control bbop-js-tooltip"
+       name="q"
+       placeholder="Quick search"
+       value="[% query %]"
+       id="gsf-query">
+  </div>
+  <button type="submit"
+	  title="Search for annotations with the inputted text."
+	  class="btn btn-default">Search</button>
+
+  [% INCLUDE "common/autocomplete_help_link.tmpl" %]
+
+</form>
+<!-- END template: header_search.tmpl -->

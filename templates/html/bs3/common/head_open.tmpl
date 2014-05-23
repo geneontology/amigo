@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<!-- START template: head_open.tmpl -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AmiGO 2">
+    <meta name="author" content="Gene Ontology Consortium">
+    <!-- <meta name="html_url" content="[% html_url %]"> -->
+
+    <link rel="shortcut icon" href="[% image_dir %]/go-logo-favicon.ico">
+    <link rel="icon" href="[% image_dir %]/go-logo-favicon.ico">
+
+    [% IF public_opensearch AND public_opensearch != "" %]
+    <link
+       rel="search"
+       type="application/opensearchdescription+xml"
+       href="[% public_opensearch %]/osd_term.xml"
+       title="GO Search (term)" />
+    <link
+       rel="search"
+       type="application/opensearchdescription+xml"
+       href="[% public_opensearch %]/osd_gp.xml"
+       title="GO Search (gene product)" />
+    [% END %]
+
+    <title>[% page_title %]</title>
+    <!-- <link rel="icon"  -->
+    <!-- 	  type="image/x-icon"  -->
+    <!-- 	  href="[% image_dir %]/go-logo-favicon.ico"> -->
+<!-- END template: head_open.tmpl -->

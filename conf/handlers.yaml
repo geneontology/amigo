@@ -1,0 +1,11 @@
+####
+#### The mapping between field names, their contexts, and the
+#### functions that handle them.
+####
+## These first two are for testing (see amigo/handler.js.tests).
+## Do /not/ erase these!
+- field: annotation_extension_json
+  context: bbop.widgets.search_pane
+  function: amigo.handlers.owl_class_expression
+## Actively used handlers.
+## Please edit from here down.

@@ -1,0 +1,86 @@
+<!-- START: medial_search.tmpl -->
+[% USE HTML %]
+
+[% IF TERM_INFO  %]
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      Were you looking for information on <em>[% TERM_INFO.name %]</em> 
+      ([% TERM_INFO.acc %])?
+    </div>
+  </div>
+  <div class="panel-body">
+
+    <p>
+      Specific information on <strong>[% TERM_INFO.name %]</strong>
+      ([% TERM_INFO.acc%]) can be found at the following locations.
+    </p>
+
+     <ul class="list-group">
+       <li class="list-group-item">
+	 <a href="[% TERM_INFO.term_link %]" class="btn btn-primary">Link</a>
+	 to <strong>detailed information</strong> about [% TERM_INFO.name %].
+       </li>
+       <!-- Additional links exposed with the assistance of a JS
+	    manager in the live document. -->
+       <li id="prob_ann" class="list-group-item hidden">
+	 <a id="prob_ann_href" href="#" class="btn btn-primary">Link</a>
+	 to all direct and indirect <strong>annotations</strong>
+	 to [% TERM_INFO.name %].
+       </li>
+       <li id="prob_bio" class="list-group-item hidden">
+	 <a id="prob_bio_href" href="#" class="btn btn-primary">Link</a>
+	 to all <strong>genes and gene products</strong> associated to [% TERM_INFO.name %].
+       </li>
+     </ul>
+
+  </div>
+</div>
+[% END %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      Text search document selection
+    </div>
+  </div>
+  <div class="panel-body">
+
+    [% IF results_p == 0 %]
+    <p>
+      Nothing found for <strong>[% query %]</strong>. Please try again.
+    </p>
+    [% ELSE %]
+    <p>
+      The following results were found for <strong>[% query %]</strong>
+      using a general search over all text fields.
+     </p>
+     <p>
+      To narrow your search, select the type of document that you
+      would like to search for and continue narrowing your search from
+      the linked search page.
+    </p>
+    
+    <ul class="list-group">
+      [%   FOREACH bundle = results_info %]
+      <li class="list-group-item">
+	[% IF bundle.count == 0 %]
+	<a href="#"
+	   class="btn btn-default disabled">[% bundle.name %]</a>
+	[% ELSE %]
+	<a href="[% bundle.link %]"
+	   class="btn btn-primary">[% bundle.name %]</a>
+	[% END %]
+	<span class="badge">[% bundle.count %]</span>
+	&nbsp;&nbsp;&nbsp;
+	[% bundle.description %]
+      </li>
+      [%   END %]
+    </ul>
+
+    [% END %]
+
+  </div>
+</div>
+
+<!-- END: medial_search.tmpl -->

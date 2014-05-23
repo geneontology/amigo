@@ -1,0 +1,20 @@
+<!-- Begin: mq_message.tmpl -->
+<!-- <div class="mq_message mq_[% mq_last_message_type %]"> -->
+[% detected_mq_type = "" %]
+[% IF mq_last_message_type == "success" %]
+[%    detected_mq_type = "alert-success" %]
+[% ELSIF mq_last_message_type == "notice" %]
+[%    detected_mq_type = "alert-info" %]
+[% ELSIF mq_last_message_type == "warning" %]
+[%    detected_mq_type = "alert-warning" %]
+[% ELSIF mq_last_message_type == "error" %]
+[%    detected_mq_type = "alert-danger" %]
+[% END %]
+<div class="alert alert-dismissable [% detected_mq_type %]">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  <!-- <img title="This is a [% mq_last_message_type %]." src="[% image_dir %]/[% mq_last_message_type %].png" />&nbsp;&nbsp; -->
+  <!-- <p> -->
+    [% mq_last_message %]
+  <!-- </p> -->
+</div>
+<!-- End: mq_message.tmpl -->

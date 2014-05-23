@@ -1,0 +1,61 @@
+<!-- Begin: footer.tmpl -->
+<!-- release_date = [% release_date %] -->
+<!-- version = [% version %] -->
+<!-- VERSION = [% VERSION %] -->
+[% final_version = version %]
+[% IF VERSION %]
+[%    final_version = VERSION %]
+[% END %]
+<hr>
+<footer>
+  <div class="row">
+
+    <!-- Left. -->
+    <div class="col-md-4">
+      <a href="http://www.geneontology.org/GO.cite.shtml#data" title="How to cite AmiGO data">Cite this data</a> &bull; <a href="http://www.geneontology.org/GO.cite.shtml" title="Terms of use for the GO project">Terms of use</a> &bull; <a href="http://www.geneontology.org/GO.contacts.shtml" title="Contact the GO helpdesk">GO helpdesk</a>
+      <br />
+      Copyright &copy; 1999-2014 <a href="http://www.geneontology.org/" title="Gene Ontology home page">the Gene Ontology</a>
+    </div>
+
+    <!-- Middle. -->
+    <div class="col-md-4" style="text-align: center;">
+      [% IF BETA == 1 %]
+      <!-- <a href="http://amigo.geneontology.org" title="Use the stable public version of AmiGO"><small>Return to AmiGO home</small></a> -->
+      [% ELSE %]
+      <!-- <a href="http://wiki.geneontology.org/index.php/AmiGO_Labs" title="Try out an experimental version of AmiGO"><small>Try AmiGO Labs</small></a> -->
+      [% END %]
+    </div>
+
+    <!-- Right. -->
+    <div class="col-md-4" style="text-align: right;">
+      [% # Remove confusing database date. %]
+      [% IF is_goose_p %]
+      <!-- GO database release [% release_name %] ([% release_type %]) -->
+      GO database release [% release_date %]
+      [% ELSE %]
+      Last file loaded on [% last_load_date %],
+      see <a href="[% base %]/amigo/load_details">full details</a>
+      [% END %]
+      <br />
+      AmiGO 2 version: <a title="View release notes for the current version" href="http://wiki.geneontology.org/index.php/AmiGO_2_0">[% final_version %]</a>
+      [% IF server_name %]([% server_name %])[% END %]
+    </div>
+
+  </div>
+</footer>
+[% IF GOOGLE_ANALYTICS_ID AND GOOGLE_ANALYTICS_ID.length > 1 %]
+<!-- analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', '[% GOOGLE_ANALYTICS_ID %]', 'berkeleybop.org');
+  ga('send', 'pageview');
+
+</script>
+[% ELSE %]
+<!-- no analytics -->
+[% END %]
+<!-- End: footer.tmpl -->

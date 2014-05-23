@@ -1,0 +1,10 @@
+####
+#### Current public GO mirrors.
+####
+---
+bbop_golr:
+  label: Experimental GO Solr
+  location: in Berkeley, CA
+  class: exp
+  database: http://golr.berkeleybop.org/
+  type: solr

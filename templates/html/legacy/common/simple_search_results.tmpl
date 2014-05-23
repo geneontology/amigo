@@ -1,0 +1,68 @@
+<!-- START: simple_search_results.tmpl -->
+
+<p>
+  [% IF page_number > 1 %]
+  <a href="[% first_page_url %]" name="first page">first</a>
+  <a href="[% prev_page_url %]" name="previous page">previous</a>
+  [% ELSE %]
+  first
+  previous
+  [% END %]
+  [% IF next_page_p %]
+  <a href="[% next_page_url %]" name="next page">next</a>
+  <a href="[% last_page_url %]" name="last page">last</a>
+  [% ELSE %]
+  next
+  last
+  [% END %]
+</p>
+
+<table summary="Search results">
+  <thead>
+    <tr>
+	  
+      [% FOREACH field_name = results_order %]
+      <th style="">
+	[% golr_class_info.fields_hash.$field_name.display_name %]
+      </th>
+      [% END%]
+      
+    </tr>
+  </thead>
+  
+  <tbody>
+    
+    [% eo = 0 %]
+    [% FOREACH row = results %]
+    [%    local_id = row.id %]
+    [%    IF eo % 2 == 0 %]
+    <tr class="even_row">
+      [%  ELSE %]
+    <tr class="even_odd">
+      [%  END %]
+
+      [% FOREACH field_name = results_order %]
+      [%    item_list = row.$field_name.list %]
+      <td rowspan="1">
+      [%    FOREACH item = item_list %]
+	[%     IF results_links_local.$item %]
+	<a href=[% results_links_local.$item %]>
+	[%     END %]
+	[%     IF highlighting.$local_id.$field_name %]
+	[%        highlighting.$local_id.$field_name %]
+	[%     ELSE %]
+	[%        item %]
+	[%     END %]
+	[%     IF results_links_local.$item %]
+	</a>
+	[%     END %]
+	[%  END %]
+      [% END%]      
+      </td>
+    </tr>
+    [%    eo = eo + 1 %]
+    [% END %]
+  </tbody>
+</table>
+
+<!-- END: simple_search_results.tmpl -->
