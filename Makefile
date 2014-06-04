@@ -171,7 +171,7 @@ dummy:
 
 .PHONY: release
 release: bundle npm docs
-	s3cmd -P put javascript/staging/amigo*.js s3://bbop/jsapi/
+#	s3cmd -P put javascript/staging/amigo*.js s3://bbop/jsapi/
 
 ###
 ### Ctags file for development.
