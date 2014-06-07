@@ -145,6 +145,14 @@ sub mode_rte {
 	 'correction' => $correction,
 	 'format' => $format
 	};
+
+      ## TODO/BUG: tab is coming back as json...so make it return xml
+      ## and we'll take care of the rest.
+      $self->{CORE}->kvetch($play_url);
+      if( $te_args->{format} eq 'tab' ){
+	  $te_args->{format} = 'xml';
+      }
+
       my $te = AmiGO::External::XMLFast::RemoteTermEnrichment->new($te_args);
       my $got = $te->remote_call($srv);
 

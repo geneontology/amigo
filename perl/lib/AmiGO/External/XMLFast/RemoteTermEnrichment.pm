@@ -148,7 +148,6 @@ sub get_input_list_unmapped_count {
   return $self->try('/results/input_list/unmapped_count', undef);
 }
 
-
 =item get_reference_mapped_list
 
 ...
@@ -156,7 +155,7 @@ sub get_input_list_unmapped_count {
 =cut
 sub get_reference_mapped_list {
   my $self = shift;
-  return $self->try('/results/reference/mapped_id', []);
+  return $self->get_value_list('/results/reference/mapped_id', '???');
 }
 
 
@@ -167,7 +166,7 @@ sub get_reference_mapped_list {
 =cut
 sub get_reference_unmapped_list {
   my $self = shift;
-  return $self->try('/results/reference/unmapped_id', []);
+  return $self->get_value_list('/results/reference/unmapped_id', '???');
 }
 
 
@@ -178,7 +177,7 @@ sub get_reference_unmapped_list {
 =cut
 sub get_input_list_mapped_list {
   my $self = shift;
-  return $self->try('/results/input_list/mapped_id', []);
+  return $self->get_value_list('/results/input_list/mapped_id', '???');
 }
 
 
@@ -189,16 +188,7 @@ sub get_input_list_mapped_list {
 =cut
 sub get_input_list_unmapped_list {
   my $self = shift;
-
-  my $ret = [];
-  my $results =
-    $self->{EXT_DATA}->findnodes('/results/input_list/unmapped_id') || [];
-  foreach my $rnode (@$results){
-    my $lbl = $rnode->findvalue('.') || '???';
-    push @$ret, $lbl;
-  }
-
-  return $ret;
+  return $self->get_value_list('/results/input_list/unmapped_id', '???');
 }
 
 
@@ -260,7 +250,7 @@ sub get_results {
     }
   };
   if( $@ ){
-    die 'An error occured processing the response from the resource:';
+    die "An error occured processing the response from the resource: $@";
   }
 
   return $ret;
