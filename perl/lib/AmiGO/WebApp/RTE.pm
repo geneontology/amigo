@@ -35,6 +35,7 @@ use base 'AmiGO::WebApp';
 use YAML qw(LoadFile);
 use Clone;
 use Data::Dumper;
+#use Math::BigFloat;
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::Redirect;
@@ -166,18 +167,32 @@ sub mode_rte {
 
       my $input_count = $ilm + $ilum;
 
-      ## Try to sort the results.
+      ## Try to sort the results. Also, lower the precision.
       my @sorted_res = sort {
 
-	## Try and sort on p-value.
-	my $bp_str = $b->{p_value};
-	my $ap_str = $a->{p_value};
-	if( $ap_str != $bp_str ){
-	  return $ap_str <=> $bp_str;
-	}
+	  ## Collect values.
+	  my $bp_str = $b->{p_value};
+	  my $ap_str = $a->{p_value};
+	  my $be_str = $b->{p_expected};
+	  my $ae_str = $a->{p_expected};
 
-	## Otherwise, try expected value.
-	return $a->{expected} <=> $b->{expected};
+	  ## Reduce value precision.
+	  # Math::BigFloat->precision(-3);
+	  # $b->{p_value} = Math::BigFloat->new($bp_str);
+	  # $a->{p_value} = Math::BigFloat->new($ap_str);
+	  # $b->{expected} = Math::BigFloat->new($be_str);
+	  # $a->{expected} = Math::BigFloat->new($ae_str);
+	  $b->{p_value} = sprintf("%.3e", $bp_str);
+	  $a->{p_value} = sprintf("%.3e", $ap_str);
+	  $b->{expected} = sprintf("%.3e", $be_str);
+	  $a->{expected} = sprintf("%.3e", $ae_str);
+
+	  ## Try and sort on p-value.
+	  if( $ap_str != $bp_str ){
+	      return $ap_str <=> $bp_str;
+	  }
+	  ## Otherwise, try expected value.
+	  return $ae_str <=> $be_str;
       } @$res;
 
       ## Tab results get outputted directly, "xml" results get the
