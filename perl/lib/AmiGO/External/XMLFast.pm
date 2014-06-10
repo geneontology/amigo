@@ -29,10 +29,41 @@ sub new {
   ## A little XML readying.
   $self->{EXT_DATA} = undef;
 
+  ##
+  $self->{RTE_DOM} = undef;
+  $self->{RTE_XPATH} = undef;
+
   bless $self, $class;
   return $self;
 }
 
+
+=item get_local_data
+
+Bring in a local file in for testing...or whatever.
+
+my $te = AmiGO::External::XMLFast->new();
+my $xmlout = $te->get_local_data(...);
+
+## Print out XML to STDERR.
+print STDERR $xmlout . "\n";
+
+=cut
+sub get_local_data {
+
+  my $self = shift;
+  my $string  = shift || die 'need a string to make a local fetch';
+
+  ## If we got the URL together properly, go get it.
+  my $ret = $string;
+  $self->{EXT_DATA} = XML::LibXML->load_xml(string => $string);
+
+  ## Setup the methods we'll use.
+  $self->{RTE_DOM} = $self->{EXT_DATA};
+  $self->{RTE_XPATH} = XML::LibXML::XPathContext->new($self->{EXT_DATA});
+
+  return $ret;
+}
 
 =item get_external_data
 
@@ -65,6 +96,10 @@ sub get_external_data {
       eval {
 	my $dom = XML::LibXML->load_xml(string => $doc);
 	$self->{EXT_DATA} = $dom;
+
+	## Setup the methods we'll use.
+	$self->{RTE_DOM} = $self->{EXT_DATA};
+	$self->{RTE_XPATH} = XML::LibXML::XPathContext->new($self->{EXT_DATA});
       };
 
       ## Check for errors.
@@ -113,6 +148,10 @@ sub post_external_data {
       eval {
 	my $dom = XML::LibXML->load_xml(string => $doc);
 	$self->{EXT_DATA} = $dom;
+
+	## Setup the methods we'll use.
+	$self->{RTE_DOM} = $self->{EXT_DATA};
+	$self->{RTE_XPATH} = XML::LibXML::XPathContext->new($self->{EXT_DATA});
       };
 
       ## Check for errors.
@@ -156,6 +195,27 @@ sub try {
   }
 
   return $retval;
+}
+
+=item get_value_list
+
+try to recover a value list, needs default value, rets empty list by defult
+
+=cut
+sub get_value_list {
+  my $self= shift;
+  my $xpath = shift || die "need path";
+  my $defval = shift || die "need default value";
+
+  my $ret = [];
+
+  my $results = $self->{RTE_XPATH}->findnodes($xpath) || [];
+  foreach my $rnode (@$results){
+      my $lbl = $rnode->findvalue('.') || $defval;
+      push @$ret, $lbl;
+  }
+
+  return $ret;
 }
 
 

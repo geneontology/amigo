@@ -371,7 +371,7 @@ sub mode_goose {
     ### SQL (else).
     ###
 
-    $self->{CORE}->kvetch("trying query:" . $in_query);
+    $self->{CORE}->kvetch("trying query: " . $in_query);
 
     ## Get the right query worker for SQL.
     my $q = undef;
@@ -416,7 +416,7 @@ sub mode_goose {
   ###
 
   my $output = '';
-  ##if( $in_format eq 'text' && ( $in_type =~ /lead/ || $in_type =~ /gold/ )){
+  $self->{CORE}->kvetch("incoming switches: " . $in_format . ', ' . $in_type);
   if( $in_format eq 'text' && $in_type =~ /lead/ ){
     $self->{CORE}->kvetch("text/sql combination");
 
@@ -432,10 +432,6 @@ sub mode_goose {
     }
     $output = join "\n", @$nlbuf;
 
-  }elsif( $in_format eq 'text' && $in_type =~ /solr/ ){
-    $self->{CORE}->kvetch("text/solr combination: " . $direct_solr_results);
-    $self->header_add( -type => 'plain/text' );
-    $output = $direct_solr_results;
   }else{
     $self->{CORE}->kvetch("some html combination");
 
@@ -485,53 +481,6 @@ sub mode_goose {
 	  }
 	  push @$htmled_results, $rowbuf;
 	}
-      }
-    }elsif( $in_type =~ /solr/ ){
-      $self->{CORE}->kvetch("html/solr combination");
-      #push @$htmled_results, "TODO: solr html output";
-
-      # $direct_solr_results =~ s/\n/\<br \/\>/g;
-      # push @$htmled_results, '<pre>' . $direct_solr_results . '</pre>';
-
-      my $treg = $self->{CORE}->term_regexp();
-
-      foreach my $doc_hash (@$solr_results){
-	my $sbuf = [];
-
-	#$self->{CORE}->kvetch("row: " . Dumper($doc_hash));
-	my @solr_keys = keys %$doc_hash;
-	my @sorted_solr_keys =
-	  sort {
-	    if( $a eq 'id' ){
-	      return -1;
-	    }elsif( $b eq 'id' ){
-	      return 1;
-	    }else{
-	      return 0;
-	    }
-	  }
-	  @solr_keys;
-	foreach my $k (@sorted_solr_keys){
-	  my $v = $doc_hash->{$k};
-	  if( ref($v) eq 'HASH' ){
-	    push @$sbuf, '<b>' . $k . '</b>: ' . $v;
-	  }elsif( ref($v) eq 'ARRAY' ){
-	    push @$sbuf, '<b>' . $k . '</b>: ' . join(', ', @$v);
-	  }else{
-	    if( $v =~ /($treg)/ ){
-	      my $link =
-		$self->{CORE}->get_interlink({
-					      mode => 'term_details',
-					      arg => { acc => $1 }
-					     });
-	      $v = '<a title="'. $1 .'" href="'. $link .'">'. $1 .'</a>';
-	    }
-	    push @$sbuf, '<b>' . $k . '</b>: ' . $v;
-	  }
-	}
-
-	push @$htmled_results,
-	  '<ul></li>' . join('</li><li>', @$sbuf) . '</li></ul>';
       }
 
     }else{

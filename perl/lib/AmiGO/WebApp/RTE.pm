@@ -10,6 +10,10 @@ P63104
 Q96QU6
 Q8NCW5
 
+P31946   P62258
+Q04917 P61981
+P31947  baxter
+
 AKT1
 CRIM1
 EIF2AK3
@@ -35,6 +39,7 @@ use base 'AmiGO::WebApp';
 use YAML qw(LoadFile);
 use Clone;
 use Data::Dumper;
+#use Math::BigFloat;
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::TT;
 use CGI::Application::Plugin::Redirect;
@@ -116,9 +121,11 @@ sub mode_rte {
       die 'could not resolve incoming resource id';
     }
 
-    ## Pre-process the input a little bit.
-    #$input =~ s/\r\n/ /g;
-    #$input =~ s/\s+/ /g;
+    ## Pre-process the input a little bit. The input, as we stand
+    ## right now, must be newline separated when it goes across the wire.
+    ## WS convert.
+    my $inplist = $self->{CORE}->clean_list($input);
+    $input = join("\n", @$inplist);
 
     ## URL useful for forwarding and examination.
     my $srv = $rsrc->{webservice};
@@ -145,6 +152,14 @@ sub mode_rte {
 	 'correction' => $correction,
 	 'format' => $format
 	};
+
+      ## TODO/BUG: tab is coming back as json...so make it return xml
+      ## and we'll take care of the rest.
+      $self->{CORE}->kvetch($play_url);
+      if( $te_args->{format} eq 'tab' ){
+	  $te_args->{format} = 'xml';
+      }
+
       my $te = AmiGO::External::XMLFast::RemoteTermEnrichment->new($te_args);
       my $got = $te->remote_call($srv);
 
@@ -158,18 +173,32 @@ sub mode_rte {
 
       my $input_count = $ilm + $ilum;
 
-      ## Try to sort the results.
+      ## Try to sort the results. Also, lower the precision.
       my @sorted_res = sort {
 
-	## Try and sort on p-value.
-	my $bp_str = $b->{p_value};
-	my $ap_str = $a->{p_value};
-	if( $ap_str != $bp_str ){
-	  return $ap_str <=> $bp_str;
-	}
+	  ## Collect values.
+	  my $bp_str = $b->{p_value};
+	  my $ap_str = $a->{p_value};
+	  my $be_str = $b->{p_expected};
+	  my $ae_str = $a->{p_expected};
 
-	## Otherwise, try expected value.
-	return $a->{expected} <=> $b->{expected};
+	  ## Reduce value precision.
+	  # Math::BigFloat->precision(-3);
+	  # $b->{p_value} = Math::BigFloat->new($bp_str);
+	  # $a->{p_value} = Math::BigFloat->new($ap_str);
+	  # $b->{expected} = Math::BigFloat->new($be_str);
+	  # $a->{expected} = Math::BigFloat->new($ae_str);
+	  $b->{p_value} = sprintf("%.3e", $bp_str);
+	  $a->{p_value} = sprintf("%.3e", $ap_str);
+	  $b->{expected} = sprintf("%.3e", $be_str);
+	  $a->{expected} = sprintf("%.3e", $ae_str);
+
+	  ## Try and sort on p-value.
+	  if( $ap_str != $bp_str ){
+	      return $ap_str <=> $bp_str;
+	  }
+	  ## Otherwise, try expected value.
+	  return $ae_str <=> $be_str;
       } @$res;
 
       ## Tab results get outputted directly, "xml" results get the
