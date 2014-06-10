@@ -10,6 +10,10 @@ P63104
 Q96QU6
 Q8NCW5
 
+P31946   P62258
+Q04917 P61981
+P31947  baxter
+
 AKT1
 CRIM1
 EIF2AK3
@@ -117,9 +121,11 @@ sub mode_rte {
       die 'could not resolve incoming resource id';
     }
 
-    ## Pre-process the input a little bit.
-    #$input =~ s/\r\n/ /g;
-    #$input =~ s/\s+/ /g;
+    ## Pre-process the input a little bit. The input, as we stand
+    ## right now, must be newline separated when it goes across the wire.
+    ## WS convert.
+    my $inplist = $self->{CORE}->clean_list($input);
+    $input = join("\n", @$inplist);
 
     ## URL useful for forwarding and examination.
     my $srv = $rsrc->{webservice};
