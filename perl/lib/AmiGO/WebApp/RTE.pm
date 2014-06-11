@@ -10,9 +10,12 @@ P63104
 Q96QU6
 Q8NCW5
 
-P31946   P62258
-Q04917 P61981
+P31946   ,P62258
+Q04917,P61981
 P31947  baxter
+P27348,
+P63104 ,  Q96QU6
+Q8NCW5 ,
 
 AKT1
 CRIM1
@@ -124,6 +127,8 @@ sub mode_rte {
     ## Pre-process the input a little bit. The input, as we stand
     ## right now, must be newline separated when it goes across the wire.
     ## WS convert.
+    ## First, clean out commas--somebody may stick them in there.
+    $input =~ s/\,/ /g;
     my $inplist = $self->{CORE}->clean_list($input);
     $input = join("\n", @$inplist);
 
