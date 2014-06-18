@@ -127,6 +127,7 @@ Group: AmiGO  {
       File: GOOSE.pm  (AmiGO/WebApp/GOOSE.pm)
       File: Grebe.pm  (AmiGO/WebApp/Grebe.pm)
       File: HTMLClient  (AmiGO/WebApp/HTMLClient.pm)
+      File: HTMLClient::Dispatch  (AmiGO/WebApp/HTMLClient/Dispatch.pm)
       File: HTMLClientExp  (AmiGO/WebApp/HTMLClientExp.pm)
       File: Matrix.pm  (AmiGO/WebApp/Matrix.pm)
       File: PGraph  (AmiGO/WebApp/PGraph.pm)
