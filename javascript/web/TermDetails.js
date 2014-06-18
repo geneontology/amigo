@@ -82,8 +82,8 @@ function TermDetailsInit(){
     var ont_flex_download_button =
 	btmpl.flexible_download('Flex download (up to ' + dlimit + ')',
 				dlimit,
-				['annotation_class', 'annotation_class_label'],
-				'ontology',
+				defs.gaf_from_golr_fields(),
+				'annotation',
 				gconf);
     gps.add_button(ont_flex_download_button);
 
