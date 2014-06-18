@@ -30,7 +30,7 @@ NODE_JS ?= /usr/bin/node
 
 ## Handle versioning. The patch level is automatically incremented on
 ## after every release.
-AMIGO_BASE_VERSION = 2.2
+AMIGO_BASE_VERSION = 2.1
 AMIGO_PATCH_LEVEL = `cat version-patch.lvl`
 AMIGO_VERSION_TAG = "" # e.g. -alpha
 AMIGO_VERSION ?= $(AMIGO_BASE_VERSION).$(AMIGO_PATCH_LEVEL)$(AMIGO_VERSION_TAG)
