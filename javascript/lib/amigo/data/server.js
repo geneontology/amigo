@@ -30,30 +30,16 @@ if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
 amigo.data.server = function(){
 
     // All of the server/instance-specific meta-data.
-    var meta_data = {"beta":"1","gp_types":[],"term_regexp":"^all$|^GO:[0-9]{7}$","golr_base":"http://localhost:8080/solr/","species":[],"species_map":{},"app_base":"http://localhost/cgi-bin/amigo2","ontologies":[],"image_base":"http://localhost/amigo2/images","html_base":"http://localhost/amigo2","bbop_img_star":"http://localhost/amigo2/images/star.png","sources":[],"galaxy_base":"http://galaxy.berkeleybop.org/","evidence_codes":{}};
+    var meta_data = {"sources":[],"term_regexp":"^all$|^GO:[0-9]{7}$","galaxy_base":"http://galaxy.berkeleybop.org/","app_base":"http://localhost/cgi-bin/amigo2","gp_types":[],"ontologies":[],"image_base":"http://localhost/amigo2/images","species_map":{},"species":[],"golr_base":"http://localhost:8080/solr/","html_base":"http://localhost/amigo2","evidence_codes":{},"bbop_img_star":"http://localhost/amigo2/images/star.png","beta":"1"};
 
     ///
     /// Break out the data and various functions to access them...
     ///
 
     /*
-     * Function: beta
+     * Function: sources
      * 
-     * Access to AmiGO variable beta.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var beta = meta_data.beta;
-    this.beta = function(){ return beta; };
-
-    /*
-     * Function: gp_types
-     * 
-     * Access to AmiGO variable gp_types.
+     * Access to AmiGO variable sources.
      * 
      * Parameters:
      *  n/a
@@ -61,8 +47,8 @@ amigo.data.server = function(){
      * Returns:
      *  string
      */
-    var gp_types = meta_data.gp_types;
-    this.gp_types = function(){ return gp_types; };
+    var sources = meta_data.sources;
+    this.sources = function(){ return sources; };
 
     /*
      * Function: term_regexp
@@ -79,23 +65,9 @@ amigo.data.server = function(){
     this.term_regexp = function(){ return term_regexp; };
 
     /*
-     * Function: golr_base
+     * Function: galaxy_base
      * 
-     * Access to AmiGO variable golr_base.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var golr_base = meta_data.golr_base;
-    this.golr_base = function(){ return golr_base; };
-
-    /*
-     * Function: species
-     * 
-     * Access to AmiGO variable species.
+     * Access to AmiGO variable galaxy_base.
      * 
      * Parameters:
      *  n/a
@@ -103,22 +75,8 @@ amigo.data.server = function(){
      * Returns:
      *  string
      */
-    var species = meta_data.species;
-    this.species = function(){ return species; };
-
-    /*
-     * Function: species_map
-     * 
-     * Access to AmiGO variable species_map.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var species_map = meta_data.species_map;
-    this.species_map = function(){ return species_map; };
+    var galaxy_base = meta_data.galaxy_base;
+    this.galaxy_base = function(){ return galaxy_base; };
 
     /*
      * Function: app_base
@@ -133,6 +91,20 @@ amigo.data.server = function(){
      */
     var app_base = meta_data.app_base;
     this.app_base = function(){ return app_base; };
+
+    /*
+     * Function: gp_types
+     * 
+     * Access to AmiGO variable gp_types.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    var gp_types = meta_data.gp_types;
+    this.gp_types = function(){ return gp_types; };
 
     /*
      * Function: ontologies
@@ -163,6 +135,48 @@ amigo.data.server = function(){
     this.image_base = function(){ return image_base; };
 
     /*
+     * Function: species_map
+     * 
+     * Access to AmiGO variable species_map.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    var species_map = meta_data.species_map;
+    this.species_map = function(){ return species_map; };
+
+    /*
+     * Function: species
+     * 
+     * Access to AmiGO variable species.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    var species = meta_data.species;
+    this.species = function(){ return species; };
+
+    /*
+     * Function: golr_base
+     * 
+     * Access to AmiGO variable golr_base.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    var golr_base = meta_data.golr_base;
+    this.golr_base = function(){ return golr_base; };
+
+    /*
      * Function: html_base
      * 
      * Access to AmiGO variable html_base.
@@ -175,6 +189,20 @@ amigo.data.server = function(){
      */
     var html_base = meta_data.html_base;
     this.html_base = function(){ return html_base; };
+
+    /*
+     * Function: evidence_codes
+     * 
+     * Access to AmiGO variable evidence_codes.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    var evidence_codes = meta_data.evidence_codes;
+    this.evidence_codes = function(){ return evidence_codes; };
 
     /*
      * Function: bbop_img_star
@@ -191,23 +219,9 @@ amigo.data.server = function(){
     this.bbop_img_star = function(){ return bbop_img_star; };
 
     /*
-     * Function: sources
+     * Function: beta
      * 
-     * Access to AmiGO variable sources.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var sources = meta_data.sources;
-    this.sources = function(){ return sources; };
-
-    /*
-     * Function: galaxy_base
-     * 
-     * Access to AmiGO variable galaxy_base.
+     * Access to AmiGO variable beta.
      * 
      * Parameters:
      *  n/a
@@ -215,22 +229,8 @@ amigo.data.server = function(){
      * Returns:
      *  string
      */
-    var galaxy_base = meta_data.galaxy_base;
-    this.galaxy_base = function(){ return galaxy_base; };
-
-    /*
-     * Function: evidence_codes
-     * 
-     * Access to AmiGO variable evidence_codes.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var evidence_codes = meta_data.evidence_codes;
-    this.evidence_codes = function(){ return evidence_codes; };
+    var beta = meta_data.beta;
+    this.beta = function(){ return beta; };
 
 
     // Does it look like a term?
