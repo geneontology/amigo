@@ -65,8 +65,8 @@ function GPDetailsInit(){
      var bio_flex_download_button =
 	btmpl.flexible_download('Flex download (up to ' + dlimit + ')',
 				dlimit,
-				['bioentity', 'bioentity_label'],
-				'bioentity',
+				defs.gaf_from_golr_fields(),
+				'annotation',
 				gconf);   
     gps.add_button(bio_flex_download_button);
 
