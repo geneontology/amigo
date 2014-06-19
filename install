@@ -18,7 +18,6 @@ use Clone;
 use vars qw(
 	     $opt_h
 	     $opt_v
-	     $opt_g
 	     $opt_b
 	     $opt_u
 	     $opt_V
@@ -40,11 +39,8 @@ my @args = ();
 
 ## Check our options.
 ll("Will print verbose messages.");
-if( $opt_g ){
-  ll("Will also install GOOSE, Gannet, Grebe, and REPL.");
-}
 if( $opt_b ){
-  ll("Will do what is necessary to just produce the JS bundle.");
+  ll("Only produce the JS bundle (which can be used for local development).");
 }
 ## Version.
 my $version = undef;
@@ -87,31 +83,23 @@ ll("Looking for an already made amigo.yaml configuration file...");
 if( -e $amigo_conf && -f $amigo_conf && -R $amigo_conf ) {
   ll("Found it! Will use values from $amigo_conf...");
   $yconf->read($amigo_conf);
+
+  ## We'll be writing to this file as well, so let's check now.
+  if( ! -W $amigo_conf  ) {
+    die "$amigo_conf must be writable by this process; change permissions."
+  }
 }else{
   ll("None found, will make a new one at $amigo_conf.");
 }
 
 ## Check and see if AMIGO_ROOT is defined. If not, go ahead and take a
 ## guess at it.
-if( ! $yconf->{AMIGO_ROOT}{value} ){
-  ll("Guessing the location of AmiGO\'s root directory...");
-  $yconf->{AMIGO_ROOT}{value} = $amigo_base;
-}
+$yconf->{AMIGO_ROOT}{value} = $amigo_base;
+ll("Guessing the location of AmiGO\'s root directory... $amigo_base");
 
 ## Always want the writeback, as the values in amigo.yaml will always
 ## supersede the ones in the initial file.
 $yconf->write();
-
-## Check that the configuration file has at least been minimally
-## altered by the user.
-#ll(Dumper($yconf));
-#ll("yc: " . $yconf->{AMIGO_CONFIGURED}{value});
-if( int($yconf->{AMIGO_CONFIGURED}{value}) ){
-  ll("AmiGO configured, will proceed...");
-}else{
-  ll("AmiGO not yet configured, see INSTALL.org.");
-  die "AmiGO not yet configured, see INSTALL.org";
-}
 
 ###
 ### Fold the YAML values into our local environment.
@@ -148,71 +136,64 @@ for my $var (keys %$yconf){
 ## do this.
 $env_conf{AMIGO_VERSION} = $version;
 
-## Htdocs root directory for AmiGO on the filesystem.
-$env_conf{AMIGO_HTDOCS_ROOT_DIR} =
-  eval {
-    my $foo = '';
-    ( $foo = $env_conf{AMIGO_HTDOCS_PARTIAL_PATH} ) =~ s/\/$//;
-    $foo; } . '/' . $env_conf{AMIGO_PROJECT_NAME};
-safe_make_dir( $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
-
-## CGI root directory for AmiGO on the filesystem.
-$env_conf{AMIGO_CGI_ROOT_DIR} =
-  eval {
-    my $foo = '';
-    ( $foo = $env_conf{AMIGO_CGI_PARTIAL_PATH} ) =~ s/\/$//;
-    $foo; } . '/' . $env_conf{AMIGO_PROJECT_NAME};
-safe_make_dir( $env_conf{AMIGO_CGI_ROOT_DIR} );
-
-## AmiGO CGI URL.
-$env_conf{AMIGO_CGI_URL} =
-  eval {
-    my $foo = '';
-    ( $foo = $env_conf{AMIGO_CGI_BASE_URL} ) =~ s/\/$//;
-    $foo; };
-
-## URL for AmiGO services.
-$env_conf{AMIGO_SERVICE_URL} = $env_conf{AMIGO_CGI_URL} . '/aserve';
-
-## URL for the public production AmiGO
-my $tmp_pbase = $env_conf{AMIGO_PUBLIC_CGI_BASE_URL};
-$tmp_pbase =~ s/\/$//;
-$env_conf{AMIGO_PUBLIC_CGI_BASE_URL} = $tmp_pbase;
-
-## Root AmiGO URL.
-$env_conf{AMIGO_HTML_URL} =
-  eval {
-    my $foo = '';
-    ( $foo = $env_conf{AMIGO_HTDOCS_BASE_URL} ) =~ s/\/$//;
-    $foo; };
+## Remove trailing slashes from all such variables.
+my @pvars = qw(
+		AMIGO_ROOT
+		GO_YAML_LOCATION
+		AMIGO_STATIC_PATH
+		AMIGO_STATIC_URL
+		AMIGO_DYNAMIC_PATH
+		AMIGO_DYNAMIC_URL
+		AMIGO_WORKING_PATH
+		AMIGO_1X_PUBLIC_CGI_BASE_URL
+	     );
+foreach my $pvar (@pvars){
+  $env_conf{$pvar} =
+    eval {
+      my $foo = '';
+      ( $foo = $env_conf{$pvar} ) =~ s/\/$//;
+      $foo; };
+}
 
 ## Image URL and dir.
 $env_conf{AMIGO_IMAGE_DIR} =
-  $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/images';
+  $env_conf{AMIGO_STATIC_PATH} . '/images';
 $env_conf{AMIGO_IMAGE_URL} =
-  $env_conf{AMIGO_HTML_URL} . '/images';
+  $env_conf{AMIGO_STATIC_URL} . '/images';
+
+## CSS URL and dir.
+$env_conf{AMIGO_CSS_DIR} =
+  $env_conf{AMIGO_STATIC_PATH} . '/css';
+$env_conf{AMIGO_CSS_URL} =
+  $env_conf{AMIGO_STATIC_URL} . '/css';
+
+## Static JS URL and dir.
+$env_conf{AMIGO_JS_DIR} =
+  $env_conf{AMIGO_STATIC_PATH} . '/js';
+$env_conf{AMIGO_JS_URL} =
+  $env_conf{AMIGO_STATIC_URL} . '/js';
 
 ## A place for caching databases.
 $env_conf{AMIGO_CACHE_DIR} =
-  $env_conf{AMIGO_CGI_ROOT_DIR} . '/cache';
+  $env_conf{AMIGO_WORKING_PATH} . '/cache';
 safe_make_dir( $env_conf{AMIGO_CACHE_DIR} );
 make_permissive( $env_conf{AMIGO_CACHE_DIR} );
 
 ## A place for log files.
 $env_conf{AMIGO_LOG_DIR} =
-  $env_conf{AMIGO_CGI_ROOT_DIR} . '/log';
+  $env_conf{AMIGO_WORKING_PATH} . '/log';
 safe_make_dir( $env_conf{AMIGO_LOG_DIR} );
 make_permissive( $env_conf{AMIGO_LOG_DIR} );
 
 ## Session top-level location.
 $env_conf{AMIGO_SESSIONS_ROOT_DIR} =
-  $env_conf{AMIGO_CGI_ROOT_DIR} .'/sessions';
+  $env_conf{AMIGO_WORKING_PATH} .'/sessions';
 safe_make_dir( $env_conf{AMIGO_SESSIONS_ROOT_DIR});
 make_permissive( $env_conf{AMIGO_SESSIONS_ROOT_DIR});
 
 ## A place for scratch files.
 $env_conf{AMIGO_SCRATCH_DIR} =
-  $env_conf{AMIGO_CGI_ROOT_DIR} . '/sessions/scratch';
+  $env_conf{AMIGO_WORKING_PATH} . '/sessions/scratch';
 safe_make_dir( $env_conf{AMIGO_SCRATCH_DIR} );
 make_permissive( $env_conf{AMIGO_SCRATCH_DIR} );
 
@@ -261,14 +242,9 @@ ll("Finish setting up the installation environment.");
 ### the cgi-bin.
 ###
 
-my $synth_conf_fname = $env_conf{AMIGO_CGI_ROOT_DIR} . '/config.pl';
+my $synth_conf_fname = $env_conf{AMIGO_DYNAMIC_PATH} . '/config.pl';
 ll("Starting installation...");
-if( ! $opt_b ){
-  create_synthetic_amigo_environmental_variables($synth_conf_fname, \%env_conf);
-}else{
-  $synth_conf_fname = $env_conf{AMIGO_ROOT} . '/conf/config.pl';
-  create_synthetic_amigo_environmental_variables($synth_conf_fname, \%env_conf);
-}
+create_synthetic_amigo_environmental_variables($synth_conf_fname, \%env_conf);
 ll("Created synthetic variables and configuration file: $synth_conf_fname");
 
 ###
@@ -279,17 +255,10 @@ ll("Created synthetic variables and configuration file: $synth_conf_fname");
 ## Slurp all *config.yaml files at this location.
 my $yaml_path =  $env_conf{GO_YAML_LOCATION};
 my @yaml_confs = <$yaml_path/*config.yaml>;
-# my $yaml_confs = [
-# 		  $yaml_path . "ont-config.yaml",
-# 		  $yaml_path . "bio-config.yaml",
-# 		  $yaml_path . "ann-config.yaml",
-# 		  $yaml_path . "ann_ev_agg-config.yaml"
-# 		 ];
 ll("YAML config files found: " . join(', ', @yaml_confs));
 my $golr_data_fname = 'javascript/lib/amigo/data/golr.js';
 golr_config_to_meta_js($golr_data_fname, \@yaml_confs);
 ll("Created GOlr JavaScript data file: \"$golr_data_fname\".");
-#die "HERE!";
 
 ###
 ### Dump the YAML handler config into a representation that we can use
@@ -373,78 +342,11 @@ system(@$release_args_compressed) == 0 || die "system $rcmd failed: $?";
 if( ! $opt_b ){
 
   ## Roll perl out to the server environment in a non-b-flag situation.
-  my $xrefs_json_data_fname = $env_conf{AMIGO_CGI_ROOT_DIR} . '/xrefs.json';
+  my $xrefs_json_data_fname = $env_conf{AMIGO_DYNAMIC_PATH} . '/xrefs.json';
   my $xrefs_url = 'http://www.geneontology.org/doc/GO.xrf_abbs';
   xref_abbs_to_meta_js($xrefs_json_data_fname, $xrefs_url, 'json');
   ll("Created GO XRefs JSON data file: \"$xrefs_json_data_fname\".");
 
-  ## Standard modules
-  my @mods = ();
-  push @mods,
-    qw(
-	amigo
-	visualize
-     );
-
-  ## Copy bulk experimental things over to the new directory.
-  if (  $env_conf{AMIGO_BETA} ) {
-    push @mods,
-      qw(
-	  amigo_exp
-	  aserve
-	  aserve_exp
-	  pgraph
-	  matrix
-	  facet_matrix
-	  rte
-	  xrefs
-       );
-  }
-
-  ## Copy GOOSE, Gannet, Grebe, and REPL over on -g.
-  if ( $opt_g ) {
-    push @mods,
-      qw(
-	  goose
-	  gannet
-	  grebe
-	  repl
-       );
-  }
-
-  ## Install the desired modules from just above.
-  foreach( @mods ){
-    ll("Install mod: $_.");
-    force_copy(Cwd::cwd() . '/perl/bin/' . $_,
-	       $env_conf{AMIGO_CGI_ROOT_DIR} . '/');
-    make_executable( $env_conf{AMIGO_CGI_ROOT_DIR} . '/' . $_);
-  }
-
-  ## Copy statics: css, images, our JS bundle, and the jQuery files.
-  ll("Install internal JS libraries.");
-  force_copy(Cwd::cwd() . '/css', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
-  force_copy(Cwd::cwd() . '/images', $env_conf{AMIGO_HTDOCS_ROOT_DIR} );
-  ## The BBOPJS bundle.
-  force_copy($env_conf{GO_BBOPJS_LOCATION},
-	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
-  ## Our AmiGO bundle.
-  force_copy(Cwd::cwd() . '/javascript/staging/amigo2.js',
-	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
-  ## The AmiGO frontends.
-  force_copy(Cwd::cwd() . '/javascript/web/',
-	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
-  ## The jQuery and jQuery UI libraries.
-  force_copy(Cwd::cwd() . '/javascript/lib/com',
-	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
-  ## The D3 and other .org libs.
-  force_copy(Cwd::cwd() . '/javascript/lib/org',
-	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript/');
-
-  # ll("Install GO JS libraries.");
-  # foreach my $jslib ('bbop', 'external', 'graph', 'newick_tree'){
-  #   force_copy($env_conf{GO_JS_ROOT} . '/lib/' . $jslib,
-  # 	     $env_conf{AMIGO_HTDOCS_ROOT_DIR} . '/javascript');
-  # }
 }
 
 ###
@@ -456,7 +358,7 @@ if( ! $opt_b ){
   print <<EOC;
 Done.
 
-Your new installation is at: $env_conf{AMIGO_CGI_URL}/amigo
+Your new installation is at: $env_conf{AMIGO_DYNAMIC_URL}/amigo
 
 You may need to use the cleaning script (scripts/clean-filesystem.pl)
 to regularly purge unneeded and old files generated while AmiGO is
@@ -554,7 +456,7 @@ sub xref_abbs_to_meta_js {
   my $abbs = $ext->get_external_data($xrefs_url);
   if( ! $abbs ){
     ll("Could not load external GO.xref_abbs file, trying old backup...");
-    my $abbs_fname = $ENV{AMIGO_ROOT} . '/_data/GO.xrf_abbs';
+    my $abbs_fname = $ENV{AMIGO_ROOT} . '/external/GO.xrf_abbs';
     ll("Backup at: " . $abbs_fname . '?');
     die "No emergency abbs file found ($abbs_fname): $!" if ! -f $abbs_fname;
     open(ABBSFILE, '<', $abbs_fname) or die "Cannot even open $abbs_fname: $!";
@@ -898,11 +800,14 @@ sub amigo_env_to_js {
   my $ret =
     {
      ## Variables.
-     app_base => $core->amigo_env('AMIGO_CGI_URL'),
+     app_base => $core->amigo_env('AMIGO_DYNAMIC_URL'),
      golr_base => $core->amigo_env('AMIGO_PUBLIC_GOLR_URL'),
      galaxy_base => $core->amigo_env('AMIGO_PUBLIC_GALAXY_URL'),
-     html_base => $core->amigo_env('AMIGO_HTML_URL'),
+     html_base => $core->amigo_env('AMIGO_STATIC_URL'),
      image_base => $core->amigo_env('AMIGO_IMAGE_URL'),
+     css_base => $core->amigo_env('AMIGO_CSS_URL'),
+     js_base => $core->amigo_env('AMIGO_JS_URL'),
+     javascript_base => $core->amigo_env('AMIGO_JAVASCRIPT_URL'),
      term_regexp => $core->amigo_env('AMIGO_TERM_REGEXP'),
      beta => $core->amigo_env('AMIGO_BETA'),
 

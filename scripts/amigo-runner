@@ -43,7 +43,10 @@ my $tbl =
    ## '/docs' => './perl',
    ## For example, with this, http://127.0.0.1:9999/docs/index.html
    ## goes to ./perl/docs/index.html
-   '/css' => './', # css pathing
+   '/css' => './static', # css pathing
+   '/images' => './static', # image pathing
+   '/js' => './static', # js pathing
+   '/javascript/amigo2.js' => './javascript/staging', # js pathing
   };
 
 ## 

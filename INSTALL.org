@@ -1,1 +1,25 @@
-See README.txt in this directory.
+Also see README.org in this directory.
+
+* AmiGO 2 deployment.
+  A big change is that AmiGO 2 is now setup so that:
+
+  - for development, it can be run as it stands using amigo-runner
+  - using a proper web server, it can (should) be run directly out of
+    the repo.
+
+** URL Mapping
+  
+   To help keep track, here is the basic mapping table.
+
+   | path          | url                    |
+   |---------------+------------------------|
+   | \/            | ???                    |
+   | static/images | STATIC_URL/images      |
+   | static/css    | STATIC_URL/css         |
+   | static/js     | STATIC_URL/js          |
+   | staging       | STATIC_URL/javascript  |
+   | perl/bin/*    | DYNAMIC_URL/*/DISPATCH |
+
+
+   Where STATIC_URL and DYNAMIC_URL are...
+
