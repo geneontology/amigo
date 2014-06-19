@@ -1,0 +1,55 @@
+####
+#### Run like: ???
+####
+#### See Makefile.
+####
+
+BEGIN { require "config.pl"; }
+#use lib '/tmp';
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
+
+use CGI::Application::Server;
+use AmiGO::WebApp::HTMLClient;
+use CGI::Application::Dispatch;
+
+use AmiGO::WebApp::HTMLClient::Dispatch;
+use AmiGO::WebApp::VisualizeServer;
+use AmiGO::WebApp::GOOSE;
+use AmiGO::WebApp::Grebe;
+use AmiGO::WebApp::RTE;
+use AmiGO::WebApp::Xrefs;
+#my $amigo = AmiGO::WebApp::HTMLClient::Dispatch->new();
+my $vs = AmiGO::WebApp::VisualizeServer->new();
+my $xrefs = AmiGO::WebApp::Xrefs->new();
+my $goose = AmiGO::WebApp::GOOSE->new();
+my $grebe = AmiGO::WebApp::Grebe->new();
+my $rte = AmiGO::WebApp::RTE->new();
+
+## Take from env or 9999.
+my $port = $ENV{AMIGO_PORT} || '9999';
+
+my $tbl =
+  {
+   ## Dynamic.
+   #'/' => 'AmiGO::WebApp::HTMLClient::Dispatch',
+   '/amigo' => 'AmiGO::WebApp::HTMLClient::Dispatch',
+   '/goose' => $goose,
+   '/grebe' => $grebe,
+   '/rte' => $rte,
+   '/visualize' => $vs,
+   '/xrefs' => $xrefs,
+   ## Static.
+   ## REST_OF_PATH => HIDDEN_PATH
+   ## '/docs' => './perl',
+   ## For example, with this, http://127.0.0.1:9999/docs/index.html
+   ## goes to ./perl/docs/index.html
+   '/css' => './', # css pathing
+  };
+
+## 
+my $server = CGI::Application::Server->new();
+## Default if the above fails, relative to the running directory.
+$server->document_root('.');
+$server->entry_points($tbl);
+$server->port($port);
+$server->run();

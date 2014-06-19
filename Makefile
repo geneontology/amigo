@@ -231,6 +231,15 @@ w3c-validate:
 	./scripts/w3c-validate.pl -v --html
 
 ###
+### Run the local-only testing server.
+###
+
+## 
+.PHONY: run
+run:
+	perl -I./conf/ -I./perl/lib/ scripts/amigo-runner
+
+###
 ### Example on how to start the (RingoJS) OpenSearch server.
 ###
 
