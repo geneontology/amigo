@@ -222,7 +222,7 @@ sub cgiapp_prerun {
 
   ## Okay, here we're going to add a little system of passing messages
   ## globally through filesystem manipulation.
-  my $root_dir = $self->{CORE}->amigo_env('AMIGO_CGI_ROOT_DIR');
+  my $root_dir = $self->{CORE}->amigo_env('AMIGO_DYNAMIC_DIR');
   my @root_a_files = glob($root_dir . '/.amigo.*');
   foreach my $afile (@root_a_files){
     if( $afile =~ /\.amigo\.success.*/ ){
@@ -758,11 +758,11 @@ sub _common_params_settings {
     $self->{CORE}->get_interlink({mode=>'phylo_graph'});
 
   ## Create and add to output buffer.
-  $params->{base} = $self->{CORE}->amigo_env('AMIGO_CGI_URL');
-  $params->{public_base} =
-    $self->{CORE}->amigo_env('AMIGO_PUBLIC_CGI_BASE_URL');
-  $params->{public_opensearch} =
-    $self->{CORE}->amigo_env('AMIGO_PUBLIC_OPENSEARCH_URL');
+  $params->{base} = $self->{CORE}->amigo_env('AMIGO_DYNAMIC_URL');
+  # $params->{public_base} =
+  #   $self->{CORE}->amigo_env('AMIGO_PUBLIC_CGI_BASE_URL');
+  # $params->{public_opensearch} =
+  #   $self->{CORE}->amigo_env('AMIGO_PUBLIC_OPENSEARCH_URL');
   $params->{public_1x_base} =
     $self->{CORE}->amigo_env('AMIGO_1X_PUBLIC_CGI_BASE_URL') ||
       $params->{public_base};
@@ -779,12 +779,14 @@ sub _common_params_settings {
   $params->{amigo_mode} = $additional->{amigo_mode} || '';
   $params->{search_layout_list} = $self->{AW_SEARCH_LIST}; # for menus
   $params->{image_dir} =
-    $self->{CORE}->amigo_env('AMIGO_HTML_URL') . '/images';
+    $self->{CORE}->amigo_env('AMIGO_STATIC_URL') . '/images';
   $params->{js_dir} =
-    $self->{CORE}->amigo_env('AMIGO_HTML_URL') .'/javascript';
+    $self->{CORE}->amigo_env('AMIGO_STATIC_URL') .'/js';
+  # $params->{js_dir} =
+  #   $self->{CORE}->amigo_env('AMIGO_STATIC_URL') .'/javascript';
   $params->{css_dir} =
-    $self->{CORE}->amigo_env('AMIGO_HTML_URL') . '/css';
-  $params->{html_url} = $self->{CORE}->amigo_env('AMIGO_HTML_URL');
+    $self->{CORE}->amigo_env('AMIGO_STATIC_URL') . '/css';
+  $params->{html_url} = $self->{CORE}->amigo_env('AMIGO_STATIC_URL');
   $params->{version} = $self->{CORE}->amigo_env('AMIGO_VERSION');
   my $sid = $params->{session_id} || '';
   $params->{session_id_for_url} = 'session_id=' . $sid;

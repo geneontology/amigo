@@ -37,13 +37,13 @@ GOLR_TIMESTAMP_LOCATION:
 
 AMIGO_STATIC_PATH:
   type: directory
-  value: ./
+  value: ./static
   comment: >
     Please enter the full path to a usable static document directory where static and staging are located.
 
 AMIGO_STATIC_URL:
   type: url
-  value: http://localhost:9999
+  value: http://localhost:9999/static
   comment: >
     Please enter the URL that this path (plus the AMIGO_PROJECT_NAME) maps to.
 

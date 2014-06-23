@@ -1617,7 +1617,7 @@ sub get_interlink {
 	$ilink = $self->amigo_env('AMIGO_PUBLIC_CGI_BASE_URL') . '/' . $ilink;
       }elsif( $optional_full_p ){
 	#$self->kvetch('FULL LINK');
-	$ilink = $self->amigo_env('AMIGO_CGI_URL') . '/' . $ilink;
+	$ilink = $self->amigo_env('AMIGO_DYNAMIC_URL') . '/' . $ilink;
       }else{
 	#$self->kvetch('LOCAL LINK');
       }

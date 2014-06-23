@@ -173,6 +173,12 @@ $env_conf{AMIGO_JS_DIR} =
 $env_conf{AMIGO_JS_URL} =
   $env_conf{AMIGO_STATIC_URL} . '/js';
 
+## Dynamic/locally developed JS URL and dir.
+$env_conf{AMIGO_JS_DEV_DIR} =
+  $env_conf{AMIGO_ROOT} . '/javascript/staging';
+$env_conf{AMIGO_JS_DEV_URL} =
+  $env_conf{AMIGO_STATIC_URL} . '/staging';
+
 ## A place for caching databases.
 $env_conf{AMIGO_CACHE_DIR} =
   $env_conf{AMIGO_WORKING_PATH} . '/cache';
@@ -335,8 +341,7 @@ ll('System: ' . $rcmd . '"');
 system(@$release_args_compressed) == 0 || die "system $rcmd failed: $?";
 
 ###
-### Roll out the files in our repo to the appropriate directories on
-### the server.
+### Copy/create runtime files to the CGI directory.
 ###
 
 if( ! $opt_b ){
@@ -348,6 +353,13 @@ if( ! $opt_b ){
   ll("Created GO XRefs JSON data file: \"$xrefs_json_data_fname\".");
 
 }
+
+###
+### Copy development files over to staging.
+###
+
+force_copy('javascript/web/' , $env_conf{AMIGO_JS_DEV_DIR});
+force_copy('external/bbop.js' , $env_conf{AMIGO_JS_DEV_DIR});
 
 ###
 ### Finish.
@@ -369,14 +381,14 @@ clean-filesystem.pl, and blank-kvetch.pl. Please see the script
 documentation for details.
 
 Your JavaScript bundle should be available in:
-$env_conf{AMIGO_ROOT}/javascript/staging/.
+$env_conf{AMIGO_JS_DEV_DIR}
 
 EOC
 }else{
   print <<EOC;
 Done.
 
-Your JavaScript bundles should be available in: $env_conf{AMIGO_ROOT}/javascript/staging/.
+Your JavaScript bundles (amigo2*js) should be available in: $env_conf{AMIGO_JS_DEV_DIR}
 EOC
 }
 
@@ -807,7 +819,7 @@ sub amigo_env_to_js {
      image_base => $core->amigo_env('AMIGO_IMAGE_URL'),
      css_base => $core->amigo_env('AMIGO_CSS_URL'),
      js_base => $core->amigo_env('AMIGO_JS_URL'),
-     javascript_base => $core->amigo_env('AMIGO_JAVASCRIPT_URL'),
+     js_dev_base => $core->amigo_env('AMIGO_JS_DEV_URL'),
      term_regexp => $core->amigo_env('AMIGO_TERM_REGEXP'),
      beta => $core->amigo_env('AMIGO_BETA'),
 
@@ -949,6 +961,9 @@ sub force_copy {
 
   #my @args = ("cp", "-r", "-f", $from, $to);
   my @args = ("rsync", "-r",
+	      "--exclude=*~",
+	      "--exclude=.*~",
+	      "--exclude=.git",
 	      "--exclude=.svn",
 	      "--exclude=.emacs.desktop",
 	      $from, $to);
