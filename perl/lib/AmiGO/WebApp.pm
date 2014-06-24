@@ -108,7 +108,7 @@ sub cgiapp_prerun {
   $self->{WEBAPP_TEMPLATE_PARAMS} = {};
 
   ## Make sure we have the right path for our internal system.
-  $self->template_set('legacy');
+  #$self->template_set('legacy');
   $self->template_set('bs3');
 
   ## Setup template environment.
@@ -222,7 +222,7 @@ sub cgiapp_prerun {
 
   ## Okay, here we're going to add a little system of passing messages
   ## globally through filesystem manipulation.
-  my $root_dir = $self->{CORE}->amigo_env('AMIGO_DYNAMIC_DIR');
+  my $root_dir = $self->{CORE}->amigo_env('AMIGO_DYNAMIC_PATH');
   my @root_a_files = glob($root_dir . '/.amigo.*');
   foreach my $afile (@root_a_files){
     if( $afile =~ /\.amigo\.success.*/ ){
