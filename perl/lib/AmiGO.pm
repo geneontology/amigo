@@ -2563,5 +2563,98 @@ sub set_error_message {
 }
 
 
+=item dynamic_dispatch_table
+
+Return a list for the dispatch table used by bin/amigo and
+AmiGO::WebApp::HTMLClient::Dispatch.pm.
+
+Note: Can use as a static method.
+
+Returns list ref.
+
+=cut
+sub dynamic_dispatch_table {
+  my $self = shift || undef; # can use as static method
+
+  my $app = 'AmiGO::WebApp::HTMLClient';
+  my $dispatch_table =
+    [
+     ''                    => { app => $app }, # defaults to landing
+     '/'                   => { app => $app }, # defaults to landing
+     'landing'             => { app => $app, rm => 'landing' },
+     'software_list'       => { app => $app, rm => 'software_list' },
+     'schema_details'      => { app => $app, rm => 'schema_details' },
+     'load_details'        => { app => $app, rm => 'load_details' },
+     'browse'              => { app => $app, rm => 'browse' },
+     'free_browse'              => { app => $app, rm => 'free_browse' },
+     ##
+     ## Soft applications (may take some parameters, browser-only).
+     ##
+     'medial_search'       => { app => $app, rm => 'medial_search' },
+     'simple_search'       => { app => $app, rm => 'simple_search' },
+     'bulk_search/:personality' => { app => $app, rm => 'bulk_search',
+				     personality => 'personality' },
+     'bulk_search' => { app => $app, rm => 'bulk_search'},
+     'search/:personality' => { app => $app, rm => 'specific_search',
+				personality => 'personality' },
+     'search'              => { app => $app, rm => 'search' },
+     'phylo_graph/:family' =>
+     { app => $app, rm => 'phylo_graph', family => 'family' },
+     'phylo_graph'         => { app => $app, rm => 'phylo_graph' },
+     ##
+     ## RESTy (can be consumed as service).
+     ##
+     'term/:term/:format?'       => { app => $app, rm => 'term',
+				      'term' => 'term', 'format' => 'format' },
+     'gene_product/:gp/:format?' => { app => $app, rm => 'gene_product',
+				      'gp' => 'gp', 'format' => 'format' },
+     'visualize'                 => { app => $app, rm => 'visualize' },
+     ## Beta.
+     'complex_annotation/:complex_annotation'  =>
+     { app => $app, rm => 'complex_annotation',
+       complex_annotation => 'complex_annotation' },
+     'visualize_freeform'  => { app => $app, rm => 'visualize_freeform' },
+    ];
+
+  return $dispatch_table;
+}
+
+=item static_dispatch_table
+
+Return a list for the dispatch table used by bin/amigo and
+AmiGO::WebApp::HTMLClient::Dispatch.pm.
+
+Note: Can use as a static method.
+
+Returns list ref.
+
+=cut
+sub static_dispatch_table {
+  my $self = shift || undef; # can use as static method
+
+  my $app = 'AmiGO::WebApp::Static';
+  my $load =
+    {
+     app => $app, rm => 'deliver',
+     # 'arg1' => 'arg1',
+     # 'arg2' => 'arg2',
+     # 'arg3' => 'arg3',
+     # 'arg4' => 'arg4',
+     # 'arg5' => 'arg5',
+    };
+  my $dispatch_table =
+    [
+     '*' => $load,
+     #'css/*' => $load,
+     # 'html/:arg1?/:arg2?/:arg3?/:arg4?/:arg5?' => $load,
+     # 'css/:arg1?/:arg2?/:arg3?/:arg4?/:arg5?' => $load,
+     # 'js/:arg1?/:arg2?/:arg3?/:arg4?/:arg5?' => $load,
+     # 'staging/:arg1?/:arg2?/:arg3?/:arg4?/:arg5?' => $load,
+    ];
+
+  return $dispatch_table;
+}
+
+
 
 1;

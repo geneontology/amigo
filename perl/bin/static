@@ -1,0 +1,26 @@
+#!/usr/bin/perl -w
+####
+#### A cheap way to deploy static docs with proper headers because
+#### CGI::Application::Server is so very very bad.
+####
+#### This is really just a tester for AmiGO::WebApp::Static and
+#### AmiGO::WebApp::Static::Dispatch--this will never be used as a
+#### real bin since static docs should be served by the wrapping web
+#### server, not this one (see conf/amigo-apache.conf).
+####
+
+BEGIN { require "config.pl"; }
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
+
+use AmiGO::WebApp::Static;
+use CGI::Application::Dispatch;
+use AmiGO;
+
+my $app = 'AmiGO::WebApp::Static';
+my $dispatch_table = AmiGO::static_dispatch_table();
+CGI::Application::Dispatch->dispatch(
+				     #debug => 1,
+				     debug => 0,
+				     default => '',
+				     table => $dispatch_table,
+				    );

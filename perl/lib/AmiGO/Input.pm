@@ -194,6 +194,15 @@ sub input_profile {
     $self->_add_simple_optional_argument('fq', '');
     $self->_add_simple_optional_argument('sfq', '');
 
+  # }elsif( $profile_name eq 'static' ){
+
+  #     $self->_add_simple_optional_argument('arg1', '');
+    # $self->_add_simple_optional_argument('arg1', '');
+    # $self->_add_simple_optional_argument('arg2', '');
+    # $self->_add_simple_optional_argument('arg3', '');
+    # $self->_add_simple_optional_argument('arg4', '');
+    # $self->_add_simple_optional_argument('arg5', '');
+
   }elsif( $profile_name eq 'workspace' ){
     $self->_add_workspace_set();
   }else{

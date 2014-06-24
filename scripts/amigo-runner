@@ -94,14 +94,15 @@ use AmiGO::WebApp::GOOSE;
 use AmiGO::WebApp::Grebe;
 use AmiGO::WebApp::RTE;
 use AmiGO::WebApp::Xrefs;
-use AmiGO::WebApp::Static;
+#use AmiGO::WebApp::Static;
+use AmiGO::WebApp::Static::Dispatch;
 #my $amigo = AmiGO::WebApp::HTMLClient::Dispatch->new();
 my $vs = AmiGO::WebApp::VisualizeServer->new();
 my $xrefs = AmiGO::WebApp::Xrefs->new();
 my $goose = AmiGO::WebApp::GOOSE->new();
 my $grebe = AmiGO::WebApp::Grebe->new();
 my $rte = AmiGO::WebApp::RTE->new();
-my $static = AmiGO::WebApp::Static->new();
+#my $static = AmiGO::WebApp::Static->new();
 
 ## Take from env or 9999.
 my $port = $ENV{AMIGO_PORT} || '9999';
@@ -111,17 +112,18 @@ my $tbl =
    ## Dynamic.
    #'/' => 'AmiGO::WebApp::HTMLClient::Dispatch',
    '/amigo' => 'AmiGO::WebApp::HTMLClient::Dispatch',
-   '/goose' => $goose,
-   '/grebe' => $grebe,
-   '/rte' => $rte,
    '/visualize' => $vs,
+   '/grebe' => $grebe,
+   '/goose' => $goose,
+   '/rte' => $rte,
    '/xrefs' => $xrefs,
    ## Static.
+   '/static' => 'AmiGO::WebApp::Static::Dispatch',
+   #'/static' => $static,
    ## REST_OF_PATH => HIDDEN_PATH
    ## '/docs' => './perl',
    ## For example, with this, http://127.0.0.1:9999/docs/index.html
    ## goes to ./perl/docs/index.html
-   'static' => $static,
    # '/css' => './static', # css pathing
    # '/images' => './static', # image pathing
    # '/js' => './static', # js pathing
