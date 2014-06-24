@@ -906,9 +906,15 @@ sub _ensure_xref_data {
   ## Revive the cache from the JSON if we don't have it.
 
   if( ! defined($self->{DB_INFO}) ){
-    ## Populate our hash.
-    #my($ret_hash) = _read_frozen_file($self, '/db_info.pl');
-    my($ret_hash) = _read_json_file($self, 'xrefs.json');
+    ## Populate our hash.  First, look for the file--this toggle is
+    ## used because of the relative path differences between apache
+    ## and the static server.
+    my $json_path = 'xrefs.json';
+    if( ! -r $json_path ){
+      $json_path = $self->amigo_env('AMIGO_DYNAMIC_PATH') . '/' . 'xrefs.json';
+    }
+
+    my($ret_hash) = _read_json_file($self, $json_path);
     $self->{DB_INFO} = $ret_hash || {};
     #print STDERR "_init_...\n";
     #print STDERR "_keys: " . scalar(keys %$ret_hash) . "\n";
