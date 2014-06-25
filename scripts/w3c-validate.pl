@@ -26,8 +26,10 @@ BEGIN {
     require "./config.pl";
   }elsif( -f "./conf/config.pl" ){
     require "./conf/config.pl";
-  }elsif( -f "../conf/config.pl" ){
-    require "../conf/config.pl";
+  }elsif( -f "./perl/bin/config.pl" ){
+    require "./perl/bin/config.pl";
+  }elsif( -f "../perl/bin/config.pl" ){
+    require "../perl/bin/config.pl";
   }else{
     die "unable to find config.pl";
   }
@@ -176,25 +178,27 @@ if( $html ){
   my $html_vurl = 'http://validator.w3.org/check';
   my $html_urls =
     [
-     #'/amigo/landing',
-     #'/amigo/term/GO:0022008',
-     #'/amigo/term/CL:0001039',
-     #'/amigo/gene_product/MGI:MGI:1915747',
-     #'/amigo/search/annotation',
-     #'/amigo/software_list',
-     #'/grebe',
-     #'/amigo/visualize',
-     #'/amigo/medial_search?q=pigment',
-     #'/goose',
-     #'/goose?query=SELECT+count%28*%29%0D%0AFROM+++gene_product%3B%0D%0A&mirror=ebi&limit=1000',
-     #'/amigo/schema_details',
-     #'/amigo/load_details',
-     #'/amigo/simple_search',
-     #'/amigo/simple_search?mode=simple_search&page=1&query=pigment&golr_class=ontology',
-     #'/amigo/browse',
-     #'/gannet',
-     #'/repl',
-     #'/amigo/visualize_freeform',
+     '/amigo/landing',
+     '/amigo/term/GO:0022008',
+     '/amigo/term/CL:0001039',
+     '/amigo/gene_product/MGI:MGI:1915747',
+     '/amigo/search/annotation',
+     '/amigo/software_list',
+     '/grebe',
+     '/amigo/visualize',
+     '/amigo/medial_search?q=pigment',
+     '/goose',
+     '/goose?query=SELECT+count%28*%29%0D%0AFROM+++gene_product%3B%0D%0A&mirror=ebi&limit=1000',
+     '/amigo/schema_details',
+     '/amigo/load_details',
+     '/amigo/simple_search',
+     '/amigo/simple_search?mode=simple_search&page=1&query=pigment&golr_class=ontology',
+     '/amigo/rte',
+     '/amigo/xrefs',
+#     '/amigo/browse',
+#     '/gannet',
+#     '/repl',
+#     '/amigo/visualize_freeform',
     ];
 
   my $html_validator =
@@ -204,7 +208,7 @@ if( $html ){
 					 );
   foreach my $html_url (@$html_urls){
     _validate('HTML', $html_validator, $html_vurl,
-	      $ENV{AMIGO_CGI_URL} . $html_url, 1);
+	      $ENV{AMIGO_DYNAMIC_URL} . $html_url, 1);
   }
 }
 

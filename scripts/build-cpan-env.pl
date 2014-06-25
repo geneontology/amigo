@@ -4,6 +4,8 @@
 use Module::Build;
 use strict;
 
+die "THIS SCRIPT IS LIKELY VERY VERY DEPRECATED";
+
 ## Set up the Bio::Root::Build object
 my $build =
   Module::Build->new(module_name => 'AmiGO2',

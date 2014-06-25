@@ -6,6 +6,24 @@
 use strict;
 use Cwd;
 use File::Find;
+use Getopt::Long;
+
+## Embedded help through perldoc.
+my $opt_h = '';
+GetOptions(
+	   'help' => \$opt_h,
+	  );
+if( $opt_h ){
+  system('perldoc', __FILE__);
+  exit 0;
+}
+
+
+## Setup a *very* minimal config env if none exists (so many scripts
+## require its existance).
+my $here = getcwd();
+$ENV{'AMIGO_ROOT'} = $here if ! defined $ENV{'AMIGO_ROOT'};
+my $amigo_base = $ENV{'AMIGO_ROOT'};
 
 ###
 ### Remember, during the library search, we are chucking out all
@@ -17,103 +35,103 @@ use File::Find;
 ## Things that we might not find or see that we need.
 my %must_list =
   (
-#   'GO::TermFinder' => 1, # called incidentally
-   'FreezeThaw' => 1,     # not picked-up automatically for some reason
-   'DBD::SQLite' => 1,   # not picked-up automatically for some reason
+   # #   'GO::TermFinder' => 1, # called incidentally
+   #   'FreezeThaw' => 1,     # not picked-up automatically for some reason
+   #   'DBD::SQLite' => 1,   # not picked-up automatically for some reason
   );
 
 ## Things that we might find, but don't want to worry about.
 my %ignore_list =
   (
-   ## TODO: AmiGO 2 utilities that need to be (re?)moved. Maybe I should
-   ## just filter these out with the rest.
-   'Utility' => 1,
-   'Utility::GODBMeta' => 1,
-   'Utility::Sanitize' => 1,
-   'Utility::TrivialError' => 1,
-   'Utility::Message' => 1,
-   'Utility::TSLParser' => 1,
+   # ## TODO: AmiGO 2 utilities that need to be (re?)moved. Maybe I should
+   # ## just filter these out with the rest.
+   # 'Utility' => 1,
+   # 'Utility::GODBMeta' => 1,
+   # 'Utility::Sanitize' => 1,
+   # 'Utility::TrivialError' => 1,
+   # 'Utility::Message' => 1,
+   # 'Utility::TSLParser' => 1,
 
-   ## SuGR is only needed in the experimental stuff.
-   'SuGR' => 1,
-   'SuGR::BaryMatrix' => 1,
-   'SuGR::Partition' => 1,
-   'SuGR::Render' => 1,
-   'SuGR::Sugiyama' => 1,
-   'SuGR::TrivialGraph' => 1,
-   'Algorithm::Permute' => 1,
-   'Cairo' => 1,
-   'Graphics::ColorNames' => 1,
-   'Log::Log4perl' => 1,
-   'Math::Round' => 1,
-   'Text::WrapI18N' => 1,
+   # ## SuGR is only needed in the experimental stuff.
+   # 'SuGR' => 1,
+   # 'SuGR::BaryMatrix' => 1,
+   # 'SuGR::Partition' => 1,
+   # 'SuGR::Render' => 1,
+   # 'SuGR::Sugiyama' => 1,
+   # 'SuGR::TrivialGraph' => 1,
+   # 'Algorithm::Permute' => 1,
+   # 'Cairo' => 1,
+   # 'Graphics::ColorNames' => 1,
+   # 'Log::Log4perl' => 1,
+   # 'Math::Round' => 1,
+   # 'Text::WrapI18N' => 1,
 
-   ## Used for GOOSE.
-   'SQL::Tokenizer' => 1,
+   # ## Used for GOOSE.
+   # 'SQL::Tokenizer' => 1,
 
-   ## Used by experimental CGIs.
-   'Cache::Memcached' => 1,
-   'Cache::FileCache' => 1,
-   'CGI::Simple' => 1,
-   'CGI::Fast' => 1,
-   'HTML::TableExtract' => 1,
-   'Search::Xapian' => 1,
-   'XML::Generator' => 1,
+   # ## Used by experimental CGIs.
+   # 'Cache::Memcached' => 1,
+   # 'Cache::FileCache' => 1,
+   # 'CGI::Simple' => 1,
+   # 'CGI::Fast' => 1,
+   # 'HTML::TableExtract' => 1,
+   # 'Search::Xapian' => 1,
+   # 'XML::Generator' => 1,
 
-   ## Experimental libs for experimental apps.
-   'A1' => 1,
-   'B1' => 1,
-   'A2' => 1,
-   'B2' => 1,
-   'Continuity' => 1,
-   'Continuity::Adapt::HttpDaemon' => 1,
-   'Data::Page' => 1,
-   'GD' => 1,
-   'HTML::Highlight' => 1,
-   'Image::Size' => 1,
-   'Lucene::QueryParser' => 1,
-   'Lucene::Analysis::Analyzer' => 1,
-   'Lucene::Analysis::Tokenizer' => 1,
-   'mapscript' => 1,
-   'Moose' => 1,
-   'Parse::RecDescent' => 1,
+   # ## Experimental libs for experimental apps.
+   # 'A1' => 1,
+   # 'B1' => 1,
+   # 'A2' => 1,
+   # 'B2' => 1,
+   # 'Continuity' => 1,
+   # 'Continuity::Adapt::HttpDaemon' => 1,
+   # 'Data::Page' => 1,
+   # 'GD' => 1,
+   # 'HTML::Highlight' => 1,
+   # 'Image::Size' => 1,
+   # 'Lucene::QueryParser' => 1,
+   # 'Lucene::Analysis::Analyzer' => 1,
+   # 'Lucene::Analysis::Tokenizer' => 1,
+   # 'mapscript' => 1,
+   # 'Moose' => 1,
+   # 'Parse::RecDescent' => 1,
 
-   ## Some things used in fairly personal scripts.
-   'Email::Send' => 1,
-   'Email::Simple' => 1,
-   'Net::hostent' => 1,
-   'Net::FTP' => 1,
-   'XML::RSS' => 1,
+   # ## Some things used in fairly personal scripts.
+   # 'Email::Send' => 1,
+   # 'Email::Simple' => 1,
+   # 'Net::hostent' => 1,
+   # 'Net::FTP' => 1,
+   # 'XML::RSS' => 1,
 
-   ## (I believe) older things that aren't used in day-to-day AmiGO 2.
-   'Bio::DB::SwissProt' => 1,
-   'Bio::Index::GenBank' => 1,
-   'Bio::Index::Swissprot' => 1,
-   'Bio::PrimarySeq' => 1,
-   'Bio::SeqIO' => 1,
-   'Bio::Species' => 1,
-   'Data::Stag' => 1,
-   'Data::Stag::BaseGenerator' => 1,
-   'Data::Stag::BaseHandler' => 1,
-   'Data::Stag::SxprWriter' => 1,
-   'Data::Stag::Writer' => 1,
-   'Data::Stag::XMLWriter' => 1,
-   'DBIx::DBStag' => 1,
-   'DBIx::DBSchema' => 1,
-   'Inline' => 1,
-   'Set::Scalar' => 1,
-   'Shell' => 1,
-   'XML::Checker' => 1,
-   'XML::Checker::Parser' => 1,
-   'XML::Parser::PerlSAX' => 1,
-   'XML::LibXML' => 1,
-   'XML::LibXSLT' => 1,
+   # ## (I believe) older things that aren't used in day-to-day AmiGO 2.
+   # 'Bio::DB::SwissProt' => 1,
+   # 'Bio::Index::GenBank' => 1,
+   # 'Bio::Index::Swissprot' => 1,
+   # 'Bio::PrimarySeq' => 1,
+   # 'Bio::SeqIO' => 1,
+   # 'Bio::Species' => 1,
+   # 'Data::Stag' => 1,
+   # 'Data::Stag::BaseGenerator' => 1,
+   # 'Data::Stag::BaseHandler' => 1,
+   # 'Data::Stag::SxprWriter' => 1,
+   # 'Data::Stag::Writer' => 1,
+   # 'Data::Stag::XMLWriter' => 1,
+   # 'DBIx::DBStag' => 1,
+   # 'DBIx::DBSchema' => 1,
+   # 'Inline' => 1,
+   # 'Set::Scalar' => 1,
+   # 'Shell' => 1,
+   # 'XML::Checker' => 1,
+   # 'XML::Checker::Parser' => 1,
+   # 'XML::Parser::PerlSAX' => 1,
+   # 'XML::LibXML' => 1,
+   # 'XML::LibXSLT' => 1,
 
-   ## Ancient UI stuff I don't care about.
-   'Tk' => 1,
-   'Tk::Label' => 1,
-   'Tk::Tree' => 1,
-   'Tk::ItemStyle' => 1,
+   # ## Ancient UI stuff I don't care about.
+   # 'Tk' => 1,
+   # 'Tk::Label' => 1,
+   # 'Tk::Tree' => 1,
+   # 'Tk::ItemStyle' => 1,
 
    ## Cruft/pragmas/wtf.
    'strict' => 1,
@@ -134,7 +152,7 @@ my %ignore_list =
 ## script if present...
 unless( -e "install" &&
 	-d "perl/lib/AmiGO" &&
-	-d "_data" &&
+	-d "external" &&
 	-d "golr" ){
   die "We don't seem to be in the amigo root directory.";
 }
@@ -144,7 +162,7 @@ unless( -e "install" &&
 my %lib_hash = ();
 #my $upper_base = cwd . '/../';
 #find(\&action, $upper_base . 'perl/lib');
-find(\&action, 'perl/lib');
+find(\&action, $ENV{AMIGO_ROOT} . '/perl/lib');
 sub action {
 
   my $file = $File::Find::name;
@@ -158,16 +176,16 @@ sub action {
 
       ## Find all possible library bits.
       my $catch = undef;
-      if( /^\s*require\s+(.*)\;/ ){
+      if ( /^\s*require\s+(.*)\;/ ) {
 	$catch = $1;
-      }elsif( /^\s*use\s+base\s+(.*)\;/ ){
+      } elsif ( /^\s*use\s+base\s+(.*)\;/ ) {
 	$catch = $1;
-      }elsif( /^\s*use\s+(.*)\;/ ){
+      } elsif ( /^\s*use\s+(.*)\;/ ) {
 	$catch = $1;
       }
 
       ## Clean the bits a bit more and see if they're useful.
-      if( defined $catch ){
+      if ( defined $catch ) {
 
 	$catch =~ s/^\s+//;
 	$catch =~ s/qw//;
@@ -175,10 +193,10 @@ sub action {
 	$catch =~ s/\)//;
 	my @foo = split ' ', $catch;
 	my $bar = $foo[0];
-	$bar =~ s/\"//g; # get rid of double quotes
-	$bar =~ s/\'//g; # get rid of single quotes
-	$bar =~ s/\//\:\:/g; # change slashes to double colons
-	$bar =~ s/\.pm$//g; # goodbye trailing .pm
+	$bar =~ s/\"//g;	# get rid of double quotes
+	$bar =~ s/\'//g;	# get rid of single quotes
+	$bar =~ s/\//\:\:/g;	# change slashes to double colons
+	$bar =~ s/\.pm$//g;	# goodbye trailing .pm
 	## Get rid of trailing and leading generated doubles (from
 	## "qw/.*/").
 	$bar =~ s/^\.\.//g; # fixing edge case that generates "..::config.pl"
@@ -191,7 +209,6 @@ sub action {
 	       $bar =~ /^GO\:/ ||
 	       $bar =~ /^\$/
 	      ){
-
 	  ## Add, but filter out black list.
 	  $lib_hash{$bar} = 1 if ! defined $ignore_list{$bar};
 	}
@@ -199,27 +216,27 @@ sub action {
     }
     close FILE;
 
-  }else{
+  } else {
     #print "Ignoring $file\n";
   }
 }
 
 ## Add white list.
-foreach my $wkey (keys %must_list){
+foreach my $wkey (keys %must_list) {
   $lib_hash{$wkey} = 1;
 }
 
 ## Check library existance. Caches the lost ones.
 my $error_p = 0;
 my $lost_libs = [];
-foreach my $lib (sort keys %lib_hash){
+foreach my $lib (sort keys %lib_hash) {
   print "Checking for: " . $lib . "...";
 
-  if( ! eval "require $lib" ){
+  if ( ! eval "require $lib" ) {
     print "not found.";
     push @$lost_libs,  "\t" . $lib . "\n";
     $error_p++;
-  }else{
+  } else {
     print "ok.";
   }
   print "\n";
@@ -227,7 +244,7 @@ foreach my $lib (sort keys %lib_hash){
 
 ## How did we do?
 my $remainders = join "", @$lost_libs;
-if( $error_p ){
+if ( $error_p ) {
 
   print <<MSG;
 
@@ -237,7 +254,7 @@ Please install the following perl modules:
 $remainders
 MSG
 
-}else{
+} else {
 
   print <<MSG;
 
@@ -256,7 +273,7 @@ version.pl
 
 =head1 SYNOPSIS
 
-version.pl
+version.pl [-h]
 
 =head1 DESCRIPTION
 

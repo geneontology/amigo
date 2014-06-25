@@ -4,35 +4,44 @@
 #### Determine what is necessary for AmiGO 2 in a realistic environment.
 ####
 
-###
-### Main test area.
-###
-
 use strict;
 use Cwd;
 use vars qw(
+	     $opt_h
 	     $opt_j
 	  );
 use Getopt::Std;
-getopts('j');
+getopts('hj');
+if( $opt_h ){
+  system('perldoc', __FILE__);
+  exit 0;
+}
+
+## Setup a *very* minimal config env if none exists (so many scripts
+## require its existance).
+my $here = getcwd();
+$ENV{'AMIGO_ROOT'} = $here if ! defined $ENV{'AMIGO_ROOT'};
+my $amigo_base = $ENV{AMIGO_ROOT};
+#print "amigo_base: $amigo_base\n";
 
 ## All scripts to probe.
 my $util_scripts =
   [
-   "refresh.pl",
-   "scripts/luigi",
-   "scripts/make_dblinks.pl",
-   "scripts/make_go_meta_js.pl",
-   "scripts/make_misc_key.pl",
-   "scripts/make_spec_key.pl",
-   "scripts/reinit_caches.pl",
-   "scripts/term_enrichment_batch.pl"
+   "scripts/amigo-runner",
+   "scripts/blank-kvetch.pl",
+   "scripts/clean-filesystem.pl",
+   "scripts/global-message.pl",
   ];
 my $web_scripts =
   [
-   "amigo",
-   "visualize",
-   "term_details",
+   "perl/bin/amigo",
+   "perl/bin/visualize",
+   "perl/bin/goose",
+   "perl/bin/grebe",
+   "perl/bin/xrefs",
+   "perl/bin/static",
+   "perl/bin/gannet",
+   "perl/bin/rte",
   ];
 
 ## Things that we might not see that we need.
@@ -46,30 +55,13 @@ my $must_list =
 ## no idea about.
 my %ignore_hash =
   (
-   'JSON::XS' => 1,
-   'Log::Agent' => 1,
-   'B' => 1,
-   'Encode::ConfigLocal' => 1,
+   # 'JSON::XS' => 1,
+   # 'Log::Agent' => 1,
+   # 'B' => 1,
+   # 'Encode::ConfigLocal' => 1,
+   'Mo::default' => 1,
+   'Mo::builder' => 1,
   );
-
-
-## Setup a *very* minimal config file if none exists (so many scripts
-## require its existance).
-my $amigo_base = getcwd();
-my $go_base = substr($amigo_base, 0, 0 - length('/amigo'));
-my $created_tmp_config = 0;
-my $cname = 'config.pl';
-if( -f $cname ){
-  #  print "YES\n";
-}else{
-  $created_tmp_config = 1;
-  #  print "NO\n";
-  open CONF, ">$cname" or die "unable to create temporary config: $!";
-  print CONF "\$ENV{GO_DEV_ROOT}=\'" . $go_base .  "\'\;\n";
-  print CONF "1;\n";
-  close CONF;
-}
-
 
 ##
 sub collect{
@@ -77,8 +69,9 @@ sub collect{
   ## Create.
   my $script = shift;
   my $command =
-    "perl -c -I" . $amigo_base . "/perl -Mscripts::ListDependencies " . $script . " 2> /dev/null";
+    "perl -c -I" . $amigo_base . "/perl/lib -Mscripts::ListDependencies " . $script . " 2> /dev/null";
   die "No command given: $!" if ! $command;
+  #print "command: $command\n";
 
   ## Run.
   #print "Starting: ($command).\n";
@@ -110,7 +103,7 @@ my %all_libs = ();
 
 ## Get everything that is scripty.
 foreach my $script (@$util_scripts){
-  my $libs = collect($script);
+  my $libs = collect($amigo_base . '/' . $script);
   foreach my $lib (@$libs){
     $all_libs{$lib} = 1;
   }
@@ -118,7 +111,7 @@ foreach my $script (@$util_scripts){
 
 ## Get everything in the cgi-bin
 foreach my $script (@$web_scripts){
-  my $libs = collect("amigo/cgi-bin/" . $script);
+  my $libs = collect($amigo_base . '/' . $script);
   foreach my $lib (@$libs){
     $all_libs{$lib} = 1;
   }
@@ -148,7 +141,8 @@ foreach my $lib (sort keys %all_libs){
 
 ## Check that we have a proper version of Template.
 eval {
-  do Template;
+  #do Template;
+  use Template;
   if( defined Template->VERSION ){
     my $required_tt_version = 2.19;
     my $actual_tt_version = Template->VERSION + 0.0;
@@ -161,13 +155,6 @@ eval {
     }
   }
 };
-
-## Undo temporary config env if we created one...
-if( $created_tmp_config ){
-  if( ! unlink $cname ){
-    die "unable to remove temporary $cname--please remove manually: $!";
-  }
-}
 
 ## How did we do?
 my $remainders = join "", @$lost_libs;
@@ -233,7 +220,7 @@ simulate.pl
 
 =head1 SYNOPSIS
 
-simulate.pl
+simulate.pl [-h] [-j]
 
 =head1 DESCRIPTION
 
