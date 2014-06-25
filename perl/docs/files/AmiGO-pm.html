@@ -69,7 +69,7 @@ if (browserType) {document.write("<div class=" + browserType + ">");if (browserV
 
 <div class="CFunction"><div class=CTopic><h3 class=CTitle><a name="_ensure_xref_data"></a>_ensure_xref_data</h3><div class=CBody><blockquote><table border=0 cellspacing=0 cellpadding=0 class="Prototype"><tr><td class="prettyprint">sub _ensure_xref_data</td></tr></table></blockquote><p>Make sure that our info is read and cached.</p></div></div></div>
 
-<div class="CFunction"><div class=CTopic><h3 class=CTitle><a name="database_link"></a>database_link</h3><div class=CBody><blockquote><table border=0 cellspacing=0 cellpadding=0 class="Prototype"><tr><td class="prettyprint">sub database_link</td></tr></table></blockquote><p>Populate our hash. my($ret_hash) = _read_frozen_file($self, &lsquo;/db_info.pl&rsquo;);</p></div></div></div>
+<div class="CFunction"><div class=CTopic><h3 class=CTitle><a name="database_link"></a>database_link</h3><div class=CBody><blockquote><table border=0 cellspacing=0 cellpadding=0 class="Prototype"><tr><td class="prettyprint">sub database_link</td></tr></table></blockquote><p>Populate our hash.&nbsp;  First, look for the file--this toggle is used because of the relative path differences between apache and the static server.</p></div></div></div>
 
 <div class="CFunction"><div class=CTopic><h3 class=CTitle><a name="database_bulk"></a>database_bulk</h3><div class=CBody><blockquote><table border=0 cellspacing=0 cellpadding=0 class="Prototype"><tr><td class="prettyprint">sub database_bulk</td></tr></table></blockquote><p>Insert the id through the link string if one was available.</p></div></div></div>
 
