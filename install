@@ -361,6 +361,15 @@ if( ! $opt_b ){
 force_copy('javascript/web/' , $env_conf{AMIGO_JS_DEV_DIR});
 force_copy('external/bbop.js' , $env_conf{AMIGO_JS_DEV_DIR});
 
+## Committed symlink--looks okay in git.
+# ###
+# ### Create a symlink between javascript staging (where our bundle is)
+# ### and static staging (where we'll serve it from).
+# ### Note sure how to do this when dealing with OpenShift...
+# ###
+
+# make_link('../javascript/staging', 'static/staging');
+
 ###
 ### Finish.
 ###
@@ -1007,15 +1016,15 @@ sub make_readable {
 
 ## Make all of the old .cgi filenames accessible through no-cgi names,
 ## if applicable.
-sub make_non_cgi_link {
+# ~/local/src/git/amigo$:) ln -f -s ../javascript/staging static/staging
+sub make_link {
 
-  my $file = shift || die "no first arg";
+  my $file = shift || die "no file arg";
+  my $target = shift || die "no target arg";
 
-  if ( $file =~ /(.*)\.cgi$/ ) {
-    my @args = ("ln", "-f", "-s", $file, $1);
-    ll("Old CGI link: new link from $1 to $file") if ! $opt_b;
-    system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_b;
-  }
+  my @args = ("ln", "-f", "-s", $file, $target);
+  ll("New symlink from $target to $file") if ! $opt_b;
+  system(@args) == 0 || die "System \"@args\" failed: $?" if ! $opt_b;
 }
 
 
