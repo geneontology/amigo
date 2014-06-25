@@ -110,7 +110,6 @@ my $port = $ENV{AMIGO_PORT} || '9999';
 my $tbl =
   {
    ## Dynamic.
-   #'/' => 'AmiGO::WebApp::HTMLClient::Dispatch',
    '/amigo' => 'AmiGO::WebApp::HTMLClient::Dispatch',
    '/visualize' => $vs,
    '/grebe' => $grebe,
@@ -129,6 +128,8 @@ my $tbl =
    # '/js' => './static', # js pathing
    # #works:'/staging' => './javascript', # js pathing
    # '/staging' => './javascript', # js pathing
+   ## Root catch.
+   '/' => 'AmiGO::WebApp::HTMLClient::Dispatch',
   };
 
 ## 
