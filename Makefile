@@ -122,9 +122,10 @@ patch-incr:
 .PHONY: npm
 npm: bundle
 	./scripts/release-npm.pl -v -i javascript/staging/amigo2.js -o javascript/npm/amigo2 -r $(AMIGO_VERSION)
-	npm unpublish amigo2@$(AMIGO_VERSION)
 	npm publish javascript/npm/amigo2
 	make patch-incr
+## Was before npm publish, no longer used: https://www.npmjs.org/doc/cli/npm-unpublish.html
+#	npm unpublish amigo2@$(AMIGO_VERSION)
 
 # ###
 # ### Produce static statistics data files for landing page.
