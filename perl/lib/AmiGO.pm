@@ -2114,23 +2114,23 @@ sub get_amigo_layout {
   return $retlist;
 }
 
-=item get_amigo_search_default
+# =item get_amigo_search_default
 
-Arguments: n/a
+# Arguments: n/a
 
-Return: ID of the default search personality to use (as defined in conf)
+# Return: ID of the default search personality to use (as defined in conf)
 
-=cut
-sub get_amigo_search_default {
+# =cut
+# sub get_amigo_search_default {
 
-  my $self = shift;
+#   my $self = shift;
 
-  ## Extract the landing page search order from the ID.
-  my $str_raw = $self->amigo_env('AMIGO_SEARCH_DEFAULT') ||
-    die "could find no AMIGO_SEARCH_DEFAULT";
+#   ## Extract the landing page search order from the ID.
+#   my $str_raw = $self->amigo_env('AMIGO_SEARCH_DEFAULT') ||
+#     die "could find no AMIGO_SEARCH_DEFAULT";
 
-  return $str_raw;
-}
+#   return $str_raw;
+# }
 
 # ## Read misc_keys.pl (unless otherwise specified) and return the
 # ## thawed hash. BUG/TODO: we should be moving away from perl-specific

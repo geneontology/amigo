@@ -747,10 +747,10 @@ sub _common_params_settings {
   $params->{interlink_rte} =
     $self->{CORE}->get_interlink({mode=>'rte'});
   ## Since there is no default search page, arrange for one.
-  my $def_search = $self->{CORE}->get_amigo_search_default();
-  $params->{interlink_search_default} =
-    $self->{CORE}->get_interlink({mode=>'live_search',
-				  arg=>{type=>$def_search}});
+  # my $def_search = $self->{CORE}->get_amigo_search_default();
+  # $params->{interlink_search_default} =
+  #   $self->{CORE}->get_interlink({mode=>'live_search',
+  # 				  arg=>{type=>$def_search}});
   $params->{interlink_term_details_base} =
     $self->{CORE}->get_interlink({mode=>'term_details_base'});
   ## Phylo experiments.
