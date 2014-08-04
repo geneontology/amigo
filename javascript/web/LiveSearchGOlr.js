@@ -167,21 +167,21 @@ function LiveSearchGOlrInit(){
     //var bookmark_button = btmpl.bookmark(linker);
     var bookmark_button = btmpl.restmark(linker);
     var facet_matrix_button = btmpl.open_facet_matrix(gconf, sd);
-    var gaf_galaxy_button =
-	btmpl.send_fields_to_galaxy('Send GAF chunk to Galaxy (up to ' +
-				    dlimit + ')',
-				    dlimit, _gaf_fl, global_galaxy_url);
-    var id_term_label_galaxy_button =
-	btmpl.send_fields_to_galaxy('Send IDs and names to Galaxy (up to ' +
-				    dlimit + ')',
-				    dlimit, ['annotation_class',
-					   'annotation_class_label'],
-				    global_galaxy_url);
-    var id_symbol_galaxy_button =
-	btmpl.send_fields_to_galaxy('Send IDs and symbols to Galaxy ' +
-				    '(up to ' + dlimit + ')',
-				    dlimit,['bioentity', 'bioentity_label'],
-				    global_galaxy_url);
+    // var gaf_galaxy_button =
+    // 	btmpl.send_fields_to_galaxy('Send GAF chunk to Galaxy (up to ' +
+    // 				    dlimit + ')',
+    // 				    dlimit, _gaf_fl, global_galaxy_url);
+    // var id_term_label_galaxy_button =
+    // 	btmpl.send_fields_to_galaxy('Send IDs and names to Galaxy (up to ' +
+    // 				    dlimit + ')',
+    // 				    dlimit, ['annotation_class',
+    // 					   'annotation_class_label'],
+    // 				    global_galaxy_url);
+    // var id_symbol_galaxy_button =
+    // 	btmpl.send_fields_to_galaxy('Send IDs and symbols to Galaxy ' +
+    // 				    '(up to ' + dlimit + ')',
+    // 				    dlimit,['bioentity', 'bioentity_label'],
+    // 				    global_galaxy_url);
 
     ///
     /// Ready widget.

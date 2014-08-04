@@ -134,6 +134,8 @@ Group: AmiGO  {
       File: REPL.pm  (AmiGO/WebApp/REPL.pm)
       File: RTE.pm  (AmiGO/WebApp/RTE.pm)
       File: Services  (AmiGO/WebApp/Services.pm)
+      File: Static.pm  (AmiGO/WebApp/Static.pm)
+      File: Static::Dispatch  (AmiGO/WebApp/Static/Dispatch.pm)
       File: VisualizeServer.pm  (AmiGO/WebApp/VisualizeServer.pm)
       File: Xrefs.pm  (AmiGO/WebApp/Xrefs.pm)
       }  # Group: WebApp

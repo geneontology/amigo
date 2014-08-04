@@ -906,9 +906,15 @@ sub _ensure_xref_data {
   ## Revive the cache from the JSON if we don't have it.
 
   if( ! defined($self->{DB_INFO}) ){
-    ## Populate our hash.
-    #my($ret_hash) = _read_frozen_file($self, '/db_info.pl');
-    my($ret_hash) = _read_json_file($self, 'xrefs.json');
+    ## Populate our hash.  First, look for the file--this toggle is
+    ## used because of the relative path differences between apache
+    ## and the static server.
+    my $json_path = 'xrefs.json';
+    if( ! -r $json_path ){
+      $json_path = $self->amigo_env('AMIGO_DYNAMIC_PATH') . '/' . 'xrefs.json';
+    }
+
+    my($ret_hash) = _read_json_file($self, $json_path);
     $self->{DB_INFO} = $ret_hash || {};
     #print STDERR "_init_...\n";
     #print STDERR "_keys: " . scalar(keys %$ret_hash) . "\n";
@@ -1617,7 +1623,7 @@ sub get_interlink {
 	$ilink = $self->amigo_env('AMIGO_PUBLIC_CGI_BASE_URL') . '/' . $ilink;
       }elsif( $optional_full_p ){
 	#$self->kvetch('FULL LINK');
-	$ilink = $self->amigo_env('AMIGO_CGI_URL') . '/' . $ilink;
+	$ilink = $self->amigo_env('AMIGO_DYNAMIC_URL') . '/' . $ilink;
       }else{
 	#$self->kvetch('LOCAL LINK');
       }
@@ -2560,6 +2566,99 @@ sub set_error_message {
   my $arg = shift || undef;
   $self->{ERROR_MESSAGE} = $arg;
   return $self->{ERROR_MESSAGE};
+}
+
+
+=item dynamic_dispatch_table
+
+Return a list for the dispatch table used by bin/amigo and
+AmiGO::WebApp::HTMLClient::Dispatch.pm.
+
+Note: Can use as a static method.
+
+Returns list ref.
+
+=cut
+sub dynamic_dispatch_table {
+  my $self = shift || undef; # can use as static method
+
+  my $app = 'AmiGO::WebApp::HTMLClient';
+  my $dispatch_table =
+    [
+     ''                    => { app => $app }, # defaults to landing
+     '/'                   => { app => $app }, # defaults to landing
+     'landing'             => { app => $app, rm => 'landing' },
+     'software_list'       => { app => $app, rm => 'software_list' },
+     'schema_details'      => { app => $app, rm => 'schema_details' },
+     'load_details'        => { app => $app, rm => 'load_details' },
+     'browse'              => { app => $app, rm => 'browse' },
+     'free_browse'              => { app => $app, rm => 'free_browse' },
+     ##
+     ## Soft applications (may take some parameters, browser-only).
+     ##
+     'medial_search'       => { app => $app, rm => 'medial_search' },
+     'simple_search'       => { app => $app, rm => 'simple_search' },
+     'bulk_search/:personality' => { app => $app, rm => 'bulk_search',
+				     personality => 'personality' },
+     'bulk_search' => { app => $app, rm => 'bulk_search'},
+     'search/:personality' => { app => $app, rm => 'specific_search',
+				personality => 'personality' },
+     'search'              => { app => $app, rm => 'search' },
+     'phylo_graph/:family' =>
+     { app => $app, rm => 'phylo_graph', family => 'family' },
+     'phylo_graph'         => { app => $app, rm => 'phylo_graph' },
+     ##
+     ## RESTy (can be consumed as service).
+     ##
+     'term/:term/:format?'       => { app => $app, rm => 'term',
+				      'term' => 'term', 'format' => 'format' },
+     'gene_product/:gp/:format?' => { app => $app, rm => 'gene_product',
+				      'gp' => 'gp', 'format' => 'format' },
+     'visualize'                 => { app => $app, rm => 'visualize' },
+     ## Beta.
+     'complex_annotation/:complex_annotation'  =>
+     { app => $app, rm => 'complex_annotation',
+       complex_annotation => 'complex_annotation' },
+     'visualize_freeform'  => { app => $app, rm => 'visualize_freeform' },
+    ];
+
+  return $dispatch_table;
+}
+
+=item static_dispatch_table
+
+Return a list for the dispatch table used by bin/amigo and
+AmiGO::WebApp::HTMLClient::Dispatch.pm.
+
+Note: Can use as a static method.
+
+Returns list ref.
+
+=cut
+sub static_dispatch_table {
+  my $self = shift || undef; # can use as static method
+
+  my $app = 'AmiGO::WebApp::Static';
+  my $load =
+    {
+     app => $app, rm => 'deliver',
+     # 'arg1' => 'arg1',
+     # 'arg2' => 'arg2',
+     # 'arg3' => 'arg3',
+     # 'arg4' => 'arg4',
+     # 'arg5' => 'arg5',
+    };
+  my $dispatch_table =
+    [
+     '*' => $load,
+     #'css/*' => $load,
+     # 'html/:arg1?/:arg2?/:arg3?/:arg4?/:arg5?' => $load,
+     # 'css/:arg1?/:arg2?/:arg3?/:arg4?/:arg5?' => $load,
+     # 'js/:arg1?/:arg2?/:arg3?/:arg4?/:arg5?' => $load,
+     # 'staging/:arg1?/:arg2?/:arg3?/:arg4?/:arg5?' => $load,
+    ];
+
+  return $dispatch_table;
 }
 
 

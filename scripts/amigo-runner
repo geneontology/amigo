@@ -1,0 +1,142 @@
+####
+#### Run like: ???
+####
+#### See Makefile.
+####
+
+###
+### Override some horribly bad stuff in CGI::Application::Server.
+###
+
+# package BetterServer;
+# use base 'CGI::Application::Server';
+
+# BEGIN { require "config.pl"; }
+# #use lib '/tmp';
+# use lib $ENV{AMIGO_ROOT} . '/perl/lib';
+
+# sub new {
+#     my $class = shift;
+#     my $self  = $class->SUPER::new(@_);
+#     return $self;
+# }
+
+# sub _build_response {
+#     my ( $self, $stdout ) = @_;
+
+#     $stdout =~ s{(.*?\x0d?\x0a\x0d?\x0a)}{}xsm;
+#     my $headers = $1;
+
+#     unless ( defined $headers ) {
+#         $headers = "HTTP/1.1 500 Internal Server Error\x0d\x0a";
+#     }
+
+#     unless ( $headers =~ /^HTTP/ ) {
+#         $headers = "HTTP/1.1 200 OK\x0d\x0a" . $headers;
+#     }
+
+#     my $response = HTTP::Response->parse($headers);
+#     $response->date( time() ) unless $response->date;
+
+#     my $message = $response->message;
+#     my $status  = $response->header('Status');
+
+#     $response->header( Connection => 'close' );
+
+#     if ( $message && $message =~ /^(.+)\x0d$/ ) {
+#         $response->message($1);
+#     }
+
+#     if ( $status && $status =~ /^(\d\d\d)\s?(.+)?$/ ) {
+
+#         my $code    = $1;
+#         $message = $2 || HTTP::Status::status_message($code);
+
+#         $response->code($code);
+#         $response->message($message);
+#     }
+
+#     my $length = length $stdout;
+
+#     if ( $response->code == 500 && !$length ) {
+
+#         $response->content( $response->error_as_HTML );
+#         $response->content_type('text/html');
+
+#         return $response;
+#     }
+
+#     $response->add_content($stdout);
+#     $response->content_length($length);
+
+#     #print STDERR $response;
+
+#     return $response;
+# }
+
+
+# 1;
+
+# package main;
+
+BEGIN { require "config.pl"; }
+#use lib '/tmp';
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
+
+use CGI::Application::Server;
+#use BetterServer;
+use AmiGO::WebApp::HTMLClient;
+use CGI::Application::Dispatch;
+
+use AmiGO::WebApp::HTMLClient::Dispatch;
+use AmiGO::WebApp::VisualizeServer;
+use AmiGO::WebApp::GOOSE;
+use AmiGO::WebApp::Grebe;
+use AmiGO::WebApp::RTE;
+use AmiGO::WebApp::Xrefs;
+#use AmiGO::WebApp::Static;
+use AmiGO::WebApp::Static::Dispatch;
+#my $amigo = AmiGO::WebApp::HTMLClient::Dispatch->new();
+my $vs = AmiGO::WebApp::VisualizeServer->new();
+my $xrefs = AmiGO::WebApp::Xrefs->new();
+my $goose = AmiGO::WebApp::GOOSE->new();
+my $grebe = AmiGO::WebApp::Grebe->new();
+my $rte = AmiGO::WebApp::RTE->new();
+#my $static = AmiGO::WebApp::Static->new();
+
+## Take from env or 9999.
+my $port = $ENV{AMIGO_PORT} || '9999';
+
+my $tbl =
+  {
+   ## Dynamic.
+   '/amigo' => 'AmiGO::WebApp::HTMLClient::Dispatch',
+   '/visualize' => $vs,
+   '/grebe' => $grebe,
+   '/goose' => $goose,
+   '/rte' => $rte,
+   '/xrefs' => $xrefs,
+   ## Static.
+   '/static' => 'AmiGO::WebApp::Static::Dispatch',
+   #'/static' => $static,
+   ## REST_OF_PATH => HIDDEN_PATH
+   ## '/docs' => './perl',
+   ## For example, with this, http://127.0.0.1:9999/docs/index.html
+   ## goes to ./perl/docs/index.html
+   # '/css' => './static', # css pathing
+   # '/images' => './static', # image pathing
+   # '/js' => './static', # js pathing
+   # #works:'/staging' => './javascript', # js pathing
+   # '/staging' => './javascript', # js pathing
+   ## Root catch.
+   '/' => 'AmiGO::WebApp::HTMLClient::Dispatch',
+  };
+
+## 
+my $server = CGI::Application::Server->new();
+#my $server = BetterServer->new();
+## Default if the above fails, relative to the running directory.
+$server->document_root('.');
+$server->entry_points($tbl);
+$server->port($port);
+$server->run();

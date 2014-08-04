@@ -8,7 +8,7 @@
 METADATA ?= $(wildcard metadata/*.yaml)
 TEST_JS ?= rhino # or smjs
 ## Use our local bbop-js.
-TEST_JS_FLAGS ?= -modules _data/bbop.js -modules javascript/staging/amigo2.js -opt -1
+TEST_JS_FLAGS ?= -modules external/bbop.js -modules javascript/staging/amigo2.js -opt -1
 #JSENGINES = node smjs rhino
 BBOP_JS ?= ../bbop-js/
 JS_TESTS = \
@@ -122,9 +122,10 @@ patch-incr:
 .PHONY: npm
 npm: bundle
 	./scripts/release-npm.pl -v -i javascript/staging/amigo2.js -o javascript/npm/amigo2 -r $(AMIGO_VERSION)
-	npm unpublish amigo2@$(AMIGO_VERSION)
 	npm publish javascript/npm/amigo2
 	make patch-incr
+## Was before npm publish, no longer used: https://www.npmjs.org/doc/cli/npm-unpublish.html
+#	npm unpublish amigo2@$(AMIGO_VERSION)
 
 # ###
 # ### Produce static statistics data files for landing page.
@@ -148,14 +149,6 @@ install: test docs
 .PHONY: install-uncompressed
 install-uncompressed: docs
 	./install -v -g -u -V $(AMIGO_VERSION)
-
-###
-### Copy in the standard inital values for installation.
-###
-
-.PHONY: initialize
-initialize:
-	cp conf/.initial_values.yaml conf/amigo.yaml
 
 ###
 ### Copy in some dummy values for use with testing.
@@ -194,8 +187,8 @@ tags:
 refresh: tags bundle
 	@echo "Using BBOP-JS at: $(BBOP_JS)"
 	cd $(BBOP_JS); make bundle
-	cp $(BBOP_JS)/staging/bbop.js ./_data
-	cp ./javascript/lib/amigo/data/*.js $(BBOP_JS)/_data/
+	cp $(BBOP_JS)/staging/bbop.js ./external
+	cp ./javascript/lib/amigo/data/*.js $(BBOP_JS)/external/
 	cp ./javascript/lib/amigo/data/golr.js $(BBOP_JS)/demo/
 	./install -v -g -V $(AMIGO_VERSION)
 	./scripts/blank-kvetch.pl
@@ -231,11 +224,20 @@ w3c-validate:
 	./scripts/w3c-validate.pl -v --html
 
 ###
-### Example on how to start the (RingoJS) OpenSearch server.
+### Run the local-only testing server.
 ###
 
-start-ringo-example:
-	RINGO_MODULE_PATH="../stick/lib:_data:javascript/staging" $(RINGO_JS) javascript/bin/ringo-example.js --port 8910
+## 
+.PHONY: run
+run:
+	perl -I./perl/bin/ -I./perl/lib/ scripts/amigo-runner
 
-start-ringo-opensearch:
-	RINGO_MODULE_PATH="../stick/lib:_data:javascript/staging" $(RINGO_JS) javascript/bin/ringo-opensearch.js
+# ###
+# ### Example on how to start the (RingoJS) OpenSearch server.
+# ###
+
+# start-ringo-example:
+# 	RINGO_MODULE_PATH="../stick/lib:external:javascript/staging" $(RINGO_JS) javascript/bin/ringo-example.js --port 8910
+
+# start-ringo-opensearch:
+# 	RINGO_MODULE_PATH="../stick/lib:external:javascript/staging" $(RINGO_JS) javascript/bin/ringo-opensearch.js
