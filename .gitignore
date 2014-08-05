@@ -18,6 +18,10 @@ javascript/docs/.naturaldocs_project/Data
 conf/amigo.yaml*
 conf/config.pl
 
+## Files as part of the data conversion rollout to be ignored.
+perl/bin/config.pl
+perl/bin/xrefs.json
+
 ## Emacs things (from 
 ## https://github.com/github/gitignore/blob/master/Global/Emacs.gitignore).
 *~
