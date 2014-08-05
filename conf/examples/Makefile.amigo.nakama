@@ -8,7 +8,7 @@
 METADATA ?= $(wildcard metadata/*.yaml)
 TEST_JS ?= rhino # or smjs
 ## Use our local bbop-js.
-TEST_JS_FLAGS ?= -modules _data/bbop.js -modules javascript/staging/amigo2.js -opt -1
+TEST_JS_FLAGS ?= -modules external/bbop.js -modules javascript/staging/amigo2.js -opt -1
 #JSENGINES = node smjs rhino
 BBOP_JS ?= ../bbop-js/
 JS_TESTS = \
@@ -159,8 +159,8 @@ tags:
 refresh: tags bundle
 	@echo "Using BBOP-JS at: $(BBOP_JS)"
 	cd $(BBOP_JS); make bundle
-	cp $(BBOP_JS)/staging/bbop.js ./_data
-	cp ./javascript/lib/amigo/data/*.js $(BBOP_JS)/_data/
+	cp $(BBOP_JS)/staging/bbop.js ./external
+	cp ./javascript/lib/amigo/data/*.js $(BBOP_JS)/external/
 	cp ./javascript/lib/amigo/data/golr.js $(BBOP_JS)/demo/
 	./install -v -e -g -V $(AMIGO_VERSION)
 	./scripts/blank-kvetch.pl
@@ -200,7 +200,7 @@ w3c-validate:
 ###
 
 start-ringo-example:
-	RINGO_MODULE_PATH="../stick/lib:_data:javascript/staging" $(RINGO_JS) javascript/bin/ringo-example.js --port 8910
+	RINGO_MODULE_PATH="../stick/lib:external:javascript/staging" $(RINGO_JS) javascript/bin/ringo-example.js --port 8910
 
 start-ringo-opensearch:
-	RINGO_MODULE_PATH="../stick/lib:_data:javascript/staging" $(RINGO_JS) javascript/bin/ringo-opensearch.js
+	RINGO_MODULE_PATH="../stick/lib:external:javascript/staging" $(RINGO_JS) javascript/bin/ringo-opensearch.js
