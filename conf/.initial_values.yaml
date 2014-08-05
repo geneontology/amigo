@@ -1,151 +1,73 @@
-####
-#### AmiGO variables for installation.
-####
 ---
-  
-###
-### Path and binary variables.
-###
-
-AMIGO_ROOT:
-  type: directory
-  value: ./
-  comment: >
-    Do not set this variable unless you are doing something very strange indeed.
-
-GO_YAML_LOCATION:
-  type: directory
-  value: ./metadata
-  comment: >
-    Please enter the full path to the YAML config files directory. In that directory, all files like *config.yaml will be scanned for use.
-
-GO_BBOPJS_LOCATION:
-  type: file
-  value: ./external/bbop.js
-  comment: >
-    If this is not redefined to a new location (e.g. the BBOP-JS staging/ directory, it will use the bbop.js bundle packaged with AmiGO 2 (the one used in the unit tests) in the external/ directory.
-
-GOLR_TIMESTAMP_LOCATION:
-  type: file
-  value: ./golr_timestamp.log
-  comment: >
-    This is the full path to the timestamp file that is optionally produced by OWLTools during GOlr loading. It contains information about download attempt times for the different loaded files. If not found or unusable, AmiGO 2 will gracefully ignore it.
-
-###
-### AmiGO mapping variables.
-###
-
-AMIGO_STATIC_PATH:
-  type: directory
-  value: ./static
-  comment: >
-    Please enter the full path to a usable static document directory where static and staging are located.
-
-AMIGO_STATIC_URL:
-  type: url
-  value: http://localhost:9999/static
-  comment: >
-    Please enter the URL that this path (plus the AMIGO_PROJECT_NAME) maps to.
-
-AMIGO_DYNAMIC_URL:
-  type: url
-  value: http://localhost:9999
-  comment: >
-    Please enter the URL that this path (plus the AMIGO_PROJECT_NAME) maps to.
-
-AMIGO_DYNAMIC_PATH:
-  type: directory
-  value: ./perl/bin
-  comment: >
-    Please enter the full path to the location of the perl binaries.
-
-AMIGO_WORKING_PATH:
-  type: directory
-  value: /tmp
-  comment: >
-    Please enter the full path to readable/writable directory that will be used for things like temporary files and logs (if enabled).
-
-###
-### External resources.
-###
-
-AMIGO_PUBLIC_GOLR_URL:
-  type: url
-  value: http://localhost:8080/solr/
-  comment: >
-    Please enter the public URL of the GOlr server (including slash).
-
-# AMIGO_PUBLIC_GALAXY_URL:
-#   type: url
-#   value: http://galaxy.berkeleybop.org/
-#   comment: Please enter the public URL of the Galaxy server (including slash).
-
 AMIGO_1X_PUBLIC_CGI_BASE_URL:
+  comment: The public URL of an available AmiGO 1.x instance for link references.
   type: url
   value: http://amigo1.geneontology.org/cgi-bin/amigo
-  comment: >
-    Please enter the partial public URL of an available AmiGO 1.x instance.
-
-# AMIGO_PUBLIC_OPENSEARCH_URL:
-#   type: url
-#   value: ""
-#   comment: Please enter the public URL of the GO-defined OpenSearch server.
-
-###
-### AmiGO internal variables.
-###
-
-AMIGO_TERM_REGEXP:
-  type: string
-  value: "all|GO:[0-9]{7}"
-  comment: >
-    The regular expressions to identify internal ontology ids.
-
-AMIGO_LAYOUT_SEARCH:
-  type: string
-  value: "annotation ontology bioentity"
-  comment: >
-    A whitespace separated list of class IDs to use for live search tabs on the search page.
-
-AMIGO_SEARCH_DEFAULT:
-  type: string
-  value: "annotation"
-  comment: >
-    The default search personality to use.
-
-AMIGO_VERBOSE:
+AMIGO_BALANCER:
+  comment: 'Mark this AmiGO 2 installation as behind a load balanacer or similar system. The practical effect of this flag is that if AmiGO detects *.error files (usually created by the global-message.pl script), it will return a 503 page signalling any upstream system that the instance is not currently ready.'
   type: boolean
   value: 0
-  comment: >
-    Log verbose AmiGO debugging messages.
-
 AMIGO_BETA:
+  comment: Mark the AmiGO site as BETA (triggers some changes in variables and installed features).
   type: boolean
   value: 1
-  comment: >
-    Mark the AmiGO site as BETA (triggers some changes in
-    variables and installed features).
-
-AMIGO_BALANCER:
-  type: boolean
-  value: 0
-  comment: >
-    Mark this AmiGO 2 installation as behind a load balanacer or
-    similar system. The practical effect of this flag is that if AmiGO
-    detects *.error files (usually created by the
-    global-message.pl script), it will return a 503 page signalling
-    any upstream system that the instance is not currently ready.
-
-AMIGO_SERVER_NAME:
-  type: string
-  value: ""
-  comment: >
-    The name by which your AmiGO instance wishes to known--think load
-    balancer or cache situations. If you would rather this information
-    not be reported, leave blank.
-
+AMIGO_DYNAMIC_PATH:
+  comment: The full path to the location of the perl binaries.
+  type: directory
+  value: /home/sjcarbon/local/src/git/amigo/perl/bin
+AMIGO_DYNAMIC_URL:
+  comment: The URL that AMIGO_DYNAMIC_PATH maps to.
+  type: url
+  value: http://localhost:9999
 AMIGO_GOOGLE_ANALYTICS_ID:
+  comment: Google analytics ID. Optional.
   type: string
-  value: ""
-  comment: >
-    Google analytics ID. Optional.
+  value: ''
+AMIGO_LAYOUT_SEARCH:
+  comment: A whitespace separated list of class IDs to use for live search tabs on the search page.
+  type: string
+  value: annotation ontology bioentity
+AMIGO_PUBLIC_GOLR_URL:
+  comment: The public URL of the GOlr server (including slash).
+  type: url
+  value: http://localhost:8080/solr/
+AMIGO_ROOT:
+  comment: 'Unless you are doing something strange, the parent directory of this file.'
+  type: directory
+  value: /home/sjcarbon/local/src/git/amigo
+AMIGO_SERVER_NAME:
+  comment: 'The name by which your AmiGO instance wishes to known--think load balancer or cache situations. If you would rather this information not be reported, leave blank.'
+  type: string
+  value: localhost
+AMIGO_STATIC_PATH:
+  comment: The full path to a usable static document directory where static and staging are located.
+  type: directory
+  value: /home/sjcarbon/local/src/git/amigo/static
+AMIGO_STATIC_URL:
+  comment: The URL for the static content. Can be local or remote.
+  type: url
+  value: http://localhost:9999/static
+AMIGO_TERM_REGEXP:
+  comment: The regular expressions to identify internal ontology ids.
+  type: string
+  value: 'all|GO:[0-9]{7}'
+AMIGO_VERBOSE:
+  comment: Log verbose AmiGO debugging messages.
+  type: boolean
+  value: 1
+AMIGO_WORKING_PATH:
+  comment: Please enter the full path to readable/writable directory that will be used for things like temporary files and logs (if enabled).
+  type: directory
+  value: /tmp
+GOLR_TIMESTAMP_LOCATION:
+  comment: 'This is the full path to the timestamp file that is optionally produced by OWLTools during GOlr loading. It contains information about download attempt times for the different loaded files. If not found or unusable, AmiGO 2 will gracefully ignore it.'
+  type: file
+  value: /home/sjcarbon/local/src/git/amigo/golr_timestamp.log
+GO_BBOPJS_LOCATION:
+  comment: 'If this is not redefined to a new location (e.g. the BBOP-JS staging/ directory, it will use the bbop.js bundle packaged with AmiGO 2 (the one used in the unit tests) in the external/ directory.'
+  type: file
+  value: /home/sjcarbon/local/src/git/amigo/external/bbop.js
+GO_YAML_LOCATION:
+  comment: 'The full path to the YAML config files directory. In that directory, all files like *config.yaml will be scanned for use.'
+  type: directory
+  value: /home/sjcarbon/local/src/git/amigo/metadata
