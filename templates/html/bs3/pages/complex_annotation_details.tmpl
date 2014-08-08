@@ -16,9 +16,30 @@
       <!-- <dd>(n/a)</dd> -->
       <!-- [% END %] -->
       
-      <dt>Group</dt>
+      <dt>ID</dt>
+      [% IF CA_INFO.annotation_group_id %]
+      <dd>[% CA_INFO.annotation_group_id %]</dd>
+      [% ELSE %]
+      <dd>(n/a)</dd>
+      [% END %]
+      
+      <dt>Label</dt>
       [% IF CA_INFO.annotation_group_label %]
       <dd>[% CA_INFO.annotation_group_label %]</dd>
+      [% ELSE %]
+      <dd>(n/a)</dd>
+      [% END %]
+      
+      <dt>File</dt>
+      [% IF CA_INFO.annotation_group_file_name %]
+      <dd><a href="[% CA_INFO.annotation_group_url %]">[% CA_INFO.annotation_group_file_name %]</a></dd>
+      [% ELSE %]
+      <dd>(n/a)</dd>
+      [% END %]
+      
+      <dt>Edit</dt>
+      [% IF CA_INFO.noctua_url %]
+      <dd><a href="[% CA_INFO.noctua_url %]">Noctua</a></dd>
       [% ELSE %]
       <dd>(n/a)</dd>
       [% END %]
