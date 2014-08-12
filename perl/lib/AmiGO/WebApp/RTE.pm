@@ -184,8 +184,8 @@ sub mode_rte {
 	  ## Collect values.
 	  my $bp_str = $b->{p_value};
 	  my $ap_str = $a->{p_value};
-	  my $be_str = $b->{p_expected};
-	  my $ae_str = $a->{p_expected};
+	  my $be_str = $b->{expected};
+	  my $ae_str = $a->{expected};
 
 	  ## Reduce value precision.
 	  # Math::BigFloat->precision(-3);
