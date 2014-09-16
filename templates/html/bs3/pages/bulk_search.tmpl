@@ -31,13 +31,13 @@
 
 	  <!-- TODO: add "has-error" -->
 	  <div class="form-group[% IF rte_input OR first_time_p %][% ELSE %][% END %]">
-	    <label for="rte_input">Identifiers for [% personality_name %]</label>
+	    <label for="bulk_input">Identifiers for [% personality_name %]</label>
 	    <textarea
-	       id="rte_input"
+	       id="bulk_input"
 	       class="form-control"
 	       rows="15"
 	       placeholder="ID1 ID2 ID3..."
-	       name="input">[% rte_input %]</textarea>
+	       name="input">[% bulk_input %]</textarea>
 	  </div>
 
 	  <button id="submit-button" type="submit"

@@ -20,6 +20,8 @@ function BulkSearchInit(){
     var each = bbop.core.each;
     var is_array = bbop.core.is_array;
     var first_split = bbop.core.first_split;
+    var splode = bbop.core.splode;
+    var chomp = bbop.core.chomp;
 
     ///
     /// Ready the configuration that we'll use.
@@ -148,15 +150,39 @@ function BulkSearchInit(){
 
 	// Now that we're setup, activate the display button, and make
 	// it that it will only work on input.
+	function _trigger_bulk_search(identifier, search_fields){
+	    ll('run search');
+	    // search.???
+	}
 	jQuery(submit_button_elt).removeClass('disabled');
 	jQuery(submit_button_elt).click(function(e){
 	    e.preventDefault();
 
 	    var bulk_raw = jQuery(bulk_input_elt).val();
 	    if( ! bulk_raw || bulk_raw == '' ){
-		alert('need input');
+		alert('You must input the identifiers for the items you are searching for to use this tool.');
 	    }else{
-		alert('maybe run');
+		// Attempt to process input.
+		var bulk_trim = chomp(bulk_raw) || '';
+		var bulk_list = splode(bulk_trim) || [];
+		if( ! bulk_list || bulk_list.length == 0 ||
+		    (bulk_list.length == 1 && bulk_list[0] == '' )){
+		    alert('You must input the identifiers for the items you are searching for to use this tool.');
+		}else{
+		    // console.log(bulk_list)
+		    // Okay, the input text looks good, now we need to
+		    // make sure that there is at least some field
+		    // checked for the bulk search fields.
+		    var simp = 'input[type="checkbox"][name="ifq"]:checked';
+		    var bulk_search_fields =
+			jQuery(simp).map(function(){ return this.value; }).get();
+		    console.log(bulk_search_fields)
+		    if( ! bulk_search_fields || bulk_search_fields.length == 0 ){
+			alert('You must select at least one search field from the list to make use of the bulk search.');
+		    }else{
+			_trigger_bulk_search(bulk_list, bulk_search_fields);
+		    }
+		}
 	    }
 	});
     }
