@@ -41,6 +41,8 @@ function BulkSearchInit(){
     // var ifchk_name_elt = '#' + ifchk_name;
     var filter_accordion = 'input-filter-accordion';
     var filter_accordion_elt = '#' + filter_accordion;
+    var bulk_input = 'bulk_input';
+    var bulk_input_elt = '#' + bulk_input;
     var submit_button = 'submit-button';
     var submit_button_elt = '#' + submit_button;
 
@@ -144,8 +146,19 @@ function BulkSearchInit(){
 	// TODO: Wire the actions of the accordion to update the
 	// display.
 
-	// TODO: Now that we're setup, activate the display.
+	// Now that we're setup, activate the display button, and make
+	// it that it will only work on input.
 	jQuery(submit_button_elt).removeClass('disabled');
+	jQuery(submit_button_elt).click(function(e){
+	    e.preventDefault();
+
+	    var bulk_raw = jQuery(bulk_input_elt).val();
+	    if( ! bulk_raw || bulk_raw == '' ){
+		alert('need input');
+	    }else{
+		alert('maybe run');
+	    }
+	});
     }
  
     // Done message.
