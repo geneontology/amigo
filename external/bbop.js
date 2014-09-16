@@ -509,8 +509,10 @@ bbop.core.clone = function(thing){
 	//print("cloning atom: " + thing);
 	clone = thing;
     }else if( typeof(thing) === 'object' ){
-	// Is it a hash or an array?
-	if( typeof(thing.length) === 'undefined' ){
+	// Is it a null, hash, or an array?
+	if( thing == null ){
+	    clone = null;
+	}else if( typeof(thing.length) === 'undefined' ){
 	    // Looks like a hash!
 	    //print("looks like a hash");
 	    clone = {};
@@ -1877,14 +1879,14 @@ if ( typeof bbop.version == "undefined" ){ bbop.version = {}; }
  * Partial version for this library; revision (major/minor version numbers)
  * information.
  */
-bbop.version.revision = "2.1.1";
+bbop.version.revision = "2.2.3";
 
 /*
  * Variable: release
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20140616";
+bbop.version.release = "20140916";
 /*
  * Package: logger.js
  * 
@@ -13029,7 +13031,8 @@ bbop.golr.manager.jquery = function (golr_loc, golr_conf_obj){
     // The base jQuery Ajax args we need with the setup we have.
     anchor.jq_vars = {
 	//url: qurl,
-	type: "GET",
+	//type: "GET",
+	type: "POST",
 	dataType: 'jsonp',
 	jsonp: 'json.wrf'
     };
@@ -23344,6 +23347,13 @@ bbop.widget.message = function(){
 // (browser environment, etc.), take no action and depend on the
 // global namespace.
 if( typeof(exports) != 'undefined' ){
-    exports.bbop = bbop;    
+
+    // Old style--exporting separate namespace.
+    exports.bbop = bbop;
+
+    // New, better, style--assemble; these should not collide.
+    bbop.core.each(bbop, function(k, v){
+	exports[k] = v;
+    });
 }
 
