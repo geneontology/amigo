@@ -188,7 +188,7 @@ refresh: tags bundle
 	@echo "Using BBOP-JS at: $(BBOP_JS)"
 	cd $(BBOP_JS); make bundle
 	cp $(BBOP_JS)/staging/bbop.js ./external
-	cp ./javascript/lib/amigo/data/*.js $(BBOP_JS)/external/
+	cp ./javascript/lib/amigo/data/*.js $(BBOP_JS)/_data
 	cp ./javascript/lib/amigo/data/golr.js $(BBOP_JS)/demo/
 	./install -v -g -V $(AMIGO_VERSION)
 	./scripts/blank-kvetch.pl
