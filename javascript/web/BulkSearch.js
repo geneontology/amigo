@@ -30,6 +30,7 @@ function BulkSearchInit(){
     var gconf = new bbop.golr.conf(amigo.data.golr);
     var sd = new amigo.data.server();
     var defs = new amigo.data.definitions();
+    var handler = new amigo.handler();
     var linker = new amigo.linker();
     var solr_server = sd.golr_base();
 
@@ -72,7 +73,7 @@ function BulkSearchInit(){
     // 	'spinner_shield_source' : sd.image_base() + '/waiting_ajax.gif'
     // };
     var hargs = {
-	meta_label: 'Remaining:&nbsp;',
+	meta_label: 'Total pool:&nbsp;',
 	free_text_placeholder:
 	'Input text to filter against all remaining documents'
     };
@@ -98,15 +99,18 @@ function BulkSearchInit(){
 	ll("Detected dispatch argument (can progress): " +
 	   global_bulk_search_personality);
 
+	var confc = gconf.get_class(global_bulk_search_personality);
+
 	// // _on_search_select(global_live_search_personality);
 	// search.set_personality(global_live_search_personality);
 	// search.lite(true);
 	search.set_personality(global_bulk_search_personality);
+	search.add_query_filter('document_category',
+				confc.document_category(), ['*']);
 	search.establish_display();
 
 	// Add search fields to input form.
-	jQuery(input_fields_elt).empty();	
-	var confc = gconf.get_class(global_bulk_search_personality);
+	jQuery(input_fields_elt).empty();
 	var cfields = confc.field_order_by_weight('boost');
 	//var cfields = confc.field_order_by_weight('result');
 	each(cfields,
@@ -151,6 +155,20 @@ function BulkSearchInit(){
 	// Now that we're setup, activate the display button, and make
 	// it that it will only work on input.
 	var max_bulk_input = 100;
+	function _response_callback(resp, man){
+	    jQuery('#' + 'results').empty();
+	    if( resp.success() && resp.total_documents() > 0 ){
+		var rt = bbop.widget.display.results_table_by_class(confc,
+								    resp,
+								    linker,
+								    handler,
+								    'results',
+								    false);
+	    }else{
+		jQuery('#' + 'results').append('no results, try again');
+	    }
+	}
+	search.register('search', 'foo', _response_callback);
 	function _trigger_bulk_search(identifiers, search_fields){
 
 	    ll('run search');
@@ -184,7 +202,7 @@ function BulkSearchInit(){
 		    var simp = 'input[type="checkbox"][name="ifq"]:checked';
 		    var bulk_search_fields =
 			jQuery(simp).map(function(){ return this.value; }).get();
-		    console.log(bulk_search_fields)
+		    //console.log(bulk_search_fields)
 		    if( ! bulk_search_fields || bulk_search_fields.length == 0 ){
 			alert('You must select at least one search field from the list to make use of the bulk search.');
 		    }else{
