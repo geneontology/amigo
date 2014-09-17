@@ -150,10 +150,15 @@ function BulkSearchInit(){
 
 	// Now that we're setup, activate the display button, and make
 	// it that it will only work on input.
-	function _trigger_bulk_search(identifier, search_fields){
+	var max_bulk_input = 100;
+	function _trigger_bulk_search(identifiers, search_fields){
+
 	    ll('run search');
-	    // search.???
-	}
+	    search.set_targets(identifiers, search_fields);
+
+	    // 
+	    search.search();
+	}	
 	jQuery(submit_button_elt).removeClass('disabled');
 	jQuery(submit_button_elt).click(function(e){
 	    e.preventDefault();
@@ -168,6 +173,9 @@ function BulkSearchInit(){
 		if( ! bulk_list || bulk_list.length == 0 ||
 		    (bulk_list.length == 1 && bulk_list[0] == '' )){
 		    alert('You must input the identifiers for the items you are searching for to use this tool.');
+		}else if( bulk_list.length > max_bulk_input ){
+		    alert('The input limit for this tool is currently: ' +
+			  max_bulk_input + '.');
 		}else{
 		    // console.log(bulk_list)
 		    // Okay, the input text looks good, now we need to
