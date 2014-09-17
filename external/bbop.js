@@ -11785,16 +11785,30 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	return anchor.query;
     };
 
+    // Function to unwind and lock a list if identifiers onto a field.
+    function _lock_map(field, id_list){
+	var fixed_list = [];
+	bbop.core.each(id_list,
+		       function(item){
+			   fixed_list.push(bbop.core.ensure(item, '"'));
+		       });
+
+	var base_id_list = '(' + fixed_list.join(' OR ') + ')';
+
+	var ret_query = field + ':' + base_id_list;
+	return ret_query;
+	
+    }
+
     /*
      * Function: set_ids
      *
      * Like <set_id>, a limited setter. It removes whatever else is on
      * query and replaces it with something like:
      * 
-     * : gm.get_download_url(['id', 'score'], {'entity_list':['GO:1', 'GO:2']})
-     * : http://golr.berkeleybop.org/select?defType=edismax&qt=standard&indent=on&wt=csv&rows=1000&start=0&fl=id,score&facet=true&facet.mincount=1&facet.sort=count&json.nl=arrarr&facet.limit=25&csv.encapsulator=&csv.separator=%09&csv.header=false&csv.mv.separator=%7C&q=id:(%22GO:1%22%20OR%20%22GO:2%22)
+     * : gm.set_ids(['GO:1', 'GO:2'])
      * 
-     * This is for when you want to lock into a set of documents. All
+     * This is for when you want to lock into a set of documents by id. All
      * other query operations behave as they should around it.
      * 
      * Parameters: 
@@ -11807,16 +11821,43 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
      *  <set_ids>
      */
     this.set_ids = function(id_list){
+	anchor.query = _lock_map('id', id_list);
+	return anchor.query;
+    };
+
+    /*
+     * Function: set_targets
+     *
+     * Like a more generalized version of <set_ids>, a limited. It
+     * removes whatever else is on query and replaces it with
+     * something like:
+     * 
+     * : gm.set_targets(['GO:1', 'GO:2'], ['field_1', 'field_2'])
+     * 
+     * This is for when you want to lock into a set of documents by
+     * locking onto identifiers in some set of search fields. All
+     * other query operations behave as they should around it.
+     * 
+     * Parameters: 
+     *  id_list - a list of ids to search for
+     *  field_list - a list of fields ids to search across
+     *
+     * Returns:
+     *  the current setting of query ('q')
+     * 
+     * Also see:
+     *  <set_ids>
+     */
+    this.set_targets = function(id_list, field_list){
 
 	var fixed_list = [];
-	bbop.core.each(id_list,
-		       function(item){
-			   fixed_list.push(bbop.core.ensure(item, '"'));
-		       });
+	bbop.core.each(field_list, function(field){
+	    fixed_list.push(_lock_map(field, id_list));
+	});
 
-	var base_id_list = '(' + fixed_list.join(' OR ') + ')';
+	var sum = fixed_list.join(' OR ');
 
-	anchor.query = 'id:' + base_id_list;
+	anchor.query = sum;
 	return anchor.query;
     };
 
