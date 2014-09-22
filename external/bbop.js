@@ -1886,7 +1886,7 @@ bbop.version.revision = "2.2.3";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20140917";
+bbop.version.release = "20140922";
 /*
  * Package: logger.js
  * 
@@ -14810,7 +14810,8 @@ bbop.widget.display.results_table_by_class = function(cclass,
 			    'generate_id': true,
 			    'type': 'button',
 			    'title': dsc || lbl,
-			    'class': 'btn btn-default btn-xs'
+			    //'class': 'btn btn-default btn-xs'
+			    'class': 'btn btn-primary btn-xs'
 			});
 		    return b;
 		}
