@@ -154,7 +154,8 @@ function BulkSearchInit(){
 
 	// Now that we're setup, activate the display button, and make
 	// it that it will only work on input.
-	var max_bulk_input = 10000;
+	//var max_bulk_input = 10000;
+	var max_bulk_input = 1000;
 	function _response_callback(resp, man){
 	    jQuery('#' + 'results').empty();
 	    if( resp.success() && resp.total_documents() > 0 ){
