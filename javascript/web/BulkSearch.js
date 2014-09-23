@@ -75,13 +75,17 @@ function BulkSearchInit(){
     var hargs = {
 	meta_label: 'Total pool:&nbsp;',
 	free_text_placeholder:
-	'Input text to filter against all remaining documents'
+	'Input text to filter against all remaining documents',
+	'display_free_text_p': false
     };
     var search = new bbop.widget.live_filters(solr_server, gconf,
 					      filter_accordion, hargs);
     // // We like highlights; they should be included automatically
     // // through the widget.
     // search.include_highlighting(true);
+
+    // Add the pager to the search callback.
+    var pager = bbop.widget.live_pager('pager', search, {});
     
     ///
     /// Handle setup:
@@ -147,18 +151,15 @@ function BulkSearchInit(){
 		 jQuery(input_fields_elt).append(fcont.to_string());
 	     });
 
-	// TODO: Add filter accordion to input form.
-
-	// TODO: Wire the actions of the accordion to update the
-	// display.
 
 	// Now that we're setup, activate the display button, and make
-	// it that it will only work on input.
+	// it so that it will only work on "good" input.
 	//var max_bulk_input = 10000;
 	var max_bulk_input = 1000;
 	function _response_callback(resp, man){
 	    jQuery('#' + 'results').empty();
 	    if( resp.success() && resp.total_documents() > 0 ){
+		// Display results.
 		var rt = bbop.widget.display.results_table_by_class(confc,
 								    resp,
 								    linker,
@@ -166,7 +167,7 @@ function BulkSearchInit(){
 								    'results',
 								    false);
 	    }else{
-		jQuery('#' + 'results').append('no results, try again');
+		jQuery('#' + 'results').append('<em>No results given your input and search fields. Please refine and try again.</em>');
 	    }
 	}
 	search.register('search', 'foo', _response_callback);
@@ -177,6 +178,11 @@ function BulkSearchInit(){
 
 	    // 
 	    search.search();
+
+	    // Scroll to results.
+	    jQuery('html, body').animate({
+		scrollTop: jQuery('#' + 'results-area').offset().top
+	    }, 500);
 	}	
 	jQuery(submit_button_elt).removeClass('disabled');
 	jQuery(submit_button_elt).click(function(e){
