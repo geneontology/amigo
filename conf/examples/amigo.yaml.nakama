@@ -46,7 +46,7 @@ AMIGO_STATIC_PATH:
 AMIGO_STATIC_URL:
   comment: The URL for the static content. Can be local or remote.
   type: url
-  value: http://amigo2.berkeleybop.org/static
+  value: http://nakama.berkeleybop.org/static
 AMIGO_TERM_REGEXP:
   comment: The regular expressions to identify internal ontology ids.
   type: string
