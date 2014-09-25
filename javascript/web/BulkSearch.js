@@ -85,7 +85,23 @@ function BulkSearchInit(){
     // search.include_highlighting(true);
 
     // Add the pager to the search callback.
-    var pager = bbop.widget.live_pager('pager', search, {});
+    var btmpl = bbop.widget.display.button_templates;
+    var dlimit = defs.download_limit();
+    var flex_download_button =
+	    btmpl.flexible_download_b3('Flex download (up to ' + dlimit + ')',
+				       dlimit,
+				       ['bioentity', 'bioentity_label'],
+				       global_bulk_search_personality,
+				       gconf);
+    var pager_opts = {
+	'user_buttons': [
+	    flex_download_button,
+	    {
+		'label': 'hi!'
+	    }
+	]
+    };
+    var pager = bbop.widget.live_pager('pager', search, pager_opts);
     
     ///
     /// Handle setup:
