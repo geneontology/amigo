@@ -95,10 +95,7 @@ function BulkSearchInit(){
 				       gconf);
     var pager_opts = {
 	'user_buttons': [
-	    flex_download_button,
-	    {
-		'label': 'hi!'
-	    }
+	    flex_download_button
 	]
     };
     var pager = bbop.widget.live_pager('pager', search, pager_opts);
@@ -181,7 +178,7 @@ function BulkSearchInit(){
 								    linker,
 								    handler,
 								    'results',
-								    false);
+								    true);
 	    }else{
 		jQuery('#' + 'results').append('<em>No results given your input and search fields. Please refine and try again.</em>');
 	    }
