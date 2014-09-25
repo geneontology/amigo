@@ -1886,7 +1886,7 @@ bbop.version.revision = "2.2.3";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20140922";
+bbop.version.release = "20140924";
 /*
  * Package: logger.js
  * 
@@ -13086,9 +13086,9 @@ bbop.golr.manager.jquery = function (golr_loc, golr_conf_obj){
     anchor.jq_vars = {
 	//url: qurl,
 	//type: "GET",
-	type: "POST",
-	dataType: 'jsonp',
-	jsonp: 'json.wrf'
+	'type': "POST",
+	'dataType': 'jsonp',
+	'jsonp': 'json.wrf'
     };
 
     // We'll override the original with something that actually speaks
@@ -13807,7 +13807,7 @@ bbop.widget.display.text_button_sim = function(label, title, id, add_attrs){
  * Note: this is a collection of methods, not a constructor/object.
  */
 
-if ( typeof bbop == "undefined" ){ var bbop = {}; }
+	if ( typeof bbop == "undefined" ){ var bbop = {}; }
 if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
 if ( typeof bbop.widget.display == "undefined" ){ bbop.widget.display = {}; }
 if ( typeof bbop.widget.display.button_templates == "undefined" ){ bbop.widget.display.button_templates = {}; }
@@ -14035,7 +14035,7 @@ bbop.widget.display.button_templates.send_fields_to_galaxy = function(label,
 	    }
 	};
 
-  return galaxy_button;
+    return galaxy_button;
 };
 
 /*
@@ -14205,16 +14205,127 @@ bbop.widget.display.button_templates.flexible_download = function(label, count,
 
 			// To alphabetical.
 			pool_list.sort(function(a, b){
-					   var av = a[0];
-					   var bv = b[0];
-					   var val = 0;
-					   if( av < bv ){
-					       return -1;
-					   }else if( av > bv){
-					       return 1;
-					   }
-					   return val;
-				       });
+			    var av = a[0];
+			    var bv = b[0];
+			    var val = 0;
+			    if( av < bv ){
+				return -1;
+			    }else if( av > bv){
+				return 1;
+			    }
+			    return val;
+			});
+
+			// Stub sender.
+			var dss_args = {
+			    title: 'Select the fields to download (up to ' + count + ')',
+			    blurb: '<p><strong>Drag and drop</strong> the desired fields <strong>from the left</strong> column (available pool) <strong>to the right</strong> (selected fields). You may also reorder them.</p><p>Download up to ' + count + ' lines in a new window by clicking <strong>Download</strong>. If your request is large or if the the server busy, this may take a while to complete--please be patient.</p>',
+			    //blurb: 'By clicking "Download" at the bottom, you may download up to ' + count + ' lines in your browser in a new window. If your request is large or if the the server busy, this may take a while to complete--please be patient.',
+			    pool_list: pool_list,
+			    selected_list: start_list,
+			    action_label: 'Download',
+			    action: function(selected_items){
+			    	dl_props['entity_list'] =
+			    	    manager.get_selected_items();
+			    	var raw_gdl =
+			    	    manager.get_download_url(selected_items,
+			    				     dl_props);
+			    	window.open(raw_gdl, '_blank');
+			    }};
+			new bbop.widget.drop_select_shield(dss_args);
+		    }
+		};
+	    }
+	};
+    return flexible_download_button;
+};
+
+/*
+ * Method: flexible_download
+ * 
+ * Generate the template for a button that gives the user a DnD and
+ * reorderable selector for how they want their tab-delimited
+ * downloads.
+ * 
+ * Arguments:
+ *  label - the text to use for the hover
+ *  count - the number of items to be downloadable
+ *  start_fields - ordered list of the initially selected fields 
+ *  personality - the personality (id) that we want to work with
+ *  gconf - a copy of the <golr_conf> for the currrent setup
+ * 
+ * Returns:
+ *  hash form of jQuery button template for consumption by <search_pane>.
+ */
+bbop.widget.display.button_templates.flexible_download_b3 = function(
+    label, count, start_fields, personality, gconf){
+
+    var dl_props = {
+	'entity_list': null,
+	'rows': count
+    };
+
+    // Aliases.
+    var loop = bbop.core.each;
+    var hashify = bbop.core.hashify;
+
+    var flexible_download_button =
+	{
+	    label: label,
+	    diabled_p: false,
+	    click_function_generator: function(manager){
+
+		return function(event){
+		    
+		    var class_conf = gconf.get_class(personality);
+		    if( class_conf ){
+			
+			// First, a hash of our default items so we
+			// can check against them later to remove
+			// those items from the selectable pool.
+			// Then convert the list into a more
+			// interesting data type.
+			var start_hash = hashify(start_fields);
+			var start_list = [];
+			loop(start_fields,
+			     function(field_id, field_index){
+				 var cf = class_conf.get_field(field_id);
+				 var cname = cf.display_name();
+				 var cid = cf.id();
+				 var pset = [cname, cid];
+				 start_list.push(pset);
+			     });
+
+			// Then get an ordered list of all the
+			// different values we want to show in
+			// the pool list.
+			var pool_list = [];
+			var all_fields = class_conf.get_fields();
+			loop(all_fields,
+			     function(field, field_index){
+				 var field_id = field.id();
+				 if( start_hash[field_id] ){
+				     // Skip if already in start list.
+				 }else{
+				     var cname = field.display_name();
+				     var cid = field.id();
+				     var pset = [cname, cid];
+				     pool_list.push(pset);
+				 }
+			     });
+
+			// To alphabetical.
+			pool_list.sort(function(a, b){
+			    var av = a[0];
+			    var bv = b[0];
+			    var val = 0;
+			    if( av < bv ){
+				return -1;
+			    }else if( av > bv){
+				return 1;
+			    }
+			    return val;
+			});
 
 			// Stub sender.
 			var dss_args = {
@@ -20331,12 +20442,16 @@ bbop.widget.live_pager = function(interface_id, manager, in_argument_hash){
 
     // Handle incoming arguements.
     var default_hash = {
-	'callback_priority': 0
+	'callback_priority': 0,
+	'user_buttons': []
     };
     var folding_hash = in_argument_hash || {};
     var arg_hash = bbop.core.fold(default_hash, folding_hash);
 
+    console.log('folding_hash: ', folding_hash);
+    console.log('arg_hash: ', arg_hash);
     var callback_priority = arg_hash['callback_priority'];
+    var user_buttons = arg_hash['user_buttons'];
 
     // Last things last, bind to the manager.
     // TODO/BUG: Should this actually happen outside the widget? How
@@ -20344,6 +20459,14 @@ bbop.widget.live_pager = function(interface_id, manager, in_argument_hash){
     var fun_id = bbop.core.uuid();
     manager.register('search', fun_id, _repaint_on_callback, callback_priority);
 
+    // Add the "disabled" property to a button if the boolean
+    // value says so.
+    function _disable_if(bttn, disbool){
+	if( disbool ){
+	    jQuery('#' + bttn.get_id()).attr('disabled','disabled');
+	}
+    }
+	    
     /*
      * Function: draw_meta
      *
@@ -20492,7 +20615,6 @@ bbop.widget.live_pager = function(interface_id, manager, in_argument_hash){
 	    var bdiv_attrs = {
  		'class': 'col-xs-12 col-sm-12 col-md-8 col-lg-8',
 	    	'generate_id': true
-		
 	    };
 	    var bdiv = new bbop.html.tag('div', bdiv_attrs);
 	    //jQuery('#' + interface_id).append(bdiv.to_string());
@@ -20544,14 +20666,6 @@ bbop.widget.live_pager = function(interface_id, manager, in_argument_hash){
 		b_last_disabled_p = true;
 	    }
 
-	    // Add the "disabled" property to a button if the boolean
-	    // value says so.
-	    function _disable_if(bttn, disbool){
-		if( disbool ){
-		    jQuery('#' + bttn.get_id()).attr('disabled','disabled');
-		}
-	    }
-	    
 	    // First page button.
 	    _disable_if(b_first, b_first_disabled_p);
 	    jQuery('#' + b_first.get_id()).click(
@@ -20591,23 +20705,26 @@ bbop.widget.live_pager = function(interface_id, manager, in_argument_hash){
 		});
 	    
 	    ///
-	    /// Section 5: the button_definition buttons.
+	    /// Section 5: the button_definition buttons. These are
+	    /// the buttons defined outside of the widget, then
+	    /// embedded inside.
 	    ///
+	    console.log('user_buttons: ', user_buttons);
+	    if( user_buttons && user_buttons.length && user_buttons.length > 0 ){
 
-	    // Spacer.	    
-	    // jQuery('#' + interface_id).append('&nbsp;&nbsp;&nbsp;' +
-	    // 					'&nbsp;&nbsp;&nbsp;');
-	    jQuery('#'+ bdiv_id).append('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+		// Spacer.	    
+		jQuery('#'+ bdiv_id).append('&nbsp;&nbsp;');
 
-	    // (R)establish the user button div to the end of the meta
-	    // retults.
-	    var ubuttons = new bbop.html.tag('span',
-					     {'id': ui_user_button_div_id});
-	    //jQuery('#' + interface_id).append(ubuttons.to_string());
-	    jQuery('#' + bdiv_id).append(ubuttons.to_string());
-
-	    // Add all of the defined buttons after the spacing.
-	    _draw_user_buttons(manager);
+		// (R)establish the user button div to the end of the meta
+		// retults.
+		var ubuttons = new bbop.html.tag('span',
+						 {'id': ui_user_button_div_id});
+		//jQuery('#' + interface_id).append(ubuttons.to_string());
+		jQuery('#' + bdiv_id).append(ubuttons.to_string());
+		
+		// Add all of the defined buttons after the spacing.
+		_draw_user_buttons(user_buttons);
+	    }
 	}
     }
 
@@ -20624,17 +20741,15 @@ bbop.widget.live_pager = function(interface_id, manager, in_argument_hash){
      * Returns:
      *  n/a
      */
-    function _draw_user_buttons(){
+    function _draw_user_buttons(button_definitions){
 	function _button_rollout(button_def_hash){
 	    var default_hash =
     		{
-		    label : 'n/a',
+		    label : '?',
 		    disabled_p : false,
-		    text_p : false,
-		    icon : 'ui-icon-help',
 		    click_function_generator :
-		    function(){
-			return function(){
+		    function(manager){
+			return function(manager){
 			    alert('No callback defined for this button--' +
 				  'the generator may have been empty!');
 			};
@@ -20645,18 +20760,19 @@ bbop.widget.live_pager = function(interface_id, manager, in_argument_hash){
 	    
 	    var label = arg_hash['label'];
 	    var disabled_p = arg_hash['disabled_p'];
-	    var text_p = arg_hash['text_p'];
-	    var icon = arg_hash['icon'];
 	    var click_function_generator =
 		arg_hash['click_function_generator'];
 	    
-	    var b = new bbop.html.button(label, {'generate_id': true});
-	    jQuery('#' + ui_user_button_div_id).append(b.to_string());
+	    /// Add button to DOM.
 	    var b_props = {
-		icons: { primary: icon},
-		disabled: disabled_p,
-		text: text_p
+		'generate_id': true,
+		'class': 'btn btn-primary'
 	    };
+	    var b = new bbop.html.button(label, b_props);
+	    jQuery('#' + ui_user_button_div_id).append(b.to_string());
+	    _disable_if(b, disabled_p);
+
+	    // Bind function to action.
 	    var click_fun = click_function_generator(manager);
 	    jQuery('#' + b.get_id()).click(click_fun);
 	}
@@ -20667,7 +20783,7 @@ bbop.widget.live_pager = function(interface_id, manager, in_argument_hash){
 	}else{
 	    jQuery('#' + ui_user_button_div_id).empty();
 	    jQuery('#' + ui_user_button_div_id).empty();
-	    bbop.core.each(anchor.button_definitions, _button_rollout);
+	    bbop.core.each(button_definitions, _button_rollout);
 	}
     }
 
