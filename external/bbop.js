@@ -10374,7 +10374,7 @@ if ( typeof bbop.golr == "undefined" ){ bbop.golr = {}; }
  */
 bbop.golr.manager = function (golr_loc, golr_conf_obj){
     //bbop.registry.call(this, ['reset', 'search', 'error']);
-    bbop.registry.call(this, ['reset', 'search', 'error']);
+    bbop.registry.call(this, ['prerun', 'reset', 'search', 'error', 'postrun']);
     this._is_a = 'bbop.golr.manager';
 
     // Get a good self-reference point.
@@ -11159,6 +11159,7 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	ll('run reset callbacks...');
 	var response = new bbop.golr.response(json_data);
 	anchor.apply_callbacks('reset', [response, anchor]);
+	anchor.apply_callbacks('postrun', [response, anchor]);
     };
 
     // The main callback function called after a successful AJAX call in
@@ -11167,6 +11168,7 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	ll('run search callbacks...');
 	var response = new bbop.golr.response(json_data);
 	anchor.apply_callbacks('search', [response, anchor]);
+	anchor.apply_callbacks('postrun', [response, anchor]);
     };
 
     // This set is called when we run into a problem.
@@ -11174,6 +11176,7 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	ll('run error callbacks...');
 	var response = new bbop.golr.response(json_data);
 	anchor.apply_callbacks('error', [response, anchor]);
+	anchor.apply_callbacks('postrun', [response, anchor]);
     };
 
     /*
@@ -12921,6 +12924,8 @@ bbop.golr.manager.prototype.update = function(callback_type, rows, start){
     	throw new Error("Unknown callback_type: " + callback_type);
     }
     
+    this.apply_callbacks('prerun', [this]);
+
     //ll('qurl: ' + qurl);
     return qurl;
 };
@@ -13197,8 +13202,7 @@ bbop.core.extend(bbop.golr.manager.jquery, bbop.golr.manager);
  * Also see:
  *  <get_query_url>
  */
-bbop.golr.manager.jquery.prototype.update = function(callback_type,
-						     rows, start){
+bbop.golr.manager.jquery.prototype.update = function(callback_type, rows, start){
     
     // Get "parents" url first.
     var parent_update = bbop.golr.manager.prototype.update;
@@ -19267,6 +19271,36 @@ bbop.widget.live_filters = function(interface_id, manager, golr_conf_obj,
     }
 
     /*
+     * Function: spin_up
+     * 
+     * Turn on the spinner.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns
+     *  n/a
+     */
+    this.spin_up = function(){
+	_spin_up();
+    };
+	
+    /*
+     * Function: spin_down
+     * 
+     * Turn off the spinner.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns
+     *  n/a
+     */
+    this.spin_down = function(){
+	_spin_down();
+    };
+	
+    /*
      * Function: establish_display
      * 
      * Completely redraw the display.
@@ -20317,7 +20351,7 @@ bbop.widget.live_pager = function(interface_id, manager, in_argument_hash){
      */
     function _repaint_on_callback(response, manager){
 	
-	ll('draw live_pager at: ' + interface_id);
+	//ll('draw live_pager at: ' + interface_id);
 
 	///
 	/// Section 1: the numbers display.
