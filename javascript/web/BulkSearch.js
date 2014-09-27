@@ -122,6 +122,14 @@ function BulkSearchInit(){
 	var results = bbop.widget.live_results('results', search, confc,
 					       handler, linker, results_opts);
 
+	
+	search.register('prerun', 'foo', function(){
+	    filters.spin_up();
+	});
+	search.register('postrun', 'foo', function(){
+	    filters.spin_down();
+	});
+
 	///
 	/// Incorporate the special things for this page: the bulk
 	/// searcher and the field selection.
