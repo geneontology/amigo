@@ -107,10 +107,11 @@ function BulkSearchInit(){
 	// Attach the results pane and download buttons to manager.
 	var btmpl = bbop.widget.display.button_templates;
 	var dlimit = defs.download_limit();
+	var default_fields = confc.field_order_by_weight('result');
 	var flex_download_button =
 		btmpl.flexible_download_b3('Flex download (up to '+dlimit+')',
 					   dlimit,
-					   ['bioentity', 'bioentity_label'],
+					   default_fields,
 					   global_bulk_search_personality,
 					   gconf);
 	var results_opts = {
