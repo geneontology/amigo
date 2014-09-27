@@ -109,7 +109,7 @@ function BulkSearchInit(){
 	var dlimit = defs.download_limit();
 	var default_fields = confc.field_order_by_weight('result');
 	var flex_download_button =
-		btmpl.flexible_download_b3('Flex download (up to '+dlimit+')',
+		btmpl.flexible_download_b3('<span class="glyphicon glyphicon-download"></span> Flex download (up to '+dlimit+')',
 					   dlimit,
 					   default_fields,
 					   global_bulk_search_personality,
