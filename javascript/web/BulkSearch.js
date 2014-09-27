@@ -6,9 +6,6 @@
 //
 function BulkSearchInit(){
 
-    //var max_bulk_input = 10000;
-    var max_bulk_input = 1000;
-
     // Logger.
     var logger = new bbop.logger();
     logger.DEBUG = true;
@@ -36,6 +33,8 @@ function BulkSearchInit(){
     var handler = new amigo.handler();
     var linker = new amigo.linker();
     var solr_server = sd.golr_base();
+    //var dlimit = defs.download_limit();
+    var dlimit = 1000;
 
     ///
     /// DOM hooks.
@@ -102,27 +101,29 @@ function BulkSearchInit(){
 	// Attach pager to manager.
 	var pager_opts = {
 	};
-	var pager = bbop.widget.live_pager('pager', search, pager_opts);
+	var pager = new bbop.widget.live_pager('pager', search, pager_opts);
     
 	// Attach the results pane and download buttons to manager.
 	var btmpl = bbop.widget.display.button_templates;
-	var dlimit = defs.download_limit();
 	var default_fields = confc.field_order_by_weight('result');
 	var flex_download_button =
-		btmpl.flexible_download_b3('<span class="glyphicon glyphicon-download"></span> Flex download (up to '+dlimit+')',
+		btmpl.flexible_download_b3('<span class="glyphicon glyphicon-download"></span> Download',// (up to '+dlimit+')',
 					   dlimit,
 					   default_fields,
 					   global_bulk_search_personality,
 					   gconf);
 	var results_opts = {
+	    //'callback_priority': -200,
+	    'user_buttons_div_id': pager.button_span_id(),
 	    'user_buttons': [
 		flex_download_button
 	    ]
 	};
-	var results = bbop.widget.live_results('results', search, confc,
-					       handler, linker, results_opts);
+	var results = new bbop.widget.live_results('results', search, confc,
+						   handler, linker,
+						   results_opts);
 
-	
+	// Add pre and post run spinner (borrow filter's for now).
 	search.register('prerun', 'foo', function(){
 	    filters.spin_up();
 	});
@@ -202,9 +203,9 @@ function BulkSearchInit(){
 		if( ! bulk_list || bulk_list.length == 0 ||
 		    (bulk_list.length == 1 && bulk_list[0] == '' )){
 		    alert('You must input the identifiers for the items you are searching for to use this tool.');
-		}else if( bulk_list.length > max_bulk_input ){
+		}else if( bulk_list.length > dlimit ){
 		    alert('The input limit for this tool is currently: ' +
-			  max_bulk_input + '.');
+			  dlimit + '.');
 		}else{
 		    // console.log(bulk_list)
 		    // Okay, the input text looks good, now we need to
