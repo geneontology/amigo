@@ -1,10 +1,13 @@
 ////
-//// A full take on a production live search for GOlr.
-//// It ends up being a light wrapping around the search_pane widget.
+//// Attempt to assemble a workable bulk search/download using new BS3
+//// widgets.
 //// 
 
 //
 function BulkSearchInit(){
+
+    //var max_bulk_input = 10000;
+    var max_bulk_input = 1000;
 
     // Logger.
     var logger = new bbop.logger();
@@ -49,57 +52,6 @@ function BulkSearchInit(){
     var submit_button = 'submit-button';
     var submit_button_elt = '#' + submit_button;
 
-    // ///
-    // /// Ready widget.
-    // ///
-
-    // var handler = new amigo.handler();
-    // var hargs = {
-    // 	'linker': linker,
-    // 	'handler': handler,
-    // 	'base_icon_url' : null,
-    // 	'image_type' : 'gif',
-    // 	'layout_type' : 'two-column',
-    // 	'show_global_reset_p' : true,
-    // 	'show_searchbox_p' : true,
-    // 	'show_filterbox_p' : true,
-    // 	'show_pager_p' : true,
-    // 	'show_checkboxes_p' : true,
-    // 	//'show_checkboxes_p' : false,
-    // 	//'spinner_search_source' : '',
-    // 	'spinner_search_source' : sd.image_base() + '/waiting_ajax.gif',
-    // 	//'spinner_shield_source' : sd.image_base() + '/waiting_poll.gif'
-    // 	'spinner_shield_message' : 'Loading and using this widget may take a long time on some large filter sets. If it takes too long, please close it and further narrow your results using other facets or the text search.<br />Waiting...',
-    // 	'spinner_shield_source' : sd.image_base() + '/waiting_ajax.gif'
-    // };
-    var hargs = {
-	meta_label: 'Total pool:&nbsp;',
-	free_text_placeholder:
-	'Input text to filter against all remaining documents',
-	'display_free_text_p': false
-    };
-    var search = new bbop.widget.live_filters(solr_server, gconf,
-					      filter_accordion, hargs);
-    // // We like highlights; they should be included automatically
-    // // through the widget.
-    // search.include_highlighting(true);
-
-    // Add the pager to the search callback.
-    var btmpl = bbop.widget.display.button_templates;
-    var dlimit = defs.download_limit();
-    var flex_download_button =
-	    btmpl.flexible_download_b3('Flex download (up to ' + dlimit + ')',
-				       dlimit,
-				       ['bioentity', 'bioentity_label'],
-				       global_bulk_search_personality,
-				       gconf);
-    var pager_opts = {
-	'user_buttons': [
-	    flex_download_button
-	]
-    };
-    var pager = bbop.widget.live_pager('pager', search, pager_opts);
-    
     ///
     /// Handle setup:
     ///  1) We /need/ to have a personality defined. If not, it is an error--
@@ -116,15 +68,63 @@ function BulkSearchInit(){
 	ll("Detected dispatch argument (can progress): " +
 	   global_bulk_search_personality);
 
-	var confc = gconf.get_class(global_bulk_search_personality);
+	///
+	/// Manager setup.
+	///
 
-	// // _on_search_select(global_live_search_personality);
-	// search.set_personality(global_live_search_personality);
-	// search.lite(true);
+	// The manager that we'll all share with all the consumer widgets.
+	var search = new bbop.golr.manager.jquery(solr_server, gconf);
+	// // We like highlights; they should be included automatically
+	// // through the widget.
+	// search.include_highlighting(true);
+
+	// Ready the manager.
+	var confc = gconf.get_class(global_bulk_search_personality);
 	search.set_personality(global_bulk_search_personality);
 	search.add_query_filter('document_category',
 				confc.document_category(), ['*']);
-	search.establish_display();
+
+	///
+	/// Major widget attachements to the manager.
+	///
+
+	// Attach filters to manager.
+	var hargs = {
+	    meta_label: 'Total pool:&nbsp;',
+	    // free_text_placeholder:
+	    // 'Input text to filter against all remaining documents',
+	    'display_free_text_p': false
+	};
+	var filters = new bbop.widget.live_filters(filter_accordion, search,
+						   gconf, hargs);
+	filters.establish_display();
+
+	// Attach pager to manager.
+	var pager_opts = {
+	};
+	var pager = bbop.widget.live_pager('pager', search, pager_opts);
+    
+	// Attach the results pane and download buttons to manager.
+	var btmpl = bbop.widget.display.button_templates;
+	var dlimit = defs.download_limit();
+	var flex_download_button =
+		btmpl.flexible_download_b3('Flex download (up to '+dlimit+')',
+					   dlimit,
+					   ['bioentity', 'bioentity_label'],
+					   global_bulk_search_personality,
+					   gconf);
+	var results_opts = {
+	    'user_buttons': [
+		flex_download_button
+	    ]
+	};
+	var results = bbop.widget.live_results('results', search, confc,
+					       handler, linker, results_opts);
+
+	///
+	/// Incorporate the special things for this page: the bulk
+	/// searcher and the field selection.
+	///
 
 	// Add search fields to input form.
 	jQuery(input_fields_elt).empty();
@@ -164,26 +164,8 @@ function BulkSearchInit(){
 		 jQuery(input_fields_elt).append(fcont.to_string());
 	     });
 
-
 	// Now that we're setup, activate the display button, and make
 	// it so that it will only work on "good" input.
-	//var max_bulk_input = 10000;
-	var max_bulk_input = 1000;
-	function _response_callback(resp, man){
-	    jQuery('#' + 'results').empty();
-	    if( resp.success() && resp.total_documents() > 0 ){
-		// Display results.
-		var rt = bbop.widget.display.results_table_by_class(confc,
-								    resp,
-								    linker,
-								    handler,
-								    'results',
-								    true);
-	    }else{
-		jQuery('#' + 'results').append('<em>No results given your input and search fields. Please refine and try again.</em>');
-	    }
-	}
-	search.register('search', 'foo', _response_callback);
 	function _trigger_bulk_search(identifiers, search_fields){
 
 	    ll('run search');
@@ -231,6 +213,9 @@ function BulkSearchInit(){
 		}
 	    }
 	});
+
+	// If we're all done, trigger initial hit.
+	search.search();
     }
  
     // Done message.
