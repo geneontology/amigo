@@ -1886,7 +1886,7 @@ bbop.version.revision = "2.2.3";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20140926";
+bbop.version.release = "20140927";
 /*
  * Package: logger.js
  * 
@@ -14273,90 +14273,89 @@ bbop.widget.display.button_templates.flexible_download_b3 = function(
     var loop = bbop.core.each;
     var hashify = bbop.core.hashify;
 
-    var flexible_download_button =
-	{
-	    label: label,
-	    diabled_p: false,
-	    click_function_generator: function(results_table, manager){
-
-		return function(event){
+    var flexible_download_button = {
+	label: label,
+	diabled_p: false,
+	click_function_generator: function(results_table, manager){
+	    
+	    return function(event){
+		
+		var class_conf = gconf.get_class(personality);
+		if( class_conf ){
 		    
-		    var class_conf = gconf.get_class(personality);
-		    if( class_conf ){
-			
-			// First, a hash of our default items so we
-			// can check against them later to remove
-			// those items from the selectable pool.
-			// Then convert the list into a more
-			// interesting data type.
-			var start_hash = hashify(start_fields);
-			var start_list = [];
-			loop(start_fields, function(field_id, field_index){
-			    var cf = class_conf.get_field(field_id);
-			    var cname = cf.display_name();
-			    var cid = cf.id();
+		    // First, a hash of our default items so we
+		    // can check against them later to remove
+		    // those items from the selectable pool.
+		    // Then convert the list into a more
+		    // interesting data type.
+		    var start_hash = hashify(start_fields);
+		    var start_list = [];
+		    loop(start_fields, function(field_id, field_index){
+			var cf = class_conf.get_field(field_id);
+			var cname = cf.display_name();
+			var cid = cf.id();
+			var pset = [cname, cid];
+			start_list.push(pset);
+		    });
+		    
+		    // Then get an ordered list of all the
+		    // different values we want to show in
+		    // the pool list.
+		    var pool_list = [];
+		    var all_fields = class_conf.get_fields();
+		    loop(all_fields, function(field, field_index){
+			var field_id = field.id();
+			if( start_hash[field_id] ){
+			    // Skip if already in start list.
+			}else{
+			    var cname = field.display_name();
+			    var cid = field.id();
 			    var pset = [cname, cid];
-			    start_list.push(pset);
-			});
-
-			// Then get an ordered list of all the
-			// different values we want to show in
-			// the pool list.
-			var pool_list = [];
-			var all_fields = class_conf.get_fields();
-			loop(all_fields, function(field, field_index){
-			    var field_id = field.id();
-			    if( start_hash[field_id] ){
-				// Skip if already in start list.
-			    }else{
-				var cname = field.display_name();
-				var cid = field.id();
-				var pset = [cname, cid];
-				pool_list.push(pset);
+			    pool_list.push(pset);
+			}
+		    });
+		    
+		    // To alphabetical.
+		    pool_list.sort(function(a, b){
+			var av = a[0];
+			var bv = b[0];
+			var val = 0;
+			if( av < bv ){
+			    return -1;
+			}else if( av > bv){
+			    return 1;
+			}
+			return val;
+		    });
+		    
+		    // Stub sender.
+		    var dss_args = {
+			title: 'Select the fields to download (up to ' + count + ')',
+			blurb: '<p><strong>Drag and drop</strong> the desired fields <strong>from the left</strong> column (available pool) <strong>to the right</strong> (selected fields). You may also reorder them.</p><p>Download up to ' + count + ' lines in a new window by clicking <strong>Download</strong>. If your request is large or if the the server busy, this may take a while to complete--please be patient.</p>',
+			//blurb: 'By clicking "Download" at the bottom, you may download up to ' + count + ' lines in your browser in a new window. If your request is large or if the the server busy, this may take a while to complete--please be patient.',
+			pool_list: pool_list,
+			selected_list: start_list,
+			action_label: 'Download',
+			action: function(selected_items){
+			    // Get selected items from results
+			    // checkboxes.
+			    dl_props['entity_list'] = null;
+			    if( ! bbop.core.is_empty(results_table) ){
+			    	dl_props['entity_list'] =
+   				    results_table.get_selected_items();
 			    }
-			});
-
-			// To alphabetical.
-			pool_list.sort(function(a, b){
-			    var av = a[0];
-			    var bv = b[0];
-			    var val = 0;
-			    if( av < bv ){
-				return -1;
-			    }else if( av > bv){
-				return 1;
-			    }
-			    return val;
-			});
-
-			// Stub sender.
-			var dss_args = {
-			    title: 'Select the fields to download (up to ' + count + ')',
-			    blurb: '<p><strong>Drag and drop</strong> the desired fields <strong>from the left</strong> column (available pool) <strong>to the right</strong> (selected fields). You may also reorder them.</p><p>Download up to ' + count + ' lines in a new window by clicking <strong>Download</strong>. If your request is large or if the the server busy, this may take a while to complete--please be patient.</p>',
-			    //blurb: 'By clicking "Download" at the bottom, you may download up to ' + count + ' lines in your browser in a new window. If your request is large or if the the server busy, this may take a while to complete--please be patient.',
-			    pool_list: pool_list,
-			    selected_list: start_list,
-			    action_label: 'Download',
-			    action: function(selected_items){
-				// Get selected items from results
-				// checkboxes.
-			    	dl_props['entity_list'] = null;
-				if( ! bbop.core.is_empty(results_table) ){
-			    	    dl_props['entity_list'] =
-   					results_table.get_selected_items();
-				}
-				// Download for the selected fields...
-			    	var raw_gdl =
+			    // Download for the selected fields...
+			    var raw_gdl =
 			    	    manager.get_download_url(selected_items,
 			    				     dl_props);
-				// ...opening it in a new window.
-			    	window.open(raw_gdl, '_blank');
-			    }};
-			new bbop.widget.drop_select_shield(dss_args);
-		    }
-		};
-	    }
-	};
+			    // ...opening it in a new window.
+			    window.open(raw_gdl, '_blank');
+			}};
+		    new bbop.widget.drop_select_shield(dss_args);
+		}
+	    };
+	}
+    };
     return flexible_download_button;
 };
 /*
@@ -19154,16 +19153,15 @@ bbop.widget.live_filters = function(interface_id, manager, golr_conf_obj,
     // this._class_conf = golr_conf_obj;
 
     // Our argument default hash.
-    var default_hash =
-	{
-	    'meta_label': 'Documents:&nbsp;',
-	    'display_meta_p': true,
-	    'display_free_text_p': true,
-	    'free_text_placeholder': 'Free-text filter',
-	    'display_accordion_p': true,
-	    'minimum_free_text_length': 3, // wait for three characters or more
-	    'on_update_callback': function(){}
-	};
+    var default_hash = {
+	'meta_label': 'Documents:&nbsp;',
+	'display_meta_p': true,
+	'display_free_text_p': true,
+	'free_text_placeholder': 'Free-text filter',
+	'display_accordion_p': true,
+	'minimum_free_text_length': 3, // wait for three characters or more
+	'on_update_callback': function(){}
+    };
     var folding_hash = in_argument_hash || {};
     var arg_hash = bbop.core.fold(default_hash, folding_hash);
     // 
@@ -20308,6 +20306,7 @@ bbop.widget.live_pager = function(interface_id, manager, in_argument_hash){
     // Some top-level variable defined.
     var ui_count_control_div_id =
 	    interface_id + '_countctl_div_' + bbop.core.uuid();
+    var external_button_location_id = 'pager_button_holder_' + bbop.core.uuid();
 
     // Handle incoming arguements.
     var default_hash = {
@@ -20331,24 +20330,11 @@ bbop.widget.live_pager = function(interface_id, manager, in_argument_hash){
 	    jQuery('#' + bttn.get_id()).attr('disabled','disabled');
 	}
     }
-	    
-    /*
-     * Function: draw_meta
-     *
-     * Draw meta results. Includes selector for drop down.
-     * 
-     * (Re)draw the count control with the current information in the
-     * manager. This also tries to set the selector to the response
-     * number (to keep things in sync), unbinds any current "change"
-     * event, and adds a new change event.
-     * 
-     * Parameters:
-     *  response - the <bbop.golr.response> returned from the server
-     *  manager - <bbop.golr.manager> that we initially registered with
-     *
-     * Returns:
-     *  n/a
-     */
+
+    // (Re)draw the count control with the current information in the
+    // manager. This also tries to set the selector to the response
+    // number (to keep things in sync), unbinds any current "change"
+    // event, and adds a new change event.
     function _repaint_on_callback(response, manager){
 	
 	//ll('draw live_pager at: ' + interface_id);
@@ -20564,8 +20550,35 @@ bbop.widget.live_pager = function(interface_id, manager, in_argument_hash){
 		// We are now searching--show it.
 		//_spin_up();
 	    });
+
+	    ///
+	    /// Section 5: make a place for external buttons.
+	    ///
+
+	    var holder_attrs = {
+		'id': external_button_location_id
+	    };
+	    var holder = new bbop.html.tag('span', holder_attrs);
+	    jQuery('#' + bdiv_id).append('&nbsp;' + holder.to_string());
 	}
-    }    
+    }
+
+	
+    /*
+     * Function: button_span_id
+     * 
+     * Returns the location of a place to add external buttons if you
+     * want.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns
+     *  string rep of place to put external buttons (span tag)
+     */
+    anchor.button_span_id = function(){
+	return external_button_location_id;
+    };
 };
 /*
  * Package: live_results.js
