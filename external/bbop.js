@@ -1886,7 +1886,7 @@ bbop.version.revision = "2.2.3";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20140927";
+bbop.version.release = "20140928";
 /*
  * Package: logger.js
  * 
@@ -10386,6 +10386,9 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
     this._logger.DEBUG = false;
     function ll(str){ anchor._logger.kvetch(str); }
 
+    // Just want to compile these once.
+    var alphanum = new RegExp(/^[a-zA-Z0-9 ]+$/);
+
     // To help keep requests from the past haunting us. Actually doing
     // something with this number is up to the UI.
     this.last_sent_packet = 0;
@@ -11734,8 +11737,9 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
      * A specialized setter for the query variable ('q'), as follows:
      *
      * If the input is all alphanum or space, the input is
-     * tokenized. The last token, if it is at least three characters,
-     * gets a wildcard '*'.
+     * tokenized. If there is one token, if it is at least three
+     * characters, gets a wildcard '*'; if there are more tokens, the
+     * last one gets a wild card.
      * 
      * This might be a more comfortable way to search for most naive
      * (non-power user) interfaces.
@@ -11757,7 +11761,6 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	if( new_query && new_query.length && new_query.length > 0 ){
 
 	    // That it is alphanum+space-ish
-	    var alphanum = new RegExp(/^[a-zA-Z0-9 ]+$/);
 	    if( alphanum.test(new_query) ){
 	    
 		// Break it into tokens and get the last.
@@ -11765,13 +11768,17 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 		var last_token = tokens[tokens.length -1];
 		//ll('last: ' + last_token);
 		
-		// If it is three or more, add the wildcard.
-		if( last_token.length >= 3 ){
-		    tokens[tokens.length -1] = last_token + '*';
+		if( tokens.length == 1 ){
 
-		    // And join it all back into our comfy query.
-		    comfy_query = tokens.join(' ');
+		    // If it is three or more, add the wildcard.
+		    if( last_token.length >= 3 ){
+			tokens[tokens.length -1] = last_token + '*';
+		    }
+		}else{
+		    tokens[tokens.length -1] = last_token + '*';
 		}
+		// And join it all back into our comfy query.
+		comfy_query = tokens.join(' ');
 	    }
 	}
 
