@@ -277,6 +277,7 @@ sub mode_advanced {
   ## DEBUG.
   #$self->{CORE}->kvetch(Dumper($term_list));
   #$self->{CORE}->kvetch(Dumper($term_hash));
+  $self->{CORE}->kvetch('term_hash: ' . Dumper($term_hash));
 
   ###
   ### Build graph.
@@ -314,6 +315,8 @@ sub mode_advanced {
 	die "The term ID that you're using could not be satisfactorily resolved";
       }else{
 
+	$self->{CORE}->kvetch('process term: ' . $acc);
+
 	my $topo_graph_raw = $tinfo_item->{topology_graph_json};
 	my $topo_graph = $self->{CORE}->_read_json_string($topo_graph_raw);
 
@@ -322,8 +325,7 @@ sub mode_advanced {
 	my $cgraph = $tinfo_item->{chewable_graph};
 	my $children_list = $cgraph->get_children($acc);
 	my %children_hash = map { $_ => 1 } @$children_list;
-	$self->{CORE}->kvetch(Dumper(\%children_hash));
-	$self->{CORE}->kvetch(Dumper($term_hash));
+	$self->{CORE}->kvetch('children_hash: ' . Dumper(\%children_hash));
 
 	## Simply process the edges.
 	foreach my $edge (@{$topo_graph->{'edges'}}){
@@ -331,16 +333,19 @@ sub mode_advanced {
 	  my $oid = $edge->{'obj'};
 	  my $pid = $edge->{'pred'} || '.';
 	  ## Filter child rels out.
-	  if( ! $children_hash->{$sid} && ! $term_hash->{$oid} ){
-	    my $vid = $sid . $pid . $oid;
-	    $all_edges->{$vid} =
-	      {
-	       'sub' => $sid,
-	       'obj' => $oid,
-	       'pred' => $pid,
-	      };
-	    $self->{CORE}->kvetch("edge: $sid $pid $oid");
-	  }
+	  if( $children_hash{$sid} ){
+	      $self->{CORE}->kvetch("dropped edge: $sid $pid $oid");
+	   }else{
+	       $self->{CORE}->kvetch("add edge: $sid $pid $oid");
+
+	       my $vid = $sid . $pid . $oid;
+	       $all_edges->{$vid} =
+	       {
+		   'sub' => $sid,
+		   'obj' => $oid,
+		   'pred' => $pid,
+	       };
+	   }
 	}
 
 	## A more complicates processing of the nodes.
