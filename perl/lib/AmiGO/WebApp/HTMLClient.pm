@@ -1566,7 +1566,7 @@ sub mode_term_details {
       #'standard',
       'com.bootstrap',
       'com.jquery.jqamigo.custom',
-      'com.jquery.tablesorter',
+      #'com.jquery.tablesorter',
       'amigo',
       'bbop'
      ],
