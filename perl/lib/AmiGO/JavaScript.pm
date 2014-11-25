@@ -81,8 +81,8 @@ my $sig2path =
    'com/jquery.jsPlumb-1.5.5.js', # default route to jQuery version
 
    ## And plugin for trees.
-   'com.jquery.jstree' =>
-   'com/jquery.jstree.js',
+   'com.jstree' =>
+   'com/jstree/jstree.min.js',
 
    ## More plugins.
    'com.jquery.treeview'          => 'com/jquery.treeview.js',

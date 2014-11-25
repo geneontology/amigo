@@ -38,6 +38,10 @@ my $uicss2path =
    ##
    'com.ext.resources.ext-all' =>
    'com/ext/resources/css/ext-all.css',
+
+   ##
+   'com.jstree' =>
+   'com/jstree/style.min.css',
   };
 
 ## For independant CSS.
