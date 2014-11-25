@@ -1262,6 +1262,7 @@ sub get_interlink {
      'schema_details' => sub { $ilink = 'amigo/schema_details'; },
      'load_details' => sub { $ilink = 'amigo/load_details'; },
      'browse' => sub { $ilink = 'amigo/browse'; },
+     'dd_browse' => sub { $ilink = 'amigo/dd_browse'; },
      'free_browse' => sub { $ilink = 'amigo/free_browse'; },
      'goose' => sub { $ilink = 'goose'; },
      'grebe' => sub { $ilink = 'grebe'; },
@@ -2592,7 +2593,8 @@ sub dynamic_dispatch_table {
      'schema_details'      => { app => $app, rm => 'schema_details' },
      'load_details'        => { app => $app, rm => 'load_details' },
      'browse'              => { app => $app, rm => 'browse' },
-     'free_browse'              => { app => $app, rm => 'free_browse' },
+     'dd_browse'           => { app => $app, rm => 'dd_browse' },
+     'free_browse'         => { app => $app, rm => 'free_browse' },
      ##
      ## Soft applications (may take some parameters, browser-only).
      ##

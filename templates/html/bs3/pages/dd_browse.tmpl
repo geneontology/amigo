@@ -1,0 +1,36 @@
+<!-- Begin: dd_browse.tmpl -->
+
+[% INCLUDE common/noscript_js_necessary.tmpl %]
+
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Drill-down Browsing of Ontologies" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<p>
+  This is a very simple top-down exploration widget for the
+  ontologies. It does not worry about multiple paths and logic, it
+  just lets you open up direct descendant terms one at a time.
+</p>
+[% INCLUDE "common/info_rollup_end.tmpl" %]
+
+<div class="panel panel-default">
+  <!-- <div class="panel-heading"> -->
+    <!-- <div class="panel-title"> -->
+    <!-- </div> -->
+  <!-- </div> -->
+  <div class="panel-body">
+
+    <h4>Term descendants</h4>
+    <div id="dd_browser_id">
+      <!-- <ul> -->
+      <!-- 	<li>Root node -->
+      <!-- 	  <ul> -->
+      <!--       <li>Child node 1</li> -->
+      <!--       <li>Child node 2</li> -->
+      <!-- 	  </ul> -->
+      <!-- 	</li> -->
+      <!-- </ul> -->
+    </div>
+    
+  </div>
+</div>
+<!-- End: dd_browse.tmpl -->
