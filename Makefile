@@ -37,7 +37,7 @@ AMIGO_VERSION ?= $(AMIGO_BASE_VERSION).$(AMIGO_PATCH_LEVEL)$(AMIGO_VERSION_TAG)
 
 all:
 	@echo "Default JS engine: $(TEST_JS)"
-	@echo "See: http://wiki.geneontology.org/index.php/AmiGO_Manual:_Installation_2"
+	@echo "See: http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Installation"
 	@echo "for more details."
 #	@echo "All JS engines: $(JSENGINES)"
 #	@echo "Try make: 'test', 'docs', 'install', 'bundle', 'data', or 'release'"
