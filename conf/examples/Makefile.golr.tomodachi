@@ -12,7 +12,7 @@
 
 ## Options.
 OWLTOOLS_MAX_MEMORY ?= 192G
-OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS = --merge-support-ontologies --reasoner elk
+OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS = --merge-support-ontologies --remove-subset-entities upperlevel --reasoner elk
 
 ## Bins.
 MAVEN_EXE ?= ~/local/src/java/apache-maven-3.0.4/bin/mvn
