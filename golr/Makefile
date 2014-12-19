@@ -12,7 +12,7 @@
 
 ## Options.
 OWLTOOLS_MAX_MEMORY ?= 4G
-OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS = --merge-support-ontologies --reasoner elk
+OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS = --merge-support-ontologies --remove-subset-entities upperlevel --reasoner elk
 
 ## Bins.
 MAVEN_EXE ?= ~/local/src/java/apache-maven-3.0.4/bin/mvn
@@ -40,18 +40,18 @@ SCHEMA_METADATA ?= \
  ../metadata/ann_ev_agg-config.yaml
 ONTOLOGY_METADATA ?= ../metadata/ont-config.yaml
 ONTOLOGIES ?= \
- http://purl.obolibrary.org/obo/go.owl \
- http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl \
+ http://purl.obolibrary.org/obo/go/extensions/go-plus.owl \
+ http://purl.obolibrary.org/obo/ncbitaxon.owl \
  http://purl.obolibrary.org/obo/cl/cl-basic.owl \
  http://purl.obolibrary.org/obo/eco.owl \
- http://geneontology.org/ontology/extensions/gorel.owl \
+ http://purl.obolibrary.org/obo/go/extensions/gorel.owl
  http://purl.obolibrary.org/obo/ma.owl \
  http://purl.obolibrary.org/obo/pato.owl \
  http://purl.obolibrary.org/obo/po.owl \
- http://purl.obolibrary.org/obo/emap.owl
-## Next:
-# http://purl.obolibrary.org/obo/go/extensions/go-plus.owl \
-# http://purl.obolibrary.org/obo/uberon/basic.owl
+ http://purl.obolibrary.org/obo/emap.owl \
+ http://purl.obolibrary.org/obo/chebi.owl \
+ http://purl.obolibrary.org/obo/uberon/basic.owl \
+ http://purl.obolibrary.org/obo/go/extensions/go-modules-annotations.owl
 
 GENE_ASSOCIATION_FILES ?= \
 	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Lmajor.gz \
@@ -95,18 +95,10 @@ TEST_GAF_MICRO = ./_test/mgi-limited-100.gaf
 
 ## Not over the wire yet.
 ## Experimental Lego paths.
+LEGO_S3_LISTING ?= \
+ /tmp/lego.cat
 LEGO_CATALOGS ?= \
- ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/catalog-v001.xml
-LEGO_FILES ?= \
- ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/Muscle_contraction.owl \
- ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/NEDD4-merged.owl \
- ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/Wnt-intestine-pmid22617424dph.owl \
- ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/canonical-wnt.owl \
- ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/cytokinin-signaling.owl \
- ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/lr-asymmetry-pmid21771813.owl \
- ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/textbook_glycolysis-mouse.owl \
- ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/worm-vulval-development.owl \
- ~/local/src/svn/geneontology.org/trunk/experimental/lego/owl/reactome/Arachidonic_acid_metabolism.owl
+ ~/local/src/svn/geneontology.org/trunk/experimental/lego/server/protein/subset/catalog-v001.xml
 
 ##
 DATE = `date +'%Y-%m-%d'`
@@ -212,7 +204,7 @@ load-just-panther: owltools-build
 .PHONY: load-just-complex-annotations
 load-just-complex-annotations: owltools-build
 	make message-load-start
-	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --read-lego-catalogs $(LEGO_CATALOGS) --read-lego-files $(LEGO_FILES) --solr-load-complex-annotations
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --catalog-xml $(LEGO_CATALOGS) --solr-url $(SOLR_URL) --read-ca-list $(LEGO_S3_LISTING) --solr-load-complex-exp
 	make message-load-clear
 
 ## The full and final load.
