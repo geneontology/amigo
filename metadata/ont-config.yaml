@@ -3,7 +3,7 @@
 ####
 id: ontology
 schema_generating: true
-description: Ontology classes for GO.
+description: Gene Ontology Term, Synonym, or Definition.
 display_name: Ontology
 document_category: ontology_class
 weight: 40
