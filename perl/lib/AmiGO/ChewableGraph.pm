@@ -378,6 +378,7 @@ sub dominant_relationship {
   my $all_rels = [];
   foreach my $arg (@_){
     if( ref($arg) eq 'ARRAY' ){
+      ## Retry by dereferencing first.
       push @$all_rels, $self->dominant_relationship(@$arg);
     }else{
       push @$all_rels, $arg;
