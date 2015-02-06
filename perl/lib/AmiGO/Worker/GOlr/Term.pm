@@ -262,6 +262,10 @@ sub get_ancestor_info {
 	#$rel = 'fatal';
 	## It's definitely "related to", but somehow it barfed.
 	## Generic fall-through.
+	## ---
+	## BUG/TODO: This is the temporary workaround for
+	## incomplete transitivity graphs in some cases:
+	## https://github.com/kltm/bbop-js/wiki/TransitivityGraph#troubleshooting-caveats-and-fail-modes
 	$rel = 'related_to';
       }
 
