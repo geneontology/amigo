@@ -1886,7 +1886,7 @@ bbop.version.revision = "2.2.3";
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20140928";
+bbop.version.release = "20150205";
 /*
  * Package: logger.js
  * 
@@ -6607,15 +6607,21 @@ bbop.model.bracket.graph = function(){
 
 	var rel = predicate_acc || '';
 	var dflt = default_weight || 0;
-	var order =
-	    {
-		is_a: 1,
-		has_part: 2,
-		part_of: 3,
-		regulates: 4,
-		negatively_regulates: 5,
-		positively_regulates: 6
-	    };
+	var order = {
+	    'is_a': 1,
+	    'is a': 1,
+	    'has_part': 2,
+	    'has part': 2,
+	    'part_of': 3,
+	    'part of': 3,
+	    'regulates': 4,
+	    'negatively_regulates': 5,
+	    'negatively regulates': 5,
+	    'positively_regulates': 6,
+	    'positively regulates': 6,
+	    'occurs_in': 7,
+	    'occurs in': 7
+	};
 
 	var ret_weight = dflt;
 	if( bbop.core.is_defined(rel) &&
@@ -6713,65 +6719,61 @@ bbop.model.bracket.graph = function(){
 	// So, let's go through all the rows, looking on the
 	// transitivity graph to see if we can find the predicates.
 	var bracket_list = [];
-	each(layout,
-	    function(layout_level){
-		var bracket = [];
-		each(layout_level,
-		     function(layout_item){
-
-			 // The defaults for what we'll pass back out.
-			 var curr_acc = layout_item;
-			 var pred_id = 'is_a';			 
-			 var curr_node = anchor.get_node(curr_acc);
-			 var label = curr_node.label() || layout_item;
-
-			 // 
-
-			 // Now we just have to determine
-			 // predicates. If we're the one, we'll just
-			 // use the defaults.
-			 if( curr_acc == term_acc ){
-			     // Default.
-			 }else{
-			     // Since the transitivity graph only
-			     // stores ancestors, we can also use it
-			     // to passively test if these are
-			     // children we should be looking for.
-			     var trels =
-				 transitivity_graph.get_predicates(term_acc,
-								   curr_acc);
-			     if( ! bbop.core.is_empty(trels) ){
-				 // Not children, so decide which of
-				 // the returned edges is the best.
-				 pred_id = anchor.dominant_relationship(trels);
-			     }else{
-				 // Probably children, so go ahead and
-				 // try and pull the direct
-				 // parent/child relation.
-				 var drels = anchor.get_predicates(curr_acc,
-								   term_acc);
-				 pred_id = anchor.dominant_relationship(drels);
-			     }
-			 }
-
-			 // Turn our old layout item into a new-info
-			 // rich list.
-			 bracket.push([curr_acc, label, pred_id]);
-		     });
-		// Sort alphanum and then re-add to list.
-		bracket.sort(
-		    function(a, b){
-			if( a[1] < b[1] ){
-			    return -1;
-			}else if( a[1] > b[1] ){
-			    return 1;
-			}else{
-			    return 0;
+	each(layout, function(layout_level){
+	    var bracket = [];
+	    each(layout_level, function(layout_item){
+		
+		// The defaults for what we'll pass back out.
+		var curr_acc = layout_item;
+		//var pred_id = 'is_a';
+		// BUG/TODO: This is the temporary workaround for
+		// incomplete transitivity graphs in some cases:
+		// https://github.com/kltm/bbop-js/wiki/TransitivityGraph#troubleshooting-caveats-and-fail-modes
+		var pred_id = 'related_to';
+		var curr_node = anchor.get_node(curr_acc);
+		var label = curr_node.label() || layout_item;
+		
+		// Now we just have to determine predicates. If we're
+		// the one, we'll just use the defaults.
+		if( curr_acc == term_acc ){
+		    // Default.
+		}else{
+		    // Since the transitivity graph only stores
+		    // ancestors, we can also use it to passively test
+		    // if these are children we should be looking for.
+		    var trels =
+			transitivity_graph.get_predicates(term_acc, curr_acc);
+		    if( ! bbop.core.is_empty(trels) ){
+			// Not children, so decide which of
+			// the returned edges is the best.
+			pred_id = anchor.dominant_relationship(trels);
+		    }else{
+			// Probably children, so go ahead and try and
+			// pull the direct parent/child relation.
+			var drels = anchor.get_predicates(curr_acc, term_acc);
+			if( ! bbop.core.is_empty(drels) ){
+			    pred_id = anchor.dominant_relationship(drels);
 			}
-		    });
-		bracket_list.push(bracket);
+		    }
+		}
+		
+		// Turn our old layout item into a new-info
+		// rich list.
+		bracket.push([curr_acc, label, pred_id]);
 	    });
-
+	    // Sort alphanum and then re-add to list.
+	    bracket.sort(function(a, b){
+		if( a[1] < b[1] ){
+		    return -1;
+		}else if( a[1] > b[1] ){
+		    return 1;
+		}else{
+		    return 0;
+		}
+	    });
+	    bracket_list.push(bracket);
+	});
+	
 	return bracket_list;
     };
 };
@@ -11760,25 +11762,39 @@ bbop.golr.manager = function (golr_loc, golr_conf_obj){
 	// Check that there is something there.
 	if( new_query && new_query.length && new_query.length > 0 ){
 
-	    // That it is alphanum+space-ish
-	    if( alphanum.test(new_query) ){
-	    
-		// Break it into tokens and get the last.
-		var tokens = new_query.split(new RegExp('\\s+'));
-		var last_token = tokens[tokens.length -1];
-		//ll('last: ' + last_token);
-		
-		if( tokens.length == 1 ){
+	    // Check if the last real input has a space after it.
+	    var has_cursor_p = true;
+	    if( new_query.slice(-1) === ' ' ){
+		has_cursor_p = false;
+	    }
 
-		    // If it is three or more, add the wildcard.
-		    if( last_token.length >= 3 ){
+	    // Now chomp it down again to get rid of whitespace.
+	    new_query = bbop.core.chomp(new_query);
+
+	    // Check (again) that there is something there.
+	    if( new_query && new_query.length && new_query.length > 0 ){
+
+		// That it is alphanum+space-ish and that we actually
+		// might want to add a wildcard (i.e. has cursor).
+		if( alphanum.test(new_query) && has_cursor_p ){
+	    
+		    // Break it into tokens and get the last.
+		    var tokens = new_query.split(new RegExp('\\s+'));
+		    var last_token = tokens[tokens.length -1];
+		    //ll('last: ' + last_token);
+		
+		    if( tokens.length == 1 ){
+			
+			// If it is three or more, add the wildcard.
+			if( last_token.length >= 3 ){
+			    tokens[tokens.length -1] = last_token + '*';
+			}
+		    }else{
 			tokens[tokens.length -1] = last_token + '*';
 		    }
-		}else{
-		    tokens[tokens.length -1] = last_token + '*';
+		    // And join it all back into our comfy query.
+		    comfy_query = tokens.join(' ');
 		}
-		// And join it all back into our comfy query.
-		comfy_query = tokens.join(' ');
 	    }
 	}
 
@@ -17823,9 +17839,10 @@ if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
  * there are probably some fields that you'll want to fill out to make
  * things work decently. The options for the argument hash are:
  * 
- *  fill_p - whether or not to fill the input with the val on select(default true)
+ *  fill_p - whether or not to fill the input with the val on select (default true)
  *  label_template - string template for dropdown, can use any document field
  *  value_template - string template for selected, can use any document field
+ *  additional_results_class - class to add to the pop-up autocomplete ul tag when there are more results than are shown in the results
  *  minimum_length - wait for this many characters to start (default 3)
  *  list_select_callback - function takes a json solr doc on dropdown selection
  * 
@@ -17864,6 +17881,7 @@ bbop.widget.search_box = function(golr_loc,
 	    'fill_p': true,
 	    'label_template': '{{id}}',
 	    'value_template': '{{id}}',
+	    'additional_results_class': '',
 	    'minimum_length': 3, // wait for three characters or more
 	    'list_select_callback': function(){}
 	};
@@ -17876,7 +17894,12 @@ bbop.widget.search_box = function(golr_loc,
     this._list_select_callback = arg_hash['list_select_callback'];
     var label_tt = new bbop.template(arg_hash['label_template']);
     var value_tt = new bbop.template(arg_hash['value_template']);
+    var ar_class = arg_hash['additional_results_class'];
     var minlen = arg_hash['minimum_length'];
+    // The document  return counts. Need  tri-state here since 0  is a
+    // legit return.
+    var result_count = null;
+    var return_count = null;
 
     // The all-important argument hash. See:
     // http://jqueryui.com/demos/autocomplete/#method-widget
@@ -17890,7 +17913,17 @@ bbop.widget.search_box = function(golr_loc,
 	    anchor.jq_vars['success'] = function(json_data){
 		var retlist = [];
 		var resp = new bbop.golr.response(json_data);
+
+		// Reset the last return; remember: tri-state.
+		result_count = null;
+		return_count = null;
+
 		if( resp.success() ){
+
+		    // Get best shot at document counts.
+		    result_count = resp.total_documents();
+		    return_count = resp.documents().length;
+
 		    loop(resp.documents(),
 			 function(doc){
 
@@ -17933,15 +17966,56 @@ bbop.widget.search_box = function(golr_loc,
 	    }
 
 	    // Only do the callback if it is defined.
-	    if( bbop.core.is_defined(anchor._list_select_callback) ){
+	    if( doc_to_apply && 
+		bbop.core.is_defined(anchor._list_select_callback) ){
 		anchor._list_select_callback(doc_to_apply);
 	    }
+	},
+	// What to do when a search is completed.
+	response: function(event, ui){
+	    // if(	result_count != null && return_count != null ){ // possible
+	    // 	if( result_count > return_count ){
+	    // 	    //console.log('incomplete listing');
+	    // 	    var item = {
+	    // 		'label': '...',
+	    // 		'value': null,
+	    // 		'document': null
+	    // 	    };
+	    // 	    ui.content.push(item);
+	    // 	}else{
+	    // 	    //console.log('complete listing');
+	    // 	}
+	    // }
 	}
     };
 
     // Set the ball rolling (attach jQuery autocomplete to doc).
-    jQuery('#' + anchor._interface_id).autocomplete(auto_args);
+    var jac = jQuery('#' + anchor._interface_id).autocomplete(auto_args);
 
+    // Add our render override.
+    // Extension point to get the additional
+    jac.data('ui-autocomplete')._renderMenu = function(ul, items){
+
+	// Allow standard menu construction delegation.
+	var anchor = this;
+	loop(items, function(item){
+	    anchor._renderItemData(ul, item);
+	});
+	
+	// Add a special class to the UL if there are results that
+	// are not shown.
+	if( ar_class && ar_class != '' ){
+	    jQuery(ul).removeClass(ar_class); // default no
+	    if( result_count != null && return_count != null ){ // possible
+		console.log('res_c: ' + result_count);
+		console.log('ret_c: ' + return_count);
+		if( result_count > return_count ){
+		    // If 
+		    jQuery(ul).addClass(ar_class);
+		}
+	    }
+	}
+    };
 
     /*
      * Function: destroy
@@ -20609,13 +20683,19 @@ if ( typeof bbop.widget == "undefined" ){ bbop.widget = {}; }
  * 
  * Results table and optional buttons.
  *
+ * Optional options looks like:
+ *  callback_priority - default 0
+ *  user_buttons - default [], should be any passable renderable button
+ *  user_buttons_div_id - default null
+ *  selectable_p - have selectable side buttons (default true)
+ *
  * Arguments:
  *  interface_id - string id of the element to build on
  *  manager - the shared GOlr manager to use
  *  conf_class - the profile of the specific conf to use
  *  handler - handler to use in rendering
  *  linker - linker to use in rendering
- *  in_argument_hash - *[optional]* optional hash of optional arguments
+ *  in_argument_hash - *[optional]* optional hash of optional arguments, described above
  * 
  * Returns:
  *  this object
