@@ -100,27 +100,32 @@ sub _add_search_bookmark_api_to_filters {
     
     my $bmapi = $self->{CORE}->bookmark_api_configuration();
     
+    $self->{CORE}->kvetch('BMAPI: ' . Dumper($params));
+
+
     foreach my $entry ( keys(%$bmapi) ){
 	if( $params->{$entry} ){
+
+	    ## Pull the current filter and ensure an array.
 	    my $items = $params->{$entry} || [];
-	    foreach my $item ($items){
+	    $items = [$items] if ref($items) ne 'ARRAY';
+
+	    foreach my $item (@$items){
 		my $map_to = $bmapi->{$entry};
 		
 		## Check to see if it is a negative call or not.
+		my $created_filter = undef;
 		my $possible_neg = substr($item, 0, 1);
 		if( $possible_neg ne '-' ){
-		    my $created_filter = $map_to . ':"' . $item . '"';
-		    push @$filters, $created_filter;
-		    $self->{CORE}->kvetch('BMAPI: ' . $created_filter);
+		    $created_filter = $map_to . ':"' . $item . '"';
 		}else{
 		    ## Extract the rest of the string and add a
 		    ## negative filter.
 		    my $stripped_item = substr($item, 1, length($item));
-		    my $created_filter =
-			'-' . $map_to . ':"' . $stripped_item . '"';
-		    push @$filters, $created_filter;
-		    $self->{CORE}->kvetch('BMAPI: ' . $created_filter);
+		    $created_filter = '-'. $map_to .':"'. $stripped_item .'"';
 		}
+		push @$filters, $created_filter;
+		$self->{CORE}->kvetch('BMAPI: ' . $created_filter);
 	    }
 	}
     }
