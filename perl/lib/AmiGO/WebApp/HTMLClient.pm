@@ -105,9 +105,22 @@ sub _add_search_bookmark_api_to_filters {
 	    my $items = $params->{$entry} || [];
 	    foreach my $item ($items){
 		my $map_to = $bmapi->{$entry};
-		my $created_filter = $map_to . ':"' . $item . '"';
-		push @$filters, $created_filter;
-		$self->{CORE}->kvetch('BMAPI: ' . $created_filter);
+		
+		## Check to see if it is a negative call or not.
+		my $possible_neg = substr($item, 0, 1);
+		if( $possible_neg ne '-' ){
+		    my $created_filter = $map_to . ':"' . $item . '"';
+		    push @$filters, $created_filter;
+		    $self->{CORE}->kvetch('BMAPI: ' . $created_filter);
+		}else{
+		    ## Extract the rest of the string and add a
+		    ## negative filter.
+		    my $stripped_item = substr($item, 1, length($item));
+		    my $created_filter =
+			'-' . $map_to . ':"' . $stripped_item . '"';
+		    push @$filters, $created_filter;
+		    $self->{CORE}->kvetch('BMAPI: ' . $created_filter);
+		}
 	    }
 	}
     }
