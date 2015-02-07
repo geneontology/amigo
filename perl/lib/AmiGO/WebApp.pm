@@ -69,14 +69,14 @@ sub cgiapp_init {
 	$item_conf->{'amigo_live_search_interlink'} =
 	  $self->{CORE}->get_interlink({mode=>'live_search',
 					arg=>{type=>$search_entry_id}});
-	$self->{CORE}->kvetch('live search layout a2i: '.
-			      $item_conf->{amigo_live_search_interlink});
+	# $self->{CORE}->kvetch('live search layout a2i: '.
+	# 		      $item_conf->{amigo_live_search_interlink});
 	## Add bulk search link.
 	$item_conf->{'amigo_bulk_search_interlink'} =
 	  $self->{CORE}->get_interlink({mode=>'bulk_search',
 					arg=>{type=>$search_entry_id}});
-	$self->{CORE}->kvetch('bulk search layout a2i: '.
-			      $item_conf->{amigo_bulk_search_interlink});
+	# $self->{CORE}->kvetch('bulk search layout a2i: '.
+	# 		      $item_conf->{amigo_bulk_search_interlink});
 	## Add to generic list.
 	push @$search_list, $item_conf;
       }else{

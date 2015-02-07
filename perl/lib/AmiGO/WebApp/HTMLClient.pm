@@ -85,6 +85,41 @@ sub setup {
 		  );
 }
 
+
+###
+### Helper functions.
+###
+
+
+## Now add the filters that come in from the YAML-defined simple
+## public bookmarking API.
+sub _add_search_bookmark_api_to_filters {
+    my $self = shift;
+    my $params = shift || {};
+    my $filters = shift || {};
+    
+    my $bmapi = $self->{CORE}->bookmark_api_configuration();
+    
+    foreach my $entry ( keys(%$bmapi) ){
+	if( $params->{$entry} ){
+	    my $items = $params->{$entry} || [];
+	    foreach my $item ($items){
+		my $map_to = $bmapi->{$entry};
+		my $created_filter = $map_to . ':"' . $item . '"';
+		push @$filters, $created_filter;
+		$self->{CORE}->kvetch('BMAPI: ' . $created_filter);
+	    }
+	}
+    }
+    return $filters;
+}
+
+
+###
+### Run modes.
+###
+
+
 ##
 sub mode_landing {
 
@@ -1092,14 +1127,14 @@ sub mode_visualize_freeform {
       }
     }
 
-    my $jump = $self->{CORE}->get_interlink({mode=>'visualize_freeform',
-				       #optional => {url_safe=>1, html_safe=>0},
-				       #optional => {html_safe=>0},
-					     arg => {
-						     format => $format,
-						     term_data => $input_term_data,
-						     graph_data => $input_graph_data,
-						    }});
+    my $jump = $self->{CORE}->get_interlink(
+	{'mode' => 'visualize_freeform',
+	 #optional => {url_safe=>1, html_safe=>0},
+	 #optional => {html_safe=>0},
+	 'arg' => { 'format' => $format,
+		    'term_data' => $input_term_data,
+		    'graph_data' => $input_graph_data,
+	 }});
     #$self->{CORE}->kvetch("Jumping to: " . $jump);
     ##
     #$output = $jump;
@@ -1132,18 +1167,17 @@ sub mode_search {
   $pins = [$pins] if ref($pins) ne 'ARRAY';
   $filters = [$filters] if ref($filters) ne 'ARRAY';
 
-  ## Looks like bug is fixed--remove later when better tested.
-  # ## BUG/TODO: Let people know about the bug.
-  # if( $query && $query ne '' ){
-  #   $self->add_mq('warning', 'Please be aware the this page is affected by <strong><a href="https://github.com/kltm/amigo/issues/44">bug #44</a></strong>.');
-  # }
-
+  ## Now add the filters that come in from the YAML-defined simple
+  ## public bookmarking API.
+  $filters = $self->_add_search_bookmark_api_to_filters($params, $filters);
+  
   ## Try and come to terms with Galaxy.
   my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
   $self->galaxy_settings($in_galaxy, $galaxy_external_p);
 
-  ## Bookmark system one: if it is defined, try to decode it into
-  ## something useful that we can pass in as javascript.
+  ## Heavy-duty manager-level bookmark system: if it is defined, try
+  ## to decode it into something useful that we can pass in as
+  ## javascript.
   if( $bookmark ){
     # $bookmark = $self->{CORE}->render_json($bookmark);
     $bookmark =~ s/\"/\\\"/g;
@@ -1242,7 +1276,7 @@ sub mode_search {
 }
 
 
-## Largely the same as mode_search. Simpiler in some cases, like no
+## Largely the same as mode_search. Simpler in some cases, like no
 ## bookmarking, not particularly dynamic, etc.
 sub mode_bulk_search {
 
@@ -1361,17 +1395,18 @@ sub mode_term_details {
   my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('term');
   ## Deal with the different types of dispatch we might be facing.
-  $params->{term} = $self->param('term')
-    if ! $params->{term} && $self->param('term');
+  $params->{cls} = $self->param('cls')
+    if ! $params->{cls} && $self->param('cls');
   $params->{format} = $self->param('format')
     if ! $params->{format} && $self->param('format');
   $self->{CORE}->kvetch(Dumper($params));
 
   ## Standard inputs for page control.
-  my $input_term_id = $params->{term};
+  my $input_term_id = $params->{cls};
   my $input_format = $params->{format} || 'html';
 
-  ## Optional RESTmark input for embedded search_pane.
+  ## Optional RESTmark input for embedded search_pane--external
+  ## version.
   my $query = $params->{q} || '';
   my $filters = $params->{fq} || [];
   my $pins = $params->{sfq} || [];
@@ -1379,6 +1414,10 @@ sub mode_term_details {
   $pins = [$pins] if ref($pins) ne 'ARRAY';
   $filters = [$filters] if ref($filters) ne 'ARRAY';
 
+  ## Now add the filters that come in from the YAML-defined simple
+  ## public bookmarking API.
+  $filters = $self->_add_search_bookmark_api_to_filters($params, $filters);
+  
   ## Input sanity check.
   if( ! $input_term_id ){
     return $self->mode_fatal("No term acc input argument.");
@@ -1390,7 +1429,7 @@ sub mode_term_details {
   ## Experimental bookmark capture.
   my $pin = $params->{pin} || '';
   if( $pin ){ $pin =~ s/\"/\\\"/g; }
-  $self->{CORE}->kvetch('incoming pin: ' . $pin || '<none>');
+  $self->{CORE}->kvetch('incoming pin: ' . ($pin || '<none>'));
 
   ###
   ### Get full term info.
@@ -1526,53 +1565,42 @@ sub mode_term_details {
   ### External links.
   ###
 
-  $self->set_template_parameter('VIZ_STATIC_LINK',
-				$self->{CORE}->get_interlink({mode =>
-							      'visualize',
-							      arg =>
-							      {data =>
-							       $input_term_id,
-							       format =>
-							       'png'}}));
-  $self->set_template_parameter('VIZ_DYNAMIC_LINK',
-				$self->{CORE}->get_interlink({mode =>
-							      'visualize',
-							      arg =>
-							      {data =>
-							       $input_term_id,
-							       format =>
-							       'svg'}}));
-  $self->set_template_parameter('NAVIGATION_LINK',
-				$self->{CORE}->get_interlink({mode =>
-							      'layers_graph',
-							      arg =>
-							      {terms =>
-							       $input_term_id}}));
+  $self->set_template_parameter(
+      'VIZ_STATIC_LINK',
+      $self->{CORE}->get_interlink({'mode' => 'visualize',
+				    'arg' => {'data' => $input_term_id,
+					      'format' => 'png'}}));
+  $self->set_template_parameter(
+      'VIZ_DYNAMIC_LINK',
+      $self->{CORE}->get_interlink({'mode' => 'visualize',
+				    'arg' => {'data' => $input_term_id,
+					      'format' => 'svg'}}));
+  $self->set_template_parameter(
+      'NAVIGATION_LINK',
+      $self->{CORE}->get_interlink({'mode'=>'layers_graph',
+				    'arg' => {'terms' => $input_term_id}}));
+  
+  $self->set_template_parameter(
+      'OLSVIS_GO_LINK',
+      $self->{CORE}->get_interlink({'mode' => 'olsvis_go',
+				    'arg' => {'term' => $input_term_id},
+				    'optional' => {'full' => 0}}));
 
-  $self->set_template_parameter('OLSVIS_GO_LINK',
-				$self->{CORE}->get_interlink({mode=>'olsvis_go',
-							      arg =>
-							      {term =>
-							       $input_term_id},
-							      optional =>
-							      {'full' => 0}}));
-
-
-  $self->set_template_parameter('VIZ_QUICKGO_LINK',
-				$self->{CORE}->get_interlink({mode=>'visualize_simple',
-							      arg =>
-							      {engine=>'quickgo',
-							       term =>
-							       $input_term_id}}));
-
+  $self->set_template_parameter(
+      'VIZ_QUICKGO_LINK',
+      $self->{CORE}->get_interlink({'mode'=>'visualize_simple',
+				    'arg'=>{'engine'=>'quickgo',
+					    'term'=>$input_term_id}}));
+  
   ## Only need QuickGO for internal terms.
   if( ! $exotic_p ){
     my $qg_term = AmiGO::External::QuickGO::Term->new();
-    $self->set_template_parameter('QUICKGO_TERM_LINK',
-				  $qg_term->get_term_link($input_term_id));
-
-    $self->set_template_parameter('QUICKGO_ENGINE_P',
-				  $self->{CORE}->amigo_env('AMIGO_GO_ONLY_GRAPHICS'));
+    $self->set_template_parameter(
+	'QUICKGO_TERM_LINK',
+	$qg_term->get_term_link($input_term_id));
+    $self->set_template_parameter(
+	'QUICKGO_ENGINE_P',
+	$self->{CORE}->amigo_env('AMIGO_GO_ONLY_GRAPHICS'));
   }
 
   ###
@@ -1701,6 +1729,10 @@ sub mode_gene_product_details {
   $pins = [$pins] if ref($pins) ne 'ARRAY';
   $filters = [$filters] if ref($filters) ne 'ARRAY';
 
+  ## Now add the filters that come in from the YAML-defined simple
+  ## public bookmarking API.
+  $filters = $self->_add_search_bookmark_api_to_filters($params, $filters);
+  
   ## Input sanity check.
   if( ! $input_gp_id ){
     return $self->mode_fatal("No input gene product acc argument.");
@@ -1739,12 +1771,10 @@ sub mode_gene_product_details {
   ## PANTHER info if there.
   my $pgraph = $gp_info_hash->{$input_gp_id}{'phylo_graph'};
   if( $pgraph ){
-    $self->set_template_parameter('PHYLO_TREE_LINK',
-				  $self->{CORE}->get_interlink({mode=>
-								'phylo_graph',
-								'arg'=>
-								{'gp'=>
-								 $input_gp_id}}));
+    $self->set_template_parameter(
+	'PHYLO_TREE_LINK',
+	$self->{CORE}->get_interlink({'mode' => 'phylo_graph',
+				      'arg' => {'gp' => $input_gp_id}}));
   }
 
   ###
@@ -1860,14 +1890,12 @@ sub mode_complex_annotation_details {
   }
 
   $self->{CORE}->kvetch('solr docs: ' . Dumper($ca_info_hash));
-  $self->set_template_parameter('CA_INFO',
-				$ca_info_hash->{$input_id});
+  $self->set_template_parameter('CA_INFO', $ca_info_hash->{$input_id});
 
   ## Will only need to link through the visualizer,
   my $vlink =
-    $self->{CORE}->get_interlink({mode => 'visualize_complex_annotation',
-				  arg => {complex_annotation =>
-					  $input_id}});
+    $self->{CORE}->get_interlink({'mode'=>'visualize_complex_annotation',
+				  'arg'=>{'complex_annotation'=>$input_id}});
   $self->set_template_parameter('VIZ_STATIC_LINK', $vlink);
 
   ###
@@ -1953,7 +1981,6 @@ sub mode_phylo_graph {
   if( ! $input_family_id ){
     $self->add_mq('warning', "Family ID argument not found. " .
 		  "Will use <strong>demo mode</strong> instead.");
-  #}else{
   }
 
   ###

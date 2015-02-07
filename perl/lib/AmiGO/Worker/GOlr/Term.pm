@@ -246,7 +246,7 @@ sub get_ancestor_info {
 
       ## 
       my $depth = $lnode_depth->{$acc};
-      $self->kvetch("looking at: " . $acc . ', depth: ' . $depth);
+      # $self->kvetch("looking at: " . $acc . ', depth: ' . $depth);
       if( ! defined $nodes_by_depth->{$depth} ){
 	$nodes_by_depth->{$depth} = [];
 	$self->kvetch('made level: ' . $depth);
@@ -300,7 +300,7 @@ sub get_ancestor_info {
       $nodes_sorted_by_depth->{$depth} = \@blah;
     }
     #$self->kvetch("nbd:\n" .Dumper($nodes_by_depth->{$depth}));
-    $self->kvetch("nsbd $depth:\n" .Dumper($nodes_sorted_by_depth->{$depth}));
+    # $self->kvetch("nsbd $depth:\n" .Dumper($nodes_sorted_by_depth->{$depth}));
   }
 
   ## Out.
