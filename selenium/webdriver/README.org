@@ -1,8 +1,17 @@
 * Selenium WebDriver tests for AmiGO 2
   This is still in progress, but we have a start.
 
+  https://code.google.com/p/selenium/wiki/WebDriverJs
+
 ** Headless Usage
 
-   : Xvfb :1 -screen 5 1024x768x8
-   : DISPLAY=:1.5 node test.js
+   Naturally, we'll require:
 
+   * xvfb
+   * firefox
+   * node (use their repo to get a decent one)
+
+   Running could be like:
+
+   : Xvfb :1 -screen 5 1024x768x8
+   : DISPLAY=:1.5 AMIGO=http://amigo.geneontology.org node test.js
