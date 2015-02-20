@@ -1,0 +1,33 @@
+* Selenium IDE Tests for AmiGO 2
+** Overview
+
+AmiGO 2 now has a set of test suites to make sure that basic
+functionality is available. The suites are GO/GOlr oriented and may
+need changes when being adapted to other AmiGO 2 installations.
+
+Currently, the default URL of each suite is
+http://amigo2.berkeleybop.org/amigo/ , but this is easily
+changed in the invididual suite files.
+
+The suites will fail if no GOlr backend is available.
+
+*** amigo2-test-suite-core
+
+These tests cover the existance of the main AmiGO 2 features that can
+be directly linked to, like Search, the landing page, and a term details
+page.
+
+*** amigo2-test-suite-ac
+
+These tests cover the use of various autocomplete inputs on an
+assortment of pages.
+
+*** amigo2-test-suite-search
+
+These tests cover some basic search operations using the Search
+component.
+
+** Usage
+
+Currently, the developer creates and runs these tests using the
+Selenium IDE in Firefox.
