@@ -30,7 +30,8 @@ driver.get(target);
 driver.findElement(By.id('gsf-query')).sendKeys('neurogenesis');
 var ul = driver.findElement(By.className('ui-autocomplete'));
 ul.getText().then(function(text){
-    return text.search('GO:0022008') !== -1;
+    //return text.search('GO:0022008') !== -1;
+    return text.search('GO:00208') !== -1;
 });
 
 // Done.
