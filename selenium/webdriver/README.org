@@ -3,8 +3,33 @@
 
   https://code.google.com/p/selenium/wiki/WebDriverJs
 
-** Headless Usage
+  We're using Mocha as the testing framework. *TODO*
 
+** Getting Started
+
+   First, if you do not already have it, you will need a recent
+   version of [[http://nodejs.org/download/][Node.js]]. As of the writing at this moment, I'm
+   developing on v0.10.36.
+
+   Next, after checking out the GitHub [[https://github.com/geneontology/amigo][geneontology/amigo]] repository,
+   move into the Selenium test directory.
+
+   : cd amigo/selenium/webdriver
+
+** CLI Usage (TODO)
+
+   To run all the tests:
+
+   : ./node_modules/mocha/bin/mocha -g *_tests.js
+
+   Or:
+
+   Very easy, just choose the location of AmiGO that you want to run
+   against:
+
+   : AMIGO=http://amigo.geneontology.org node test.js
+
+** Headless Usage (TODO)
    Naturally, we'll require:
 
    * xvfb

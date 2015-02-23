@@ -7,9 +7,9 @@
    These tests are easily made and run in the FireFox Selenium
    IDE. They tend to be fairly simple actions and are run by a user.
 
-   More information can be found in ide/README.org
+   More information can be found in [[ide/README.org][ide/README.org]].
 ** webdriver
    These are heavier programmatic tests written in JavaScript and
    intended to run as unit tests in Jenkins.
 
-   More information can be found in webdriver/README.org
+   More information can be found in [[webdriver/README.org][webdriver/README.org]].
