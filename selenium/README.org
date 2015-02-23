@@ -10,6 +10,6 @@
    More information can be found in [[ide/README.org][ide/README.org]].
 ** webdriver
    These are heavier programmatic tests written in JavaScript and
-   intended to run as unit tests in Jenkins.
+   intended to run as unit tests in Jenkins and during developments.
 
    More information can be found in [[webdriver/README.org][webdriver/README.org]].

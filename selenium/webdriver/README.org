@@ -3,7 +3,7 @@
 
   https://code.google.com/p/selenium/wiki/WebDriverJs
 
-  We're using Mocha as the testing framework. *TODO*
+  We'll be using [[http://mochajs.org][Mocha]] as the testing framework. *TODO*
 
 ** Getting Started
 
@@ -20,14 +20,12 @@
 
    To run all the tests:
 
-   : ./node_modules/mocha/bin/mocha -g *_tests.js
+   : AMIGO=http://amigo.geneontology.org ./node_modules/mocha/bin/mocha -g *_tests.js
 
-   Or:
-
-   Very easy, just choose the location of AmiGO that you want to run
+   Or just choose the location of AmiGO that you want to run
    against:
 
-   : AMIGO=http://amigo.geneontology.org node test.js
+   : AMIGO=http://amigo.geneontology.org node core_tests.js
 
 ** Headless Usage (TODO)
    Naturally, we'll require:
