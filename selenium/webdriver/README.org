@@ -34,6 +34,10 @@
 
    These examples can be run headless as well.
 
+   You probably also want to just take a quick read through the
+   current unit tests just to see what's going on. If you have any
+   comments for improvement, please let us know.
+
 ** The Tests
 
    The tests are arrayed in amigo/selenium/webdriver with the form
