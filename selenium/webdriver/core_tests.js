@@ -1,33 +1,44 @@
 ////
 //// Basic simple tests to just make sure all the pages are where they
-//// should be.
+//// should be. This is also a basic work through how how to use Mocha
+//// with selenium-webdriver.
 ////
 
 var By = require('selenium-webdriver').By;
 var until = require('selenium-webdriver').until;
-var firefox = require('selenium-webdriver/chromium');
-var test = require('selenium-webdriver/testing');
+var firefox = require('selenium-webdriver/firefox');
+//var test = require('selenium-webdriver/testing');
+var assert = require('chai').assert;
 
-test.describe('Core AmiGO 2', function(){
+//describe('Core AmiGO 2', function(){
     
     // Pre-run.
     var driver;
-    test.before(function() {
+//    before(function() {
 	//console.log('start browser');
 	//driver = new firefox.Driver();
 	driver = new firefox.Driver();
-    });
+//    });
     
-    test.it('should append query to title', function() {
+//    it('should append query to title', function() {
 	driver.get('http://www.google.com');
 	driver.findElement(By.name('q')).sendKeys('webdriver');
 	driver.findElement(By.name('btnG')).click();
-	driver.wait(until.titleIs('webdrivegle Search'), 1000);
+// driver.getTitle().then(function(title) {
+//  assert.equal("webdriver - Google Search", title);
+// });
+	//assert.equal('foo', driver.getTitle()); // fail
+driver.wait(until.titleIs('webdriver - Google Search'), 1000).then(
+    function(){
+	driver.getTitle().then(function(title){
+	    console.log(title);
+	    assert.equal(title, 'webdriver - Google Search'); // okay
+	});
     });
     
-    // Post-run.
-    test.after(function(){
-	//console.log('shutdown browser');
-	driver.quit();
-    });
-});
+//     // Post-run.
+//     after(function(){
+// 	//console.log('shutdown browser');
+// 	driver.quit();
+//     });
+// });
