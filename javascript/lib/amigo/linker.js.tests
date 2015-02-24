@@ -20,8 +20,8 @@ var l = new amigo.linker();
 //mr_t.is_defined(amigo.version.revision, 'revision defined');
 //mr_t.is_defined(amigo.version.release, 'release defined');
 mr_t.is_same_atom(l.url('GO:0022008'),
-		  'http://amigo.geneontology.org/cgi-bin/amigo/term-details.cgi?term=GO:0022008',
-		  'linker: go: ' + l.url('GO:0022008'));
+		  'http://amigo.geneontology.org/amigo/term/GO:0022008',
+		  'linker: go');
 mr_t.is_same_atom(l.url('GO:0022008', 'term'),
 		  //'amigo?mode=term&term=GO:0022008',
 		  //'term/GO:0022008',
