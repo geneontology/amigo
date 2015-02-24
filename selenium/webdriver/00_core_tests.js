@@ -4,7 +4,7 @@
 //// selenium-webdriver.
 ////
 //// Usage:
-////  : AMIGO=http://amigo2.berkeleybop.org ./node_modules/mocha/bin/mocha core_tests.js -t 10000
+////  : AMIGO=http://amigo2.berkeleybop.org ./node_modules/mocha/bin/mocha 00_core_tests.js -t 10000
 ////
 
 var By = require('selenium-webdriver').By;
@@ -147,7 +147,7 @@ test.describe('Core AmiGO 2 (simple data)', function(){
 	});
     });
 
-    test.it('functioning bioentiry data get', function(){
+    test.it('functioning bioentity data get', function(){
 	driver.get(target + '/amigo/gene_product/UniProtKB:F1PQ05');
 	driver.getTitle().then(function(title){
 	    var tl = 'AmiGO 2: Gene Product Details for UniProtKB:F1PQ05';
