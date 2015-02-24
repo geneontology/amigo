@@ -1,9 +1,11 @@
 * Selenium WebDriver tests for AmiGO 2
   This is still in progress, but we have a start.
 
-  https://code.google.com/p/selenium/wiki/WebDriverJs
+  You should hopefully be a little familiar with the Selenium
+  [[https://code.google.com/p/selenium/wiki/WebDriverJs][WebDriveJS]] documentation.
 
-  We'll be using [[http://mochajs.org][Mocha]] as the testing framework. *TODO*
+  In addition, we'll be using the [[http://mochajs.org][Mocha]] testing framework and the [[http://chaijs.com/][Chai]]
+  assertion library.
 
 ** Getting Started
 
@@ -12,9 +14,20 @@
    developing on v0.10.36.
 
    Next, after checking out the GitHub [[https://github.com/geneontology/amigo][geneontology/amigo]] repository,
-   move into the Selenium test directory.
+   move into the Selenium WebDriver test directory.
 
-   : cd amigo/selenium/webdriver
+   : cd amigo/selenium/webdriver   
+
+   A well commented primer on the basics of testing with can be found
+   in [[test_examples.js][test_examples.js]]. I'd suggest reading that before digging into
+   the unit test files proper. Read all the way through as there are
+   negative examples as well.
+
+   To run these examples, try:
+
+   : AMIGO=http://amigo.geneontology.org node test_examples.js
+
+   These examples can be run headless as well.
 
 ** CLI Usage (TODO)
 
