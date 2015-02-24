@@ -3,42 +3,67 @@
 //// should be. This is also a basic work through how how to use Mocha
 //// with selenium-webdriver.
 ////
+//// Usage:
+////  : AMIGO=http://amigo2.berkeleybop.org ./node_modules/mocha/bin/mocha core_tests.js -t 10000
+////
 
 var By = require('selenium-webdriver').By;
 var until = require('selenium-webdriver').until;
 var firefox = require('selenium-webdriver/firefox');
-//var test = require('selenium-webdriver/testing');
+var test = require('selenium-webdriver/testing');
 var assert = require('chai').assert;
 
-//describe('Core AmiGO 2', function(){
+// Get which AmiGO we want from the env, or default.
+var target = 'http://amigo.geneontology.org/';
+if( process.env['AMIGO'] ){
+    target = process.env['AMIGO'];
+}
+
+test.describe('Core AmiGO 2 (page tests)', function(){
     
     // Pre-run.
     var driver;
-//    before(function() {
-	//console.log('start browser');
-	//driver = new firefox.Driver();
+    test.before(function() {
 	driver = new firefox.Driver();
-//    });
+    });
     
-//    it('should append query to title', function() {
-	driver.get('http://www.google.com');
-	driver.findElement(By.name('q')).sendKeys('webdriver');
-	driver.findElement(By.name('btnG')).click();
-// driver.getTitle().then(function(title) {
-//  assert.equal("webdriver - Google Search", title);
-// });
-	//assert.equal('foo', driver.getTitle()); // fail
-driver.wait(until.titleIs('webdriver - Google Search'), 1000).then(
-    function(){
+    test.it('home/landing page', function(){
+	driver.get(target);
 	driver.getTitle().then(function(title){
-	    console.log(title);
-	    assert.equal(title, 'webdriver - Google Search'); // okay
+	    assert.equal(title, 'AmiGO 2: Welcome');
 	});
     });
     
-//     // Post-run.
-//     after(function(){
-// 	//console.log('shutdown browser');
-// 	driver.quit();
-//     });
-// });
+    test.it('software list', function(){
+	driver.get(target + '/amigo/software_list');
+	driver.getTitle().then(function(title){
+	    assert.equal(title, 'AmiGO 2: Tools and Resources');
+	});
+    });
+
+    test.it('grebe', function(){
+	driver.get(target + '/grebe');
+	driver.getTitle().then(function(title){
+	    assert.equal(title, 'AmiGO 2: Grebe');
+	});
+    });
+
+    test.it('goose', function(){
+	driver.get(target + '/goose');
+	driver.getTitle().then(function(title){
+	    assert.equal(title, 'AmiGO 2: GO Online SQL/Solr Environment');
+	});
+    });
+
+    test.it('RTE', function(){
+	driver.get(target + '/rte');
+	driver.getTitle().then(function(title){
+	    assert.equal(title, 'Term Enrichment Service');
+	});
+    });
+
+    // Post-run.
+    test.after(function(){
+	driver.quit();
+    });
+});
