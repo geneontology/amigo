@@ -18,6 +18,9 @@ JS_TESTS = \
  $(wildcard javascript/lib/amigo/handlers/*.js.tests)
 #BENCHMARKS = $(wildcard _benchmark/*.js)
 
+## Target setup for Makefile CLI unit testing
+AMIGO ?= http://amigo.geneontology.org
+
 ## Perl lib test setup.
 TEST_PERL ?= perl
 TEST_PERL_FLAGS ?= -I ./perl/lib/
@@ -59,6 +62,11 @@ test-perl: $(PERL_TESTS)
 $(PERL_TESTS):
 	echo "trying: $@"
 	$(TEST_PERL) $(TEST_PERL_FLAGS) $(@D)/$(@F)
+
+## Unit tests for a running amigo.
+.PHONY: test-app
+test-app:
+	cd selenium/webdriver && AMIGO=$(AMIGO) ./node_modules/mocha/bin/mocha --reporter spec ./*_tests.js -t 10000
 
 ###
 ### Check the metadata using kwalify.
