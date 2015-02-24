@@ -58,7 +58,6 @@ GENE_ASSOCIATION_FILES ?= \
 	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Pfalciparum.gz \
 	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Spombe.gz  \
 	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Tbrucei.gz \
-	http://www.geneontology.org/gene-associations/gene_association.GeneDB_tsetse.gz \
 	http://www.geneontology.org/gene-associations/gene_association.PAMGO_Atumefaciens.gz \
 	http://www.geneontology.org/gene-associations/gene_association.PAMGO_Ddadantii.gz \
 	http://www.geneontology.org/gene-associations/gene_association.PAMGO_Mgrisea.gz \
