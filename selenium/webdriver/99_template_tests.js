@@ -1,9 +1,8 @@
 ////
-//// Experimental test playground. This can also be used as a
-//// template.
+//// This can be used as a template.
 ////
 //// Usage:
-////  : AMIGO=http://amigo2.berkeleybop.org ./node_modules/mocha/bin/mocha 99_experimental_tests.js -t 10000
+////  : AMIGO=http://amigo2.berkeleybop.org ./node_modules/mocha/bin/mocha 99_template_tests.js -t 10000
 ////
 
 var By = require('selenium-webdriver').By;
@@ -18,7 +17,7 @@ if( process.env['AMIGO'] ){
     target = process.env['AMIGO'];
 }
 
-test.describe('AmiGO 2 (experimental tests)', function(){
+test.describe('AmiGO 2 (template tests)', function(){
     
     // Pre-run.
     var driver;

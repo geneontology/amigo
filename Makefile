@@ -66,7 +66,7 @@ $(PERL_TESTS):
 ## Unit tests for a running amigo.
 .PHONY: test-app
 test-app:
-	cd selenium/webdriver && AMIGO=$(AMIGO) ./node_modules/mocha/bin/mocha --reporter spec ./*_tests.js -t 10000
+	cd selenium/webdriver && AMIGO=$(AMIGO) ./node_modules/mocha/bin/mocha --reporter spec ./*_tests.js -t 100000
 
 ###
 ### Check the metadata using kwalify.
