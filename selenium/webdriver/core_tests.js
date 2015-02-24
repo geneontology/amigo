@@ -1,7 +1,7 @@
 ////
 //// Basic simple tests to just make sure all the pages are where they
-//// should be. This is also a basic work through how how to use Mocha
-//// with selenium-webdriver.
+//// should be. This is also a basic example on how to use Mocha with
+//// selenium-webdriver.
 ////
 //// Usage:
 ////  : AMIGO=http://amigo2.berkeleybop.org ./node_modules/mocha/bin/mocha core_tests.js -t 10000
@@ -59,6 +59,99 @@ test.describe('Core AmiGO 2 (page tests)', function(){
 	driver.get(target + '/rte');
 	driver.getTitle().then(function(title){
 	    assert.equal(title, 'Term Enrichment Service');
+	});
+    });
+
+    test.it('medial search', function(){
+	driver.get(target + '/amigo/medial_search?q=foo');
+	driver.getTitle().then(function(title){
+	    assert.equal(title, 'AmiGO 2: Search Directory');
+	});
+    });
+
+    test.it('search ontology', function(){
+	driver.get(target + '/amigo/search/ontology');
+	driver.getTitle().then(function(title){
+	    assert.equal(title, 'AmiGO 2: Search');
+	});
+    });
+
+    test.it('search bioentity', function(){
+	driver.get(target + '/amigo/search/bioentity');
+	driver.getTitle().then(function(title){
+	    assert.equal(title, 'AmiGO 2: Search');
+	});
+    });
+
+    test.it('search annotation', function(){
+	driver.get(target + '/amigo/search/annotation');
+	driver.getTitle().then(function(title){
+	    assert.equal(title, 'AmiGO 2: Search');
+	});
+    });
+
+    test.it('visualize', function(){
+	driver.get(target + '/amigo/visualize');
+	driver.getTitle().then(function(title){
+	    assert.equal(title, 'AmiGO 2: Visualize');
+	});
+    });
+
+    test.it('schema', function(){
+	driver.get(target + '/amigo/schema_details');
+	driver.getTitle().then(function(title){
+	    assert.equal(title, 'AmiGO 2: Schema Details');
+	});
+    });
+
+    test.it('load info', function(){
+	driver.get(target + '/amigo/load_details');
+	driver.getTitle().then(function(title){
+	    assert.equal(title, 'AmiGO 2: Load Details');
+	});
+    });
+
+    test.it('xrefs display', function(){
+	driver.get(target + '/xrefs');
+	driver.getTitle().then(function(title){
+	    assert.equal(title, 'Cross References');
+	});
+    });
+
+    // Post-run.
+    test.after(function(){
+	driver.quit();
+    });
+});
+
+test.describe('Core AmiGO 2 (simple data)', function(){
+    
+    // Pre-run.
+    var driver;
+    test.before(function() {
+	driver = new firefox.Driver();
+    });
+    
+    test.it('functioning medial search', function(){
+	driver.get(target + '/amigo/medial_search?q=foo');
+	driver.getTitle().then(function(title){
+	    assert.equal(title, 'AmiGO 2: Search Directory');
+	});
+    });
+
+    test.it('functioning term data get', function(){
+	driver.get(target + '/amigo/term/GO:0022008');
+	driver.getTitle().then(function(title){
+	    var tl = 'AmiGO 2: Term Details for "neurogenesis" (GO:0022008)';
+	    assert.equal(title, tl);
+	});
+    });
+
+    test.it('functioning bioentiry data get', function(){
+	driver.get(target + '/amigo/gene_product/UniProtKB:F1PQ05');
+	driver.getTitle().then(function(title){
+	    var tl = 'AmiGO 2: Gene Product Details for UniProtKB:F1PQ05';
+	    assert.equal(title, tl);
 	});
     });
 
