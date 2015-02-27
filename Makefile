@@ -19,7 +19,8 @@ JS_TESTS = \
 #BENCHMARKS = $(wildcard _benchmark/*.js)
 
 ## Target setup for Makefile CLI unit testing
-AMIGO ?= http://amigo.geneontology.org
+#AMIGO ?= http://amigo.geneontology.org
+AMIGO ?= http://amigo2.berkeleybop.org
 
 ## Perl lib test setup.
 TEST_PERL ?= perl
