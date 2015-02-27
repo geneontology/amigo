@@ -1,3 +1,6 @@
+## Don't generally want Selenium log files.
+selenium/*/*.log
+
 ## Do not want to commit staging files.
 staging/*.js
 javascript/staging/*.js
