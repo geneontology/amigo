@@ -10,20 +10,38 @@
 ////  : AMIGO=http://amigo.geneontology.org node test_examples.js
 ////
 
-// Setup the driver we'll use.
-var firefox = require('selenium-webdriver/firefox');
-var driver = new firefox.Driver();
-
-// SEtup some useful aliases, etc.
-var By = require('selenium-webdriver').By;
-var until = require('selenium-webdriver').until;
-var assert = require('chai').assert;
+// Setup the driver we'll use. Default to Firefox, but allow others
+// with an environmental variable.
+var driver = null;
+if( process.env['BROWSER'] && process.env['BROWSER'] === 'chrome' ){
+    // BUG/TODO: Still working out chrome/chromium
+    // webdriver. Currently bad libs on Ubuntu, so not going to
+    // progress much there.
+    // var webdriver = require('selenium-webdriver');
+    // driver = new webdriver.Builder().
+    // 	withCapabilities(webdriver.Capabilities.chrome()).
+    // 	build();
+    var webdriver = require('selenium-webdriver/chrome');
+    driver = new webdriver.Driver();
+}else if( process.env['BROWSER'] && process.env['BROWSER'] === 'phantomjs' ){
+    var webdriver = require('selenium-webdriver/phantomjs');
+    driver = new webdriver.Driver();
+}else{
+    // Default to Firefox.
+    var webdriver = require('selenium-webdriver/firefox');
+    driver = new webdriver.Driver();
+}
 
 // Get which AmiGO we want from the env, or default.
 var target = 'http://amigo.geneontology.org/';
 if( process.env['AMIGO'] ){
     target = process.env['AMIGO'];
 }
+
+// Setup some useful aliases, etc.
+var By = require('selenium-webdriver').By;
+var until = require('selenium-webdriver').until;
+var assert = require('chai').assert;
 
 // // NOTE:
 // // This seemingly simple test cannot run because there may not be a
@@ -73,7 +91,7 @@ driver.getTitle().then(
 driver.get('http://www.google.com');
 driver.findElement(By.name('q')).sendKeys('webdriver');
 driver.findElement(By.name('btnG')).click();
-driver.wait(until.titleIs('webdriver - Google Search'), 1000);
+driver.wait(until.titleIs('webdriver - Google Search'), 3000);
 driver.getTitle().then(
     function(title){
 	assert.equal(title, 'webdriver - Google Search');
@@ -91,7 +109,7 @@ driver.getTitle().then(
 // // try again.
 // driver.get(target);
 // driver.findElement(By.id('gsf-query')).sendKeys('neurogenesis');
-// driver.wait(until.elementLocated(By.className('ui-autocomplete')), 1000);
+// driver.wait(until.elementLocated(By.className('ui-autocomplete')), 3000);
 // driver.findElement(By.className('ui-autocomplete')).getText().then(
 //     function(text){
 // 	console.log('text: ', text);
@@ -102,14 +120,16 @@ driver.getTitle().then(
 // for our target to appear before we can check on it, and not wait
 // for a proxy ("ui-autocomplete" in the previous example).
 driver.get(target);
+// // Firefox a little slow sometimes here, so wait for it.
+// driver.wait(until.titleIs('AmiGO 2: Welcome'), 3000);
 driver.findElement(By.id('gsf-query')).sendKeys('neurogenesis');
 driver.wait(until.elementTextContains(
-    driver.findElement(By.className('ui-autocomplete')), 'GO:0022008'), 1000);
+    driver.findElement(By.className('ui-autocomplete')), 'GO:0022008'), 3000);
 driver.findElement(By.className('ui-autocomplete')).getText().then(
     function(text){
 	//console.log(text);
 	assert.notEqual(-1, text.search('neurogenesis \\(GO:0022008\\)'),
-			'found neurogenesis properly in the dropdown');
+			'found neurogenes is properly in the dropdown');
     });
 
 // And now we're done, so close it out nicely.
