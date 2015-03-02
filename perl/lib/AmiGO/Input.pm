@@ -271,7 +271,8 @@ sub link_search_bookmark_api_entries {
 
   my $self = shift;
 
-  my $entries = keys($self->bookmark_api_configuration()) || ();
+  my $bmapi = $self->bookmark_api_configuration() || {};
+  my $entries = keys( %$bmapi );
 
   return @$entries;
 }
@@ -292,7 +293,8 @@ sub _link_search_bookmark_api {
   my $self = shift;
 
   ## Collect fq filters to add.
-  foreach my $entry (keys($self->bookmark_api_configuration())){
+  my $bmapi = $self->bookmark_api_configuration();
+  foreach my $entry ( keys(%$bmapi) ){
     $self->_add_simple_optional_argument($entry, '');
   }
 

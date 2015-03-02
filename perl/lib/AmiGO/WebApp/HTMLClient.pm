@@ -97,10 +97,10 @@ sub _add_search_bookmark_api_to_filters {
     my $self = shift;
     my $params = shift || {};
     my $filters = shift || {};
-    
+
     ## Going through all of the configured argument to GOlr maps,
     ## check them and add them to the standard 'fq' filters.
-    my $bmapi = $self->{CORE}->bookmark_api_configuration();    
+    my $bmapi = $self->{CORE}->bookmark_api_configuration();
     foreach my $entry ( keys(%$bmapi) ){
 	if( $params->{$entry} ){
 
