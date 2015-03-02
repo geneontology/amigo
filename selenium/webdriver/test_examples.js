@@ -88,14 +88,14 @@ driver.getTitle().then(
 // rather a JS update on input, the initial title is /not/ "webdriver
 // - Google Search", but rather just "Google" (which would be the
 // initial title without the wait).
-driver.get('http://www.google.com');
-driver.findElement(By.name('q')).sendKeys('webdriver');
-driver.findElement(By.name('btnG')).click();
-driver.wait(until.titleIs('webdriver - Google Search'), 3000);
-driver.getTitle().then(
-    function(title){
-	assert.equal(title, 'webdriver - Google Search');
-    });
+// driver.get('http://www.google.com');
+// driver.findElement(By.name('q')).sendKeys('webdriver');
+// driver.findElement(By.name('btnG')).click();
+// driver.wait(until.titleIs('webdriver - Google Search'), 3000);
+// driver.getTitle().then(
+//     function(title){
+// 	assert.equal(title, 'webdriver - Google Search');
+//     });
 
 // // NOTE:
 // // Okay, given the above, for our final trick we're going to try and
@@ -119,9 +119,9 @@ driver.getTitle().then(
 // Okay, another try, this time realizing that we really have to wait
 // for our target to appear before we can check on it, and not wait
 // for a proxy ("ui-autocomplete" in the previous example).
-driver.get(target);
 // // Firefox a little slow sometimes here, so wait for it.
-// driver.wait(until.titleIs('AmiGO 2: Welcome'), 3000);
+//driver.get(target + '/amigo');//.then(function(){
+driver.get(target);//.then(function(){
 driver.findElement(By.id('gsf-query')).sendKeys('neurogenesis');
 driver.wait(until.elementTextContains(
     driver.findElement(By.className('ui-autocomplete')), 'GO:0022008'), 3000);
@@ -131,6 +131,6 @@ driver.findElement(By.className('ui-autocomplete')).getText().then(
 	assert.notEqual(-1, text.search('neurogenesis \\(GO:0022008\\)'),
 			'found neurogenes is properly in the dropdown');
     });
-
+//});
 // And now we're done, so close it out nicely.
 driver.quit();
