@@ -116,7 +116,7 @@ all:
 
 .PHONY: owltools-update
 owltools-update:
-	cd $(OWLTOOLS_ROOT) && svn update
+	cd $(OWLTOOLS_ROOT) && git pull
 # svn update --accept theirs-full
 
 .PHONY: owltools-build
