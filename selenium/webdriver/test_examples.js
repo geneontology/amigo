@@ -7,7 +7,7 @@
 //// See README.org in this directory.
 ////
 //// Usage:
-////  : AMIGO=http://amigo.geneontology.org node test_examples.js
+////  : AMIGO=http://amigo2.berkeleybop.org BROWSER=firefox node test_examples.js
 ////
 
 // Setup the driver we'll use. Default to Firefox, but allow others
