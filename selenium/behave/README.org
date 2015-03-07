@@ -36,13 +36,13 @@
   (Obviously we could also just query GOlr directly for the tests, but
   this way makes it easier for non-expert users.)
   
-  Another nice thing is that Gherkin (the language the tests are
+  Another nice thing is that gherkin (the language the tests are
   written in) has several runners, so the tests are somewhat portable
   if behave bellies up or is otherwise unsuitable.
   
   The major downside I see is that we have to bring in another
   language for this (python 2.7), and it is a little harder to get
-  started than with the Node.js/Mocha stuff. That said, since this is
+  started than with the node/mocha stuff. That said, since this is
   just local testing, virtualenv
   (https://virtualenv.pypa.io/en/latest/) papers over a lot of the
   issues and is version compatible enough that it will be easy to add
