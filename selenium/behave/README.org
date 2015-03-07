@@ -19,19 +19,19 @@
   For example, for a few of the things we've done in AmiGO so far,
   compare the behave version of the test to the node/mocha version:
  
-  https://github.com/geneontology/amigo/blob/master/selenium/webdriver/05_autocomplete_tests.js
-  https://github.com/geneontology/amigo/blob/master/selenium/behave/05_autocomplete_basic.feature
+  - https://github.com/geneontology/amigo/blob/master/selenium/webdriver/05_autocomplete_tests.js
+  - https://github.com/geneontology/amigo/blob/master/selenium/behave/05_autocomplete_basic.feature
 
   the latter being obviously waaay easier for a curator or scientist
   to produce. Here is also data some testing:
 
-  https://github.com/geneontology/amigo/blob/master/selenium/behave/20_data_basic.feature
+  - https://github.com/geneontology/amigo/blob/master/selenium/behave/20_data_basic.feature
 
   All with a fairly small amount of python code, which a python-smart
   scientist could also help produce:
 
-  https://github.com/geneontology/amigo/blob/master/selenium/behave/environment.py
-  https://github.com/geneontology/amigo/tree/master/selenium/behave/steps
+  - https://github.com/geneontology/amigo/blob/master/selenium/behave/environment.py
+  - https://github.com/geneontology/amigo/tree/master/selenium/behave/steps
 
   (Obviously we could also just query GOlr directly for the tests, but
   this way makes it easier for non-expert users.)
