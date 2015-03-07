@@ -1,3 +1,8 @@
+* 
 * Tags
 
-  - go: GO-specific tests (for things like terms)
+  These are the tags that we're currently using in the tests (in case
+  you want to check or remove just a subset).
+
+  - go: GO-specific tests (for things like term existence)
+  - go-data: tests specific to testing the sanity of GO data
