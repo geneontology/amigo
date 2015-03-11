@@ -2285,6 +2285,11 @@ sub dynamic_dispatch_table {
     [
      ''                    => { app => $app }, # defaults to landing
      '/'                   => { app => $app }, # defaults to landing
+     ## This rm should only come into play when using amigo-runner
+     ## in "embedded" mode (as in that case, the dynamic dispatch
+     ## is handling the fall-through case; otherwise it would be handled
+     ## by the apache config or whatever).
+     'robots.txt'          => { app => $app, rm => 'special' },
      'landing'             => { app => $app, rm => 'landing' },
      'software_list'       => { app => $app, rm => 'software_list' },
      'schema_details'      => { app => $app, rm => 'schema_details' },

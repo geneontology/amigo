@@ -59,6 +59,8 @@ sub setup {
   $self->start_mode('landing');
   $self->error_mode('mode_fatal');
   $self->run_modes(
+		   ## Special cases.
+		   'special'             => 'mode_special',
 		   ## Standard.
 		   'landing'             => 'mode_landing',
 		   #'search'              => 'mode_live_search',
@@ -134,6 +136,35 @@ sub _add_search_bookmark_api_to_filters {
 ###
 ### Run modes.
 ###
+
+
+## Special runmode for special cases. Current use occurs with serving
+## static content from root in embedded mode. Right now, specifically
+## robots.txt. See AmiGO::dynamic_dispatch_table for more discussion.
+sub mode_special {
+
+  my $self = shift;
+
+  my $path = $self->{CORE}->amigo_env('AMIGO_STATIC_PATH') . '/robots.txt';
+
+  my $ctype = 'text/plain';
+  my $cont = '';
+
+  if( ! -r $path ){
+    $self->{CORE}->kvetch('no readable path: ' . $path);
+  }else{
+    $self->{CORE}->kvetch('will read path: ' . $path);
+    $ctype = $self->decide_content_type_by_filename($path);
+    $cont = $self->get_content_by_filename($path);
+
+    $self->{CORE}->kvetch('birf: ' . $ctype);
+    $self->{CORE}->kvetch('barf: ' . $cont);
+  }
+
+  ## Finalize.
+  $self->header_add('-type' => $ctype);
+  return $cont;
+}
 
 
 ##

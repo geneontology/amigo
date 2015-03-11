@@ -26,6 +26,8 @@ use AmiGO::JavaScript;
 use AmiGO::CSS;
 use DBI;
 use Data::Dumper;
+use File::Slurp;
+use File::Basename;
 
 
 ## NOTE: This will run on app init (once even in a mod_perl env).
@@ -351,6 +353,74 @@ sub get_mq {
   }
 
   return $retval;
+}
+
+
+=item decide_content_type_by_filename
+
+Args: filename
+Returns: content type as string
+
+=cut
+sub decide_content_type_by_filename {
+  my $self = shift;
+  my $path = shift || '';
+
+  my $ctype = 'text/plain';
+
+  ## First, take a guess at the content type.
+  my($fname, $fpath, $fsuffix) = fileparse($path, qr/\.[^.]*/);
+  #$self->{CORE}->kvetch('content type identified suffix: ' . $fsuffix);
+  if( $fsuffix eq '.css' ){
+      $ctype = 'text/css';
+  }elsif( $fsuffix eq '.html' ){
+      $ctype = 'text/html';
+  }elsif( $fsuffix eq '.js' ){
+      $ctype = 'text/javascript';
+  }elsif( $fsuffix eq '.gif' ){
+      $ctype = 'image/gif';
+  }elsif( $fsuffix eq '.png' ){
+      $ctype = 'image/png';
+  }elsif( $fsuffix eq '.jpg' ){
+      $ctype = 'image/jpeg';
+  }elsif( $fsuffix eq '.jpeg' ){
+      $ctype = 'image/jpeg';
+  }elsif( $fsuffix eq '.ico' ){
+      $ctype = 'image/x-icon';
+  }elsif( $fsuffix eq '.txt' ){
+      $ctype = 'text/plain';
+  }elsif( $fsuffix eq '.text' ){
+      $ctype = 'text/plain';
+  }
+  
+  return $ctype;
+}
+
+
+=item get_content_by_filename
+
+Args: filename
+Returns: content as string, raw or text depending
+
+=cut
+sub get_content_by_filename {
+  my $self = shift;
+  my $path = shift || '';
+
+  my $cont = '';
+  my $ctype = $self->decide_content_type_by_filename($path);
+
+  ## Next, get the content according to type.
+  if( $ctype eq 'text/css' ||
+      $ctype eq 'text/html' ||
+      $ctype eq 'text/javascript' ){
+      $cont = read_file($path);
+  }else{
+      ## All else as binary.
+      $cont = read_file($path, { binmode => ':raw' });
+  }
+  
+  return $cont;
 }
 
 
