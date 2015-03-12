@@ -1,6 +1,12 @@
 ## Don't generally want Selenium log files.
 selenium/*/*.log
 
+## Don't want the virtualenv stuff for python leaking in.
+selenium/behave/bin
+selenium/behave/include
+selenium/behave/lib
+selenium/behave/local
+
 ## Do not want to commit staging files.
 staging/*.js
 javascript/staging/*.js
