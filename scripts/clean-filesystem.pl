@@ -12,10 +12,10 @@ BEGIN {
     require "./config.pl";
   }elsif( -f "./conf/config.pl" ){
     require "./conf/config.pl";
-  }elsif( -f "../conf/config.pl" ){
-    require "../conf/config.pl";
-  }else{
-    die "unable to find config.pl";
+  }elsif( -f "./perl/bin/config.pl" ){
+    require "./perl/bin/config.pl";
+  }elsif( -f "../perl/bin/config.pl" ){
+    require "../perl/bin/config.pl";
   }
 }
 use lib $ENV{AMIGO_ROOT} . '/perl/lib';
@@ -25,7 +25,8 @@ use utf8;
 use strict;
 use Data::Dumper;
 #use AmiGO::WebApp::HTMLClient;
-use Getopt::Std;
+#use Getopt::Std;
+use Getopt::Long;
 #use File::Path qw(remove_tree);
 use File::Path; # old versions don't have this
 use File::Find;
@@ -39,15 +40,20 @@ use AmiGO::KVStore::Filesystem;
 my $core = AmiGO->new();
 
 ## Setup.
-use vars qw(
-	     $opt_h
-	     $opt_v
-	     $opt_s
-	     $opt_c
-	     $opt_r
-	     $opt_x
-	  );
-getopts('hvscrx');
+my $opt_h = '';
+my $opt_v = '';
+my $opt_s = '';
+my $opt_c = '';
+my $opt_r = '';
+my $opt_x = '';
+GetOptions(
+    'verbose' => \$opt_v,
+    'help' => \$opt_h,
+    'sessions' => \$opt_s,
+    'caches' => \$opt_c,
+    'scratch' => \$opt_r,
+    'execute' => \$opt_x,
+    );
 
 ## Embedded help through perldoc.
 if( $opt_h ){
@@ -186,22 +192,22 @@ assumed to be on.
 
 =over
 
-=item -s
+=item -sessions
 
 Perform routine cleaning of sessions. This includes removing session
 and files that appear to be more than a day old.
 
-=item -c
+=item -caches
 
 Perform routine cleaning of caches. This will remove any cached files
 from the server so that a new one will have to be fetched or
 generated.
 
-=item -r
+=item -scratch
 
 Reset the scratch directory.
 
-=item -x
+=item -execute
 
 Since we're changing the filesystem and doing recursive deletes and
 the like, we won't actually do anything unless we have this flag.

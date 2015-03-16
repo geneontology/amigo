@@ -8,7 +8,7 @@
 METADATA ?= $(wildcard metadata/*.yaml)
 TEST_JS ?= rhino # or smjs
 ## Use our local bbop-js.
-TEST_JS_FLAGS ?= -modules _data/bbop.js -modules javascript/staging/amigo2.js -opt -1
+TEST_JS_FLAGS ?= -modules external/bbop.js -modules javascript/staging/amigo2.js -opt -1
 #JSENGINES = node smjs rhino
 BBOP_JS ?= ../bbop-js/
 JS_TESTS = \
@@ -17,6 +17,10 @@ JS_TESTS = \
  $(wildcard javascript/lib/amigo/ui/*.js.tests) \
  $(wildcard javascript/lib/amigo/handlers/*.js.tests)
 #BENCHMARKS = $(wildcard _benchmark/*.js)
+
+## Target setup for Makefile CLI unit testing
+#AMIGO ?= http://amigo.geneontology.org
+AMIGO ?= http://amigo2.berkeleybop.org
 
 ## Perl lib test setup.
 TEST_PERL ?= perl
@@ -30,14 +34,14 @@ NODE_JS ?= /usr/bin/node
 
 ## Handle versioning. The patch level is automatically incremented on
 ## after every release.
-AMIGO_BASE_VERSION ?= 2.2
+AMIGO_BASE_VERSION ?= 2.3
 AMIGO_PATCH_LEVEL ?= `cat version-patch.lvl`
 AMIGO_VERSION_TAG ?= "" # e.g. -alpha
 AMIGO_VERSION ?= $(AMIGO_BASE_VERSION).$(AMIGO_PATCH_LEVEL)$(AMIGO_VERSION_TAG)
 
 all:
 	@echo "Default JS engine: $(TEST_JS)"
-	@echo "See: http://wiki.geneontology.org/index.php/AmiGO_Manual:_Installation_2"
+	@echo "See: http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Installation"
 	@echo "for more details."
 #	@echo "All JS engines: $(JSENGINES)"
 #	@echo "Try make: 'test', 'docs', 'install', 'bundle', 'data', or 'release'"
@@ -59,6 +63,11 @@ test-perl: $(PERL_TESTS)
 $(PERL_TESTS):
 	echo "trying: $@"
 	$(TEST_PERL) $(TEST_PERL_FLAGS) $(@D)/$(@F)
+
+## Unit tests for a running amigo.
+.PHONY: test-app
+test-app:
+	cd selenium/webdriver && AMIGO=$(AMIGO) ./node_modules/mocha/bin/mocha --reporter spec ./*_tests.js -t 100000
 
 ###
 ### Check the metadata using kwalify.
@@ -122,9 +131,10 @@ patch-incr:
 .PHONY: npm
 npm: bundle
 	./scripts/release-npm.pl -v -i javascript/staging/amigo2.js -o javascript/npm/amigo2 -r $(AMIGO_VERSION)
-	npm unpublish amigo2@$(AMIGO_VERSION)
 	npm publish javascript/npm/amigo2
 	make patch-incr
+## Was before npm publish, no longer used: https://www.npmjs.org/doc/cli/npm-unpublish.html
+#	npm unpublish amigo2@$(AMIGO_VERSION)
 
 # ###
 # ### Produce static statistics data files for landing page.
@@ -148,14 +158,6 @@ install: test docs
 .PHONY: install-uncompressed
 install-uncompressed: docs
 	./install -v -g -u -V $(AMIGO_VERSION)
-
-###
-### Copy in the standard inital values for installation.
-###
-
-.PHONY: initialize
-initialize:
-	cp conf/.initial_values.yaml conf/amigo.yaml
 
 ###
 ### Copy in some dummy values for use with testing.
@@ -194,8 +196,8 @@ tags:
 refresh: tags bundle
 	@echo "Using BBOP-JS at: $(BBOP_JS)"
 	cd $(BBOP_JS); make bundle
-	cp $(BBOP_JS)/staging/bbop.js ./_data
-	cp ./javascript/lib/amigo/data/*.js $(BBOP_JS)/_data/
+	cp $(BBOP_JS)/staging/bbop.js ./external
+	cp ./javascript/lib/amigo/data/*.js $(BBOP_JS)/_data
 	cp ./javascript/lib/amigo/data/golr.js $(BBOP_JS)/demo/
 	./install -v -g -V $(AMIGO_VERSION)
 	./scripts/blank-kvetch.pl
@@ -231,11 +233,20 @@ w3c-validate:
 	./scripts/w3c-validate.pl -v --html
 
 ###
-### Example on how to start the (RingoJS) OpenSearch server.
+### Run the local-only testing server.
 ###
 
-start-ringo-example:
-	RINGO_MODULE_PATH="../stick/lib:_data:javascript/staging" $(RINGO_JS) javascript/bin/ringo-example.js --port 8910
+## 
+.PHONY: run
+run:
+	perl -I./perl/bin/ -I./perl/lib/ scripts/amigo-runner
 
-start-ringo-opensearch:
-	RINGO_MODULE_PATH="../stick/lib:_data:javascript/staging" $(RINGO_JS) javascript/bin/ringo-opensearch.js
+# ###
+# ### Example on how to start the (RingoJS) OpenSearch server.
+# ###
+
+# start-ringo-example:
+# 	RINGO_MODULE_PATH="../stick/lib:external:javascript/staging" $(RINGO_JS) javascript/bin/ringo-example.js --port 8910
+
+# start-ringo-opensearch:
+# 	RINGO_MODULE_PATH="../stick/lib:external:javascript/staging" $(RINGO_JS) javascript/bin/ringo-opensearch.js

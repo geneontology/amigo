@@ -9,8 +9,10 @@ BEGIN {
     require "./config.pl";
   }elsif( -f "./conf/config.pl" ){
     require "./conf/config.pl";
-  }elsif( -f "../conf/config.pl" ){
-    require "../conf/config.pl";
+  }elsif( -f "./perl/bin/config.pl" ){
+    require "./perl/bin/config.pl";
+  }elsif( -f "../perl/bin/config.pl" ){
+    require "../perl/bin/config.pl";
   }else{
     die "unable to find config.pl";
   }

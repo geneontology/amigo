@@ -38,6 +38,10 @@ my $uicss2path =
    ##
    'com.ext.resources.ext-all' =>
    'com/ext/resources/css/ext-all.css',
+
+   ##
+   'com.jstree' =>
+   'com/jstree/style.min.css',
   };
 
 ## For independant CSS.
@@ -123,12 +127,10 @@ sub get_css {
   ## Check JS w/CSS registery first, then try the standalone
   ## registry. Otherwise, hope the transformations goes well...
   if( $uicss2path->{$sig} ){
-    push @mbuf, $self->amigo_env('AMIGO_HTML_URL');
-    push @mbuf, '/javascript/';
+    push @mbuf, $self->amigo_env('AMIGO_JS_URL') . '/';
     push @mbuf, $uicss2path->{$sig};
   }elsif( $css2path->{$sig} ){
-    push @mbuf, $self->amigo_env('AMIGO_HTML_URL');
-    push @mbuf, '/css/';
+    push @mbuf, $self->amigo_env('AMIGO_CSS_URL') . '/';
     push @mbuf, $css2path->{$sig};
   }elsif( $dyncss2path->{$sig} ){
     ## A little more complicated since we're going to ask the cgi
@@ -137,8 +139,7 @@ sub get_css {
 				      optional=>{full=>1},
 				      arg=>{}})
   }else{
-    push @mbuf, $self->amigo_env('AMIGO_HTML_URL');
-    push @mbuf, '/css/';
+    push @mbuf, $self->amigo_env('AMIGO_CSS_URL') . '/';
     $sig =~ s/\./\//gs;
     $sig .= '.css';
     push @mbuf, $sig;

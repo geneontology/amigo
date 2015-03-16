@@ -25,39 +25,30 @@
   <div class="panel-body">
     
     <div class="row">
-      <form role="form" method="GET" action="[% interlink_rte %]">
+      <form role="form" method="POST" action="[% interlink_rte %]">
 
-	<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+	<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
 
 	  <!-- TODO: add "has-error" -->
+	  <h4>Input identifiers within: [% personality_name %]</h4>
 	  <div class="form-group[% IF rte_input OR first_time_p %][% ELSE %][% END %]">
-	    <label for="rte_input">Identifiers for [% personality_name %]</label>
 	    <textarea
-	       id="rte_input"
+	       id="bulk_input"
 	       class="form-control"
 	       rows="15"
 	       placeholder="ID1 ID2 ID3..."
-	       name="input">[% rte_input %]</textarea>
+	       name="input">[% bulk_input %]</textarea>
 	  </div>
 
 	  <button id="submit-button" type="submit"
-		  class="btn btn-default disabled">Submit</button>
+		  class="btn btn-primary disabled">
+	    Update identifiers to search for
+	  </button>
 
 	</div>
 	
-	<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-	  <div>
-	    <h4>Search filters</h4>
-	    
-	    <div id="input-filter-accordion">
-	      Loading...
-	    </div>
-
-	  </div>	  
-	</div>
-
-	<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">	  
-	  <h4>Search fields</h4>
+	<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+	  <h4>Search for identifiers in these fields</h4>
 
 	  <div id="input-query-fields" class="checkbox">
 	    Loading...
@@ -68,6 +59,36 @@
       </form>      
     </div>
   
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+
+    <div id="results-area" class="row">
+
+	<div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+	  <div>
+	    <h4>Filter results</h4>
+	    
+	    <div id="input-filter-accordion">
+	      Loading...
+	    </div>
+
+	  </div>	  
+	</div>
+
+	<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+	  
+	  <div id="pager">
+	  </div>
+	  <div id="results">
+	    pending...
+	  </div>
+	</div>
+
+    </div>
+
   </div>
 </div>
 <!-- END: bulk_search.tmpl -->

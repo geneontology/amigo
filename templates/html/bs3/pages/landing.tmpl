@@ -108,13 +108,14 @@
 	  <!-- Find significant shared GO terms and term ancestors to help -->
 	  <!-- discover what input genes may have in common. -->
 
-	  <!-- Mostly a copy from beta.geneontology.org, with a few changes to
+	  <!-- Mostly a copy from geneontology.org, with a few changes to
 	       make it less tall and more integrated with the A2 environment.  -->
 	  <p>
 	    <form action="[% interlink_rte %]"
 		  class="form-inline" role="form" method="POST">
 	      <input type="hidden" name="correction" value="bonferroni" />
-	      <input type="hidden" name="format" value="xml" />
+	      <!-- <input type="hidden" name="format" value="xml" /> -->
+	      <input type="hidden" name="format" value="html" />
 	      <input type="hidden" name="resource" value="PANTHER" />
 	      <textarea id="landing_gene_input" class="form-control" rows="2" name="input" placeholder="Your genes here..." ></textarea>
 	      
@@ -153,6 +154,7 @@
 		  <option value="ECOLI">E. coli</option>
 		  <!-- <option value="5062">A. oryzae</option> -->
 		  <option value="CANAL">C. albicans</option>
+		  <option value="ORYSJ">O. sativa</option>
 		</select>
 	      </div>
 	      
@@ -162,9 +164,10 @@
 	  <p>
 	    <!-- <small><a href="[% interlink_rte %]">Advanced options</a></small> -->
 	    <!-- <br /> -->
-	    <small>Powered by <a href="http://go.pantherdb.org">PANTHER</a></small>
+	    <small>Powered by <a href="http://pantherdb.org">PANTHER</a></small>
 	  </p>
-	  <!-- -->
+
+	  <!-- Allow user to make other choices in RTE. -->
 	  <p class="">
 	    <a class="btn btn-primary" href="[% interlink_rte %]">Advanced &raquo;</a>
 	  </p>
@@ -178,7 +181,7 @@
     [% landing_item_classes = three_row_classes %]
     [% landing_item_image = image_dir _ "/stats-generic.50.png" %]
     [% landing_item_body = "View the most recent <strong>statistics</strong> about the Gene Ontology data on the main site." %]
-    [% landing_item_link = "http://beta.geneontology.org/page/current-go-statistics" %]
+    [% landing_item_link = "http://geneontology.org/page/current-go-statistics" %]
     [% INCLUDE "common/landing_item.tmpl" %]
     
     <!-- stat -->

@@ -117,12 +117,19 @@ sub _relation_weight {
 
   my $order =
     {
-     is_a => 1,
-     has_part => 2,
-     part_of => 3,
-     regulates => 4,
-     negatively_regulates => 5,
-     positively_regulates => 6,
+     'is_a' => 1,
+     'is a' => 1,
+     'has_part' => 2,
+     'has part' => 2,
+     'part_of' => 3,
+     'part of' => 3,
+     'regulates' => 4,
+     'negatively_regulates' => 5,
+     'negatively regulates' => 5,
+     'positively_regulates' => 6,
+     'positively regulates' => 6,
+     'occurs_in' => 7,
+     'occurs in' => 7,
     };
 
   my $ret = $default;
@@ -378,6 +385,7 @@ sub dominant_relationship {
   my $all_rels = [];
   foreach my $arg (@_){
     if( ref($arg) eq 'ARRAY' ){
+      ## Retry by dereferencing first.
       push @$all_rels, $self->dominant_relationship(@$arg);
     }else{
       push @$all_rels, $arg;

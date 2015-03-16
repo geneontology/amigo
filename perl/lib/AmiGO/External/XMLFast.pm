@@ -6,8 +6,9 @@ Specialize onto XML resources. Add XPATH for EXT_DATA and such.
 
 use utf8;
 use strict;
+#use Try::Tiny;
 use XML::LibXML;
-use Carp;
+#use Carp;
 
 package AmiGO::External::XMLFast;
 
@@ -33,6 +34,9 @@ sub new {
   $self->{RTE_DOM} = undef;
   $self->{RTE_XPATH} = undef;
 
+  ## Error notes--assume upstream error until proven otherwise.
+  $self->{XMLF_UPSTREAM_ERROR} = 1;
+
   bless $self, $class;
   return $self;
 }
@@ -53,6 +57,9 @@ sub get_local_data {
 
   my $self = shift;
   my $string  = shift || die 'need a string to make a local fetch';
+
+  ## Has no upstream.
+  $self->{XMLF_UPSTREAM_ERROR} = 0;
 
   ## If we got the URL together properly, go get it.
   my $ret = $string;
@@ -107,7 +114,8 @@ sub get_external_data {
 	$@ =~ s/at \/.*?$//s;
 	$self->kvetch("Error in document from: '$url': $@");
       }else{
-	## Looks like it's well-formed--yay!
+	## Looks like it's extant and well-formed--yay!
+	$self->{XMLF_UPSTREAM_ERROR} = 0;
       }
     }
   }
@@ -136,7 +144,8 @@ sub post_external_data {
     $mech->post($url, $form);
   };
   if( $@ ){
-    $self->kvetch("error in POSTing to: '$url': $@");
+    die;
+    # die("error in POSTing to: '$url': $@");
   }else{
 
     if ( ! $mech->success() ){
@@ -159,12 +168,25 @@ sub post_external_data {
 	$@ =~ s/at \/.*?$//s;
 	$self->kvetch("error in document from: '$url': $@");
       }else{
-	## Looks like it's well-formed--yay!
+	## Looks like it's extant and well-formed--yay!
+	$self->{XMLF_UPSTREAM_ERROR} = 0;
       }
     }
   }
 
   return $doc;
+}
+
+
+=item upstream_okay_p
+
+After a *_external_data() call, will tell you if the upstream resource
+is though to be okay.
+
+=cut
+sub upstream_okay_p {
+  my $self = shift;
+  return ! $self->{XMLF_UPSTREAM_ERROR};
 }
 
 
@@ -209,10 +231,21 @@ sub get_value_list {
 
   my $ret = [];
 
-  my $results = $self->{RTE_XPATH}->findnodes($xpath) || [];
+  ## First, get list.
+  my $results = [];
+  eval { # sorry: ns collision
+    $results = $self->{RTE_XPATH}->findnodes($xpath) || [];
+  };
+  if( $@ ){
+    $self->kvetch("error in nodes path from: '$xpath' (bailing): $@");
+  }
+
+  ## Now iterate through the list and do the best we can.
   foreach my $rnode (@$results){
-      my $lbl = $rnode->findvalue('.') || $defval;
-      push @$ret, $lbl;
+    my $lbl = $defval;
+    $lbl = $rnode->findvalue('.') || $defval;
+
+    push @$ret, $lbl;
   }
 
   return $ret;

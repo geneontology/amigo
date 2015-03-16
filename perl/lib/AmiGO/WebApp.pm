@@ -26,6 +26,8 @@ use AmiGO::JavaScript;
 use AmiGO::CSS;
 use DBI;
 use Data::Dumper;
+use File::Slurp;
+use File::Basename;
 
 
 ## NOTE: This will run on app init (once even in a mod_perl env).
@@ -69,14 +71,14 @@ sub cgiapp_init {
 	$item_conf->{'amigo_live_search_interlink'} =
 	  $self->{CORE}->get_interlink({mode=>'live_search',
 					arg=>{type=>$search_entry_id}});
-	$self->{CORE}->kvetch('live search layout a2i: '.
-			      $item_conf->{amigo_live_search_interlink});
+	# $self->{CORE}->kvetch('live search layout a2i: '.
+	# 		      $item_conf->{amigo_live_search_interlink});
 	## Add bulk search link.
 	$item_conf->{'amigo_bulk_search_interlink'} =
 	  $self->{CORE}->get_interlink({mode=>'bulk_search',
 					arg=>{type=>$search_entry_id}});
-	$self->{CORE}->kvetch('bulk search layout a2i: '.
-			      $item_conf->{amigo_bulk_search_interlink});
+	# $self->{CORE}->kvetch('bulk search layout a2i: '.
+	# 		      $item_conf->{amigo_bulk_search_interlink});
 	## Add to generic list.
 	push @$search_list, $item_conf;
       }else{
@@ -108,7 +110,7 @@ sub cgiapp_prerun {
   $self->{WEBAPP_TEMPLATE_PARAMS} = {};
 
   ## Make sure we have the right path for our internal system.
-  $self->template_set('legacy');
+  #$self->template_set('legacy');
   $self->template_set('bs3');
 
   ## Setup template environment.
@@ -222,7 +224,7 @@ sub cgiapp_prerun {
 
   ## Okay, here we're going to add a little system of passing messages
   ## globally through filesystem manipulation.
-  my $root_dir = $self->{CORE}->amigo_env('AMIGO_CGI_ROOT_DIR');
+  my $root_dir = $self->{CORE}->amigo_env('AMIGO_DYNAMIC_PATH');
   my @root_a_files = glob($root_dir . '/.amigo.*');
   foreach my $afile (@root_a_files){
     if( $afile =~ /\.amigo\.success.*/ ){
@@ -351,6 +353,74 @@ sub get_mq {
   }
 
   return $retval;
+}
+
+
+=item decide_content_type_by_filename
+
+Args: filename
+Returns: content type as string
+
+=cut
+sub decide_content_type_by_filename {
+  my $self = shift;
+  my $path = shift || '';
+
+  my $ctype = 'text/plain';
+
+  ## First, take a guess at the content type.
+  my($fname, $fpath, $fsuffix) = fileparse($path, qr/\.[^.]*/);
+  #$self->{CORE}->kvetch('content type identified suffix: ' . $fsuffix);
+  if( $fsuffix eq '.css' ){
+      $ctype = 'text/css';
+  }elsif( $fsuffix eq '.html' ){
+      $ctype = 'text/html';
+  }elsif( $fsuffix eq '.js' ){
+      $ctype = 'text/javascript';
+  }elsif( $fsuffix eq '.gif' ){
+      $ctype = 'image/gif';
+  }elsif( $fsuffix eq '.png' ){
+      $ctype = 'image/png';
+  }elsif( $fsuffix eq '.jpg' ){
+      $ctype = 'image/jpeg';
+  }elsif( $fsuffix eq '.jpeg' ){
+      $ctype = 'image/jpeg';
+  }elsif( $fsuffix eq '.ico' ){
+      $ctype = 'image/x-icon';
+  }elsif( $fsuffix eq '.txt' ){
+      $ctype = 'text/plain';
+  }elsif( $fsuffix eq '.text' ){
+      $ctype = 'text/plain';
+  }
+  
+  return $ctype;
+}
+
+
+=item get_content_by_filename
+
+Args: filename
+Returns: content as string, raw or text depending
+
+=cut
+sub get_content_by_filename {
+  my $self = shift;
+  my $path = shift || '';
+
+  my $cont = '';
+  my $ctype = $self->decide_content_type_by_filename($path);
+
+  ## Next, get the content according to type.
+  if( $ctype eq 'text/css' ||
+      $ctype eq 'text/html' ||
+      $ctype eq 'text/javascript' ){
+      $cont = read_file($path);
+  }else{
+      ## All else as binary.
+      $cont = read_file($path, { binmode => ':raw' });
+  }
+  
+  return $cont;
 }
 
 
@@ -732,6 +802,8 @@ sub _common_params_settings {
     $self->{CORE}->get_interlink({mode=>'load_details'});
   $params->{interlink_browse} =
     $self->{CORE}->get_interlink({mode=>'browse'});
+  $params->{interlink_dd_browse} =
+    $self->{CORE}->get_interlink({mode=>'dd_browse'});
   $params->{interlink_free_browse} =
     $self->{CORE}->get_interlink({mode=>'free_browse'});
   $params->{interlink_medial_search} =
@@ -747,10 +819,10 @@ sub _common_params_settings {
   $params->{interlink_rte} =
     $self->{CORE}->get_interlink({mode=>'rte'});
   ## Since there is no default search page, arrange for one.
-  my $def_search = $self->{CORE}->get_amigo_search_default();
-  $params->{interlink_search_default} =
-    $self->{CORE}->get_interlink({mode=>'live_search',
-				  arg=>{type=>$def_search}});
+  # my $def_search = $self->{CORE}->get_amigo_search_default();
+  # $params->{interlink_search_default} =
+  #   $self->{CORE}->get_interlink({mode=>'live_search',
+  # 				  arg=>{type=>$def_search}});
   $params->{interlink_term_details_base} =
     $self->{CORE}->get_interlink({mode=>'term_details_base'});
   ## Phylo experiments.
@@ -758,11 +830,11 @@ sub _common_params_settings {
     $self->{CORE}->get_interlink({mode=>'phylo_graph'});
 
   ## Create and add to output buffer.
-  $params->{base} = $self->{CORE}->amigo_env('AMIGO_CGI_URL');
-  $params->{public_base} =
-    $self->{CORE}->amigo_env('AMIGO_PUBLIC_CGI_BASE_URL');
-  $params->{public_opensearch} =
-    $self->{CORE}->amigo_env('AMIGO_PUBLIC_OPENSEARCH_URL');
+  $params->{base} = $self->{CORE}->amigo_env('AMIGO_DYNAMIC_URL');
+  # $params->{public_base} =
+  #   $self->{CORE}->amigo_env('AMIGO_PUBLIC_CGI_BASE_URL');
+  # $params->{public_opensearch} =
+  #   $self->{CORE}->amigo_env('AMIGO_PUBLIC_OPENSEARCH_URL');
   $params->{public_1x_base} =
     $self->{CORE}->amigo_env('AMIGO_1X_PUBLIC_CGI_BASE_URL') ||
       $params->{public_base};
@@ -779,12 +851,14 @@ sub _common_params_settings {
   $params->{amigo_mode} = $additional->{amigo_mode} || '';
   $params->{search_layout_list} = $self->{AW_SEARCH_LIST}; # for menus
   $params->{image_dir} =
-    $self->{CORE}->amigo_env('AMIGO_HTML_URL') . '/images';
+    $self->{CORE}->amigo_env('AMIGO_STATIC_URL') . '/images';
   $params->{js_dir} =
-    $self->{CORE}->amigo_env('AMIGO_HTML_URL') .'/javascript';
+    $self->{CORE}->amigo_env('AMIGO_STATIC_URL') .'/js';
+  # $params->{js_dir} =
+  #   $self->{CORE}->amigo_env('AMIGO_STATIC_URL') .'/javascript';
   $params->{css_dir} =
-    $self->{CORE}->amigo_env('AMIGO_HTML_URL') . '/css';
-  $params->{html_url} = $self->{CORE}->amigo_env('AMIGO_HTML_URL');
+    $self->{CORE}->amigo_env('AMIGO_STATIC_URL') . '/css';
+  $params->{html_url} = $self->{CORE}->amigo_env('AMIGO_STATIC_URL');
   $params->{version} = $self->{CORE}->amigo_env('AMIGO_VERSION');
   my $sid = $params->{session_id} || '';
   $params->{session_id_for_url} = 'session_id=' . $sid;

@@ -4,5 +4,12 @@
 // (browser environment, etc.), take no action and depend on the
 // global namespace.
 if( typeof(exports) != 'undefined' ){
+
+    // Old style--exporting separate namespace.
     exports.amigo = amigo;
+
+    // New, better, style--assemble; these should not collide.
+    bbop.core.each(amigo, function(k, v){
+	exports[k] = v;
+    });
 }

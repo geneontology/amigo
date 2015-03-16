@@ -13,17 +13,6 @@ bbop:
   type: lead_full
   port: 3306
 
-princeton:
-  label: Princeton
-  location: in Princeton, NJ
-  class: aux
-  login: goclient
-  password: g00dness
-  database: go_latest
-  host: gomirror.princeton.edu
-  type: lead_full
-  port: 13309
-
 ebi:
   label: EBI
   location: in Cambridge, UK
@@ -35,17 +24,6 @@ ebi:
   type: lead_full
   port: 4085
 
-# princeton_lite:
-#   label: Princeton (lite)
-#   location: in Princeton, NJ
-#   class: aux
-#   login: goclient
-#   password: g00dness
-#   database: go_latest_lite
-#   host: gomirror.princeton.edu
-#   type: lead_lite
-#   port: 13309
-
 bbop_lite:
   label: Berkeley BOP (lite)
   location: in Berkeley, CA
@@ -56,14 +34,3 @@ bbop_lite:
   host: spitz.lbl.gov
   type: lead_lite
   port: 3306
-
-# gold_exp:
-#   label: Experimental GOLD
-#   location: in Berkeley, CA
-#   class: exp
-#   login: gold_user
-#   password: gold_pass
-#   database: gold
-#   host: ladle.lbl.gov
-#   type: gold
-#   port: 5432

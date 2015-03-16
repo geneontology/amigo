@@ -48,6 +48,7 @@ package AmiGO::External::XMLFast::RemoteTermEnrichment;
 
 use base ("AmiGO::External::XMLFast");
 use Date::Format;
+#use Try::Tiny;
 
 
 # =item $URL_FOR_REMOTE
@@ -101,6 +102,10 @@ sub remote_call {
   my $ret = undef;
   $self->{MECH}->timeout(300);
   $ret = $self->post_external_data($url, $self->{ARGS});
+
+  if( ! $self->upstream_okay_p() ){
+      die "There might be a problem with the upstream server: $url: $@";
+  }
 
   return $ret;
 }

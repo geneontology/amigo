@@ -6,17 +6,17 @@
 BEGIN {
   ## Try and find our env config file if we can't get it out of the
   ## environment.
-  #if( ! defined($ENV{AMIGO_CGI_ROOT_DIR}) || $ENV{AMIGO_CGI_ROOT_DIR} eq '' ){
   if( -f "./config.pl" ){
     require "./config.pl";
   }elsif( -f "./conf/config.pl" ){
     require "./conf/config.pl";
-  }elsif( -f "../conf/config.pl" ){
-    require "../conf/config.pl";
+  }elsif( -f "./perl/bin/config.pl" ){
+    require "./perl/bin/config.pl";
+  }elsif( -f "../perl/bin/config.pl" ){
+    require "../perl/bin/config.pl";
   }else{
     die "unable to find config.pl";
   }
-  #}
 }
 
 ## Bring in necessaries.
@@ -60,7 +60,7 @@ if( $help ){
 }
 
 ## Make sure we have the right environment.
-my $root_dir = $ENV{AMIGO_CGI_ROOT_DIR};
+my $root_dir = $ENV{AMIGO_DYNAMIC_PATH};
 if( ! $root_dir ){
   die "unable to find AmiGO root directory"
 }else{

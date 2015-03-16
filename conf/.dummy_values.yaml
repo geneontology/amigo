@@ -1,85 +1,73 @@
 ---
+AMIGO_1X_PUBLIC_CGI_BASE_URL:
+  comment: "The public URL of an available AmiGO 1.x instance for link references."
+  type: url
+  value: http://amigo1.geneontology.org/cgi-bin/amigo
 AMIGO_BALANCER:
-  comment: "Mark this AmiGO 2 installation as behind a load balanacer or similar system. The practical effect of this flag is that if AmiGO detects *.error or *.warning files (usually created by the global-message.pl script), it will return a 503 page signalling any upstream system that the instance is not currently ready.\n"
+  comment: "Mark this AmiGO 2 installation as behind a load balanacer or similar system. The practical effect of this flag is that if AmiGO detects *.error files (usually created by the global-message.pl script), it will return a 503 page signalling any upstream system that the instance is not currently ready."
   type: boolean
   value: 0
 AMIGO_BETA:
-  comment: "Mark the AmiGO site as BETA (triggers some changes in variables and installed features).\n"
-  type: boolean
-  value: 0
-AMIGO_CGI_PARTIAL_PATH:
-  comment: Please enter the full path to a usable CGI enabled directory.
-  type: directory
-  value: /srv/www/cgi-bin
-AMIGO_CGI_PARTIAL_URL:
-  comment: Please enter the URL that this path maps to.
-  type: url
-  value: http://localhost/cgi-bin
-AMIGO_CONFIGURED:
-  comment: "This variable must be edited (to 1) before installing AmiGO.\n"
+  comment: "Mark the AmiGO site as BETA (triggers some changes in variables and installed features)."
   type: boolean
   value: 1
+AMIGO_DYNAMIC_PATH:
+  comment: "The full path to the location of the perl binaries."
+  type: directory
+  value: ./perl/bin
+AMIGO_DYNAMIC_URL:
+  comment: "The URL that AMIGO_DYNAMIC_PATH maps to."
+  type: url
+  value: http://localhost:9999
 AMIGO_GOOGLE_ANALYTICS_ID:
-  comment: Google analytics ID. Optional.
+  comment: "Google analytics ID. Optional."
   type: string
   value: ''
-AMIGO_HTDOCS_PARTIAL_PATH:
-  comment: Please enter the full path to a usable static document directory.
-  type: directory
-  value: /srv/www/htdocs
-AMIGO_HTDOCS_PARTIAL_URL:
-  comment: Please enter the URL that this path maps to.
-  type: url
-  value: http://localhost
 AMIGO_LAYOUT_SEARCH:
-  comment: A whitespace separated list of class IDs to use for live search tabs on the search page.
+  comment: "A whitespace separated list of class IDs to use for live search tabs on the search page."
   type: string
-  value: bbop_ann bbop_ont bbop_bio bbop_family bbop_general
-AMIGO_PROJECT_NAME:
-  comment: Please enter the name of this AmiGO installation.
-  type: string
-  value: amigo2
-AMIGO_PUBLIC_CGI_PARTIAL_URL:
-  comment: Please enter the partial public URL.
-  type: true
-  value: http://amigo.geneontology.org/cgi-bin
-AMIGO_PUBLIC_GALAXY_URL:
-  comment: Please enter the public URL of the Galaxy server.
-  type: url
-  value: http://galaxy.berkeleybop.org/
+  value: annotation ontology bioentity
 AMIGO_PUBLIC_GOLR_URL:
-  comment: Please enter the public URL of the GOlr server.
+  comment: "The public URL of the GOlr server (including slash)."
   type: url
   value: http://localhost:8080/solr/
 AMIGO_ROOT:
-  comment: 'Please enter the full path to the git repo amigo[/trunk] directory.'
+  comment: "Unless you are doing something strange, the parent directory of this file."
   type: directory
   value: ./
 AMIGO_SERVER_NAME:
-  comment: "The name by which your AmiGO instance wishes to known--think load balancer or cache situations. If you would rather this information not be reported, leave blank.\n"
+  comment: 'The name by which your AmiGO instance wishes to known--think load balancer or cache situations. If you would rather this information not be reported, leave blank.'
   type: string
-  value: localhost-dev
-AMIGO_TERM_REGEXP:
-  comment: The regular expressions to identify internal ontology ids.
-  type: string
-  value: '^all$|^GO:[0-9]{7}$'
-AMIGO_VERBOSE:
-  comment: Log verbose AmiGO debugging messages.
-  type: boolean
-  value: 0
-AMIGO_VERSION:
-  comment: Displayed AmiGO version string. This string is also used to create the AmiGO JS versioning.
-  type: string
-  value: 2.0b1
-GOLR_TIMESTAMP_LOCATION:
-  comment: "This is the *full* path to the timestamp file that is optionally produced by OWLTools during GOlr loading. It contains information about download attempt times for the different loaded files. If not found or unusable, AmiGO 2 will gracefully ignore it.\n"
-  type: file
-  value: /tmp/golr_timestamp.log
-GO_BBOPJS_LOCATION:
-  comment: "Please enter the full path for the BBOP JS bundle that you will use.\n"
+  value: localhost
+AMIGO_STATIC_PATH:
+  comment: "The full path to a usable static document directory where static and staging are located."
   type: directory
-  value: ./_data
+  value: ./static
+AMIGO_STATIC_URL:
+  comment: "The URL for the static content. Can be local or remote."
+  type: url
+  value: http://localhost:9999/static
+AMIGO_TERM_REGEXP:
+  comment: "The regular expressions to identify internal ontology ids."
+  type: string
+  value: 'all|GO:[0-9]{7}'
+AMIGO_VERBOSE:
+  comment: "Log verbose AmiGO debugging messages."
+  type: boolean
+  value: 1
+AMIGO_WORKING_PATH:
+  comment: "Please enter the full path to readable/writable directory that will be used for things like temporary files and logs (if enabled)."
+  type: directory
+  value: /tmp
+GOLR_TIMESTAMP_LOCATION:
+  comment: "This is the full path to the timestamp file that is optionally produced by OWLTools during GOlr loading. It contains information about download attempt times for the different loaded files. If not found or unusable, AmiGO 2 will gracefully ignore it."
+  type: file
+  value: ./golr_timestamp.log
+GO_BBOPJS_LOCATION:
+  comment: "If this is not redefined to a new location (e.g. the BBOP-JS staging/ directory, it will use the bbop.js bundle packaged with AmiGO 2 (the one used in the unit tests) in the external/ directory."
+  type: file
+  value: ./external/bbop.js
 GO_YAML_LOCATION:
-  comment: "Please enter the full path to the YAML config files directory. In that directory, all files like *config.yaml will be scanned for use.\n"
+  comment: "The full path to the YAML config files directory. In that directory, all files like *config.yaml will be scanned for use."
   type: directory
   value: ./metadata

@@ -43,12 +43,28 @@ sub new {
 
     if( $found_doc ){
 
+      ## We need to translate some of the document information.
+      ## TODO/BUG: This is temporary as we work out what we'll actually have.
+      my $gurl = $found_doc->{annotation_group_url} || 'http://a/problem.owl';
+      my @s = split('/', $gurl);
+      my $gfn = $s[scalar(@s) -1];
+
+      ## TODO/BUG: Again, temporary badness for Noctua.
+      my $nbase = 'http://go-genkisugi.rhcloud.com/seed/model/';
+      my $noctid = $nbase . substr($gfn, 0, -4);
+
+      ## We'll have the document assembly here.
       $intermediate =
 	{
 
 	 ## Group.
 	 annotation_group_id => $found_doc->{annotation_group},
 	 annotation_group_label => $found_doc->{annotation_group_label},
+	 annotation_group_url => $gurl,
+	 annotation_group_file_name => $gfn,
+
+	 ## Noctua.
+	 noctua_url => $noctid,
 
 	 ## Graph.
 	 topology_graph_json => $found_doc->{topology_graph_json},

@@ -99,7 +99,7 @@ var our_ev_of_interest = [
 ///
 
 // Load the base files.
-load('../../_data/bbop.js');
+load('../../external/bbop.js');
 load('../staging/amigo2.js');
 
 // For debugging.

@@ -246,7 +246,7 @@ sub get_ancestor_info {
 
       ## 
       my $depth = $lnode_depth->{$acc};
-      $self->kvetch("looking at: " . $acc . ', depth: ' . $depth);
+      # $self->kvetch("looking at: " . $acc . ', depth: ' . $depth);
       if( ! defined $nodes_by_depth->{$depth} ){
 	$nodes_by_depth->{$depth} = [];
 	$self->kvetch('made level: ' . $depth);
@@ -262,6 +262,10 @@ sub get_ancestor_info {
 	#$rel = 'fatal';
 	## It's definitely "related to", but somehow it barfed.
 	## Generic fall-through.
+	## ---
+	## BUG/TODO: This is the temporary workaround for
+	## incomplete transitivity graphs in some cases:
+	## https://github.com/kltm/bbop-js/wiki/TransitivityGraph#troubleshooting-caveats-and-fail-modes
 	$rel = 'related_to';
       }
 
@@ -296,7 +300,7 @@ sub get_ancestor_info {
       $nodes_sorted_by_depth->{$depth} = \@blah;
     }
     #$self->kvetch("nbd:\n" .Dumper($nodes_by_depth->{$depth}));
-    $self->kvetch("nsbd $depth:\n" .Dumper($nodes_sorted_by_depth->{$depth}));
+    # $self->kvetch("nsbd $depth:\n" .Dumper($nodes_sorted_by_depth->{$depth}));
   }
 
   ## Out.

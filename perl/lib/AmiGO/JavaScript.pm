@@ -18,8 +18,8 @@ use Data::Dumper;
 
 ## Signifier to path translation.
 ## TODO: These need to be put into the documentation somewhere.
-## Note, these are more or less in order of dependency.
 ## NOTE: YUI are kept on their severs, so not stored here.
+## NOTE: Our locally developed stuff is done implicitly.
 my $sig2path =
   {
    'net.carto.timer' =>
@@ -81,8 +81,8 @@ my $sig2path =
    'com/jquery.jsPlumb-1.5.5.js', # default route to jQuery version
 
    ## And plugin for trees.
-   'com.jquery.jstree' =>
-   'com/jquery.jstree.js',
+   'com.jstree' =>
+   'com/jstree/jstree.min.js',
 
    ## More plugins.
    'com.jquery.treeview'          => 'com/jquery.treeview.js',
@@ -181,68 +181,6 @@ my $sig2path =
 
    'org.d3' =>
    'org/d3.v3.min.js',
-
-   ## Should be pick-up anyways.
-   # 'bbop.core' =>
-   # 'bbop/core.js',
-
-   # 'bbop.json' =>
-   # 'bbop/json.js',
-
-   # 'bbop.logger' =>
-   # 'bbop/logger.js',
-
-   # 'bbop.html' =>
-   # 'bbop/html.js',
-
-   # 'bbop.go' =>
-   # 'bbop/go.js',
-
-   # 'bbop.amigo' =>
-   # 'bbop/amigo.js',
-
-   # 'bbop.amigo.workspace' =>
-   # 'bbop/amigo/workspace.js',
-
-   # 'bbop.amigo.live_search.term' =>
-   # 'bbop/amigo/live_search/term.js',
-
-   # 'bbop.amigo.live_search.gene_product' =>
-   # 'bbop/amigo/live_search/gene_product.js',
-
-   # 'bbop.amigo.go_meta' =>
-   # 'bbop/amigo/go_meta.js',
-
-   # 'bbop.amigo.opensearch' =>
-   # 'bbop/amigo/opensearch.js',
-
-   # 'bbop.amigo.ui.standard' =>
-   # 'bbop/amigo/ui/standard.js',
-
-   # 'bbop.amigo.ui.autocomplete' =>
-   # 'bbop/amigo/ui/autocomplete.js',
-
-   # 'bbop.amigo.ui.widgets' =>
-   # 'bbop/amigo/ui/widgets.js',
-
-   # 'bbop.SVG' =>
-   # 'bbop/SVG.js',
-
-   # 'bbop.AffineSVG' =>
-   # 'bbop/AffineSVG.js',
-
-   # 'GONavi' =>
-   # 'GONavi.js',
-
-   # #'bbop.Viewer' =>
-   # #'bbop/Viewer.js',
-
-   # ## If they're in the right place with the right name, they'll be
-   # ## picked up anyways.
-   # #'RefGenome' =>
-   # #'RefGenome.js',
-   # #'orb' =>
-   # #'orb.js',
   };
 
 
@@ -286,15 +224,24 @@ sub get_lib {
     push @mbuf, '<script type="text/javascript" src="';
   }
 
-  ## If it is not in the registry, transform and hope for the best...
-  push @mbuf, $self->amigo_env('AMIGO_HTML_URL');
-  push @mbuf, '/javascript/';
+  ## If in the registry, a static that we want ot use.
   my $path = $sig2path->{$sig} ? $sig2path->{$sig} : $sig;
-  if( $path =~ /\.js$/ ){
+  if( $sig2path->{$sig} ){
+    ## Something in static that we want to use.
+    push @mbuf, $self->amigo_env('AMIGO_JS_URL') . '/';
+    $path = $sig2path->{$sig};
     push @mbuf, $path;
   }else{
-    $path =~ s/\./\//gs;
-    $path .= '.js';
+    ## An "unknown"/default staging path--our locally developed stuff.
+    ## Since not in the registry, transform and hope for the best...
+    push @mbuf, $self->amigo_env('AMIGO_JS_DEV_URL') . '/';
+    $path = $sig;
+    ## Add a .js for the ones using shorthand.
+    if( $path !~ /\.js$/ ){
+      $path = $path . '.js';
+    }
+    #$path =~ s/\./\//gs;
+    #$path .= '.js';
     push @mbuf, $path;
   }
 

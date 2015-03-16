@@ -80,27 +80,22 @@ sub input_profile {
   if( $profile_name eq '' ){
     ## Default nothingness.
   }elsif( $profile_name eq 'term' ){
-    ## Due to dispatch, done through app.
 
-    ##
-    #$self->_add_loose_term();
-    #$self->_add_simple_argument('format', 'html');
-    #$self->_add_data_format('html');
-    #$self->_add_galaxy();
+    ## REST API style bookmark for internal use and temporary
+    ## bookmarks.
+    $self->_search_bookmark_api();
 
-    ## Experimental consumption of a REST API style bookmark.
-    $self->_add_simple_optional_argument('q', '');
-    $self->_add_simple_optional_argument('fq', '');
-    $self->_add_simple_optional_argument('sfq', '');
+    ## Public-facing bookmark API.
+    $self->_link_search_bookmark_api();
 
   }elsif( $profile_name eq 'gp' ){
-    ## Due to dispatch, done through app.
-    #$self->_add_gps_string();
 
-    ## Experimental consumption of a REST API style bookmark.
-    $self->_add_simple_optional_argument('q', '');
-    $self->_add_simple_optional_argument('fq', '');
-    $self->_add_simple_optional_argument('sfq', '');
+    ## REST API style bookmark for internal use and temporary
+    ## bookmarks.
+    $self->_search_bookmark_api();
+
+    ## Public-facing bookmark API.
+    $self->_link_search_bookmark_api();
 
   }elsif( $profile_name eq 'complex_annotation' ){
     #$self->_add_simple_argument('annotation_group', '');
@@ -183,16 +178,17 @@ sub input_profile {
     $self->_add_simple_argument('golr_class', '');
     $self->_add_simple_argument('page', '1');
     $self->_add_simple_search_set();
-  }elsif( $profile_name eq 'live_search' ){
+  }elsif( $profile_name eq 'live_search' ){ # std search method now
 
     ## "Complicated" bookmarking system.
     $self->_add_simple_argument('bookmark', '');
-    #$self->_add_simple_argument('query', '');
 
-    ## Experimental consumption of a REST API style bookmark.
-    $self->_add_simple_optional_argument('q', '');
-    $self->_add_simple_optional_argument('fq', '');
-    $self->_add_simple_optional_argument('sfq', '');
+    ## REST API style bookmark for internal use and temporary
+    ## bookmarks.
+    $self->_search_bookmark_api();
+
+    ## Public-facing bookmark API.
+    $self->_link_search_bookmark_api();
 
   }elsif( $profile_name eq 'workspace' ){
     $self->_add_workspace_set();
@@ -243,6 +239,67 @@ sub input_profile {
   return $results->{valid};
 }
 
+
+=item _search_bookmark_api
+
+REST API style bookmark for internal use and temporary bookmarks.
+
+A helper function to the common parameters used for one of the
+bookmark APIs.
+
+Side effects: affects the parameter list.
+
+=cut
+sub _search_bookmark_api {
+
+  my $self = shift;
+
+  ## Experimental consumption of a REST API style bookmark.
+  $self->_add_simple_optional_argument('q', '');
+  $self->_add_simple_optional_argument('fq', '');
+  $self->_add_simple_optional_argument('sfq', '');
+
+  return 1;
+}
+
+=item link_search_bookmark_api_entries
+
+The items that are searched for in the incoming search bookmark links.
+
+=cut
+sub link_search_bookmark_api_entries {
+
+  my $self = shift;
+
+  my $bmapi = $self->bookmark_api_configuration() || {};
+  my $entries = keys( %$bmapi );
+
+  return @$entries;
+}
+
+
+=item _link_search_bookmark_api
+
+REST API style bookmark for public use.
+
+A helper function to the common parameters used for one of the
+bookmark APIs.
+
+Side effects: affects the parameter list.
+
+=cut
+sub _link_search_bookmark_api {
+
+  my $self = shift;
+
+  ## Collect fq filters to add.
+  my $bmapi = $self->bookmark_api_configuration();
+  foreach my $entry ( keys(%$bmapi) ){
+    $self->_add_simple_optional_argument($entry, '');
+  }
+
+  return 1;
+}
 
 =item comprehend_galaxy
 

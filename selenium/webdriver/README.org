@@ -1,0 +1,74 @@
+* Selenium WebDriver tests for AmiGO 2
+  This is still in progress, but we have a start.
+
+  You should hopefully be a little familiar with the Selenium
+  [[https://code.google.com/p/selenium/wiki/WebDriverJs][WebDriveJS]] documentation (promises) and the [[https://selenium.googlecode.com/git/docs/api/javascript/index.html][selenium-webdriver]]
+  API. For the latter link, it takes some digging around to get to the
+  good parts of the API. Check under /Types/ in the menu for the
+  useful bits of webdriver.By, webdriver.until, etc.
+
+  In addition, we'll be using the [[http://mochajs.org][Mocha]] testing framework and the [[http://chaijs.com/][Chai]]
+  assertion library.
+
+** Getting Started
+
+   First, if you do not already have it, you will need a recent
+   version of [[http://nodejs.org/download/][Node.js]]. As of the writing at this moment, I'm
+   developing on v0.10.36.
+
+   Next, after checking out the GitHub [[https://github.com/geneontology/amigo][geneontology/amigo]] repository,
+   move into the Selenium WebDriver test directory.
+
+   : cd amigo/selenium/webdriver   
+
+   A well commented primer on the basics of testing with
+   selenium-webdriver can be found in [[test_examples.js][test_examples.js]]. I'd suggest
+   reading that before digging into the unit test files proper, which
+   are a little more complicated in that they are written with the
+   Mocha framework. Read all the way through as there are negative
+   examples as well.
+
+   To run these examples against the main AmiGO site, try:
+
+   : AMIGO=http://amigo.geneontology.org node test_examples.js
+
+   These examples can be run headless as well.
+
+   You probably also want to just take a quick read through the
+   current unit tests just to see what's going on. If you have any
+   comments for improvement, please let us know.
+
+** The Tests
+
+   The tests are arrayed in amigo/selenium/webdriver with the form
+   *_tests.js. To start a new test suite, you can just copy
+   99_template_tests.js to a new lower number. Generally, the tests
+   should be numerically ordered by complexity.
+
+** CLI Usage
+
+   To run all the tests, you can use the "make test-app" command in
+   the root of the checked out repo.
+
+   Or just choose the location of AmiGO that you want to run
+   against in the tests directory:
+
+   : AMIGO=http://amigo.geneontology.org ./node_modules/mocha/bin/mocha 00_core_tests.js
+
+** Headless Usage
+   Naturally, we'll require:
+
+   * xvfb
+   * firefox
+   * node (use their repo to get a decent one)
+
+   Running could be like:
+
+   : Xvfb :1 -screen 5 1024x768x8
+   : DISPLAY=:1.5 AMIGO=http://amigo.geneontology.org ./node_modules/mocha/bin/mocha 00_core_tests.js
+
+** Hints
+
+   - When trying to figure out how to access or address elements on
+     page, Firefox's Firebug plugin is very useful; for example being
+     able to copy an element's xpath.
