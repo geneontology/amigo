@@ -12,7 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 def step_impl(context, text):
     #print(context.browser.title)
     webelt = context.browser.find_element_by_id('gsf-query')
-    webelt.send_keys('neurogenesis')
+    webelt.send_keys(text)
 
 @given('I submit the general search')
 def step_impl(context):
