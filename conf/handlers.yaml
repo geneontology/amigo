@@ -7,5 +7,8 @@
 - field: annotation_extension_json
   context: bbop.widgets.search_pane
   function: amigo.handlers.owl_class_expression
+- field: qualifier
+  context: bbop.widgets.search_pane
+  function: amigo.handlers.qualifiers
 ## Actively used handlers.
 ## Please edit from here down.
