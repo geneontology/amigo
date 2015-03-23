@@ -144,7 +144,20 @@ sub mode_rte {
     ## Forward on HTML argument.
     if( $format eq 'html' ){
 
+      ## TODO/BUG: This is some mechanism required by PANTHER to make
+      ## this all work. Their format requires newlines, but since the
+      ## 30x forwarding becomes a GET inmost clients, I cannot pack it
+      ## as-is, so I need to convert the usual input newlines into
+      ## HTTP encoded for the $play_url.
+      $play_url = $srv . '?' .
+	'ontology=' . $ontology . '&' .
+	  'input=' . join("%0A", @$inplist) . '&' .
+	  'species=' . $species . '&' .
+	    'correction=' . $correction . '&' .
+	      'format=' . $format;
+      $self->{CORE}->kvetch('Try 303 forward (redo): ' . $play_url);
       return $self->redirect($play_url, '303 See Other');
+      #return $self->redirect($srv, '303 See Other');
       #return $self->mode_fatal("forwarding not yet implemented");
 
     }else{
