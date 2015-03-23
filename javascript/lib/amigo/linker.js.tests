@@ -33,7 +33,7 @@ mr_t.is_same_atom(l.url('foo', 'gp'),
 		  wa + '/amigo/gene_product/foo',
 		  'linker: go gp');
 mr_t.is_same_atom(l.url('SGD:S000006169'),
-		  'http://db.yeastgenome.org/cgi-bin/locus.pl?dbid=S000006169',
+		  'http://www.yeastgenome.org/locus/S000006169/overview',
 		  'linker: sgd');
 mr_t.is_same_atom(l.url('XXXX:S000006169'),
 		  null,
