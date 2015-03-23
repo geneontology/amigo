@@ -41,7 +41,7 @@ var each = bbop.core.each;
 // We get our own manager.
 //var gserv = new amigo.data.server();
 var gconf = new bbop.golr.conf(amigo.data.golr);
-var gm_ann = new bbop.golr.manager.rhino('http://golr.berkeleybop.org/', gconf);
+var gm_ann = new bbop.golr.manager.rhino('http://golr.geneontology.org/golr/', gconf);
 gm_ann.debug(false);
 
 // Set ourselves to annotations.
