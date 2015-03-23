@@ -33,13 +33,11 @@ amigo.handlers.qualifiers = function(in_qual){
     // Aliases.
     var is_def = bbop.core.is_defined;
     var what_is = bbop.core.what_is;
-    //var loop = bbop.core.each;
-
 
     if( is_def(in_qual) ){
 	if( what_is(in_qual) == 'string' ){
 	    if( in_qual == 'not' || in_qual == 'NOT' ){
-		retstr = 'NOOOOT';
+		retstr = '<span class="qualifier-not">NOT</span>';
 	    }
 	}
     }
