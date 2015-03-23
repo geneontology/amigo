@@ -4,12 +4,18 @@
 ####
 
 from behave import *
+from selenium.webdriver.support.ui import Select
 
 @given('I input the following text into the RTE input box')
 def step_impl(context):
     input_box_text = context.text
     webelt = context.browser.find_element_by_id('rte_input')
     webelt.send_keys(input_box_text)
+
+@given('I select "{results_format}" for the results')
+def step_impl(context, results_format):
+    select = Select(context.browser.find_element_by_id('rte_format'))
+    select.select_by_visible_text(results_format)
 
 @when('I submit the RTE form')
 def step_impl(context):
