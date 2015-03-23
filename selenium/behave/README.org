@@ -48,6 +48,16 @@
   issues and is version compatible enough that it will be easy to add
   to our Jenkins machines.
 
+* Running tests
+
+  Production tests should be run to exclude development/labs tests:
+
+  : TARGET="http://amigo.geneontology.org" behave --tags ~@labs
+
+  Development tests should be run to exclude production tests:
+
+  : TARGET="http://amigo2.berkeleybop.org" behave --tags ~@production
+
 * Tags
 
   These are the tags that we're currently using in the tests (in case
