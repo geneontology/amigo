@@ -18,6 +18,7 @@ Feature: Term enrichment engines basically respond
       """
      when I submit the RTE form
      then the title should be "PANTHER - Compare lists to reference list"
+     and the link "regulation of cell death" appears in the document
 
  @production
  Scenario: user is forwarded to PANTHER when using RTE
@@ -34,3 +35,4 @@ Feature: Term enrichment engines basically respond
      and I select "Originating resource" for the results
      when I submit the RTE form
      then the title should be "PANTHER - Compare lists to reference list"
+     and the link "regulation of cell death" appears in the document
