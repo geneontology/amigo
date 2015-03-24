@@ -1,5 +1,6 @@
 ####
-#### Testing and release procedures for AmiGO JS.
+#### Behave testing sub-shell. 
+#### The only
 ####
 
 ## Default to dev.

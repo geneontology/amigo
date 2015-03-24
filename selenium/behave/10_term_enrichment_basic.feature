@@ -1,6 +1,6 @@
 
 Feature: Term enrichment engines basically respond
- Upstream and embedded term enrichment enghines behave as expected.
+ Upstream and embedded term enrichment engines behave as expected.
  
  ## No Background necessary.
 
