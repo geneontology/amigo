@@ -4,7 +4,7 @@ Feature: Term enrichment engines basically respond
  
  ## No Background necessary.
 
- @data @labs
+ @labs
  Scenario: user is forwarded to PANTHER when using RTE
     Given I go to page "/rte"
      and I input the following text into the RTE input box
@@ -19,7 +19,7 @@ Feature: Term enrichment engines basically respond
      when I submit the RTE form
      then the title should be "PANTHER - Compare lists to reference list"
 
- @data @production
+ @production
  Scenario: user is forwarded to PANTHER when using RTE
     Given I go to page "/rte"
      and I input the following text into the RTE input box
