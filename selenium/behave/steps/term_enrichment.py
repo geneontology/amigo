@@ -19,6 +19,29 @@ def step_impl(context, results_format):
 
 @when('I submit the RTE form')
 def step_impl(context):
-    xp = "/html/body/div[2]/div[4]/div/div/form/div[2]/button"
-    webelt = context.browser.find_element_by_xpath(xp)
-    webelt.click()
+
+    ## Current 2.2.x location.
+    xp_22x = "/html/body/div[2]/div[4]/div/div/form/div[2]/button"
+    ## Current 2.1.x location.   
+    xp_21x = "/html/body/div[2]/div[3]/div/div/form/div[2]/button"
+
+    ## Try them both, starting with 2.2.x
+    okay_p = False
+    webelt = None
+    try:
+        webelt = context.browser.find_element_by_xpath(xp_22x)
+        okay_p = True
+    except:
+        pass
+    if not okay_p:
+        try:
+            webelt = context.browser.find_element_by_xpath(xp_21x)
+            okay_p = True
+        except:
+            pass
+
+    ## If everything is alright, click on it.
+    if okay_p and webelt:
+        webelt.click()
+    else:
+        assert True is False
