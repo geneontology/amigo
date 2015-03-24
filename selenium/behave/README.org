@@ -64,6 +64,6 @@
   you want to check or remove just a subset).
 
   - go: GO-specific tests (for things like term existence)
-  - go-data: tests specific to testing the sanity of GO data
+  - data: tests specific to testing the sanity of GO data
   - production: tests specific to production (http://amigo.geneontology.org)
   - labs: tests specific to development (http://amigo2.berkeleybop.org)
