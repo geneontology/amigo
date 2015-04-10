@@ -102,6 +102,9 @@ sub cgiapp_prerun {
 
   my $self = shift;
 
+  ## DEBUG
+  $self->{CORE}->kvetch("_in prerun for mode: " . $self->get_current_runmode());
+
   ## Structures needed for internal template handling.
   $self->{CORE}->kvetch("_in prerun...defining template structures");
   $self->{WEBAPP_CSS} = [];
@@ -790,10 +793,14 @@ sub _common_params_settings {
   ## No longer anything simple about search.
   $params->{interlink_grebe} =
     $self->{CORE}->get_interlink({mode=>'grebe'});
-  $params->{interlink_visualize} =
-    $self->{CORE}->get_interlink({mode=>'visualize_client'});
-  $params->{interlink_visualize_freeform} =
-    $self->{CORE}->get_interlink({mode=>'visualize_freeform_client'});
+  $params->{interlink_visualize_client_amigo} =
+    $self->{CORE}->get_interlink({mode=>'visualize_client_amigo'});
+  $params->{interlink_visualize_client_freeform} =
+    $self->{CORE}->get_interlink({mode=>'visualize_client_freeform'});
+  $params->{interlink_visualize_service_freeform} =
+    $self->{CORE}->get_interlink({mode=>'visualize_service_freeform'});
+  $params->{interlink_visualize_service_amigo} =
+    $self->{CORE}->get_interlink({mode=>'visualize_service_amigo'});
   $params->{interlink_goose} =
     $self->{CORE}->get_interlink({mode=>'goose'});
   $params->{interlink_schema_details} =

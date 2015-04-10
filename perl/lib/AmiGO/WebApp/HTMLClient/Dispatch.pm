@@ -8,7 +8,7 @@ use base 'CGI::Application::Dispatch';
 
 use AmiGO;
 
-my $dispatch_table = AmiGO::dynamic_dispatch_table();
+my $dispatch_table = AmiGO::dynamic_dispatch_table_amigo();
 sub dispatch_args {
     return { 'table' => $dispatch_table}
 };

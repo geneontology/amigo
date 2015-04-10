@@ -9,6 +9,8 @@ package AmiGO::WebApp::VisualizeServer;
 use base 'AmiGO::WebApp';
 
 use CGI::Application::Plugin::TT;
+use CGI::Application::Plugin::Redirect;
+
 use Data::Dumper;
 use AmiGO::GraphViz;
 use AmiGO::SVGRewrite;
@@ -28,15 +30,22 @@ sub setup {
   $self->{STATELESS} = 1;
 
   $self->mode_param('mode');
+  #$self->start_mode('client_amigo');
   $self->start_mode('status');
   $self->error_mode('mode_fatal');
   $self->run_modes(
-		   'quickgo'            => 'mode_quickgo',
-		   'amigo'              => 'mode_advanced',
-		   'freeform'           => 'mode_freeform',
-		   'complex_annotation' => 'mode_complex_annotation',
-		   'status'             => 'mode_local_status',
-		   'AUTOLOAD'           => 'mode_exception'
+      ## GUI aspects.
+      'status'             => 'mode_local_status',
+      'client'             => 'mode_local_status', # placeholder for explanation
+      'client_amigo'       => 'mode_client_amigo',
+      'client_freeform'    => 'mode_client_freeform',
+      ## Image production aspects.
+      'quickgo'            => 'mode_quickgo',
+      'amigo'              => 'mode_advanced',
+      'freeform'           => 'mode_freeform',
+      'complex_annotation' => 'mode_complex_annotation',
+      ## OTher handling.
+      'AUTOLOAD'           => 'mode_exception'
 #		   'subset'       => 'mode_subset',
 #		   'single'       => 'mode_single', #TODO:'mode_single',
 #		   'multi'              => 'mode_advanced', #TODO: 'mode_multi',
@@ -44,6 +53,9 @@ sub setup {
 		  );
 }
 
+###
+### Helpers.
+###
 
 ## If a header is needed, set correct header type for format.
 sub _add_fiddly_header {
@@ -79,7 +91,219 @@ sub _add_fiddly_header {
 ## Example:
 sub mode_local_status {
    my $self = shift;
-   return $self->mode_status('visualize server');
+   return $self->mode_status('visualize');
+}
+
+## This is just a very thin pass-through client.
+## TODO/BUG: not accepting "inline" parameter yet...
+sub mode_client_freeform {
+
+  my $self = shift;
+  my $output = '';
+
+  $self->{CORE}->kvetch('$self->query(): ' . Dumper($self->query()));
+
+  ##
+  my $i = AmiGO::Input->new($self->query());
+  #my $params = $i->input_profile('visualize_freeform');
+  my $params = $i->input_profile('visualize_client' );
+  my $format = $params->{format};
+  my $input_graph_data = $params->{graph_data};
+  my $input_term_data = $params->{term_data};
+
+  ## Cleanse input data of newlines.
+  $input_graph_data =~ s/\n/ /gso;
+  $input_term_data =~ s/\n/ /gso;
+
+  $self->{CORE}->kvetch('graph_data: ' . $input_graph_data);
+
+  ## If there is no incoming graph data, display the "client" page.
+  ## Otherwise, forward to render app.
+  if( ! defined $input_graph_data ){
+
+    ##
+    $self->set_template_parameter('page_name', 'visualize_freeform');
+    $self->set_template_parameter('amigo_mode', 'visualize_freeform');
+    $self->set_template_parameter('page_title', 'AmiGO 2: Visualize Freeform');
+    $self->set_template_parameter('content_title',
+				  'Visualize an Arbitrary Graph');
+    my $prep =
+      {
+       css_library =>
+       [
+	#'standard',
+	'com.bootstrap',
+	'com.jquery.jqamigo.custom',
+	'amigo',
+	'bbop'
+       ],
+       javascript_library =>
+       [
+	'com.jquery',
+	'com.bootstrap',
+	'com.jquery-ui',
+	'bbop',
+	'amigo2'
+       ],
+       javascript =>
+       [
+	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
+       ],
+       javascript_init =>
+       [
+	'GeneralSearchForwardingInit();'
+       ],
+       content =>
+       [
+	'pages/visualize_freeform.tmpl']
+      };
+    $self->add_template_bulk($prep);
+    $output = $self->generate_template_page_with();
+
+  }else{
+
+    ## Safely, check to see if the graph JSON is even parsable.
+    if( $input_graph_data ){
+      if( ! $self->json_parsable_p($input_graph_data) ){
+	my $str = 'Your graph JSON was not formatted correctly...';
+	return $self->mode_fatal($str);
+      }
+    }
+
+    ## The same for the term data.
+    if( $input_term_data ){
+      if( ! $self->json_parsable_p($input_term_data) ){
+	my $str = 'Your term JSON was not formatted correctly...';
+	return $self->mode_fatal($str);
+      }
+    }
+
+    ## Decode the incoming graph data--easy!
+    my $graph_hash = {};
+    if( $input_graph_data ){
+      $graph_hash = $self->{JS}->parse_json_data($input_graph_data);
+    }
+
+    ## Decode the incoming term data--easy!
+    my $term_hash = {};
+    if( $input_term_data ){
+      $term_hash = $self->{JS}->parse_json_viz_data($input_term_data);
+    }
+
+    ## Produce the (possibly empty) image in SVG or PNG.
+    my $gv = $self->_freeform_core($format, $graph_hash, $term_hash);
+    $output = $self->_produce_appropriate_output($gv, $format);
+
+    ## Get the headers correct.
+    $self->_add_fiddly_header($format, 'false');
+  }
+
+  return $output;
+}
+
+## This is just a very thin pass-through client.
+## TODO/BUG: not accepting "inline" parameter yet...
+sub mode_client_amigo {
+
+  my $self = shift;
+  my $output = '';
+
+  ##
+  my $i = AmiGO::Input->new($self->query());
+  #my $params = $i->input_profile('visualize_amigo');
+  my $params = $i->input_profile('visualize_client');
+  my $format = $params->{format};
+  my $input_term_data_type = $params->{term_data_type};
+  my $input_term_data = $params->{term_data};
+
+  ## Cleanse input data of newlines.
+  $input_term_data =~ s/\n/ /gso;
+
+  ## If there is no incoming data, display the "client" page.
+  ## Otherwise, forward to render app.
+  if( ! defined $input_term_data ){
+
+    ##
+    $self->set_template_parameter('page_name', 'visualize');
+    $self->set_template_parameter('amigo_mode', 'visualize');
+    $self->set_template_parameter('page_title', 'AmiGO 2: Visualize');
+    $self->set_template_parameter('content_title',
+				  'Visualize an Arbitrary GO Graph');
+    my $prep =
+      {
+       css_library =>
+       [
+	#'standard',
+	'com.bootstrap',
+	'com.jquery.jqamigo.custom',
+	'amigo',
+	'bbop'
+       ],
+       javascript_library =>
+       [
+	'com.jquery',
+	'com.bootstrap',
+	'com.jquery-ui',
+	'bbop',
+	'amigo2'
+       ],
+       javascript =>
+       [
+	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
+       ],
+       javascript_init =>
+       [
+	'GeneralSearchForwardingInit();'
+       ],
+       content =>
+       [
+	'pages/visualize_amigo.tmpl']
+      };
+    $self->add_template_bulk($prep);
+    $output = $self->generate_template_page_with();
+
+  }else{
+
+    ## Check to see if this JSON is even parsable...that's really all
+    ## that we're doing here.
+    if( $input_term_data_type eq 'json' ){
+      if( ! $self->json_parsable_p($input_term_data) ){
+	my $str = 'Your JSON was not formatted correctly, please go back and retry. Look at the <a href="http://wiki.geneontology.org/index.php/AmiGO_Manual:_Visualize">advanced format</a> documentation for more details.';
+	return $self->mode_fatal($str);
+      }
+    }
+
+    ## TODO: Until I can think of something better...
+    if( $format eq 'navi' ){
+
+      ## BETA: Just try and squeeze out whatever I can.
+      my $in_terms = $self->{CORE}->clean_term_list($input_term_data);
+      my $jump = $self->{CORE}->get_interlink({mode=>'layers_graph',
+					       'arg' => {'terms' => $in_terms}});
+      return $self->redirect($jump, '302 Found');
+
+    }else{
+
+      ##    # ## BUG: This redirect mechanism seem to be broken for large
+      ## input. See: geneontology/amigo#184. Would like to just switch
+      ## run modes.
+      my $jump = $self->{CORE}->get_interlink({mode=>'visualize_service_amigo',
+				       #optional => {url_safe=>1, html_safe=>0},
+				       #optional => {html_safe=>0},
+				       arg => {
+					       format => $format,
+					       data_type =>
+					       $input_term_data_type,
+					       data => $input_term_data,
+					      }});
+      #$self->{CORE}->kvetch("Jumping to: " . $jump);
+      ##
+      #$output = $jump;
+      return $self->redirect($jump, '302 Found');
+    }
+  }
+
+  return $output;
 }
 
 ## Example:
@@ -91,7 +315,7 @@ sub mode_quickgo {
 
   ##
   my $i = AmiGO::Input->new($self->query());
-  my $params = $i->input_profile('visualize_single');
+  my $params = $i->input_profile('visualize_service_single');
   my $inline_p = $params->{inline};
   my $term = $params->{term};
 
@@ -127,12 +351,12 @@ sub _add_gv_nodes {
   my $gv = shift || die 'need gv object';
   my $all_nodes = shift || die 'need all nodes object';
   my $term_hash = shift || {}; # fonts, colors, etc.
-  
+
   ## Add nodes to the visual graph.
   foreach my $nacc (keys %$all_nodes){
     my $acc = $all_nodes->{$nacc}{acc};
     my $label = $all_nodes->{$nacc}{label};
-    
+
     my $title = $acc;
     my $body = $label;
     my $border = '';
@@ -241,7 +465,7 @@ sub mode_advanced {
 
   ##
   my $i = AmiGO::Input->new($self->query());
-  my $params = $i->input_profile('visualize');
+  my $params = $i->input_profile('visualize_amigo');
   my $inline_p = $params->{inline};
   my $format = $params->{format};
   my $input_term_data_type = $params->{term_data_type};
@@ -455,12 +679,14 @@ sub mode_freeform {
   ## Decode the incoming graph data--easy!
   my $graph_hash = {};
   if( $input_graph_data ){
+    $self->{CORE}->kvetch('got graph data');
     $graph_hash = $self->{JS}->parse_json_data($input_graph_data);
   }
 
   ## Decode the incoming term data--easy!
   my $term_hash = {};
   if( $input_term_data ){
+    $self->{CORE}->kvetch('got term data');
     $term_hash = $self->{JS}->parse_json_viz_data($input_term_data);
   }
 

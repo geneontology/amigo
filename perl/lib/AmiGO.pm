@@ -1031,24 +1031,13 @@ sub get_interlink {
      #  $ilink = 'gaffer?mode=' . $gmode . '&data_url=' . $self->uri_safe($gurl);
      # },
 
-     'visualize_complex_annotation' =>
-     sub {
-       my $au = $args->{complex_annotation} || '';
-       my $format = $args->{format} || 'png';
-       $ihash = {
-		 action => 'visualize',
-		 arguments =>
-		 {
-		  mode => 'complex_annotation',
-		  inline => 'false',
-		  format => $format,
-		  complex_annotation => $au,
-		 },
-		};
-       $ilink = $self->_fuse_hash($ihash);
-     },
-    'visualize_freeform_client' => sub { $ilink = 'amigo/visualize_freeform';},
-      'visualize_freeform' =>
+     ## The various visualize clients, now part of VisualizeServer
+     ## instead of AmiGO proper (prevent horrible redirect problems).
+     'visualize_client_freeform' => sub { $ilink = 'visualize?mode=client_freeform';},
+     'visualize_client_amigo' => sub { $ilink = 'visualize?mode=client_amigo'; },
+
+     ## The actual visualize services.
+     'visualize_service_freeform' =>
      sub {
        #print STDERR Dumper($arg_hash);
        my $term_data = $args->{term_data} || '';
@@ -1076,11 +1065,8 @@ sub get_interlink {
        # $ilink = 'amigo/visualize/' .
        # 	 $self->_fuse_arguments($ihash->{arguments});
      },
-
      ## The actual "visualize" is more a call to the data server.
-     ## "visual_client" is for the user page.
-     'visualize_client' => sub { $ilink = 'amigo/visualize'; },
-     'visualize' =>
+     'visualize_service_amigo' =>
      sub {
        #print STDERR Dumper($arg_hash);
        my $data = $args->{data} || '';
@@ -1110,7 +1096,7 @@ sub get_interlink {
      },
 
      ## Takes an array ref of term ids.
-     'visualize_term_list' =>
+     'visualize_service_term_list' =>
      sub {
        my $in_terms = $args->{terms} || [];
 
@@ -1130,7 +1116,7 @@ sub get_interlink {
        $ilink = $self->_fuse_hash($ihash);
      },
 
-     'visualize_simple' =>
+     'visualize_service_simple' =>
      sub {
        my $engine = $args->{engine} || '';
        my $term = $args->{term} || '';
@@ -1147,6 +1133,23 @@ sub get_interlink {
 		 },
 		};
 
+       $ilink = $self->_fuse_hash($ihash);
+     },
+
+     'visualize_service_complex_annotation' =>
+     sub {
+       my $au = $args->{complex_annotation} || '';
+       my $format = $args->{format} || 'png';
+       $ihash = {
+		 action => 'visualize',
+		 arguments =>
+		 {
+		  mode => 'complex_annotation',
+		  inline => 'false',
+		  format => $format,
+		  complex_annotation => $au,
+		 },
+		};
        $ilink = $self->_fuse_hash($ihash);
      },
 
@@ -2267,7 +2270,7 @@ sub set_error_message {
 }
 
 
-=item dynamic_dispatch_table
+=item dynamic_dispatch_table_amigo
 
 Return a list for the dispatch table used by bin/amigo and
 AmiGO::WebApp::HTMLClient::Dispatch.pm.
@@ -2277,53 +2280,51 @@ Note: Can use as a static method.
 Returns list ref.
 
 =cut
-sub dynamic_dispatch_table {
+sub dynamic_dispatch_table_amigo {
   my $self = shift || undef; # can use as static method
 
-  my $app = 'AmiGO::WebApp::HTMLClient';
+  my $aapp = 'AmiGO::WebApp::HTMLClient';
   my $dispatch_table =
     [
-     ''                    => { app => $app }, # defaults to landing
-     '/'                   => { app => $app }, # defaults to landing
+     ''                    => { app => $aapp }, # defaults to landing
+     '/'                   => { app => $aapp }, # defaults to landing
      ## This rm should only come into play when using amigo-runner
      ## in "embedded" mode (as in that case, the dynamic dispatch
      ## is handling the fall-through case; otherwise it would be handled
      ## by the apache config or whatever).
-     'robots.txt'          => { app => $app, rm => 'special' },
-     'landing'             => { app => $app, rm => 'landing' },
-     'software_list'       => { app => $app, rm => 'software_list' },
-     'schema_details'      => { app => $app, rm => 'schema_details' },
-     'load_details'        => { app => $app, rm => 'load_details' },
-     'browse'              => { app => $app, rm => 'browse' },
-     'dd_browse'           => { app => $app, rm => 'dd_browse' },
-     'free_browse'         => { app => $app, rm => 'free_browse' },
+     'robots.txt'          => { app => $aapp, rm => 'special' },
+     'landing'             => { app => $aapp, rm => 'landing' },
+     'software_list'       => { app => $aapp, rm => 'software_list' },
+     'schema_details'      => { app => $aapp, rm => 'schema_details' },
+     'load_details'        => { app => $aapp, rm => 'load_details' },
+     'browse'              => { app => $aapp, rm => 'browse' },
+     'dd_browse'           => { app => $aapp, rm => 'dd_browse' },
+     'free_browse'         => { app => $aapp, rm => 'free_browse' },
      ##
      ## Soft applications (may take some parameters, browser-only).
      ##
-     'medial_search'       => { app => $app, rm => 'medial_search' },
-     'simple_search'       => { app => $app, rm => 'simple_search' },
-     'bulk_search/:personality' => { app => $app, rm => 'bulk_search',
+     'medial_search'       => { app => $aapp, rm => 'medial_search' },
+     'simple_search'       => { app => $aapp, rm => 'simple_search' },
+     'bulk_search/:personality' => { app => $aapp, rm => 'bulk_search',
 				     personality => 'personality' },
-     'bulk_search' => { app => $app, rm => 'bulk_search'},
-     'search/:personality' => { app => $app, rm => 'specific_search',
+     'bulk_search' => { app => $aapp, rm => 'bulk_search'},
+     'search/:personality' => { app => $aapp, rm => 'specific_search',
 				personality => 'personality' },
-     'search'              => { app => $app, rm => 'search' },
+     'search'              => { app => $aapp, rm => 'search' },
      'phylo_graph/:family' =>
-     { app => $app, rm => 'phylo_graph', family => 'family' },
-     'phylo_graph'         => { app => $app, rm => 'phylo_graph' },
+     { app => $aapp, rm => 'phylo_graph', family => 'family' },
+     'phylo_graph'         => { app => $aapp, rm => 'phylo_graph' },
      ##
      ## RESTy (can be consumed as service).
      ##
-     'term/:cls/:format?'       => { app => $app, rm => 'term',
+     'term/:cls/:format?'       => { app => $aapp, rm => 'term',
 				      'cls' => 'cls', 'format' => 'format' },
-     'gene_product/:gp/:format?' => { app => $app, rm => 'gene_product',
+     'gene_product/:gp/:format?' => { app => $aapp, rm => 'gene_product',
 				      'gp' => 'gp', 'format' => 'format' },
-     'visualize'                 => { app => $app, rm => 'visualize' },
      ## Beta.
      'complex_annotation/:complex_annotation'  =>
-     { app => $app, rm => 'complex_annotation',
+     { app => $aapp, rm => 'complex_annotation',
        complex_annotation => 'complex_annotation' },
-     'visualize_freeform'  => { app => $app, rm => 'visualize_freeform' },
     ];
 
   return $dispatch_table;
@@ -2342,10 +2343,10 @@ Returns list ref.
 sub static_dispatch_table {
   my $self = shift || undef; # can use as static method
 
-  my $app = 'AmiGO::WebApp::Static';
+  my $sapp = 'AmiGO::WebApp::Static';
   my $load =
     {
-     app => $app, rm => 'deliver',
+     app => $sapp, rm => 'deliver',
      # 'arg1' => 'arg1',
      # 'arg2' => 'arg2',
      # 'arg3' => 'arg3',
