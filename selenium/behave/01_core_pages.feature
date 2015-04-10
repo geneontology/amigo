@@ -20,9 +20,9 @@ Feature: AmiGO basic pages okay
     | /grebe                   | AmiGO 2: Grebe                               |
     | /goose                   | AmiGO 2: GO Online SQL/Solr Environment      |
     | /rte                     | Term Enrichment Service                      |
-    | /amigo/visualize         | AmiGO 2: Visualize                           |
     | /visualize               | AmiGO 2: Service Status for visualize server |
     | /amigo/schema_details    | AmiGO 2: Schema Details                      |
     | /amigo/load_details      | AmiGO 2: Load Details                        |
     | /xrefs                   | Cross References                             |
 ## Ignore this next bit unless you're an Emacs org-mode user.
+#    | /amigo/visualize         | AmiGO 2: Visualize                           |
