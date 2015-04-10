@@ -19,8 +19,11 @@ for more control.
   <div class="panel-body">
     
     <!-- roll="form" -->
-    <form action="[% interlink_visualize %]"
-	  id="term_input_form" method="GET">
+    <!-- <form action="[% interlink_visualize_client_amigo %]" -->
+    <!-- <form action="visualize?mode=client_amigo" -->
+    <form action="visualize"
+	  id="term_input_form" method="POST">
+      <input type="hidden" name="mode" value="client_amigo" />
       
       <div class="form-group">
 	<label for="terms">GO IDs or advanced format</label>

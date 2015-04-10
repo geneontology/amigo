@@ -73,8 +73,6 @@ sub setup {
 		   'term'                => 'mode_term_details',
 		   'gene_product'        => 'mode_gene_product_details',
 		   'complex_annotation'  => 'mode_complex_annotation_details',
-		   'visualize'           => 'mode_visualize',
-		   'visualize_freeform'  => 'mode_visualize_freeform',
 		   'software_list'       => 'mode_software_list',
 		   'schema_details'      => 'mode_schema_details',
 		   'load_details'        => 'mode_load_details',
@@ -140,7 +138,8 @@ sub _add_search_bookmark_api_to_filters {
 
 ## Special runmode for special cases. Current use occurs with serving
 ## static content from root in embedded mode. Right now, specifically
-## robots.txt. See AmiGO::dynamic_dispatch_table for more discussion.
+## robots.txt. See AmiGO::dynamic_dispatch_table_amigo for more
+## discussion.
 sub mode_special {
 
   my $self = shift;
@@ -994,204 +993,6 @@ sub mode_load_details {
   return $self->generate_template_page_with();
 }
 
-## This is just a very thin pass-through client.
-## TODO/BUG: not accepting "inline" parameter yet...
-sub mode_visualize {
-
-  my $self = shift;
-  my $output = '';
-
-  ##
-  my $i = AmiGO::Input->new($self->query());
-  my $params = $i->input_profile('visualize');
-  my $format = $params->{format};
-  my $input_term_data_type = $params->{term_data_type};
-  my $input_term_data = $params->{term_data};
-
-  ## Cleanse input data of newlines.
-  $input_term_data =~ s/\n/ /gso;
-
-  ## If there is no incoming data, display the "client" page.
-  ## Otherwise, forward to render app.
-  if( ! defined $input_term_data ){
-
-    ##
-    $self->set_template_parameter('page_name', 'visualize');
-    $self->set_template_parameter('amigo_mode', 'visualize');
-    $self->set_template_parameter('page_title', 'AmiGO 2: Visualize');
-    $self->set_template_parameter('content_title',
-				  'Visualize an Arbitrary GO Graph');
-    my $prep =
-      {
-       css_library =>
-       [
-	#'standard',
-	'com.bootstrap',
-	'com.jquery.jqamigo.custom',
-	'amigo',
-	'bbop'
-       ],
-       javascript_library =>
-       [
-	'com.jquery',
-	'com.bootstrap',
-	'com.jquery-ui',
-	'bbop',
-	'amigo2'
-       ],
-       javascript =>
-       [
-	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
-       ],
-       javascript_init =>
-       [
-	'GeneralSearchForwardingInit();'
-       ],
-       content =>
-       [
-	'pages/visualize.tmpl']
-      };
-    $self->add_template_bulk($prep);
-    $output = $self->generate_template_page_with();
-
-  }else{
-
-    ## Check to see if this JSON is even parsable...that's really all
-    ## that we're doing here.
-    if( $input_term_data_type eq 'json' ){
-      if( ! $self->json_parsable_p($input_term_data) ){
-	my $str = 'Your JSON was not formatted correctly, please go back and retry. Look at the <a href="http://wiki.geneontology.org/index.php/AmiGO_Manual:_Visualize">advanced format</a> documentation for more details.';
-	return $self->mode_fatal($str);
-      }
-    }
-
-    ## TODO: Until I can think of something better...
-    if( $format eq 'navi' ){
-
-      ## BETA: Just try and squeeze out whatever I can.
-      my $in_terms = $self->{CORE}->clean_term_list($input_term_data);
-      my $jump = $self->{CORE}->get_interlink({mode=>'layers_graph',
-				       arg => {
-					       terms => $in_terms,
-					      }});
-      return $self->redirect($jump, '302 Found');
-    }else{
-      my $jump = $self->{CORE}->get_interlink({mode=>'visualize',
-				       #optional => {url_safe=>1, html_safe=>0},
-				       #optional => {html_safe=>0},
-				       arg => {
-					       format => $format,
-					       data_type =>
-					       $input_term_data_type,
-					       data => $input_term_data,
-					      }});
-      #$self->{CORE}->kvetch("Jumping to: " . $jump);
-      ##
-      #$output = $jump;
-      return $self->redirect($jump, '302 Found');
-    }
-  }
-
-  return $output;
-}
-
-## This is just a very thin pass-through client.
-## TODO/BUG: not accepting "inline" parameter yet...
-sub mode_visualize_freeform {
-
-  my $self = shift;
-  my $output = '';
-
-  ##
-  my $i = AmiGO::Input->new($self->query());
-  my $params = $i->input_profile('visualize_freeform');
-  my $format = $params->{format};
-  my $input_term_data = $params->{term_data};
-  my $input_graph_data = $params->{graph_data};
-
-  ## Cleanse input data of newlines.
-  $input_term_data =~ s/\n/ /gso;
-  $input_graph_data =~ s/\n/ /gso;
-
-  ## If there is no incoming graph data, display the "client" page.
-  ## Otherwise, forward to render app.
-  if( ! defined $input_graph_data ){
-
-    ##
-    $self->set_template_parameter('page_name', 'visualize_freeform');
-    $self->set_template_parameter('amigo_mode', 'visualize_freeform');
-    $self->set_template_parameter('page_title', 'AmiGO 2: Visualize Freeform');
-    $self->set_template_parameter('content_title',
-				  'Visualize an Arbitrary Graph');
-    my $prep =
-      {
-       css_library =>
-       [
-	#'standard',
-	'com.bootstrap',
-	'com.jquery.jqamigo.custom',
-	'amigo',
-	'bbop'
-       ],
-       javascript_library =>
-       [
-	'com.jquery',
-	'com.bootstrap',
-	'com.jquery-ui',
-	'bbop',
-	'amigo2'
-       ],
-       javascript =>
-       [
-	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
-       ],
-       javascript_init =>
-       [
-	'GeneralSearchForwardingInit();'
-       ],
-       content =>
-       [
-	'pages/visualize_freeform.tmpl']
-      };
-    $self->add_template_bulk($prep);
-    $output = $self->generate_template_page_with();
-
-  }else{
-
-    ## Check to see if the graph JSON is even parsable.
-    if( $input_graph_data ){
-      if( ! $self->json_parsable_p($input_graph_data) ){
-	my $str = 'Your graph JSON was not formatted correctly...';
-	return $self->mode_fatal($str);
-      }
-    }
-
-    ## The same for the term data.
-    if( $input_term_data ){
-      if( ! $self->json_parsable_p($input_term_data) ){
-	my $str = 'Your term JSON was not formatted correctly...';
-	return $self->mode_fatal($str);
-      }
-    }
-
-    my $jump = $self->{CORE}->get_interlink(
-	{'mode' => 'visualize_freeform',
-	 #optional => {url_safe=>1, html_safe=>0},
-	 #optional => {html_safe=>0},
-	 'arg' => { 'format' => $format,
-		    'term_data' => $input_term_data,
-		    'graph_data' => $input_graph_data,
-	 }});
-    #$self->{CORE}->kvetch("Jumping to: " . $jump);
-    ##
-    #$output = $jump;
-    return $self->redirect($jump, '302 Found');
-  }
-
-  return $output;
-}
-
-
 ## A committed client based on the jQuery libraries and GOlr. The
 ## future.
 sub mode_search {
@@ -1614,19 +1415,19 @@ sub mode_term_details {
 
   $self->set_template_parameter(
       'VIZ_STATIC_LINK',
-      $self->{CORE}->get_interlink({'mode' => 'visualize',
+      $self->{CORE}->get_interlink({'mode' => 'visualize_service_amigo',
 				    'arg' => {'data' => $input_term_id,
 					      'format' => 'png'}}));
   $self->set_template_parameter(
       'VIZ_DYNAMIC_LINK',
-      $self->{CORE}->get_interlink({'mode' => 'visualize',
+      $self->{CORE}->get_interlink({'mode' => 'visualize_service_amigo',
 				    'arg' => {'data' => $input_term_id,
 					      'format' => 'svg'}}));
   $self->set_template_parameter(
       'NAVIGATION_LINK',
       $self->{CORE}->get_interlink({'mode'=>'layers_graph',
 				    'arg' => {'terms' => $input_term_id}}));
-  
+
   $self->set_template_parameter(
       'OLSVIS_GO_LINK',
       $self->{CORE}->get_interlink({'mode' => 'olsvis_go',
@@ -1635,10 +1436,10 @@ sub mode_term_details {
 
   $self->set_template_parameter(
       'VIZ_QUICKGO_LINK',
-      $self->{CORE}->get_interlink({'mode'=>'visualize_simple',
-				    'arg'=>{'engine'=>'quickgo',
-					    'term'=>$input_term_id}}));
-  
+      $self->{CORE}->get_interlink({'mode' => 'visualize_service_simple',
+				    'arg' => {'engine'=>'quickgo',
+					      'term'=>$input_term_id}}));
+
   ## Only need QuickGO for internal terms.
   if( ! $exotic_p ){
     my $qg_term = AmiGO::External::QuickGO::Term->new();
@@ -1941,7 +1742,7 @@ sub mode_complex_annotation_details {
 
   ## Will only need to link through the visualizer,
   my $vlink =
-    $self->{CORE}->get_interlink({'mode'=>'visualize_complex_annotation',
+    $self->{CORE}->get_interlink({'mode'=>'visualize_service_complex_annotation',
 				  'arg'=>{'complex_annotation'=>$input_id}});
   $self->set_template_parameter('VIZ_STATIC_LINK', $vlink);
 

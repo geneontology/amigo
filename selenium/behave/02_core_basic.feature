@@ -14,6 +14,6 @@ Feature: AmiGO core data is okay
      then the title should be "AmiGO 2: Term Details for "neurogenesis" (GO:0022008)"
 
  @go
- Scenario: an ontology term page exists
+ Scenario: an ontology gene product page exists
     Given I go to page "/amigo/gene_product/UniProtKB:F1PQ05"
      then the title should be "AmiGO 2: Gene Product Details for UniProtKB:F1PQ05"

@@ -18,9 +18,11 @@
   <div class="panel-body">
     
     <!-- roll="form" -->
-    <form action="[% interlink_visualize_freeform %]"
+    <!-- <form action="[% interlink_visualize_freeform_service %]" -->
+    <form action="visualize"
 	  id="term_input_form" method="POST">
-      
+      <input type="hidden" name="mode" value="client_freeform" />
+
       <div class="form-group">
 	<label for="graph_data">Graph definition</label>
 	<textarea rows="5"

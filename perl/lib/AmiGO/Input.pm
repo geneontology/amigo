@@ -122,10 +122,13 @@ sub input_profile {
   # }elsif( $profile_name eq 'external_resource' ){
   #   $self->_add_url();
   }elsif( $profile_name eq 'visualize_client' ){
+    ## Must take a superset of the servers as it might pass to them.
+    $self->_add_inline_p();
     $self->_add_visual_format();
+    $self->_add_graph_data();
     $self->_add_term_data();
     $self->_add_term_data_type();
-  }elsif( $profile_name eq 'visualize' ){
+  }elsif( $profile_name eq 'visualize_amigo' ){
     $self->_add_inline_p();
     $self->_add_visual_format();
     $self->_add_term_data();
@@ -133,8 +136,8 @@ sub input_profile {
   }elsif( $profile_name eq 'visualize_freeform' ){
     $self->_add_inline_p();
     $self->_add_visual_format();
-    $self->_add_term_data();
     $self->_add_graph_data();
+    $self->_add_term_data();
   }elsif( $profile_name eq 'visualize_complex_annotation' ){
     $self->_add_inline_p();
     $self->_add_visual_format();
