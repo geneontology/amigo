@@ -15,5 +15,5 @@ Feature: AmiGO core data is okay
 
  @go
  Scenario: an ontology gene product page exists
-    Given I go to page "/amigo/gene_product/UniProtKB:F1PQ05"
-     then the title should be "AmiGO 2: Gene Product Details for UniProtKB:F1PQ05"
+    Given I go to page "/amigo/gene_product/FB:FBgn0029157"
+     then the title should be "AmiGO 2: Gene Product Details for FB:FBgn0029157"
