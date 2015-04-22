@@ -41,16 +41,14 @@ SCHEMA_METADATA ?= \
 ONTOLOGY_METADATA ?= ../metadata/ont-config.yaml
 ONTOLOGIES ?= \
  http://purl.obolibrary.org/obo/go/extensions/go-plus.owl \
- http://purl.obolibrary.org/obo/ncbitaxon.owl \
+ http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl \
  http://purl.obolibrary.org/obo/cl/cl-basic.owl \
  http://purl.obolibrary.org/obo/eco.owl \
- http://purl.obolibrary.org/obo/go/extensions/gorel.owl \
+ http://geneontology.org/ontology/extensions/gorel.owl \
  http://purl.obolibrary.org/obo/ma.owl \
  http://purl.obolibrary.org/obo/pato.owl \
  http://purl.obolibrary.org/obo/po.owl \
  http://purl.obolibrary.org/obo/emap.owl \
- http://purl.obolibrary.org/obo/chebi.owl \
- http://purl.obolibrary.org/obo/uberon/basic.owl \
  http://purl.obolibrary.org/obo/go/extensions/go-modules-annotations.owl
 
 GENE_ASSOCIATION_FILES ?= \
