@@ -44,7 +44,7 @@ ONTOLOGIES ?= \
  http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl \
  http://purl.obolibrary.org/obo/cl/cl-basic.owl \
  http://purl.obolibrary.org/obo/eco.owl \
- http://geneontology.org/ontology/extensions/gorel.owl \
+ http://purl.obolibrary.org/obo/go/extensions/gorel.owl \
  http://purl.obolibrary.org/obo/ma.owl \
  http://purl.obolibrary.org/obo/pato.owl \
  http://purl.obolibrary.org/obo/po.owl \
