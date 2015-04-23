@@ -8,8 +8,8 @@ from selenium import webdriver
 
 ## Run this before anything else.
 def before_all(context):
-    ## Determine the server target. Default: http://amigo2.berkeleybop.org.
-    context.target = 'http://amigo2.berkeleybop.org'
+    ## Determine the server target. Default: http://amigo2-test.stanford.edu.
+    context.target = 'http://amigo2-test.stanford.edu'
     if 'TARGET' in os.environ:
         context.target = os.environ['TARGET']
     ## Get the browser we're going to use. Default: firefox.
