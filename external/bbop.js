@@ -1254,6 +1254,21 @@ if ( typeof bbop == "undefined" ){ var bbop = {}; }
 bbop.test = function(){
 
     ///
+    /// Either rhino or node, right?
+    ///
+
+    // print or console.log
+    var barker = function(thing){};
+    if( typeof(console) !== 'undefined' && typeof(console.log) === 'function' ){
+	barker = console.log;	
+    }else if( typeof(print) === 'function' ){
+	barker = print;
+    }
+    function bark(thing){
+	barker(thing);
+    }
+
+    ///
     /// Accounting and reporting.
     ///
 
@@ -1267,16 +1282,16 @@ bbop.test = function(){
     function _complete(bool, msg){
 	if( bool ){
 	    if( msg ){
-		print('Test ' + test_number + ' passed: ' + msg + '.');
+		bark('Test ' + test_number + ' passed: ' + msg + '.');
 	    }else{
-		print('Test ' + test_number + ' passed.');
+		bark('Test ' + test_number + ' passed.');
 	    }
 	    _incr_passed();
 	}else{
 	    if( msg ){
-		print('FAIL: Test ' + test_number + ' failed: ' + msg + '.');
+		bark('FAIL: Test ' + test_number + ' failed: ' + msg + '.');
 	    }else{
-		print('FAIL: Test ' + test_number + ' failed.');
+		bark('FAIL: Test ' + test_number + ' failed.');
 	    }
 	    _incr_failed();
 	}
@@ -1296,10 +1311,10 @@ bbop.test = function(){
      */
     this.report = function(){
 	if( tests_passed + 1 == test_number ){
-	    print('* All tests passed.');
+	    bark('* All tests passed.');
 	}else{
-	    print('* Tests passed: ' + tests_passed);
-	    print('* Tests failed: ' + tests_failed);
+	    bark('* Tests passed: ' + tests_passed);
+	    bark('* Tests failed: ' + tests_failed);
 	}
     };
 
@@ -1438,7 +1453,7 @@ bbop.test = function(){
 	    
 	    var car = base_str.substr(0, si);
 	    var cdr = base_str.substr(si, base_str.length);
-	    //print(car + "|" + add_str + "|" + cdr);
+	    //bark(car + "|" + add_str + "|" + cdr);
 	    if( car + add_str + cdr == target_str){
 		retval = true;
 		break;
@@ -1879,14 +1894,14 @@ if ( typeof bbop.version == "undefined" ){ bbop.version = {}; }
  * Partial version for this library; revision (major/minor version numbers)
  * information.
  */
-bbop.version.revision = "2.2.3";
+bbop.version.revision = "2.2.4";
 
 /*
  * Variable: release
  *
  * Partial version for this library: release (date-like) information.
  */
-bbop.version.release = "20150205";
+bbop.version.release = "20150501";
 /*
  * Package: logger.js
  * 
@@ -15195,7 +15210,7 @@ if ( typeof bbop.widget.display == "undefined" ){ bbop.widget.display = {}; }
  * These are currently hardwired to:
  * 
  * : 'class': 'twocol-leftcolumn', 'style': 'margin-top: -15px;'
- * : 'class': 'twocol-content', 'style': 'margin-left: 26em; margin-top: -15px;'
+ * : 'class': 'twocol-content', 'style': 'margin-left: 28em; margin-top: -15px;'
  * 
  * Parameters:
  *  col1 - the string or <bbop.html> object for the left column
@@ -15218,8 +15233,8 @@ bbop.widget.display.two_column_layout = function (col1, col2){
     // Right (display) side.
     this._two_column_stack_right =
 	new bbop.html.tag('div',
-			  {'class': 'twocol-content',
-			   'style': 'margin-left: 26em; margin-top: -15px;'},
+			  {'class': 'twocol-content'},
+			   // 'style': 'margin-left: 28em; margin-top: -15px;'},
 			  col2);
     this.add_to(this._two_column_stack_right);
 };
