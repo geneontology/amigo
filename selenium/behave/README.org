@@ -49,6 +49,29 @@
   to our Jenkins machines.
 
 * Running tests
+  
+** Setup for Ubuntu 14.04 LTS
+
+   Starting from amigo/selenium/behave directory, using Ubuntu 12.04.
+
+   First, setup the python environment in the right place.
+
+   : sudo apt-get -u install python-virtualenv
+   : virtualenv `pwd`
+   : source bin/activate
+   : pip install behave selenium jsonpath-rw
+
+   All of the created files for this are in .gitignore, for both linux
+   and windows systems. After this, you can leave the virtual
+   environment with:
+
+   : source bin/deactivate
+
+   and reactivate it with:
+
+   : source bin/activate
+
+** The commands
 
   Production tests should be run to exclude development/labs tests:
 

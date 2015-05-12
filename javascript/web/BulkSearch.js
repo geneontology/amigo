@@ -122,6 +122,11 @@ function BulkSearchInit(){
 	var results = new bbop.widget.live_results('results', search, confc,
 						   handler, linker,
 						   results_opts);
+	
+	// // Test of the entry override.
+	// bbop.widget.display.results_table_by_class_conf_b3.prototype.process_entry = function(){
+	//     return 'foo';
+	// };
 
 	// Add pre and post run spinner (borrow filter's for now).
 	search.register('prerun', 'foo', function(){
