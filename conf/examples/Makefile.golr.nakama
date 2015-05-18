@@ -209,7 +209,7 @@ load-just-complex-annotations: owltools-build
 ## Check the ontology data for suitability.
 .PHONY: check-ontology-data
 check-ontology-data:
-	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --ontology-pre-check
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --ontology-pre-check
 
 ## The full and final load.
 .PHONY: load-full
