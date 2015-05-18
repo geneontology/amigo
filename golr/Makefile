@@ -213,12 +213,18 @@ load-just-complex-annotations: owltools-build
 	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --catalog-xml $(LEGO_CATALOGS) --solr-url $(SOLR_URL) --read-ca-list $(LEGO_S3_LISTING) --solr-load-complex-exp
 	make message-load-clear
 
+## Check the ontology data for suitability.
+.PHONY: check-ontology-data
+check-ontology-data:
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) --ontology-pre-check
+
 ## The full and final load.
 .PHONY: load-full
 load-full: owltools-build clear-load-log
 	make message-load-start
 	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-log $(SOLR_LOAD_LOG) --solr-load-ontology --solr-load-ontology-general --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(GENE_ASSOCIATION_FILES) --solr-load-panther --solr-load-panther-general
 	make message-load-clear
+
 ## "Silent" variation--useful w/o amigo.
 .PHONY: load-full-silent
 load-full-silent: owltools-build clear-load-log
