@@ -220,13 +220,13 @@ load-full: owltools-build clear-load-log
 ## Check the ontology data for suitability, using a catalog.
 .PHONY: check-ontology-data-catalog
 check-ontology-data-catalog:
-	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --use-catalog-xml $(SOLR_USE_CATALOG_XML) $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --ontology-pre-check
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --catalog-xml $(SOLR_USE_CATALOG_XML) $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --ontology-pre-check
 
 ## The full and final load, using a catalog.
 .PHONY: load-full-catalog
 load-full-catalog: owltools-build clear-load-log
 	make message-load-start
-	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --use-catalog-xml $(SOLR_USE_CATALOG_XML) $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-log $(SOLR_LOAD_LOG) --solr-load-ontology --solr-load-ontology-general --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(GENE_ASSOCIATION_FILES) --solr-load-panther --solr-load-panther-general
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --catalog-xml $(SOLR_USE_CATALOG_XML) $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-purge --solr-config $(ONTOLOGY_METADATA) --solr-log $(SOLR_LOAD_LOG) --solr-load-ontology --solr-load-ontology-general --read-panther $(PANTHER_FILES_DIR) --solr-load-gafs $(GENE_ASSOCIATION_FILES) --solr-load-panther --solr-load-panther-general
 	make message-load-clear
 
 ## "Silent" variation--useful w/o amigo.
