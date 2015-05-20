@@ -384,6 +384,11 @@ sub mode_gannet {
   my $direct_solr_url = undef; # for solr results
   my $solr_results = undef; # for solr results
   my $direct_solr_results = undef; # for solr results
+  ## For facets.
+  my $facet_results_p = 0;
+  my $facet_results_facets = [];
+  my $facet_results = {};
+
   if( $in_query && defined $in_limit && ! $mirror_type_mismatch_p ){
 
     ## Get connection info.
@@ -401,11 +406,12 @@ sub mode_gannet {
     ## Grab the solr worker.
     my $q =
       AmiGO::External::JSON::Solr::GOlr::SafeQuery->new($props->{database});
+    $q->add_variable('json.nl', 'arrarr'); # better access to facets
     $q->safe_query($in_query);
     $solr_results = $q->docs();
 
     ## Let's check it again.
-    if( defined $solr_results ){
+    if( defined $solr_results ){ # works even if 0 results
 
       ## Basic results.
       $count = $q->total() || 0;
@@ -414,6 +420,18 @@ sub mode_gannet {
       $direct_solr_url = $q->url();
       $direct_solr_results = $q->raw();
 
+      ## If there are facets, get those as well.
+      my $facet_fields = $q->facet_fields();
+      #my $facet_fields = ['type'];
+      if( $facet_fields && scalar(@$facet_fields) ){
+	  foreach my $field (@$facet_fields){
+	      if( ! $facet_results_p ){ $facet_results_p = 1; }
+	      push @$facet_results_facets, $field;
+	      $facet_results->{$field} = $q->facet_field($field);
+	  }
+      }
+      #$self->{CORE}->kvetch('========: ' . Dumper($facet_results));
+      
       ## Prepare the direct links to the GOlr data.
       my $golr_id_url = $q->download_results_url('id');
       my $golr_all_url = $q->download_results_url('*');
@@ -522,6 +540,10 @@ sub mode_gannet {
     $self->set_template_parameter('direct_solr_url',
 				  $self->{CORE}->html_safe($direct_solr_url));
     $self->set_template_parameter('results', $htmled_results);
+    ## And facets?
+    $self->set_template_parameter('facet_results_p', $facet_results_p);
+    $self->set_template_parameter('facet_results_facets', $facet_results_facets);
+    $self->set_template_parameter('facet_results', $facet_results);
 
     ## Things that worry about term visualization.
     $self->set_template_parameter('terms_count', scalar(@$found_terms));

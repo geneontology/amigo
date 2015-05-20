@@ -90,6 +90,47 @@
   </div>
 </div>
 
+[% IF facet_results_p %]    
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      Facet Results
+    </div>
+  </div>
+  <div class="panel-body">
+      
+    [% FOREACH facet = facet_results_facets %]
+    <table
+       summary="Query facet results over [% facet %]"
+       class="table table-striped table-hover">
+      <thead>
+	<tr>	  
+	  <th>
+	    [% facet %]
+	  </th>
+	  <th>
+	    count
+	  </th>
+	</tr>
+      </thead>
+      <tbody>	
+	[% FOREACH pair = facet_results.$facet %]
+	<tr>
+	  [% FOREACH item = pair %]
+	  <td>
+	    [% item %]
+	  </td>
+	  [% END %]
+	</tr>
+	[% END %]
+      </tbody>
+    </table>
+    [% END %]
+    
+  </div>
+</div>
+[% END %]
+
 [% IF NOT results_count AND results_count == 0 %]
   
 <div class="panel panel-default">
@@ -196,9 +237,9 @@
 	[% END %]
       </tbody>
     </table>
-  
+
   </div>
 </div>
-
 [% END %]
+
 <!-- END: gannet.tmpl -->
