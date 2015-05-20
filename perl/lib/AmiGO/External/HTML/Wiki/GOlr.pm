@@ -27,7 +27,7 @@ This is the URL that points to the GO GOlr wiki.
 =cut
 my $URL_FOR_GOLRWIKI =
   'http://wiki.geneontology.org/index.php/Example_Solr_Queries';
-my $MATCH_FOR_GOLRWIKI = '<span class=\"mw-headline\" id=\"[\w\s\_\-\:\;\,\.]*\">\s*([^\n]*?)<\/span><\/h[2-4]>.*?<p>GOOSE.*?<\/p>.*?<pre>\s*(.*?)<\/pre>';
+my $MATCH_FOR_GOLRWIKI = '<span class=\"mw-headline\" id=\"[\w\s\_\-\:\;\,\.]*\">\s*([^\n]*?)<\/span><\/h[2-4]>.*?<p>Gannet.*?<\/p>.*?<pre>\s*(.*?)<\/pre>';
 
 
 =item new
