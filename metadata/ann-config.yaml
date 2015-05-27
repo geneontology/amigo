@@ -82,6 +82,19 @@ fields:
     cardinality: multi
     property: []
     searchable: true
+  - id: taxon_closure_subset
+    description: "Taxonomic group (direct) and ancestral groups that are within the specified subset (e.g mammalia, eukaryota)."
+    display_name: Taxon
+    type: string
+    cardinality: multi
+    property: []
+  - id: taxon_closure_subset_label
+    description: "Labels for taxonomic group (direct) and ancestral groups that are within the specified subset."
+    display_name: Taxon
+    type: string
+    cardinality: multi
+    property: []
+    searchable: true
   - id: secondary_taxon
     description: "Secondary taxon."
     display_name: Secondary taxon
