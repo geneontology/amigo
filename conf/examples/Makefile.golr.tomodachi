@@ -80,7 +80,6 @@ GENE_ASSOCIATION_FILES ?= \
 	http://www.geneontology.org/gene-associations/gene_association.mgi.gz \
 	http://www.geneontology.org/gene-associations/gene_association.pombase.gz \
 	http://www.geneontology.org/gene-associations/gene_association.pseudocap.gz \
-	http://www.geneontology.org/gene-associations/gene_association.reactome.gz \
 	http://www.geneontology.org/gene-associations/gene_association.rgd.gz \
 	http://www.geneontology.org/gene-associations/gene_association.sgd.gz \
 	http://www.geneontology.org/gene-associations/gene_association.sgn.gz \
