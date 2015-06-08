@@ -48,11 +48,11 @@
 
     [% IF results_p == 0 %]
     <p>
-      Nothing found for <strong>[% query %]</strong>. Please try again.
+      Nothing found for <strong>[% FILTER html %][% query %][% END %]</strong>. Please try again.
     </p>
     [% ELSE %]
     <p>
-      The following results were found for <strong>[% query %]</strong>
+      The following results were found for <strong>[% FILTER html %][% query %][% END %]</strong>
       using a general search over all text fields.
      </p>
      <p>
