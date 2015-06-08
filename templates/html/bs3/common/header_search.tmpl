@@ -12,7 +12,7 @@
        class="form-control bbop-js-tooltip"
        name="q"
        placeholder="Quick search"
-       value="[% query %]"
+       value="[% FILTER html %][% query %][% END %]"
        id="gsf-query">
   </div>
   <button type="submit"
