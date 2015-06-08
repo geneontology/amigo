@@ -30,14 +30,14 @@ if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
  * This should be consumed directly by <amigo.handler>.
  */
 amigo.data.dispatch = {
-   "qualifier" : {
-      "context" : {
-         "bbop.widgets.search_pane" : "amigo.handlers.qualifiers"
-      }
-   },
    "annotation_extension_json" : {
       "context" : {
          "bbop.widgets.search_pane" : "amigo.handlers.owl_class_expression"
+      }
+   },
+   "qualifier" : {
+      "context" : {
+         "bbop.widgets.search_pane" : "amigo.handlers.qualifiers"
       }
    }
 };
