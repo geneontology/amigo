@@ -2,7 +2,7 @@
 #### Check that counts for basic searches is within 10% of given counts
 ####
 
-import re
+import re, os, time
 from behave import *
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -29,4 +29,11 @@ def step_impl(context, page):
     
 @then('the screenshot is "{title}"')
 def step_impl(context, title):
+    current_directory = os.getcwd()
+    nice_time = time.strftime("%A, %B %d, %Y", time.localtime())
+    screenshot_directory = current_directory + "/screenshots " + nice_time
+    if not os.path.exists(screenshot_directory):
+        os.mkdir(screenshot_directory)
+    os.chdir(screenshot_directory)
     context.browser.save_screenshot(title + '.png')
+    os.chdir(current_directory)
