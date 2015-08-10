@@ -13,6 +13,6 @@ def step_impl(context):
 
 @when('I submit the RTE form')
 def step_impl(context):
-    xp = "/html/body/div[2]/div[4]/div/div/form/div[2]/button"
+    xp = "/html/body/div[2]/div[5]/div/div/form/div[2]/button"
     webelt = context.browser.find_element_by_xpath(xp)
     webelt.click()
