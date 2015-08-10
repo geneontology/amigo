@@ -2,7 +2,7 @@ Feature: AmiGO pages have proper layout
 
  ## No Background necessary.
 
- Scenario Outline: the core landing pages exist
+ Scenario Outline: selected screenshots look right
    Given I want a screenshot of page "<page>"
     then the screenshot is "<title>"
    Examples: core pages

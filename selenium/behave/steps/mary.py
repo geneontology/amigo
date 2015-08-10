@@ -30,8 +30,9 @@ def step_impl(context, page):
 @then('the screenshot is "{title}"')
 def step_impl(context, title):
     current_directory = os.getcwd()
-    nice_time = time.strftime("%A, %B %d, %Y", time.localtime())
-    screenshot_directory = current_directory + "/screenshots " + nice_time
+#    current_directory = "http://build.berkeleybop.org/view/Software/job/amigo2-production"
+    nice_time = time.strftime(("%d-%m-%Y"), time.localtime())
+    screenshot_directory = current_directory + "/screenshots_" + nice_time
     if not os.path.exists(screenshot_directory):
         os.mkdir(screenshot_directory)
     os.chdir(screenshot_directory)
