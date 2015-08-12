@@ -817,7 +817,9 @@ sub _common_params_settings {
   $params->{interlink_xrefs} =
     $self->{CORE}->get_interlink({mode=>'xrefs'});
   $params->{interlink_rte} =
-    $self->{CORE}->get_interlink({mode=>'rte'});
+    #$self->{CORE}->get_interlink({mode=>'rte'});
+    ## Temporary fix for: https://github.com/geneontology/amigo/issues/198
+    'http://pantherdb.org/webservices/go/overrep.jsp';
   ## Since there is no default search page, arrange for one.
   # my $def_search = $self->{CORE}->get_amigo_search_default();
   # $params->{interlink_search_default} =
