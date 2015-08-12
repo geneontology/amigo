@@ -3,6 +3,8 @@
 ####
 
 import re, os, time
+import ftplib
+
 from behave import *
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -21,20 +23,3 @@ def step_impl(context, count):
     total = linetotal[0]
     thiscount = float(count)
     assert ((total < 1.1 * thiscount) and (total > .9 * thiscount))
-
-@given('I want a screenshot of page "{page}"')
-def step_impl(context, page):
-    context.browser.maximize_window()
-    context.browser.get(context.target + page)
-    
-@then('the screenshot is "{title}"')
-def step_impl(context, title):
-    current_directory = os.getcwd()
-#    current_directory = "http://build.berkeleybop.org/view/Software/job/amigo2-production"
-    nice_time = time.strftime(("%d-%m-%Y"), time.localtime())
-    screenshot_directory = current_directory + "/screenshots_" + nice_time
-    if not os.path.exists(screenshot_directory):
-        os.mkdir(screenshot_directory)
-    os.chdir(screenshot_directory)
-    context.browser.save_screenshot(title + '.png')
-    os.chdir(current_directory)
