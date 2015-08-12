@@ -41,7 +41,7 @@ SCHEMA_METADATA ?= \
  ../metadata/ann_ev_agg-config.yaml
 ONTOLOGY_METADATA ?= ../metadata/ont-config.yaml
 ONTOLOGIES ?= \
- http://purl.obolibrary.org/obo/go/extensions/go-plus.owl \
+ http://purl.obolibrary.org/obo/go/extensions/go-lego.owl \
  http://purl.obolibrary.org/obo/ncbitaxon.owl \
  http://purl.obolibrary.org/obo/cl/cl-basic.owl \
  http://purl.obolibrary.org/obo/eco.owl \
