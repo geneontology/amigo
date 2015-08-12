@@ -24,3 +24,4 @@ def step_impl(context, title):
     os.chdir(screenshot_directory)
     context.browser.save_screenshot(title + '.png')
     os.chdir(current_directory)
+    
