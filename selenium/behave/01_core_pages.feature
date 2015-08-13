@@ -26,3 +26,4 @@ Feature: AmiGO basic pages okay
     | /amigo/load_details         | AmiGO 2: Load Details                        |
     | /xrefs                      | Cross References                             |
 ## Ignore this next bit unless you're an Emacs org-mode user.
+
