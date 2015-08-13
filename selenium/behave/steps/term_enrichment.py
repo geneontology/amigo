@@ -11,6 +11,7 @@ def step_impl(context):
     webelt = context.browser.find_element_by_id('rte_input')
     webelt.send_keys(input_box_text)
 
+
 @when('I submit the RTE form')
 def step_impl(context):
     xp = "/html/body/div[2]/div[5]/div/div/form/div[2]/button"
