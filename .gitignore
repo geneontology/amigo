@@ -1,3 +1,7 @@
+## Make docs less bad.
+perl/docs/*
+javascript/docs/*
+
 ## Don't generally want Selenium log files.
 selenium/*/*.log
 
