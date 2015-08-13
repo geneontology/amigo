@@ -2,6 +2,13 @@
 selenium/*/*.log
 
 ## Don't want the virtualenv stuff for python leaking in.
+
+selenium/behave/'pwd'
+selenium/behave/screenshots*
+selenium/behave/pymote_env
+selenium/behave/Scripts
+selenium/behave/virtualenv.exe
+
 selenium/behave/bin
 selenium/behave/include
 selenium/behave/lib
