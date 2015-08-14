@@ -162,10 +162,14 @@ sub mode_grebe {
   $self->set_template_parameter('questions', $questions_info);
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'grebe');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Grebe');
-  $self->set_template_parameter('content_title',
-				'Grebe Search Wizard');
+  my $page_name = 'grebe';
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ##
   my $prep =

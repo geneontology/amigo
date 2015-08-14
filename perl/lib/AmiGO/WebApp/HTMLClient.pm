@@ -175,9 +175,14 @@ sub mode_landing {
   my $params = $i->input_profile();
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'landing');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Welcome');
-  #$self->set_template_parameter('content_title', 'AmiGO 2');
+  my $page_name = 'landing';
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Our AmiGO services CSS.
   my $prep =
@@ -229,9 +234,14 @@ sub mode_browse {
   my $params = $i->input_profile();
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'browse');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Browse');
-  $self->set_template_parameter('content_title', 'Browse');
+  my $page_name = 'browse';
+  my($page_title, 
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);  
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Get the layout info to describe which buttons should be
   ## generated.
@@ -290,9 +300,14 @@ sub mode_dd_browse {
   my $params = $i->input_profile();
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'dd_browse');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Drill-down Browser');
-  $self->set_template_parameter('content_title', 'Drill-down Browser');
+  my $page_name = 'dd_browse';
+  my($page_title, 
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);  
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Get the layout info to describe which buttons should be
   ## generated.
@@ -353,9 +368,14 @@ sub mode_free_browse {
   my $params = $i->input_profile();
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'free_browse');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Free Browse');
-  $self->set_template_parameter('content_title', 'Free Browse');
+  my $page_name = 'free_browse';
+  my($page_title, 
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);  
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Get the layout info to describe which buttons should be
   ## generated.
@@ -573,9 +593,14 @@ sub mode_simple_search {
   }
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'simple_search');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Simple Search');
-  $self->set_template_parameter('content_title', 'Simple Search');
+  my $page_name = 'simple_search';
+  my($page_title, 
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);  
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Grab the config info for the simple search form construction.
   my $ss_info = $self->{CORE}->golr_class_info_list_by_weight(25);
@@ -732,10 +757,14 @@ sub mode_medial_search {
   #$self->{CORE}->kvetch('results_order: ' . Dumper(\@results_order));
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'medial_search');
-  $self->set_template_parameter('page_title',
-				'AmiGO 2: Search Directory');
-  $self->set_template_parameter('content_title', 'Search Directory');
+  my $page_name = 'medial_search';
+  my($page_title, 
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);  
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## The rest of our environment.
   my $prep =
@@ -787,9 +816,14 @@ sub mode_software_list {
   my $params = $i->input_profile();
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'software_list');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Tools and Resources');
-  $self->set_template_parameter('content_title', 'Tools and Resources');
+  my $page_name = 'software_list';
+  my($page_title, 
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);  
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   # ## Where would the ancient demos page hide...?
   # my $foo = $self->{CORE}->amigo_env('AMIGO_CGI_PARTIAL_URL');
@@ -855,9 +889,14 @@ sub mode_schema_details {
   my $params = $i->input_profile();
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'schema_details');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Schema Details');
-  $self->set_template_parameter('content_title', 'Instance Schema Details');
+  my $page_name = 'schema_details';
+  my($page_title, 
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);  
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Get Galaxy, and add a variable for it in the page.
   $self->set_template_parameter('GO_GALAXY',
@@ -942,11 +981,14 @@ sub mode_load_details {
   }
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'load_details');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Load Details');
-  #$self->set_template_parameter('content_title', 'Load Details');
-  $self->set_template_parameter('content_title',
-				'Current instance load information');
+  my $page_name = 'load_details';
+  my($page_title, 
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);  
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Get Galaxy, and add a variable for it in the page.
   $self->set_template_parameter('GO_GALAXY',
@@ -1033,10 +1075,14 @@ sub mode_search {
   $self->{CORE}->kvetch('bookmark: ' . $bookmark || '???');
 
   ## Page settings.
-  #$self->set_template_parameter('STANDARD_CSS', 'no');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Search');
-  $self->set_template_parameter('page_name', 'live_search');
-  $self->set_template_parameter('content_title', 'Search');
+  my $page_name = 'live_search';
+  my($page_title, 
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);  
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Make sure the personality is in our known set if it's even
   ## defined.
@@ -1074,7 +1120,7 @@ sub mode_search {
 
   ## Set personality for template, and later JS var.
   $self->set_template_parameter('personality', $personality);
-  $self->set_template_parameter('content_subtitle', $personality_name);
+  $self->set_template_parameter('page_content_subtitle', $personality_name);
   $self->set_template_parameter('personality_name', $personality_name);
   $self->set_template_parameter('personality_description', $personality_desc);
 
@@ -1138,9 +1184,14 @@ sub mode_bulk_search {
     if ! $params->{personality} && $self->param('personality');
 
   ## Page settings.
-  $self->set_template_parameter('page_title', 'AmiGO 2: Bulk Search');
-  $self->set_template_parameter('page_name', 'bulk_search');
-  $self->set_template_parameter('content_title', 'Bulk Search');
+  my $page_name = 'bulk_search';
+  my($page_title, 
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);  
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Make sure the personality is in our known set if it's even
   ## defined.
@@ -1184,7 +1235,7 @@ sub mode_bulk_search {
 
   ## Set personality for template, and later JS var.
   $self->set_template_parameter('personality', $personality);
-  $self->set_template_parameter('content_subtitle', $personality_name);
+  $self->set_template_parameter('page_content_subtitle', $personality_name);
   $self->set_template_parameter('personality_name', $personality_name);
   $self->set_template_parameter('personality_description', $personality_desc);
 
@@ -1490,6 +1541,7 @@ sub mode_term_details {
   ###
 
   ## Page settings.
+  ## Don't use usual mechanism--a litle special.
   $self->set_template_parameter('page_name', 'term');
   $self->set_template_parameter('page_title',
 				'AmiGO 2: Term Details for "' .
@@ -1497,6 +1549,10 @@ sub mode_term_details {
 				'" (' .	$input_term_id . ')');
   $self->set_template_parameter('content_title',
 				$term_info_hash->{$input_term_id}{'name'});
+  my($page_title, $page_content_title, $page_help_link) =
+      $self->_resolve_page_settings('term');
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Our AmiGO services CSS.
   my $prep =
@@ -1634,6 +1690,7 @@ sub mode_gene_product_details {
   ###
 
   ## Page settings.
+  ## Again, a little different.
   $self->set_template_parameter('page_name', 'gene_product');
   $self->set_template_parameter('page_title',
 				'AmiGO 2: Gene Product Details for ' .
@@ -1645,7 +1702,10 @@ sub mode_gene_product_details {
   }elsif( $gp_info_hash->{$input_gp_id}{'label'} ){
     $best_title = $gp_info_hash->{$input_gp_id}{'label'};
   }
-  $self->set_template_parameter('content_title', $best_title);
+  $self->set_template_parameter('page_content_title', $best_title);
+  my($page_title, $page_content_title, $page_help_link) =
+      $self->_resolve_page_settings('gene_product');
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Our AmiGO services CSS.
   my $prep =
@@ -1751,10 +1811,14 @@ sub mode_complex_annotation_details {
   ###
 
   ## Page settings.
+  ## Again, a little special.
   $self->set_template_parameter('page_name', 'complex_annotation');
   $self->set_template_parameter('page_title',
 				'AmiGO 2: Complex Annotation Details for ' .
 				$input_id);
+  my($page_title, $page_content_title, $page_help_link) =
+      $self->_resolve_page_settings('complex_annotation');
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Figure out the best title we can.
   my $best_title = $input_id; # start with the worst
@@ -1765,7 +1829,7 @@ sub mode_complex_annotation_details {
     $best_title =
       $ca_info_hash->{$input_id}{'annotation_group'};
   }
-  $self->set_template_parameter('content_title', $best_title);
+  $self->set_template_parameter('page_content_title', $best_title);
 
   ## Our AmiGO services CSS.
   my $prep =
@@ -1841,12 +1905,12 @@ sub mode_phylo_graph {
     $self->set_template_parameter('page_title',
 				  'AmiGO 2:  Family tree for ' .
 				  $input_family_id);
-    $self->set_template_parameter('content_title', $input_family_id);
+    $self->set_template_parameter('page_content_title', $input_family_id);
     $self->set_template_parameter('demo_mode', 'false');
     $global_family = $input_family_id;
   }else{
     $self->set_template_parameter('page_title', 'AmiGO 2:  Family tree demo');
-    $self->set_template_parameter('content_title', 'Family tree demo');
+    $self->set_template_parameter('page_content_title', 'Family tree demo');
     $self->set_template_parameter('demo_mode', 'true');
     $global_family = undef;
   }

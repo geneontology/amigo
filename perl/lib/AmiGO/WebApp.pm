@@ -771,6 +771,104 @@ sub _atoi {
   return $thing || 0;
 }
 
+## Turn a page name into info for links to external help.
+sub _resolve_page_settings {
+  my $self = shift;
+  my $page_name = shift || 'amigo';
+
+  ## Sensible defaults.
+  my $page_title = 'AmiGO 2';
+  my $page_content_title = 'AmiGO Help';
+  my $wiki_base = 'http://wiki.geneontology.org/index.php/';
+  my $page_help_link = $wikk_base . 'AmiGO_2_Manual';
+
+  if( $page_name eq 'browse' ){
+    $page_title = 'AmiGO 2: Browse';
+    $page_content_title = 'Browse';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Browse';
+  }elsif( $page_name eq 'dd_browse' ){
+    $page_title = 'AmiGO 2: Drill-down Browse';
+    $page_content_title = 'Drill-down Browse';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Drill-down_Browse';
+  }elsif( $page_name eq 'free_browse' ){
+    $page_title = 'AmiGO 2: Free Browse';
+    $page_content_title = 'Free Browse';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Free_Browse';
+  }elsif( $page_name eq 'landing' ){
+    $page_title = 'AmiGO 2: Welcome';
+    $page_content_title = 'Home';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Home';
+  }elsif( $page_name eq 'goose' ){
+    $page_title = 'AmiGO 2: GO Online SQL/Solr Environment (GOOSE)';
+    $page_content_title = 'GO Online SQL/Solr Environment (GOOSE)';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_GOOSE';
+  }elsif( $page_name eq 'gannet' ){
+    $page_title = 'AmiGO 2';
+    $page_content_title = 'Gannet';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Gannet';
+  }elsif( $page_name eq 'grebe' ){
+    $page_title = 'AmiGO 2: Grebe';
+    $page_content_title = 'Grebe Search Wizard';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Grebe';
+  }elsif( $page_name eq 'visualize' ){
+    $page_title = 'AmiGO 2: Visualize';
+    $page_content_title = 'Visualize an Arbitrary GO Graph';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Visualize';
+  }elsif( $page_name eq 'visualize_freeform' ){
+    $page_title = 'AmiGO 2: Visualize Freeform';
+    $page_content_title = 'Visualize an Arbitrary Graph';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Visualize_Freeform';
+  }elsif( $page_name eq 'live_search' ){
+    $page_title = 'AmiGO 2: Search';
+    $page_content_title = 'Search';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Search';
+  }elsif( $page_name eq 'simple_search' ){
+    $page_title = 'AmiGO 2: Simple Search';
+    $page_content_title = 'Simple Search';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Simple_Search';
+  }elsif( $page_name eq 'medial_search' ){
+    $page_title = 'AmiGO 2: Search Directory';
+    $page_content_title = 'Search Directory';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Search_Directory';
+  }elsif( $page_name eq 'bulk_search' ){
+    $page_title = 'AmiGO 2: Bulk Search';
+    $page_content_title = 'Bulk Search';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Bulk_Search';
+  }elsif( $page_name eq 'software_list' ){
+    $page_title = 'AmiGO 2: Tools and Resources';
+    $page_content_title = 'Tools and Resources';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Tools_and_Resources';
+  }elsif( $page_name eq 'term' ){ # typically won't use
+    $page_title = 'AmiGO 2';
+    $page_content_title = 'Term Page';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Term_Page';
+  }elsif( $page_name eq 'gene_product' ){ # typically won't use
+    $page_title = 'AmiGO 2';
+    $page_content_title = 'Gene Product Page';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Gene_Product_Page';
+  }elsif( $page_name eq 'complex_annotation' ){ # typically won't use
+    $page_title = 'AmiGO 2';
+    $page_content_title = 'Complex Annotation Page';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Complex_Annotation_Page';
+  }elsif( $page_name eq 'schema_details' ){
+    $page_title = 'AmiGO 2: Schema Details';
+    $page_content_title = 'Instance Schema Details';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Schema_Details';
+  }elsif( $page_name eq 'load_details' ){
+    $page_title = 'AmiGO 2: Load Details';
+    $page_content_title = 'Current instance load information';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Load_Details';
+  }elsif( $page_name eq 'xrefs' ){
+    $page_title = 'AmiGO 2: Cross References';
+    $page_content_title = 'Current Cross Reference Abbreviations';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Cross_References';
+  }
+
+  return ($page_title,
+	  $page_content_title,
+	  $page_help_link);
+}
+
 ## The the params variable to the most common settings that we use.
 ## Will either modify a current params or make a new one.
 sub _common_params_settings {

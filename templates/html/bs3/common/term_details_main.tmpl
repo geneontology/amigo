@@ -2,7 +2,10 @@
 
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title">[% IF TERM_INFO.is_obsolete == "true" OR TERM_INFO.is_obsolete == 1 %]<strong>Obsolete</strong> [% END %]Term Information</h3>
+    <h3 class="panel-title">
+      [% IF TERM_INFO.is_obsolete == "true" OR TERM_INFO.is_obsolete == 1 %]<strong>Obsolete</strong> [% END %]Term Information
+      [% INCLUDE "common/abstract_help_link.tmpl" %]
+    </h3>
   </div>
   <div class="panel-body">
     

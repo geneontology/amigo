@@ -1,3 +1,9 @@
 <!-- Begin: autocomplete_help_link.tmpl -->
-<a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Quick_Search" class=""><img height="15" alt="[More information on Quick Search]" title="More information on Quick Search" src="[% image_dir %]/question.icon.png" /></a>
+    [% tmp_pct = page_content_title %]
+    [% tmp_phl = page_help_link %]
+    [% page_content_title = "Quick Search" %]
+    [% page_help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Quick_Search" %]
+    [% INCLUDE "common/abstract_help_link.tmpl" %]
+    [% page_content_title = tmp_pct %]
+    [% page_help_link = tmp_phl %]
 <!-- End: autocomplete_help_link.tmpl -->

@@ -515,11 +515,14 @@ sub mode_goose {
     $self->set_template_parameter('mirror_info', $mirror_conf_info);
 
     ## Page settings.
-    $self->set_template_parameter('page_name', 'goose');
-    $self->set_template_parameter('page_title',
-				  'AmiGO 2: GO Online SQL/Solr Environment');
-    $self->set_template_parameter('content_title',
-				  'GO Online SQL/Solr Environment');
+    my $page_name = 'goose';
+    my($page_title,
+       $page_content_title,
+       $page_help_link) = $self->_resolve_page_settings($page_name);
+    $self->set_template_parameter('page_name', $page_name);
+    $self->set_template_parameter('page_title', $page_title);
+    $self->set_template_parameter('page_content_title', $page_content_title);
+    $self->set_template_parameter('page_help_link', $page_help_link);
 
     ## 
     $self->{CORE}->kvetch("pre-template limit: " . $in_limit);

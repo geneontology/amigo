@@ -49,28 +49,7 @@
         <li[% IF page_name == 'software_list' %] class="active"[% END %]><a href="[% interlink_tools %]" title="More tools to explore the Gene Ontology">Tools&nbsp;&amp;&nbsp;Resources</a></li>
 
 	<!-- Help. -->
-	[% help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual" %]
-	[% IF page_name == 'landing' %]
-	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Home" %]
-	[% ELSIF page_name == 'goose' %]
-	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_GOOSE" %]
-	[% ELSIF page_name == 'gannet' %]
-	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Gannet" %]
-	[% ELSIF page_name == 'grebe' %]
-	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Grebe" %]
-	[% ELSIF page_name == 'visualize' %]
-	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Visualize" %]
-	[% ELSIF page_name == 'visualize_freeform' %]
-	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Visualize_Freeform" %]
-	[% ELSIF page_name == 'live_search' %]
-	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Search" %]
-	[% ELSIF page_name == 'term' %]
-	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Term_Page" %]
-	[% ELSIF page_name == 'gene_product' %]
-	[%    help_link = "http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Gene_Product_Page" %]
-	[% END %]
-
-        <li><a href="[% help_link %]" title="Help guide for AmiGO 2.">Help</a></li>
+        <li><a href="[% page_help_link %]" title="Help for '[% page_content_title %]'">Help</a></li>
 
 	<!-- Feedback. -->
 	[% # IF BETA == 1 %]

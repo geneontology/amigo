@@ -121,12 +121,17 @@ sub mode_client_freeform {
   ## Otherwise, forward to render app.
   if( ! defined $input_graph_data ){
 
-    ##
-    $self->set_template_parameter('page_name', 'visualize_freeform');
-    $self->set_template_parameter('amigo_mode', 'visualize_freeform');
-    $self->set_template_parameter('page_title', 'AmiGO 2: Visualize Freeform');
-    $self->set_template_parameter('content_title',
-				  'Visualize an Arbitrary Graph');
+    my $page_name = 'visualize_freeform';
+    my($page_title,
+       $page_content_title,
+       $page_help_link) = $self->_resolve_page_settings($page_name);
+    $self->set_template_parameter('page_name', $page_name);
+    $self->set_template_parameter('page_title', $page_title);
+    $self->set_template_parameter('page_content_title', $page_content_title);
+    $self->set_template_parameter('page_help_link', $page_help_link);
+    ## Additional.
+    $self->set_template_parameter('amigo_mode', $page_name);
+
     my $prep =
       {
        css_library =>
@@ -224,11 +229,17 @@ sub mode_client_amigo {
   if( ! defined $input_term_data ){
 
     ##
-    $self->set_template_parameter('page_name', 'visualize');
-    $self->set_template_parameter('amigo_mode', 'visualize');
-    $self->set_template_parameter('page_title', 'AmiGO 2: Visualize');
-    $self->set_template_parameter('content_title',
-				  'Visualize an Arbitrary GO Graph');
+    my $page_name = 'visualize';
+    my($page_title,
+       $page_content_title,
+       $page_help_link) = $self->_resolve_page_settings($page_name);
+    $self->set_template_parameter('page_name', $page_name);
+    $self->set_template_parameter('page_title', $page_title);
+    $self->set_template_parameter('page_content_title', $page_content_title);
+    $self->set_template_parameter('page_help_link', $page_help_link);
+    ## Additional.
+    $self->set_template_parameter('amigo_mode', $page_name);
+
     my $prep =
       {
        css_library =>
