@@ -26,14 +26,13 @@
       [% IF sl.size == 0 AND al.size == 0 %]
       <dd>None</dd>
       [% ELSE %]
-      [%    FOREACH alth IN al %]
-      <dd><strong>alt. id</strong>: [% alth %]</dd>
-      [%    END %]
-      [%    FOREACH synh IN sl %]
+      <dd><strong>alt. id</strong>: [% al.join(", ") %]</dd>
+      <dd>[% sl.join(", ") %]</dd>
+      <!-- [% #   FOREACH synh IN sl %] -->
       <!-- BUG/TODO: Like this when we have scope available. -->
       <!-- <dd>[% IF synh.scope %]<span>[% synh.scope %]</span>: [% END %][% synh.acc %]</dd> -->
-      <dd>[% synh %]</dd>
-      [%    END %]
+      <!-- <dd>[% # synh %]</dd> -->
+      <!-- [% #   END %] -->
       [% END %]
 
       <!-- Definition -->
