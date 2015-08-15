@@ -8,9 +8,11 @@
 use utf8;
 use strict;
 use Config::YAML;
+use YAML::Loader;
 use Template;
 use File::Basename;
 use File::Find;
+use File::Temp;
 use Cwd;
 use Data::Dumper;
 use Date::Parse;
@@ -291,14 +293,14 @@ amigo_env_to_js($amigo_env_fname);
 ll("Created AmiGO JavaScript meta file: \"$amigo_env_fname\".");
 
 ###
-### Pull in the GO_xref.abbs file and turn it into a form that the js
+### Pull in the db-xrefs.yaml file and turn it into a form that the js
 ### linker can use (amigo.data.xrefs), as well as the perl linker
 ### (through AmiGO.pm).
 ###
 
 ## Roll JS out to the server environment in a b-flag situation.
 my $xrefs_js_data_fname = 'javascript/lib/amigo/data/xrefs.js';
-my $xrefs_url = 'http://www.geneontology.org/doc/GO.xrf_abbs';
+my $xrefs_url = 'https://raw.githubusercontent.com/geneontology/go-site/master/metadata/db-xrefs.yaml';
 xref_abbs_to_meta_js($xrefs_js_data_fname, $xrefs_url, 'js');
 ll("Created GO XRefs JavaScript data file: \"$xrefs_js_data_fname\".");
 
@@ -348,7 +350,7 @@ if( ! $opt_b ){
 
   ## Roll perl out to the server environment in a non-b-flag situation.
   my $xrefs_json_data_fname = $env_conf{AMIGO_DYNAMIC_PATH} . '/xrefs.json';
-  my $xrefs_url = 'http://www.geneontology.org/doc/GO.xrf_abbs';
+  my $xrefs_url = 'https://raw.githubusercontent.com/geneontology/go-site/master/metadata/db-xrefs.yaml';
   xref_abbs_to_meta_js($xrefs_json_data_fname, $xrefs_url, 'json');
   ll("Created GO XRefs JSON data file: \"$xrefs_json_data_fname\".");
 
@@ -457,7 +459,7 @@ EOC
 sub xref_abbs_to_meta_js {
 
   my $file_str = shift || die "need a file string or something";
-  my $xrefs_url = shift || die "need a url for the GO.xrf_abbs file";
+  my $xrefs_url = shift || die "need a url for the db-xrefs.yaml file";
   my $type = shift || die "need 'js' or 'json'";
 
   ## 
@@ -476,8 +478,8 @@ sub xref_abbs_to_meta_js {
   my $ext = AmiGO::External::Raw->new();
   my $abbs = $ext->get_external_data($xrefs_url);
   if( ! $abbs ){
-    ll("Could not load external GO.xref_abbs file, trying old backup...");
-    my $abbs_fname = $ENV{AMIGO_ROOT} . '/external/GO.xrf_abbs';
+    ll("Could not load external db-xrefs.yaml file, trying old backup...");
+    my $abbs_fname = $ENV{AMIGO_ROOT} . '/external/db-xrefs.yaml';
     ll("Backup at: " . $abbs_fname . '?');
     die "No emergency abbs file found ($abbs_fname): $!" if ! -f $abbs_fname;
     open(ABBSFILE, '<', $abbs_fname) or die "Cannot even open $abbs_fname: $!";
@@ -486,69 +488,61 @@ sub xref_abbs_to_meta_js {
     }
     close ABBSFILE;
   }
-  die "Found no way to get a GO.xref_abbs file: $!" if ! $abbs;
+  die "Found no way to get a db-xrefs.yaml file: $!" if ! $abbs;
 
+  ## Parse the YAML file into something usable.
+  my $fh = File::Temp->new();
+  my $fname = $fh->filename();
+  #ll("NAME: " . $fname);
+  #ll("NAME: " . $abbs);
+  #print $fh $abbs. "\n";
+  print $fh $abbs;
+  #my $conf_list = [];
+  
+  #my $conf_list = Config::YAML->new(config => $fname);
+  use YAML::Loader;
+  my $yloader = YAML::Loader->new;
+  my $conf_list = $yloader->load($abbs);
+  ## Convert the new nice stuff into the old crufty blob layout.
   my $database_info = {};
+  foreach my $data_set (@$conf_list){
 
-  ## Split on two or more newlines.
-  my @top_chunks = split /\n{2,}/s, $abbs;
+    ## We'll do this for every one of the synonyms, if there are any.
+    my $synonyms = $data_set->{synonyms} || [];
+    unshift(@$synonyms, $data_set->{database});
+    foreach my $synonym (@$synonyms){
 
-  ## Split on newline.
-  foreach my $middle_chunk_str (@top_chunks){
-    my @middle_chunks = split /\n/s, $middle_chunk_str;
+      ## Now, go through all the enitity types and create a new lookup
+      ## chunk for it.
+      foreach my $entity_type (@{$data_set->{entity_types}}){
 
-    ## Keep a list of things that need to be cloned as synonyms.
-    my $local_clone_list = [];
-
-    ## Create an empty template for the kinds of things we might find
-    ## and try add fill them in.
-    my $tmp_data =
-      {
-       id => undef,
-       abbreviation => undef,
-       name => undef,
-       fullname => undef,
-       datatype => undef,
-       database => undef,
-       object => undef,
-       example_id => undef,
-       generic_url => undef,
-       url_syntax => undef,
-       url_example => undef,
-       uri_prefix => undef
-       #synonym => [], # legit use?
-      };
-    ## Split on ':' and trim; add it to the above template.
-    foreach my $line (@middle_chunks){
-      $line =~ /(.*)\:\s+(.*)/;
-      my $tag = $1;
-      my $val = $2;
-      if( $tag ){
-	## If it is a synonym, clone the hash and add it as a separate
-	## abbreviation.
-	if( $tag =~ /^synonym$/ ){
-	  push @$local_clone_list, $val;
-	}else{
-	  ## Otherwise add tag to set.
-	  $tmp_data->{$tag} = $val;
+	## Pick a representitive URL.
+	my $gurls = $data_set->{generic_urls};
+	my $gurl = undef;
+	if( scalar(@$gurls) ){
+	  $gurl = $gurls->[0];
 	}
-      }
-    }
 
-    ## If it looks like it has a key add it to the hash.
-    if( $tmp_data->{abbreviation} ){
-      my $key = lc($tmp_data->{abbreviation});
-      $database_info->{$key} = $tmp_data;
-      #ll("Added: $key");
+	## Create an empty template for the kinds of things we might
+	## find and try add fill them in.
+	my $tmp_data =
+	  {
+	   id => $data_set->{database}, # repeat
+	   abbreviation => $synonym,
+	   name => $data_set->{name}, # repeat
+	   fullname => $data_set->{description},
+	   datatype => $entity_type->{type_name},
+	   database => $data_set->{name},
+	   object => $entity_type->{type_name},
+	   example_id => $entity_type->{example_id},
+	   generic_url => $gurl,
+	   url_syntax => $entity_type->{url_syntax},
+	   url_example => $entity_type->{example_url},
+	   uri_prefix => undef # what is this?
+	  };
 
-      ## Now let's take a look and see if this needs to be cloned onto
-      ## additional synonym entries.
-      foreach my $clone_abbr (@$local_clone_list){
-	my $clone_key = lc($clone_abbr);
-	my $clone_data = Clone::clone($tmp_data);
-	$clone_data->{abbreviation} = $clone_abbr;
-	$database_info->{$clone_key} = $clone_data;
-	#ll("Added clone: $clone_key");
+	## Drop into the lookup.
+	$database_info->{lc($synonym)} = $tmp_data;
       }
     }
   }

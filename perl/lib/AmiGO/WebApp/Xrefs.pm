@@ -70,7 +70,7 @@ sub mode_xrefs {
     my $entry = $all->{$db};
     push @unsorted_all, $entry;
   }
-  my @sorted_all = sort {$a->{id} cmp $b->{id}} @unsorted_all;
+  my @sorted_all = sort {lc($a->{id}) cmp lc($b->{id})} @unsorted_all;
 
   $self->set_template_parameter('xref_data', \@sorted_all);
 
