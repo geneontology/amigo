@@ -24,4 +24,4 @@ amigo.version.revision = "2.3.1";
  *
  * Partial version for this library: release (date-like) information.
  */
-amigo.version.release = "20150813";
+amigo.version.release = "20150814";
