@@ -1,0 +1,240 @@
+####
+#### The annotation description file for GOlr and AmiGO.
+####
+id: model_annotation
+schema_generating: true
+description: An individual unit within LEGO. This is <strong>ALPHA</strong> software.
+display_name: GO Models (ALPHA)
+document_category: model_annotation
+weight: -5
+boost_weights: model_label^1.0 annotation_unit_label^1.0 enabled_by^1.0 enabled_by_label^1.0 location_list_closure^1.0 location_list_closure_label^1.0 process_class_closure_label^1.0 function_class_closure_label^1.0 comments^0.5 
+result_weights: function_class^9.0 enabled_by^8.0 location_list^7.0 process_class^6.0 taxon^4.0 model^5.0 contributor^4.0 date^3.0 reference^2.0
+filter_weights:  model_label^5.0 enabled_by_label^4.5 location_list_closure_label^4.0 process_class_closure_label^3.0 function_class_closure_label^2.0 contributor^1.0 evidence^0.5
+fields:
+  - id: id
+    description: A unique (and internal) thing.
+    display_name: ID
+    type: string
+    property: []
+## Annotation unit
+  - id: annotation_unit
+    description: ???.
+    display_name: Annotation unit
+    type: string
+    property: []
+  - id: annotation_unit_label
+    description: ???.
+    display_name: Annotation unit
+    type: string
+    property: []
+    searchable: true
+## model
+  - id: model
+    description: ???.
+    display_name: model
+    type: string
+    property: []
+  - id: model_label
+    description: ???.
+    display_name: model
+    type: string
+    property: []
+    searchable: true
+  - id: model_url
+    description: ???.
+    display_name: model URL
+    type: string
+    property: []
+  - id: model_state
+    description: ???.
+    display_name: state
+    type: string
+    property: []
+  - id: annotation_values
+    description: set of all literal values of all annotation assertions in model
+    cardinality: multi
+    display_name: texts
+    type: string
+    property: []
+  - id: contributor
+    description: ???.
+    display_name: contributor
+    type: string
+    cardinality: multi
+    property: []
+    searchable: true
+  - id: model_date
+    description: Last modified
+    display_name: modified
+    type: string
+    property: []
+    searchable: true
+  - id: comments
+    description: Comments
+    display_name: comment
+    type: string
+    cardinality: multi
+    property: []
+    searchable: true
+## Enabled by/bioentity
+  - id: enabled_by
+    description: ???
+    display_name: Enabled by
+    type: string
+    property: []
+    searchable: true
+  - id: enabled_by_label
+    description: ???
+    display_name: Enabled by
+    type: string
+    property: []
+    searchable: true
+## PANTHER
+  - id: panther_family
+    description: PANTHER family IDs that are associated with this entity.
+    display_name: PANTHER family
+    type: string
+    searchable: true
+    property: []
+  - id: panther_family_label
+    description: PANTHER families that are associated with this entity.
+    display_name: PANTHER family
+    type: string
+    searchable: true
+    property: []
+## Taxon
+  - id: taxon
+    description: "GAF column 13 (taxon)."
+    display_name: Taxon
+    type: string
+    property: []
+  - id: taxon_label
+    description: "Taxon derived from GAF column 13 and ncbi_taxonomy.obo."
+    display_name: Taxon
+    type: string
+    property: []
+    searchable: true
+  - id: taxon_closure
+    description: "Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo."
+    display_name: Taxon (IDs)
+    type: string
+    cardinality: multi
+    property: []
+  - id: taxon_closure_label
+    description: "Taxon label closure derived from GAF column 13 and ncbi_taxonomy.obo."
+    display_name: Taxon
+    type: string
+    cardinality: multi
+    property: []
+    searchable: true
+## Function
+  - id: function_class
+    description: Function acc/ID.
+    display_name: Function
+    type: string
+    property: []
+  - id: function_class_label
+    description: Common function name.
+    display_name: Function
+    type: string
+    property: []
+    searchable: true
+  - id: function_class_closure
+    description: "???"
+    display_name: Function
+    type: string
+    cardinality: multi
+    property: []
+  - id: function_class_closure_label
+    description: "???"
+    display_name: Function
+    type: string
+    cardinality: multi
+    property: []
+    searchable: true
+## Process
+  - id: process_class
+    description: Process acc/ID.
+    display_name: Process
+    type: string
+    property: []
+  - id: process_class_label
+    description: Common process name.
+    display_name: Process
+    type: string
+    property: []
+    searchable: true
+  - id: process_class_closure
+    description: "???"
+    display_name: Process
+    type: string
+    cardinality: multi
+    property: []
+  - id: process_class_closure_label
+    description: "???"
+    display_name: Process
+    type: string
+    cardinality: multi
+    property: []
+    searchable: true
+## Location
+  - id: location_list
+    description: ""
+    display_name: Location
+    type: string
+    cardinality: multi
+    property: []
+  - id: location_list_label
+    description: ""
+    display_name: Location
+    type: string
+    cardinality: multi
+    property: []
+  - id: location_list_closure
+    description: ""
+    display_name: Location
+    type: string
+    cardinality: multi
+    property: []
+  - id: location_list_closure_label
+    description: ""
+    display_name: Location
+    type: string
+    cardinality: multi
+    property: []
+  - id: owl_blob_json
+    description: ???
+    display_name: ???
+    type: string
+    property: []
+    indexed: false
+  - id: topology_graph_json
+    description: JSON blob form of the local stepwise topology graph.
+    display_name: Topology graph (JSON)
+    type: string
+    property: []
+    indexed: false
+## Evidence and related
+  - id: evidence_type
+    description: "Evidence type."
+    display_name: Evidence
+    type: string
+    property: []
+  - id: evidence_type_closure
+    description: "All evidence (evidence closure) for this annotation"
+    display_name: Evidence type
+    type: string
+    cardinality: multi
+    property: []
+  - id: evidence_with
+    description: "Evidence with/from."
+    display_name: Evidence with
+    type: string
+    cardinality: multi
+    property: []
+  - id: reference
+    description: "Database reference."
+    display_name: Reference
+    type: string
+    cardinality: multi
+    property: []
