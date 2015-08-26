@@ -18,4 +18,4 @@ Feature: Term enrichment engines basically respond
      and I select "PANTHER" for the results
      when I submit the RTE form
      then the title should be "PANTHER - Compare lists to reference list"
-     and the link "regulation of cell death" appears in the document
+     and the link "click here to display all results" appears in the document

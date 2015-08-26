@@ -18,12 +18,12 @@ Feature: AmiGO basic pages okay
     | /amigo/search/bioentity  | AmiGO 2: Search                              |
     | /amigo/software_list     | AmiGO 2: Tools and Resources                 |
     | /grebe                   | AmiGO 2: Grebe                               |
-    | /goose                   | AmiGO 2: GO Online SQL/Solr Environment      |
+    | /goose                   | AmiGO 2: GO Online SQL/Solr Environment (GOOSE) |
     | /rte                     | Term Enrichment Service                      |
-    | /visualize               | AmiGO 2: Service Status for visualize server |
-    | /amigo/visualize         | AmiGO 2: Visualize                           |
+    | /visualize               | AmiGO 2: Service Status for visualize        |
+    | /visualize?mode=client_amigo | AmiGO 2: Visualize                       |
     | /amigo/schema_details    | AmiGO 2: Schema Details                      |
     | /amigo/load_details      | AmiGO 2: Load Details                        |
-    | /xrefs                   | Cross References                             |
+    | /xrefs                   | AmiGO 2: Cross References                    |
 ## Ignore this next bit unless you're an Emacs org-mode user.
 #    | /amigo/visualize         | AmiGO 2: Visualize                           |
