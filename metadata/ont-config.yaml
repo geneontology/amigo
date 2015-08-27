@@ -55,6 +55,7 @@ fields:
     display_name: Comment
     type: string
     property: [getComment]
+    cardinality: multi
     searchable: true
 ## looks like single in OWLGraphWrapper API
 #    cardinality: multi
