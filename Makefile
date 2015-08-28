@@ -151,6 +151,8 @@ npm: bundle
 
 .PHONY: install
 install: test docs
+	npm install
+	./node_modules/.bin/browserify javascript/web/AmiGOCytoViewSource.js -o javascript/web/AmiGOCytoView.js --exclude "ringo/httpclient"
 	./install -v -g -V $(AMIGO_VERSION)
 #	 AMIGO_VERSION = $(AMIGO_VERSION) ./install -v -e -g
 
