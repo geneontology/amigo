@@ -306,6 +306,7 @@ fields:
     description: "Evidence with/from."
     display_name: Evidence with
     type: string
+    searchable: true
     cardinality: multi
     property: []
   - id: reference

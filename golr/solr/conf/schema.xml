@@ -75,6 +75,9 @@
     <!-- model_annotation: Evidence with/from. -->
     <!-- bbop_ann_ev_agg: All column 8s for this term/gene product pair -->
     <field name="evidence_with" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of evidence_with.-->
+    <field name="evidence_with_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="evidence_with" dest="evidence_with_searchable"></copyField>
     <!-- model_annotation: ???. -->
     <field name="model_state" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- bioentity: JSON blob form of the phylogenic tree. -->
