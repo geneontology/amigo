@@ -98,7 +98,7 @@ TEST_GAF_MICRO = ./_test/mgi-limited-100.gaf
 LEGO_S3_LISTING ?= \
  /tmp/lego.cat
 LEGO_CATALOGS ?= \
- ~/local/src/svn/geneontology.org/trunk/experimental/lego/server/protein/subset/catalog-v001.xml
+ ~/local/src/svn/geneontology.org/trunk/ontology/extensions/catalog-v001.xml
 
 ##
 DATE = `date +'%Y-%m-%d'`
