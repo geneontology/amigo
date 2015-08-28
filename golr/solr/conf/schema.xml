@@ -26,8 +26,14 @@
     <!--An easily searchable (TextField tokenized) version of synonym.-->
     <field name="synonym_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
     <copyField source="synonym" dest="synonym_searchable"></copyField>
+    <!-- model_annotation: Evidence type. -->
+    <field name="evidence_type_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of evidence_type_label.-->
+    <field name="evidence_type_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="evidence_type_label" dest="evidence_type_label_searchable"></copyField>
     <!-- general: The ID/label for this entity. -->
     <field name="entity" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- model_annotation: ???. -->
     <!-- complex_annotation: ???. -->
     <field name="annotation_unit" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- annotation: Closure of labels over has_participant. -->
@@ -50,22 +56,45 @@
     <!-- annotation: Direct annotations. -->
     <!-- bbop_ann_ev_agg: Column 5. -->
     <field name="annotation_class" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- model_annotation: All evidence (evidence closure) for this annotation -->
+    <field name="evidence_type_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of evidence_type_closure_label.-->
+    <field name="evidence_type_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="evidence_type_closure_label" dest="evidence_type_closure_label_searchable"></copyField>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between evidence_type_(list|closure) and evidence_type_closure_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="evidence_type_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- model_annotation: Function acc/ID. -->
     <!-- complex_annotation: Function acc/ID. -->
     <field name="function_class" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- bioentity: Type class. -->
     <!-- annotation: Type class. -->
     <field name="type" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- annotation: Evidence with/from. -->
+    <!-- model_annotation: Evidence with/from. -->
     <!-- bbop_ann_ev_agg: All column 8s for this term/gene product pair -->
     <field name="evidence_with" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- model_annotation: ???. -->
+    <field name="model_state" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- bioentity: JSON blob form of the phylogenic tree. -->
     <!-- family: JSON blob form of the phylogenic tree. -->
     <field name="phylo_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- model_annotation: ???. -->
+    <field name="contributor" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of contributor.-->
+    <field name="contributor_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="contributor" dest="contributor_searchable"></copyField>
     <!-- ontology: Term definition. -->
     <field name="description" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of description.-->
     <field name="description_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="description" dest="description_searchable"></copyField>
+    <!-- model_annotation: ???. -->
+    <field name="model_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of model_label.-->
+    <field name="model_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="model_label" dest="model_label_searchable"></copyField>
     <!-- family: Gene/products annotated with this protein family. -->
     <field name="bioentity_list_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- Automatically created to capture mapping information -->
@@ -82,6 +111,7 @@
     <copyField source="bioentity_name" dest="bioentity_name_searchable"></copyField>
     <!-- bioentity: Taxonomic group -->
     <!-- annotation: Taxonomic group. -->
+    <!-- model_annotation: GAF column 13 (taxon). -->
     <!-- complex_annotation: GAF column 13 (taxon). -->
     <!-- bbop_ann_ev_agg: Column 13: taxon. -->
     <field name="taxon" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
@@ -96,6 +126,7 @@
     <!-- between secondary_taxon_(list|closure) and secondary_taxon_closure_label.-->
     <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
     <field name="secondary_taxon_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- model_annotation: ??? -->
     <!-- complex_annotation: ??? -->
     <field name="owl_blob_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- general: The label for this entity. -->
@@ -105,6 +136,7 @@
     <copyField source="entity_label" dest="entity_label_searchable"></copyField>
     <!-- bioentity: Taxonomic group and ancestral groups. -->
     <!-- annotation: Taxonomic group and ancestral groups. -->
+    <!-- model_annotation: Taxon label closure derived from GAF column 13 and ncbi_taxonomy.obo. -->
     <!-- complex_annotation: Taxon label closure derived from GAF column 13 and ncbi_taxonomy.obo. -->
     <!-- bbop_ann_ev_agg: Labels derived from C13 + ncbi_taxonomy.obo. -->
     <field name="taxon_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
@@ -121,6 +153,7 @@
     <field name="annotation_extension_class" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- bioentity: Taxonomic group and ancestral groups. -->
     <!-- annotation: Taxonomic group and ancestral groups. -->
+    <!-- model_annotation: Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo. -->
     <!-- complex_annotation: Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo. -->
     <!-- bbop_ann_ev_agg: IDs derived from C13 + ncbi_taxonomy.obo. -->
     <field name="taxon_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
@@ -144,19 +177,23 @@
     <!-- between only_in_taxon_(list|closure) and only_in_taxon_closure_label.-->
     <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
     <field name="only_in_taxon_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- model_annotation:  -->
     <!-- complex_annotation:  -->
     <field name="location_list" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- model_annotation:  -->
     <!-- complex_annotation:  -->
     <field name="location_list_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- Automatically created to capture mapping information -->
     <!-- between location_list_(list|closure) and location_list_closure_label.-->
     <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
     <field name="location_list_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- model_annotation: Common process name. -->
     <!-- complex_annotation: Common process name. -->
     <field name="process_class_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of process_class_label.-->
     <field name="process_class_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="process_class_label" dest="process_class_label_searchable"></copyField>
+    <!-- model_annotation: Process acc/ID. -->
     <!-- complex_annotation: Process acc/ID. -->
     <field name="process_class" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- ontology: Only in taxon. -->
@@ -164,6 +201,7 @@
     <!--An easily searchable (TextField tokenized) version of only_in_taxon.-->
     <field name="only_in_taxon_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="only_in_taxon" dest="only_in_taxon_searchable"></copyField>
+    <!-- model_annotation:  -->
     <!-- complex_annotation:  -->
     <field name="location_list_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- Automatically created to capture mapping information -->
@@ -172,7 +210,13 @@
     <field name="location_list_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- ontology: Term that replaces this term. -->
     <field name="replaced_by" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- annotation: Labels for taxonomic group (direct) and ancestral groups that are within the specified subset. -->
+    <field name="taxon_closure_subset_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of taxon_closure_subset_label.-->
+    <field name="taxon_closure_subset_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="taxon_closure_subset_label" dest="taxon_closure_subset_label_searchable"></copyField>
     <!-- ontology: Term comment. -->
+    <!-- model_annotation: Comments -->
     <field name="comment" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of comment.-->
     <field name="comment_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
@@ -181,6 +225,9 @@
     <field name="assigned_by" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- annotation: Secondary taxon. -->
     <field name="secondary_taxon" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- model_annotation: ???. -->
+    <field name="model" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- model_annotation: ??? -->
     <!-- complex_annotation: ??? -->
     <field name="enabled_by_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of enabled_by_label.-->
@@ -198,6 +245,7 @@
     <field name="annotation_class_list_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bioentity: Taxonomic group -->
     <!-- annotation: Taxonomic group and ancestral groups. -->
+    <!-- model_annotation: Taxon derived from GAF column 13 and ncbi_taxonomy.obo. -->
     <!-- complex_annotation: Taxon derived from GAF column 13 and ncbi_taxonomy.obo. -->
     <!-- bbop_ann_ev_agg: Derived from C13 + ncbi_taxonomy.obo. -->
     <field name="taxon_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
@@ -211,6 +259,7 @@
     <!--An easily searchable (TextField tokenized) version of bioentity_label.-->
     <field name="bioentity_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="bioentity_label" dest="bioentity_label_searchable"></copyField>
+    <!-- model_annotation: ??? -->
     <!-- complex_annotation: ??? -->
     <field name="function_class_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of function_class_closure_label.-->
@@ -225,14 +274,15 @@
     <!-- annotation: Annotations for this term or its children (over is_a/part_of). -->
     <field name="isa_partof_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- annotation: Evidence type. -->
+    <!-- model_annotation: Evidence type. -->
     <field name="evidence_type" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- annotation: Annotation qualifier. -->
+    <field name="qualifier" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- ontology: Only in taxon label. -->
     <field name="only_in_taxon_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of only_in_taxon_label.-->
     <field name="only_in_taxon_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="only_in_taxon_label" dest="only_in_taxon_label_searchable"></copyField>
-    <!-- annotation: Annotation qualifier. -->
-    <field name="qualifier" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- annotation: Extension class for the annotation. -->
     <field name="annotation_extension_class_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- annotation: Biological isoform. -->
@@ -244,6 +294,8 @@
     <!--An easily searchable (TextField tokenized) version of general_blob.-->
     <field name="general_blob_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="general_blob" dest="general_blob_searchable"></copyField>
+    <!-- annotation: Taxonomic group (direct) and ancestral groups that are within the specified subset (e.g mammalia, eukaryota). -->
+    <field name="taxon_closure_subset" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- ontology: Identifier. -->
     <!-- annotation: Direct annotations. -->
     <!-- bbop_ann_ev_agg: Column 5 + ontology. -->
@@ -256,6 +308,7 @@
     <!-- ontology: Term identifier. -->
     <!-- bioentity: Gene of gene product ID. -->
     <!-- annotation: A unique (and internal) combination of bioentity and ontology class. -->
+    <!-- model_annotation: A unique (and internal) thing. -->
     <!-- complex_annotation: A unique (and internal) thing. -->
     <!-- family: Family ID. -->
     <!-- general: The mangled internal ID for this entity. -->
@@ -263,6 +316,7 @@
     <field name="id" type="string" required="true" multiValued="false" indexed="true" stored="true"></field>
     <!-- ontology: Special use collections of terms. -->
     <field name="subset" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- model_annotation: ??? -->
     <!-- complex_annotation: ??? -->
     <field name="process_class_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- annotation: Extension class for the annotation. -->
@@ -270,6 +324,7 @@
     <!--An easily searchable (TextField tokenized) version of annotation_extension_class_label.-->
     <field name="annotation_extension_class_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
     <copyField source="annotation_extension_class_label" dest="annotation_extension_class_label_searchable"></copyField>
+    <!-- model_annotation: Common function name. -->
     <!-- complex_annotation: Common function name. -->
     <field name="function_class_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of function_class_label.-->
@@ -292,6 +347,8 @@
     <!-- annotation: Gene or gene product identifiers. -->
     <!-- bbop_ann_ev_agg: Column 1 + columns 2. -->
     <field name="bioentity" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- model_annotation: set of all literal values of all annotation assertions in model -->
+    <field name="annotation_value" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- bioentity: The bioentity ID used at the database of origin. -->
     <!-- annotation: The bioentity ID used at the database of origin. -->
     <field name="bioentity_internal_id" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
@@ -306,15 +363,23 @@
     <!-- between isa_partof_(list|closure) and isa_partof_closure_label.-->
     <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
     <field name="isa_partof_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- model_annotation: ??? -->
     <!-- complex_annotation: ??? -->
     <field name="enabled_by" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of enabled_by.-->
     <field name="enabled_by_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="enabled_by" dest="enabled_by_searchable"></copyField>
+    <!-- model_annotation: ??? -->
     <!-- complex_annotation: ??? -->
     <field name="function_class_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- annotation: Closure of ids/accs over has_participant. -->
     <field name="has_participant_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- model_annotation: Last modified -->
+    <field name="model_date" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of model_date.-->
+    <field name="model_date_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="model_date" dest="model_date_searchable"></copyField>
+    <!-- model_annotation: ??? -->
     <!-- complex_annotation: ??? -->
     <field name="process_class_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of process_class_closure_label.-->
@@ -326,8 +391,11 @@
     <field name="process_class_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- ontology: Is the term obsolete? -->
     <field name="is_obsolete" type="boolean" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- model_annotation: ???. -->
+    <field name="model_url" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- bioentity: PANTHER families that are associated with this entity. -->
     <!-- annotation: PANTHER families that are associated with this entity. -->
+    <!-- model_annotation: PANTHER families that are associated with this entity. -->
     <!-- complex_annotation: PANTHER families that are associated with this entity. -->
     <!-- family: PANTHER families that are associated with this entity. -->
     <!-- bbop_ann_ev_agg: Families that are associated with this entity. -->
@@ -345,7 +413,11 @@
     <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
     <field name="annotation_extension_class_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- annotation: Database reference. -->
+    <!-- model_annotation: Database reference. -->
     <field name="reference" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of reference.-->
+    <field name="reference_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="reference" dest="reference_searchable"></copyField>
     <!-- ontology: Alternate term identifier. -->
     <field name="alternate_id" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- complex_annotation: ???. -->
@@ -355,13 +427,16 @@
     <!-- annotation: Database source. -->
     <field name="source" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- annotation: All evidence (evidence closure) for this annotation -->
+    <!-- model_annotation: All evidence (evidence closure) for this annotation -->
     <!-- bbop_ann_ev_agg: All evidence for this term/gene product pair -->
     <field name="evidence_type_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- ontology: JSON blob form of the local stepwise topology graph. Uses various relations (including regulates, occurs in, capable_of). -->
+    <!-- model_annotation: JSON blob form of the local stepwise topology graph. -->
     <!-- complex_annotation: JSON blob form of the local stepwise topology graph. -->
     <field name="topology_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bioentity: PANTHER families that are associated with this entity. -->
     <!-- annotation: PANTHER families that are associated with this entity. -->
+    <!-- model_annotation: PANTHER family IDs that are associated with this entity. -->
     <!-- complex_annotation: PANTHER family IDs that are associated with this entity. -->
     <!-- family: PANTHER family IDs that are associated with this entity. -->
     <!-- bbop_ann_ev_agg: Family IDs that are associated with this entity. -->
@@ -378,8 +453,10 @@
     <copyField source="secondary_taxon_label" dest="secondary_taxon_label_searchable"></copyField>
     <!-- ontology: Definition cross-reference. -->
     <field name="definition_xref" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- model_annotation:  -->
     <!-- complex_annotation:  -->
     <field name="location_list_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- model_annotation: ???. -->
     <!-- complex_annotation: ???. -->
     <field name="annotation_unit_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of annotation_unit_label.-->
