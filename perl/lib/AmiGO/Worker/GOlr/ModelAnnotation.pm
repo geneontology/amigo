@@ -43,16 +43,6 @@ sub new {
 
     if( $found_doc ){
 
-      ## We need to translate some of the document information.
-      ## TODO/BUG: This is temporary as we work out what we'll actually have.
-      my $mid = $found_doc->{model} || '???';
-      my @s = split(':', $mid);
-      my $fid = $s[scalar(@s) -1];
-
-      ## TODO/BUG: Again, temporary badness for Noctua.
-      my $noctua_base = 'http://noctua-dev.berkeleybop.org:8909/editor/graph/';
-      my $github_base = 'https://github.com/geneontology/noctua-models/blob/master/models/';
-
       ## We'll have the document assembly here.
       $intermediate =
 	{
@@ -61,10 +51,6 @@ sub new {
 	 model_label => $found_doc->{model_label},
 	 model_date => $found_doc->{model_date},
 	 #model_date => $found_doc->{contributor},
-
-	 ## 
-	 repo_file_url => $github_base . $fid,
-	 edit_file_url => $noctua_base . $mid
 	};
     }
     $self->{AWGG_INFO}{$arg} = $intermediate;

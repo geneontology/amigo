@@ -1,10 +1,10 @@
-<!-- START template: model_annotation_details.tmpl -->
+<!-- START template: model_details.tmpl -->
 
 [% INCLUDE common/noscript_js_limited.tmpl %]
 
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title">Model Annotation Information</h3>
+    <h3 class="panel-title">Model Information</h3>
   </div>
   <div class="panel-body">
 
@@ -32,22 +32,17 @@
       
       <dt>File</dt>
       [% IF MA_INFO.model_id %]
-      <dd><a href="[% MA_INFO.repo_file_url %]">[% MA_INFO.model_id %]</a> <small>(@GitHub)</small></dd>
+      <dd><a href="[% repo_file_url %]">[% MA_INFO.model_id %]</a> <small>(@GitHub)</small></dd>
       [% ELSE %]
       <dd>(n/a)</dd>
       [% END %]
       
       <dt>Edit</dt>
       [% IF MA_INFO.model_id %]
-      <dd><a href="[% MA_INFO.edit_file_url %]">Noctua</a></dd>
+      <dd><a href="[% edit_file_url %]">Noctua</a></dd>
       [% ELSE %]
       <dd>(n/a)</dd>
       [% END %]
-      
-      <!-- <dt>Taxon</dt> -->
-      <!-- <dd>[% MA_INFO.taxon_readable %]</dd> -->
-      <!-- TODO: Oo! Copy below. -->
-      <!-- <dd><a href="http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=44689" title="View Dictyostelium discoideum details on the NCBI taxonomy website">Dictyostelium discoideum</a></dd> -->
       
     </dl>
 
@@ -61,12 +56,14 @@
   <div class="panel-body">
     <div id="display-associations">
 
-      <p>
-	TODO
-      </p>
+      <div id="cytoview"
+	   width="100%" height="750px"
+	   style="border: 1px black solid; width:100%; height:750px; margin-top:5px;">
+	Loading...
+      </div>
 
     </div>
   </div>
 </div>
 
-<!-- END template: model_annotation_details.tmpl -->
+<!-- END template: model_details.tmpl -->

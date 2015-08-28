@@ -1814,6 +1814,23 @@ sub mode_model_details {
   }
   $self->set_template_parameter('page_content_title', $best_title);
 
+  ## BUG/TODO: Some silliness to get the variables right; will need to
+  ## revisit later on.
+  ## TODO/BUG: Again, temporary badness for Noctua.
+  my $noctua_base =
+    'http://noctua-dev.berkeleybop.org:8909/editor/graph/';
+  my $github_base =
+    'https://github.com/geneontology/noctua-models/blob/master/models/';
+  ## We need to translate some of the document information.
+  ## TODO/BUG: This is temporary as we work out what we'll actually have.
+  my @s = split(':', $input_id);
+  my $fid = $s[scalar(@s) -1];
+  ## 
+  my $repo_file_url = $github_base . $fid;
+  my $edit_file_url = $noctua_base . $input_id;
+  $self->set_template_parameter('repo_file_url', $repo_file_url);
+  $self->set_template_parameter('edit_file_url', $edit_file_url);
+
   ## Our AmiGO services CSS.
   my $prep =
     {
@@ -1836,16 +1853,26 @@ sub mode_model_details {
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-      #$self->{JS}->get_lib('GPDetails.js'),
-      # $self->{JS}->make_var('global_count_data', $gpc_info),
-      # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
-      # $self->{JS}->make_var('global_acc_to_rand', $acc_to_rand),
-      $self->{JS}->make_var('global_acc', $input_id)
+      #$self->{JS}->get_lib('ModelDetails.js'),
+      $self->{JS}->get_lib('AmiGOCytoView.js'),
+      ## Things to make AmiGOCytoView.js work. HACKY! TODO/BUG
+      $self->{JS}->make_var('global_id', $input_id),
+      $self->{JS}->make_var('global_barista_token',
+			    undef),
+      $self->{JS}->make_var('global_minerva_definition_name',
+			    "minerva_public_dev"),
+      $self->{JS}->make_var('global_barista_location',
+			    "http://toaster.lbl.gov:3399"),
+      $self->{JS}->make_var('global_collapsible_relations',
+			    ["RO:0002333",
+			     "BFO:0000066",
+			     "RO:0002233",
+			     "RO:0002488"])
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();',
-      #'GPDetailsInit();'
+      'GeneralSearchForwardingInit();'#,
+      #'ModelDetailsInit();'
      ],
      content =>
      [
