@@ -26,8 +26,12 @@
       [% IF sl.size == 0 AND al.size == 0 %]
       <dd>None</dd>
       [% ELSE %]
+      [%    IF al.size != 0 %]
       <dd><strong>alt. id</strong>: [% al.join(", ") %]</dd>
+      [%    END %]
+      [%    IF sl.size != 0 %]
       <dd>[% sl.join(", ") %]</dd>
+      [%    END %]
       <!-- [% #   FOREACH synh IN sl %] -->
       <!-- BUG/TODO: Like this when we have scope available. -->
       <!-- <dd>[% IF synh.scope %]<span>[% synh.scope %]</span>: [% END %][% synh.acc %]</dd> -->
