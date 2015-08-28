@@ -51,7 +51,14 @@ amigo.linker = function (){
 	'ontology_class': true,
 	'annotation_class': true,
 	'annotation_class_closure': true,
-	'annotation_class_list': true
+	'annotation_class_list': true,
+	// Noctua model stuff.
+	'function_class': true,
+	'function_class_closure': true,
+	'process_class': true,
+	'process_class_closure': true,
+	'location_list': true,
+	'location_list_closure': true
     };
     this.bio_category = {
         'gp': true,
