@@ -24,6 +24,7 @@ SOLR_URL ?= http://localhost:8080/solr/
 OWLTOOLS_ROOT ?= ~/local/src/git/owltools/
 BBOP_JS_ROOT ?= ~/local/src/git/bbop-js/
 PANTHER_FILES_DIR ?= ~/local/src/svn/geneontology.org/trunk/experimental/trees/panther_data/
+NOCTUA_ENRICHED_MODELS_DIR ?= ~/local/src/git/noctua-models/enriched
 SOLR_DATA_ROOT ?= /srv/solr
 
 ## Files.
@@ -35,14 +36,15 @@ SCHEMA_METADATA ?= \
  ../metadata/ont-config.yaml \
  ../metadata/bio-config.yaml \
  ../metadata/ann-config.yaml \
+ ../metadata/model-ann-config.yaml \
  ../metadata/complex-ann-config.yaml \
  ../metadata/protein-family-config.yaml \
  ../metadata/general-config.yaml \
  ../metadata/ann_ev_agg-config.yaml
 ONTOLOGY_METADATA ?= ../metadata/ont-config.yaml
 ONTOLOGIES ?= \
- http://purl.obolibrary.org/obo/go/extensions/go-plus.owl \
- http://purl.obolibrary.org/obo/ncbitaxon.owl \
+ http://purl.obolibrary.org/obo/go/extensions/go-lego.owl \
+ http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl \
  http://purl.obolibrary.org/obo/cl/cl-basic.owl \
  http://purl.obolibrary.org/obo/eco.owl \
  http://purl.obolibrary.org/obo/go/extensions/gorel.owl \
@@ -50,9 +52,11 @@ ONTOLOGIES ?= \
  http://purl.obolibrary.org/obo/pato.owl \
  http://purl.obolibrary.org/obo/po.owl \
  http://purl.obolibrary.org/obo/emap.owl \
- http://purl.obolibrary.org/obo/chebi.owl \
  http://purl.obolibrary.org/obo/uberon/basic.owl \
+ http://purl.obolibrary.org/obo/wbbt.owl \
  http://purl.obolibrary.org/obo/go/extensions/go-modules-annotations.owl
+# http://purl.obolibrary.org/obo/ncbitaxon.owl \
+# http://purl.obolibrary.org/obo/chebi.owl \
 
 GENE_ASSOCIATION_FILES ?= \
 	http://www.geneontology.org/gene-associations/gene_association.GeneDB_Lmajor.gz \
@@ -97,7 +101,7 @@ TEST_GAF_MICRO = ./_test/mgi-limited-100.gaf
 LEGO_S3_LISTING ?= \
  /tmp/lego.cat
 LEGO_CATALOGS ?= \
- ~/local/src/svn/geneontology.org/trunk/experimental/lego/server/protein/subset/catalog-v001.xml
+ ~/local/src/svn/geneontology.org/trunk/ontology/extensions/catalog-v001.xml
 
 ##
 DATE = `date +'%Y-%m-%d'`
@@ -205,12 +209,23 @@ load-just-panther: owltools-build
 	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --read-panther $(PANTHER_FILES_DIR) --solr-log $(SOLR_LOAD_LOG) --solr-load-panther --solr-load-panther-general
 	make message-load-clear
 
-## TODO/BUG: Testing phase.
+## DEPRECATED
+# ## TODO/BUG: Testing phase.
+# ## Test complex annotations (LEGO): A test load with just the new doc type.
+# .PHONY: load-just-complex-annotations
+# load-just-complex-annotations: owltools-build
+# 	make message-load-start
+# 	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --catalog-xml $(LEGO_CATALOGS) --solr-url $(SOLR_URL) --read-ca-list $(LEGO_S3_LISTING) --solr-load-complex-exp
+# 	make message-load-clear
+
+## TODO: Testing phase.
 ## Test complex annotations (LEGO): A test load with just the new doc type.
-.PHONY: load-just-complex-annotations
-load-just-complex-annotations: owltools-build
+# .PHONY: load-just-model-annotations
+# load-just-model-annotations: owltools-build
+.PHONY: load-just-model-annotations
+load-just-model-annotations:
 	make message-load-start
-	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --catalog-xml $(LEGO_CATALOGS) --solr-url $(SOLR_URL) --read-ca-list $(LEGO_S3_LISTING) --solr-load-complex-exp
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --read-lego-catalogs $(LEGO_CATALOGS) --solr-url $(SOLR_URL) --read-model-folder $(NOCTUA_ENRICHED_MODELS_DIR) --read-model-url-prefix "http://noctua-dev.berkeleybop.org/editor/graph/" --solr-load-models
 	make message-load-clear
 
 ## Check the ontology data for suitability.
