@@ -1813,7 +1813,7 @@ sub mode_model_details {
     $best_title = $ma_info_hash->{$input_id}{'model_label'};
   }
   $self->set_template_parameter('page_content_title', $best_title);
-
+  
   ## BUG/TODO: Some silliness to get the variables right; will need to
   ## revisit later on.
   ## TODO/BUG: Again, temporary badness for Noctua.
@@ -1861,11 +1861,10 @@ sub mode_model_details {
       ## Things to make AmiGOCytoView.js work. HACKY! TODO/BUG
       $self->{JS}->make_var('global_id', $input_id),
       ## TODO: get load to have same as wire protocol.
-      $self->{JS}->make_var('global_model', undef);
+      $self->{JS}->make_var('global_model', undef),
       # $self->{JS}->make_var('global_model',
       # 			    $ma_info_hash->{$input_id}{'model_graph'}),
-      $self->{JS}->make_var('global_barista_token',
-			    undef),
+      $self->{JS}->make_var('global_barista_token',  undef),
       $self->{JS}->make_var('global_minerva_definition_name',
 			    "minerva_public_dev"),
       $self->{JS}->make_var('global_barista_location',
