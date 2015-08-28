@@ -318,7 +318,7 @@ sub mode_client_amigo {
 }
 
 ## Example:
-## http://localhost/visualize?mode=quickgo&term=GO:0048856
+## http://localhost:9999/visualize?mode=quickgo&term=GO:0022008
 sub mode_quickgo {
 
   my $self = shift;
