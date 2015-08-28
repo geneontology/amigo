@@ -1549,10 +1549,10 @@ sub mode_term_details {
 				'" (' .	$input_term_id . ')');
   $self->set_template_parameter('content_title',
 				$term_info_hash->{$input_term_id}{'name'});
-  my($page_title, $page_content_title, $page_help_link) =
-      $self->_resolve_page_settings('term');
   $self->set_template_parameter('page_content_title',
 				$term_info_hash->{$input_term_id}{'name'});
+  my($page_title, $page_content_title, $page_help_link) =
+      $self->_resolve_page_settings('term');
   $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Our AmiGO services CSS.
