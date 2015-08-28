@@ -9,7 +9,7 @@ document_category: model_annotation
 weight: -5
 boost_weights: model_label^1.0 annotation_unit_label^1.0 enabled_by^1.0 enabled_by_label^1.0 location_list_closure^1.0 location_list_closure_label^1.0 process_class_closure_label^1.0 function_class_closure_label^1.0 comment^0.5 
 result_weights: function_class^9.0 enabled_by^8.0 location_list^7.0 process_class^6.0 taxon^4.0 model^5.0 contributor^4.0 model_date^3.0 reference^2.0
-filter_weights:  model_label^5.0 enabled_by_label^4.5 location_list_closure_label^4.0 process_class_closure_label^3.0 function_class_closure_label^2.0 contributor^1.0 evidence_type^0.5
+filter_weights:  model_label^5.0 enabled_by_label^4.5 reference^4.3 location_list_closure_label^4.0 process_class_closure_label^3.0 function_class_closure_label^2.0 contributor^1.0 evidence_type^0.5
 fields:
   - id: id
     description: A unique (and internal) thing.
@@ -31,50 +31,51 @@ fields:
 ## model
   - id: model
     description: ???.
-    display_name: model
+    display_name: Model title
     type: string
     property: []
   - id: model_label
     description: ???.
-    display_name: model
+    display_name: Model title
     type: string
     property: []
     searchable: true
   - id: model_url
     description: ???.
-    display_name: model URL
+    display_name: Model URL
     type: string
     property: []
   - id: model_state
     description: ???.
-    display_name: state
+    display_name: State
     type: string
     property: []
   - id: annotation_value
     description: set of all literal values of all annotation assertions in model
-    display_name: texts
+    display_name: Text
     type: string
     cardinality: multi
     property: []
   - id: contributor
     description: ???.
-    display_name: contributor
+    display_name: Contributor
     searchable: true
     type: string
     cardinality: multi
     property: []
   - id: model_date
     description: Last modified
-    display_name: modified
+    display_name: Modified
     type: string
     searchable: true
     property: []
   - id: comment
     description: Comments
-    display_name: comment
+    display_name: Comments
     searchable: true
     type: string
-    cardinality: multi
+    ## See ticket: https://github.com/geneontology/noctua/issues/182
+    #cardinality: multi
     property: []
 ## Enabled by/bioentity
   - id: enabled_by
@@ -230,12 +231,14 @@ fields:
     description: "Evidence type."
     display_name: Evidence
     type: string
+    searchable: true
     property: []
   - id: evidence_type_closure_label
     description: "All evidence (evidence closure) for this annotation"
     display_name: Evidence type
     type: string
     cardinality: multi
+    searchable: true
     property: []
   - id: evidence_with
     description: "Evidence with/from."
