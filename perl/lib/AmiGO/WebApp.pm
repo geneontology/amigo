@@ -846,10 +846,10 @@ sub _resolve_page_settings {
     $page_title = 'AmiGO 2';
     $page_content_title = 'Gene Product Page';
     $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Gene_Product_Page';
-  }elsif( $page_name eq 'complex_annotation' ){ # typically won't use
+  }elsif( $page_name eq 'model' ){
     $page_title = 'AmiGO 2';
-    $page_content_title = 'Complex Annotation Page';
-    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Complex_Annotation_Page';
+    $page_content_title = 'Model Page';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Model_Page';
   }elsif( $page_name eq 'schema_details' ){
     $page_title = 'AmiGO 2: Schema Details';
     $page_content_title = 'Instance Schema Details';

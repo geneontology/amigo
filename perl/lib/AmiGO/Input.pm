@@ -97,10 +97,8 @@ sub input_profile {
     ## Public-facing bookmark API.
     $self->_link_search_bookmark_api();
 
-  }elsif( $profile_name eq 'complex_annotation' ){
-    #$self->_add_simple_argument('annotation_group', '');
-    #$self->_add_simple_argument('annotation_unit', '');
-    $self->_add_simple_argument('complex_annotation', '');
+  }elsif( $profile_name eq 'model' ){
+    $self->_add_simple_argument('model', '');
   }elsif( $profile_name eq 'family' ){
     ## Optional string at this point since we have optional behavior.
     $self->_add_simple_argument('family', '');
@@ -138,10 +136,6 @@ sub input_profile {
     $self->_add_visual_format();
     $self->_add_graph_data();
     $self->_add_term_data();
-  }elsif( $profile_name eq 'visualize_complex_annotation' ){
-    $self->_add_inline_p();
-    $self->_add_visual_format();
-    $self->_add_simple_argument('complex_annotation', '');
   }elsif( $profile_name eq 'visualize_single' ){
     $self->_add_inline_p();
     $self->_add_loose_term();
