@@ -26,7 +26,7 @@ AMIGO_GOOGLE_ANALYTICS_ID:
 AMIGO_LAYOUT_SEARCH:
   comment: A whitespace separated list of class IDs to use for live search tabs on the search page.
   type: string
-  value: annotation ontology bioentity complex_annotation family general bbop_term_ac
+  value: annotation ontology bioentity model_annotation family general bbop_term_ac
 AMIGO_PUBLIC_GOLR_URL:
   comment: The public URL of the GOlr server (including slash).
   type: url
