@@ -846,7 +846,7 @@ sub _resolve_page_settings {
     $page_title = 'AmiGO 2';
     $page_content_title = 'Gene Product Page';
     $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Gene_Product_Page';
-  }elsif( $page_name eq 'model' ){
+  }elsif( $page_name eq 'model' ){ # typically won't use
     $page_title = 'AmiGO 2';
     $page_content_title = 'Model Page';
     $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Model_Page';
