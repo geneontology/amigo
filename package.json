@@ -1,0 +1,131 @@
+{
+    "name": "amigo",
+    "version": "2.4.1",
+    "license": "BSD-3-Clause",
+    "description": "AmiGO: Your friend in the Gene Ontology.",
+    "keywords": [
+        "application",
+        "gene ontology",
+        "GO",
+        "amigo",
+        "bbop",
+        "bbopx",
+        "pup-tent",
+        "noctua",
+        "barista"
+    ],
+    "author": "SJC <sjcarbon@lbl.gov> (http://berkeleybop.org/)",
+    "homepage": "http://berkeleybop.org/",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/geneontology/noctua.git"
+    },
+    "engines": {
+        "node": ">= 0.12.2",
+        "npm": ">= 2.7.4"
+    },
+    "dependencies": {
+        "amigo2": "^2.4.0",
+        "aws-sdk": "2.0.4",
+	"bbop": "2.4.0",
+        "bbop-core": "0.0.5",
+        "bbop-graph": "0.0.16",
+        "bbop-graph-noctua": "0.0.23",
+        "bbop-manager-minerva": "0.0.5",
+        "bbop-rest-manager": "0.0.6",
+        "bbop-response-barista": "0.0.6",
+        "body-parser": "1.13.3",
+        "bbop-widget-solr-autocomplete": "^0.0.9",
+        "class-expression": "0.0.9",
+        "cors": "2.4.1",
+        "cytoscape": "2.4.6",
+        "bootstrap": "3.3.4",
+        "del": "^1.1.1",
+        "express-persona": "0.1.2",
+        "express": "3.4.6",
+        "http-proxy": "1.11.1",
+        "jquery": "1.9.1",
+        "mime": "1.3.4",
+        "minerva-requests": "0.0.6",
+        "minimist": "0.2.0",
+        "mustache": "2.0.0",
+        "pup-tent": "0.9.10",
+        "socket.io": "0.9.16",
+        "underscore": "1.8.3",
+        "angular": "1.3.15",
+        "angular-route": "1.3.15",
+        "angular-animate": "1.3.15",
+        "angular-aria": "1.3.15",
+        "angular-material": "0.8.3"
+    },
+    "devDependencies": {
+        "browserify-shim": "^3.8.6",
+        "browserify": "^10.1.3",
+        "chai": "^2.3.0",
+        "gulp": "^3.8.11",
+        "gulp-bump": "^0.3.0",
+        "gulp-flatten": "0.1.0",
+        "gulp-git": "^1.2.3",
+        "gulp-jsdoc": "^0.1.4",
+        "gulp-mocha": "^2.0.1",
+        "gulp-uglify": "^1.2.0",
+        "vinyl-source-stream": "1.1.0",
+        "watchify": "^3.2.1",
+        "jsdoc": "^3.3.0",
+        "jsdoc-baseline": "git://github.com/hegemonic/jsdoc-baseline.git#74d1dc8075",
+	"yamljs": "0.2.3"
+    },
+    "browserify": {
+        "transform": [
+            "browserify-shim"
+        ]
+    },
+    "browser": {
+        "jquery": "./node_modules/jquery/jquery.js",
+        "bootstrap": "./node_modules/bootstrap/dist/js/bootstrap.min.js",
+        "jquery-ui": "./external_js/jquery-ui-1.10.3.custom.min.js",
+        "jsplumb": "./external_js/jquery.jsPlumb-1.5.5.js",
+        "tablesorter": "./external_js/jquery.tablesorter.min.js",
+        "connectors-sugiyama": "./js/connectors-sugiyama.js",
+        "noctua-widgetry": "./js/lib/noctua-widgetry/widgetry.js",
+        "bs-table": "./external_js/bs-table.min.js",
+        "angular-xeditable": "./external_js/xeditable.min.js",
+        "angular:": "./node_modules/angular/angular.min.js"
+    },
+    "browserify-shim": {
+        "jquery": {
+            "exports": "global:jQuery"
+        },
+        "jquery-ui": {
+            "depends": [
+                "jquery"
+            ]
+        },
+        "jsplumb": {
+            "exports": "global:jsPlumb"
+        },
+        "bs-table": {
+            "depends": [
+                "angular"
+            ]
+        },
+        "angular-xeditable": {
+            "depends": [
+                "angular"
+            ]
+        }
+    },
+    "bundleDependencies": [],
+    "private": false,
+    "main": "noctua.js",
+    "bugs": {
+        "url": "https://github.com/geneontology/noctua/issues"
+    },
+    "directories": {
+        "doc": "doc",
+        "test": "tests"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    }
+}
