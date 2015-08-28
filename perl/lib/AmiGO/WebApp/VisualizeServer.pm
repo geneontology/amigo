@@ -318,7 +318,7 @@ sub mode_client_amigo {
 }
 
 ## Example:
-## http://localhost/cgi-bin/amigo/visualize?mode=quickgo&term=GO:0048856
+## http://localhost/visualize?mode=quickgo&term=GO:0048856
 sub mode_quickgo {
 
   my $self = shift;
@@ -326,7 +326,7 @@ sub mode_quickgo {
 
   ##
   my $i = AmiGO::Input->new($self->query());
-  my $params = $i->input_profile('visualize_service_single');
+  my $params = $i->input_profile('visualize_single');
   my $inline_p = $params->{inline};
   my $term = $params->{term};
 
