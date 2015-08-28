@@ -313,6 +313,8 @@ fields:
     display_name: Reference
     type: string
     cardinality: multi
+    ## Added for compat purposes with model-ann.yaml
+    searchable: true
     property: []
   - id: annotation_extension_class
     description: "Extension class for the annotation."
