@@ -1817,19 +1817,22 @@ sub mode_model_details {
   ## BUG/TODO: Some silliness to get the variables right; will need to
   ## revisit later on.
   ## TODO/BUG: Again, temporary badness for Noctua.
-  my $noctua_base =
-    'http://noctua-dev.berkeleybop.org:8909/editor/graph/';
   my $github_base =
     'https://github.com/geneontology/noctua-models/blob/master/models/';
+  my $noctua_base = 'http://noctua-dev.berkeleybop.org:8909';
+  my $editor_base = $noctua_base . '/editor/graph/';
+  my $viewer_base = $noctua_base . '/workbench/cytoview/';
   ## We need to translate some of the document information.
   ## TODO/BUG: This is temporary as we work out what we'll actually have.
   my @s = split(':', $input_id);
   my $fid = $s[scalar(@s) -1];
   ## 
   my $repo_file_url = $github_base . $fid;
-  my $edit_file_url = $noctua_base . $input_id;
+  my $edit_file_url = $editor_base . $input_id;
+  my $view_file_url = $viewer_base . $input_id;
   $self->set_template_parameter('repo_file_url', $repo_file_url);
   $self->set_template_parameter('edit_file_url', $edit_file_url);
+  $self->set_template_parameter('view_file_url', $view_file_url);
 
   ## Our AmiGO services CSS.
   my $prep =
@@ -1857,6 +1860,10 @@ sub mode_model_details {
       $self->{JS}->get_lib('AmiGOCytoView.js'),
       ## Things to make AmiGOCytoView.js work. HACKY! TODO/BUG
       $self->{JS}->make_var('global_id', $input_id),
+      ## TODO: get load to have same as wire protocol.
+      $self->{JS}->make_var('global_model', undef);
+      # $self->{JS}->make_var('global_model',
+      # 			    $ma_info_hash->{$input_id}{'model_graph'}),
       $self->{JS}->make_var('global_barista_token',
 			    undef),
       $self->{JS}->make_var('global_minerva_definition_name',
