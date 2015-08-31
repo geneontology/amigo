@@ -2,6 +2,142 @@
 //// A lot of the commented out stuff in the other completely gone here.
 ////
 
+// Let jshint pass over over our external globals (browserify takes
+// care of it all).
+/* global jQuery */
+/* global amigo */
+/* global bbop */
+/* global global_acc */
+/* global global_live_search_query */
+/* global global_live_search_filters */
+/* global global_live_search_pins */
+
+// Take and element, look at it's contents, if it's above a certain
+// threshold, shrink with "more..." button, otherwise leave alone.
+function _shrink_wrap(elt_id){
+
+    // Now take what we have, and wrap around some expansion code if
+    // it looks like it is too long.
+    var _trim_hash = {};
+    var _trimit = 100;
+    // Only want to compile once.
+    var ea_regexp = new RegExp("\<\/a\>", "i"); // detect an <a>
+    var br_regexp = new RegExp("\<br\ \/\>", "i"); // detect a <br />
+
+    function _trim_and_store( in_str ){
+    
+	var retval = in_str;
+
+	// Let there be tests.
+	var list_p = br_regexp.test(retval);
+	var anchors_p = ea_regexp.test(retval);
+	    
+	// Try and break without breaking anchors, etc.
+	var tease = null;
+	if( ! anchors_p && ! list_p ){
+	    // A normal string then...trim it!
+	    //ll("\tT&S: easy normal text, go nuts!");
+	    tease = new bbop.html.span(bbop.core.crop(retval, _trimit, '...'),
+				       {'generate_id': true});
+	}else if( anchors_p && ! list_p ){
+	    // It looks like it is a link without a break, so not
+	    // a list. We cannot trim this safely.
+	    //ll("\tT&S: single link so cannot work on!");
+	}else{
+	    //ll("\tT&S: we have a list to deal with");
+	    
+	    var new_str_list = retval.split(br_regexp);
+	    if( new_str_list.length <= 3 ){
+		// Let's just ignore lists that are only three
+		// items.
+		//ll("\tT&S: pass thru list length <= 3");
+	    }else{
+		//ll("\tT&S: contruct into 2 plus tag");
+		var new_str = '';
+		new_str = new_str + new_str_list.shift();
+		new_str = new_str + '<br />';
+		new_str = new_str + new_str_list.shift();
+		tease = new bbop.html.span(new_str, {'generate_id': true});
+	    }
+	}
+	    
+	// If we have a tease (able to break down incoming string),
+	// assemble the rest of the packet to create the UI.
+	if( tease ){
+	    // Setup the text for tease and full versions.
+		var bgen = function(lbl, dsc){
+		    var b = new bbop.html.button(
+  			lbl,
+			{
+			    'generate_id': true,
+			    'type': 'button',
+			    'title': dsc || lbl,
+			    //'class': 'btn btn-default btn-xs'
+			    'class': 'btn btn-primary btn-xs'
+			});
+		    return b;
+		};
+	    var more_b = new bgen('more', 'Display the complete list');
+	    var full = new bbop.html.span(retval,
+					  {'generate_id': true});
+	    var less_b = new bgen('less', 'Display the truncated list');
+	    
+	    // Store the different parts for later activation.
+	    var tease_id = tease.get_id();
+	    var more_b_id = more_b.get_id();
+	    var full_id = full.get_id();
+	    var less_b_id = less_b.get_id();
+	    _trim_hash[tease_id] = 
+		[tease_id, more_b_id, full_id, less_b_id];
+	    
+		// New final string.
+	    retval = tease.to_string() + " " +
+		more_b.to_string() + " " +
+		full.to_string() + " " +
+		less_b.to_string();
+	}
+	
+	return retval;
+    }
+
+    var pre_html = jQuery('#' + elt_id).html();
+    if( pre_html && pre_html.length && (pre_html.length > _trimit * 2) ){
+
+	// Get the new value into the wild.
+	var new_str = _trim_and_store(pre_html);
+	if( new_str !== pre_html ){
+	    jQuery('#' + elt_id).html(new_str);  
+
+	    // Bind the jQuery events to it.
+	    // Add the roll-up/down events to the doc.
+	    bbop.core.each(_trim_hash, function(key, val){
+    		var tease_id = val[0];
+    		var more_b_id = val[1];
+    		var full_id = val[2];
+    		var less_b_id = val[3];
+		
+    		// Initial state.
+    		jQuery('#' + full_id ).hide();
+    		jQuery('#' + less_b_id ).hide();
+		
+    		// Click actions to go back and forth.
+    		jQuery('#' + more_b_id ).click(function(){
+    		    jQuery('#' + tease_id ).hide();
+    		    jQuery('#' + more_b_id ).hide();
+    		    jQuery('#' + full_id ).show('fast');
+    		    jQuery('#' + less_b_id ).show('fast');
+    		});
+    		jQuery('#' + less_b_id ).click(function(){
+    		    jQuery('#' + full_id ).hide();
+    		    jQuery('#' + less_b_id ).hide();
+    		    jQuery('#' + tease_id ).show('fast');
+    		    jQuery('#' + more_b_id ).show('fast');
+    		});
+	    });    
+	}
+    }
+}
+
 //
 function TermDetailsInit(){
 
@@ -18,6 +154,11 @@ function TermDetailsInit(){
     // var tt_args = {'position': {'my': 'left bottom', 'at': 'right top'}};
     // jQuery('.bbop-js-tooltip').tooltip(tt_args);
 
+    // Rollup long synonym lists.
+    //var spans = jQuery('.syn-collapsible');
+    _shrink_wrap('syn-collapse-alt');
+    _shrink_wrap('syn-collapse-syn');
+
     // Go ahead and drop in the table sorter. Easy!
     jQuery("#all-table-above").tablesorter(); 
     jQuery("#all-table-below").tablesorter(); 
@@ -32,7 +173,7 @@ function TermDetailsInit(){
 	// Since we're a tabby version, we're going to try and open
 	// any tabs defined by fragments.
 	if( window && window.location && window.location.hash &&
-	    window.location.hash != "" && window.location.hash != "#" ){
+	    window.location.hash !== "" && window.location.hash !== "#" ){
             var fragname = window.location.hash;
 	    jQuery('#display-tabs a[href="' + fragname + '"]').tab('show');
 	}else{
