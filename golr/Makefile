@@ -37,6 +37,7 @@ SCHEMA_METADATA ?= \
  ../metadata/bio-config.yaml \
  ../metadata/ann-config.yaml \
  ../metadata/model-ann-config.yaml \
+ ../metadata/noctua-model-meta-config.yaml \
  ../metadata/complex-ann-config.yaml \
  ../metadata/protein-family-config.yaml \
  ../metadata/general-config.yaml \
