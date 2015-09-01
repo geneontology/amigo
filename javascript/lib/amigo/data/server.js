@@ -30,30 +30,16 @@ if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
 amigo.data.server = function(){
 
     // All of the server/instance-specific meta-data.
-    var meta_data = {"gp_types":[],"beta":"1","evidence_codes":{},"sources":[],"bbop_img_star":"http://localhost:9999/static/images/star.png","js_base":"http://localhost:9999/static/js","galaxy_base":"http://galaxy.berkeleybop.org/","species_map":{},"app_base":"http://localhost:9999","html_base":"http://localhost:9999/static","species":[],"ontologies":[],"js_dev_base":"http://localhost:9999/static/staging","term_regexp":"all|GO:[0-9]{7}","golr_base":"http://localhost:8080/solr/","image_base":"http://localhost:9999/static/images","css_base":"http://localhost:9999/static/css"};
+    var meta_data = {"css_base":"http://localhost:9999/static/css","js_base":"http://localhost:9999/static/js","species":[],"evidence_codes":{},"ontologies":[],"app_base":"http://localhost:9999","js_dev_base":"http://localhost:9999/static/staging","beta":"1","image_base":"http://localhost:9999/static/images","sources":[],"gp_types":[],"galaxy_base":"http://galaxy.berkeleybop.org/","golr_base":"http://localhost:8080/solr/","bbop_img_star":"http://localhost:9999/static/images/star.png","term_regexp":"all|GO:[0-9]{7}","html_base":"http://localhost:9999/static","species_map":{}};
 
     ///
     /// Break out the data and various functions to access them...
     ///
 
     /*
-     * Function: gp_types
+     * Function: css_base
      * 
-     * Access to AmiGO variable gp_types.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var gp_types = meta_data.gp_types;
-    this.gp_types = function(){ return gp_types; };
-
-    /*
-     * Function: beta
-     * 
-     * Access to AmiGO variable beta.
+     * Access to AmiGO variable css_base.
      * 
      * Parameters:
      *  n/a
@@ -61,50 +47,8 @@ amigo.data.server = function(){
      * Returns:
      *  string
      */
-    var beta = meta_data.beta;
-    this.beta = function(){ return beta; };
-
-    /*
-     * Function: evidence_codes
-     * 
-     * Access to AmiGO variable evidence_codes.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var evidence_codes = meta_data.evidence_codes;
-    this.evidence_codes = function(){ return evidence_codes; };
-
-    /*
-     * Function: sources
-     * 
-     * Access to AmiGO variable sources.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var sources = meta_data.sources;
-    this.sources = function(){ return sources; };
-
-    /*
-     * Function: bbop_img_star
-     * 
-     * Access to AmiGO variable bbop_img_star.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var bbop_img_star = meta_data.bbop_img_star;
-    this.bbop_img_star = function(){ return bbop_img_star; };
+    var css_base = meta_data.css_base;
+    this.css_base = function(){ return css_base; };
 
     /*
      * Function: js_base
@@ -121,62 +65,6 @@ amigo.data.server = function(){
     this.js_base = function(){ return js_base; };
 
     /*
-     * Function: galaxy_base
-     * 
-     * Access to AmiGO variable galaxy_base.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var galaxy_base = meta_data.galaxy_base;
-    this.galaxy_base = function(){ return galaxy_base; };
-
-    /*
-     * Function: species_map
-     * 
-     * Access to AmiGO variable species_map.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var species_map = meta_data.species_map;
-    this.species_map = function(){ return species_map; };
-
-    /*
-     * Function: app_base
-     * 
-     * Access to AmiGO variable app_base.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var app_base = meta_data.app_base;
-    this.app_base = function(){ return app_base; };
-
-    /*
-     * Function: html_base
-     * 
-     * Access to AmiGO variable html_base.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var html_base = meta_data.html_base;
-    this.html_base = function(){ return html_base; };
-
-    /*
      * Function: species
      * 
      * Access to AmiGO variable species.
@@ -189,6 +77,20 @@ amigo.data.server = function(){
      */
     var species = meta_data.species;
     this.species = function(){ return species; };
+
+    /*
+     * Function: evidence_codes
+     * 
+     * Access to AmiGO variable evidence_codes.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    var evidence_codes = meta_data.evidence_codes;
+    this.evidence_codes = function(){ return evidence_codes; };
 
     /*
      * Function: ontologies
@@ -205,6 +107,20 @@ amigo.data.server = function(){
     this.ontologies = function(){ return ontologies; };
 
     /*
+     * Function: app_base
+     * 
+     * Access to AmiGO variable app_base.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    var app_base = meta_data.app_base;
+    this.app_base = function(){ return app_base; };
+
+    /*
      * Function: js_dev_base
      * 
      * Access to AmiGO variable js_dev_base.
@@ -219,23 +135,9 @@ amigo.data.server = function(){
     this.js_dev_base = function(){ return js_dev_base; };
 
     /*
-     * Function: term_regexp
+     * Function: beta
      * 
-     * Access to AmiGO variable term_regexp.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var term_regexp = meta_data.term_regexp;
-    this.term_regexp = function(){ return term_regexp; };
-
-    /*
-     * Function: golr_base
-     * 
-     * Access to AmiGO variable golr_base.
+     * Access to AmiGO variable beta.
      * 
      * Parameters:
      *  n/a
@@ -243,8 +145,8 @@ amigo.data.server = function(){
      * Returns:
      *  string
      */
-    var golr_base = meta_data.golr_base;
-    this.golr_base = function(){ return golr_base; };
+    var beta = meta_data.beta;
+    this.beta = function(){ return beta; };
 
     /*
      * Function: image_base
@@ -261,9 +163,9 @@ amigo.data.server = function(){
     this.image_base = function(){ return image_base; };
 
     /*
-     * Function: css_base
+     * Function: sources
      * 
-     * Access to AmiGO variable css_base.
+     * Access to AmiGO variable sources.
      * 
      * Parameters:
      *  n/a
@@ -271,8 +173,106 @@ amigo.data.server = function(){
      * Returns:
      *  string
      */
-    var css_base = meta_data.css_base;
-    this.css_base = function(){ return css_base; };
+    var sources = meta_data.sources;
+    this.sources = function(){ return sources; };
+
+    /*
+     * Function: gp_types
+     * 
+     * Access to AmiGO variable gp_types.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    var gp_types = meta_data.gp_types;
+    this.gp_types = function(){ return gp_types; };
+
+    /*
+     * Function: galaxy_base
+     * 
+     * Access to AmiGO variable galaxy_base.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    var galaxy_base = meta_data.galaxy_base;
+    this.galaxy_base = function(){ return galaxy_base; };
+
+    /*
+     * Function: golr_base
+     * 
+     * Access to AmiGO variable golr_base.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    var golr_base = meta_data.golr_base;
+    this.golr_base = function(){ return golr_base; };
+
+    /*
+     * Function: bbop_img_star
+     * 
+     * Access to AmiGO variable bbop_img_star.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    var bbop_img_star = meta_data.bbop_img_star;
+    this.bbop_img_star = function(){ return bbop_img_star; };
+
+    /*
+     * Function: term_regexp
+     * 
+     * Access to AmiGO variable term_regexp.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    var term_regexp = meta_data.term_regexp;
+    this.term_regexp = function(){ return term_regexp; };
+
+    /*
+     * Function: html_base
+     * 
+     * Access to AmiGO variable html_base.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    var html_base = meta_data.html_base;
+    this.html_base = function(){ return html_base; };
+
+    /*
+     * Function: species_map
+     * 
+     * Access to AmiGO variable species_map.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  string
+     */
+    var species_map = meta_data.species_map;
+    this.species_map = function(){ return species_map; };
 
 
     // Does it look like a term?
