@@ -67,6 +67,8 @@ function LiveSearchGOlrInit(){
 	//     manager.clear_buttons();
 	}else if( personality === 'model_annotation' ){
 	    manager.clear_buttons();
+	}else if( personality === 'noctua_model_meta' ){
+	    manager.clear_buttons();
 	//}else if( personality === 'bbop_ann_ev_agg' ){
 	}else{
 	    manager.clear_buttons();
@@ -96,6 +98,11 @@ function LiveSearchGOlrInit(){
     	'model_annotation': function(manager){
     	    manager.add_query_filter('document_category',
     				     'model_annotation', ['*']);
+    	    //_establish_buttons('annotation', manager);
+    	},
+    	'noctua_model_meta': function(manager){
+    	    manager.add_query_filter('document_category',
+    				     'noctua_model_meta', ['*']);
     	    //_establish_buttons('annotation', manager);
     	},
     	'family': function(manager){
