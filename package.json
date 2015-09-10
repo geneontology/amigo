@@ -73,8 +73,7 @@
         "vinyl-source-stream": "1.1.0",
         "watchify": "^3.2.1",
         "jsdoc": "^3.3.0",
-        "jsdoc-baseline": "git://github.com/hegemonic/jsdoc-baseline.git#74d1dc8075",
-	"yamljs": "0.2.3"
+        "jsdoc-baseline": "git://github.com/hegemonic/jsdoc-baseline.git#74d1dc8075"
     },
     "browserify": {
         "transform": [
