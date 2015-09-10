@@ -25,6 +25,7 @@ OWLTOOLS_ROOT ?= ~/local/src/git/owltools/
 BBOP_JS_ROOT ?= ~/local/src/git/bbop-js/
 PANTHER_FILES_DIR ?= ~/local/src/svn/geneontology.org/trunk/experimental/trees/panther_data/
 NOCTUA_ENRICHED_MODELS_DIR ?= ~/local/src/git/noctua-models/enriched
+NOCTUA_MODEL_PREFIX ?= http://noctua-dev.berkeleybop.org/editor/graph/
 SOLR_DATA_ROOT ?= /srv/solr
 
 ## Files.
@@ -223,7 +224,7 @@ load-just-panther: owltools-build
 .PHONY: load-just-model-annotations
 load-just-model-annotations:
 	make message-load-start
-	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --read-lego-catalogs $(LEGO_CATALOGS) --solr-url $(SOLR_URL) --read-model-folder $(NOCTUA_ENRICHED_MODELS_DIR) --read-model-url-prefix "http://noctua-dev.berkeleybop.org/editor/graph/" --solr-load-models
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --read-lego-catalogs $(LEGO_CATALOGS) --solr-url $(SOLR_URL) --read-model-folder $(NOCTUA_ENRICHED_MODELS_DIR) --read-model-url-prefix $(NOCTUA_MODEL_PREFIX) --solr-load-models
 	make message-load-clear
 
 ## Check the ontology data for suitability.

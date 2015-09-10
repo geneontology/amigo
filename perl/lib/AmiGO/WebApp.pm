@@ -780,7 +780,7 @@ sub _resolve_page_settings {
   my $page_title = 'AmiGO 2';
   my $page_content_title = 'AmiGO Help';
   my $wiki_base = 'http://wiki.geneontology.org/index.php/';
-  my $page_help_link = $wikk_base . 'AmiGO_2_Manual';
+  my $page_help_link = $wiki_base . 'AmiGO_2_Manual';
 
   if( $page_name eq 'browse' ){
     $page_title = 'AmiGO 2: Browse';
@@ -945,6 +945,7 @@ sub _common_params_settings {
   $params->{public_1x_base} =
     $self->{CORE}->amigo_env('AMIGO_1X_PUBLIC_CGI_BASE_URL') ||
       $params->{public_base};
+  $params->{noctua_base} = $self->{CORE}->amigo_env('AMIGO_PUBLIC_NOCTUA_URL');
   $params->{BETA} =
     $self->_atoi($self->{CORE}->amigo_env('AMIGO_BETA'));
   $params->{VERBOSE} =

@@ -1816,15 +1816,15 @@ sub mode_model_details {
     $best_title = $ma_info_hash->{$input_id}{'model_label'};
   }
   $self->set_template_parameter('page_content_title', $best_title);
-  
+
   ## BUG/TODO: Some silliness to get the variables right; will need to
   ## revisit later on.
   ## TODO/BUG: Again, temporary badness for Noctua.
   my $github_base =
     'https://github.com/geneontology/noctua-models/blob/master/models/';
-  my $noctua_base = 'http://noctua-dev.berkeleybop.org:8909';
-  my $editor_base = $noctua_base . '/editor/graph/';
-  my $viewer_base = $noctua_base . '/workbench/cytoview/';
+  my $noctua_base = $self->{WEBAPP_TEMPLATE_PARAMS}{noctua_base};
+  my $editor_base = $noctua_base . 'editor/graph/';
+  my $viewer_base = $noctua_base . 'workbench/cytoview/';
   ## We need to translate some of the document information.
   ## TODO/BUG: This is temporary as we work out what we'll actually have.
   my @s = split(':', $input_id);
