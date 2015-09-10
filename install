@@ -817,6 +817,7 @@ sub amigo_env_to_js {
      ## Variables.
      app_base => $core->amigo_env('AMIGO_DYNAMIC_URL'),
      golr_base => $core->amigo_env('AMIGO_PUBLIC_GOLR_URL'),
+     noctua_base => $core->amigo_env('AMIGO_PUBLIC_NOCTUA_URL'),
      galaxy_base => $core->amigo_env('AMIGO_PUBLIC_GALAXY_URL'),
      html_base => $core->amigo_env('AMIGO_STATIC_URL'),
      image_base => $core->amigo_env('AMIGO_IMAGE_URL'),
