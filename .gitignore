@@ -5,8 +5,10 @@ javascript/docs/*
 ## Don't generally want Selenium log files.
 selenium/*/*.log
 
-## Don't want the virtualenv stuff for python leaking in.
+## Ignore the npm stuff that we now have.
+node_modules
 
+## Don't want the virtualenv stuff for python leaking in.
 selenium/behave/'pwd'
 selenium/behave/screenshots*
 selenium/behave/pymote_env
