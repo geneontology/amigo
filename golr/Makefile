@@ -18,7 +18,7 @@ OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS = --merge-support-ontologies --remove-subset-
 MAVEN_EXE ?= ~/local/src/java/apache-maven-3.0.4/bin/mvn
 
 ## URLs.
-SOLR_URL ?= http://localhost:8080/solr/ 
+SOLR_URL ?= http://localhost:8080/solr/
 
 ## Paths.
 OWLTOOLS_ROOT ?= ~/local/src/git/owltools/
@@ -30,7 +30,7 @@ SOLR_DATA_ROOT ?= /srv/solr
 
 ## Files.
 SOLR_LOAD_LOG ?= /tmp/golr_timestamp.log
-SOLR_USE_CATALOG_XML ?= ~/local/src/svn/geneontology.org/trunk/ontology/extensions/catalog-v001.xml 
+SOLR_USE_CATALOG_XML ?= ~/local/src/svn/geneontology.org/trunk/ontology/extensions/catalog-v001.xml
 
 ## File lists.
 SCHEMA_METADATA ?= \

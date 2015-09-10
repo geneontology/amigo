@@ -34,7 +34,7 @@ NODE_JS ?= /usr/bin/node
 
 ## Handle versioning. The patch level is automatically incremented on
 ## after every release.
-AMIGO_BASE_VERSION ?= 2.3
+AMIGO_BASE_VERSION ?= 2.4
 AMIGO_PATCH_LEVEL ?= `cat version-patch.lvl`
 AMIGO_VERSION_TAG ?= "" # e.g. -alpha
 AMIGO_VERSION ?= $(AMIGO_BASE_VERSION).$(AMIGO_PATCH_LEVEL)$(AMIGO_VERSION_TAG)
@@ -151,6 +151,8 @@ npm: bundle
 
 .PHONY: install
 install: test docs
+	npm install
+	./node_modules/.bin/browserify javascript/web/AmiGOCytoViewSource.js -o javascript/web/AmiGOCytoView.js --exclude "ringo/httpclient"
 	./install -v -g -V $(AMIGO_VERSION)
 #	 AMIGO_VERSION = $(AMIGO_VERSION) ./install -v -e -g
 
