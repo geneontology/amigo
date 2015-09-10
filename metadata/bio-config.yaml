@@ -85,6 +85,19 @@ fields:
     cardinality: multi
     property: []
     searchable: true
+  - id: taxon_subset_closure
+    description: "Taxonomic group (direct) and ancestral groups that are within the specified subset (e.g mammalia, eukaryota)."
+    display_name: Taxon subset
+    type: string
+    cardinality: multi
+    property: []
+  - id: taxon_subset_closure_label
+    description: "Labels for taxonomic group (direct) and ancestral groups that are within the specified subset."
+    display_name: Taxon subset
+    type: string
+    cardinality: multi
+    property: []
+    searchable: true
   - id: isa_partof_closure
     description: "Closure of ids/accs over isa and partof."
     display_name: Involved in
