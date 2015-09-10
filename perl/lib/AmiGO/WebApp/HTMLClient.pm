@@ -757,9 +757,9 @@ sub mode_medial_search {
 
   ## Page settings.
   my $page_name = 'medial_search';
-  my($page_title, 
+  my($page_title,
      $page_content_title,
-     $page_help_link) = $self->_resolve_page_settings($page_name);  
+     $page_help_link) = $self->_resolve_page_settings($page_name);
   $self->set_template_parameter('page_name', $page_name);
   $self->set_template_parameter('page_title', $page_title);
   $self->set_template_parameter('page_content_title', $page_content_title);
@@ -1540,7 +1540,7 @@ sub mode_term_details {
   ###
 
   ## Page settings.
-  ## Don't use usual mechanism--a litle special.
+  ## Don't use usual mechanism--a little special.
   $self->set_template_parameter('page_name', 'term');
   $self->set_template_parameter('page_title',
 				'AmiGO 2: Term Details for "' .
@@ -1689,22 +1689,24 @@ sub mode_gene_product_details {
   ### Standard setup.
   ###
 
-  ## Page settings.
   ## Again, a little different.
-  $self->set_template_parameter('page_name', 'gene_product');
-  $self->set_template_parameter('page_title',
-				'AmiGO 2: Gene Product Details for ' .
-				$input_gp_id);
-  ## Figure out the best title we can.
+  ## Start by figuring out the best title we can.
   my $best_title = $input_gp_id; # start with the worst as a default
   if ( $gp_info_hash->{$input_gp_id}{'name'} ){
     $best_title = $gp_info_hash->{$input_gp_id}{'name'};
   }elsif( $gp_info_hash->{$input_gp_id}{'label'} ){
     $best_title = $gp_info_hash->{$input_gp_id}{'label'};
   }
+  ## Page settings.
+  $self->set_template_parameter('page_name', 'gene_product');
+  $self->set_template_parameter('page_title',
+				'AmiGO 2: Gene Product Details for ' .
+				$input_gp_id);
+  $self->set_template_parameter('content_title', $best_title);
   $self->set_template_parameter('page_content_title', $best_title);
-  my($page_title, $page_content_title, $page_help_link) =
-      $self->_resolve_page_settings('gene_product');
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings('gene_product');
   $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Our AmiGO services CSS.
