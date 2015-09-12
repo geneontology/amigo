@@ -78,7 +78,6 @@ GENE_ASSOCIATION_FILES ?= \
 	http://www.geneontology.org/gene-associations/gene_association.goa_human.gz \
 	http://www.geneontology.org/gene-associations/gene_association.goa_pig.gz \
 	http://www.geneontology.org/gene-associations/gene_association.goa_uniprot_noiea.gz \
-	http://www.geneontology.org/gene-associations/gene_association.gonuts.gz \
 	http://www.geneontology.org/gene-associations/gene_association.gramene_oryza.gz \
 	http://www.geneontology.org/gene-associations/gene_association.jcvi.gz \
 	http://www.geneontology.org/gene-associations/gene_association.mgi.gz \
