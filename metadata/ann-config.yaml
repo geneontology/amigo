@@ -218,12 +218,6 @@ fields:
 #     type: string
 #     cardinality: multi
 #     property: []
-#   - id: axiom
-#     description: "Each ontology entity (class or property) can be associated with multiple OWL axioms. We cache them in the index so that advanced OWL-aware clients can pull relevant information quickly. Axioms are stored in functional syntax."
-#     display_name: Axiom
-#     type: string
-#     cardinality: multi
-#     property: []
   - id: bioentity
     description: "Gene or gene product identifiers."
     display_name: Gene/product
@@ -361,6 +355,42 @@ fields:
     type: string
     searchable: true
     property: []
+  ## Next items are defined in https://github.com/geneontology/amigo/issues/249
+  - id: annotation_extension_owl_json
+    description: "A non-lossy representation of conjunctions and disjunctions in c16 (JSON)."
+    display_name: Annotation extension
+    type: string
+    property: []
+  - id: annotation_relation
+    description: "This is equivalent to the relation field in GPAD."
+    display_name: Annotation relation
+    type: string
+    property: []
+  - id: annotation_relation_label
+    description: "This is equivalent to the relation field in GPAD."
+    display_name: Annotation relation
+    type: string
+    property: []
+    searchable: true
+  - id: equivalent_class_expressions_json
+    description: "For any class document C, this will contain json(CE) for all axioms of form EquivalentClasses(C ... CE ....)."
+    display_name: Eq class expressions
+    type: string
+    property: []
+  - id: disjoint_class_list
+    description: "Disjoint classes."
+    display_name: Disjoint classes
+    type: string
+    cardinality: multi
+    property: []
+  - id: disjoint_class_list_label
+    description: "Disjoint classes."
+    display_name: Disjoint classes
+    type: string
+    cardinality: multi
+    searchable: true
+    property: []
+  ## TODO:
   # - id: phylo_graph
   #   description: JSON blob form of the phylogenic tree.
   #   display_name: This should not be displayed
