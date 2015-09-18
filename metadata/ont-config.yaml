@@ -51,8 +51,8 @@ fields:
     type: boolean
     property: [getIsObsoleteBinaryString]
   - id: comment
-    description: Term comment.
-    display_name: Comment
+    description: Term comments.
+    display_name: Comments
     type: string
     property: [getComments]
     cardinality: multi
