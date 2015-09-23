@@ -1,0 +1,45 @@
+<!-- Begin: owltools_details.tmpl -->
+
+<!-- <h2>Current OWLTools information</h2> -->
+
+[% IF OT_DETAILS %]
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">
+      OWLTools version information
+      [% INCLUDE "common/abstract_help_link.tmpl" %]
+    </h3>
+  </div>
+  <div class="panel-body">
+    <p>
+      <table>
+	[% FOREACH det IN OT_DETAILS %]
+	<tr>
+	  <td style="padding: 1em;">[% det.0 %]</td>
+	  <td style="padding: 1em;">[% det.1 %]</td>
+	</tr>
+	[% END %]
+      </table>
+    </p>
+  </div>
+</div>
+
+[% ELSE %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">
+      No information
+      [% INCLUDE "common/abstract_help_link.tmpl" %]
+    </h3>
+  </div>
+  <div class="panel-body">
+    <p>
+      Detailed OWLTools information is not available for this AmiGO 2
+      instance at this time.
+    </p>
+  </div>
+</div>
+
+[% END %]    
+<!-- End: owltools_details.tmpl -->
