@@ -71,7 +71,7 @@ AMIGO_VERSION:
   type: string
   value: 2.4.1
 AMIGO_WORKING_PATH:
-  comment: Please enter the full path to readable/writable directory that will be used for things like temporary files and logs (if enabled).
+  comment: Please enter the full path to readable/writable directory that will be used for things like temporary files, logs (if enabled), and the golr_timestamp.log file.
   type: directory
   value: /tmp
 GOLR_CATALOG_LOCATION:
@@ -151,11 +151,7 @@ GOLR_PANTHER_FILE_PATH:
   comment: The location of the cleaned PANTHER file for the proper loading into GOlr.
   type: directory
   value: '~/local/src/svn/geneontology.org/trunk/experimental/trees/panther_data/'
-GOLR_TIMESTAMP_LOCATION:
-  comment: 'This is the full path to the timestamp file that is optionally produced by OWLTools during GOlr loading. It contains information about download attempt times for the different loaded files. If not found or unusable, AmiGO 2 will gracefully ignore it.'
-  type: file
-  value: /tmp/golr_timestamp.log
 OWLTOOLS_MAX_MEMORY:
-  comment: 'The maximum amount of memory to give OWLTools processes.'
+  comment: The maximum amount of memory to give OWLTools processes.
   type: string
   value: 4G
