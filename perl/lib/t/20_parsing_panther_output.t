@@ -15,8 +15,8 @@ use XML::LibXML;
 use File::Slurp;
 use AmiGO::External::XMLFast::RemoteTermEnrichment;
 
-my $xml1 = read_file('_data/rte-1.xml');
-my $xml2 = read_file('_data/rte-2.xml');
+my $xml1 = read_file('external/rte-1.xml');
+my $xml2 = read_file('external/rte-2.xml');
 
 ###
 ###
