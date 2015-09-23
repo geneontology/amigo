@@ -302,11 +302,11 @@ gulp.task('load-optimize', shell.task(_run_cmd(
 )));
 
 gulp.task('message-load-start', shell.task(_run_cmd_list(
-    ['../scripts/global-message.pl -e "GOlr is currently being reloaded (started at ' + date + ' on ' + time + '). Any results will be partial at best--please check back later.']
+    ['./scripts/global-message.pl -e "GOlr is currently being reloaded (started at ' + date + ' on ' + time + '). Any results will be partial at best--please check back later."']
 )));
 
 gulp.task('message-load-clear', shell.task(_run_cmd_list(
-    ['../scripts/global-message.pl -c']
+    ['./scripts/global-message.pl -c']
 )));
 
 gulp.task('clean-load-log', shell.task(_run_cmd_list(
