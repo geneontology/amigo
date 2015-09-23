@@ -36,6 +36,7 @@
         "bootstrap": "3.3.4",
         "del": "^1.1.1",
         "jquery": "1.9.1",
+        "minerva-requests": "0.0.6",
         "minimist": "0.2.0",
         "mustache": "2.0.0",
         "pup-tent": "0.9.10",
