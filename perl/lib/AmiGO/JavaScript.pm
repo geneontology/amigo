@@ -76,6 +76,9 @@ my $sig2path =
    #'com/jquery-ui-1.8.23.custom.min.js',
    #'com/jquery-ui-1.8.13.custom.min.js',
 
+   'org.cytoscape' =>
+   'org/cytoscape.js',
+
    ## And plugin for trees.
    'com.jsplumb' =>
    'com/jquery.jsPlumb-1.5.5.js', # default route to jQuery version
