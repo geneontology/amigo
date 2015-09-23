@@ -73,7 +73,9 @@
       <!-- Comment. -->
       <dt>Comment</dt>
       [% IF TERM_INFO.comment %]
-      <dd>[% TERM_INFO.comment %]</dd>
+      [%  FOREACH tic IN TERM_INFO.comment %]
+      <dd>[% tic %]</dd>
+      [%  END %]
       [% ELSE %]
       <dd>None</dd>
       [% END %]
