@@ -4,6 +4,8 @@ javascript/docs/*
 
 ## Don't generally want Selenium log files.
 selenium/*/*.log
+ghostdriver.log
+screenshots*
 
 ## Ignore the npm stuff that we now have.
 node_modules
