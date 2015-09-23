@@ -204,7 +204,8 @@ make_permissive( $env_conf{AMIGO_SCRATCH_DIR} );
 ## see if we can get a little early info from it--the latest file
 ## mentioned.
 $env_conf{GOLR_TIMESTAMP_LAST} = '???';
-my $glog = $env_conf{GOLR_TIMESTAMP_LOCATION};
+#my $glog = $env_conf{GOLR_TIMESTAMP_LOCATION};
+my $glog = $env_conf{AMIGO_WORKING_PATH} . '/golr_timestamp.log';
 if( $glog && -f $glog ){
 
   ## We don't wildly care if we can get this optional information or
