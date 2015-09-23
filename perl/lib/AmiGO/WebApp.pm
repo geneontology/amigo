@@ -858,6 +858,10 @@ sub _resolve_page_settings {
     $page_title = 'AmiGO 2: Load Details';
     $page_content_title = 'Current instance load information';
     $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Load_Details';
+  }elsif( $page_name eq 'owltools_details' ){
+    $page_title = 'AmiGO 2: OWLTools/Loader Details';
+    $page_content_title = 'Current OWLTools and loader information';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_OWLTools_Details';
   }elsif( $page_name eq 'xrefs' ){
     $page_title = 'AmiGO 2: Cross References';
     $page_content_title = 'Current Cross Reference Abbreviations';
@@ -905,6 +909,8 @@ sub _common_params_settings {
     $self->{CORE}->get_interlink({mode=>'schema_details'});
   $params->{interlink_load_details} =
     $self->{CORE}->get_interlink({mode=>'load_details'});
+  $params->{interlink_owltools_details} =
+    $self->{CORE}->get_interlink({mode=>'owltools_details'});
   $params->{interlink_browse} =
     $self->{CORE}->get_interlink({mode=>'browse'});
   $params->{interlink_dd_browse} =
