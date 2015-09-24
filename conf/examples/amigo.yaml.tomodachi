@@ -44,7 +44,7 @@ AMIGO_PUBLIC_GOLR_URL:
   type: url
   value: http://golr.berkeleybop.org/
 AMIGO_PRIVATE_GOLR_URL:
-  comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading.
+  comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading. Can be the same as the public URL if you have no proxy or firewall to deal with.
   type: url
   value: http://localhost:8080/solr/
 AMIGO_PUBLIC_NOCTUA_URL:
