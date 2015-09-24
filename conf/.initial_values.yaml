@@ -35,7 +35,11 @@ AMIGO_PUBLIC_GALAXY_URL:
   type: url
   value: http://galaxy.berkeleybop.org/
 AMIGO_PUBLIC_GOLR_URL:
-  comment: The public URL of the GOlr server (including slash).
+  comment: The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.
+  type: url
+  value: http://localhost:8080/solr/
+AMIGO_PRIVATE_GOLR_URL:
+  comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading.
   type: url
   value: http://localhost:8080/solr/
 AMIGO_PUBLIC_NOCTUA_URL:

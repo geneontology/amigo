@@ -98,7 +98,7 @@ if( ! a ){
 // Common variables.
 var amigo_version =  a['AMIGO_VERSION'].value;
 var amigo_url = a['AMIGO_DYNAMIC_URL'].value;
-var golr_url = a['AMIGO_PUBLIC_GOLR_URL'].value;
+var golr_private_url = a['AMIGO_PRIVATE_GOLR_URL'].value;
 var owltools_max_memory = a['OWLTOOLS_MAX_MEMORY'].value || '4G';
 var owltools_runner = 'java -Xms2048M -DentityExpansionLimit=4086000 -Djava.awt.headless=true -Xmx' + owltools_max_memory + ' -jar ./java/lib/owltools-runner-all.jar';
 var owltools_ops_flags = '--merge-support-ontologies --remove-subset-entities upperlevel --reasoner elk';
@@ -122,7 +122,7 @@ var date = d.getFullYear() + ':' + d.getMonth() + ':' + d.getDate();
 // Verbosity.
 console.log('AmiGO version: ' + amigo_version);
 console.log('AmiGO location: ' + amigo_url);
-console.log('GOlr location: ' + golr_url);
+console.log('GOlr (private loading) location: ' + golr_private_url);
 console.log('OWLTools invocation: ' +
 	    owltools_runner + ' (' + owltools_ops_flags + ')');
 //console.log('Ontologies: ' + ontology_string);
@@ -202,7 +202,7 @@ gulp.task('bundle-uncompressed', shell.task(_run_cmd_list(
 
 gulp.task('golr-purge', shell.task(_run_cmd(
     [owltools_runner,
-     '--solr-url ', golr_url,
+     '--solr-url ', golr_private_url,
      '--solr-purge']
 )));
 
@@ -256,7 +256,7 @@ gulp.task('load-ontology', shell.task(_run_cmd(
     [owltools_runner,
      ontology_string,
      owltools_ops_flags,
-     '--solr-url', golr_url,
+     '--solr-url', golr_private_url,
      '--solr-config', ontology_metadata,
      '--solr-log', solr_load_log,
      '--solr-load-ontology',
@@ -267,7 +267,7 @@ gulp.task('load-gafs', shell.task(_run_cmd(
     [owltools_runner,
      ontology_string,
      owltools_ops_flags,
-     '--solr-url', golr_url,
+     '--solr-url', golr_private_url,
      '--solr-log', solr_load_log,
      '--solr-load-gafs', gaf_string]
 )));
@@ -276,7 +276,7 @@ gulp.task('load-panther', shell.task(_run_cmd(
     [owltools_runner,
      ontology_string,
      owltools_ops_flags,
-     '--solr-url', golr_url,
+     '--solr-url', golr_private_url,
      '--solr-log', solr_load_log,
      '--read-panther', panther_file_path,
      '--solr-load-panther',
@@ -287,7 +287,7 @@ gulp.task('load-models', shell.task(_run_cmd(
     [owltools_runner,
      ontology_string,
      owltools_ops_flags,
-     '--solr-url', golr_url,
+     '--solr-url', golr_private_url,
      '--solr-log', solr_load_log,
      '--read-lego-catalogs', catalog_file,
      '--read-model-folder', noctua_file_path,
@@ -297,7 +297,7 @@ gulp.task('load-models', shell.task(_run_cmd(
 
 gulp.task('load-optimize', shell.task(_run_cmd(
     [owltools_runner,
-     '--solr-url', golr_url,
+     '--solr-url', golr_private_url,
      '--solr-optimize']
 )));
 
