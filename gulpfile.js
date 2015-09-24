@@ -301,6 +301,28 @@ gulp.task('load-optimize', shell.task(_run_cmd(
      '--solr-optimize']
 )));
 
+// TODO: Still need to add models.
+gulp.task('load-all', shell.task(_run_cmd(
+    [owltools_runner,
+     ontology_string,
+     owltools_ops_flags,
+     // General config.
+     '--solr-url', golr_private_url,
+     '--solr-log', solr_load_log,
+     // Ontology.
+     '--solr-config', ontology_metadata,
+     '--solr-load-ontology',
+     '--solr-load-ontology-general',
+     // GAFs
+     '--solr-load-gafs', gaf_string,
+     // PANTHER
+     '--read-panther', panther_file_path,
+     '--solr-load-panther',
+     '--solr-load-panther-general',
+     // Optimize.
+     '--solr-optimize']
+)));
+
 gulp.task('message-load-start', shell.task(_run_cmd_list(
     ['./scripts/global-message.pl -e "GOlr is currently being reloaded (started at ' + date + ' on ' + time + '). Any results will be partial at best--please check back later."']
 )));
