@@ -16,7 +16,11 @@
 	[% FOREACH det IN OT_DETAILS %]
 	<tr>
 	  <td style="padding: 1em;">[% det.0 %]</td>
+	  [% IF det.0 == 'git-revision-url' %]
+	  <td style="padding: 1em;"><a href="[% det.1 %]">[% det.1 %]</a></td>
+	  [% ELSE %]
 	  <td style="padding: 1em;">[% det.1 %]</td>
+	  [% END %]
 	</tr>
 	[% END %]
       </table>
