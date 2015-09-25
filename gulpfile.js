@@ -139,9 +139,9 @@ gulp.task('tests', ['test-meta',
 
 gulp.task('test-meta', function () {
     return gulp.src(metadata_list, {read: false})
-	.pipe(shell([
-	    'kwalify -f ./scripts/schema.yaml <%= file.path %>'
-	]));
+	.pipe(shell(_run_cmd_list([
+	    'kwalify -f ./scripts/schema.yaml <%= file.path %> | grep INVALID; test $? -ne 0'
+	])));
 });
 
 gulp.task('test-perl', function () {
@@ -153,9 +153,9 @@ gulp.task('test-perl', function () {
 
 gulp.task('test-js', function () {
     return gulp.src(paths['tests-js'], {read: false})
-	.pipe(shell([
-	    'rhino -modules external/bbop.js -modules javascript/staging/amigo2.js -opt -1 -f <%= file.path %>'
-	]));
+	.pipe(shell(_run_cmd_list([
+	    'rhino -modules external/bbop.js -modules javascript/staging/amigo2.js -opt -1 -f <%= file.path %> | grep -i fail; test $? -ne 0'
+	])));
 });
 
 //
