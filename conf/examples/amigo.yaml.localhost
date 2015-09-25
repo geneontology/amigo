@@ -35,16 +35,16 @@ AMIGO_LAYOUT_SEARCH:
     - family
     - general
     - bbop_term_ac
+AMIGO_PRIVATE_GOLR_URL:
+  comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading. Can be the same as the public URL if you have no proxy or firewall to deal with.
+  type: url
+  value: http://localhost:8080/solr/
 AMIGO_PUBLIC_GALAXY_URL:
   comment: Please enter the public URL of the Galaxy server.
   type: url
   value: http://galaxy.berkeleybop.org/
 AMIGO_PUBLIC_GOLR_URL:
-  comment: The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.
-  type: url
-  value: http://localhost:8080/solr/
-AMIGO_PRIVATE_GOLR_URL:
-  comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading. Can be the same as the public URL if you have no proxy or firewall to deal with.
+  comment: 'The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.'
   type: url
   value: http://localhost:8080/solr/
 AMIGO_PUBLIC_NOCTUA_URL:
@@ -78,9 +78,9 @@ AMIGO_VERBOSE:
 AMIGO_VERSION:
   comment: The version of AmiGO to report; not generally changed unless running a forked instance.
   type: string
-  value: 2.4.1
+  value: 2.3.2
 AMIGO_WORKING_PATH:
-  comment: Please enter the full path to readable/writable directory that will be used for things like temporary files, logs (if enabled), and the golr_timestamp.log file.
+  comment: 'Please enter the full path to readable/writable directory that will be used for things like temporary files, logs (if enabled), and the golr_timestamp.log file.'
   type: directory
   value: /tmp
 GOLR_CATALOG_LOCATION:
