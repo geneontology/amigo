@@ -20,18 +20,18 @@
   compare the behave version of the test to the node/mocha version:
  
   - https://github.com/geneontology/amigo/blob/master/selenium/webdriver/05_autocomplete_tests.js
-  - https://github.com/geneontology/amigo/blob/master/selenium/behave/05_autocomplete_basic.feature
+  - https://github.com/geneontology/amigo/blob/master/test-app/behave/05_autocomplete_basic.feature
 
   the latter being obviously waaay easier for a curator or scientist
   to produce. Here is also data some testing:
 
-  - https://github.com/geneontology/amigo/blob/master/selenium/behave/20_data_basic.feature
+  - https://github.com/geneontology/amigo/blob/master/test-app/behave/20_data_basic.feature
 
   All with a fairly small amount of python code, which a python-smart
   scientist could also help produce:
 
-  - https://github.com/geneontology/amigo/blob/master/selenium/behave/environment.py
-  - https://github.com/geneontology/amigo/tree/master/selenium/behave/steps
+  - https://github.com/geneontology/amigo/blob/master/test-app/behave/environment.py
+  - https://github.com/geneontology/amigo/tree/master/test-app/behave/steps
 
   (Obviously we could also just query GOlr directly for the tests, but
   this way makes it easier for non-expert users.)
@@ -52,7 +52,7 @@
   
 ** Setup for Ubuntu 14.04 LTS
 
-   Starting from amigo/selenium/behave directory, using Ubuntu 12.04.
+   Starting from amigo/test-app/behave directory, using Ubuntu 12.04.
 
    First, setup the python environment in the right place.
 
@@ -73,13 +73,9 @@
 
 ** The commands
 
-  Production tests should be run to exclude development/labs tests:
+   The branches should contain the correct information, so the basic command is:
 
-  : TARGET="http://amigo.geneontology.org" behave --tags ~@labs
-
-  Development tests should be run to exclude production tests:
-
-  : TARGET="http://amigo2.berkeleybop.org" behave --tags ~@production
+  : TARGET="http://amigo.geneontology.org" behave
 
 * Tags
 
@@ -88,5 +84,3 @@
 
   - go: GO-specific tests (for things like term existence)
   - data: tests specific to testing the sanity of GO data
-  - production: tests specific to production (http://amigo.geneontology.org)
-  - labs: tests specific to development (http://amigo2.berkeleybop.org)

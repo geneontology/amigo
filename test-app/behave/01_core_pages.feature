@@ -24,6 +24,7 @@ Feature: AmiGO basic pages okay
     | /visualize?mode=client_amigo | AmiGO 2: Visualize                       |
     | /amigo/schema_details    | AmiGO 2: Schema Details                      |
     | /amigo/load_details      | AmiGO 2: Load Details                        |
+    | /amigo/owltools_details  | AmiGO 2: OWLTools/Loader Details             |
     | /xrefs                   | AmiGO 2: Cross References                    |
 ## Ignore this next bit unless you're an Emacs org-mode user.
 #    | /amigo/visualize         | AmiGO 2: Visualize                           |

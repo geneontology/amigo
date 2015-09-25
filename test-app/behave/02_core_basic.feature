@@ -17,3 +17,14 @@ Feature: AmiGO core data is okay
  Scenario: an ontology gene product page exists
     Given I go to page "/amigo/gene_product/FB:FBgn0029157"
      then the title should be "AmiGO 2: Gene Product Details for FB:FBgn0029157"
+
+ @go
+ Scenario: the owltools loader details page gives some information
+    Given I go to page "/amigo/owltools_details
+     then the document should contain "git-revision-url"
+
+ ## From: https://github.com/geneontology/amigo/issues/240
+ @go
+ Scenario: the owltools loader details page gives some information
+    Given I go to page "/amigo/gene_product/UniProtKB:P35222
+     then the document should contain "Catenin beta-1"
