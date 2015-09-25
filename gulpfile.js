@@ -161,7 +161,7 @@ gulp.task('test-js', function () {
 //
 gulp.task('test-app', shell.task(_run_cmd_list(
     [
-     'bash -c "source ./selenium/behave/bin/activate && TARGET=' + amigo_url + ' BROWSER=phantomjs behave ./selenium/behave/"']
+     'bash -c "source ./test-app/behave/bin/activate && TARGET=' + amigo_url + ' BROWSER=phantomjs behave ./test-app/behave/"']
 )));
 
 ///
