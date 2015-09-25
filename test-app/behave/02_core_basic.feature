@@ -20,11 +20,11 @@ Feature: AmiGO core data is okay
 
  @go
  Scenario: the owltools loader details page gives some information
-    Given I go to page "/amigo/owltools_details
+    Given I go to page "/amigo/owltools_details"
      then the document should contain "git-revision-url"
 
  ## From: https://github.com/geneontology/amigo/issues/240
  @go
  Scenario: the owltools loader details page gives some information
-    Given I go to page "/amigo/gene_product/UniProtKB:P35222
+    Given I go to page "/amigo/gene_product/UniProtKB:P35222"
      then the document should contain "Catenin beta-1"
