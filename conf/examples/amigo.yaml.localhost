@@ -40,7 +40,11 @@ AMIGO_PUBLIC_GALAXY_URL:
   type: url
   value: http://galaxy.berkeleybop.org/
 AMIGO_PUBLIC_GOLR_URL:
-  comment: The public URL of the GOlr server (including slash).
+  comment: The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.
+  type: url
+  value: http://localhost:8080/solr/
+AMIGO_PRIVATE_GOLR_URL:
+  comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading. Can be the same as the public URL if you have no proxy or firewall to deal with.
   type: url
   value: http://localhost:8080/solr/
 AMIGO_PUBLIC_NOCTUA_URL:
@@ -88,6 +92,10 @@ GOLR_GAF_LIST:
   type: list
   value:
     - http://www.geneontology.org/gene-associations/gene_association.mgi.gz
+    - http://www.geneontology.org/gene-associations/gene_association.goa_human.gz
+    - http://www.geneontology.org/gene-associations/gene_association.goa_ref_human.gz
+    - http://www.geneontology.org/gene-associations/gene_association.goa_uniprot_noiea.gz
+    - http://www.geneontology.org/gene-associations/gene_association.reactome.gz
 GOLR_METADATA_LIST:
   comment: 'The full path to the YAML config files directory. In that directory, all files like *config.yaml will be scanned for use.'
   type: list
@@ -112,7 +120,7 @@ GOLR_ONTOLOGY_LIST:
   comment: The list of ontologies to load.
   type: list
   value:
-    - http://purl.obolibrary.org/obo/go/extensions/go-lego.owl
+    - http://purl.obolibrary.org/obo/go/extensions/go-plus.owl
 GOLR_PANTHER_FILE_PATH:
   comment: The location of the cleaned PANTHER file for the proper loading into GOlr.
   type: directory
@@ -120,4 +128,4 @@ GOLR_PANTHER_FILE_PATH:
 OWLTOOLS_MAX_MEMORY:
   comment: The maximum amount of memory to give OWLTools processes.
   type: string
-  value: 4G
+  value: 3G
