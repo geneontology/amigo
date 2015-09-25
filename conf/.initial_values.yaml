@@ -39,7 +39,7 @@ AMIGO_PUBLIC_GOLR_URL:
   type: url
   value: http://localhost:8080/solr/
 AMIGO_PRIVATE_GOLR_URL:
-  comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading.
+  comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading. Can be the same as the public URL if you have no proxy or firewall to deal with.
   type: url
   value: http://localhost:8080/solr/
 AMIGO_PUBLIC_NOCTUA_URL:
@@ -140,7 +140,8 @@ GOLR_ONTOLOGY_LIST:
   comment: The list of ontologies to load.
   type: list
   value:
-    - http://purl.obolibrary.org/obo/go/extensions/go-lego.owl
+    - http://purl.obolibrary.org/obo/go/extensions/go-plus.owl
+    - http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl
     - http://purl.obolibrary.org/obo/cl/cl-basic.owl
     - http://purl.obolibrary.org/obo/eco.owl
     - http://purl.obolibrary.org/obo/go/extensions/gorel.owl
@@ -148,6 +149,7 @@ GOLR_ONTOLOGY_LIST:
     - http://purl.obolibrary.org/obo/pato.owl
     - http://purl.obolibrary.org/obo/po.owl
     - http://purl.obolibrary.org/obo/emap.owl
+    - http://purl.obolibrary.org/obo/chebi.owl
     - http://purl.obolibrary.org/obo/uberon/basic.owl
     - http://purl.obolibrary.org/obo/wbbt.owl
     - http://purl.obolibrary.org/obo/go/extensions/go-modules-annotations.owl
