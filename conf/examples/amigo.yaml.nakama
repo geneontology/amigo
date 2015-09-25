@@ -14,7 +14,7 @@ AMIGO_BETA:
 AMIGO_DYNAMIC_PATH:
   comment: The full path to the location of the perl binaries.
   type: directory
-  value: /home/jenkins/workspace/load-golr-nakama/perl/bin
+  value: /home/swdev/local/src/git/amigo/perl/bin
 AMIGO_DYNAMIC_URL:
   comment: The URL that AMIGO_DYNAMIC_PATH maps to.
   type: url
@@ -54,7 +54,7 @@ AMIGO_PUBLIC_NOCTUA_URL:
 AMIGO_ROOT:
   comment: 'Unless you are doing something strange, the parent directory of this file.'
   type: directory
-  value: /home/jenkins/workspace/load-golr-nakama
+  value: /home/swdev/local/src/git/amigo
 AMIGO_SERVER_NAME:
   comment: 'The name by which your AmiGO instance wishes to known--think load balancer or cache situations. If you would rather this information not be reported, leave blank.'
   type: string
@@ -62,7 +62,7 @@ AMIGO_SERVER_NAME:
 AMIGO_STATIC_PATH:
   comment: The full path to a usable static document directory where static and staging are located.
   type: directory
-  value: /home/jenkins/workspace/load-golr-nakama/static
+  value: /home/swdev/local/src/git/amigo/static
 AMIGO_STATIC_URL:
   comment: The URL for the static content. Can be local or remote.
   type: url
@@ -136,7 +136,7 @@ GOLR_METADATA_LIST:
 GOLR_METADATA_ONTOLOGY_LOCATION:
   comment: The full path to the ontology YAML config file. This is core for any ontology-related load.
   type: file
-  value: '/home/jenkins/workspace/load-golr-nakama/metadata/ont-config.yaml'
+  value: '/home/swdev/local/src/git/amigo/metadata/ont-config.yaml'
 GOLR_NOCTUA_ENRICHED_MODEL_PATH:
   comment: The list of ontologies to load.
   type: directory
