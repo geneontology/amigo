@@ -26,8 +26,7 @@ use CGI::Application::Plugin::Redirect;
 ## Real external workers.
 use AmiGO::Worker::GOlr::Term;
 use AmiGO::Worker::GOlr::GeneProduct;
-#use AmiGO::Worker::GOlr::ComplexAnnotationUnit;
-use AmiGO::Worker::GOlr::ComplexAnnotationGroup;
+use AmiGO::Worker::GOlr::ModelAnnotation;
 use AmiGO::External::QuickGO::Term;
 use AmiGO::External::XML::GONUTS;
 #use AmiGO::External::Raw;
@@ -72,10 +71,11 @@ sub setup {
 		   'free_browse'         => 'mode_free_browse',
 		   'term'                => 'mode_term_details',
 		   'gene_product'        => 'mode_gene_product_details',
-		   'complex_annotation'  => 'mode_complex_annotation_details',
+		   'model'               => 'mode_model_details',
 		   'software_list'       => 'mode_software_list',
 		   'schema_details'      => 'mode_schema_details',
 		   'load_details'        => 'mode_load_details',
+		   'owltools_details'    => 'mode_owltools_details',
 		   'medial_search'       => 'mode_medial_search',
 		   ## ???
 		   'phylo_graph'         => 'mode_phylo_graph',
@@ -758,9 +758,9 @@ sub mode_medial_search {
 
   ## Page settings.
   my $page_name = 'medial_search';
-  my($page_title, 
+  my($page_title,
      $page_content_title,
-     $page_help_link) = $self->_resolve_page_settings($page_name);  
+     $page_help_link) = $self->_resolve_page_settings($page_name);
   $self->set_template_parameter('page_name', $page_name);
   $self->set_template_parameter('page_title', $page_title);
   $self->set_template_parameter('page_content_title', $page_content_title);
@@ -953,7 +953,9 @@ sub mode_load_details {
   my $params = $i->input_profile();
 
   ## Load in the GOlr timestamp details.
-  my $glog = $self->{CORE}->amigo_env('GOLR_TIMESTAMP_LOCATION');
+  #my $glog = $self->{CORE}->amigo_env('GOLR_TIMESTAMP_LOCATION');
+  my $glog =
+      $self->{CORE}->amigo_env('AMIGO_WORKING_PATH') . '/golr_timestamp.log';
   my $ts_details = $self->{CORE}->golr_timestamp_log($glog);
   if( $ts_details && scalar(@$ts_details) ){
     $self->set_template_parameter('TS_DETAILS_P', 1);
@@ -1028,6 +1030,75 @@ sub mode_load_details {
      content =>
      [
       'pages/load_details.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page_with();
+}
+
+##
+sub mode_owltools_details {
+
+  my $self = shift;
+
+  my $i = AmiGO::Input->new($self->query());
+  my $params = $i->input_profile();
+
+  ## Load in the OWLTools info.
+  my $owltools =
+    'java -Xms2048M -DentityExpansionLimit=4086000 -Djava.awt.headless=true -jar ' . $self->{CORE}->amigo_env('AMIGO_ROOT') . '/java/lib/owltools-runner-all.jar --version';
+  my $ot_raw = `$owltools`;
+  my @ot_lines = split(/\n+/, $ot_raw);
+  my $ot = [];
+  foreach my $ot_line (@ot_lines){
+    my @bits = split(/\t+/, $ot_line);
+    push @$ot, \@bits;
+  }
+  $self->set_template_parameter('OT_DETAILS', $ot);
+
+  ## Page settings.
+  my $page_name = 'owltools_details';
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      #'com.jquery.tablesorter',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui',
+      'com.jquery.tablesorter',
+      'bbop',
+      'amigo2'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js')
+     ],
+     javascript_init =>
+     [
+      'GeneralSearchForwardingInit();',
+     ],
+     content =>
+     [
+      'pages/owltools_details.tmpl'
      ]
     };
   $self->add_template_bulk($prep);
@@ -1541,7 +1612,7 @@ sub mode_term_details {
   ###
 
   ## Page settings.
-  ## Don't use usual mechanism--a litle special.
+  ## Don't use usual mechanism--a little special.
   $self->set_template_parameter('page_name', 'term');
   $self->set_template_parameter('page_title',
 				'AmiGO 2: Term Details for "' .
@@ -1690,22 +1761,24 @@ sub mode_gene_product_details {
   ### Standard setup.
   ###
 
-  ## Page settings.
   ## Again, a little different.
-  $self->set_template_parameter('page_name', 'gene_product');
-  $self->set_template_parameter('page_title',
-				'AmiGO 2: Gene Product Details for ' .
-				$input_gp_id);
-  ## Figure out the best title we can.
+  ## Start by figuring out the best title we can.
   my $best_title = $input_gp_id; # start with the worst as a default
   if ( $gp_info_hash->{$input_gp_id}{'name'} ){
     $best_title = $gp_info_hash->{$input_gp_id}{'name'};
   }elsif( $gp_info_hash->{$input_gp_id}{'label'} ){
     $best_title = $gp_info_hash->{$input_gp_id}{'label'};
   }
+  ## Page settings.
+  $self->set_template_parameter('page_name', 'gene_product');
+  $self->set_template_parameter('page_title',
+				'AmiGO 2: Gene Product Details for ' .
+				$input_gp_id);
+  $self->set_template_parameter('content_title', $best_title);
   $self->set_template_parameter('page_content_title', $best_title);
-  my($page_title, $page_content_title, $page_help_link) =
-      $self->_resolve_page_settings('gene_product');
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings('gene_product');
   $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Our AmiGO services CSS.
@@ -1755,25 +1828,22 @@ sub mode_gene_product_details {
 }
 
 
-## Complex annotation/annotation group/annotation unit information.
-sub mode_complex_annotation_details {
+## Model annotation information.
+sub mode_model_details {
 
   my $self = shift;
 
   ##
   my $i = AmiGO::Input->new($self->query());
-  my $params = $i->input_profile('complex_annotation');
+  my $params = $i->input_profile('model');
   ## Deal with the different types of dispatch we might be facing.
-  # $params->{annotation_group} = $self->param('annotation_group')
-  #   if ! $params->{annotation_group} && $self->param('annotation_group');
-  # my $input_annotation_group_id = $params->{annotation_group};
-  $params->{complex_annotation} = $self->param('complex_annotation')
-    if ! $params->{complex_annotation} && $self->param('complex_annotation');
-  my $input_id = $params->{complex_annotation};
+  $params->{model} = $self->param('model')
+    if ! $params->{model} && $self->param('model');
+  my $input_id = $params->{model};
 
   ## Input sanity check.
   if( ! $input_id ){
-    return $self->mode_fatal("No input complex annotation argument.");
+    return $self->mode_fatal("No input model annotation argument.");
   }
 
   ## Warn people away for now.
@@ -1785,27 +1855,18 @@ sub mode_complex_annotation_details {
   ###
 
   ## Get the data from the store.
-  #AmiGO::Worker::GOlr::ComplexAnnotationUnit->new($input_id);
-  my $ca_worker =
-    AmiGO::Worker::GOlr::ComplexAnnotationGroup->new($input_id);
-  my $ca_info_hash = $ca_worker->get_info();
+  my $ma_worker = AmiGO::Worker::GOlr::ModelAnnotation->new($input_id);
+  my $ma_info_hash = $ma_worker->get_info();
 
   ## First make sure that things are defined.
-  if( ! defined($ca_info_hash) ||
-      $self->{CORE}->empty_hash_p($ca_info_hash) ||
-      ! defined($ca_info_hash->{$input_id}) ){
-    return $self->mode_not_found($input_id,
-				 'complex annotation');
+  if( ! defined($ma_info_hash) ||
+      $self->{CORE}->empty_hash_p($ma_info_hash) ||
+      ! defined($ma_info_hash->{$input_id}) ){
+    return $self->mode_not_found($input_id, 'model');
   }
 
-  $self->{CORE}->kvetch('solr docs: ' . Dumper($ca_info_hash));
-  $self->set_template_parameter('CA_INFO', $ca_info_hash->{$input_id});
-
-  ## Will only need to link through the visualizer,
-  my $vlink =
-    $self->{CORE}->get_interlink({'mode'=>'visualize_service_complex_annotation',
-				  'arg'=>{'complex_annotation'=>$input_id}});
-  $self->set_template_parameter('VIZ_STATIC_LINK', $vlink);
+  $self->{CORE}->kvetch('solr docs: ' . Dumper($ma_info_hash));
+  $self->set_template_parameter('MA_INFO', $ma_info_hash->{$input_id});
 
   ###
   ### Standard setup.
@@ -1813,24 +1874,40 @@ sub mode_complex_annotation_details {
 
   ## Page settings.
   ## Again, a little special.
-  $self->set_template_parameter('page_name', 'complex_annotation');
+  $self->set_template_parameter('page_name', 'model');
   $self->set_template_parameter('page_title',
-				'AmiGO 2: Complex Annotation Details for ' .
+				'AmiGO 2: Model Details for ' .
 				$input_id);
   my($page_title, $page_content_title, $page_help_link) =
-      $self->_resolve_page_settings('complex_annotation');
+      $self->_resolve_page_settings('model');
   $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Figure out the best title we can.
   my $best_title = $input_id; # start with the worst
-  if ( $ca_info_hash->{$input_id}{'annotation_group_label'} ){
-    $best_title =
-      $ca_info_hash->{$input_id}{'annotation_group_label'};
-  }elsif( $ca_info_hash->{$input_id}{'annotation_group'} ){
-    $best_title =
-      $ca_info_hash->{$input_id}{'annotation_group'};
+  if ( $ma_info_hash->{$input_id}{'model_label'} ){
+    $best_title = $ma_info_hash->{$input_id}{'model_label'};
   }
   $self->set_template_parameter('page_content_title', $best_title);
+
+  ## BUG/TODO: Some silliness to get the variables right; will need to
+  ## revisit later on.
+  ## TODO/BUG: Again, temporary badness for Noctua.
+  my $github_base =
+    'https://github.com/geneontology/noctua-models/blob/master/models/';
+  my $noctua_base = $self->{WEBAPP_TEMPLATE_PARAMS}{noctua_base};
+  my $editor_base = $noctua_base . 'editor/graph/';
+  my $viewer_base = $noctua_base . 'workbench/cytoview/';
+  ## We need to translate some of the document information.
+  ## TODO/BUG: This is temporary as we work out what we'll actually have.
+  my @s = split(':', $input_id);
+  my $fid = $s[scalar(@s) -1];
+  ## 
+  my $repo_file_url = $github_base . $fid;
+  my $edit_file_url = $editor_base . $input_id;
+  my $view_file_url = $viewer_base . $input_id;
+  $self->set_template_parameter('repo_file_url', $repo_file_url);
+  $self->set_template_parameter('edit_file_url', $edit_file_url);
+  $self->set_template_parameter('view_file_url', $view_file_url);
 
   ## Our AmiGO services CSS.
   my $prep =
@@ -1854,20 +1931,33 @@ sub mode_complex_annotation_details {
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-      #$self->{JS}->get_lib('GPDetails.js'),
-      # $self->{JS}->make_var('global_count_data', $gpc_info),
-      # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
-      # $self->{JS}->make_var('global_acc_to_rand', $acc_to_rand),
-      $self->{JS}->make_var('global_acc', $input_id)
+      #$self->{JS}->get_lib('ModelDetails.js'),
+      $self->{JS}->get_lib('AmiGOCytoView.js'),
+      ## Things to make AmiGOCytoView.js work. HACKY! TODO/BUG
+      $self->{JS}->make_var('global_id', $input_id),
+      ## TODO: get load to have same as wire protocol.
+      $self->{JS}->make_var('global_model', undef),
+      # $self->{JS}->make_var('global_model',
+      # 			    $ma_info_hash->{$input_id}{'model_graph'}),
+      $self->{JS}->make_var('global_barista_token',  undef),
+      $self->{JS}->make_var('global_minerva_definition_name',
+			    "minerva_public_dev"),
+      $self->{JS}->make_var('global_barista_location',
+			    "http://toaster.lbl.gov:3399"),
+      $self->{JS}->make_var('global_collapsible_relations',
+			    ["RO:0002333",
+			     "BFO:0000066",
+			     "RO:0002233",
+			     "RO:0002488"])
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();',
-      #'GPDetailsInit();'
+      'GeneralSearchForwardingInit();'#,
+      #'ModelDetailsInit();'
      ],
      content =>
      [
-      'pages/complex_annotation_details.tmpl'
+      'pages/model_details.tmpl'
      ]
     };
   $self->add_template_bulk($prep);

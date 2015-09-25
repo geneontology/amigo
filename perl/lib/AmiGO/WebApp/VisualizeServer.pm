@@ -19,8 +19,6 @@ use AmiGO::Input;
 #use AmiGO::Worker::Subset;
 use AmiGO::Worker::Visualize;
 use AmiGO::Worker::GOlr::Term;
-#use AmiGO::Worker::GOlr::ComplexAnnotationUnit;
-use AmiGO::Worker::GOlr::ComplexAnnotationGroup;
 
 ##
 sub setup {
@@ -43,7 +41,6 @@ sub setup {
       'quickgo'            => 'mode_quickgo',
       'amigo'              => 'mode_advanced',
       'freeform'           => 'mode_freeform',
-      'complex_annotation' => 'mode_complex_annotation',
       ## OTher handling.
       'AUTOLOAD'           => 'mode_exception'
 #		   'subset'       => 'mode_subset',
@@ -318,7 +315,7 @@ sub mode_client_amigo {
 }
 
 ## Example:
-## http://localhost/visualize?mode=quickgo&term=GO:0048856
+## http://localhost:9999/visualize?mode=quickgo&term=GO:0022008
 sub mode_quickgo {
 
   my $self = shift;
@@ -706,166 +703,6 @@ sub mode_freeform {
   my $output = $self->_produce_appropriate_output($gv, $format);
 
   ## Get the headers correct.
-  $self->_add_fiddly_header($format, $inline_p);
-
-  return $output;
-}
-
-## Example:
-sub mode_complex_annotation {
-  my $self = shift;
-
-  ##
-  my $i = AmiGO::Input->new($self->query());
-  my $params = $i->input_profile('visualize_complex_annotation');
-  my $inline_p = $params->{inline};
-  my $format = $params->{format};
-  ## Harder argument.
-  $params->{complex_annotation} = $self->param('complex_annotation')
-    if ! $params->{complex_annotation} && $self->param('complex_annotation');
-  my $input_id = $params->{complex_annotation};
-
-  ## Input sanity check.
-  if( ! $input_id ){
-    return $self->mode_fatal("No input complex annotation id argument.");
-  }
-
-  ###
-  ### Get full info.
-  ###
-
-  ## Get the data from the store.
-  #my $ca_worker = AmiGO::Worker::GOlr::ComplexAnnotationUnit->new($input_id);
-  my $ca_worker = AmiGO::Worker::GOlr::ComplexAnnotationGroup->new($input_id);
-  my $ca_info_hash = $ca_worker->get_info();
-
-  ## First make sure that things are defined.
-  if( ! defined($ca_info_hash) ||
-      $self->{CORE}->empty_hash_p($ca_info_hash) ||
-      ! defined($ca_info_hash->{$input_id}) ){
-    return $self->mode_not_found($input_id,
-				 'complex annotation');
-  }
-
-  ###
-  ### Sort out the graph jimmied out of the GOlr/Worker.
-  ###
-
-  ## Unit we get topo and style separated, reduce the graph ourselves.
-  my $multi_json_str = $ca_info_hash->{$input_id}{topology_graph_json};
-  my $multi_json = $self->{CORE}->_read_json_string($multi_json_str);
-
-  ## Unwind out given graph into a simpler form.
-  my $graph_hash = {'nodes'=>[], 'edges'=>[]};
-  #my $term_hash = {};
-  my $stacked_node_hash = {};
-  my $nodes = $multi_json->{nodes};
-  foreach my $node (@$nodes){
-
-    my $nid = $node->{id};
-    my $nlbl = $node->{lbl} || '???';
-
-    my $enby = '';
-    my $unk = [];
-    my $actv = '';
-    my $proc = '';
-    my $loc = [];
-    if( $node->{meta} ){
-      $enby = $node->{meta}{enabled_by} if $node->{meta}{enabled_by};
-      $unk = $node->{meta}{unknown} if $node->{meta}{unknown};
-      $actv = $node->{meta}{activity} if $node->{meta}{activity};
-      $proc = $node->{meta}{process} if $node->{meta}{process};
-      $loc = $node->{meta}{location} if $node->{meta}{location};
-    }
-
-    push @{$graph_hash->{nodes}},
-      {
-       'id' => $nid,
-       #'lbl' => $nlbl,
-      };
-
-    # $term_hash->{$nid} =
-    #   {
-    #    #'title' => $nlbl,
-    #    'title' => $enby,
-    #    #'body' => '<HTML>' . join('<BR>', @{[$enby, $actv]}) . '</HTML>'
-    #    'body' => join(" ", @{['e:'.$enby, 'a:'.$actv, 'p:'.$proc,
-    # 			      'l'.join(":", @$loc)]})
-    #    #'body' => $actv
-    #   };
-
-    my $stack = [];
-    push @$stack, {
-		  'color' => 'white',
-		  'field' => 'enabled by',
-		  'label' => $enby
-		 } if $enby;
-    push @$stack, {
-		  'color' => 'lightblue',
-		  'field' => 'activity',
-		  'label' => $actv
-		 } if $actv;
-    foreach my $u (@$unk){
-      push @$stack, {
-		     'color' => 'lavenderblush',
-		     'field' => 'unknown',
-		     'label' => $u
-		    };
-    }
-    push @$stack, {
-		  'color' => 'coral2',
-		  'field' => 'process',
-		  'label' => $proc
-		 } if $proc;
-    foreach my $l (@$loc){
-      push @$stack, {
-		     'color' => 'yellow',
-		     'field' => 'location',
-		     'label' => $l
-		    };
-    }
-
-    $stacked_node_hash->{$nid} =
-      {
-       'id' => $nid,
-       'stack' => $stack
-      };
-  }
-  $self->{CORE}->kvetch('nodes added: ' . scalar(@$nodes));
-
-  my $edges = $multi_json->{edges};
-  foreach my $edge (@$edges){
-    my $sub = $edge->{sub};
-    my $obj = $edge->{obj};
-    my $pred = $edge->{pred} || '';
-    push @{$graph_hash->{edges}},
-      {
-       # BUG
-       #'sub'=> $sub,
-       #'obj'=> $obj,
-       'obj'=> $sub,
-       'sub'=> $obj,
-       'pred'=> $pred,
-      };
-  }
-
-  ## Produce the edges part of the image using the freeform core.
-  #my $gv = $self->_freeform_core($format, $graph_hash, $term_hash, {nodes=>0});
-  my $gv = $self->_freeform_core($format, $graph_hash, {}, {nodes=>0});
-
-  ## Do our own stacked nodes for the nodes.
-  foreach my $snid (keys %$stacked_node_hash){
-    my $stacked_node = $stacked_node_hash->{$snid};
-    my $id = $stacked_node->{id};
-    my $stack = $stacked_node->{stack};
-    $gv->add_complex_node($id, $stack);
-  }
-
-  ## TODO: Add legend.
-  $gv->add_legend();
-
-  ## Produce output and get the headers correct.
-  my $output = $self->_produce_appropriate_output($gv, $format);
   $self->_add_fiddly_header($format, $inline_p);
 
   return $output;

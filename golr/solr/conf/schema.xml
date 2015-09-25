@@ -19,231 +19,19 @@
   <fields>
     <!-- A special static/fixed (by YAML conf file) field all documents have. -->
     <field name="document_category" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- ontology: Term synonyms. -->
-    <!-- bioentity: Gene product synonyms. -->
-    <!-- annotation: Gene or gene product synonyms. -->
-    <field name="synonym" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of synonym.-->
-    <field name="synonym_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <copyField source="synonym" dest="synonym_searchable"></copyField>
-    <!-- general: The ID/label for this entity. -->
-    <field name="entity" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- complex_annotation: ???. -->
-    <field name="annotation_unit" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- annotation: Closure of labels over has_participant. -->
-    <field name="has_participant_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of has_participant_closure_label.-->
-    <field name="has_participant_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <copyField source="has_participant_closure_label" dest="has_participant_closure_label_searchable"></copyField>
-    <!-- Automatically created to capture mapping information -->
-    <!-- between has_participant_(list|closure) and has_participant_closure_label.-->
-    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
-    <field name="has_participant_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- ontology: Database cross-reference. -->
-    <!-- bioentity: Database cross-reference. -->
-    <field name="database_xref" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- annotation: Rational for redundancy of annotation. -->
-    <field name="is_redundant_for" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- complex_annotation: ???. -->
-    <field name="annotation_group" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- ontology: Term identifier. -->
+    <!-- bioentity: Gene of gene product ID. -->
+    <!-- annotation: A unique (and internal) combination of bioentity and ontology class. -->
+    <!-- general: The mangled internal ID for this entity. -->
+    <!-- model_annotation: A unique (and internal) thing. -->
+    <!-- noctua_model_meta: The mangled internal ID for this entity. -->
+    <!-- family: Family ID. -->
+    <!-- bbop_ann_ev_agg: Gene/product ID. -->
+    <field name="id" type="string" required="true" multiValued="false" indexed="true" stored="true"></field>
     <!-- ontology: Term identifier. -->
     <!-- annotation: Direct annotations. -->
     <!-- bbop_ann_ev_agg: Column 5. -->
     <field name="annotation_class" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- complex_annotation: Function acc/ID. -->
-    <field name="function_class" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- bioentity: Type class. -->
-    <!-- annotation: Type class. -->
-    <field name="type" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- annotation: Evidence with/from. -->
-    <!-- bbop_ann_ev_agg: All column 8s for this term/gene product pair -->
-    <field name="evidence_with" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- bioentity: JSON blob form of the phylogenic tree. -->
-    <!-- family: JSON blob form of the phylogenic tree. -->
-    <field name="phylo_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- ontology: Term definition. -->
-    <field name="description" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of description.-->
-    <field name="description_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="description" dest="description_searchable"></copyField>
-    <!-- family: Gene/products annotated with this protein family. -->
-    <field name="bioentity_list_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- Automatically created to capture mapping information -->
-    <!-- between bioentity_(list|closure) and bioentity_list_label.-->
-    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
-    <field name="bioentity_list_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- annotation: Extension class for the annotation (JSON). -->
-    <field name="annotation_extension_json" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- bioentity: The full name of the gene product. -->
-    <!-- annotation: The full name of the gene or gene product. -->
-    <field name="bioentity_name" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of bioentity_name.-->
-    <field name="bioentity_name_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="bioentity_name" dest="bioentity_name_searchable"></copyField>
-    <!-- bioentity: Taxonomic group -->
-    <!-- annotation: Taxonomic group. -->
-    <!-- complex_annotation: GAF column 13 (taxon). -->
-    <!-- bbop_ann_ev_agg: Column 13: taxon. -->
-    <field name="taxon" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- ontology: Only in taxon closure. -->
-    <field name="only_in_taxon_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- annotation: Secondary taxon closure. -->
-    <field name="secondary_taxon_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of secondary_taxon_closure_label.-->
-    <field name="secondary_taxon_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <copyField source="secondary_taxon_closure_label" dest="secondary_taxon_closure_label_searchable"></copyField>
-    <!-- Automatically created to capture mapping information -->
-    <!-- between secondary_taxon_(list|closure) and secondary_taxon_closure_label.-->
-    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
-    <field name="secondary_taxon_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- complex_annotation: ??? -->
-    <field name="owl_blob_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- general: The label for this entity. -->
-    <field name="entity_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of entity_label.-->
-    <field name="entity_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="entity_label" dest="entity_label_searchable"></copyField>
-    <!-- bioentity: Taxonomic group and ancestral groups. -->
-    <!-- annotation: Taxonomic group and ancestral groups. -->
-    <!-- complex_annotation: Taxon label closure derived from GAF column 13 and ncbi_taxonomy.obo. -->
-    <!-- bbop_ann_ev_agg: Labels derived from C13 + ncbi_taxonomy.obo. -->
-    <field name="taxon_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of taxon_closure_label.-->
-    <field name="taxon_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <copyField source="taxon_closure_label" dest="taxon_closure_label_searchable"></copyField>
-    <!-- Automatically created to capture mapping information -->
-    <!-- between taxon_(list|closure) and taxon_closure_label.-->
-    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
-    <field name="taxon_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- family: Gene/products annotated with this protein family. -->
-    <field name="bioentity_list" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- annotation: Extension class for the annotation. -->
-    <field name="annotation_extension_class" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- bioentity: Taxonomic group and ancestral groups. -->
-    <!-- annotation: Taxonomic group and ancestral groups. -->
-    <!-- complex_annotation: Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo. -->
-    <!-- bbop_ann_ev_agg: IDs derived from C13 + ncbi_taxonomy.obo. -->
-    <field name="taxon_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- complex_annotation: ???. -->
-    <field name="annotation_group_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of annotation_group_label.-->
-    <field name="annotation_group_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="annotation_group_label" dest="annotation_group_label_searchable"></copyField>
-    <!-- ontology: JSON blob form of the local relation transitivity graph. Uses various relations (including regulates, occurs in, capable_of). -->
-    <field name="regulates_transitivity_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- general: The document category that this enitity belongs to. -->
-    <field name="category" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- annotation: Ontology aspect. -->
-    <field name="aspect" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- ontology: Only in taxon label closure. -->
-    <field name="only_in_taxon_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of only_in_taxon_closure_label.-->
-    <field name="only_in_taxon_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <copyField source="only_in_taxon_closure_label" dest="only_in_taxon_closure_label_searchable"></copyField>
-    <!-- Automatically created to capture mapping information -->
-    <!-- between only_in_taxon_(list|closure) and only_in_taxon_closure_label.-->
-    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
-    <field name="only_in_taxon_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- complex_annotation:  -->
-    <field name="location_list" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- complex_annotation:  -->
-    <field name="location_list_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- Automatically created to capture mapping information -->
-    <!-- between location_list_(list|closure) and location_list_closure_label.-->
-    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
-    <field name="location_list_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- complex_annotation: Common process name. -->
-    <field name="process_class_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of process_class_label.-->
-    <field name="process_class_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="process_class_label" dest="process_class_label_searchable"></copyField>
-    <!-- complex_annotation: Process acc/ID. -->
-    <field name="process_class" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- ontology: Only in taxon. -->
-    <field name="only_in_taxon" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of only_in_taxon.-->
-    <field name="only_in_taxon_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="only_in_taxon" dest="only_in_taxon_searchable"></copyField>
-    <!-- complex_annotation:  -->
-    <field name="location_list_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- Automatically created to capture mapping information -->
-    <!-- between location_(list|closure) and location_list_label.-->
-    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
-    <field name="location_list_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- ontology: Term that replaces this term. -->
-    <field name="replaced_by" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- ontology: Term comment. -->
-    <field name="comment" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of comment.-->
-    <field name="comment_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="comment" dest="comment_searchable"></copyField>
-    <!-- annotation: Annotations assigned by group. -->
-    <field name="assigned_by" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- annotation: Secondary taxon. -->
-    <field name="secondary_taxon" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- complex_annotation: ??? -->
-    <field name="enabled_by_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of enabled_by_label.-->
-    <field name="enabled_by_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="enabled_by_label" dest="enabled_by_label_searchable"></copyField>
-    <!-- ontology: Ancestral terms (regulates, occurs in, capable_of). -->
-    <!-- bioentity: Bioentities associated with this term or its children (over regulates). -->
-    <!-- annotation: Annotations for this term or its children (over regulates). -->
-    <field name="regulates_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- bioentity: Direct annotations. -->
-    <field name="annotation_class_list_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- Automatically created to capture mapping information -->
-    <!-- between annotation_class_(list|closure) and annotation_class_list_label.-->
-    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
-    <field name="annotation_class_list_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- bioentity: Taxonomic group -->
-    <!-- annotation: Taxonomic group and ancestral groups. -->
-    <!-- complex_annotation: Taxon derived from GAF column 13 and ncbi_taxonomy.obo. -->
-    <!-- bbop_ann_ev_agg: Derived from C13 + ncbi_taxonomy.obo. -->
-    <field name="taxon_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of taxon_label.-->
-    <field name="taxon_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="taxon_label" dest="taxon_label_searchable"></copyField>
-    <!-- bioentity: Symbol or name. -->
-    <!-- annotation: Gene or gene product identifiers. -->
-    <!-- bbop_ann_ev_agg: Column 3. -->
-    <field name="bioentity_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of bioentity_label.-->
-    <field name="bioentity_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="bioentity_label" dest="bioentity_label_searchable"></copyField>
-    <!-- complex_annotation: ??? -->
-    <field name="function_class_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of function_class_closure_label.-->
-    <field name="function_class_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <copyField source="function_class_closure_label" dest="function_class_closure_label_searchable"></copyField>
-    <!-- Automatically created to capture mapping information -->
-    <!-- between function_class_(list|closure) and function_class_closure_label.-->
-    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
-    <field name="function_class_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- ontology: Ancestral terms (is_a/part_of). -->
-    <!-- bioentity: Closure of ids/accs over isa and partof. -->
-    <!-- annotation: Annotations for this term or its children (over is_a/part_of). -->
-    <field name="isa_partof_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- annotation: Evidence type. -->
-    <field name="evidence_type" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- ontology: Only in taxon label. -->
-    <field name="only_in_taxon_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of only_in_taxon_label.-->
-    <field name="only_in_taxon_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="only_in_taxon_label" dest="only_in_taxon_label_searchable"></copyField>
-    <!-- annotation: Annotation qualifier. -->
-    <field name="qualifier" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- annotation: Extension class for the annotation. -->
-    <field name="annotation_extension_class_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- annotation: Biological isoform. -->
-    <field name="bioentity_isoform" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- annotation: Date of assignment. -->
-    <field name="date" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- general: A hidden searchable blob document to access this item. It should contain all the goodies that we want to search for, like species(?), synonyms, etc. -->
-    <field name="general_blob" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of general_blob.-->
-    <field name="general_blob_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="general_blob" dest="general_blob_searchable"></copyField>
     <!-- ontology: Identifier. -->
     <!-- annotation: Direct annotations. -->
     <!-- bbop_ann_ev_agg: Column 5 + ontology. -->
@@ -251,50 +39,48 @@
     <!--An easily searchable (TextField tokenized) version of annotation_class_label.-->
     <field name="annotation_class_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="annotation_class_label" dest="annotation_class_label_searchable"></copyField>
-    <!-- bioentity: Direct annotations. -->
-    <field name="annotation_class_list" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- ontology: Term identifier. -->
-    <!-- bioentity: Gene of gene product ID. -->
-    <!-- annotation: A unique (and internal) combination of bioentity and ontology class. -->
-    <!-- complex_annotation: A unique (and internal) thing. -->
-    <!-- family: Family ID. -->
-    <!-- general: The mangled internal ID for this entity. -->
-    <!-- bbop_ann_ev_agg: Gene/product ID. -->
-    <field name="id" type="string" required="true" multiValued="false" indexed="true" stored="true"></field>
-    <!-- ontology: Special use collections of terms. -->
-    <field name="subset" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- complex_annotation: ??? -->
-    <field name="process_class_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- annotation: Extension class for the annotation. -->
-    <field name="annotation_extension_class_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of annotation_extension_class_label.-->
-    <field name="annotation_extension_class_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <copyField source="annotation_extension_class_label" dest="annotation_extension_class_label_searchable"></copyField>
-    <!-- complex_annotation: Common function name. -->
-    <field name="function_class_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of function_class_label.-->
-    <field name="function_class_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="function_class_label" dest="function_class_label_searchable"></copyField>
-    <!-- ontology: Ancestral terms (regulates, occurs in, capable_of). -->
-    <!-- bioentity: Bioentities associated with this term or its children (over regulates). -->
-    <!-- annotation: Annotations for this term or its children (over regulates). -->
-    <field name="regulates_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of regulates_closure_label.-->
-    <field name="regulates_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <copyField source="regulates_closure_label" dest="regulates_closure_label_searchable"></copyField>
-    <!-- Automatically created to capture mapping information -->
-    <!-- between regulates_(list|closure) and regulates_closure_label.-->
-    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
-    <field name="regulates_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- ontology: Term definition. -->
+    <field name="description" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of description.-->
+    <field name="description_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="description" dest="description_searchable"></copyField>
+    <!-- ontology: Term namespace. -->
+    <!-- bioentity: Database source. -->
+    <!-- annotation: Database source. -->
+    <field name="source" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- ontology: Is the term obsolete? -->
+    <field name="is_obsolete" type="boolean" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- ontology: Term comments. -->
+    <!-- model_annotation: Comments -->
+    <!-- noctua_model_meta: The comments associated with a model. -->
+    <field name="comment" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of comment.-->
+    <field name="comment_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="comment" dest="comment_searchable"></copyField>
+    <!-- ontology: Term synonyms. -->
+    <!-- bioentity: Gene product synonyms. -->
+    <!-- annotation: Gene or gene product synonyms. -->
+    <field name="synonym" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of synonym.-->
+    <field name="synonym_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="synonym" dest="synonym_searchable"></copyField>
+    <!-- ontology: Alternate term identifier. -->
+    <field name="alternate_id" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- ontology: Term that replaces this term. -->
+    <field name="replaced_by" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- ontology: Others terms you might want to look at. -->
     <field name="consider" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- bioentity: Gene or gene product ID. -->
-    <!-- annotation: Gene or gene product identifiers. -->
-    <!-- bbop_ann_ev_agg: Column 1 + columns 2. -->
-    <field name="bioentity" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- bioentity: The bioentity ID used at the database of origin. -->
-    <!-- annotation: The bioentity ID used at the database of origin. -->
-    <field name="bioentity_internal_id" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- ontology: Special use collections of terms. -->
+    <field name="subset" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- ontology: Definition cross-reference. -->
+    <field name="definition_xref" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- ontology: Database cross-reference. -->
+    <!-- bioentity: Database cross-reference. -->
+    <field name="database_xref" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- ontology: Ancestral terms (is_a/part_of). -->
+    <!-- bioentity: Closure of ids/accs over isa and partof. -->
+    <!-- annotation: Annotations for this term or its children (over is_a/part_of). -->
+    <field name="isa_partof_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- ontology: Ancestral terms (is_a/part_of). -->
     <!-- bioentity: Closure of labels over isa and partof. -->
     <!-- annotation: Annotations for this term or its children (over is_a/part_of). -->
@@ -306,35 +92,234 @@
     <!-- between isa_partof_(list|closure) and isa_partof_closure_label.-->
     <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
     <field name="isa_partof_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- complex_annotation: ??? -->
-    <field name="enabled_by" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of enabled_by.-->
-    <field name="enabled_by_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="enabled_by" dest="enabled_by_searchable"></copyField>
-    <!-- complex_annotation: ??? -->
-    <field name="function_class_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- annotation: Closure of ids/accs over has_participant. -->
-    <field name="has_participant_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- complex_annotation: ??? -->
-    <field name="process_class_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of process_class_closure_label.-->
-    <field name="process_class_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <copyField source="process_class_closure_label" dest="process_class_closure_label_searchable"></copyField>
+    <!-- ontology: Ancestral terms (regulates, occurs in, capable_of). -->
+    <!-- bioentity: Bioentities associated with this term or its children (over regulates). -->
+    <!-- annotation: Annotations for this term or its children (over regulates). -->
+    <field name="regulates_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- ontology: Ancestral terms (regulates, occurs in, capable_of). -->
+    <!-- bioentity: Bioentities associated with this term or its children (over regulates). -->
+    <!-- annotation: Annotations for this term or its children (over regulates). -->
+    <field name="regulates_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of regulates_closure_label.-->
+    <field name="regulates_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="regulates_closure_label" dest="regulates_closure_label_searchable"></copyField>
     <!-- Automatically created to capture mapping information -->
-    <!-- between process_class_(list|closure) and process_class_closure_label.-->
+    <!-- between regulates_(list|closure) and regulates_closure_label.-->
     <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
-    <field name="process_class_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- ontology: Is the term obsolete? -->
-    <field name="is_obsolete" type="boolean" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <field name="regulates_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- ontology: JSON blob form of the local stepwise topology graph. Uses various relations (including regulates, occurs in, capable_of). -->
+    <!-- model_annotation: JSON blob form of the local stepwise topology graph. -->
+    <field name="topology_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- ontology: JSON blob form of the local relation transitivity graph. Uses various relations (including regulates, occurs in, capable_of). -->
+    <field name="regulates_transitivity_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- ontology: Only in taxon. -->
+    <field name="only_in_taxon" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of only_in_taxon.-->
+    <field name="only_in_taxon_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="only_in_taxon" dest="only_in_taxon_searchable"></copyField>
+    <!-- ontology: Only in taxon label. -->
+    <field name="only_in_taxon_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of only_in_taxon_label.-->
+    <field name="only_in_taxon_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="only_in_taxon_label" dest="only_in_taxon_label_searchable"></copyField>
+    <!-- ontology: Only in taxon closure. -->
+    <field name="only_in_taxon_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- ontology: Only in taxon label closure. -->
+    <field name="only_in_taxon_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of only_in_taxon_closure_label.-->
+    <field name="only_in_taxon_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="only_in_taxon_closure_label" dest="only_in_taxon_closure_label_searchable"></copyField>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between only_in_taxon_(list|closure) and only_in_taxon_closure_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="only_in_taxon_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- ontology: A non-lossy representation of conjunctions and disjunctions in c16 (JSON). -->
+    <field name="annotation_extension_owl_json" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- ontology: This is equivalent to the relation field in GPAD. -->
+    <field name="annotation_relation" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- ontology: This is equivalent to the relation field in GPAD. -->
+    <field name="annotation_relation_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of annotation_relation_label.-->
+    <field name="annotation_relation_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="annotation_relation_label" dest="annotation_relation_label_searchable"></copyField>
+    <!-- ontology: For any class document C, this will contain json(CE) for all axioms of form EquivalentClasses(C ... CE ....). -->
+    <field name="equivalent_class_expressions_json" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- ontology: Disjoint classes. -->
+    <field name="disjoint_class_list" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- ontology: Disjoint classes. -->
+    <field name="disjoint_class_list_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of disjoint_class_list_label.-->
+    <field name="disjoint_class_list_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="disjoint_class_list_label" dest="disjoint_class_list_label_searchable"></copyField>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between disjoint_class_(list|closure) and disjoint_class_list_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="disjoint_class_list_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- bioentity: Gene or gene product ID. -->
+    <!-- annotation: Gene or gene product identifiers. -->
+    <!-- bbop_ann_ev_agg: Column 1 + columns 2. -->
+    <field name="bioentity" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- bioentity: Symbol or name. -->
+    <!-- annotation: Gene or gene product identifiers. -->
+    <!-- bbop_ann_ev_agg: Column 3. -->
+    <field name="bioentity_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of bioentity_label.-->
+    <field name="bioentity_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="bioentity_label" dest="bioentity_label_searchable"></copyField>
+    <!-- bioentity: The full name of the gene product. -->
+    <!-- annotation: The full name of the gene or gene product. -->
+    <field name="bioentity_name" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of bioentity_name.-->
+    <field name="bioentity_name_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="bioentity_name" dest="bioentity_name_searchable"></copyField>
+    <!-- bioentity: The bioentity ID used at the database of origin. -->
+    <!-- annotation: The bioentity ID used at the database of origin. -->
+    <field name="bioentity_internal_id" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- bioentity: Type class. -->
+    <!-- annotation: Type class. -->
+    <field name="type" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- bioentity: Taxonomic group -->
+    <!-- annotation: Taxonomic group. -->
+    <!-- model_annotation: GAF column 13 (taxon). -->
+    <!-- bbop_ann_ev_agg: Column 13: taxon. -->
+    <field name="taxon" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- bioentity: Taxonomic group -->
+    <!-- annotation: Taxonomic group and ancestral groups. -->
+    <!-- model_annotation: Taxon derived from GAF column 13 and ncbi_taxonomy.obo. -->
+    <!-- bbop_ann_ev_agg: Derived from C13 + ncbi_taxonomy.obo. -->
+    <field name="taxon_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of taxon_label.-->
+    <field name="taxon_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="taxon_label" dest="taxon_label_searchable"></copyField>
+    <!-- bioentity: Taxonomic group and ancestral groups. -->
+    <!-- annotation: Taxonomic group and ancestral groups. -->
+    <!-- model_annotation: Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo. -->
+    <!-- bbop_ann_ev_agg: IDs derived from C13 + ncbi_taxonomy.obo. -->
+    <field name="taxon_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- bioentity: Taxonomic group and ancestral groups. -->
+    <!-- annotation: Taxonomic group and ancestral groups. -->
+    <!-- model_annotation: Taxon label closure derived from GAF column 13 and ncbi_taxonomy.obo. -->
+    <!-- bbop_ann_ev_agg: Labels derived from C13 + ncbi_taxonomy.obo. -->
+    <field name="taxon_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of taxon_closure_label.-->
+    <field name="taxon_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="taxon_closure_label" dest="taxon_closure_label_searchable"></copyField>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between taxon_(list|closure) and taxon_closure_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="taxon_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- bioentity: Taxonomic group (direct) and ancestral groups that are within the specified subset (e.g mammalia, eukaryota). -->
+    <!-- annotation: Taxonomic group (direct) and ancestral groups that are within the specified subset (e.g mammalia, eukaryota). -->
+    <field name="taxon_subset_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- bioentity: Labels for taxonomic group (direct) and ancestral groups that are within the specified subset. -->
+    <!-- annotation: Labels for taxonomic group (direct) and ancestral groups that are within the specified subset. -->
+    <field name="taxon_subset_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of taxon_subset_closure_label.-->
+    <field name="taxon_subset_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="taxon_subset_closure_label" dest="taxon_subset_closure_label_searchable"></copyField>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between taxon_subset_(list|closure) and taxon_subset_closure_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="taxon_subset_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- bioentity: Direct annotations. -->
+    <field name="annotation_class_list" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- bioentity: Direct annotations. -->
+    <field name="annotation_class_list_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between annotation_class_(list|closure) and annotation_class_list_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="annotation_class_list_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bioentity: PANTHER families that are associated with this entity. -->
     <!-- annotation: PANTHER families that are associated with this entity. -->
-    <!-- complex_annotation: PANTHER families that are associated with this entity. -->
+    <!-- model_annotation: PANTHER family IDs that are associated with this entity. -->
+    <!-- family: PANTHER family IDs that are associated with this entity. -->
+    <!-- bbop_ann_ev_agg: Family IDs that are associated with this entity. -->
+    <field name="panther_family" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of panther_family.-->
+    <field name="panther_family_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="panther_family" dest="panther_family_searchable"></copyField>
+    <!-- bioentity: PANTHER families that are associated with this entity. -->
+    <!-- annotation: PANTHER families that are associated with this entity. -->
+    <!-- model_annotation: PANTHER families that are associated with this entity. -->
     <!-- family: PANTHER families that are associated with this entity. -->
     <!-- bbop_ann_ev_agg: Families that are associated with this entity. -->
     <field name="panther_family_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of panther_family_label.-->
     <field name="panther_family_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="panther_family_label" dest="panther_family_label_searchable"></copyField>
+    <!-- bioentity: JSON blob form of the phylogenic tree. -->
+    <!-- family: JSON blob form of the phylogenic tree. -->
+    <field name="phylo_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- annotation: Date of assignment. -->
+    <field name="date" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- annotation: Annotations assigned by group. -->
+    <field name="assigned_by" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- annotation: Rational for redundancy of annotation. -->
+    <field name="is_redundant_for" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- annotation: Secondary taxon. -->
+    <field name="secondary_taxon" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- annotation: Secondary taxon. -->
+    <field name="secondary_taxon_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of secondary_taxon_label.-->
+    <field name="secondary_taxon_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="secondary_taxon_label" dest="secondary_taxon_label_searchable"></copyField>
+    <!-- annotation: Secondary taxon closure. -->
+    <field name="secondary_taxon_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- annotation: Secondary taxon closure. -->
+    <field name="secondary_taxon_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of secondary_taxon_closure_label.-->
+    <field name="secondary_taxon_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="secondary_taxon_closure_label" dest="secondary_taxon_closure_label_searchable"></copyField>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between secondary_taxon_(list|closure) and secondary_taxon_closure_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="secondary_taxon_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- annotation: Closure of ids/accs over has_participant. -->
+    <field name="has_participant_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- annotation: Closure of labels over has_participant. -->
+    <field name="has_participant_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of has_participant_closure_label.-->
+    <field name="has_participant_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="has_participant_closure_label" dest="has_participant_closure_label_searchable"></copyField>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between has_participant_(list|closure) and has_participant_closure_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="has_participant_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- annotation: Annotation qualifier. -->
+    <field name="qualifier" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- annotation: Ontology aspect. -->
+    <field name="aspect" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- annotation: Biological isoform. -->
+    <field name="bioentity_isoform" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- annotation: Evidence type. -->
+    <!-- model_annotation: Evidence type. -->
+    <field name="evidence_type" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- annotation: All evidence (evidence closure) for this annotation -->
+    <!-- model_annotation: All evidence (evidence closure) for this annotation -->
+    <!-- bbop_ann_ev_agg: All evidence for this term/gene product pair -->
+    <field name="evidence_type_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- annotation: Evidence with/from. -->
+    <!-- model_annotation: Evidence with/from. -->
+    <!-- bbop_ann_ev_agg: All column 8s for this term/gene product pair -->
+    <field name="evidence_with" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of evidence_with.-->
+    <field name="evidence_with_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="evidence_with" dest="evidence_with_searchable"></copyField>
+    <!-- annotation: Database reference. -->
+    <!-- model_annotation: Database reference. -->
+    <field name="reference" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of reference.-->
+    <field name="reference_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="reference" dest="reference_searchable"></copyField>
+    <!-- annotation: Extension class for the annotation. -->
+    <field name="annotation_extension_class" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- annotation: Extension class for the annotation. -->
+    <field name="annotation_extension_class_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of annotation_extension_class_label.-->
+    <field name="annotation_extension_class_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="annotation_extension_class_label" dest="annotation_extension_class_label_searchable"></copyField>
+    <!-- annotation: Extension class for the annotation. -->
+    <field name="annotation_extension_class_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- annotation: Extension class for the annotation. -->
     <field name="annotation_extension_class_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of annotation_extension_class_closure_label.-->
@@ -344,47 +329,143 @@
     <!-- between annotation_extension_class_(list|closure) and annotation_extension_class_closure_label.-->
     <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
     <field name="annotation_extension_class_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- annotation: Database reference. -->
-    <field name="reference" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- ontology: Alternate term identifier. -->
-    <field name="alternate_id" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- complex_annotation: ???. -->
-    <field name="annotation_group_url" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- ontology: Term namespace. -->
-    <!-- bioentity: Database source. -->
-    <!-- annotation: Database source. -->
-    <field name="source" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- annotation: All evidence (evidence closure) for this annotation -->
-    <!-- bbop_ann_ev_agg: All evidence for this term/gene product pair -->
-    <field name="evidence_type_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- ontology: JSON blob form of the local stepwise topology graph. Uses various relations (including regulates, occurs in, capable_of). -->
-    <!-- complex_annotation: JSON blob form of the local stepwise topology graph. -->
-    <field name="topology_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
-    <!-- bioentity: PANTHER families that are associated with this entity. -->
-    <!-- annotation: PANTHER families that are associated with this entity. -->
-    <!-- complex_annotation: PANTHER family IDs that are associated with this entity. -->
-    <!-- family: PANTHER family IDs that are associated with this entity. -->
-    <!-- bbop_ann_ev_agg: Family IDs that are associated with this entity. -->
-    <field name="panther_family" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of panther_family.-->
-    <field name="panther_family_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="panther_family" dest="panther_family_searchable"></copyField>
-    <!-- annotation: Secondary taxon closure. -->
-    <field name="secondary_taxon_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- annotation: Secondary taxon. -->
-    <field name="secondary_taxon_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!--An easily searchable (TextField tokenized) version of secondary_taxon_label.-->
-    <field name="secondary_taxon_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <copyField source="secondary_taxon_label" dest="secondary_taxon_label_searchable"></copyField>
-    <!-- ontology: Definition cross-reference. -->
-    <field name="definition_xref" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- complex_annotation:  -->
-    <field name="location_list_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    <!-- complex_annotation: ???. -->
+    <!-- annotation: Extension class for the annotation (JSON). -->
+    <field name="annotation_extension_json" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- general: The ID/label for this entity. -->
+    <field name="entity" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- general: The label for this entity. -->
+    <field name="entity_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of entity_label.-->
+    <field name="entity_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="entity_label" dest="entity_label_searchable"></copyField>
+    <!-- general: The document category that this enitity belongs to. -->
+    <field name="category" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- general: A hidden searchable blob document to access this item. It should contain all the goodies that we want to search for, like species(?), synonyms, etc. -->
+    <field name="general_blob" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of general_blob.-->
+    <field name="general_blob_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="general_blob" dest="general_blob_searchable"></copyField>
+    <!-- model_annotation: ???. -->
+    <!-- noctua_model_meta: The title(s) associated with the model. -->
+    <field name="annotation_unit" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- model_annotation: ???. -->
+    <!-- noctua_model_meta: The title(s) associated with the model. -->
     <field name="annotation_unit_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of annotation_unit_label.-->
     <field name="annotation_unit_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="annotation_unit_label" dest="annotation_unit_label_searchable"></copyField>
+    <!-- model_annotation: ???. -->
+    <field name="model" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- model_annotation: ???. -->
+    <field name="model_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of model_label.-->
+    <field name="model_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="model_label" dest="model_label_searchable"></copyField>
+    <!-- model_annotation: ???. -->
+    <field name="model_url" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- model_annotation: ???. -->
+    <!-- noctua_model_meta: The editorial state of the model. -->
+    <field name="model_state" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- model_annotation: set of all literal values of all annotation assertions in model -->
+    <field name="annotation_value" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- model_annotation: ???. -->
+    <!-- noctua_model_meta: Contributor identity. -->
+    <field name="contributor" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of contributor.-->
+    <field name="contributor_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="contributor" dest="contributor_searchable"></copyField>
+    <!-- model_annotation: Last modified -->
+    <!-- noctua_model_meta: Model last modification dates. -->
+    <field name="model_date" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of model_date.-->
+    <field name="model_date_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="model_date" dest="model_date_searchable"></copyField>
+    <!-- model_annotation: ??? -->
+    <field name="enabled_by" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of enabled_by.-->
+    <field name="enabled_by_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="enabled_by" dest="enabled_by_searchable"></copyField>
+    <!-- model_annotation: ??? -->
+    <field name="enabled_by_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of enabled_by_label.-->
+    <field name="enabled_by_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="enabled_by_label" dest="enabled_by_label_searchable"></copyField>
+    <!-- model_annotation: Function acc/ID. -->
+    <field name="function_class" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- model_annotation: Common function name. -->
+    <field name="function_class_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of function_class_label.-->
+    <field name="function_class_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="function_class_label" dest="function_class_label_searchable"></copyField>
+    <!-- model_annotation: ??? -->
+    <field name="function_class_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- model_annotation: ??? -->
+    <field name="function_class_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of function_class_closure_label.-->
+    <field name="function_class_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="function_class_closure_label" dest="function_class_closure_label_searchable"></copyField>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between function_class_(list|closure) and function_class_closure_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="function_class_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- model_annotation: Process acc/ID. -->
+    <field name="process_class" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- model_annotation: Common process name. -->
+    <field name="process_class_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of process_class_label.-->
+    <field name="process_class_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="process_class_label" dest="process_class_label_searchable"></copyField>
+    <!-- model_annotation: ??? -->
+    <field name="process_class_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- model_annotation: ??? -->
+    <field name="process_class_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of process_class_closure_label.-->
+    <field name="process_class_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="process_class_closure_label" dest="process_class_closure_label_searchable"></copyField>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between process_class_(list|closure) and process_class_closure_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="process_class_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- model_annotation:  -->
+    <field name="location_list" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- model_annotation:  -->
+    <field name="location_list_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between location_(list|closure) and location_list_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="location_list_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- model_annotation:  -->
+    <field name="location_list_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- model_annotation:  -->
+    <field name="location_list_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between location_list_(list|closure) and location_list_closure_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="location_list_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- model_annotation: ??? -->
+    <field name="owl_blob_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- model_annotation: Evidence type. -->
+    <field name="evidence_type_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of evidence_type_label.-->
+    <field name="evidence_type_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="evidence_type_label" dest="evidence_type_label_searchable"></copyField>
+    <!-- model_annotation: All evidence (evidence closure) for this annotation -->
+    <field name="evidence_type_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of evidence_type_closure_label.-->
+    <field name="evidence_type_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="evidence_type_closure_label" dest="evidence_type_closure_label_searchable"></copyField>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between evidence_type_(list|closure) and evidence_type_closure_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="evidence_type_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- family: Gene/products annotated with this protein family. -->
+    <field name="bioentity_list" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- family: Gene/products annotated with this protein family. -->
+    <field name="bioentity_list_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between bioentity_(list|closure) and bioentity_list_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="bioentity_list_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
   </fields>
   <uniqueKey>id</uniqueKey>
 </schema>

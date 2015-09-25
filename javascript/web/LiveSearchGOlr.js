@@ -3,6 +3,18 @@
 //// It ends up being a light wrapping around the search_pane widget.
 //// 
 
+// Let jshint pass over over our external globals (browserify takes
+// care of it all).
+/* global jQuery */
+/* global bbop */
+/* global amigo */
+/* global global_live_search_bookmark */
+/* global global_live_search_pins */
+/* global global_live_search_query */
+/* global global_live_search_personality */
+/* global global_live_search_filters */
+/* global global_live_search_bookmark */
+
 //
 function LiveSearchGOlrInit(){
 
@@ -29,31 +41,35 @@ function LiveSearchGOlrInit(){
 
     function _establish_buttons(personality, manager){
 	ll('Using _establish_buttons');
-	if( personality == 'annotation' ){
+	if( personality === 'annotation' ){
 	    manager.clear_buttons();
 	    // Only add matrix button for labs for now.
-	    if( sd.beta() && sd.beta() == '1' ){
+	    if( sd.beta() && sd.beta() === '1' ){
 		manager.add_button(facet_matrix_button);		
 	    }
 	    manager.add_button(gaf_download_button);
 	    manager.add_button(ann_flex_download_button);
 	    //manager.add_button(gaf_galaxy_button);
 	    manager.add_button(bookmark_button);
-	}else if( personality == 'ontology' ){
+	}else if( personality === 'ontology' ){
 	    manager.clear_buttons();
 	    //manager.add_button(id_label_download_button);
 	    manager.add_button(ont_flex_download_button);
 	    //manager.add_button(id_term_label_galaxy_button);
 	    manager.add_button(bookmark_button);
-	}else if( personality == 'bioentity' ){
+	}else if( personality === 'bioentity' ){
 	    manager.clear_buttons();
 	    //manager.add_button(id_download_button);
 	    manager.add_button(bio_flex_download_button);
 	    //manager.add_button(id_symbol_galaxy_button);
 	    manager.add_button(bookmark_button);
-	}else if( personality == 'complex_annotation' ){
+	// }else if( personality === 'complex_annotation' ){
+	//     manager.clear_buttons();
+	}else if( personality === 'model_annotation' ){
 	    manager.clear_buttons();
-	//}else if( personality == 'bbop_ann_ev_agg' ){
+	}else if( personality === 'noctua_model_meta' ){
+	    manager.clear_buttons();
+	//}else if( personality === 'bbop_ann_ev_agg' ){
 	}else{
 	    manager.clear_buttons();
 	}
@@ -75,9 +91,18 @@ function LiveSearchGOlrInit(){
     				     'bioentity', ['*']);
     	    _establish_buttons('bioentity', manager);
     	},
-    	'complex_annotation': function(manager){
+    	// 'complex_annotation': function(manager){
+    	//     manager.add_query_filter('document_category',
+    	// 			     'complex_annotation', ['*']);
+    	//     //_establish_buttons('annotation', manager);
+    	'model_annotation': function(manager){
     	    manager.add_query_filter('document_category',
-    				     'complex_annotation', ['*']);
+    				     'model_annotation', ['*']);
+    	    //_establish_buttons('annotation', manager);
+    	},
+    	'noctua_model_meta': function(manager){
+    	    manager.add_query_filter('document_category',
+    				     'noctua_model_meta', ['*']);
     	    //_establish_buttons('annotation', manager);
     	},
     	'family': function(manager){
@@ -233,7 +258,7 @@ function LiveSearchGOlrInit(){
     // 1) Check for incoming personality.
     // A little handling if we came in on a personality dispatch.
     if( ! global_live_search_personality ||
-	global_live_search_personality == ''){
+	global_live_search_personality === ''){
 	ll('ERROR: No personality defined, cannot continue.');
 	alert('ERROR: No personality defined, cannot continue.');
     }else{
@@ -283,8 +308,8 @@ function LiveSearchGOlrInit(){
 	    
 	    // Sanity check.
 	    if( ! bookmark_probe['personality'] || // bookmark is bad
-		bookmark_probe['json.nl'] != 'arrarr' ||
-		bookmark_probe['wt'] != 'json' ){ //||
+		bookmark_probe['json.nl'] !== 'arrarr' ||
+		bookmark_probe['wt'] !== 'json' ){ //||
 			//! bookmark_probe['document_category'] ){
 			
 		    ll("Bookmark lacks sanity.");
@@ -320,7 +345,7 @@ function LiveSearchGOlrInit(){
 	// because it needs persistance for the UI.
 	ll("Post query: " + search.get_query());
 	ll("Post default query: " + search.get_default_query());
-	if( search.get_query() == search.get_default_query() ){
+	if( search.get_query() === search.get_default_query() ){
 	    // The default is the same as nothing at all since it is
 	    // default.
 	    search.set_query_field_text('');
@@ -328,7 +353,7 @@ function LiveSearchGOlrInit(){
 	    // Wild cards are set after the fact in comfy, so just
 	    // remove the wildcard if it is sitting there at the end.
 	    var gq = search.get_query();
-	    if( '*' == gq.charAt(gq.length - 1) ){
+	    if( '*' === gq.charAt(gq.length - 1) ){
 		gq = gq.substring(0, gq.length - 1);		
 	    }
 	    search.set_query_field_text(gq);
@@ -336,7 +361,6 @@ function LiveSearchGOlrInit(){
 		    
 	// Destroy the bookmark so we don't keep hitting it.
 	global_live_search_bookmark = null;
-
     }
  
     // Done message.

@@ -14,27 +14,47 @@ AMIGO_BETA:
 AMIGO_DYNAMIC_PATH:
   comment: The full path to the location of the perl binaries.
   type: directory
-  value: /home/swdev/jenkins/workspace/load-golr-nakama/perl/bin
+  value: /home/jenkins/workspace/load-golr-nakama/perl/bin
 AMIGO_DYNAMIC_URL:
   comment: The URL that AMIGO_DYNAMIC_PATH maps to.
   type: url
-  value: http://amigo2.berkeleybop.org
+  value: http://nakama.berkeleybop.org
 AMIGO_GOOGLE_ANALYTICS_ID:
   comment: Google analytics ID. Optional.
   type: string
   value: 'UA-42073879-1'
 AMIGO_LAYOUT_SEARCH:
   comment: A whitespace separated list of class IDs to use for live search tabs on the search page.
-  type: string
-  value: annotation ontology bioentity complex_annotation family general bbop_term_ac
+  type: list
+  value:
+    - annotation
+    - ontology
+    - bioentity
+    - model_annotation
+    - noctua_model_meta
+    - family
+    - general
+    - bbop_term_ac
+AMIGO_PUBLIC_GALAXY_URL:
+  comment: Please enter the public URL of the Galaxy server.
+  type: url
+  value: http://galaxy.berkeleybop.org/
 AMIGO_PUBLIC_GOLR_URL:
-  comment: The public URL of the GOlr server (including slash).
+  comment: The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.
   type: url
   value: http://toaster.lbl.gov:9000/solr/
+AMIGO_PRIVATE_GOLR_URL:
+  comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading. Can be the same as the public URL if you have no proxy or firewall to deal with.
+  type: url
+  value: http://localhost:9000/solr/
+AMIGO_PUBLIC_NOCTUA_URL:
+  comment: The public URL of the Noctua system (including slash).
+  type: url
+  value: http://noctua.berkeleybop.org/
 AMIGO_ROOT:
   comment: 'Unless you are doing something strange, the parent directory of this file.'
   type: directory
-  value: /home/swdev/jenkins/workspace/load-golr-nakama
+  value: /home/jenkins/workspace/load-golr-nakama
 AMIGO_SERVER_NAME:
   comment: 'The name by which your AmiGO instance wishes to known--think load balancer or cache situations. If you would rather this information not be reported, leave blank.'
   type: string
@@ -42,7 +62,7 @@ AMIGO_SERVER_NAME:
 AMIGO_STATIC_PATH:
   comment: The full path to a usable static document directory where static and staging are located.
   type: directory
-  value: /home/swdev/jenkins/workspace/load-golr-nakama/static
+  value: /home/jenkins/workspace/load-golr-nakama/static
 AMIGO_STATIC_URL:
   comment: The URL for the static content. Can be local or remote.
   type: url
@@ -55,19 +75,94 @@ AMIGO_VERBOSE:
   comment: Log verbose AmiGO debugging messages.
   type: boolean
   value: 0
+AMIGO_VERSION:
+  comment: The version of AmiGO to report; not generally changed unless running a forked instance.
+  type: string
+  value: 2.3.1
 AMIGO_WORKING_PATH:
-  comment: Please enter the full path to readable/writable directory that will be used for things like temporary files and logs (if enabled).
+  comment: Please enter the full path to readable/writable directory that will be used for things like temporary files, logs (if enabled), and the golr_timestamp.log file.
   type: directory
   value: /tmp
-GOLR_TIMESTAMP_LOCATION:
-  comment: 'This is the full path to the timestamp file that is optionally produced by OWLTools during GOlr loading. It contains information about download attempt times for the different loaded files. If not found or unusable, AmiGO 2 will gracefully ignore it.'
+GOLR_CATALOG_LOCATION:
+  comment: The location of the GO catalog file for various work.
   type: file
-  value: /home/swdev/local/src/git/amigo/golr/golr_timestamp.log
-GO_BBOPJS_LOCATION:
-  comment: 'If this is not redefined to a new location (e.g. the BBOP-JS staging/ directory, it will use the bbop.js bundle packaged with AmiGO 2 (the one used in the unit tests) in the external/ directory.'
-  type: file
-  value: /home/swdev/jenkins/workspace/load-golr-nakama/external/bbop.js
-GO_YAML_LOCATION:
+  value: '/home/swdev/local/src/svn/geneontology.org/trunk/ontology/extensions/catalog-v001.xml'
+GOLR_GAF_LIST:
+  comment: The list of GAFs to load.
+  type: list
+  value:
+    - http://www.geneontology.org/gene-associations/gene_association.GeneDB_Lmajor.gz
+    - http://www.geneontology.org/gene-associations/gene_association.GeneDB_Pfalciparum.gz
+    - http://www.geneontology.org/gene-associations/gene_association.GeneDB_Tbrucei.gz
+    - http://www.geneontology.org/gene-associations/gene_association.PAMGO_Atumefaciens.gz
+    - http://www.geneontology.org/gene-associations/gene_association.PAMGO_Ddadantii.gz
+    - http://www.geneontology.org/gene-associations/gene_association.PAMGO_Mgrisea.gz
+    - http://www.geneontology.org/gene-associations/gene_association.PAMGO_Oomycetes.gz
+    - http://www.geneontology.org/gene-associations/gene_association.aspgd.gz
+    - http://www.geneontology.org/gene-associations/gene_association.cgd.gz
+    - http://www.geneontology.org/gene-associations/gene_association.dictyBase.gz
+    - http://www.geneontology.org/gene-associations/gene_association.ecocyc.gz
+    - http://www.geneontology.org/gene-associations/gene_association.fb.gz
+    - http://www.geneontology.org/gene-associations/gene_association.goa_chicken.gz
+    - http://www.geneontology.org/gene-associations/gene_association.goa_cow.gz
+    - http://www.geneontology.org/gene-associations/gene_association.goa_dog.gz
+    - http://www.geneontology.org/gene-associations/gene_association.goa_human.gz
+    - http://www.geneontology.org/gene-associations/gene_association.goa_pig.gz
+    - http://www.geneontology.org/gene-associations/gene_association.goa_uniprot_noiea.gz
+    - http://www.geneontology.org/gene-associations/gene_association.gramene_oryza.gz
+    - http://www.geneontology.org/gene-associations/gene_association.jcvi.gz
+    - http://www.geneontology.org/gene-associations/gene_association.mgi.gz
+    - http://www.geneontology.org/gene-associations/gene_association.pombase.gz
+    - http://www.geneontology.org/gene-associations/gene_association.pseudocap.gz
+    - http://www.geneontology.org/gene-associations/gene_association.rgd.gz
+    - http://www.geneontology.org/gene-associations/gene_association.sgd.gz
+    - http://www.geneontology.org/gene-associations/gene_association.sgn.gz
+    - http://www.geneontology.org/gene-associations/gene_association.tair.gz
+    - http://www.geneontology.org/gene-associations/gene_association.wb.gz
+    - http://www.geneontology.org/gene-associations/gene_association.zfin.gz
+    - http://www.geneontology.org/gene-associations/submission/paint/pre-submission/gene_association.paint_other.gaf
+GOLR_METADATA_LIST:
   comment: 'The full path to the YAML config files directory. In that directory, all files like *config.yaml will be scanned for use.'
+  type: list
+  value:
+    - '~/local/src/git/amigo/metadata/ont-config.yaml'
+    - '~/local/src/git/amigo/metadata/bio-config.yaml'
+    - '~/local/src/git/amigo/metadata/ann-config.yaml'
+    - '~/local/src/git/amigo/metadata/general-config.yaml'
+    - '~/local/src/git/amigo/metadata/model-ann-config.yaml'
+    - '~/local/src/git/amigo/metadata/noctua-model-meta-config.yaml'
+    - '~/local/src/git/amigo/metadata/protein-family-config.yaml'
+    - '~/local/src/git/amigo/metadata/ann_ev_agg-config.yaml'
+GOLR_METADATA_ONTOLOGY_LOCATION:
+  comment: The full path to the ontology YAML config file. This is core for any ontology-related load.
+  type: file
+  value: '/home/jenkins/workspace/load-golr-nakama/metadata/ont-config.yaml'
+GOLR_NOCTUA_ENRICHED_MODEL_PATH:
+  comment: The list of ontologies to load.
   type: directory
-  value: /home/swdev/jenkins/workspace/load-golr-nakama/metadata
+  value: '/home/swdev/local/src/git/noctua-models/enriched/'
+GOLR_ONTOLOGY_LIST:
+  comment: The list of ontologies to load.
+  type: list
+  value:
+    - http://purl.obolibrary.org/obo/go/extensions/go-plus.owl
+    - http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl
+    - http://purl.obolibrary.org/obo/cl/cl-basic.owl
+    - http://purl.obolibrary.org/obo/eco.owl
+    - http://purl.obolibrary.org/obo/go/extensions/gorel.owl
+    - http://purl.obolibrary.org/obo/ma.owl
+    - http://purl.obolibrary.org/obo/pato.owl
+    - http://purl.obolibrary.org/obo/po.owl
+    - http://purl.obolibrary.org/obo/emap.owl
+    - http://purl.obolibrary.org/obo/chebi.owl
+    - http://purl.obolibrary.org/obo/uberon/basic.owl
+    - http://purl.obolibrary.org/obo/wbbt.owl
+    - http://purl.obolibrary.org/obo/go/extensions/go-modules-annotations.owl
+GOLR_PANTHER_FILE_PATH:
+  comment: The location of the cleaned PANTHER file for the proper loading into GOlr.
+  type: directory
+  value: '/home/swdev/local/src/svn/geneontology.org/trunk/experimental/trees/panther_data/'
+OWLTOOLS_MAX_MEMORY:
+  comment: The maximum amount of memory to give OWLTools processes.
+  type: string
+  value: 192G

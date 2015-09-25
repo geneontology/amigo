@@ -1,0 +1,90 @@
+<!-- START template: model_details.tmpl -->
+
+[% INCLUDE common/noscript_js_limited.tmpl %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Model Information</h3>
+  </div>
+  <div class="panel-body">
+
+    <dl class="dl-horizontal amigo-detail-info">
+      
+      <!-- [% IF MA_INFO.annotation_unit_label %] -->
+      <!-- <dd>[% MA_INFO.annotation_unit_label %]</dd> -->
+      <!-- [% ELSE %] -->
+      <!-- <dd>(n/a)</dd> -->
+      <!-- [% END %] -->
+      
+      <dt>ID</dt>
+      [% IF MA_INFO.model_id %]
+      <dd>[% MA_INFO.model_id %]</dd>
+      [% ELSE %]
+      <dd>(n/a)</dd>
+      [% END %]
+      
+      <dt>Label</dt>
+      [% IF MA_INFO.model_label %]
+      <dd>[% MA_INFO.model_label %]</dd>
+      [% ELSE %]
+      <dd>(n/a)</dd>
+      [% END %]
+      
+      <dt>State</dt>
+      [% IF MA_INFO.model_state %]
+      <dd>[% MA_INFO.model_state %]</dd>
+      [% ELSE %]
+      <dd>(n/a)</dd>
+      [% END %]
+      
+      <dt>Comment</dt>
+      [% IF MA_INFO.model_comment %]
+      <dd>[% MA_INFO.model_comment %]</dd>
+      [% ELSE %]
+      <dd>(n/a)</dd>
+      [% END %]
+      
+      <dt>File</dt>
+      [% IF MA_INFO.model_id %]
+      <dd><a href="[% repo_file_url %]">[% MA_INFO.model_id %]</a> <small>(@GitHub)</small></dd>
+      [% ELSE %]
+      <dd>(n/a)</dd>
+      [% END %]
+      
+      <dt>View</dt>
+      [% IF MA_INFO.model_id %]
+      <dd><a href="[% view_file_url %]">CytoView Workbench</a> (Noctua)</dd>
+      [% ELSE %]
+      <dd>(n/a)</dd>
+      [% END %]
+      
+      <dt>Edit</dt>
+      [% IF MA_INFO.model_id %]
+      <dd><a href="[% edit_file_url %]">Noctua</a></dd>
+      [% ELSE %]
+      <dd>(n/a)</dd>
+      [% END %]
+      
+    </dl>
+
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">View</h3>
+  </div>
+  <div class="panel-body">
+    <div id="display-associations">
+
+      <div id="cytoview"
+	   width="100%" height="750px"
+	   style="border: 1px black solid; width:100%; height:750px; margin-top:5px;">
+	Loading...
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- END template: model_details.tmpl -->

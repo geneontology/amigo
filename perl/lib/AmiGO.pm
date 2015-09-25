@@ -959,6 +959,7 @@ sub get_interlink {
      'tools' => sub { $ilink = 'amigo/software_list'; },
      'schema_details' => sub { $ilink = 'amigo/schema_details'; },
      'load_details' => sub { $ilink = 'amigo/load_details'; },
+     'owltools_details' => sub { $ilink = 'amigo/owltools_details'; },
      'browse' => sub { $ilink = 'amigo/browse'; },
      'dd_browse' => sub { $ilink = 'amigo/dd_browse'; },
      'free_browse' => sub { $ilink = 'amigo/free_browse'; },
@@ -980,6 +981,14 @@ sub get_interlink {
        }
        #$ilink = 'amigo?mode=gene_product&gp=' . $gp;
        $ilink = 'amigo/gene_product/' . $gp;
+     },
+
+     'model_details' =>
+     sub {
+       die "interlink mode 'model_details' requires args" if ! defined $args;
+       my $acc = $args->{acc} || undef;
+       #$ilink = 'amigo?mode=gene_product&gp=' . $gp;
+       $ilink = 'amigo/model/' . $acc;
      },
 
      # 'term_subset' =>
@@ -1133,23 +1142,6 @@ sub get_interlink {
 		 },
 		};
 
-       $ilink = $self->_fuse_hash($ihash);
-     },
-
-     'visualize_service_complex_annotation' =>
-     sub {
-       my $au = $args->{complex_annotation} || '';
-       my $format = $args->{format} || 'png';
-       $ihash = {
-		 action => 'visualize',
-		 arguments =>
-		 {
-		  mode => 'complex_annotation',
-		  inline => 'false',
-		  format => $format,
-		  complex_annotation => $au,
-		 },
-		};
        $ilink = $self->_fuse_hash($ihash);
      },
 
@@ -2297,6 +2289,7 @@ sub dynamic_dispatch_table_amigo {
      'software_list'       => { app => $aapp, rm => 'software_list' },
      'schema_details'      => { app => $aapp, rm => 'schema_details' },
      'load_details'        => { app => $aapp, rm => 'load_details' },
+     'owltools_details'    => { app => $aapp, rm => 'owltools_details' },
      'browse'              => { app => $aapp, rm => 'browse' },
      'dd_browse'           => { app => $aapp, rm => 'dd_browse' },
      'free_browse'         => { app => $aapp, rm => 'free_browse' },
@@ -2318,13 +2311,11 @@ sub dynamic_dispatch_table_amigo {
      ## RESTy (can be consumed as service).
      ##
      'term/:cls/:format?'       => { app => $aapp, rm => 'term',
-				      'cls' => 'cls', 'format' => 'format' },
+				     'cls' => 'cls', 'format' => 'format' },
      'gene_product/:gp/:format?' => { app => $aapp, rm => 'gene_product',
 				      'gp' => 'gp', 'format' => 'format' },
-     ## Beta.
-     'complex_annotation/:complex_annotation'  =>
-     { app => $aapp, rm => 'complex_annotation',
-       complex_annotation => 'complex_annotation' },
+     ## Alpha.
+     'model/:model'  => { app => $aapp, rm => 'model', model => 'model' },
     ];
 
   return $dispatch_table;

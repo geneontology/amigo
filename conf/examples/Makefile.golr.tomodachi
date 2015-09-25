@@ -24,18 +24,21 @@ SOLR_URL ?= http://localhost:8080/solr/
 OWLTOOLS_ROOT ?= ~/local/src/git/owltools/
 BBOP_JS_ROOT ?= ~/local/src/git/bbop-js/
 PANTHER_FILES_DIR ?= ~/local/src/svn/geneontology.org/trunk/experimental/trees/panther_data/
+NOCTUA_ENRICHED_MODELS_DIR ?= ~/local/src/git/noctua-models/enriched
+NOCTUA_MODEL_PREFIX ?= http://noctua-dev.berkeleybop.org/editor/graph/
 SOLR_DATA_ROOT ?= /srv/solr
 
 ## Files.
 SOLR_LOAD_LOG ?= /home/bbop/local/src/git/amigo/golr/golr_timestamp.log
-SOLR_USE_CATALOG_XML ?= /tmp/catalog.xml
+SOLR_USE_CATALOG_XML ?= ~/local/src/svn/geneontology.org/trunk/ontology/extensions/catalog-v001.xml
 
 ## File lists.
 SCHEMA_METADATA ?= \
  ../metadata/ont-config.yaml \
  ../metadata/bio-config.yaml \
  ../metadata/ann-config.yaml \
- ../metadata/complex-ann-config.yaml \
+ ../metadata/model-ann-config.yaml \
+ ../metadata/noctua-model-meta-config.yaml \
  ../metadata/protein-family-config.yaml \
  ../metadata/general-config.yaml \
  ../metadata/ann_ev_agg-config.yaml
@@ -75,7 +78,6 @@ GENE_ASSOCIATION_FILES ?= \
 	http://www.geneontology.org/gene-associations/gene_association.goa_human.gz \
 	http://www.geneontology.org/gene-associations/gene_association.goa_pig.gz \
 	http://www.geneontology.org/gene-associations/gene_association.goa_uniprot_noiea.gz \
-	http://www.geneontology.org/gene-associations/gene_association.gonuts.gz \
 	http://www.geneontology.org/gene-associations/gene_association.gramene_oryza.gz \
 	http://www.geneontology.org/gene-associations/gene_association.jcvi.gz \
 	http://www.geneontology.org/gene-associations/gene_association.mgi.gz \
@@ -87,7 +89,8 @@ GENE_ASSOCIATION_FILES ?= \
 	http://www.geneontology.org/gene-associations/gene_association.tair.gz \
 	http://www.geneontology.org/gene-associations/gene_association.wb.gz \
 	http://www.geneontology.org/gene-associations/gene_association.zfin.gz \
-	http://www.geneontology.org/gene-associations/submission/paint/pre-submission/gene_association.paint_other.gaf # And higher-level PAINT annotations.
+	http://www.geneontology.org/gene-associations/submission/paint/pre-submission/gene_association.paint_other.gaf
+# And higher-level PAINT annotations.
 
 TEST_GAF = http://www.geneontology.org/gene-associations/gene_association.mgi.gz
 TEST_GAF_SMALL ?= ./_test/mgi-limited.gaf
@@ -98,7 +101,7 @@ TEST_GAF_MICRO = ./_test/mgi-limited-100.gaf
 LEGO_S3_LISTING ?= \
  /tmp/lego.cat
 LEGO_CATALOGS ?= \
- ~/local/src/svn/geneontology.org/trunk/experimental/lego/server/protein/subset/catalog-v001.xml
+ ~/local/src/svn/geneontology.org/trunk/ontology/extensions/catalog-v001.xml
 
 ##
 DATE = `date +'%Y-%m-%d'`
@@ -170,6 +173,20 @@ load-ontology: owltools-build
 	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-config $(ONTOLOGY_METADATA) --solr-log $(SOLR_LOAD_LOG) --solr-load-ontology --solr-load-ontology-general
 	make message-load-clear
 
+## Load the ontology stuff without building.
+.PHONY: load-ontology-quick
+load-ontology-quick:
+	make message-load-start
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-config $(ONTOLOGY_METADATA) --solr-log $(SOLR_LOAD_LOG) --solr-load-ontology --solr-load-ontology-general
+	make message-load-clear
+
+## Manually test GAF loads.
+.PHONY: load-gafs
+load-gafs: #owltools-build
+	make message-load-start
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --solr-url $(SOLR_URL) --solr-log $(SOLR_LOAD_LOG) --solr-load-gafs $(GENE_ASSOCIATION_FILES)
+	make message-load-clear
+
 ## Test GAF.
 .PHONY: load-test-gaf
 load-test-gaf: owltools-build
@@ -199,12 +216,14 @@ load-just-panther: owltools-build
 	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools --solr-url $(SOLR_URL) --read-panther $(PANTHER_FILES_DIR) --solr-log $(SOLR_LOAD_LOG) --solr-load-panther --solr-load-panther-general
 	make message-load-clear
 
-## TODO/BUG: Testing phase.
+## TODO: Testing phase.
 ## Test complex annotations (LEGO): A test load with just the new doc type.
-.PHONY: load-just-complex-annotations
-load-just-complex-annotations: owltools-build
+# .PHONY: load-just-model-annotations
+# load-just-model-annotations: owltools-build
+.PHONY: load-just-model-annotations
+load-just-model-annotations:
 	make message-load-start
-	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --catalog-xml $(LEGO_CATALOGS) --solr-url $(SOLR_URL) --read-ca-list $(LEGO_S3_LISTING) --solr-load-complex-exp
+	OWLTOOLS_MEMORY=$(OWLTOOLS_MAX_MEMORY) $(OWLTOOLS_ROOT)/OWLTools-Runner/bin/owltools $(ONTOLOGIES) $(OWLTOOLS_ONTOLOGY_PROCESSING_FLAGS) --read-lego-catalogs $(LEGO_CATALOGS) --solr-url $(SOLR_URL) --read-model-folder $(NOCTUA_ENRICHED_MODELS_DIR) --read-model-url-prefix $(NOCTUA_MODEL_PREFIX) --solr-load-models
 	make message-load-clear
 
 ## Check the ontology data for suitability.

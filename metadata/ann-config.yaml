@@ -82,15 +82,15 @@ fields:
     cardinality: multi
     property: []
     searchable: true
-  - id: taxon_closure_subset
+  - id: taxon_subset_closure
     description: "Taxonomic group (direct) and ancestral groups that are within the specified subset (e.g mammalia, eukaryota)."
-    display_name: Taxon
+    display_name: Taxon subset
     type: string
     cardinality: multi
     property: []
-  - id: taxon_closure_subset_label
+  - id: taxon_subset_closure_label
     description: "Labels for taxonomic group (direct) and ancestral groups that are within the specified subset."
-    display_name: Taxon
+    display_name: Taxon subset
     type: string
     cardinality: multi
     property: []
@@ -218,12 +218,6 @@ fields:
 #     type: string
 #     cardinality: multi
 #     property: []
-#   - id: axiom
-#     description: "Each ontology entity (class or property) can be associated with multiple OWL axioms. We cache them in the index so that advanced OWL-aware clients can pull relevant information quickly. Axioms are stored in functional syntax."
-#     display_name: Axiom
-#     type: string
-#     cardinality: multi
-#     property: []
   - id: bioentity
     description: "Gene or gene product identifiers."
     display_name: Gene/product
@@ -306,6 +300,7 @@ fields:
     description: "Evidence with/from."
     display_name: Evidence with
     type: string
+    searchable: true
     cardinality: multi
     property: []
   - id: reference
@@ -313,6 +308,8 @@ fields:
     display_name: Reference
     type: string
     cardinality: multi
+    ## Added for compat purposes with model-ann.yaml
+    searchable: true
     property: []
   - id: annotation_extension_class
     description: "Extension class for the annotation."
@@ -358,6 +355,7 @@ fields:
     type: string
     searchable: true
     property: []
+  ## TODO:
   # - id: phylo_graph
   #   description: JSON blob form of the phylogenic tree.
   #   display_name: This should not be displayed

@@ -31,6 +31,10 @@ AMIGO_PUBLIC_GOLR_URL:
   comment: "The public URL of the GOlr server (including slash)."
   type: url
   value: http://localhost:8080/solr/
+AMIGO_PUBLIC_NOCTUA_URL:
+  comment: The public URL of the Noctua system (including slash).
+  type: url
+  value: http://noctua.berkeleybop.org/
 AMIGO_ROOT:
   comment: "Unless you are doing something strange, the parent directory of this file."
   type: directory

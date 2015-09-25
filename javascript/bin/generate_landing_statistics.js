@@ -21,8 +21,8 @@
 ///
 
 // Load the base files.
-load('../../external/bbop.js');
-load('../staging/amigo2.js');
+load('../../node_modules/bbop/bbop.js');
+load('../../node_modules/amigo2/amigo2.js');
 
 // For debugging.
 var logger = new bbop.logger('statistics');

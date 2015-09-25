@@ -7,6 +7,7 @@
 
 use utf8;
 use strict;
+use File::Spec; # needed because Perl does not internally expand ~ paths.
 use Config::YAML;
 use YAML::Loader;
 use Template;
@@ -44,21 +45,6 @@ ll("Will print verbose messages.");
 if( $opt_b ){
   ll("Only produce the JS bundle (which can be used for local development).");
 }
-## Version.
-my $version = undef;
-if( defined $opt_V && $opt_V ){
-  ll("Explicitly defining version.");
-  $version = $opt_V;
-}else{
-  ll("No version defined, looking elsewhere...");
-  if( $ENV{AMIGO_VERSION} ){
-    ll("Environmentally defining version.");
-    $version = $ENV{AMIGO_VERSION};
-  }else{
-    die "Unable to figure out version!";
-  }
-}
-ll('Version is: "' . $version . '"');
 
 ## First check that we are in the proper directory. Installation
 ## should only occur in the top directory.
@@ -120,6 +106,10 @@ for my $var (keys %$yconf){
 	$var_type eq 'number' ){
       ## Attempt to turn number types back into numbers.
       $env_conf{$var} = int($yconf->{$var}{value});
+    }elsif( $var_type eq 'list' ){
+      ## Lists need to be processed into something that the env conf
+      ## can take through perl.
+      $env_conf{$var} = join(' ', @{$yconf->{$var}{value}});
     }else{
       ## Take strings as-is.
       $env_conf{$var} = $yconf->{$var}{value};
@@ -133,15 +123,20 @@ for my $var (keys %$yconf){
 ### directories.
 ###
 
-## Our version comes explicitly from the CLI or environment, not from
-## the config files--we have AMIGO_VERSION too many places if we don't
-## do this.
-$env_conf{AMIGO_VERSION} = $version;
+## TODO/BUG: Remove version from amigo.yaml (etc) and parse it out
+## of package.json.
+#
+## Our version comes explicitly from the conf now.
+my $version = $env_conf{AMIGO_VERSION};
+if( $version ){
+  ll("Defined version: " . $version);
+}else{
+  die "Unable to figure out version!";
+}
 
 ## Remove trailing slashes from all such variables.
 my @pvars = qw(
 		AMIGO_ROOT
-		GO_YAML_LOCATION
 		AMIGO_STATIC_PATH
 		AMIGO_STATIC_URL
 		AMIGO_DYNAMIC_PATH
@@ -209,7 +204,8 @@ make_permissive( $env_conf{AMIGO_SCRATCH_DIR} );
 ## see if we can get a little early info from it--the latest file
 ## mentioned.
 $env_conf{GOLR_TIMESTAMP_LAST} = '???';
-my $glog = $env_conf{GOLR_TIMESTAMP_LOCATION};
+#my $glog = $env_conf{GOLR_TIMESTAMP_LOCATION};
+my $glog = $env_conf{AMIGO_WORKING_PATH} . '/golr_timestamp.log';
 if( $glog && -f $glog ){
 
   ## We don't wildly care if we can get this optional information or
@@ -261,8 +257,8 @@ ll("Created synthetic variables and configuration file: $synth_conf_fname");
 ###
 
 ## Slurp all *config.yaml files at this location.
-my $yaml_path =  $env_conf{GO_YAML_LOCATION};
-my @yaml_confs = <$yaml_path/*config.yaml>;
+my $yaml_list = $env_conf{GOLR_METADATA_LIST};
+my @yaml_confs = split(/\s+/, $yaml_list);
 ll("YAML config files found: " . join(', ', @yaml_confs));
 my $golr_data_fname = 'javascript/lib/amigo/data/golr.js';
 golr_config_to_meta_js($golr_data_fname, \@yaml_confs);
@@ -323,7 +319,7 @@ my $release_args_compressed =
    '-o', 'javascript/staging/amigo2.js',
    '-n', 'amigo',
    '-d', 'javascript/lib/amigo',
-   '-r', $env_conf{AMIGO_VERSION}
+   '-r', $version
   ];
 ## In the case that we don't want compression, add the -u flag.
 if( $opt_u ){
@@ -335,7 +331,7 @@ if( $opt_u ){
      '-o', 'javascript/staging/amigo2.js',
      '-n', 'amigo',
      '-d', 'javascript/lib/amigo',
-     '-r', $env_conf{AMIGO_VERSION}
+     '-r', $version
     ];
 }
 my $rcmd = join(' ', @$release_args_compressed);
@@ -619,9 +615,19 @@ sub golr_config_to_meta_js {
   ## Get all of the YAML files into a single data structure.
   foreach my $yaml_conf (@$yaml_confs){
 
+    ## Fix incoming tilde paths. Taken from:
+    ## http://www.perlmonks.org/?node_id=156995
+    if ( $yaml_conf =~ s<^~([^/]*)/></> ){
+      my $homedir = $1 ? (getpwnam($1))[7] # specified user
+	: $ENV{'HOME'} || (getpwuid($<))[7] # ourselves
+	  or die "Where's your home?\n";
+      $yaml_conf = File::Spec->catfile($homedir, $yaml_conf);
+    }
+
     ## Read the config and pull the id.
     my $conf_hash = Config::YAML->new(config => $yaml_conf);
     my $conf_id = $conf_hash->{id};
+    ll("Loaded config: " . $conf_id);
 
     ## Make sure that the top level hash the required fields.
     $rethash->{ $conf_id } =
@@ -817,6 +823,7 @@ sub amigo_env_to_js {
      ## Variables.
      app_base => $core->amigo_env('AMIGO_DYNAMIC_URL'),
      golr_base => $core->amigo_env('AMIGO_PUBLIC_GOLR_URL'),
+     noctua_base => $core->amigo_env('AMIGO_PUBLIC_NOCTUA_URL'),
      galaxy_base => $core->amigo_env('AMIGO_PUBLIC_GALAXY_URL'),
      html_base => $core->amigo_env('AMIGO_STATIC_URL'),
      image_base => $core->amigo_env('AMIGO_IMAGE_URL'),

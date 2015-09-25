@@ -4,19 +4,23 @@ javascript/docs/*
 
 ## Don't generally want Selenium log files.
 selenium/*/*.log
+ghostdriver.log
+screenshots*
+
+## Ignore the npm stuff that we now have.
+node_modules
 
 ## Don't want the virtualenv stuff for python leaking in.
+test-app/behave/'pwd'
+test-app/behave/screenshots*
+test-app/behave/pymote_env
+test-app/behave/Scripts
+test-app/behave/virtualenv.exe
 
-selenium/behave/'pwd'
-selenium/behave/screenshots*
-selenium/behave/pymote_env
-selenium/behave/Scripts
-selenium/behave/virtualenv.exe
-
-selenium/behave/bin
-selenium/behave/include
-selenium/behave/lib
-selenium/behave/local
+test-app/behave/bin
+test-app/behave/include
+test-app/behave/lib
+test-app/behave/local
 
 ## Do not want to commit staging files.
 staging/*.js

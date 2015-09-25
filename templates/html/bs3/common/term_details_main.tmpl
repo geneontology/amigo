@@ -27,10 +27,10 @@
       <dd>None</dd>
       [% ELSE %]
       [%    IF al.size != 0 %]
-      <dd><strong>alt. id</strong>: [% al.join(", ") %]</dd>
+      <dd id="syn-collaspe-alt" class="syn-collapsible"><strong>alt. id</strong>: [% al.join(", ") %]</dd>
       [%    END %]
       [%    IF sl.size != 0 %]
-      <dd>[% sl.join(", ") %]</dd>
+      <dd id="syn-collapse-syn" class="syn-collapsible">[% sl.join(", ") %]</dd>
       [%    END %]
       <!-- [% #   FOREACH synh IN sl %] -->
       <!-- BUG/TODO: Like this when we have scope available. -->
@@ -73,7 +73,9 @@
       <!-- Comment. -->
       <dt>Comment</dt>
       [% IF TERM_INFO.comment %]
-      <dd>[% TERM_INFO.comment %]</dd>
+      [%  FOREACH tic IN TERM_INFO.comment %]
+      <dd>[% tic %]</dd>
+      [%  END %]
       [% ELSE %]
       <dd>None</dd>
       [% END %]

@@ -11,7 +11,7 @@
  */
 
 // Module and namespace checking.
-if( typeof amigo == "undefined" ){ var amigo = {}; }
+if( typeof amigo === "undefined" ){ var amigo = {}; }
 
 /*
  * Constructor: linker
@@ -51,17 +51,22 @@ amigo.linker = function (){
 	'ontology_class': true,
 	'annotation_class': true,
 	'annotation_class_closure': true,
-	'annotation_class_list': true
+	'annotation_class_list': true,
+	// Noctua model stuff.
+	'function_class': true,
+	'function_class_closure': true,
+	'process_class': true,
+	'process_class_closure': true,
+	'location_list': true,
+	'location_list_closure': true
     };
     this.bio_category = {
         'gp': true,
 	'gene_product': true,
 	'bioentity': true
     };
-    this.complex_annotation_category = {
-        //'complex_annotation': true,
-        'annotation_group': true
-        //'annotation_unit': true
+    this.model_category = {
+        'model': true
     };
     this.search_category = { // not including the trivial medial_search below
         'search': true,
@@ -73,7 +78,7 @@ amigo.linker = function (){
 	'bioentity': '/bioentity',
 	'ontology': '/ontology',
 	'annotation': '/annotation',
-	'complex_annotation': '/complex_annotation',
+	'model': '/model',
 	'family': '/family',
 	'lego_unit': '/lego_unit',
 	'general': '/general'
@@ -115,19 +120,19 @@ amigo.linker.prototype.url = function (id, xid, modifier){
 
     // For us, having an xid means that we will be doing some more
     // complicated routing.
-    if( xid && xid != '' ){
+    if( xid && xid !== '' ){
 
 	// First let's do the ones that need an associated id to
 	// function--either data urls or searches.
-	if( id && id != '' ){
+	if( id && id !== '' ){
 	    if( this.ont_category[xid] ){
 		retval = this.app_base + '/amigo/term/' + id;
 		//retval = _add_restmark_modifier(retval, modifier);
             }else if( this.bio_category[xid] ){
 		retval = this.app_base + '/amigo/gene_product/' + id;
 		//retval = _add_restmark_modifier(retval, modifier);
-            }else if( this.complex_annotation_category[xid] ){
-		retval = this.app_base + '/amigo/complex_annotation/'+ id;
+            }else if( this.model_category[xid] ){
+		retval = this.app_base + '/amigo/model/'+ id;
             }else if( this.search_category[xid] ){
 
 		// First, try and get the proper path out. Will
@@ -163,7 +168,7 @@ amigo.linker.prototype.url = function (id, xid, modifier){
 
 		// Well, for medial search really, but it might be
 		// general?
-		if( xid == 'medial_search' ){
+		if( xid === 'medial_search' ){
 		    // The possibility of just tossing back an empty
 		    // search for somebody downstream to fill in.
 		    if( bbop.core.is_defined(id) && id != null ){
@@ -181,7 +186,7 @@ amigo.linker.prototype.url = function (id, xid, modifier){
     
     // Since we couldn't find anything with our explicit local
     // transformation set, drop into the great abyss of the xref data.
-    if( ! retval && id && id != '' ){ // not internal, but still has an id
+    if( ! retval && id && id !== '' ){ // not internal, but still has an id
 	if( ! amigo.data.xrefs ){
 	    throw new Error('amigo.data.xrefs is missing!');
 	}
