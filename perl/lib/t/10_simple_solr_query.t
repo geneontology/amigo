@@ -13,7 +13,7 @@ use AmiGO::External::JSON::Solr::GOlr;
 
 
 ## Get document, parse, etc.
-my $solr = AmiGO::External::JSON::Solr::GOlr->new('http://localhost:8080/solr/');
+my $solr = AmiGO::External::JSON::Solr::GOlr->new('http://golr.geneontology.org/solr/');
 $solr->query('q=id:"GO:0022008"');
 
 ## Run tests.
