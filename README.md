@@ -18,7 +18,7 @@ http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Installation
 
 This is a load example using (this configuration)[https://github.com/geneontology/amigo/blob/master/conf/examples/amigo.yaml.tomodachi].
 
-``bash
+```bash
 ## Get to the app home and make sure we're in the right place.
 cd /home/bbop/local/src/git/amigo
 git reset --hard && git pull
