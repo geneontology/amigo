@@ -1,16 +1,13 @@
 # Overview
 
-  Documentation is now available at http://geneontology.github.io/amigo
-
   This README file will be filled out more in the future. However, for
-  the time being, please see the [[http://wiki.geneontology.org/index.php/AmiGO_2_Manual][AmiGO 2 Manual]] for more details about
+  the time being, please see the (AmiGO 2 Manual)[http://wiki.geneontology.org/index.php/AmiGO_2_Manual] for more details about
   the code and installation. You may also be interested in the related
   information found in (BBOP JS)[https://github.com/berkeleybop/bbop-js].
 
 # Installation
 
-The main installation information is available at:
-http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Installation
+The main installation information is available (on the wiki)[http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Installation].
 
 # Jenkins (example)
 
