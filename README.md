@@ -1,19 +1,23 @@
 # Overview
 
   This README file will be filled out more in the future. However, for
-  the time being, please see the (AmiGO 2 Manual)[http://wiki.geneontology.org/index.php/AmiGO_2_Manual] for more details about
-  the code and installation. You may also be interested in the related
-  information found in (BBOP JS)[https://github.com/berkeleybop/bbop-js].
+  the time being, please see the
+  [AmiGO 2 Manual](http://wiki.geneontology.org/index.php/AmiGO_2_Manual)
+  for more details about the code and installation. You may also be
+  interested in the related information found in
+  [BBOP JS](https://github.com/berkeleybop/bbop-js).
 
 # Installation
 
-The main installation information is available (on the wiki)[http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Installation].
+The main installation information is available
+[on the wiki](http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Installation).
 
 # Jenkins (example)
 
 ## Loading
 
-This is a load example using (this configuration)[https://github.com/geneontology/amigo/blob/master/conf/examples/amigo.yaml.tomodachi].
+This is a load example using
+[this configuration](https://github.com/geneontology/amigo/blob/master/conf/examples/amigo.yaml.tomodachi).
 
 ```bash
 ## Get to the app home and make sure we're in the right place.
@@ -37,7 +41,8 @@ cp conf/examples/amigo.yaml.tomodachi conf/amigo.yaml
 
 ## Deployment & Unit Tests
 
-This is an example automatic deployment and unit/app testing using (this configuration)[https://github.com/geneontology/amigo/blob/master/conf/examples/amigo.yaml.tomodachi].
+This is an example automatic deployment and unit/app testing using
+[this configuration](https://github.com/geneontology/amigo/blob/master/conf/examples/amigo.yaml.tomodachi).
 
 ```bash
 ## I believe Xvfb should die on shell exit?
