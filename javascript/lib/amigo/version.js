@@ -17,11 +17,11 @@ if ( typeof amigo.version == "undefined" ){ amigo.version = {}; }
  * Partial version for this library; revision (major/minor version numbers)
  * information.
  */
-amigo.version.revision = "2.4.1";
+amigo.version.revision = "2.3.2";
 
 /*
  * Variable: release
  *
  * Partial version for this library: release (date-like) information.
  */
-amigo.version.release = "20150923";
+amigo.version.release = "20151001";
