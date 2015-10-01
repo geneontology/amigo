@@ -7,7 +7,7 @@ description: A generic capture of light Noctua metadata in realtime.
 display_name: Noctua meta
 document_category: noctua_model_meta
 weight: 0
-boost_weights: annotation_unit^3.0 annotation_unit_label^3.0 contributor^2.0 model_state^1.0 model_date^1.0 comment^1.0
+boost_weights: annotation_unit_label^3.0 contributor^2.0 model_date^1.0 comment^1.0
 result_weights: annotation_unit^3.0 contributor^2.0 model_state^1.0 model_date^1.0 comment^1.0
 filter_weights: contributor^3.0 model_state^2.0 model_date^1.0
 fields:
@@ -19,7 +19,7 @@ fields:
   - id: annotation_unit
     description: The title(s) associated with the model.
     display_name: Model identifier
-    searchable: true
+    #searchable: true # bring into line with model_annotation
     type: string
     property: []
   - id: annotation_unit_label
@@ -44,7 +44,7 @@ fields:
   - id: model_state
     description: The editorial state of the model.
     display_name: State
-    searchable: true
+    #searchable: true # bring into line with model_annotation
     type: string
     property: []
   - id: comment
