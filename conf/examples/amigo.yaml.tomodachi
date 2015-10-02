@@ -140,7 +140,7 @@ GOLR_METADATA_ONTOLOGY_LOCATION:
 GOLR_NOCTUA_ENRICHED_MODEL_PATH:
   comment: The list of ontologies to load.
   type: directory
-  value: '/home/bbop/local/src/git/noctua-models/enriched/'
+  value: '/home/bbop/local/src/git/noctua-models/models/'
 GOLR_ONTOLOGY_LIST:
   comment: The list of ontologies to load.
   type: list
