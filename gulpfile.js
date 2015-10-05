@@ -306,10 +306,11 @@ gulp.task('load-all', shell.task(_run_cmd(
      '--solr-config', ontology_metadata,
      '--solr-load-ontology',
      '--solr-load-ontology-general',
+     // PANTHER (reading--annotations need them too)
+     '--read-panther', panther_file_path,
      // GAFs
      '--solr-load-gafs', gaf_string,
-     // PANTHER
-     '--read-panther', panther_file_path,
+     // PANTHER (loading their own doc types)
      '--solr-load-panther',
      '--solr-load-panther-general',
      // Optimize.
