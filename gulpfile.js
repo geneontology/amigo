@@ -101,7 +101,7 @@ var amigo_url = a['AMIGO_DYNAMIC_URL'].value;
 var golr_private_url = a['AMIGO_PRIVATE_GOLR_URL'].value;
 var owltools_max_memory = a['OWLTOOLS_MAX_MEMORY'].value || '4G';
 var owltools_runner = 'java -Xms2048M -DentityExpansionLimit=4086000 -Djava.awt.headless=true -Xmx' + owltools_max_memory + ' -jar ./java/lib/owltools-runner-all.jar';
-var owltools_ops_flags = '--merge-support-ontologies --remove-subset-entities upperlevel --reasoner elk';
+var owltools_ops_flags = '--merge-support-ontologies --remove-subset-entities upperlevel --reasoner elk --remove-disjoints --reasoner elk --silence-elk';
 var metadata_list = _tilde_expand(a['GOLR_METADATA_LIST'].value);
 var metadata_string = metadata_list.join(' ');
 var ontology_metadata = tilde(a['GOLR_METADATA_ONTOLOGY_LOCATION'].value);
