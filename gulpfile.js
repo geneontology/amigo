@@ -393,6 +393,16 @@ gulp.task('patch-bump', function(cb) {
 // Release tools for patch release.
 gulp.task('release', ['bundle', 'assemble-npm', 'publish-npm', 'patch-bump']);
 
+///
+/// DEBUG.
+///
+
+// Use as: gulp buffer-check > /tmp/foo.txt 
+gulp.task('buffer-check', shell.task(_run_cmd_list(
+    //['perl -e "for (0..1600000){ print STDOUT \\"0123456789\\n\\";}"'] // fail
+    ['perl -e "for (0..1500000){ print STDOUT \\"0123456789\\n\\";}"'] // okay
+)));
+
 //
 /// Default.
 ///
