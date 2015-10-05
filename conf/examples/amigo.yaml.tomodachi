@@ -91,36 +91,36 @@ GOLR_GAF_LIST:
   comment: The list of GAFs to load.
   type: list
   value:
-    - http://www.geneontology.org/gene-associations/gene_association.GeneDB_Lmajor.gz
-    - http://www.geneontology.org/gene-associations/gene_association.GeneDB_Pfalciparum.gz
-    - http://www.geneontology.org/gene-associations/gene_association.GeneDB_Tbrucei.gz
-    - http://www.geneontology.org/gene-associations/gene_association.PAMGO_Atumefaciens.gz
-    - http://www.geneontology.org/gene-associations/gene_association.PAMGO_Ddadantii.gz
-    - http://www.geneontology.org/gene-associations/gene_association.PAMGO_Mgrisea.gz
-    - http://www.geneontology.org/gene-associations/gene_association.PAMGO_Oomycetes.gz
-    - http://www.geneontology.org/gene-associations/gene_association.aspgd.gz
-    - http://www.geneontology.org/gene-associations/gene_association.cgd.gz
-    - http://www.geneontology.org/gene-associations/gene_association.dictyBase.gz
-    - http://www.geneontology.org/gene-associations/gene_association.ecocyc.gz
-    - http://www.geneontology.org/gene-associations/gene_association.fb.gz
-    - http://www.geneontology.org/gene-associations/gene_association.goa_chicken.gz
-    - http://www.geneontology.org/gene-associations/gene_association.goa_cow.gz
-    - http://www.geneontology.org/gene-associations/gene_association.goa_dog.gz
-    - http://www.geneontology.org/gene-associations/gene_association.goa_human.gz
-    - http://www.geneontology.org/gene-associations/gene_association.goa_pig.gz
-    - http://www.geneontology.org/gene-associations/gene_association.goa_uniprot_noiea.gz
-    - http://www.geneontology.org/gene-associations/gene_association.gramene_oryza.gz
-    - http://www.geneontology.org/gene-associations/gene_association.jcvi.gz
-    - http://www.geneontology.org/gene-associations/gene_association.mgi.gz
-    - http://www.geneontology.org/gene-associations/gene_association.pombase.gz
-    - http://www.geneontology.org/gene-associations/gene_association.pseudocap.gz
-    - http://www.geneontology.org/gene-associations/gene_association.rgd.gz
-    - http://www.geneontology.org/gene-associations/gene_association.sgd.gz
-    - http://www.geneontology.org/gene-associations/gene_association.sgn.gz
-    - http://www.geneontology.org/gene-associations/gene_association.tair.gz
-    - http://www.geneontology.org/gene-associations/gene_association.wb.gz
-    - http://www.geneontology.org/gene-associations/gene_association.zfin.gz
-#    - http://www.geneontology.org/gene-associations/submission/paint/pre-submission/gene_association.paint_other.gaf
+    # - http://www.geneontology.org/gene-associations/gene_association.GeneDB_Lmajor.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.GeneDB_Pfalciparum.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.GeneDB_Tbrucei.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.PAMGO_Atumefaciens.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.PAMGO_Ddadantii.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.PAMGO_Mgrisea.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.PAMGO_Oomycetes.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.aspgd.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.cgd.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.dictyBase.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.ecocyc.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.fb.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.goa_chicken.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.goa_cow.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.goa_dog.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.goa_human.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.goa_pig.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.goa_uniprot_noiea.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.gramene_oryza.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.jcvi.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.mgi.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.pombase.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.pseudocap.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.rgd.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.sgd.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.sgn.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.tair.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.wb.gz
+    # - http://www.geneontology.org/gene-associations/gene_association.zfin.gz
+    - http://www.geneontology.org/gene-associations/submission/paint/pre-submission/gene_association.paint_other.gaf
 GOLR_METADATA_LIST:
   comment: 'The full path to the YAML config files directory. In that directory, all files like *config.yaml will be scanned for use.'
   type: list
