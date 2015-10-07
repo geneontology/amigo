@@ -35,12 +35,15 @@ function _die(str){
     process.exit(-1);
 }
 
-function _tilde_expand(list){
-    return us.map(list,
-		  function(ufile){
-		      //console.log('ufile: ' + ufile);
-		      return tilde(ufile);
-		  });
+function _tilde_expand(ufile){
+    return tilde(ufile);
+}
+
+function _tilde_expand_list(list){
+    return us.map(list, function(ufile){
+	//console.log('ufile: ' + ufile);
+	return tilde(ufile);
+    });
 }
 
 function _run_cmd(command_bits){
@@ -102,12 +105,12 @@ var golr_private_url = a['AMIGO_PRIVATE_GOLR_URL'].value;
 var owltools_max_memory = a['OWLTOOLS_MAX_MEMORY'].value || '4G';
 var owltools_runner = 'java -Xms2048M -DentityExpansionLimit=4086000 -Djava.awt.headless=true -Xmx' + owltools_max_memory + ' -jar ./java/lib/owltools-runner-all.jar';
 var owltools_ops_flags = '--merge-support-ontologies --remove-subset-entities upperlevel --remove-disjoints --reasoner elk --silence-elk';
-var metadata_list = _tilde_expand(a['GOLR_METADATA_LIST'].value);
+var metadata_list = _tilde_expand_list(a['GOLR_METADATA_LIST'].value);
 var metadata_string = metadata_list.join(' ');
 var ontology_metadata = tilde(a['GOLR_METADATA_ONTOLOGY_LOCATION'].value);
-var ontology_list = _tilde_expand(a['GOLR_ONTOLOGY_LIST'].value);
+var ontology_list = _tilde_expand_list(a['GOLR_ONTOLOGY_LIST'].value);
 var ontology_string = ontology_list.join(' ');
-var gaf_list = _tilde_expand(a['GOLR_GAF_LIST'].value);
+var gaf_list = _tilde_expand_list(a['GOLR_GAF_LIST'].value);
 var gaf_string = gaf_list.join(' ');
 var panther_file_path = tilde(a['GOLR_PANTHER_FILE_PATH'].value);
 var catalog_file = tilde(a['GOLR_CATALOG_LOCATION'].value);
