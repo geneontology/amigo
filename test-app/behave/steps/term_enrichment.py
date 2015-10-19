@@ -23,7 +23,7 @@ def step_impl(context):
     ## Current 2.4.x location.
     xp_24x = "/html/body/div[2]/div[4]/div/div/form/div[2]/button"
     ## Current 2.3.x location.   
-    xp_23x = "/html/body/div[2]/div[5]/div/div/form/div[2]/button"
+    xp_23x = "/html/body/div[2]/div[3]/div/div/form/div[2]/button"
     
 
     ## Try them both, starting with 2.4.x
