@@ -45,6 +45,10 @@ sub cgiapp_init {
   # ## Say goonight, Gracie.
   # $self->{CORE}->kvetch('running: '. $self->get_current_runmode() || '???');
 
+  ## Make the encoding something usable--a Windows encoding seems to
+  ## be default.
+  $self->header_add(-type => "text/html; charset=UTF-8");
+
   ## What the default prefix looks like.
   $self->{SESSION_STRING} = 'cgisess_';
 
