@@ -358,8 +358,8 @@ gulp.task('w3c-validate', shell.task(_run_cmd_list(
     ['./scripts/w3c-validate.pl -v --html']
 )));
 
-// Run the local-only testing server.
-gulp.task('w3c-validate', shell.task(_run_cmd_list(
+// Run the local-only/embedded testing server.
+gulp.task('run', shell.task(_run_cmd_list(
     ['perl -I./perl/bin/ -I./perl/lib/ scripts/amigo-runner']
 )));
 
