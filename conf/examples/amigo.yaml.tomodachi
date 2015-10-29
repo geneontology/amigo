@@ -18,7 +18,7 @@ AMIGO_DYNAMIC_PATH:
 AMIGO_DYNAMIC_URL:
   comment: The URL that AMIGO_DYNAMIC_PATH maps to.
   type: url
-  value: http://amigo2.berkeleybop.org
+  value: http://tomodachi.berkeleybop.org
 AMIGO_GOOGLE_ANALYTICS_ID:
   comment: Google analytics ID. Optional.
   type: string
