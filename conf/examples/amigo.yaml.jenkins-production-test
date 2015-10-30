@@ -86,6 +86,7 @@ GOLR_GAF_LIST:
   comment: The list of GAFs to load.
   type: list
   value:
+    - http://www.geneontology.org/gene-associations/submission/paint/pre-submission/gene_association.paint_other.gaf
     - http://www.geneontology.org/gene-associations/gene_association.GeneDB_Lmajor.gz
     - http://www.geneontology.org/gene-associations/gene_association.GeneDB_Pfalciparum.gz
     - http://www.geneontology.org/gene-associations/gene_association.GeneDB_Tbrucei.gz
@@ -115,7 +116,6 @@ GOLR_GAF_LIST:
     - http://www.geneontology.org/gene-associations/gene_association.tair.gz
     - http://www.geneontology.org/gene-associations/gene_association.wb.gz
     - http://www.geneontology.org/gene-associations/gene_association.zfin.gz
-    - http://www.geneontology.org/gene-associations/submission/paint/pre-submission/gene_association.paint_other.gaf
 GOLR_METADATA_LIST:
   comment: 'The full path to the YAML config files directory. In that directory, all files like *config.yaml will be scanned for use.'
   type: list
