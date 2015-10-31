@@ -20,26 +20,22 @@ def step_impl(context, results_format):
 @when('I submit the RTE form')
 def step_impl(context):
 
-    ## Current 2.4.x location.
-    xp_24x = "/html/body/div[2]/div[4]/div/div/form/div[2]/button"
-    ## Current 2.3.x location.   
-    xp_23x = "/html/body/div[2]/div[5]/div/div/form/div[2]/button"
-    
-
-    ## Try them both, starting with 2.4.x
+    ## Try and track down that anonymous Submit button.
     okay_p = False
     webelt = None
-    try:
-        webelt = context.browser.find_element_by_xpath(xp_24x)
-        okay_p = True
-    except:
-        pass
-    if not okay_p:
+    for x in xrange(3, 8):
+        
+        ## Try new path.
+        xp = "/html/body/div[2]/div[" + `x` + "]/div/div/form/div[2]/button"
         try:
-            webelt = context.browser.find_element_by_xpath(xp_23x)
+            webelt = context.browser.find_element_by_xpath(xp)
             okay_p = True
         except:
             pass
+
+        ## Early exit if we found a working xpath.
+        if okay_p:
+            break
 
     ## If everything is alright, click on it.
     if okay_p and webelt:
