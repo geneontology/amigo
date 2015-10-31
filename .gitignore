@@ -20,6 +20,7 @@ test-app/behave/virtualenv.exe
 test-app/behave/bin
 test-app/behave/include
 test-app/behave/lib
+test-app/behave/local
 
 ## Do not want to commit staging files.
 staging/*.js
