@@ -90,6 +90,7 @@ use CGI::Application::Dispatch;
 
 use AmiGO::WebApp::HTMLClient::Dispatch;
 use AmiGO::WebApp::VisualizeServer;
+use AmiGO::WebApp::Gannet;
 use AmiGO::WebApp::GOOSE;
 use AmiGO::WebApp::Grebe;
 use AmiGO::WebApp::RTE;
@@ -99,6 +100,7 @@ use AmiGO::WebApp::Static::Dispatch;
 #my $amigo = AmiGO::WebApp::HTMLClient::Dispatch->new();
 my $vs = AmiGO::WebApp::VisualizeServer->new();
 my $xrefs = AmiGO::WebApp::Xrefs->new();
+my $gannet = AmiGO::WebApp::Gannet->new();
 my $goose = AmiGO::WebApp::GOOSE->new();
 my $grebe = AmiGO::WebApp::Grebe->new();
 my $rte = AmiGO::WebApp::RTE->new();
@@ -112,8 +114,9 @@ my $tbl =
    ## Dynamic.
    '/amigo' => 'AmiGO::WebApp::HTMLClient::Dispatch',
    '/visualize' => $vs,
-   '/grebe' => $grebe,
+   '/gannet' => $gannet,
    '/goose' => $goose,
+   '/grebe' => $grebe,
    '/rte' => $rte,
    '/xrefs' => $xrefs,
    ## Static.
