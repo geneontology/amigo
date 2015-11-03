@@ -44,7 +44,7 @@ AMIGO_PUBLIC_GALAXY_URL:
   type: url
   value: http://galaxy.berkeleybop.org/
 AMIGO_PUBLIC_GOLR_URL:
-  comment: 'The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.'
+  comment: The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.
   type: url
   value: http://dev.planteome.org/solr/
 AMIGO_PUBLIC_NOCTUA_URL:
@@ -80,7 +80,7 @@ AMIGO_VERSION:
   type: string
   value: 2.3.2
 AMIGO_WORKING_PATH:
-  comment: 'Please enter the full path to readable/writable directory that will be used for things like temporary files, logs (if enabled), and the golr_timestamp.log file.'
+  comment: Please enter the full path to readable/writable directory that will be used for things like temporary files, logs (if enabled), and the golr_timestamp.log file.
   type: directory
   value: /tmp
 GOLR_CATALOG_LOCATION:
@@ -129,3 +129,11 @@ OWLTOOLS_MAX_MEMORY:
   comment: The maximum amount of memory to give OWLTools processes.
   type: string
   value: 3G
+OWLTOOLS_USE_MERGE_IMPORT:
+  comment: Whether or not to include --merge-import http://purl.obolibrary.org/obo/go/extensions/go-plus.owl.
+  type: boolean
+  value: 0
+OWLTOOLS_USE_REMOVE_DISJOINTS:
+  comment: Whether or not to include --remove-disjoints.
+  type: boolean
+  value: 0

@@ -164,3 +164,11 @@ OWLTOOLS_MAX_MEMORY:
   comment: The maximum amount of memory to give OWLTools processes.
   type: string
   value: 192G
+OWLTOOLS_USE_MERGE_IMPORT:
+  comment: Whether or not to include --merge-import http://purl.obolibrary.org/obo/go/extensions/go-plus.owl.
+  type: boolean
+  value: 1
+OWLTOOLS_USE_REMOVE_DISJOINTS:
+  comment: Whether or not to include --remove-disjoints.
+  type: boolean
+  value: 1
