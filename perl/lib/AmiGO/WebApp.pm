@@ -117,8 +117,9 @@ sub cgiapp_prerun {
   $self->{WEBAPP_TEMPLATE_PARAMS} = {};
 
   ## Make sure we have the right path for our internal system.
-  #$self->template_set('legacy');
-  $self->template_set('bs3');
+  ## Default to the current sane base.
+  my $tmpl_local_set = $self->{CORE}->amigo_env('AMIGO_TEMPLATE_SET') || 'bs3';
+  $self->template_set($tmpl_local_set);
 
   ## Setup template environment.
   $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
