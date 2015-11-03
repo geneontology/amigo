@@ -46,6 +46,24 @@ function _tilde_expand_list(list){
     });
 }
 
+function _to_boolean(thing){
+    var ret = false;
+
+    if( typeof(thing) === 'string' ){
+	if( thing === 'true' ){
+	    ret = true;
+	}else if( thing === '1' ){
+	    ret = true;
+	}
+    }else if( typeof(thing) === 'number' ){
+	if( thing === 1 ){
+	    ret = true;
+	}
+    }
+
+    return ret;
+}
+
 function _run_cmd(command_bits){
     var final_command = command_bits.join(' ');
     return ['echo \'' + final_command + '\'', final_command];
@@ -104,7 +122,6 @@ var amigo_url = a['AMIGO_DYNAMIC_URL'].value;
 var golr_private_url = a['AMIGO_PRIVATE_GOLR_URL'].value;
 var owltools_max_memory = a['OWLTOOLS_MAX_MEMORY'].value || '4G';
 var owltools_runner = 'java -Xms2048M -DentityExpansionLimit=4086000 -Djava.awt.headless=true -Xmx' + owltools_max_memory + ' -jar ./java/lib/owltools-runner-all.jar';
-var owltools_ops_flags = '--merge-support-ontologies --remove-subset-entities upperlevel --remove-disjoints --silence-elk --reasoner elk';
 var metadata_list = _tilde_expand_list(a['GOLR_METADATA_LIST'].value);
 var metadata_string = metadata_list.join(' ');
 var ontology_metadata = tilde(a['GOLR_METADATA_ONTOLOGY_LOCATION'].value);
@@ -122,12 +139,26 @@ var d = new Date();
 var time = d.getHours() + ':' + d.getSeconds();
 var date = d.getFullYear() + ':' + d.getMonth() + ':' + d.getDate();
 
+// The OWLTools options are a little harder, and variable with the
+// load we're attempting.
+var otu_mrg_imp_p = _to_boolean(a['OWLTOOLS_USE_MERGE_IMPORT'].value);
+var otu_rm_dis_p = _to_boolean(a['OWLTOOLS_USE_REMOVE_DISJOINTS'].value);
+var all_owltools_ops_flags_list = [
+    '--merge-support-ontologies',
+    (otu_mrg_imp_p ? '--merge-import http://purl.obolibrary.org/obo/go/extensions/go-plus.owl' : '' ),
+    '--remove-subset-entities upperlevel',
+    (otu_rm_dis_p ? '--remove-disjoints' : ''),
+    '--silence-elk --reasoner elk'
+];
+var owltools_ops_flags =
+	all_owltools_ops_flags_list.join(' ').replace(/ +/g, ' ');
+
 // Verbosity.
 console.log('AmiGO version: ' + amigo_version);
 console.log('AmiGO location: ' + amigo_url);
 console.log('GOlr (private loading) location: ' + golr_private_url);
 console.log('OWLTools invocation: ' +
-	    owltools_runner + ' (' + owltools_ops_flags + ')');
+	    owltools_runner + ' ' + owltools_ops_flags + '');
 //console.log('Ontologies: ' + ontology_string);
 //console.log('Ontology metadata: ' + ontology_metadata);
 
