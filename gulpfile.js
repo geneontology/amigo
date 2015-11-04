@@ -47,7 +47,7 @@ function _ping_count(){
 	    if( error || response.statusCode !== 200 ){
 		console.log('Unable to ping: ' + count_url);
 	    }else{
-		console.log('Pinged: ' + count_url, body);
+		console.log('Pinged: ' + count_url);
 	    }
 	});
     }else{
@@ -159,7 +159,8 @@ var d = new Date();
 var time = d.getHours() + ':' + d.getSeconds();
 var date = d.getFullYear() + ':' + d.getMonth() + ':' + d.getDate();
 // Execute by default; variable must be present and empty to stop.
-var count_url = ''; // TODO: add override default
+var count_url =
+	'https://s3-us-west-1.amazonaws.com/go-amigo-usage-master/ping.json';
 if( a['AMIGO_COUNTER_URL'] && a['AMIGO_COUNTER_URL'].value ){
     count_url = a['AMIGO_COUNTER_URL'].value;
 }
