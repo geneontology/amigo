@@ -269,8 +269,9 @@ sub cgiapp_prerun {
   if( defined($reportable_error) ){
     ## The journey ends here.
     #$self->{CORE}->kvetch("done with status $code and message ($message)");
-    #$self->query->status(503);
-    $self->_status_message_exit(503, $reportable_error);
+    #$self->_status_message_exit(503, $reportable_error);
+    my $final_err = $self->mode_fatal($reportable_error);
+    $self->_status_message_exit(503, $final_err);
     exit;
   }
 }
