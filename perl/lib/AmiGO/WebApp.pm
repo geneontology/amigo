@@ -134,7 +134,7 @@ sub cgiapp_prerun {
      'success' => [],
     };
 
-  ## 
+  ## Basic variable definitions.
   $self->{CORE}->kvetch("_in prerun...defining variables");
   $self->_common_params_settings();
 
