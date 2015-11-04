@@ -20,6 +20,7 @@ var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var yaml = require('yamljs');
 var tilde = require('expand-home-dir');
+var request = require('request');
 //var git = require('gulp-git');
 //var watch = require('gulp-watch');
 //var watchify = require('watchify');
@@ -33,6 +34,25 @@ var tilde = require('expand-home-dir');
 function _die(str){
     console.error(str);
     process.exit(-1);
+}
+
+// Ping server; used during certain commands.
+function _ping_count(){
+
+    if( count_url && typeof(count_url) === 'string' && count_url !== '' ){
+
+	request({
+	    url: count_url
+	}, function(error, response, body){
+	    if( error || response.statusCode !== 200 ){
+		console.log('Unable to ping: ' + count_url);
+	    }else{
+		console.log('Pinged: ' + count_url, body);
+	    }
+	});
+    }else{
+	console.log('Will not ping home.');
+    }
 }
 
 function _tilde_expand(ufile){
@@ -138,6 +158,11 @@ var solr_load_log = working_path + '/golr_timestamp.log';
 var d = new Date();
 var time = d.getHours() + ':' + d.getSeconds();
 var date = d.getFullYear() + ':' + d.getMonth() + ':' + d.getDate();
+// Execute by default; variable must be present and empty to stop.
+var count_url = ''; // TODO: add override default
+if( a['AMIGO_COUNTER_URL'] && a['AMIGO_COUNTER_URL'].value ){
+    count_url = a['AMIGO_COUNTER_URL'].value;
+}
 
 // The OWLTools options are a little harder, and variable with the
 // load we're attempting.
@@ -161,6 +186,9 @@ console.log('OWLTools invocation: ' +
 	    owltools_runner + ' ' + owltools_ops_flags + '');
 //console.log('Ontologies: ' + ontology_string);
 //console.log('Ontology metadata: ' + ontology_metadata);
+
+// Execute counter.
+_ping_count();
 
 ///
 /// Tests (async).
