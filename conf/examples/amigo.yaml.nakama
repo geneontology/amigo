@@ -42,7 +42,7 @@ AMIGO_PUBLIC_GALAXY_URL:
 AMIGO_PUBLIC_GOLR_URL:
   comment: The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.
   type: url
-  value: http://toaster.lbl.gov:9000/solr/
+  value: http://amigo-pro-golr.berkeleybop.org/solr/
 AMIGO_PRIVATE_GOLR_URL:
   comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading. Can be the same as the public URL if you have no proxy or firewall to deal with.
   type: url
