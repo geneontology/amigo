@@ -42,7 +42,7 @@ AMIGO_PUBLIC_GALAXY_URL:
 AMIGO_PUBLIC_GOLR_URL:
   comment: The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.
   type: url
-  value: http://golr.berkeleybop.org/
+  value: http://amigo-dev-golr.berkeleybop.org/
 AMIGO_PRIVATE_GOLR_URL:
   comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading. Can be the same as the public URL if you have no proxy or firewall to deal with.
   type: url
