@@ -19,6 +19,10 @@ AMIGO_DYNAMIC_URL:
   comment: The URL that AMIGO_DYNAMIC_PATH maps to.
   type: url
   value: http://tomodachi.berkeleybop.org
+AMIGO_FOR_GO:
+  comment: This flag indicates whether or not your AmiGO instance is for the GO, or a more generic instance. If you are trying to run AmiGO locally, probably "1"; if you are trying to have your own AmiGO with different ontologies, data, etc., probably 0.
+  type: boolean
+  value: 1
 AMIGO_GOOGLE_ANALYTICS_ID:
   comment: Google analytics ID. Optional.
   type: string

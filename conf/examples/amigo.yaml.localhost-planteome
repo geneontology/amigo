@@ -19,6 +19,10 @@ AMIGO_DYNAMIC_URL:
   comment: The URL that AMIGO_DYNAMIC_PATH maps to.
   type: url
   value: http://localhost:9999
+AMIGO_FOR_GO:
+  comment: This flag indicates whether or not your AmiGO instance is for the GO, or a more generic instance. If you are trying to run AmiGO locally, probably "1"; if you are trying to have your own AmiGO with different ontologies, data, etc., probably 0.
+  type: boolean
+  value: 1
 AMIGO_GOOGLE_ANALYTICS_ID:
   comment: Google analytics ID. Optional.
   type: string
@@ -78,7 +82,7 @@ AMIGO_VERBOSE:
 AMIGO_VERSION:
   comment: The version of AmiGO to report; not generally changed unless running a forked instance.
   type: string
-  value: 2.3.2
+  value: 2.4.0
 AMIGO_WORKING_PATH:
   comment: Please enter the full path to readable/writable directory that will be used for things like temporary files, logs (if enabled), and the golr_timestamp.log file.
   type: directory
