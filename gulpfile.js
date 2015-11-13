@@ -140,6 +140,7 @@ if( ! a ){
 var amigo_version =  a['AMIGO_VERSION'].value;
 var amigo_url = a['AMIGO_DYNAMIC_URL'].value;
 var golr_private_url = a['AMIGO_PRIVATE_GOLR_URL'].value;
+var golr_public_url = a['AMIGO_PUBLIC_GOLR_URL'].value;
 var owltools_max_memory = a['OWLTOOLS_MAX_MEMORY'].value || '4G';
 var owltools_runner = 'java -Xms2048M -DentityExpansionLimit=4086000 -Djava.awt.headless=true -Xmx' + owltools_max_memory + ' -jar ./java/lib/owltools-runner-all.jar';
 var metadata_list = _tilde_expand_list(a['GOLR_METADATA_LIST'].value);
@@ -149,6 +150,7 @@ var ontology_list = _tilde_expand_list(a['GOLR_ONTOLOGY_LIST'].value);
 var ontology_string = ontology_list.join(' ');
 var gaf_list = _tilde_expand_list(a['GOLR_GAF_LIST'].value);
 var gaf_string = gaf_list.join(' ');
+var gass_port = parseInt(a['GASS_PORT'].value);
 var panther_file_path = tilde(a['GOLR_PANTHER_FILE_PATH'].value);
 var catalog_file = tilde(a['GOLR_CATALOG_LOCATION'].value);
 var noctua_file_path = tilde(a['GOLR_NOCTUA_ENRICHED_MODEL_PATH'].value);
@@ -419,8 +421,15 @@ gulp.task('w3c-validate', shell.task(_run_cmd_list(
 )));
 
 // Run the local-only/embedded testing server.
-gulp.task('run', shell.task(_run_cmd_list(
+gulp.task('run-amigo', shell.task(_run_cmd_list(
     ['perl -I./perl/bin/ -I./perl/lib/ scripts/amigo-runner']
+)));
+
+// Run the GASS service.
+gulp.task('run-gass', shell.task(_run_cmd(
+    ['node', './scripts/gass.js',
+     '-g', golr_public_url,
+     '-p', gass_port]
 )));
 
 ///

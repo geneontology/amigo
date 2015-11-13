@@ -35,6 +35,7 @@
         "cytoscape": "2.4.6",
         "bootstrap": "3.3.4",
         "del": "^1.1.1",
+        "express": "4.13.3",
         "jquery": "1.9.1",
         "minerva-requests": "0.0.6",
         "minimist": "0.2.0",
