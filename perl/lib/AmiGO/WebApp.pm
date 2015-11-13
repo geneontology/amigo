@@ -960,6 +960,8 @@ sub _common_params_settings {
   $params->{noctua_base} = $self->{CORE}->amigo_env('AMIGO_PUBLIC_NOCTUA_URL');
   $params->{BETA} =
     $self->_atoi($self->{CORE}->amigo_env('AMIGO_BETA'));
+  $params->{IS_GO_P} =
+    $self->_atoi($self->{CORE}->amigo_env('AMIGO_FOR_GO'));
   $params->{VERBOSE} =
     $self->_atoi($self->{CORE}->amigo_env('AMIGO_VERBOSE'));
   $params->{last_load_date} =
