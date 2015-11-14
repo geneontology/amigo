@@ -1,13 +1,13 @@
 {
     "name": "amigo2",
-    "version": "2.4.1",
+    "version": "2.4.3",
     "license": "BSD-3-Clause",
     "description": "AmiGO 2: Your friend in the Gene Ontology.",
     "keywords": [
-	"amigo",
-	"amigo2",
+        "amigo",
+        "amigo2",
         "application",
-	"bbop",
+        "bbop",
         "gene ontology",
         "GO"
     ],
@@ -22,8 +22,8 @@
         "npm": ">= 2.7.4"
     },
     "dependencies": {
-	"amigo2": "2.4.0",
-	"bbop": "2.4.0",
+        "amigo2": "2.4.0",
+        "bbop": "2.4.0",
         "bbop-core": "0.0.5",
         "bbop-graph": "0.0.16",
         "bbop-graph-noctua": "0.0.23",
@@ -41,10 +41,10 @@
         "minimist": "0.2.0",
         "mustache": "2.0.0",
         "pup-tent": "0.9.10",
-	"expand-home-dir": "0.0.2",
-	"request": "2.65.0",
+        "expand-home-dir": "0.0.2",
+        "request": "2.65.0",
         "underscore": "1.8.3",
-	"yamljs": "0.2.3"
+        "yamljs": "0.2.3"
     },
     "devDependencies": {
         "browserify-shim": "^3.8.6",
@@ -58,7 +58,7 @@
         "gulp-mocha": "^2.0.1",
         "gulp-shell": "0.4.3",
         "gulp-uglify": "^1.2.0",
-	"mocha": "2.3.3",
+        "mocha": "2.3.3",
         "vinyl-source-stream": "1.1.0",
         "watchify": "^3.2.1",
         "jsdoc": "^3.3.0",
