@@ -2,46 +2,21 @@
 //// Gene annotation summary service.
 ////
 
-var bbop_legacy = require('bbop').bbop;
-
-bbop_legacy.golr.manager.nodejs.prototype.run_batch = function(accumulator_func,
-                                                               final_func){
-
-    var anchor = this;
-
-    // Set the various callbacks internally so we can get back at them
-    // when we lose our stack during the ajax.
-    if( accumulator_func ){ this._batch_accumulator_func = accumulator_func; }
-    if( final_func ){ this._batch_final_func = final_func; }
-    
-    // Look at how many states are left.
-    var qurl = anchor.next_batch_url();
-    if( qurl ){
-        
-        // Generate a custom callback function that will start
-        // this process (next_generator) again--continue the cycle.
-        var next_cycle = function(json_data){
-            var response = new bbop_legacy.golr.response(json_data);
-            anchor._batch_accumulator_func.apply(anchor, [response, anchor]);
-            anchor.run_batch();
-        };
-        
-        // Put this custom callback on success.
-        anchor.jq_vars['success'] = next_cycle;
-        anchor.jq_vars['error'] = anchor._run_error_callbacks;
-        anchor.JQ.ajax(qurl, anchor.jq_vars);
-    }else{
-        anchor._batch_final_func.apply(anchor);
-    }
-};
-
-
+//var bbop_legacy = require('bbop').bbop;
+// Correct environment, ready testing.
+var bbop = require('bbop-core');
 var amigo = require('amigo2');
 
-var us = require('underscore');
-//var bbop = require('bbop-core');
+var golr_conf = require('golr-conf');
+var golr_manager = require('bbop-manager-golr');
+var golr_response = require('bbop-response-golr');
+
+// A couple of possible engines for use.
+var sync_engine = require('bbop-rest-manager').sync_request;
+var node_engine = require('bbop-rest-manager').node;
 
 // Std utils.
+var us = require('underscore');
 var fs = require('fs');
 var path = require('path');
 var us = require('underscore');
@@ -111,12 +86,17 @@ app.get('/gene-to-term', function (req, res) {
     // Get our query terms.
     if( req.query && req.query['q'] && req.query['q'].length !== 0 ){
 	
+	// Input as list.
 	var gp_accs = req.query['q'];
+	if( ! us.isArray(gp_accs) ){
+	    gp_accs = [gp_accs];
+	}
 
 	// Next, setup the manager environment.
 	ll('Setting up manager.');
-	var gconf = new bbop_legacy.golr.conf(amigo.data.golr);
-	var go = new bbop_legacy.golr.manager.nodejs(golr_url, gconf);
+	var gconf = new golr_conf.conf(amigo.data.golr);
+	var engine = new sync_engine(golr_response);
+	var go = new golr_manager(golr_url, gconf, engine, 'sync');
 	go.set_personality('annotation'); // always this
 	//go.debug(false);
 
@@ -153,6 +133,7 @@ app.get('/gene-to-term', function (req, res) {
 		//console.log(fq.substr(0, 9));
 		if( fq.substr(0, 9) === 'bioentity' ){
 		    acc = fq.substr(10, fq.length-1);
+		    acc = bbop.dequote(acc);
 		    ll('Looking at info for: ' + acc);
 		}
 	    });
@@ -194,8 +175,23 @@ app.get('/gene-to-term', function (req, res) {
 	    ll('Completed stage 01!');
 	};
 
-	ll('Start batch run.');
-	go.run_batch(accumulator_fun, final_fun);	
+	ll('Start "batch" run.');
+	//go.run_batch(accumulator_fun, final_fun);
+	var done_p = false;
+	while( ! done_p ){
+	    var next_url = go.next_batch_url();
+	    if( ! next_url ){
+		done_p = true;
+	    }else{
+
+		// BUG/TODO: Hack.
+		console.log(next_url);
+		var resp = go._runner(next_url + '&callback_type=search');
+		accumulator_fun(resp);
+	    }
+	}
+
+	final_fun();
     }
 });
 
