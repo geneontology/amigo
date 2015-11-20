@@ -82,7 +82,7 @@ AMIGO_VERBOSE:
 AMIGO_VERSION:
   comment: The version of AmiGO to report; not generally changed unless running a forked instance.
   type: string
-  value: 2.4.0
+  value: 2.4.3
 AMIGO_WORKING_PATH:
   comment: 'Please enter the full path to readable/writable directory that will be used for things like temporary files, logs (if enabled), and the golr_timestamp.log file.'
   type: directory
