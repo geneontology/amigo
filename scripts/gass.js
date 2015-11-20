@@ -41,6 +41,25 @@ function _die(message){
     process.exit(-1);
 }
 
+
+function _extract(req, param){
+
+    var ret = [];
+
+    if( req.query && req.query[param] && req.query[param].length !== 0 ){
+	
+	// Input as list, remove dupes.
+	var accs = req.query[param];
+	if( ! us.isArray(accs) ){
+	    accs = [accs];
+	}
+	ret = us.uniq(accs);
+	
+    }
+
+    return ret;
+}
+
 ///
 /// CLI handling, environment setup, and initialization of clients.
 ///
@@ -87,23 +106,21 @@ app.get('/', function (req, res){
 // 
 app.get('/gene-to-term', function (req, res){
 
+    // Prep default response.
     var ret = {
 	service: 'gene-to-term',
 	status: 'fail'
     };
 
+    // Get parameters as lists.
+    var gp_accs = _extract(req, 'q');
+    var species = _extract(req, 's');
+
     // req.stringify(req.query); GET
     // JSON.stringify(req.body) POST
     // Get our query terms.
-    if( req.query && req.query['q'] && req.query['q'].length !== 0 ){
+    if( ! us.isEmpty(gp_accs) ){
 	
-	// Input as list, remove dupes.
-	var gp_accs = req.query['q'];
-	if( ! us.isArray(gp_accs) ){
-	    gp_accs = [gp_accs];
-	}
-	gp_accs = us.uniq(gp_accs);
-
 	// Next, setup the manager environment.
 	ll('Setting up manager.');
 	var gconf = new golr_conf.conf(amigo.data.golr);
@@ -122,7 +139,9 @@ app.get('/gene-to-term', function (req, res){
 	    // 
 	    go.add_query_filter('document_category', 'annotation', ['*']);
 	    go.add_query_filter('bioentity', acc);
-	    //go.add_query_filter('taxon', taxon_filter, ['*']); }
+	    // Pin species if possible.
+	    each(species,
+		 function(spc){ go.add_query_filter('taxon_closure', spc); });
 	    go.set('rows', 0); // we don't need any actual rows returned
 	    go.set_facet_limit(-1); // we are only interested in facet counts
 	    go.facets(['regulates_closure']);
@@ -189,6 +208,7 @@ app.get('/gene-to-term', function (req, res){
 	    
 	    ret['status'] = 'success';
 	    ret['q'] = gp_accs;
+	    ret['s'] = species;
 	    ret['summary'] = {
 		'gene-to-term-summary-count': term_info//,
 		//'gene-to-term-annotation-count': gp_info
@@ -221,23 +241,21 @@ app.get('/gene-to-term', function (req, res){
 // 
 app.get('/term-to-gene', function (req, res){
 
+    // Prep default response.
     var ret = {
 	service: 'term-to-gene',
 	status: 'fail'
     };
 
+    // Get parameters as lists.
+    var term_accs = _extract(req, 'q');
+    var species = _extract(req, 's');
+
     // req.stringify(req.query); GET
     // JSON.stringify(req.body) POST
     // Get our query terms.
-    if( req.query && req.query['q'] && req.query['q'].length !== 0 ){
+    if( ! us.isEmpty(term_accs) ){
 	
-	// Input as list, remove dupes.
-	var term_accs = req.query['q'];
-	if( ! us.isArray(term_accs) ){
-	    term_accs = [term_accs];
-	}
-	term_accs = us.uniq(term_accs);
-
 	// Next, setup the manager environment.
 	ll('Setting up manager.');
 	var gconf = new golr_conf.conf(amigo.data.golr);
@@ -256,7 +274,9 @@ app.get('/term-to-gene', function (req, res){
 	    // 
 	    go.add_query_filter('document_category', 'bioentity', ['*']);
 	    go.add_query_filter('regulates_closure', acc);
-	    //go.add_query_filter('taxon', taxon_filter, ['*']); }
+	    // Pin species if possible.
+	    each(species,
+		 function(spc){ go.add_query_filter('taxon_closure', spc); });
 	    go.set('rows', 0); // care not about rows
 	    go.set_facet_limit(0); // care not about facets
 
@@ -298,6 +318,7 @@ app.get('/term-to-gene', function (req, res){
 	    
 	    ret['status'] = 'success';
 	    ret['q'] = term_accs;
+	    ret['s'] = species;
 	    ret['summary'] = {
 		'term-to-gene-summary-count': term_info
 	    };
@@ -327,11 +348,16 @@ app.get('/term-to-gene', function (req, res){
 });
 
 app.get('/overview', function (req, res){
-
+ 
+    // Prep default response.
     var ret = {
 	service: 'overview',
 	status: 'fail'
     };
+
+    // Get parameters as lists.
+    var species = _extract(req, 's');
+    ll('Species filter: ' + species);
 
     // Setup the manager environment.
     ll('Setting up manager.');
@@ -341,15 +367,17 @@ app.get('/overview', function (req, res){
     go.set_personality('bioentity'); // always this
     //go.debug(false);
 
-    // Set/reset for the next query.
+    // Set/reset for bioentity count.
     go.reset_query_filters(); // reset from the last iteration	    
     go.add_query_filter('document_category', 'bioentity');
+    // Pin species if possible.
+    each(species, function(spc){ go.add_query_filter('taxon_closure', spc); });
     go.set('rows', 0); // care not about rows
     go.set_facet_limit(0); // care not about facets
     var b_resp = go.search();
     var total_gps = b_resp.total_documents();
 
-    // Set/reset for the next query.
+    // Set/reset for ontology term count.
     go.reset_query_filters(); // reset from the last iteration	    
     go.add_query_filter('document_category', 'ontology_class');
     go.set('rows', 0); // care not about rows
@@ -357,21 +385,41 @@ app.get('/overview', function (req, res){
     var t_resp = go.search();
     var total_terms = t_resp.total_documents();
 	
-    // Set/reset for the next query.
+    // Set/reset for annotation count.
     go.reset_query_filters(); // reset from the last iteration	    
     go.add_query_filter('document_category', 'annotation');
     go.set('rows', 0); // care not about rows
     go.set_facet_limit(0); // care not about facets
+    // Pin species if possible.
+    each(species, function(spc){ go.add_query_filter('taxon_closure', spc); });
     var a_resp = go.search();
     var total_anns = a_resp.total_documents();
 	
-    // Reponse
+    // Set/reset for species list.
+    go.reset_query_filters(); // reset from the last iteration	    
+    go.add_query_filter('document_category', 'bioentity');
+    go.set('rows', 0); // we don't need any actual rows returned
+    go.set_facet_limit(-1); // we are only interested in facet counts
+    go.facets(['taxon_closure']);
+    // var s_resp = go.search();
+    // var ffs = s_resp.facet_field('taxon_closure');
+    // var spcs = us.map(ffs, function(x){ return x[0]; });
+    // // each(ffs, function(pair){
+    // // 	//console.log(pair);
+    // // 	var sid = pair[0];
+    // // 	var acnt = pair[1];
+    // // });
+
+    // Reponse.
     ret['status'] = 'success';
+    ret['s'] = species;
     ret['summary'] = {
 	'term-count': total_terms,
 	'gene-product-count': total_gps,
-	'annotation-count': total_anns
+	'annotation-count': total_anns//,
+	//'species': spcs.length
     };
+
     res.json(ret);    
 });
 
