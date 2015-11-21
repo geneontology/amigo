@@ -18,7 +18,7 @@ AMIGO_DYNAMIC_PATH:
 AMIGO_DYNAMIC_URL:
   comment: The URL that AMIGO_DYNAMIC_PATH maps to.
   type: url
-  value: http://amigo2.berkeleybop.org
+  value: http://amigo.geneontology.org
 AMIGO_GOOGLE_ANALYTICS_ID:
   comment: Google analytics ID. Optional.
   type: string
@@ -66,7 +66,7 @@ AMIGO_STATIC_PATH:
 AMIGO_STATIC_URL:
   comment: The URL for the static content. Can be local or remote.
   type: url
-  value: http://amigo2.berkeleybop.org/static
+  value: http://amigo.genetonology.org/static
 AMIGO_TERM_REGEXP:
   comment: The regular expressions to identify internal ontology ids.
   type: string
