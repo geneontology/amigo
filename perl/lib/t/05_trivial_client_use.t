@@ -18,7 +18,7 @@ use JSON::XS;
 my $mech = WWW::Mechanize->new();
 
 ## Get document.
-my $url = 'http://golr.geneontology.org/solr/select?qt=standard&indent=on&wt=json&version=2.2&rows=10&start=0&fl=*%2Cscore&q=id:"GO:0022008"';
+my $url = 'http://golr.geneontology.org/select?qt=standard&indent=on&wt=json&version=2.2&rows=10&start=0&fl=*%2Cscore&q=id:"GO:0022008"';
 $mech->get($url);
 my $json_doc = $mech->content();
 print STDERR "Found document:\n" . $json_doc . "\n";
