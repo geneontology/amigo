@@ -87,10 +87,6 @@ AMIGO_WORKING_PATH:
   comment: Please enter the full path to readable/writable directory that will be used for things like temporary files, logs (if enabled), and the golr_timestamp.log file.
   type: directory
   value: /tmp
-GASS_PORT:
-  comment: The port to run the Gene Annotation Summary Service on. (Optional.)
-  type: string
-  value: 6455
 GOLR_CATALOG_LOCATION:
   comment: The location of the GO catalog file for various work.
   type: file
