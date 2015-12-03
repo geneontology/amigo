@@ -186,7 +186,7 @@ fields:
     description: "Only in taxon label."
     display_name: Only in taxon
     type: string
-    property: [getOnlyInTaxonLabels]
+    property: [getDummyString]
     searchable: true
   - id: only_in_taxon_closure
     description: "Only in taxon closure."
