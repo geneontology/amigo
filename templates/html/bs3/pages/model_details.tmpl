@@ -39,7 +39,9 @@
       
       <dt>Comment</dt>
       [% IF MA_INFO.model_comment %]
-      <dd>[% MA_INFO.model_comment %]</dd>
+      [%    FOREACH comm IN MA_INFO.model_comment %]
+      <dd>[% comm %]</dd>
+      [% END %]
       [% ELSE %]
       <dd>(n/a)</dd>
       [% END %]
