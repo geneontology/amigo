@@ -38,13 +38,13 @@
       <!-- Synonyms -->
       <dt>Synonyms</dt>
       [% sl = GP_INFO.synonyms %]
-      [% IF sl.size == 0 %]
+      [% IF NOT sl OR sl.size == 0 %]
       <dd>None</dd>
       [% ELSE %]
       [%    FOREACH synh IN sl %]
       <!-- <dd class="syn">[% IF synh.scope %]<span class="type">[% synh.scope %]</span>: [% END %][% synh.acc %]</dd> -->
       [%       ## Something broken in the GAF or pipeline? %]
-      [%       IF synh == "" %]
+      [%       IF NOT synh OR synh == "" %]
       <dd>(n/a)</dd>
       [%       ELSE %]
       <dd>[% synh %]</dd>
