@@ -10,5 +10,8 @@
 - field: qualifier
   context: bbop.widgets.search_pane
   function: amigo.handlers.qualifiers
+- field: alternate_id
+  context: bbop.widgets.search_pane
+  function: amigo.handlers.alternate_id
 ## Actively used handlers.
 ## Please edit from here down.
