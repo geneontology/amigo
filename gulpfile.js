@@ -329,6 +329,17 @@ gulp.task('load-gafs', shell.task(_run_cmd(
      '--solr-load-gafs', gaf_string]
 )));
 
+gulp.task('load-gafs-with-panther', shell.task(_run_cmd(
+    [owltools_runner,
+     ontology_string,
+     owltools_ops_flags,
+     '--solr-url', golr_private_url,
+     '--solr-log', solr_load_log,
+     // PANTHER (reading--annotations need them too)
+     '--read-panther', panther_file_path,
+     '--solr-load-gafs', gaf_string]
+)));
+
 gulp.task('load-panther', shell.task(_run_cmd(
     [owltools_runner,
      ontology_string,
