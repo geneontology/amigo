@@ -4,14 +4,15 @@
  * This is a Node.js script.
  * 
  * Generate a whole huge chunk of data for Plotly.js to work
- * with. Hard-wired to our public server.
+ * with.
  * 
  * Usage like:
- *  : generate_statistics_for_plotly.js --ann-source
- *  : generate_statistics_for_plotly.js --ann-evidence
- *  : generate_statistics_for_plotly.js --ann-assigned-by
- *  : generate_statistics_for_plotly.js --ann-overview-source
- *  : generate_statistics_for_plotly.js --ann-overview-assigned-by
+ *  : node javascript/bin/generate_statistics_for_plotly.js --golr http://golr.geneontology.org/solr/ --run-type ann-overview-source
+ *  : --run-type ann-source
+ *  : --run-type ann-evidence
+ *  : --run-type ann-assigned-by
+ *  : --run-type ann-overview-source
+ *  : --run-type ann-overview-assigned-by
  */
 
 // Let jshint pass over over our external globals (browserify takes
@@ -20,7 +21,6 @@
 
 // Correct environment, ready testing.
 var us = require('underscore');
-var bbop_legacy = require('bbop').bbop;
 var bbop = require('bbop-core');
 var amigo = require('amigo2');
 var golr_conf = require('golr-conf');
@@ -36,8 +36,6 @@ var node_engine = require('bbop-rest-manager').node;
 ///
 
 var each = us.each;
-
-var golr_url = 'http://golr.geneontology.org/solr/';
 
 function ll(arg1){
     console.log('stats [' + (new Date()).toJSON() + ']: ', arg1); 
@@ -56,13 +54,13 @@ function _die(message){
 var argv = require('minimist')(process.argv.slice(2));
 //console.dir(argv);
 
-// // What directory will we monitor/operate on.
-// var golr_url = argv['g'] || argv['golr'];
-// if( ! golr_url ){
-//     _die('Option (g|golr) is required.');
-// }else{
-//     ll('Will operate on GOlr instance at: ' + golr_url);
-// }
+// What directory will we monitor/operate on.
+var golr_url = argv['g'] || argv['golr'];
+if( ! golr_url ){
+    _die('Option (g|golr) is required.');
+}else{
+    ll('Will operate on GOlr instance at: ' + golr_url);
+}
 
 // Whatever shall we look for?
 var run_type = argv['r'] || argv['run-type'];
@@ -136,7 +134,7 @@ if( run_type === 'ann-source' ||
 	
 	var raw_data_pre = resp.facet_field('evidence_type_closure');
 	var our_ev_hash = bbop.hashify(our_ev_of_interest);
-	raw_data = bbop_legacy.pare(raw_data_pre, function(item, index){
+	raw_data = bbop.pare(raw_data_pre, function(item, index){
 	    var ret = true;
 	    if( our_ev_hash[item[0]] ){
 		ret = false;
