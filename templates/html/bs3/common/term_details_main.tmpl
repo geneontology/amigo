@@ -26,11 +26,11 @@
       [% IF sl.size == 0 AND al.size == 0 %]
       <dd>None</dd>
       [% ELSE %]
-      [%    IF al.size != 0 %]
-      <dd id="syn-collaspe-alt" class="syn-collapsible"><strong>alt. id</strong>: [% al.join(", ") %]</dd>
-      [%    END %]
       [%    IF sl.size != 0 %]
       <dd id="syn-collapse-syn" class="syn-collapsible">[% sl.join(", ") %]</dd>
+      [%    END %]
+      [%    IF al.size != 0 %]
+      <dd id="syn-collaspe-alt" class="syn-collapsible"><strong>alt. id</strong>: [% al.join(", ") %]</dd>
       [%    END %]
       <!-- [% #   FOREACH synh IN sl %] -->
       <!-- BUG/TODO: Like this when we have scope available. -->
