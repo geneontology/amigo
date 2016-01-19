@@ -21,22 +21,24 @@
       
       <!-- Synonyms -->
       <dt>Synonyms</dt>
-      [% al = TERM_INFO.alternate_ids %]
       [% sl = TERM_INFO.synonyms %]
-      [% IF sl.size == 0 AND al.size == 0 %]
+      [% IF sl.size == 0 %]
       <dd>None</dd>
       [% ELSE %]
       [%    IF sl.size != 0 %]
       <dd id="syn-collapse-syn" class="syn-collapsible">[% sl.join(", ") %]</dd>
       [%    END %]
+      [% END %]
+
+      <!-- Alternate IDs -->
+      <dt>Alternate IDs</dt>
+      [% al = TERM_INFO.alternate_ids %]
+      [% IF al.size == 0 %]
+      <dd>None</dd>
+      [% ELSE %]
       [%    IF al.size != 0 %]
-      <dd id="syn-collaspe-alt" class="syn-collapsible"><strong>alt. id</strong>: [% al.join(", ") %]</dd>
+      <dd id="syn-collaspe-alt" class="syn-collapsible">[% al.join(", ") %]</dd>
       [%    END %]
-      <!-- [% #   FOREACH synh IN sl %] -->
-      <!-- BUG/TODO: Like this when we have scope available. -->
-      <!-- <dd>[% IF synh.scope %]<span>[% synh.scope %]</span>: [% END %][% synh.acc %]</dd> -->
-      <!-- <dd>[% # synh %]</dd> -->
-      <!-- [% #   END %] -->
       [% END %]
 
       <!-- Definition -->
