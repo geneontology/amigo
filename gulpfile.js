@@ -351,7 +351,7 @@ gulp.task('load-panther', shell.task(_run_cmd(
      '--solr-load-panther-general']
 )));
 
-gulp.task('load-models', shell.task(_run_cmd(
+gulp.task('load-models-all', shell.task(_run_cmd(
     [owltools_runner,
      ontology_string,
      owltools_ops_flags,
