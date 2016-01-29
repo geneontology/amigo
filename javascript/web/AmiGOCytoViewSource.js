@@ -300,7 +300,7 @@ jQuery(document).ready(function(){
 
     // Double check our environment.
     if( typeof(global_model) === 'undefined' || ! global_model ){
-	    alert('environment not ready');
+	//alert('environment not ready');
     }else{
 	// Only roll if the env is correct.
 	// Will use the above variables internally (sorry).
