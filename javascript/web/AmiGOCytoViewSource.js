@@ -70,49 +70,10 @@ var AmiGOCytoViewInit = function(user_token){
     logger.DEBUG = true;
     function ll(str){ logger.kvetch(str); }
 
-    // Events registry.
-    // Add manager and default callbacks to repl.
-    var engine = new jquery_engine(barista_response);
-    var manager = new minerva_manager(global_barista_location,
-                                      global_minerva_definition_name,
-                                      user_token, engine, 'async');
-    
-
-    // GOlr location and conf setup.
-    var gconf = new bbop_legacy.golr.conf(amigo.data.golr);
-
-    // Contact points...
-    // ...
-
     ///
     /// Helpers.
     ///
 
-    var compute_shield_modal = null;
-
-    // Block interface from taking user input while
-    // operating.
-    function _shields_up(){
-	if( compute_shield_modal ){
-            // Already have one.
-	}else{
-            ll('shield up');
-            //compute_shield_modal = widgetry.compute_shield();
-            //compute_shield_modal.show();
-	}
-    }
-    // Release interface when transaction done.
-    function _shields_down(){
-	if( compute_shield_modal ){
-            ll('shield down');
-            //compute_shield_modal.destroy();
-            //compute_shield_modal = null;
-	}else{
-            // None to begin with.
-	}
-    }
-    
-    
     //
     function _render_graph(ngraph, layout, fold){
 	//ll('in render');
@@ -324,90 +285,25 @@ var AmiGOCytoViewInit = function(user_token){
 	});
     }
 
-    // If it's local, do it locally; otherwise, call out to minerva.
-    if( global_model ){
-	ll('render from internal data');
+    ll('render from internal data');
 
-	// Noctua graph.
-	graph = new noctua_graph();
-	console.log(JSON.parse(global_model));
-	graph.load_data_basic(JSON.parse(global_model));
-	_render_graph(graph, 'breadthfirst', 'editor');
-
-    }else{
-	ll('render external data');
-
-	/// Management.
-	// Internal registrations.
-	//manager.register('prerun', _shields_up);
-	//manager.register('postrun', _shields_down, 9);
-	manager.register('manager_error', function(resp, man){
-	    alert('There was a manager error (' +
-		  resp.message_type() + '): ' + resp.message());
-	}, 10);
-
-	// Likely the result of unhappiness on Minerva.
-	manager.register('warning', function(resp, man){
-	    alert('Warning: ' + resp.message() + '; ' +
-		  'your operation was likely not performed');
-	}, 10);
-
-	// Likely the result of serious unhappiness on Minerva.
-	manager.register('error', function(resp, man){
-
-
-	    // Do something different if we think that this is a
-	    // permissions issue.
-	    var perm_flag = "InsufficientPermissionsException";
-	    var token_flag = "token";
-	    if( resp.message() && resp.message().indexOf(perm_flag) !== -1 ){
-		alert('Error: it seems like you do not have permission to ' +
-                      'perform that operation. Did you remember to login?');
-	    }else if( resp.message() && resp.message().indexOf(token_flag) !== -1 ){
-		alert("Error: it seems like you have a bad token...");
-	    }else{
-		// Generic error.
-		alert('Error (' +
-                      resp.message_type() + '): ' +
-                      resp.message() + '; ' +
-                      'your operation was likely not performed.');
-	    }
-	}, 10);
-
-	// ???
-	manager.register('meta', function(resp, man){
-	    ll('a meta callback?');
-	});
-
-	// Likely result of a new model being built on Minerva.
-	manager.register('rebuild', function(resp, man){
-	    ll('rebuild callback');
-
-	    // Noctua graph.
-	    graph = new noctua_graph();
-	    graph.load_data_basic(resp.data());
-
-	    // Initial rendering of the graph.
-	    _render_graph(graph, graph_layout, graph_fold);
-
-	}, 10);
-
-	manager.get_model(global_id);
-
-    }
-
+    // Noctua graph.
+    graph = new noctua_graph();
+    //console.log(JSON.parse(global_model));
+    graph.load_data_basic(global_model);
+    _render_graph(graph, 'breadthfirst', 'editor');
+    
 };
 
 // Start the day the jQuery way.
 jQuery(document).ready(function(){
 
-    // Next we need a manager to try and pull in the model.
-    if( typeof(global_minerva_definition_name) === 'undefined' ||
-	typeof(global_barista_location) === 'undefined' ){
+    // Double check our environment.
+    if( typeof(global_model) === 'undefined' || ! global_model ){
 	    alert('environment not ready');
-	}else{
-	    // Only roll if the env is correct.
-	    // Will use the above variables internally (sorry).
-	    AmiGOCytoViewInit();
-	}
+    }else{
+	// Only roll if the env is correct.
+	// Will use the above variables internally (sorry).
+	AmiGOCytoViewInit();
+    }
 });

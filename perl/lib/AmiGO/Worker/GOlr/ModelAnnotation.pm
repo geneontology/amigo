@@ -53,7 +53,7 @@ sub new {
 	 #model_date => $found_doc->{contributor},
 	 model_state => $found_doc->{model_state},
 	 model_comment => $found_doc->{comment},
-	 model_graph => $found_doc->{topology_graph_json}
+	 model_graph => $found_doc->{owl_blob_json}
 	};
     }
     $self->{AWGG_INFO}{$arg} = $intermediate;

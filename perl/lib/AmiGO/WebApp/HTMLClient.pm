@@ -1889,9 +1889,22 @@ sub mode_model_details {
   }
   $self->set_template_parameter('page_content_title', $best_title);
 
+  ## Extract the string representation of the model.
+  my $model_json = undef;
+  if ( $ma_info_hash->{$input_id}{'model_graph'} ){
+    my $model_annotation_string = $ma_info_hash->{$input_id}{'model_graph'};
+    $model_json = $self->{CORE}->_read_json_string($model_annotation_string);
+  }
+  ## Because of the round-tripping, it's possible to have information,
+  ## but no model.
+  if( $model_json ){
+    $self->set_template_parameter('has_model_content_p', 1);
+  }else{
+    $self->set_template_parameter('has_model_content_p', 0);
+  }
+
   ## BUG/TODO: Some silliness to get the variables right; will need to
   ## revisit later on.
-  ## TODO/BUG: Again, temporary badness for Noctua.
   my $github_base =
     'https://github.com/geneontology/noctua-models/blob/master/models/';
   my $noctua_base = $self->{WEBAPP_TEMPLATE_PARAMS}{noctua_base};
@@ -1936,7 +1949,7 @@ sub mode_model_details {
       ## Things to make AmiGOCytoView.js work. HACKY! TODO/BUG
       $self->{JS}->make_var('global_id', $input_id),
       ## TODO: get load to have same as wire protocol.
-      $self->{JS}->make_var('global_model', undef),
+      $self->{JS}->make_var('global_model', $model_json),
       # $self->{JS}->make_var('global_model',
       # 			    $ma_info_hash->{$input_id}{'model_graph'}),
       $self->{JS}->make_var('global_barista_token',  undef),
