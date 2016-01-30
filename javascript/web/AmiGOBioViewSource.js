@@ -332,6 +332,17 @@ var AmiGOBioViewInit = function(model_ids){
 
 	// The actually display step.
 	_render_graph(graph, 'breadthfirst', 'editor');
+
+	// Go ahead and wire-up the interface.
+	jQuery("#" + "layout_selection").change(function(event){
+	    graph_layout = jQuery(this).val();
+	    //_render_graph(graph, graph_layout, graph_fold);
+	    cy.layout(layout_opts[graph_layout]);
+	});
+	jQuery("#" + "fold_selection").change(function(event){
+	    graph_fold = jQuery(this).val();
+	    _render_graph(graph, graph_layout, graph_fold);
+	});
     });
 
     // Start trigger.
