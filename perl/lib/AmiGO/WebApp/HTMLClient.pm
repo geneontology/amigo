@@ -72,6 +72,7 @@ sub setup {
 		   'term'                => 'mode_term_details',
 		   'gene_product'        => 'mode_gene_product_details',
 		   'model'               => 'mode_model_details',
+		   'biology'             => 'mode_model_biology',
 		   'software_list'       => 'mode_software_list',
 		   'schema_details'      => 'mode_schema_details',
 		   'load_details'        => 'mode_load_details',
@@ -1828,45 +1829,14 @@ sub mode_gene_product_details {
 }
 
 
-## Model annotation information.
-sub mode_model_details {
+## Model /all/ noctua annotation information.
+sub mode_model_biology {
 
   my $self = shift;
-
-  ##
-  my $i = AmiGO::Input->new($self->query());
-  my $params = $i->input_profile('model');
-  ## Deal with the different types of dispatch we might be facing.
-  $params->{model} = $self->param('model')
-    if ! $params->{model} && $self->param('model');
-  my $input_id = $params->{model};
-
-  ## Input sanity check.
-  if( ! $input_id ){
-    return $self->mode_fatal("No input model annotation argument.");
-  }
 
   ## Warn people away for now.
   $self->add_mq('warning',
 		'This page is considered <strong>ALPHA</strong> software.');
-
-  ###
-  ### Get full info.
-  ###
-
-  ## Get the data from the store.
-  my $ma_worker = AmiGO::Worker::GOlr::ModelAnnotation->new($input_id);
-  my $ma_info_hash = $ma_worker->get_info();
-
-  ## First make sure that things are defined.
-  if( ! defined($ma_info_hash) ||
-      $self->{CORE}->empty_hash_p($ma_info_hash) ||
-      ! defined($ma_info_hash->{$input_id}) ){
-    return $self->mode_not_found($input_id, 'model');
-  }
-
-  $self->{CORE}->kvetch('solr docs: ' . Dumper($ma_info_hash));
-  $self->set_template_parameter('MA_INFO', $ma_info_hash->{$input_id});
 
   ###
   ### Standard setup.
@@ -1874,53 +1844,11 @@ sub mode_model_details {
 
   ## Page settings.
   ## Again, a little special.
-  $self->set_template_parameter('page_name', 'model');
-  $self->set_template_parameter('page_title',
-				'AmiGO 2: Model Details for ' .
-				$input_id);
+  $self->set_template_parameter('page_name', 'biology');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Biology');
   my($page_title, $page_content_title, $page_help_link) =
-      $self->_resolve_page_settings('model');
+      $self->_resolve_page_settings('biology');
   $self->set_template_parameter('page_help_link', $page_help_link);
-
-  ## Figure out the best title we can.
-  my $best_title = $input_id; # start with the worst
-  if ( $ma_info_hash->{$input_id}{'model_label'} ){
-    $best_title = $ma_info_hash->{$input_id}{'model_label'};
-  }
-  $self->set_template_parameter('page_content_title', $best_title);
-
-  ## Extract the string representation of the model.
-  my $model_json = undef;
-  if ( $ma_info_hash->{$input_id}{'model_graph'} ){
-    my $model_annotation_string = $ma_info_hash->{$input_id}{'model_graph'};
-    $model_json = $self->{CORE}->_read_json_string($model_annotation_string);
-  }
-  ## Because of the round-tripping, it's possible to have information,
-  ## but no model.
-  if( $model_json ){
-    $self->set_template_parameter('has_model_content_p', 1);
-  }else{
-    $self->set_template_parameter('has_model_content_p', 0);
-  }
-
-  ## BUG/TODO: Some silliness to get the variables right; will need to
-  ## revisit later on.
-  my $github_base =
-    'https://github.com/geneontology/noctua-models/blob/master/models/';
-  my $noctua_base = $self->{WEBAPP_TEMPLATE_PARAMS}{noctua_base};
-  my $editor_base = $noctua_base . 'editor/graph/';
-  my $viewer_base = $noctua_base . 'workbench/cytoview/';
-  ## We need to translate some of the document information.
-  ## TODO/BUG: This is temporary as we work out what we'll actually have.
-  my @s = split(':', $input_id);
-  my $fid = $s[scalar(@s) -1];
-  ## 
-  my $repo_file_url = $github_base . $fid;
-  my $edit_file_url = $editor_base . $input_id;
-  my $view_file_url = $viewer_base . $input_id;
-  $self->set_template_parameter('repo_file_url', $repo_file_url);
-  $self->set_template_parameter('edit_file_url', $edit_file_url);
-  $self->set_template_parameter('view_file_url', $view_file_url);
 
   ## Our AmiGO services CSS.
   my $prep =
@@ -1944,14 +1872,8 @@ sub mode_model_details {
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-      #$self->{JS}->get_lib('ModelDetails.js'),
-      $self->{JS}->get_lib('AmiGOCytoView.js'),
-      ## Things to make AmiGOCytoView.js work. HACKY! TODO/BUG
-      $self->{JS}->make_var('global_id', $input_id),
-      ## TODO: get load to have same as wire protocol.
-      $self->{JS}->make_var('global_model', $model_json),
-      # $self->{JS}->make_var('global_model',
-      # 			    $ma_info_hash->{$input_id}{'model_graph'}),
+      $self->{JS}->get_lib('AmiGOBioView.js'),
+      $self->{JS}->make_var('global_model', undef),
       $self->{JS}->make_var('global_barista_token',  undef),
       $self->{JS}->make_var('global_minerva_definition_name',
 			    "minerva_public"),
@@ -1970,7 +1892,7 @@ sub mode_model_details {
      ],
      content =>
      [
-      'pages/model_details.tmpl'
+      'pages/model_biology.tmpl'
      ]
     };
   $self->add_template_bulk($prep);

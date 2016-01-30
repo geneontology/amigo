@@ -2316,6 +2316,7 @@ sub dynamic_dispatch_table_amigo {
 				      'gp' => 'gp', 'format' => 'format' },
      ## Alpha.
      'model/:model'  => { app => $aapp, rm => 'model', model => 'model' },
+     'biology'  => { app => $aapp, rm => 'biology' },
     ];
 
   return $dispatch_table;

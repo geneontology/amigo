@@ -243,11 +243,13 @@ gulp.task('docs', shell.task(_run_cmd_list(
 
 gulp.task('install', shell.task(_run_cmd_list(
     ['./node_modules/.bin/browserify javascript/web/AmiGOCytoViewSource.js -o javascript/web/AmiGOCytoView.js --exclude "ringo/httpclient"',
+    './node_modules/.bin/browserify javascript/web/AmiGOBioViewSource.js -o javascript/web/AmiGOBioView.js --exclude "ringo/httpclient"',
     './install -v -g -V ' + amigo_version]
 )));
 
 gulp.task('install-uncompressed', shell.task(_run_cmd_list(
     ['./node_modules/.bin/browserify javascript/web/AmiGOCytoViewSource.js -o javascript/web/AmiGOCytoView.js --exclude "ringo/httpclient"',
+    './node_modules/.bin/browserify javascript/web/AmiGOBioViewSource.js -o javascript/web/AmiGOBioView.js --exclude "ringo/httpclient"',
      './install -v -g -u -V ' + amigo_version]
 )));
 
