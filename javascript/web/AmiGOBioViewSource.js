@@ -59,6 +59,10 @@ var golr_response = require('bbop-response-golr');
 /// ...
 ///
 
+// Limits.
+var max = 200;
+
+// Variables.
 var graph_id = 'cytoview';
 var graph_layout = 'breadthfirst'; // default
 var graph_fold = 'editor'; // default
@@ -67,7 +71,11 @@ var cy = null;
 var layout_opts = null;
 
 ///
-var AmiGOBioViewInit = function(user_token){
+///
+///
+
+///
+var AmiGOBioViewInit = function(model_ids){
 
     var logger = new bbop.logger('amigo cvi');
     logger.DEBUG = true;
@@ -289,12 +297,12 @@ var AmiGOBioViewInit = function(user_token){
     }
 
     ///
-    /// Get aaallll the data...well 1000.
+    /// Get aaallll the data...well X.
     ///
     
     // Events registry.
     var engine = new jquery_engine(golr_response);
-    engine.method('GET');
+    engine.method('POST');
     engine.use_jsonp(true);
     var manager = new golr_manager(gserv, gconf, engine, 'async');
     //var confc = gconf.get_class('model_annotation');
@@ -302,15 +310,19 @@ var AmiGOBioViewInit = function(user_token){
     manager.add_query_filter('document_category',
 			     //confc.document_category(), ['*']);    
 			     'model_annotation', ['*']);    
-    manager.set_results_count(1000);
+    // Get only up to X targets
+    manager.set_facet_limit(0);
+    manager.set_results_count(max);
+    //manager.set_ids(model_ids);
+    manager.set_targets(model_ids, ['model']);
 
     // On search, assemble and display.
     manager.register('search', function(resp, man){
-
+	
 	graph = new noctua_graph();
-
+	
 	each(resp.documents(), function(doc){
-
+	    
 	    // Iteratively Add data.
 	    if( doc && doc['owl_blob_json'] ){
 		var jobj = JSON.parse(doc['owl_blob_json']);
@@ -324,10 +336,43 @@ var AmiGOBioViewInit = function(user_token){
 
     // Start trigger.
     var p = manager.search();
-    console.log('foo', p);
+    console.log('bar', p);
 };
 
 // Start the day the jQuery way.
 jQuery(document).ready(function(){
-    AmiGOBioViewInit();
+
+    // Events registry.
+    // Get all 'noctua_model_meta'.
+    var engine = new jquery_engine(golr_response);
+    engine.method('GET');
+    engine.use_jsonp(true);
+    //var tmp_srv = 'http://amigo-dev-golr.berkeleybop.org/';
+    //var manager = new golr_manager(tmp_srv, gconf, engine, 'async');
+    var manager = new golr_manager(gserv, gconf, engine, 'async');
+    //var confc = gconf.get_class('noctua_model_meta');
+    manager.set_personality('noctua_model_meta');
+    manager.add_query_filter('document_category',
+			     //confc.document_category(), ['*']);    
+			     'noctua_model_meta', ['*']);
+    manager.set_facet_limit(0);
+    manager.set_results_count(max);
+
+    // On search, report.
+    var model_ids = [];
+    manager.register('search', function(resp, man){
+
+	//
+	each(resp.documents(), function(doc){
+	    model_ids.push('gomodel:' + doc['id'].substr(-16));
+	});
+
+	AmiGOBioViewInit(model_ids);
+
+    });
+
+    // Start trigger.
+    var p = manager.search();
+    console.log('model_ids', model_ids);
+    console.log('foo', p);
 });
