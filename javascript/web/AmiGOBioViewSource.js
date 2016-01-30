@@ -24,6 +24,11 @@ var model = require('bbop-graph-noctua');
 
 var cytoscape = require('cytoscape');
 
+// Bring in and register dagre with cytoscape.js.
+var cydagre = require('cytoscape-dagre');
+var dagre = require('dagre');
+cydagre( cytoscape, dagre );
+
 // Aliases
 var each = us.each;
 var noctua_graph = model.graph;

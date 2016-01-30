@@ -35,6 +35,8 @@
         "body-parser": "1.13.3",
         "class-expression": "0.0.9",
         "cytoscape": "2.4.6",
+        "dagre": "0.7.4",
+        "cytoscape-dagre": "1.2.0",
         "bootstrap": "3.3.4",
         "del": "^1.1.1",
         "express": "4.13.3",
