@@ -12,14 +12,12 @@
 /* global global_barista_location */
 /* global global_minerva_definition_name */
 /* global global_collapsible_relations */
+/* global amigo */
 
 var us = require('underscore');
 var bbop = require('bbop-core');
-//var bbop = require('bbop').bbop;
-//var bbopx = require('bbopx');
-var amigo = require('amigo2');
 var bbop_legacy = require('bbop').bbop;
-var barista_response = require('bbop-response-barista');
+//var barista_response = require('bbop-response-barista');
 
 // Help with strings and colors--configured separately.
 var aid = new bbop_legacy.context(amigo.data.context);
@@ -45,14 +43,19 @@ var uuid = bbop.uuid;
 var jQuery = (typeof window !== "undefined" ? window['jQuery'] : typeof global !== "undefined" ? global['jQuery'] : null);
 /* jshint ignore:end */
 
-var barista_response = require('bbop-response-barista');
 var class_expression = require('class-expression');
 var minerva_requests = require('minerva-requests');
 var noctua_model = require('bbop-graph-noctua');
 
 //
+var sd = new amigo.data.server();
+var gserv = sd.golr_base();
+
 var jquery_engine = require('bbop-rest-manager').jquery;
-var minerva_manager = require('bbop-manager-minerva');
+var golr_manager = require('bbop-manager-golr');
+var golr_conf = require('golr-conf');
+var gconf = new golr_conf.conf(amigo.data.golr);
+var golr_response = require('bbop-response-golr');
 
 ///
 /// ...
@@ -66,7 +69,7 @@ var cy = null;
 var layout_opts = null;
 
 ///
-var AmiGOCytoViewInit = function(user_token){
+var AmiGOBioViewInit = function(user_token){
 
     var logger = new bbop.logger('amigo cvi');
     logger.DEBUG = true;
@@ -287,10861 +290,52 @@ var AmiGOCytoViewInit = function(user_token){
 	});
     }
 
-    ll('render from internal data');
-
-    // Noctua graph.
-    graph = new noctua_graph();
-    //console.log(JSON.parse(global_model));
-    graph.load_data_basic(global_model);
-    _render_graph(graph, 'breadthfirst', 'editor');
+    ///
+    /// Get aaallll the data...well 1000.
+    ///
     
+    // Events registry.
+    var engine = new jquery_engine(golr_response);
+    engine.method('GET');
+    engine.use_jsonp(true);
+    var manager = new golr_manager(gserv, gconf, engine, 'async');
+    //var confc = gconf.get_class('model_annotation');
+    manager.set_personality('model_annotation');
+    manager.add_query_filter('document_category',
+			     //confc.document_category(), ['*']);    
+			     'model_annotation', ['*']);    
+    manager.set_results_count(1000);
+
+    // On search, assemble and display.
+    manager.register('search', function(resp, man){
+
+	graph = new noctua_graph();
+
+	each(resp.documents(), function(doc){
+
+	    // Iteratively Add data.
+	    if( doc && doc['owl_blob_json'] ){
+		var jobj = JSON.parse(doc['owl_blob_json']);
+		graph.load_data_basic(jobj);
+	    }
+	});
+
+	// The actually display step.
+	_render_graph(graph, 'breadthfirst', 'editor');
+    });
+
+    // Start trigger.
+    var p = manager.search();
+    console.log('foo', p);
 };
 
 // Start the day the jQuery way.
 jQuery(document).ready(function(){
-
-    // Double check our environment.
-    if( typeof(global_model) === 'undefined' || ! global_model ){
-	//alert('environment not ready');
-    }else{
-	// Only roll if the env is correct.
-	// Will use the above variables internally (sorry).
-	AmiGOCytoViewInit();
-    }
+    AmiGOBioViewInit();
 });
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"amigo2":2,"bbop":27,"bbop-core":3,"bbop-graph-noctua":4,"bbop-manager-minerva":7,"bbop-response-barista":11,"bbop-rest-manager":14,"class-expression":63,"cytoscape":64,"minerva-requests":65,"underscore":66}],2:[function(require,module,exports){
-// If it looks like we're in an environment that supports CommonJS
-// Modules 1.0, bbop-js might not be extant in this namespace. Try and
-// get at it. Otherwise, if we're in browser-land, it should be
-// included in the global and we can proceed.
-if( typeof(exports) != 'undefined' ){
-    var bbop = require('bbop').bbop;
-}
-/* 
- * Package: version.js
- * 
- * Namespace: amigo.version
- * 
- * This package was automatically generated during the build process
- * and contains its version information--this is the release of the
- * API that you have.
- */
-
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.version == "undefined" ){ amigo.version = {}; }
-
-/*
- * Variable: revision
- *
- * Partial version for this library; revision (major/minor version numbers)
- * information.
- */
-amigo.version.revision = "2.4.0";
-
-/*
- * Variable: release
- *
- * Partial version for this library: release (date-like) information.
- */
-amigo.version.release = "20151113";
-/*
- * Package: api.js
- * 
- * Namespace: amigo.api
- * 
- * Core for AmiGO 2 remote functionality.
- * 
- * Provide methods for accessing AmiGO/GO-related web resources from
- * the host server. A loose analog to the perl AmiGO.pm top-level.
- * 
- * This module should contain nothing to do with the DOM, but rather
- * methods to access and make sense of resources provided by AmiGO and
- * its related services on the host.
- * 
- * WARNING: This changes very quickly as parts get spun-out into more
- * stable packages.
- */
-
-// Module and namespace checking.
-if( typeof amigo == "undefined" ){ var amigo = {}; }
-
-/*
- * Constructor: api
- * 
- * Contructor for the AmiGO API object.
- * Hooks to useful things back on AmiGO.
- * 
- * Arguments:
- *  n/a
- * 
- * Returns:
- *  AmiGO object
- */
-amigo.api = function(){
-
-    ///
-    /// General AmiGO (perl server) AJAX response checking (after
-    /// parsing).
-    ///
-
-    this.response = {};
-
-    // Check to see if the server thinks we were successful.
-    this.response.success = function(robj){
-	var retval = false;
-	if( robj && robj.success && robj.success == 1 ){
-	    retval = true;
-	}
-	return retval;
-    };
-
-    // Check to see what the server thinks about its own condition.
-    this.response.type = function(robj){
-	var retval = 'unknown';
-	if( robj && robj.type ){
-	    retval = robj.type;
-	}
-	return retval;
-    };
-
-    // Check to see if the server thinks the data was successful.
-    this.response.errors = function(robj){
-	var retval = new Array();
-	if( robj && robj.errors ){
-	    retval = robj.errors;
-	}
-	return retval;
-    };
-
-    // Check to see if the server thinks the data was correct.
-    this.response.warnings = function(robj){
-	var retval = new Array();
-	if( robj && robj.warnings ){
-	    retval = robj.warnings;
-	}
-	return retval;
-    };
-
-    // Get the results chunk.
-    this.response.results = function(robj){
-	var retval = {};
-	if( robj && robj.results ){
-	    retval = robj.results;
-	}
-	return retval;
-    };
-
-    // Get the arguments chunk.
-    this.response.arguments = function(robj){
-	var retval = {};
-	if( robj && robj.arguments ){
-	    retval = robj.arguments;
-	}
-	return retval;
-    };
-
-    ///
-    /// Workspaces' linking.
-    ///
-
-    function _abstract_head_template(head){
-	return head + '?';
-    }
-
-    // Convert a hash (with possible arrays as arguments) into a link
-    // string.
-    // NOTE: Non-recursive--there are some interesting ways to create
-    // cyclic graph hashes in SpiderMonkey, and I'd rather not think
-    // about it right now.
-    function _abstract_segment_template(segments){
-	
-	var maxibuf = new Array();
-	for( var segkey in segments ){
-
-	    var segval = segments[segkey];
-
-	    // If the value looks like an array, iterate over it and
-	    // collect.
-	    if( segval &&
-		segval != null &&
-		typeof segval == 'object' &&
-		segval.length ){
-
-		for( var i = 0; i < segval.length; i++ ){
-		    var minibuffer = new Array();
-		    minibuffer.push(segkey);
-		    minibuffer.push('=');
-		    minibuffer.push(segval[i]);
-		    maxibuf.push(minibuffer.join(''));
-		}
-
-	    }else{
-		var minibuf = new Array();
-		minibuf.push(segkey);
-		minibuf.push('=');
-		minibuf.push(segval);
-		maxibuf.push(minibuf.join(''));
-	    }
-	}
-	return maxibuf.join('&');
-    }
-
-    // Similar to the above, but creating a solr filter set.
-    function _abstract_solr_filter_template(filters){
-	
-	var allbuf = new Array();
-	for( var filter_key in filters ){
-
-	    var filter_val = filters[filter_key];
-
-	    // If the value looks like an array, iterate over it and
-	    // collect.
-	    if( filter_val &&
-		filter_val != null &&
-		typeof filter_val == 'object' &&
-		filter_val.length ){
-
-		    for( var i = 0; i < filter_val.length; i++ ){
-			var minibuffer = new Array();
-			var try_val = filter_val[i];
-			if( typeof(try_val) != 'undefined' &&
-			try_val != '' ){
-			    minibuffer.push('fq=');
-			    minibuffer.push(filter_key);
-			    minibuffer.push(':');
-			    minibuffer.push('"');
-			    minibuffer.push(filter_val[i]);
-			    minibuffer.push('"');
-			    allbuf.push(minibuffer.join(''));
-			}
-		    }		    
-		}else{
-		    var minibuf = new Array();
-		    if( typeof(filter_val) != 'undefined' &&
-			filter_val != '' ){
-			    minibuf.push('fq=');
-			    minibuf.push(filter_key);
-			    minibuf.push(':');
-			    minibuf.push('"');
-			    minibuf.push(filter_val);
-			    minibuf.push('"');
-			    allbuf.push(minibuf.join(''));
-			}
-		}
-	}
-	return allbuf.join('&');
-    }
-
-    // Construct the templates using head and segments.
-    function _abstract_link_template(head, segments){	
-	return _abstract_head_template(head) +
-	    _abstract_segment_template(segments);
-    }
-
-    // // Construct the templates using the segments.
-    // function _navi_client_template(segments){
-    // 	segments['mode'] = 'layers_graph';
-    // 	return _abstract_link_template('amigo_exp', segments);
-    // }
-
-    // // Construct the templates using the segments.
-    // function _navi_data_template(segments){
-    // 	segments['mode'] = 'navi_js_data';
-    // 	return _abstract_link_template('aserve_exp', segments);
-    // }
-
-    // Construct the templates using the segments.
-    function _ws_template(segments){
-	segments['mode'] = 'workspace';
-	return _abstract_link_template('amigo_exp', segments);
-    }
-
-    // // Construct the templates using the segments.
-    // function _ls_assoc_template(segments){
-    // 	segments['mode'] = 'live_search_association';
-    // 	return _abstract_link_template('aserve', segments);
-    // }
-    // function _ls_gp_template(segments){
-    // 	segments['mode'] = 'live_search_gene_product';
-    // 	return _abstract_link_template('aserve', segments);
-    // }
-    // function _ls_term_template(segments){
-    // 	segments['mode'] = 'live_search_term';
-    // 	return _abstract_link_template('aserve', segments);
-    // }
-
-    // Construct the templates using the segments.
-    function _completion_template(segments){
-    	return _abstract_link_template('completion', segments);
-    }
-
-    // // Construct the templates using the segments.
-    // function _nmatrix_template(segments){
-    // 	segments['mode'] = 'nmatrix';
-    // 	return _abstract_link_template('amigo_exp', segments);
-    // }
-
-    this.api = {};
-    this.link = {};
-    this.html = {};
-
-    //     // Some handling for a workspace object once we get one.
-    //     this.util.workspace = {};
-    //     this.util.workspace.get_terms = function(ws){
-    // 	var all_terms = new Array();
-    // 	for( var t = 0; t < ws.length; t++ ){
-    // 	    var item = ws[t];
-    // 	    if( item.type == 'term' ){
-    // 		all_terms.push(item.key);
-    // 	    }
-    // 	}
-    // 	return all_terms;
-    //     };
-
-    ///
-    /// JSON? JS? API functions for workspaces.
-    ///
-
-    this.workspace = {};
-
-    this.workspace.remove = function(ws_name){
-	return _ws_template({
-	    action: 'remove_workspace',
-	    workspace: ws_name
-	});
-    };
-    this.workspace.add = function(ws_name){
-	return _ws_template({
-	    action: 'add_workspace',
-	    workspace: ws_name
-	});
-    };
-    this.workspace.copy = function(ws_from_name, ws_to_name){
-	return _ws_template({
-	    action: 'copy_workspace',
-	    workspace: ws_from_name,
-	    copy_to_workspace: ws_to_name
-	});
-    };
-    this.workspace.clear = function(ws_name){
-	return _ws_template({
-	    action: 'clear_workspace',
-	    workspace: ws_name
-	});
-    };
-    this.workspace.list = function(ws_name){
-	return _ws_template({
-	    action: 'list_workspaces',
-	    workspace: ws_name
-	});
-    };
-
-    // API functions for workspace items.
-    //     this.workspace.add_item = function(ws_name, key, type, name){
-    this.workspace.add_item = function(ws_name, key, name){
-	return _ws_template({
-	    action: 'add_item',
-	    workspace: ws_name,
-	    key: key,
-            // _t_y_p_e_: _t_y_p_e_, // prevent naturaldocs from finding this
-	    name: name
-	});
-    };
-    this.workspace.remove_item = function(ws_name, key){
-	return _ws_template({
-	    action: 'remove_item',
-	    workspace: ws_name,
-	    key: key
-	});
-    };
-    this.workspace.list_items = function(ws_name){
-	return _ws_template({
-	    action: 'list_items',
-	    workspace: ws_name
-	});
-    };
-
-    // Just the workspace and item status. Essentially do nothing and
-    // link to the current session status.
-    this.workspace.status = function(){
-	return _ws_template({ action: '' });
-    };
-
-    ///
-    /// API function for completion/search information.
-    ///
-
-    this.completion = function(args){
-
-	var format = 'amigo';
-	var type = 'general';
-	var ontology = null;
-	var narrow = 'false';
-	var query = '';
-	if( args ){
-	    if( args['format'] ){ format = args['format']; }
-	    if( args['type'] ){ type = args['type']; }
-	    if( args['ontology'] ){ontology = args['ontology']; }
-	    if( args['narrow'] ){narrow = args['narrow']; }
-	    if( args['query'] ){query = args['query']; }
-	}
-
-	return _completion_template({format: format,
-				     type: type,
-				     ontology: ontology,
-				     narrow: narrow,
-				     query: encodeURIComponent(query)});
-    };
-
-    ///
-    /// API functions for live search.
-    ///
-    this.live_search = {};
-
-    // General search:
-    // http://accordion.lbl.gov:8080/solr/select?indent=on&version=2.2&q=annotation_class_label%3Abinding&fq=&start=0&rows=10&fl=*%2Cscore&qt=standard&wt=json&explainOther=&hl.fl=
-    // Facet on date:
-    // http://accordion.lbl.gov:8080/solr/select?indent=on&version=2.2&q=annotation_class_label%3Abinding&fq=&start=0&rows=10&fl=*%2Cscore&qt=standard&wt=json&explainOther=&hl.fl=&facet=true&facet.field=date    
-    this.live_search.golr = function(in_args){
-
-	if( ! in_args ){ in_args = {}; }
-	var default_query_args =
-	    {
-		// TODO/BUG? need jsonp things here?
-		qt: 'standard',
-		indent: 'on',
-		wt: 'json',
-		version: '2.2',
-		rows: 10,
-		//start: 1,
-		start: 0, // Solr is offset indexing
-		fl: '*%2Cscore',
-
-		// Control of facets.
-		facet: '',
-		'facet.field': [],
-
-		// Facet filtering.
-		fq: [],
-
-		// Query-type stuff.
-		q: '',
-
-		// Our bookkeeping.
-		packet: 0
-	    };
-	var final_query_args = bbop.core.fold(default_query_args, in_args);
-		
-	var default_filter_args =
-	    {
-		// Filter stuff.
-		document_category: [],
-		type: [],
-		source: [],
-		taxon: [],
-		evidence_type: [],
-		evidence_closure: [],
-		isa_partof_label_closure: [],
-		annotation_extension_class_label: [],
-		annotation_extension_class_label_closure: []
-	    };
-	var final_filter_args = bbop.core.fold(default_filter_args, in_args);
-
-	// ...
-	//return _abstract_link_template('select', segments);	
-	var complete_query = _abstract_head_template('select') +
-	    _abstract_segment_template(final_query_args);
-	var addable_filters = _abstract_solr_filter_template(final_filter_args);
-	if( addable_filters.length > 0 ){
-	    complete_query = complete_query + '&' + addable_filters;
-	}
-	return complete_query;
-    };
-
-    ///
-    /// API functions for the ontology.
-    ///
-    this.ontology = {};
-    this.ontology.roots = function(){
-	return _abstract_link_template('aserve_exp', {'mode': 'ontology'});
-    };
-
-    ///
-    /// API functions for navi js data.
-    ///
-
-    this.navi_js_data = function(args){
-
-	if( ! args ){ args = {}; }
-
-	var final_args = {};
-
-	// Transfer the name/value pairs in opt_args into final args
-	// if extant.
-	var opt_args = ['focus', 'zoom', 'lon', 'lat'];
-	//var opt_args_str = '';
-	for( var oa = 0; oa < opt_args.length; oa++ ){
-	    var arg_name = opt_args[oa];
-	    if( args[arg_name] ){
-		// opt_args_str =
-		// opt_args_str + '&' + arg_name + '=' + args[arg_name];
-		final_args[arg_name] = args[arg_name];
-	    }
-	}
-
-	//
-	var terms_buf = new Array();
-	if( args.terms &&
-	    args.terms.length &&
-	    args.terms.length > 0 ){
-
-	    //
-	    for( var at = 0; at < args.terms.length; at++ ){
-		terms_buf.push(args.terms[at]);
-	    } 
-	}
-	final_args['terms'] = terms_buf.join(' '); 
-
-	return _navi_data_template(final_args);
-    };
-
-    ///
-    /// Links for terms and gene products.
-    ///
-
-    function _term_link(in_args){
-
-	if( ! in_args ){ in_args = {}; }
-	var default_args =
-	    {
-		acc: ''
-	    };
-	var final_args = bbop.core.fold(default_args, in_args);
-	
-	var acc = final_args['acc'];
-	//return 'term_details?term=' + acc;
-	return 'amigo?mode=golr_term_details&term=' + acc;
-    }
-    this.link.term = _term_link;
-
-    // BUG/TODO: should this actually be in widgets? How core is this
-    // convenience?
-    this.html.term_link = function(acc, label){
-	if( ! label ){ label = acc; }
-	return '<a title="Go to term details page for ' + label +
-	    '." href="' + _term_link({acc: acc}) + '">' + label +'</a>';
-    };
-
-    function _gene_product_link(in_args){
-
-	if( ! in_args ){ in_args = {}; }
-	var default_args =
-	    {
-		acc: ''
-	    };
-	var final_args = bbop.core.fold(default_args, in_args);
-	
-	var acc = final_args['acc'];
-	//return 'gp-details.cgi?gp=' + acc;
-	return 'amigo?mode=golr_gene_product_details&gp=' + acc;
-    }
-    this.link.gene_product = _gene_product_link;
-
-    // BUG/TODO: should this actually be in widgets? How core is this
-    // convenience?
-    this.html.gene_product_link = function(acc, label){
-	if( ! label ){ label = acc; }
-	return '<a title="Go to gene product details page for ' + label +
-	    '." href="' + _gene_product_link({acc: acc}) + '">' + label +'</a>';
-    };
-
-    ///
-    /// Links for term product associations.
-    ///
-
-    this.link.term_assoc = function(in_args){
-
-	if( ! in_args ){ in_args = {}; }
-	var default_args =
-	    {
-		acc: '',
-		speciesdb: [],
-		taxid: []
-	    };
-	var final_args = bbop.core.fold(default_args, in_args);
-	var acc = final_args['acc'];
-	var speciesdbs = final_args['speciesdb'];
-	var taxids = final_args['taxid'];
-
-	//
-	var spc_fstr = speciesdbs.join('&speciesdb');
-	var tax_fstr = taxids.join('&taxid=');
-	//core.kvetch('LINK SRCS: ' + spc_fstr);
-	//core.kvetch('LINK TIDS: ' + tax_fstr);
-
-	return 'term-assoc.cgi?term=' + acc +
-	    '&speciesdb=' + spc_fstr +
-	    '&taxid=' + tax_fstr;
-    };
-
-    ///
-    /// Link function for blast.
-    ///
-
-    this.link.single_blast = function(in_args){
-
-	if( ! in_args ){ in_args = {}; }
-	var default_args =
-	    {
-		acc: ''
-	    };
-	var final_args = bbop.core.fold(default_args, in_args);
-	
-	var acc = final_args['acc'];
-	return 'blast.cgi?action=blast&seq_id=' + acc;
-    };
-
-    ///
-    /// Link function for term enrichment.
-    ///
-
-    this.link.term_enrichment = function(in_args){
-
-	if( ! in_args ){ in_args = {}; }
-	var default_args =
-	    {
-		gp_list: [] 
-	    };
-	var final_args = bbop.core.fold(default_args, in_args);
-	
-	var acc = final_args['acc'];
-	return 'term_enrichment?' +
-	    'gp_list=' + final_args['gp_list'].join(' ');
-    };
-
-    ///
-    /// Link function for slimmer.
-    ///
-
-    this.link.slimmer = function(in_args){
-
-	if( ! in_args ){ in_args = {}; }
-	var default_args =
-	    {
-		gp_list: [], 
-		slim_list: []
-	    };
-	var final_args = bbop.core.fold(default_args, in_args);
-	
-	return 'slimmer?' +
-	    'gp_list=' + final_args['gp_list'].join(' ') +
-	    '&slim_list=' + final_args['slim_list'].join(' ');
-    };
-
-    ///
-    /// Link function for N-Matrix.
-    ///
-
-    this.link.nmatrix = function(in_args){
-
-	if( ! in_args ){ in_args = {}; }
-	var default_args =
-	    {
-		term_set_1: '',
-		term_set_2: ''
-	    };
-	var final_args = bbop.core.fold(default_args, in_args);
-
-	//
-	var terms_buf = new Array();
-	if( in_args.terms &&
-	    in_args.terms.length &&
-	    in_args.terms.length > 0 ){
-
-		//
-	    for( var at = 0; at < in_args.terms.length; at++ ){
-		terms_buf.push(in_args.terms[at]);
-	    } 
-	}
-	final_args['term_set_1'] = terms_buf.join(' '); 
-	final_args['term_set_2'] = terms_buf.join(' '); 
-
-	return _nmatrix_template(final_args);
-    };
-
-    ///
-    /// Link functions for navi client (bookmark).
-    ///
-
-    this.link.layers_graph = function(args){
-
-	//
-	var final_args = {};
-	if( args['lon'] &&
-	    args['lat'] &&
-	    args['zoom'] &&
-	    args['focus'] ){
-
-	    //
-	    final_args['lon'] = args['lon'];
-	    final_args['lat'] = args['lat'];
-	    final_args['zoom'] = args['zoom'];
-	    final_args['focus'] = args['focus'];
-	}
-
-	if( args['terms'] &&
-	    args['terms'].length &&
-	    args['terms'].length > 0 ){
-
-	    //
-	    var aterms = args['terms'];
-	    var terms_buf = new Array();
-	    for( var at = 0; at < aterms.length; at++ ){
-		terms_buf.push(aterms[at]);
-	    }
-	    final_args['terms'] = terms_buf.join(' '); 
-	}
-	
-	return _navi_client_template(final_args);
-    };
-
-    // TODO:
-};
-/* 
- * Package: linker.js
- * 
- * Namespace: amigo.linker
- * 
- * Generic AmiGO link generator, fed by <amigo.data.server> for local
- * links and <amigo.data.xrefs> for non-local links.
- * 
- * NOTE: A lot of this is lifted from the (defunct) amigo2.js
- * package. However, the future should be here.
- */
-
-// Module and namespace checking.
-if( typeof amigo === "undefined" ){ var amigo = {}; }
-
-/*
- * Constructor: linker
- * 
- * Create an object that can make URLs and/or anchors.
- * 
- * These functions have a well defined interface so that other
- * packages can use it.
- * 
- * Arguments:
- *  n/a
- * 
- * Returns:
- *  self
- */
-amigo.linker = function (){
-    this._is_a = 'amigo.linker';
-
-    // With the new dispatcher, relative URLs no longer work, so we
-    // have to bring in server data--first let's ensure it.
-    if( ! amigo.data.server ){
-	throw new Error('we are missing access to amigo.data.server!');
-    }
-    // Easy app base.
-    var sd = new amigo.data.server();
-    this.app_base = sd.app_base();
-    // Internal term matcher.
-    this.term_regexp = null;
-    var internal_regexp_str = sd.term_regexp();    
-    if( internal_regexp_str ){
-	this.term_regexp = new RegExp(internal_regexp_str);
-    }
-
-    // Categories for different special cases (internal links).
-    this.ont_category = {
-	'term': true,
-	'ontology_class': true,
-	'annotation_class': true,
-	'annotation_class_closure': true,
-	'annotation_class_list': true,
-	// Noctua model stuff.
-	'function_class': true,
-	'function_class_closure': true,
-	'process_class': true,
-	'process_class_closure': true,
-	'location_list': true,
-	'location_list_closure': true
-    };
-    this.bio_category = {
-        'gp': true,
-	'gene_product': true,
-	'bioentity': true
-    };
-    this.model_category = {
-        'model': true
-    };
-    this.search_category = { // not including the trivial medial_search below
-        'search': true,
-	'live_search': true
-    };
-    this.search_modifier = {
-	// Possibly "dynamic".
-	'gene_product': '/bioentity',
-	'bioentity': '/bioentity',
-	'ontology': '/ontology',
-	'annotation': '/annotation',
-	'model': '/model',
-	'family': '/family',
-	'lego_unit': '/lego_unit',
-	'general': '/general'
-    };
-    this.other_interlinks = {
-	'medial_search': '/amigo/medial_search',
-	'landing': '/amigo/landing',
-	'tools': '/amigo/software_list',
-	'schema_details': '/amigo/schema_details',
-	'load_details': '/amigo/load_details',
-	'browse': '/amigo/browse',
-	'goose': '/goose',
-	'grebe': '/grebe',
-	'gannet': '/gannet',
-	'repl': '/repl'	
-    };
-};
-
-/*
- * Function: url
- * 
- * Return a url string.
- * 
- * Arguments:
- *  args - id
- *  xid - *[optional]* an internal transformation id
- *  modifier - *[optional]* modify xid; only used with xid
- * 
- * Returns:
- *  string (url); null if it couldn't create anything
- */
-amigo.linker.prototype.url = function (id, xid, modifier){
-    
-    var retval = null;
-
-    ///
-    /// AmiGO hard-coded internal link types.
-    ///
-
-    // For us, having an xid means that we will be doing some more
-    // complicated routing.
-    if( xid && xid !== '' ){
-
-	// First let's do the ones that need an associated id to
-	// function--either data urls or searches.
-	if( id && id !== '' ){
-	    if( this.ont_category[xid] ){
-		retval = this.app_base + '/amigo/term/' + id;
-		//retval = _add_restmark_modifier(retval, modifier);
-            }else if( this.bio_category[xid] ){
-		retval = this.app_base + '/amigo/gene_product/' + id;
-		//retval = _add_restmark_modifier(retval, modifier);
-            }else if( this.model_category[xid] ){
-		retval = this.app_base + '/amigo/model/'+ id;
-            }else if( this.search_category[xid] ){
-
-		// First, try and get the proper path out. Will
-		// hardcode for now since some paths don't map
-		// directly to the personality.
-		var search_path = '';
-		if( this.search_modifier[modifier] ){
-		    search_path = this.search_modifier[modifier];
-		}
-		
-		retval = this.app_base + '/amigo/search' + search_path;
-		if( id ){
-		    // Ugh...decide if the ID indicated a restmark or
-		    // a full http action bookmark.
-		    var http_re = new RegExp("^http");
-		    if( http_re.test(id) ){
-			// HTTP bookmark.
-			retval = retval + '?bookmark='+ id;
-		    }else{
-			// minimalist RESTy restmark.
-			retval = retval + '?' + id;
-		    }
-		}
-	    }
-	}
-
-	// Things that do not need an id to function--like just
-	// popping somebody over to Grebe or the medial search.
-	if( ! retval ){
-	    if( this.other_interlinks[xid] ){
-		var extension = this.other_interlinks[xid];
-		retval = this.app_base + extension;
-
-		// Well, for medial search really, but it might be
-		// general?
-		if( xid === 'medial_search' ){
-		    // The possibility of just tossing back an empty
-		    // search for somebody downstream to fill in.
-		    if( bbop.core.is_defined(id) && id != null ){
-			retval = retval + '?q=' + id;
-		    }
-		}
-	    }
-	}
-    }
-
-    ///
-    /// External resources. For us, if we haven't found something
-    /// so far, try the data xrefs.
-    ///
-    
-    // Since we couldn't find anything with our explicit local
-    // transformation set, drop into the great abyss of the xref data.
-    if( ! retval && id && id !== '' ){ // not internal, but still has an id
-	if( ! amigo.data.xrefs ){
-	    throw new Error('amigo.data.xrefs is missing!');
-	}
-	
-	// First, extract the probable source and break it into parts.
-	var full_id_parts = bbop.core.first_split(':', id);
-	if( full_id_parts && full_id_parts[0] && full_id_parts[1] ){
-	    var src = full_id_parts[0];
-	    var sid = full_id_parts[1];
-	    
-	    // Now, check to see if it is indeed in our store.
-	    var lc_src = src.toLowerCase();
-	    var xref = amigo.data.xrefs[lc_src];
-	    if( xref && xref['url_syntax'] ){
-		retval =
-		    xref['url_syntax'].replace('[example_id]', sid, 'g');
-	    }
-	}
-    }
-    
-    return retval;
-};
-
-/*
- * Function: anchor
- * 
- * Return a link as a chunk of HTML, all ready to consume in a
- * display.
- * 
- * Arguments:
- *  args - hash--'id' required; 'label' and 'hilite' are inferred if not extant
- *  xid - *[optional]* an internal transformation id
- *  rest - *[optional]* modify xid; only used with xid
- * 
- * Returns:
- *  string (link); null if it couldn't create anything
- */
-amigo.linker.prototype.anchor = function(args, xid, modifier){
-    
-    var anchor = this;
-    var retval = null;
-
-    // Don't even start if there is nothing.
-    if( args ){
-
-	// Get what fundamental arguments we can.
-	var id = args['id'];
-	if( id ){
-	
-	    // Infer label from id if not present.
-	    var label = args['label'];
-	    if( ! label ){ label = id; }
-	
-	    // Infer hilite from label if not present.
-	    var hilite = args['hilite'];
-	    if( ! hilite ){ hilite = label; }
-	
-	    // See if the URL is legit. If it is, make something for it.
-	    var url = this.url(id, xid, modifier);
-	    if( url ){
-		
-		// First, see if it is one of the internal ones we know about
-		// and make something special for it.
-		if( xid ){
-		    if( this.ont_category[xid] ){
-		    
-			// Possible internal/external detection here.
-			// var class_str = ' class="amigo-ui-term-internal" ';
-			var class_str = '';
-			var title_str = 'title="' + // internal default
-			id + ' (go to the term details page for ' +
-			    label + ')"';
-			if( this.term_regexp ){
-			    if( this.term_regexp.test(id) ){
-			    }else{
-				class_str = ' class="amigo-ui-term-external" ';
-				title_str = ' title="' +
-				    id + ' (is an external term; click ' +
-				    'to view our internal information for ' +
-				    label + ')" ';
-			    }
-			}
-			
-			//retval = '<a title="Go to the term details page for '+
- 			retval = '<a ' + class_str + title_str +
-			    ' href="' + url + '">' + hilite + '</a>';
-		    }else if( this.bio_category[xid] ){
- 			retval = '<a title="' + id +
-			    ' (go to the details page for ' + label +
-			    ')" href="' + url + '">' + hilite + '</a>';
-		    }else if( this.search_category[xid] ){
-			retval = '<a title="Reinstate bookmark for ' + label +
-			    '." href="' + url + '">' + hilite + '</a>';
-		    }
-		}
-		
-		// If it wasn't in the special transformations, just make
-		// something generic.
-		if( ! retval ){
-		    retval = '<a title="' + id +
-			' (go to the page for ' + label +
-			')" href="' + url + '">' + hilite + '</a>';
-		}
-	    }
-	}
-    }
-
-    return retval;
-};
-/* 
- * Package: handler.js
- * 
- * Namespace: amigo.handler
- * 
- * Generic AmiGO handler (conforming to what /should/ be described in
- * the BBOP JS documentation), fed by <amigo.data.dispatch>.
- */
-
-// Module and namespace checking.
-if( typeof amigo == "undefined" ){ var amigo = {}; }
-
-/*
- * Constructor: handler
- * 
- * Create an object that will run functions in the namespace with a
- * specific profile.
- * 
- * These functions have a well defined interface so that other
- * packages can use them (for example, the results display in
- * LiveSearch.js).
- * 
- * Arguments:
- *  n/a
- * 
- * Returns:
- *  self
- */
-amigo.handler = function (){
-    this._is_a = 'amigo.handler';
-
-    var is_def = bbop.core.is_defined;
-
-    // Let's ensure we're sane.
-    if( ! is_def(amigo) ||
-	! is_def(amigo.data) ||
-	! is_def(amigo.data.dispatch) ){
-	throw new Error('we are missing access to amigo.data.dispatch!');
-    }
-
-    // Okay, since trying functions into existance is slow, we'll
-    // create a cache of strings to functions.
-    this.mangle = bbop.core.uuid();
-    this.string_to_function_map = {};
-    this.entries = 0; // a little extra for debugging and testing
-};
-
-/*
- * Function: dispatch
- * 
- * Return a string.
- * 
- * The fallback function is called if no match could be found in the
- * amigo.data.dispatch. It is called with the name and context
- * arguments in the same order.
- * 
- * Arguments:
- *  data - the incoming thing to be handled
- *  name - the field name to be processed
- *  context - *[optional]* a string to add extra context to the call
- *  fallback - *[optional]* a fallback function to call in case nothing is found
- * 
- * Returns:
- *  string; null if it couldn't create anything
- */
-amigo.handler.prototype.dispatch = function(data, name, context, fallback){
-    
-    // Aliases.
-    var is_def = bbop.core.is_defined;
-
-    // First, get the specific id for this combination.
-    var did = name || '';
-    did += '_' + this.mangle;
-    if( context ){
-	did += '_' + context;
-    }
-
-    // If the combination is not already in the map, fill it in as
-    // best we can.
-    if( ! is_def(this.string_to_function_map[did]) ){
-	
-	this.entries += 1;
-
-	// First, try and get the most specific.
-	if( is_def(amigo.data.dispatch[name]) ){
-
-	    var field_hash = amigo.data.dispatch[name];
-	    var function_string = null;
-
-	    if( is_def(field_hash['context']) &&
-		is_def(field_hash['context'][context]) ){
-		// The most specific.
-		function_string = field_hash['context'][context];
-	    }else{
-		// If the most specific cannot be found, try and get
-		// the more general one.
-		if( is_def(field_hash['default']) ){
-		    function_string = field_hash['default'];
-		}
-	    }
-
-	    // At the end of this section, if we don't have a string
-	    // to resolve into a function, the data format we're
-	    // working from is damaged.
-	    if( function_string == null ){
-		throw new Error('amigo.data.dispatch appears to be damaged!');
-	    }
-	    
-	    // We have a string. Pop it into existance with eval.
-	    var evalled_thing = eval(function_string);
-
-	    // Final test, make sure it is a function.
-	    if( ! is_def(evalled_thing) ||
-		evalled_thing == null ||
-		bbop.core.what_is(evalled_thing) != 'function' ){
-		throw new Error('"' + function_string + '" did not resolve!');
-	    }else{
-		this.string_to_function_map[did] = evalled_thing;		
-	    }
-
-	}else if( is_def(fallback) ){
-	    // Nothing could be found, so add the fallback if it is
-	    // there.
-	    this.string_to_function_map[did] = fallback;
-	}else{
-	    // Whelp, nothing there, so stick an indicator in.
-	    this.string_to_function_map[did] = null;
-	}
-    }
-
-    // We are now ensured that either we have a callable function or
-    // null, so let's finish it--either the return value of the called
-    // function or null.
-    var retval = null;
-    if( this.string_to_function_map[did] != null ){
-	var cfunc = this.string_to_function_map[did];
-	retval = cfunc(data, name, context);
-    }
-    return retval;
-};
-/* 
- * Package: echo.js
- * 
- * Namespace: amigo.handlers.echo
- * 
- * Static function handler for echoing inputs--really used for
- * teaching and testing.
- */
-
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.handlers == "undefined" ){ amigo.handlers = {}; }
-
-/*
- * Function: echo
- * 
- * Applies bbop.core.dump to whatever comes in.
- * 
- * Parameters:
- *  thing
- * 
- * Returns:
- *  a string; it /will/ be a string
- * 
- * Also See: <bbop.handler>
- */
-amigo.handlers.echo = function(thing, name, context){
-
-    // Force a return string into existence.
-    var retstr = null;
-    try {
-	retstr = bbop.core.dump(thing);
-    } catch (x) {
-	retstr = '';
-    }
-
-    // // Appaend any optional stuff.
-    // var is_def = bbop.core.is_defined;
-    // var what = bbop.core.what_is;
-    // if( is_def(name) && what(name) == 'string' ){
-    // 	retstr += ' (' + name + ')';
-    // }
-    // if( is_def(context) && what(context) == 'string' ){
-    // 	retstr += ' (' + context + ')';
-    // }
-
-    return retstr;
-};
-/* 
- * Package: owl_class_expression.js
- * 
- * Namespace: amigo.handlers.owl_class_expression
- * 
- * Static function handler for displaying OWL class expression
- * results. To be used for GAF column 16 stuff.
- */
-
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.handlers == "undefined" ){ amigo.handlers = {}; }
-
-/*
- * Function: owl_class_expression
- * 
- * Example incoming data (as a string or object):
- * 
- * : { relationship: {
- * :     relation: [{id: "RO:001234", label: "regulates"},
- * :                {id:"BFO:0003456", label: "hp"}], 
- * :     id: "MGI:MGI:185963",
- * :     label: "kidney"
- * :   }
- * : }
- * 
- * Parameters:
- *  JSON object as *[string or object]*; see above
- * 
- * Returns:
- *  HTML string
- * 
- * Also See: <bbop.handler>
- */
-amigo.handlers.owl_class_expression = function(in_owlo){
-
-    var retstr = "";
-
-    // // Add logging.
-    // var logger = new bbop.logger();
-    // logger.DEBUG = true;
-    // //logger.DEBUG = false;
-    // function ll(str){ logger.kvetch(str); }
-
-    // Aliases.
-    var is_def = bbop.core.is_defined;
-    var what_is = bbop.core.what_is;
-    var loop = bbop.core.each;
-
-    var owlo = in_owlo;
-    if( what_is(owlo) == 'string' ){
-	// This should be an unnecessary robustness check as
-	// everything /should/ be a legit JSON string...but things
-	// happen in testing. We'll check to make sure that it looks
-	// like what it should be as well.
-	if( in_owlo.charAt(0) == '{' &&
-	    in_owlo.charAt(in_owlo.length-1) == '}' ){
-	    owlo = bbop.json.parse(in_owlo) || {};
-	}else{
-	    // Looks like a normal string string.
-	    // Do nothing for now, but catch in the next section.
-	}
-    }
-
-    // Check to make sure that it looks right.
-    if( what_is(owlo) == 'string' ){
-	// Still a string means bad happened--we want to see that.
-	retstr = owlo + '?';
-    }else if( ! is_def(owlo) ||
-	      ! is_def(owlo['relationship']) ||
-	      ! what_is(owlo['relationship']) == 'object' ||
-	      ! what_is(owlo['relationship']['relation']) == 'array' ||
-	      ! is_def(owlo['relationship']['id']) ||
-	      ! is_def(owlo['relationship']['label']) ){
-	// 'Twas an error--ignore.
-	//throw new Error('sproing!');
-    }else{
-	
-	//throw new Error('sproing!');
-	var link = new amigo.linker();
-
-	// Okay, right structure--first assemble the relationships,
-	// then tag onto end.
-	var rel_buff = [];
-	bbop.core.each(owlo['relationship']['relation'],
-		       function(rel){
-			   // Check to make sure that these are
-			   // structured correctly as well.
-			   var rel_id = rel['id'];
-			   var rel_lbl = rel['label'];
-			   if( is_def(rel_id) && is_def(rel_lbl) ){
-			       var an =
-				   link.anchor({id: rel_id, label: rel_lbl});
-			       // Final check: if we didn't get
-			       // anything reasonable, just a label.
-			       if( ! an ){ an = rel_lbl; }
-			       rel_buff.push(an);
-			       // ll('in ' + rel_id + ' + ' + rel_lbl + ': ' + an);
-			   }
-		       });
-	var ranc = link.anchor({id: owlo['relationship']['id'],
-				label: owlo['relationship']['label']});
-	// Again, a final check
-	if( ! ranc ){ ranc = owlo['relationship']['label']; }
-	retstr = rel_buff.join(' &rarr; ') + ' ' + ranc;
-    }
-    
-    return retstr;
-};
-/* 
- * Package: qualifiers.js
- * 
- * Namespace: amigo.handlers.qualifiers
- * 
- * 
- */
-
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.handlers == "undefined" ){ amigo.handlers = {}; }
-
-/*
- * Function: qualifiers
- * 
- * Essentially catch certain strings and hightlight them.
- * 
- * Example incoming data as string:
- * 
- * : "not"
- * 
- * Parameters:
- *  string or null
- * 
- * Returns:
- *  HTML string
- * 
- * Also See: <bbop.handler>
- */
-amigo.handlers.qualifiers = function(in_qual){
-
-    var retstr = in_qual;
-
-    // Aliases.
-    var is_def = bbop.core.is_defined;
-    var what_is = bbop.core.what_is;
-
-    if( is_def(in_qual) ){
-	if( what_is(in_qual) == 'string' ){
-	    if( in_qual == 'not' || in_qual == 'NOT' ){
-		retstr = '<span class="qualifier-not">NOT</span>';
-	    }
-	}
-    }
-
-    return retstr;
-};
-/* 
- * Package: golr.js
- * 
- * Namespace: amigo.data.golr
- * 
- * This package was automatically created during an AmiGO 2 installation
- * from the YAML configuration files that AmiGO pulls in.
- *
- * Useful information about GOlr. See the package <golr_conf.js>
- * for the API to interact with this data file.
- *
- * NOTE: This file is generated dynamically at installation time.
- * Hard to work with unit tests--hope it's not too bad. You have to
- * occasionally copy back to keep the unit tests sane.
- *
- * NOTE: This file has a slightly different latout from the YAML
- * configurations files--in addition instead of the fields
- * being in lists (fields), they are in hashes keyed by the
- * field id (fields_hash).
- */
-
-// All of the server/instance-specific meta-data.
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
-
-/*
- * Variable: golr
- * 
- * The configuration for the data.
- * Essentially a JSONification of the OWLTools YAML files.
- * This should be consumed directly by <bbop.golr.conf>.
- */
-amigo.data.golr = {
-   "bioentity" : {
-      "document_category" : "bioentity",
-      "display_name" : "Genes and gene products",
-      "schema_generating" : "true",
-      "_infile" : "/home/sjcarbon//local/src/git/amigo/metadata/bio-config.yaml",
-      "weight" : "30",
-      "_strict" : 0,
-      "id" : "bioentity",
-      "_outfile" : "/home/sjcarbon//local/src/git/amigo/metadata/bio-config.yaml",
-      "result_weights" : "bioentity^8.0 bioentity_name^7.0 taxon^6.0 panther_family^5.0 type^4.0 source^3.0 synonym^1.0",
-      "searchable_extension" : "_searchable",
-      "description" : "Genes and gene products associated with GO terms.",
-      "fields_hash" : {
-         "panther_family" : {
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "PANTHER family",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "PANTHER families that are associated with this entity.",
-            "id" : "panther_family"
-         },
-         "bioentity_label" : {
-            "cardinality" : "single",
-            "id" : "bioentity_label",
-            "description" : "Symbol or name.",
-            "display_name" : "Label",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true"
-         },
-         "taxon_label" : {
-            "cardinality" : "single",
-            "id" : "taxon_label",
-            "description" : "Taxonomic group",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Taxon",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : []
-         },
-         "database_xref" : {
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "type" : "string",
-            "display_name" : "DB xref",
-            "required" : "false",
-            "indexed" : "true",
-            "description" : "Database cross-reference.",
-            "id" : "database_xref",
-            "cardinality" : "multi"
-         },
-         "id" : {
-            "cardinality" : "single",
-            "description" : "Gene of gene product ID.",
-            "id" : "id",
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Acc",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : []
-         },
-         "phylo_graph_json" : {
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "This should not be displayed",
-            "indexed" : "false",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "JSON blob form of the phylogenic tree.",
-            "id" : "phylo_graph_json"
-         },
-         "taxon_subset_closure" : {
-            "id" : "taxon_subset_closure",
-            "description" : "Taxonomic group (direct) and ancestral groups that are within the specified subset (e.g mammalia, eukaryota).",
-            "cardinality" : "multi",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Taxon subset",
-            "type" : "string"
-         },
-         "taxon_subset_closure_label" : {
-            "description" : "Labels for taxonomic group (direct) and ancestral groups that are within the specified subset.",
-            "id" : "taxon_subset_closure_label",
-            "cardinality" : "multi",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [],
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Taxon subset",
-            "indexed" : "true"
-         },
-         "isa_partof_closure_label" : {
-            "cardinality" : "multi",
-            "id" : "isa_partof_closure_label",
-            "description" : "Closure of labels over isa and partof.",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Involved in",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : []
-         },
-         "taxon_closure" : {
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "required" : "false",
-            "display_name" : "Taxon",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "taxon_closure",
-            "description" : "Taxonomic group and ancestral groups.",
-            "cardinality" : "multi"
-         },
-         "bioentity_name" : {
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Name",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "cardinality" : "single",
-            "id" : "bioentity_name",
-            "description" : "The full name of the gene product."
-         },
-         "source" : {
-            "description" : "Database source.",
-            "id" : "source",
-            "cardinality" : "single",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Source",
-            "indexed" : "true"
-         },
-         "taxon" : {
-            "display_name" : "Taxon",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "cardinality" : "single",
-            "id" : "taxon",
-            "description" : "Taxonomic group"
-         },
-         "annotation_class_list" : {
-            "id" : "annotation_class_list",
-            "description" : "Direct annotations.",
-            "cardinality" : "multi",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "Direct annotation",
-            "required" : "false",
-            "type" : "string"
-         },
-         "panther_family_label" : {
-            "cardinality" : "single",
-            "description" : "PANTHER families that are associated with this entity.",
-            "id" : "panther_family_label",
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "PANTHER family",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : []
-         },
-         "regulates_closure_label" : {
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "required" : "false",
-            "display_name" : "Inferred annotation",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "regulates_closure_label",
-            "description" : "Bioentities associated with this term or its children (over regulates).",
-            "cardinality" : "multi"
-         },
-         "bioentity_internal_id" : {
-            "display_name" : "This should not be displayed",
-            "required" : "false",
-            "indexed" : "false",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "cardinality" : "single",
-            "id" : "bioentity_internal_id",
-            "description" : "The bioentity ID used at the database of origin."
-         },
-         "regulates_closure" : {
-            "required" : "false",
-            "display_name" : "Inferred annotation",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "cardinality" : "multi",
-            "id" : "regulates_closure",
-            "description" : "Bioentities associated with this term or its children (over regulates)."
-         },
-         "annotation_class_list_label" : {
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Direct annotation",
-            "indexed" : "true",
-            "description" : "Direct annotations.",
-            "id" : "annotation_class_list_label",
-            "cardinality" : "multi"
-         },
-         "isa_partof_closure" : {
-            "cardinality" : "multi",
-            "id" : "isa_partof_closure",
-            "description" : "Closure of ids/accs over isa and partof.",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Involved in",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : []
-         },
-         "taxon_closure_label" : {
-            "id" : "taxon_closure_label",
-            "description" : "Taxonomic group and ancestral groups.",
-            "cardinality" : "multi",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "display_name" : "Taxon",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         "bioentity" : {
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "type" : "string",
-            "display_name" : "Acc",
-            "required" : "false",
-            "indexed" : "true",
-            "description" : "Gene or gene product ID.",
-            "id" : "bioentity",
-            "cardinality" : "single"
-         },
-         "synonym" : {
-            "description" : "Gene product synonyms.",
-            "id" : "synonym",
-            "cardinality" : "multi",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Synonyms",
-            "required" : "false"
-         },
-         "type" : {
-            "indexed" : "true",
-            "display_name" : "Type",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "cardinality" : "single",
-            "id" : "type",
-            "description" : "Type class."
-         }
-      },
-      "filter_weights" : "source^7.0 type^6.0 panther_family_label^5.0 annotation_class_list_label^3.5 taxon_label^4.0 regulates_closure_label^2.0",
-      "fields" : [
-         {
-            "cardinality" : "single",
-            "description" : "Gene of gene product ID.",
-            "id" : "id",
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Acc",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : []
-         },
-         {
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "type" : "string",
-            "display_name" : "Acc",
-            "required" : "false",
-            "indexed" : "true",
-            "description" : "Gene or gene product ID.",
-            "id" : "bioentity",
-            "cardinality" : "single"
-         },
-         {
-            "cardinality" : "single",
-            "id" : "bioentity_label",
-            "description" : "Symbol or name.",
-            "display_name" : "Label",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true"
-         },
-         {
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Name",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "cardinality" : "single",
-            "id" : "bioentity_name",
-            "description" : "The full name of the gene product."
-         },
-         {
-            "display_name" : "This should not be displayed",
-            "required" : "false",
-            "indexed" : "false",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "cardinality" : "single",
-            "id" : "bioentity_internal_id",
-            "description" : "The bioentity ID used at the database of origin."
-         },
-         {
-            "indexed" : "true",
-            "display_name" : "Type",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "cardinality" : "single",
-            "id" : "type",
-            "description" : "Type class."
-         },
-         {
-            "display_name" : "Taxon",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "cardinality" : "single",
-            "id" : "taxon",
-            "description" : "Taxonomic group"
-         },
-         {
-            "cardinality" : "single",
-            "id" : "taxon_label",
-            "description" : "Taxonomic group",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Taxon",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : []
-         },
-         {
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "required" : "false",
-            "display_name" : "Taxon",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "taxon_closure",
-            "description" : "Taxonomic group and ancestral groups.",
-            "cardinality" : "multi"
-         },
-         {
-            "id" : "taxon_closure_label",
-            "description" : "Taxonomic group and ancestral groups.",
-            "cardinality" : "multi",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "display_name" : "Taxon",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         {
-            "id" : "taxon_subset_closure",
-            "description" : "Taxonomic group (direct) and ancestral groups that are within the specified subset (e.g mammalia, eukaryota).",
-            "cardinality" : "multi",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Taxon subset",
-            "type" : "string"
-         },
-         {
-            "description" : "Labels for taxonomic group (direct) and ancestral groups that are within the specified subset.",
-            "id" : "taxon_subset_closure_label",
-            "cardinality" : "multi",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [],
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Taxon subset",
-            "indexed" : "true"
-         },
-         {
-            "cardinality" : "multi",
-            "id" : "isa_partof_closure",
-            "description" : "Closure of ids/accs over isa and partof.",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Involved in",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : []
-         },
-         {
-            "cardinality" : "multi",
-            "id" : "isa_partof_closure_label",
-            "description" : "Closure of labels over isa and partof.",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Involved in",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : []
-         },
-         {
-            "required" : "false",
-            "display_name" : "Inferred annotation",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "cardinality" : "multi",
-            "id" : "regulates_closure",
-            "description" : "Bioentities associated with this term or its children (over regulates)."
-         },
-         {
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "required" : "false",
-            "display_name" : "Inferred annotation",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "regulates_closure_label",
-            "description" : "Bioentities associated with this term or its children (over regulates).",
-            "cardinality" : "multi"
-         },
-         {
-            "description" : "Database source.",
-            "id" : "source",
-            "cardinality" : "single",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Source",
-            "indexed" : "true"
-         },
-         {
-            "id" : "annotation_class_list",
-            "description" : "Direct annotations.",
-            "cardinality" : "multi",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "Direct annotation",
-            "required" : "false",
-            "type" : "string"
-         },
-         {
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Direct annotation",
-            "indexed" : "true",
-            "description" : "Direct annotations.",
-            "id" : "annotation_class_list_label",
-            "cardinality" : "multi"
-         },
-         {
-            "description" : "Gene product synonyms.",
-            "id" : "synonym",
-            "cardinality" : "multi",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Synonyms",
-            "required" : "false"
-         },
-         {
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "PANTHER family",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "PANTHER families that are associated with this entity.",
-            "id" : "panther_family"
-         },
-         {
-            "cardinality" : "single",
-            "description" : "PANTHER families that are associated with this entity.",
-            "id" : "panther_family_label",
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "PANTHER family",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : []
-         },
-         {
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "This should not be displayed",
-            "indexed" : "false",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "JSON blob form of the phylogenic tree.",
-            "id" : "phylo_graph_json"
-         },
-         {
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "type" : "string",
-            "display_name" : "DB xref",
-            "required" : "false",
-            "indexed" : "true",
-            "description" : "Database cross-reference.",
-            "id" : "database_xref",
-            "cardinality" : "multi"
-         }
-      ],
-      "boost_weights" : "bioentity^2.0 bioentity_label^2.0 bioentity_name^1.0 bioentity_internal_id^1.0 synonym^1.0 isa_partof_closure_label^1.0 regulates_closure^1.0 regulates_closure_label^1.0 panther_family^1.0 panther_family_label^1.0 taxon_label^1.0"
-   },
-   "ontology" : {
-      "document_category" : "ontology_class",
-      "schema_generating" : "true",
-      "display_name" : "Ontology",
-      "_infile" : "/home/sjcarbon//local/src/git/amigo/metadata/ont-config.yaml",
-      "weight" : "40",
-      "_strict" : 0,
-      "id" : "ontology",
-      "_outfile" : "/home/sjcarbon//local/src/git/amigo/metadata/ont-config.yaml",
-      "result_weights" : "annotation_class^8.0 description^6.0 source^4.0 synonym^3.0 alternate_id^2.0",
-      "searchable_extension" : "_searchable",
-      "description" : "Gene Ontology Term, Synonym, or Definition.",
-      "fields_hash" : {
-         "only_in_taxon" : {
-            "id" : "only_in_taxon",
-            "description" : "Only in taxon.",
-            "cardinality" : "single",
-            "property" : [
-               "getDummyString"
-            ],
-            "transform" : [],
-            "searchable" : "true",
-            "display_name" : "Only in taxon",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         "comment" : {
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [
-               "getComments"
-            ],
-            "type" : "string",
-            "display_name" : "Comments",
-            "required" : "false",
-            "indexed" : "true",
-            "description" : "Term comments.",
-            "id" : "comment",
-            "cardinality" : "multi"
-         },
-         "annotation_relation_label" : {
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Annotation relation",
-            "required" : "false",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [
-               "getDummyString"
-            ],
-            "cardinality" : "single",
-            "description" : "This is equivalent to the relation field in GPAD.",
-            "id" : "annotation_relation_label"
-         },
-         "regulates_closure" : {
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Ancestor",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [
-               "getRelationIDClosure",
-               "BFO:0000050",
-               "BFO:0000066",
-               "RO:0002211",
-               "RO:0002212",
-               "RO:0002213",
-               "RO:0002215",
-               "RO:0002216"
-            ],
-            "cardinality" : "multi",
-            "description" : "Ancestral terms (regulates, occurs in, capable_of).",
-            "id" : "regulates_closure"
-         },
-         "regulates_closure_label" : {
-            "description" : "Ancestral terms (regulates, occurs in, capable_of).",
-            "id" : "regulates_closure_label",
-            "cardinality" : "multi",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [
-               "getRelationLabelClosure",
-               "BFO:0000050",
-               "BFO:0000066",
-               "RO:0002211",
-               "RO:0002212",
-               "RO:0002213",
-               "RO:0002215",
-               "RO:0002216"
-            ],
-            "type" : "string",
-            "display_name" : "Ancestor",
-            "required" : "false",
-            "indexed" : "true"
-         },
-         "disjoint_class_list" : {
-            "description" : "Disjoint classes.",
-            "id" : "disjoint_class_list",
-            "cardinality" : "multi",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [
-               "getDummyStrings"
-            ],
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Disjoint classes",
-            "indexed" : "true"
-         },
-         "regulates_transitivity_graph_json" : {
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [
-               "getLineageShuntGraphJSON",
-               "BFO:0000050",
-               "BFO:0000066",
-               "RO:0002211",
-               "RO:0002212",
-               "RO:0002213",
-               "RO:0002215",
-               "RO:0002216"
-            ],
-            "type" : "string",
-            "indexed" : "false",
-            "display_name" : "Regulates transitivity graph (JSON)",
-            "required" : "false",
-            "description" : "JSON blob form of the local relation transitivity graph. Uses various relations (including regulates, occurs in, capable_of).",
-            "id" : "regulates_transitivity_graph_json",
-            "cardinality" : "single"
-         },
-         "description" : {
-            "description" : "Term definition.",
-            "id" : "description",
-            "cardinality" : "single",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [
-               "getDef"
-            ],
-            "type" : "string",
-            "display_name" : "Definition",
-            "required" : "false",
-            "indexed" : "true"
-         },
-         "annotation_class_label" : {
-            "property" : [
-               "getLabel"
-            ],
-            "transform" : [],
-            "searchable" : "true",
-            "required" : "false",
-            "display_name" : "Term",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "annotation_class_label",
-            "description" : "Identifier.",
-            "cardinality" : "single"
-         },
-         "replaced_by" : {
-            "type" : "string",
-            "display_name" : "Replaced By",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [
-               "getAnnotationPropertyValues",
-               "replaced_by"
-            ],
-            "cardinality" : "multi",
-            "description" : "Term that replaces this term.",
-            "id" : "replaced_by"
-         },
-         "only_in_taxon_label" : {
-            "cardinality" : "single",
-            "id" : "only_in_taxon_label",
-            "description" : "Only in taxon label.",
-            "display_name" : "Only in taxon",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [
-               "getDummyString"
-            ],
-            "transform" : [],
-            "searchable" : "true"
-         },
-         "isa_partof_closure" : {
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [
-               "getRelationIDClosure",
-               "BFO:0000050"
-            ],
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Is-a/part-of",
-            "indexed" : "true",
-            "description" : "Ancestral terms (is_a/part_of).",
-            "id" : "isa_partof_closure",
-            "cardinality" : "multi"
-         },
-         "consider" : {
-            "indexed" : "true",
-            "display_name" : "Consider",
-            "required" : "false",
-            "type" : "string",
-            "property" : [
-               "getAnnotationPropertyValues",
-               "consider"
-            ],
-            "searchable" : "false",
-            "transform" : [],
-            "cardinality" : "multi",
-            "id" : "consider",
-            "description" : "Others terms you might want to look at."
-         },
-         "subset" : {
-            "id" : "subset",
-            "description" : "Special use collections of terms.",
-            "cardinality" : "multi",
-            "property" : [
-               "getSubsets"
-            ],
-            "transform" : [],
-            "searchable" : "false",
-            "required" : "false",
-            "display_name" : "Subset",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         "only_in_taxon_closure_label" : {
-            "required" : "false",
-            "display_name" : "Only in taxon",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [
-               "getDummyStrings"
-            ],
-            "transform" : [],
-            "searchable" : "true",
-            "cardinality" : "multi",
-            "id" : "only_in_taxon_closure_label",
-            "description" : "Only in taxon label closure."
-         },
-         "annotation_extension_owl_json" : {
-            "id" : "annotation_extension_owl_json",
-            "description" : "A non-lossy representation of conjunctions and disjunctions in c16 (JSON).",
-            "cardinality" : "single",
-            "property" : [
-               "getDummyString"
-            ],
-            "transform" : [],
-            "searchable" : "false",
-            "required" : "false",
-            "display_name" : "Annotation extension",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         "topology_graph_json" : {
-            "cardinality" : "single",
-            "id" : "topology_graph_json",
-            "description" : "JSON blob form of the local stepwise topology graph. Uses various relations (including regulates, occurs in, capable_of).",
-            "indexed" : "false",
-            "required" : "false",
-            "display_name" : "Topology graph (JSON)",
-            "type" : "string",
-            "property" : [
-               "getSegmentShuntGraphJSON",
-               "BFO:0000050",
-               "BFO:0000066",
-               "RO:0002211",
-               "RO:0002212",
-               "RO:0002213",
-               "RO:0002215",
-               "RO:0002216"
-            ],
-            "searchable" : "false",
-            "transform" : []
-         },
-         "synonym" : {
-            "type" : "string",
-            "display_name" : "Synonyms",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [
-               "getOBOSynonymStrings"
-            ],
-            "cardinality" : "multi",
-            "description" : "Term synonyms.",
-            "id" : "synonym"
-         },
-         "equivalent_class_expressions_json" : {
-            "cardinality" : "single",
-            "description" : "For any class document C, this will contain json(CE) for all axioms of form EquivalentClasses(C ... CE ....).",
-            "id" : "equivalent_class_expressions_json",
-            "type" : "string",
-            "display_name" : "Eq class expressions",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [
-               "getDummyString"
-            ]
-         },
-         "database_xref" : {
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [
-               "getXref"
-            ],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "DB xref",
-            "required" : "false",
-            "description" : "Database cross-reference.",
-            "id" : "database_xref",
-            "cardinality" : "multi"
-         },
-         "id" : {
-            "description" : "Term identifier.",
-            "id" : "id",
-            "cardinality" : "single",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [
-               "getIdentifier"
-            ],
-            "type" : "string",
-            "display_name" : "Acc",
-            "required" : "false",
-            "indexed" : "true"
-         },
-         "annotation_relation" : {
-            "cardinality" : "single",
-            "id" : "annotation_relation",
-            "description" : "This is equivalent to the relation field in GPAD.",
-            "display_name" : "Annotation relation",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [
-               "getDummyString"
-            ],
-            "transform" : [],
-            "searchable" : "false"
-         },
-         "only_in_taxon_closure" : {
-            "cardinality" : "multi",
-            "id" : "only_in_taxon_closure",
-            "description" : "Only in taxon closure.",
-            "display_name" : "Only in taxon (IDs)",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [
-               "getDummyStrings"
-            ],
-            "transform" : [],
-            "searchable" : "false"
-         },
-         "disjoint_class_list_label" : {
-            "id" : "disjoint_class_list_label",
-            "description" : "Disjoint classes.",
-            "cardinality" : "multi",
-            "property" : [
-               "getDummyStrings"
-            ],
-            "searchable" : "true",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "Disjoint classes",
-            "required" : "false",
-            "type" : "string"
-         },
-         "annotation_class" : {
-            "property" : [
-               "getIdentifier"
-            ],
-            "transform" : [],
-            "searchable" : "false",
-            "display_name" : "Term",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "annotation_class",
-            "description" : "Term identifier.",
-            "cardinality" : "single"
-         },
-         "definition_xref" : {
-            "cardinality" : "multi",
-            "description" : "Definition cross-reference.",
-            "id" : "definition_xref",
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Def xref",
-            "required" : "false",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [
-               "getDefXref"
-            ]
-         },
-         "is_obsolete" : {
-            "cardinality" : "single",
-            "id" : "is_obsolete",
-            "description" : "Is the term obsolete?",
-            "required" : "false",
-            "display_name" : "Obsoletion",
-            "indexed" : "true",
-            "type" : "boolean",
-            "property" : [
-               "getIsObsoleteBinaryString"
-            ],
-            "transform" : [],
-            "searchable" : "false"
-         },
-         "alternate_id" : {
-            "cardinality" : "multi",
-            "description" : "Alternate term identifier.",
-            "id" : "alternate_id",
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Alt ID",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [
-               "getAnnotationPropertyValues",
-               "alt_id"
-            ]
-         },
-         "isa_partof_closure_label" : {
-            "indexed" : "true",
-            "display_name" : "Is-a/part-of",
-            "required" : "false",
-            "type" : "string",
-            "property" : [
-               "getRelationLabelClosure",
-               "BFO:0000050"
-            ],
-            "searchable" : "true",
-            "transform" : [],
-            "cardinality" : "multi",
-            "id" : "isa_partof_closure_label",
-            "description" : "Ancestral terms (is_a/part_of)."
-         },
-         "source" : {
-            "display_name" : "Ontology source",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [
-               "getNamespace"
-            ],
-            "transform" : [],
-            "searchable" : "false",
-            "cardinality" : "single",
-            "id" : "source",
-            "description" : "Term namespace."
-         }
-      },
-      "filter_weights" : "source^4.0 subset^3.0 regulates_closure_label^1.0 is_obsolete^0.0",
-      "fields" : [
-         {
-            "description" : "Term identifier.",
-            "id" : "id",
-            "cardinality" : "single",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [
-               "getIdentifier"
-            ],
-            "type" : "string",
-            "display_name" : "Acc",
-            "required" : "false",
-            "indexed" : "true"
-         },
-         {
-            "property" : [
-               "getIdentifier"
-            ],
-            "transform" : [],
-            "searchable" : "false",
-            "display_name" : "Term",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "annotation_class",
-            "description" : "Term identifier.",
-            "cardinality" : "single"
-         },
-         {
-            "property" : [
-               "getLabel"
-            ],
-            "transform" : [],
-            "searchable" : "true",
-            "required" : "false",
-            "display_name" : "Term",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "annotation_class_label",
-            "description" : "Identifier.",
-            "cardinality" : "single"
-         },
-         {
-            "description" : "Term definition.",
-            "id" : "description",
-            "cardinality" : "single",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [
-               "getDef"
-            ],
-            "type" : "string",
-            "display_name" : "Definition",
-            "required" : "false",
-            "indexed" : "true"
-         },
-         {
-            "display_name" : "Ontology source",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [
-               "getNamespace"
-            ],
-            "transform" : [],
-            "searchable" : "false",
-            "cardinality" : "single",
-            "id" : "source",
-            "description" : "Term namespace."
-         },
-         {
-            "cardinality" : "single",
-            "id" : "is_obsolete",
-            "description" : "Is the term obsolete?",
-            "required" : "false",
-            "display_name" : "Obsoletion",
-            "indexed" : "true",
-            "type" : "boolean",
-            "property" : [
-               "getIsObsoleteBinaryString"
-            ],
-            "transform" : [],
-            "searchable" : "false"
-         },
-         {
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [
-               "getComments"
-            ],
-            "type" : "string",
-            "display_name" : "Comments",
-            "required" : "false",
-            "indexed" : "true",
-            "description" : "Term comments.",
-            "id" : "comment",
-            "cardinality" : "multi"
-         },
-         {
-            "type" : "string",
-            "display_name" : "Synonyms",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [
-               "getOBOSynonymStrings"
-            ],
-            "cardinality" : "multi",
-            "description" : "Term synonyms.",
-            "id" : "synonym"
-         },
-         {
-            "cardinality" : "multi",
-            "description" : "Alternate term identifier.",
-            "id" : "alternate_id",
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Alt ID",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [
-               "getAnnotationPropertyValues",
-               "alt_id"
-            ]
-         },
-         {
-            "type" : "string",
-            "display_name" : "Replaced By",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [
-               "getAnnotationPropertyValues",
-               "replaced_by"
-            ],
-            "cardinality" : "multi",
-            "description" : "Term that replaces this term.",
-            "id" : "replaced_by"
-         },
-         {
-            "indexed" : "true",
-            "display_name" : "Consider",
-            "required" : "false",
-            "type" : "string",
-            "property" : [
-               "getAnnotationPropertyValues",
-               "consider"
-            ],
-            "searchable" : "false",
-            "transform" : [],
-            "cardinality" : "multi",
-            "id" : "consider",
-            "description" : "Others terms you might want to look at."
-         },
-         {
-            "id" : "subset",
-            "description" : "Special use collections of terms.",
-            "cardinality" : "multi",
-            "property" : [
-               "getSubsets"
-            ],
-            "transform" : [],
-            "searchable" : "false",
-            "required" : "false",
-            "display_name" : "Subset",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         {
-            "cardinality" : "multi",
-            "description" : "Definition cross-reference.",
-            "id" : "definition_xref",
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Def xref",
-            "required" : "false",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [
-               "getDefXref"
-            ]
-         },
-         {
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [
-               "getXref"
-            ],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "DB xref",
-            "required" : "false",
-            "description" : "Database cross-reference.",
-            "id" : "database_xref",
-            "cardinality" : "multi"
-         },
-         {
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [
-               "getRelationIDClosure",
-               "BFO:0000050"
-            ],
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Is-a/part-of",
-            "indexed" : "true",
-            "description" : "Ancestral terms (is_a/part_of).",
-            "id" : "isa_partof_closure",
-            "cardinality" : "multi"
-         },
-         {
-            "indexed" : "true",
-            "display_name" : "Is-a/part-of",
-            "required" : "false",
-            "type" : "string",
-            "property" : [
-               "getRelationLabelClosure",
-               "BFO:0000050"
-            ],
-            "searchable" : "true",
-            "transform" : [],
-            "cardinality" : "multi",
-            "id" : "isa_partof_closure_label",
-            "description" : "Ancestral terms (is_a/part_of)."
-         },
-         {
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Ancestor",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [
-               "getRelationIDClosure",
-               "BFO:0000050",
-               "BFO:0000066",
-               "RO:0002211",
-               "RO:0002212",
-               "RO:0002213",
-               "RO:0002215",
-               "RO:0002216"
-            ],
-            "cardinality" : "multi",
-            "description" : "Ancestral terms (regulates, occurs in, capable_of).",
-            "id" : "regulates_closure"
-         },
-         {
-            "description" : "Ancestral terms (regulates, occurs in, capable_of).",
-            "id" : "regulates_closure_label",
-            "cardinality" : "multi",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [
-               "getRelationLabelClosure",
-               "BFO:0000050",
-               "BFO:0000066",
-               "RO:0002211",
-               "RO:0002212",
-               "RO:0002213",
-               "RO:0002215",
-               "RO:0002216"
-            ],
-            "type" : "string",
-            "display_name" : "Ancestor",
-            "required" : "false",
-            "indexed" : "true"
-         },
-         {
-            "cardinality" : "single",
-            "id" : "topology_graph_json",
-            "description" : "JSON blob form of the local stepwise topology graph. Uses various relations (including regulates, occurs in, capable_of).",
-            "indexed" : "false",
-            "required" : "false",
-            "display_name" : "Topology graph (JSON)",
-            "type" : "string",
-            "property" : [
-               "getSegmentShuntGraphJSON",
-               "BFO:0000050",
-               "BFO:0000066",
-               "RO:0002211",
-               "RO:0002212",
-               "RO:0002213",
-               "RO:0002215",
-               "RO:0002216"
-            ],
-            "searchable" : "false",
-            "transform" : []
-         },
-         {
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [
-               "getLineageShuntGraphJSON",
-               "BFO:0000050",
-               "BFO:0000066",
-               "RO:0002211",
-               "RO:0002212",
-               "RO:0002213",
-               "RO:0002215",
-               "RO:0002216"
-            ],
-            "type" : "string",
-            "indexed" : "false",
-            "display_name" : "Regulates transitivity graph (JSON)",
-            "required" : "false",
-            "description" : "JSON blob form of the local relation transitivity graph. Uses various relations (including regulates, occurs in, capable_of).",
-            "id" : "regulates_transitivity_graph_json",
-            "cardinality" : "single"
-         },
-         {
-            "id" : "only_in_taxon",
-            "description" : "Only in taxon.",
-            "cardinality" : "single",
-            "property" : [
-               "getDummyString"
-            ],
-            "transform" : [],
-            "searchable" : "true",
-            "display_name" : "Only in taxon",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         {
-            "cardinality" : "single",
-            "id" : "only_in_taxon_label",
-            "description" : "Only in taxon label.",
-            "display_name" : "Only in taxon",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [
-               "getDummyString"
-            ],
-            "transform" : [],
-            "searchable" : "true"
-         },
-         {
-            "cardinality" : "multi",
-            "id" : "only_in_taxon_closure",
-            "description" : "Only in taxon closure.",
-            "display_name" : "Only in taxon (IDs)",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [
-               "getDummyStrings"
-            ],
-            "transform" : [],
-            "searchable" : "false"
-         },
-         {
-            "required" : "false",
-            "display_name" : "Only in taxon",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [
-               "getDummyStrings"
-            ],
-            "transform" : [],
-            "searchable" : "true",
-            "cardinality" : "multi",
-            "id" : "only_in_taxon_closure_label",
-            "description" : "Only in taxon label closure."
-         },
-         {
-            "id" : "annotation_extension_owl_json",
-            "description" : "A non-lossy representation of conjunctions and disjunctions in c16 (JSON).",
-            "cardinality" : "single",
-            "property" : [
-               "getDummyString"
-            ],
-            "transform" : [],
-            "searchable" : "false",
-            "required" : "false",
-            "display_name" : "Annotation extension",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         {
-            "cardinality" : "single",
-            "id" : "annotation_relation",
-            "description" : "This is equivalent to the relation field in GPAD.",
-            "display_name" : "Annotation relation",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [
-               "getDummyString"
-            ],
-            "transform" : [],
-            "searchable" : "false"
-         },
-         {
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Annotation relation",
-            "required" : "false",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [
-               "getDummyString"
-            ],
-            "cardinality" : "single",
-            "description" : "This is equivalent to the relation field in GPAD.",
-            "id" : "annotation_relation_label"
-         },
-         {
-            "cardinality" : "single",
-            "description" : "For any class document C, this will contain json(CE) for all axioms of form EquivalentClasses(C ... CE ....).",
-            "id" : "equivalent_class_expressions_json",
-            "type" : "string",
-            "display_name" : "Eq class expressions",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [
-               "getDummyString"
-            ]
-         },
-         {
-            "description" : "Disjoint classes.",
-            "id" : "disjoint_class_list",
-            "cardinality" : "multi",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [
-               "getDummyStrings"
-            ],
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Disjoint classes",
-            "indexed" : "true"
-         },
-         {
-            "id" : "disjoint_class_list_label",
-            "description" : "Disjoint classes.",
-            "cardinality" : "multi",
-            "property" : [
-               "getDummyStrings"
-            ],
-            "searchable" : "true",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "Disjoint classes",
-            "required" : "false",
-            "type" : "string"
-         }
-      ],
-      "boost_weights" : "annotation_class^3.0 annotation_class_label^5.5 description^1.0 comment^0.5 synonym^1.0 alternate_id^1.0 regulates_closure^1.0 regulates_closure_label^1.0"
-   },
-   "noctua_model_meta" : {
-      "document_category" : "noctua_model_meta",
-      "display_name" : "Noctua meta",
-      "schema_generating" : "true",
-      "_infile" : "/home/sjcarbon//local/src/git/amigo/metadata/noctua-model-meta-config.yaml",
-      "fields_hash" : {
-         "contributor" : {
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Contributor",
-            "description" : "Contributor identity.",
-            "id" : "contributor",
-            "cardinality" : "multi"
-         },
-         "model_state" : {
-            "id" : "model_state",
-            "description" : "The editorial state of the model.",
-            "cardinality" : "single",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "display_name" : "State",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         "model_date" : {
-            "id" : "model_date",
-            "description" : "Model last modification dates.",
-            "cardinality" : "single",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "display_name" : "Last modified",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         "comment" : {
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [],
-            "type" : "string",
-            "display_name" : "Comment",
-            "required" : "false",
-            "indexed" : "true",
-            "description" : "The comments associated with a model.",
-            "id" : "comment",
-            "cardinality" : "single"
-         },
-         "id" : {
-            "description" : "The mangled internal ID for this entity.",
-            "id" : "id",
-            "cardinality" : "single",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Internal ID",
-            "required" : "false"
-         },
-         "annotation_unit" : {
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Model identifier",
-            "description" : "The title(s) associated with the model.",
-            "id" : "annotation_unit",
-            "cardinality" : "single"
-         },
-         "annotation_unit_label" : {
-            "indexed" : "true",
-            "display_name" : "Model identifier",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "cardinality" : "single",
-            "id" : "annotation_unit_label",
-            "description" : "The title(s) associated with the model."
-         }
-      },
-      "filter_weights" : "contributor^3.0 model_state^2.0 model_date^1.0",
-      "fields" : [
-         {
-            "description" : "The mangled internal ID for this entity.",
-            "id" : "id",
-            "cardinality" : "single",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Internal ID",
-            "required" : "false"
-         },
-         {
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Model identifier",
-            "description" : "The title(s) associated with the model.",
-            "id" : "annotation_unit",
-            "cardinality" : "single"
-         },
-         {
-            "indexed" : "true",
-            "display_name" : "Model identifier",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "cardinality" : "single",
-            "id" : "annotation_unit_label",
-            "description" : "The title(s) associated with the model."
-         },
-         {
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Contributor",
-            "description" : "Contributor identity.",
-            "id" : "contributor",
-            "cardinality" : "multi"
-         },
-         {
-            "id" : "model_date",
-            "description" : "Model last modification dates.",
-            "cardinality" : "single",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "display_name" : "Last modified",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         {
-            "id" : "model_state",
-            "description" : "The editorial state of the model.",
-            "cardinality" : "single",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "display_name" : "State",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         {
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [],
-            "type" : "string",
-            "display_name" : "Comment",
-            "required" : "false",
-            "indexed" : "true",
-            "description" : "The comments associated with a model.",
-            "id" : "comment",
-            "cardinality" : "single"
-         }
-      ],
-      "boost_weights" : "annotation_unit_label^3.0 contributor^2.0 model_date^1.0 comment^1.0",
-      "id" : "noctua_model_meta",
-      "_strict" : 0,
-      "weight" : "0",
-      "_outfile" : "/home/sjcarbon//local/src/git/amigo/metadata/noctua-model-meta-config.yaml",
-      "searchable_extension" : "_searchable",
-      "result_weights" : "annotation_unit^3.0 contributor^2.0 model_state^1.0 model_date^1.0 comment^1.0",
-      "description" : "A generic capture of light Noctua metadata in realtime."
-   },
-   "bbop_ann_ev_agg" : {
-      "_infile" : "/home/sjcarbon//local/src/git/amigo/metadata/ann_ev_agg-config.yaml",
-      "document_category" : "annotation_evidence_aggregate",
-      "schema_generating" : "true",
-      "display_name" : "Advanced",
-      "result_weights" : "bioentity^4.0 annotation_class^3.0 taxon^2.0",
-      "searchable_extension" : "_searchable",
-      "description" : "A description of annotation evidence aggregate for GOlr and AmiGO.",
-      "_strict" : 0,
-      "weight" : "-10",
-      "id" : "bbop_ann_ev_agg",
-      "_outfile" : "/home/sjcarbon//local/src/git/amigo/metadata/ann_ev_agg-config.yaml",
-      "fields" : [
-         {
-            "cardinality" : "single",
-            "id" : "id",
-            "description" : "Gene/product ID.",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Acc",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : []
-         },
-         {
-            "cardinality" : "single",
-            "description" : "Column 1 + columns 2.",
-            "id" : "bioentity",
-            "type" : "string",
-            "display_name" : "Gene/product ID",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : []
-         },
-         {
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "Gene/product label",
-            "required" : "false",
-            "type" : "string",
-            "id" : "bioentity_label",
-            "description" : "Column 3.",
-            "cardinality" : "single"
-         },
-         {
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Annotation class",
-            "description" : "Column 5.",
-            "id" : "annotation_class",
-            "cardinality" : "single"
-         },
-         {
-            "cardinality" : "single",
-            "id" : "annotation_class_label",
-            "description" : "Column 5 + ontology.",
-            "required" : "false",
-            "display_name" : "Annotation class label",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true"
-         },
-         {
-            "cardinality" : "multi",
-            "description" : "All evidence for this term/gene product pair",
-            "id" : "evidence_type_closure",
-            "type" : "string",
-            "display_name" : "Evidence type",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : []
-         },
-         {
-            "cardinality" : "multi",
-            "description" : "All column 8s for this term/gene product pair",
-            "id" : "evidence_with",
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Evidence with",
-            "required" : "false",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : []
-         },
-         {
-            "display_name" : "Taxon",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "cardinality" : "single",
-            "id" : "taxon",
-            "description" : "Column 13: taxon."
-         },
-         {
-            "cardinality" : "single",
-            "description" : "Derived from C13 + ncbi_taxonomy.obo.",
-            "id" : "taxon_label",
-            "type" : "string",
-            "display_name" : "Taxon",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : []
-         },
-         {
-            "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
-            "id" : "taxon_closure",
-            "cardinality" : "multi",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Taxon (IDs)"
-         },
-         {
-            "id" : "taxon_closure_label",
-            "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
-            "cardinality" : "multi",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Taxon",
-            "type" : "string"
-         },
-         {
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Protein family",
-            "required" : "false",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "Family IDs that are associated with this entity.",
-            "id" : "panther_family"
-         },
-         {
-            "cardinality" : "single",
-            "id" : "panther_family_label",
-            "description" : "Families that are associated with this entity.",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Family",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : []
-         }
-      ],
-      "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 panther_family^1.0 panther_family_label^1.0 taxon_closure_label^1.0",
-      "fields_hash" : {
-         "evidence_type_closure" : {
-            "cardinality" : "multi",
-            "description" : "All evidence for this term/gene product pair",
-            "id" : "evidence_type_closure",
-            "type" : "string",
-            "display_name" : "Evidence type",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : []
-         },
-         "bioentity" : {
-            "cardinality" : "single",
-            "description" : "Column 1 + columns 2.",
-            "id" : "bioentity",
-            "type" : "string",
-            "display_name" : "Gene/product ID",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : []
-         },
-         "taxon_closure" : {
-            "description" : "IDs derived from C13 + ncbi_taxonomy.obo.",
-            "id" : "taxon_closure",
-            "cardinality" : "multi",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Taxon (IDs)"
-         },
-         "taxon" : {
-            "display_name" : "Taxon",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "cardinality" : "single",
-            "id" : "taxon",
-            "description" : "Column 13: taxon."
-         },
-         "panther_family_label" : {
-            "cardinality" : "single",
-            "id" : "panther_family_label",
-            "description" : "Families that are associated with this entity.",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Family",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : []
-         },
-         "bioentity_label" : {
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "Gene/product label",
-            "required" : "false",
-            "type" : "string",
-            "id" : "bioentity_label",
-            "description" : "Column 3.",
-            "cardinality" : "single"
-         },
-         "panther_family" : {
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Protein family",
-            "required" : "false",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "Family IDs that are associated with this entity.",
-            "id" : "panther_family"
-         },
-         "annotation_class_label" : {
-            "cardinality" : "single",
-            "id" : "annotation_class_label",
-            "description" : "Column 5 + ontology.",
-            "required" : "false",
-            "display_name" : "Annotation class label",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true"
-         },
-         "id" : {
-            "cardinality" : "single",
-            "id" : "id",
-            "description" : "Gene/product ID.",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Acc",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : []
-         },
-         "evidence_with" : {
-            "cardinality" : "multi",
-            "description" : "All column 8s for this term/gene product pair",
-            "id" : "evidence_with",
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Evidence with",
-            "required" : "false",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : []
-         },
-         "taxon_label" : {
-            "cardinality" : "single",
-            "description" : "Derived from C13 + ncbi_taxonomy.obo.",
-            "id" : "taxon_label",
-            "type" : "string",
-            "display_name" : "Taxon",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : []
-         },
-         "annotation_class" : {
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Annotation class",
-            "description" : "Column 5.",
-            "id" : "annotation_class",
-            "cardinality" : "single"
-         },
-         "taxon_closure_label" : {
-            "id" : "taxon_closure_label",
-            "description" : "Labels derived from C13 + ncbi_taxonomy.obo.",
-            "cardinality" : "multi",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Taxon",
-            "type" : "string"
-         }
-      },
-      "filter_weights" : "evidence_type_closure^4.0 evidence_with^3.0 taxon_closure_label^2.0"
-   },
-   "annotation" : {
-      "searchable_extension" : "_searchable",
-      "result_weights" : "bioentity^7.0 bioentity_name^6.0 qualifier^5.0 annotation_class^4.7 annotation_extension_json^4.5 assigned_by^4.0 taxon^3.0 evidence_type^2.5 evidence_with^2.0 panther_family^1.5 bioentity_isoform^0.5 reference^0.25 date^0.10",
-      "description" : "Associations between GO terms and genes or gene products.",
-      "id" : "annotation",
-      "_strict" : 0,
-      "weight" : "20",
-      "_outfile" : "/home/sjcarbon//local/src/git/amigo/metadata/ann-config.yaml",
-      "fields" : [
-         {
-            "cardinality" : "single",
-            "id" : "id",
-            "description" : "A unique (and internal) combination of bioentity and ontology class.",
-            "required" : "false",
-            "display_name" : "Acc",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false"
-         },
-         {
-            "cardinality" : "single",
-            "id" : "source",
-            "description" : "Database source.",
-            "required" : "false",
-            "display_name" : "Source",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false"
-         },
-         {
-            "cardinality" : "single",
-            "description" : "Type class.",
-            "id" : "type",
-            "type" : "string",
-            "display_name" : "Type class id",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : []
-         },
-         {
-            "description" : "Date of assignment.",
-            "id" : "date",
-            "cardinality" : "single",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Date",
-            "required" : "false"
-         },
-         {
-            "cardinality" : "single",
-            "id" : "assigned_by",
-            "description" : "Annotations assigned by group.",
-            "indexed" : "true",
-            "display_name" : "Assigned by",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : []
-         },
-         {
-            "id" : "is_redundant_for",
-            "description" : "Rational for redundancy of annotation.",
-            "cardinality" : "single",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "display_name" : "Redundant for",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         {
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "Taxon",
-            "required" : "false",
-            "type" : "string",
-            "id" : "taxon",
-            "description" : "Taxonomic group.",
-            "cardinality" : "single"
-         },
-         {
-            "cardinality" : "single",
-            "id" : "taxon_label",
-            "description" : "Taxonomic group and ancestral groups.",
-            "required" : "false",
-            "display_name" : "Taxon",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true"
-         },
-         {
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Taxon",
-            "required" : "false",
-            "description" : "Taxonomic group and ancestral groups.",
-            "id" : "taxon_closure",
-            "cardinality" : "multi"
-         },
-         {
-            "indexed" : "true",
-            "display_name" : "Taxon",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "cardinality" : "multi",
-            "id" : "taxon_closure_label",
-            "description" : "Taxonomic group and ancestral groups."
-         },
-         {
-            "cardinality" : "multi",
-            "description" : "Taxonomic group (direct) and ancestral groups that are within the specified subset (e.g mammalia, eukaryota).",
-            "id" : "taxon_subset_closure",
-            "type" : "string",
-            "display_name" : "Taxon subset",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : []
-         },
-         {
-            "cardinality" : "multi",
-            "id" : "taxon_subset_closure_label",
-            "description" : "Labels for taxonomic group (direct) and ancestral groups that are within the specified subset.",
-            "indexed" : "true",
-            "display_name" : "Taxon subset",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : []
-         },
-         {
-            "cardinality" : "single",
-            "id" : "secondary_taxon",
-            "description" : "Secondary taxon.",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Secondary taxon",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : []
-         },
-         {
-            "cardinality" : "single",
-            "id" : "secondary_taxon_label",
-            "description" : "Secondary taxon.",
-            "indexed" : "true",
-            "display_name" : "Secondary taxon",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : []
-         },
-         {
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Secondary taxon",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "cardinality" : "multi",
-            "description" : "Secondary taxon closure.",
-            "id" : "secondary_taxon_closure"
-         },
-         {
-            "description" : "Secondary taxon closure.",
-            "id" : "secondary_taxon_closure_label",
-            "cardinality" : "multi",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Secondary taxon",
-            "required" : "false"
-         },
-         {
-            "id" : "isa_partof_closure",
-            "description" : "Annotations for this term or its children (over is_a/part_of).",
-            "cardinality" : "multi",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "display_name" : "Involved in",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         {
-            "cardinality" : "multi",
-            "id" : "isa_partof_closure_label",
-            "description" : "Annotations for this term or its children (over is_a/part_of).",
-            "indexed" : "true",
-            "display_name" : "Involved in",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : []
-         },
-         {
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "display_name" : "Inferred annotation",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "regulates_closure",
-            "description" : "Annotations for this term or its children (over regulates).",
-            "cardinality" : "multi"
-         },
-         {
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Inferred annotation",
-            "required" : "false",
-            "description" : "Annotations for this term or its children (over regulates).",
-            "id" : "regulates_closure_label",
-            "cardinality" : "multi"
-         },
-         {
-            "cardinality" : "multi",
-            "description" : "Closure of ids/accs over has_participant.",
-            "id" : "has_participant_closure",
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Has participant (IDs)",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : []
-         },
-         {
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Has participant",
-            "required" : "false",
-            "description" : "Closure of labels over has_participant.",
-            "id" : "has_participant_closure_label",
-            "cardinality" : "multi"
-         },
-         {
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Synonym",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "cardinality" : "multi",
-            "description" : "Gene or gene product synonyms.",
-            "id" : "synonym"
-         },
-         {
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Gene/product",
-            "required" : "false",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "Gene or gene product identifiers.",
-            "id" : "bioentity"
-         },
-         {
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [],
-            "type" : "string",
-            "display_name" : "Gene/product",
-            "required" : "false",
-            "indexed" : "true",
-            "description" : "Gene or gene product identifiers.",
-            "id" : "bioentity_label",
-            "cardinality" : "single"
-         },
-         {
-            "display_name" : "Gene/product name",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "cardinality" : "single",
-            "id" : "bioentity_name",
-            "description" : "The full name of the gene or gene product."
-         },
-         {
-            "indexed" : "false",
-            "required" : "false",
-            "display_name" : "This should not be displayed",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "cardinality" : "single",
-            "id" : "bioentity_internal_id",
-            "description" : "The bioentity ID used at the database of origin."
-         },
-         {
-            "description" : "Annotation qualifier.",
-            "id" : "qualifier",
-            "cardinality" : "multi",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Qualifier"
-         },
-         {
-            "indexed" : "true",
-            "display_name" : "Direct annotation",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "cardinality" : "single",
-            "id" : "annotation_class",
-            "description" : "Direct annotations."
-         },
-         {
-            "cardinality" : "single",
-            "description" : "Direct annotations.",
-            "id" : "annotation_class_label",
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Direct annotation",
-            "required" : "false",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : []
-         },
-         {
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Ontology (aspect)",
-            "description" : "Ontology aspect.",
-            "id" : "aspect",
-            "cardinality" : "single"
-         },
-         {
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "required" : "false",
-            "display_name" : "Isoform",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "bioentity_isoform",
-            "description" : "Biological isoform.",
-            "cardinality" : "single"
-         },
-         {
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Evidence",
-            "required" : "false",
-            "description" : "Evidence type.",
-            "id" : "evidence_type",
-            "cardinality" : "single"
-         },
-         {
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "Evidence type",
-            "required" : "false",
-            "type" : "string",
-            "id" : "evidence_type_closure",
-            "description" : "All evidence (evidence closure) for this annotation",
-            "cardinality" : "multi"
-         },
-         {
-            "cardinality" : "multi",
-            "id" : "evidence_with",
-            "description" : "Evidence with/from.",
-            "display_name" : "Evidence with",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true"
-         },
-         {
-            "id" : "reference",
-            "description" : "Database reference.",
-            "cardinality" : "multi",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "display_name" : "Reference",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         {
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "display_name" : "Annotation extension",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "annotation_extension_class",
-            "description" : "Extension class for the annotation.",
-            "cardinality" : "multi"
-         },
-         {
-            "description" : "Extension class for the annotation.",
-            "id" : "annotation_extension_class_label",
-            "cardinality" : "multi",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Annotation extension",
-            "required" : "false"
-         },
-         {
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Annotation extension",
-            "description" : "Extension class for the annotation.",
-            "id" : "annotation_extension_class_closure",
-            "cardinality" : "multi"
-         },
-         {
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Annotation extension",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "multi",
-            "description" : "Extension class for the annotation.",
-            "id" : "annotation_extension_class_closure_label"
-         },
-         {
-            "id" : "annotation_extension_json",
-            "description" : "Extension class for the annotation (JSON).",
-            "cardinality" : "multi",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "Annotation extension",
-            "required" : "false",
-            "type" : "string"
-         },
-         {
-            "id" : "panther_family",
-            "description" : "PANTHER families that are associated with this entity.",
-            "cardinality" : "single",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "PANTHER family",
-            "required" : "false",
-            "type" : "string"
-         },
-         {
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "PANTHER family",
-            "required" : "false",
-            "type" : "string",
-            "id" : "panther_family_label",
-            "description" : "PANTHER families that are associated with this entity.",
-            "cardinality" : "single"
-         }
-      ],
-      "boost_weights" : "annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 bioentity_name^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 reference^1.0 panther_family^1.0 panther_family_label^1.0 bioentity_isoform^1.0 regulates_closure^1.0 regulates_closure_label^1.0",
-      "fields_hash" : {
-         "annotation_extension_json" : {
-            "id" : "annotation_extension_json",
-            "description" : "Extension class for the annotation (JSON).",
-            "cardinality" : "multi",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "Annotation extension",
-            "required" : "false",
-            "type" : "string"
-         },
-         "taxon" : {
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "Taxon",
-            "required" : "false",
-            "type" : "string",
-            "id" : "taxon",
-            "description" : "Taxonomic group.",
-            "cardinality" : "single"
-         },
-         "isa_partof_closure_label" : {
-            "cardinality" : "multi",
-            "id" : "isa_partof_closure_label",
-            "description" : "Annotations for this term or its children (over is_a/part_of).",
-            "indexed" : "true",
-            "display_name" : "Involved in",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : []
-         },
-         "evidence_type_closure" : {
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "Evidence type",
-            "required" : "false",
-            "type" : "string",
-            "id" : "evidence_type_closure",
-            "description" : "All evidence (evidence closure) for this annotation",
-            "cardinality" : "multi"
-         },
-         "assigned_by" : {
-            "cardinality" : "single",
-            "id" : "assigned_by",
-            "description" : "Annotations assigned by group.",
-            "indexed" : "true",
-            "display_name" : "Assigned by",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : []
-         },
-         "taxon_subset_closure" : {
-            "cardinality" : "multi",
-            "description" : "Taxonomic group (direct) and ancestral groups that are within the specified subset (e.g mammalia, eukaryota).",
-            "id" : "taxon_subset_closure",
-            "type" : "string",
-            "display_name" : "Taxon subset",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : []
-         },
-         "secondary_taxon" : {
-            "cardinality" : "single",
-            "id" : "secondary_taxon",
-            "description" : "Secondary taxon.",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Secondary taxon",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : []
-         },
-         "annotation_class" : {
-            "indexed" : "true",
-            "display_name" : "Direct annotation",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "cardinality" : "single",
-            "id" : "annotation_class",
-            "description" : "Direct annotations."
-         },
-         "aspect" : {
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Ontology (aspect)",
-            "description" : "Ontology aspect.",
-            "id" : "aspect",
-            "cardinality" : "single"
-         },
-         "panther_family" : {
-            "id" : "panther_family",
-            "description" : "PANTHER families that are associated with this entity.",
-            "cardinality" : "single",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "PANTHER family",
-            "required" : "false",
-            "type" : "string"
-         },
-         "bioentity_label" : {
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [],
-            "type" : "string",
-            "display_name" : "Gene/product",
-            "required" : "false",
-            "indexed" : "true",
-            "description" : "Gene or gene product identifiers.",
-            "id" : "bioentity_label",
-            "cardinality" : "single"
-         },
-         "synonym" : {
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Synonym",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "cardinality" : "multi",
-            "description" : "Gene or gene product synonyms.",
-            "id" : "synonym"
-         },
-         "has_participant_closure_label" : {
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Has participant",
-            "required" : "false",
-            "description" : "Closure of labels over has_participant.",
-            "id" : "has_participant_closure_label",
-            "cardinality" : "multi"
-         },
-         "type" : {
-            "cardinality" : "single",
-            "description" : "Type class.",
-            "id" : "type",
-            "type" : "string",
-            "display_name" : "Type class id",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : []
-         },
-         "qualifier" : {
-            "description" : "Annotation qualifier.",
-            "id" : "qualifier",
-            "cardinality" : "multi",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Qualifier"
-         },
-         "secondary_taxon_closure_label" : {
-            "description" : "Secondary taxon closure.",
-            "id" : "secondary_taxon_closure_label",
-            "cardinality" : "multi",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Secondary taxon",
-            "required" : "false"
-         },
-         "regulates_closure" : {
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "display_name" : "Inferred annotation",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "regulates_closure",
-            "description" : "Annotations for this term or its children (over regulates).",
-            "cardinality" : "multi"
-         },
-         "bioentity_isoform" : {
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "required" : "false",
-            "display_name" : "Isoform",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "bioentity_isoform",
-            "description" : "Biological isoform.",
-            "cardinality" : "single"
-         },
-         "evidence_type" : {
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Evidence",
-            "required" : "false",
-            "description" : "Evidence type.",
-            "id" : "evidence_type",
-            "cardinality" : "single"
-         },
-         "panther_family_label" : {
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "PANTHER family",
-            "required" : "false",
-            "type" : "string",
-            "id" : "panther_family_label",
-            "description" : "PANTHER families that are associated with this entity.",
-            "cardinality" : "single"
-         },
-         "source" : {
-            "cardinality" : "single",
-            "id" : "source",
-            "description" : "Database source.",
-            "required" : "false",
-            "display_name" : "Source",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false"
-         },
-         "bioentity_name" : {
-            "display_name" : "Gene/product name",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "cardinality" : "single",
-            "id" : "bioentity_name",
-            "description" : "The full name of the gene or gene product."
-         },
-         "taxon_closure" : {
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Taxon",
-            "required" : "false",
-            "description" : "Taxonomic group and ancestral groups.",
-            "id" : "taxon_closure",
-            "cardinality" : "multi"
-         },
-         "taxon_subset_closure_label" : {
-            "cardinality" : "multi",
-            "id" : "taxon_subset_closure_label",
-            "description" : "Labels for taxonomic group (direct) and ancestral groups that are within the specified subset.",
-            "indexed" : "true",
-            "display_name" : "Taxon subset",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : []
-         },
-         "secondary_taxon_label" : {
-            "cardinality" : "single",
-            "id" : "secondary_taxon_label",
-            "description" : "Secondary taxon.",
-            "indexed" : "true",
-            "display_name" : "Secondary taxon",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : []
-         },
-         "reference" : {
-            "id" : "reference",
-            "description" : "Database reference.",
-            "cardinality" : "multi",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "display_name" : "Reference",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         "annotation_extension_class_closure_label" : {
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Annotation extension",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "multi",
-            "description" : "Extension class for the annotation.",
-            "id" : "annotation_extension_class_closure_label"
-         },
-         "taxon_label" : {
-            "cardinality" : "single",
-            "id" : "taxon_label",
-            "description" : "Taxonomic group and ancestral groups.",
-            "required" : "false",
-            "display_name" : "Taxon",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true"
-         },
-         "annotation_extension_class" : {
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "display_name" : "Annotation extension",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "annotation_extension_class",
-            "description" : "Extension class for the annotation.",
-            "cardinality" : "multi"
-         },
-         "evidence_with" : {
-            "cardinality" : "multi",
-            "id" : "evidence_with",
-            "description" : "Evidence with/from.",
-            "display_name" : "Evidence with",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true"
-         },
-         "id" : {
-            "cardinality" : "single",
-            "id" : "id",
-            "description" : "A unique (and internal) combination of bioentity and ontology class.",
-            "required" : "false",
-            "display_name" : "Acc",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false"
-         },
-         "secondary_taxon_closure" : {
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Secondary taxon",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "cardinality" : "multi",
-            "description" : "Secondary taxon closure.",
-            "id" : "secondary_taxon_closure"
-         },
-         "annotation_extension_class_closure" : {
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Annotation extension",
-            "description" : "Extension class for the annotation.",
-            "id" : "annotation_extension_class_closure",
-            "cardinality" : "multi"
-         },
-         "bioentity" : {
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Gene/product",
-            "required" : "false",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "Gene or gene product identifiers.",
-            "id" : "bioentity"
-         },
-         "annotation_extension_class_label" : {
-            "description" : "Extension class for the annotation.",
-            "id" : "annotation_extension_class_label",
-            "cardinality" : "multi",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Annotation extension",
-            "required" : "false"
-         },
-         "taxon_closure_label" : {
-            "indexed" : "true",
-            "display_name" : "Taxon",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "cardinality" : "multi",
-            "id" : "taxon_closure_label",
-            "description" : "Taxonomic group and ancestral groups."
-         },
-         "isa_partof_closure" : {
-            "id" : "isa_partof_closure",
-            "description" : "Annotations for this term or its children (over is_a/part_of).",
-            "cardinality" : "multi",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "display_name" : "Involved in",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         "date" : {
-            "description" : "Date of assignment.",
-            "id" : "date",
-            "cardinality" : "single",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Date",
-            "required" : "false"
-         },
-         "bioentity_internal_id" : {
-            "indexed" : "false",
-            "required" : "false",
-            "display_name" : "This should not be displayed",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "cardinality" : "single",
-            "id" : "bioentity_internal_id",
-            "description" : "The bioentity ID used at the database of origin."
-         },
-         "is_redundant_for" : {
-            "id" : "is_redundant_for",
-            "description" : "Rational for redundancy of annotation.",
-            "cardinality" : "single",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "display_name" : "Redundant for",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         "annotation_class_label" : {
-            "cardinality" : "single",
-            "description" : "Direct annotations.",
-            "id" : "annotation_class_label",
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Direct annotation",
-            "required" : "false",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : []
-         },
-         "regulates_closure_label" : {
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Inferred annotation",
-            "required" : "false",
-            "description" : "Annotations for this term or its children (over regulates).",
-            "id" : "regulates_closure_label",
-            "cardinality" : "multi"
-         },
-         "has_participant_closure" : {
-            "cardinality" : "multi",
-            "description" : "Closure of ids/accs over has_participant.",
-            "id" : "has_participant_closure",
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Has participant (IDs)",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : []
-         }
-      },
-      "filter_weights" : "source^7.0 assigned_by^6.5 aspect^6.25 evidence_type_closure^6.0 panther_family_label^5.5 qualifier^5.25 taxon_label^5.0 annotation_class_label^4.5 regulates_closure_label^3.0 annotation_extension_class_closure_label^2.0",
-      "_infile" : "/home/sjcarbon//local/src/git/amigo/metadata/ann-config.yaml",
-      "document_category" : "annotation",
-      "display_name" : "Annotations",
-      "schema_generating" : "true"
-   },
-   "model_annotation" : {
-      "display_name" : "GO Models (ALPHA)",
-      "schema_generating" : "true",
-      "document_category" : "model_annotation",
-      "_infile" : "/home/sjcarbon//local/src/git/amigo/metadata/model-ann-config.yaml",
-      "filter_weights" : "model_label^5.0 enabled_by_label^4.5 reference^4.3 location_list_closure_label^4.0 process_class_closure_label^3.0 function_class_closure_label^2.0 contributor^1.0 evidence_type^0.5",
-      "fields_hash" : {
-         "location_list" : {
-            "cardinality" : "multi",
-            "description" : "",
-            "id" : "location_list",
-            "type" : "string",
-            "display_name" : "Location",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : []
-         },
-         "panther_family" : {
-            "id" : "panther_family",
-            "description" : "PANTHER family IDs that are associated with this entity.",
-            "cardinality" : "single",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "PANTHER family",
-            "type" : "string"
-         },
-         "process_class_closure" : {
-            "display_name" : "Process",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "cardinality" : "multi",
-            "id" : "process_class_closure",
-            "description" : "???"
-         },
-         "process_class_closure_label" : {
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Process",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [],
-            "cardinality" : "multi",
-            "description" : "???",
-            "id" : "process_class_closure_label"
-         },
-         "location_list_closure" : {
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Location",
-            "indexed" : "true",
-            "description" : "",
-            "id" : "location_list_closure",
-            "cardinality" : "multi"
-         },
-         "taxon" : {
-            "description" : "GAF column 13 (taxon).",
-            "id" : "taxon",
-            "cardinality" : "single",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Taxon"
-         },
-         "annotation_value" : {
-            "type" : "string",
-            "display_name" : "Text",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "cardinality" : "multi",
-            "description" : "set of all literal values of all annotation assertions in model",
-            "id" : "annotation_value"
-         },
-         "evidence_type_closure" : {
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Evidence type",
-            "required" : "false",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "multi",
-            "description" : "All evidence (evidence closure) for this annotation",
-            "id" : "evidence_type_closure"
-         },
-         "function_class_label" : {
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Function",
-            "required" : "false",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "Common function name.",
-            "id" : "function_class_label"
-         },
-         "evidence_type" : {
-            "cardinality" : "single",
-            "description" : "Evidence type.",
-            "id" : "evidence_type",
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Evidence",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : []
-         },
-         "annotation_unit" : {
-            "cardinality" : "single",
-            "description" : "???.",
-            "id" : "annotation_unit",
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Annotation unit",
-            "required" : "false",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : []
-         },
-         "evidence_type_label" : {
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Evidence",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "Evidence type.",
-            "id" : "evidence_type_label"
-         },
-         "model_url" : {
-            "description" : "???.",
-            "id" : "model_url",
-            "cardinality" : "single",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Model URL",
-            "required" : "false"
-         },
-         "topology_graph_json" : {
-            "cardinality" : "single",
-            "id" : "topology_graph_json",
-            "description" : "JSON blob form of the local stepwise topology graph.",
-            "display_name" : "Topology graph (JSON)",
-            "required" : "false",
-            "indexed" : "false",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false"
-         },
-         "contributor" : {
-            "cardinality" : "multi",
-            "description" : "???.",
-            "id" : "contributor",
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Contributor",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : []
-         },
-         "enabled_by" : {
-            "type" : "string",
-            "display_name" : "Enabled by",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "???",
-            "id" : "enabled_by"
-         },
-         "location_list_label" : {
-            "type" : "string",
-            "display_name" : "Location",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "cardinality" : "multi",
-            "description" : "",
-            "id" : "location_list_label"
-         },
-         "model_state" : {
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "State",
-            "required" : "false",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "???.",
-            "id" : "model_state"
-         },
-         "reference" : {
-            "cardinality" : "multi",
-            "id" : "reference",
-            "description" : "Database reference.",
-            "display_name" : "Reference",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true"
-         },
-         "annotation_unit_label" : {
-            "display_name" : "Annotation unit",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "cardinality" : "single",
-            "id" : "annotation_unit_label",
-            "description" : "???."
-         },
-         "enabled_by_label" : {
-            "id" : "enabled_by_label",
-            "description" : "???",
-            "cardinality" : "single",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "required" : "false",
-            "display_name" : "Enabled by",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         "evidence_with" : {
-            "description" : "Evidence with/from.",
-            "id" : "evidence_with",
-            "cardinality" : "multi",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Evidence with",
-            "required" : "false"
-         },
-         "id" : {
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "ID",
-            "required" : "false",
-            "type" : "string",
-            "id" : "id",
-            "description" : "A unique (and internal) thing.",
-            "cardinality" : "single"
-         },
-         "taxon_label" : {
-            "cardinality" : "single",
-            "id" : "taxon_label",
-            "description" : "Taxon derived from GAF column 13 and ncbi_taxonomy.obo.",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Taxon",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : []
-         },
-         "model_label" : {
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Model title",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "???.",
-            "id" : "model_label"
-         },
-         "panther_family_label" : {
-            "cardinality" : "single",
-            "description" : "PANTHER families that are associated with this entity.",
-            "id" : "panther_family_label",
-            "type" : "string",
-            "display_name" : "PANTHER family",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : []
-         },
-         "process_class_label" : {
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "Process",
-            "required" : "false",
-            "type" : "string",
-            "id" : "process_class_label",
-            "description" : "Common process name.",
-            "cardinality" : "single"
-         },
-         "taxon_closure" : {
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Taxon (IDs)",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "cardinality" : "multi",
-            "id" : "taxon_closure",
-            "description" : "Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo."
-         },
-         "process_class" : {
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Process",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "cardinality" : "single",
-            "id" : "process_class",
-            "description" : "Process acc/ID."
-         },
-         "model_date" : {
-            "id" : "model_date",
-            "description" : "Last modified",
-            "cardinality" : "single",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "required" : "false",
-            "display_name" : "Modified",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         "function_class_closure_label" : {
-            "type" : "string",
-            "display_name" : "Function",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [],
-            "cardinality" : "multi",
-            "description" : "???",
-            "id" : "function_class_closure_label"
-         },
-         "taxon_closure_label" : {
-            "required" : "false",
-            "display_name" : "Taxon",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "cardinality" : "multi",
-            "id" : "taxon_closure_label",
-            "description" : "Taxon label closure derived from GAF column 13 and ncbi_taxonomy.obo."
-         },
-         "model" : {
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "required" : "false",
-            "display_name" : "Model title",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "model",
-            "description" : "???.",
-            "cardinality" : "single"
-         },
-         "comment" : {
-            "description" : "Comments",
-            "id" : "comment",
-            "cardinality" : "single",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [],
-            "type" : "string",
-            "display_name" : "Comments",
-            "required" : "false",
-            "indexed" : "true"
-         },
-         "location_list_closure_label" : {
-            "description" : "",
-            "id" : "location_list_closure_label",
-            "cardinality" : "multi",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Location",
-            "required" : "false"
-         },
-         "function_class" : {
-            "cardinality" : "single",
-            "id" : "function_class",
-            "description" : "Function acc/ID.",
-            "display_name" : "Function",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false"
-         },
-         "function_class_closure" : {
-            "id" : "function_class_closure",
-            "description" : "???",
-            "cardinality" : "multi",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Function",
-            "type" : "string"
-         },
-         "evidence_type_closure_label" : {
-            "cardinality" : "multi",
-            "description" : "All evidence (evidence closure) for this annotation",
-            "id" : "evidence_type_closure_label",
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Evidence type",
-            "required" : "false",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : []
-         },
-         "owl_blob_json" : {
-            "cardinality" : "single",
-            "id" : "owl_blob_json",
-            "description" : "???",
-            "display_name" : "???",
-            "required" : "false",
-            "indexed" : "false",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false"
-         }
-      },
-      "boost_weights" : "model_label^1.0 annotation_unit_label^1.0 enabled_by^1.0 enabled_by_label^1.0 location_list_closure^1.0 location_list_closure_label^1.0 process_class_closure_label^1.0 function_class_closure_label^1.0 comment^0.5",
-      "fields" : [
-         {
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "ID",
-            "required" : "false",
-            "type" : "string",
-            "id" : "id",
-            "description" : "A unique (and internal) thing.",
-            "cardinality" : "single"
-         },
-         {
-            "cardinality" : "single",
-            "description" : "???.",
-            "id" : "annotation_unit",
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Annotation unit",
-            "required" : "false",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : []
-         },
-         {
-            "display_name" : "Annotation unit",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "cardinality" : "single",
-            "id" : "annotation_unit_label",
-            "description" : "???."
-         },
-         {
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "required" : "false",
-            "display_name" : "Model title",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "model",
-            "description" : "???.",
-            "cardinality" : "single"
-         },
-         {
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Model title",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "???.",
-            "id" : "model_label"
-         },
-         {
-            "description" : "???.",
-            "id" : "model_url",
-            "cardinality" : "single",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Model URL",
-            "required" : "false"
-         },
-         {
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "State",
-            "required" : "false",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "???.",
-            "id" : "model_state"
-         },
-         {
-            "type" : "string",
-            "display_name" : "Text",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "cardinality" : "multi",
-            "description" : "set of all literal values of all annotation assertions in model",
-            "id" : "annotation_value"
-         },
-         {
-            "cardinality" : "multi",
-            "description" : "???.",
-            "id" : "contributor",
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Contributor",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : []
-         },
-         {
-            "id" : "model_date",
-            "description" : "Last modified",
-            "cardinality" : "single",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "required" : "false",
-            "display_name" : "Modified",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         {
-            "description" : "Comments",
-            "id" : "comment",
-            "cardinality" : "single",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [],
-            "type" : "string",
-            "display_name" : "Comments",
-            "required" : "false",
-            "indexed" : "true"
-         },
-         {
-            "type" : "string",
-            "display_name" : "Enabled by",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "???",
-            "id" : "enabled_by"
-         },
-         {
-            "id" : "enabled_by_label",
-            "description" : "???",
-            "cardinality" : "single",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "required" : "false",
-            "display_name" : "Enabled by",
-            "indexed" : "true",
-            "type" : "string"
-         },
-         {
-            "id" : "panther_family",
-            "description" : "PANTHER family IDs that are associated with this entity.",
-            "cardinality" : "single",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "PANTHER family",
-            "type" : "string"
-         },
-         {
-            "cardinality" : "single",
-            "description" : "PANTHER families that are associated with this entity.",
-            "id" : "panther_family_label",
-            "type" : "string",
-            "display_name" : "PANTHER family",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : []
-         },
-         {
-            "description" : "GAF column 13 (taxon).",
-            "id" : "taxon",
-            "cardinality" : "single",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Taxon"
-         },
-         {
-            "cardinality" : "single",
-            "id" : "taxon_label",
-            "description" : "Taxon derived from GAF column 13 and ncbi_taxonomy.obo.",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Taxon",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "true",
-            "transform" : []
-         },
-         {
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Taxon (IDs)",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "cardinality" : "multi",
-            "id" : "taxon_closure",
-            "description" : "Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo."
-         },
-         {
-            "required" : "false",
-            "display_name" : "Taxon",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true",
-            "cardinality" : "multi",
-            "id" : "taxon_closure_label",
-            "description" : "Taxon label closure derived from GAF column 13 and ncbi_taxonomy.obo."
-         },
-         {
-            "cardinality" : "single",
-            "id" : "function_class",
-            "description" : "Function acc/ID.",
-            "display_name" : "Function",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false"
-         },
-         {
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Function",
-            "required" : "false",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "Common function name.",
-            "id" : "function_class_label"
-         },
-         {
-            "id" : "function_class_closure",
-            "description" : "???",
-            "cardinality" : "multi",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Function",
-            "type" : "string"
-         },
-         {
-            "type" : "string",
-            "display_name" : "Function",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [],
-            "cardinality" : "multi",
-            "description" : "???",
-            "id" : "function_class_closure_label"
-         },
-         {
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Process",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "cardinality" : "single",
-            "id" : "process_class",
-            "description" : "Process acc/ID."
-         },
-         {
-            "property" : [],
-            "searchable" : "true",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "Process",
-            "required" : "false",
-            "type" : "string",
-            "id" : "process_class_label",
-            "description" : "Common process name.",
-            "cardinality" : "single"
-         },
-         {
-            "display_name" : "Process",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "cardinality" : "multi",
-            "id" : "process_class_closure",
-            "description" : "???"
-         },
-         {
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Process",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "true",
-            "property" : [],
-            "cardinality" : "multi",
-            "description" : "???",
-            "id" : "process_class_closure_label"
-         },
-         {
-            "cardinality" : "multi",
-            "description" : "",
-            "id" : "location_list",
-            "type" : "string",
-            "display_name" : "Location",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : []
-         },
-         {
-            "type" : "string",
-            "display_name" : "Location",
-            "required" : "false",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "cardinality" : "multi",
-            "description" : "",
-            "id" : "location_list_label"
-         },
-         {
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Location",
-            "indexed" : "true",
-            "description" : "",
-            "id" : "location_list_closure",
-            "cardinality" : "multi"
-         },
-         {
-            "description" : "",
-            "id" : "location_list_closure_label",
-            "cardinality" : "multi",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Location",
-            "required" : "false"
-         },
-         {
-            "cardinality" : "single",
-            "id" : "owl_blob_json",
-            "description" : "???",
-            "display_name" : "???",
-            "required" : "false",
-            "indexed" : "false",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false"
-         },
-         {
-            "cardinality" : "single",
-            "id" : "topology_graph_json",
-            "description" : "JSON blob form of the local stepwise topology graph.",
-            "display_name" : "Topology graph (JSON)",
-            "required" : "false",
-            "indexed" : "false",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false"
-         },
-         {
-            "cardinality" : "single",
-            "description" : "Evidence type.",
-            "id" : "evidence_type",
-            "type" : "string",
-            "required" : "false",
-            "display_name" : "Evidence",
-            "indexed" : "true",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : []
-         },
-         {
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Evidence type",
-            "required" : "false",
-            "searchable" : "false",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "multi",
-            "description" : "All evidence (evidence closure) for this annotation",
-            "id" : "evidence_type_closure"
-         },
-         {
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Evidence",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "Evidence type.",
-            "id" : "evidence_type_label"
-         },
-         {
-            "cardinality" : "multi",
-            "description" : "All evidence (evidence closure) for this annotation",
-            "id" : "evidence_type_closure_label",
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Evidence type",
-            "required" : "false",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : []
-         },
-         {
-            "description" : "Evidence with/from.",
-            "id" : "evidence_with",
-            "cardinality" : "multi",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "Evidence with",
-            "required" : "false"
-         },
-         {
-            "cardinality" : "multi",
-            "id" : "reference",
-            "description" : "Database reference.",
-            "display_name" : "Reference",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true"
-         }
-      ],
-      "_outfile" : "/home/sjcarbon//local/src/git/amigo/metadata/model-ann-config.yaml",
-      "weight" : "40",
-      "_strict" : 0,
-      "id" : "model_annotation",
-      "description" : "An individual unit within LEGO. This is <strong>ALPHA</strong> software.",
-      "result_weights" : "function_class^9.0 enabled_by^8.0 location_list^7.0 process_class^6.0 model^5.0 taxon^4.5 contributor^4.0 model_date^3.0 reference^2.0",
-      "searchable_extension" : "_searchable"
-   },
-   "family" : {
-      "display_name" : "Protein families",
-      "schema_generating" : "true",
-      "document_category" : "family",
-      "_infile" : "/home/sjcarbon//local/src/git/amigo/metadata/protein-family-config.yaml",
-      "_outfile" : "/home/sjcarbon//local/src/git/amigo/metadata/protein-family-config.yaml",
-      "id" : "family",
-      "_strict" : 0,
-      "weight" : "5",
-      "description" : "Information about protein (PANTHER) families.",
-      "result_weights" : "panther_family^5.0 bioentity_list^4.0",
-      "searchable_extension" : "_searchable",
-      "filter_weights" : "bioentity_list_label^1.0",
-      "fields_hash" : {
-         "panther_family" : {
-            "description" : "PANTHER family IDs that are associated with this entity.",
-            "id" : "panther_family",
-            "cardinality" : "single",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "PANTHER family"
-         },
-         "bioentity_list" : {
-            "display_name" : "Gene/products",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "cardinality" : "multi",
-            "id" : "bioentity_list",
-            "description" : "Gene/products annotated with this protein family."
-         },
-         "id" : {
-            "indexed" : "true",
-            "display_name" : "Acc",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "cardinality" : "single",
-            "id" : "id",
-            "description" : "Family ID."
-         },
-         "phylo_graph_json" : {
-            "description" : "JSON blob form of the phylogenic tree.",
-            "id" : "phylo_graph_json",
-            "cardinality" : "single",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "type" : "string",
-            "display_name" : "This should not be displayed",
-            "required" : "false",
-            "indexed" : "false"
-         },
-         "bioentity_list_label" : {
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "display_name" : "Gene/products",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "bioentity_list_label",
-            "description" : "Gene/products annotated with this protein family.",
-            "cardinality" : "multi"
-         },
-         "panther_family_label" : {
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "PANTHER family",
-            "required" : "false",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "PANTHER families that are associated with this entity.",
-            "id" : "panther_family_label"
-         }
-      },
-      "boost_weights" : "panther_family^2.0 panther_family_label^2.0 bioentity_list^1.0 bioentity_list_label^1.0",
-      "fields" : [
-         {
-            "indexed" : "true",
-            "display_name" : "Acc",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "cardinality" : "single",
-            "id" : "id",
-            "description" : "Family ID."
-         },
-         {
-            "description" : "PANTHER family IDs that are associated with this entity.",
-            "id" : "panther_family",
-            "cardinality" : "single",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "PANTHER family"
-         },
-         {
-            "type" : "string",
-            "indexed" : "true",
-            "display_name" : "PANTHER family",
-            "required" : "false",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "PANTHER families that are associated with this entity.",
-            "id" : "panther_family_label"
-         },
-         {
-            "description" : "JSON blob form of the phylogenic tree.",
-            "id" : "phylo_graph_json",
-            "cardinality" : "single",
-            "transform" : [],
-            "searchable" : "false",
-            "property" : [],
-            "type" : "string",
-            "display_name" : "This should not be displayed",
-            "required" : "false",
-            "indexed" : "false"
-         },
-         {
-            "display_name" : "Gene/products",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "cardinality" : "multi",
-            "id" : "bioentity_list",
-            "description" : "Gene/products annotated with this protein family."
-         },
-         {
-            "property" : [],
-            "transform" : [],
-            "searchable" : "false",
-            "display_name" : "Gene/products",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "id" : "bioentity_list_label",
-            "description" : "Gene/products annotated with this protein family.",
-            "cardinality" : "multi"
-         }
-      ]
-   },
-   "general" : {
-      "_outfile" : "/home/sjcarbon//local/src/git/amigo/metadata/general-config.yaml",
-      "id" : "general",
-      "_strict" : 0,
-      "weight" : "0",
-      "description" : "A generic search document to get a general overview of everything.",
-      "result_weights" : "entity^3.0 category^1.0",
-      "searchable_extension" : "_searchable",
-      "filter_weights" : "category^4.0",
-      "fields_hash" : {
-         "category" : {
-            "indexed" : "true",
-            "display_name" : "Document category",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "cardinality" : "single",
-            "id" : "category",
-            "description" : "The document category that this enitity belongs to."
-         },
-         "entity_label" : {
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Enity label",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "The label for this entity.",
-            "id" : "entity_label"
-         },
-         "id" : {
-            "id" : "id",
-            "description" : "The mangled internal ID for this entity.",
-            "cardinality" : "single",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "Internal ID",
-            "required" : "false",
-            "type" : "string"
-         },
-         "general_blob" : {
-            "cardinality" : "single",
-            "id" : "general_blob",
-            "description" : "A hidden searchable blob document to access this item. It should contain all the goodies that we want to search for, like species(?), synonyms, etc.",
-            "display_name" : "Generic blob",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true"
-         },
-         "entity" : {
-            "id" : "entity",
-            "description" : "The ID/label for this entity.",
-            "cardinality" : "single",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Entity",
-            "type" : "string"
-         }
-      },
-      "boost_weights" : "entity^3.0 entity_label^3.0 general_blob^3.0",
-      "fields" : [
-         {
-            "id" : "id",
-            "description" : "The mangled internal ID for this entity.",
-            "cardinality" : "single",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "display_name" : "Internal ID",
-            "required" : "false",
-            "type" : "string"
-         },
-         {
-            "id" : "entity",
-            "description" : "The ID/label for this entity.",
-            "cardinality" : "single",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Entity",
-            "type" : "string"
-         },
-         {
-            "type" : "string",
-            "indexed" : "true",
-            "required" : "false",
-            "display_name" : "Enity label",
-            "searchable" : "true",
-            "transform" : [],
-            "property" : [],
-            "cardinality" : "single",
-            "description" : "The label for this entity.",
-            "id" : "entity_label"
-         },
-         {
-            "indexed" : "true",
-            "display_name" : "Document category",
-            "required" : "false",
-            "type" : "string",
-            "property" : [],
-            "searchable" : "false",
-            "transform" : [],
-            "cardinality" : "single",
-            "id" : "category",
-            "description" : "The document category that this enitity belongs to."
-         },
-         {
-            "cardinality" : "single",
-            "id" : "general_blob",
-            "description" : "A hidden searchable blob document to access this item. It should contain all the goodies that we want to search for, like species(?), synonyms, etc.",
-            "display_name" : "Generic blob",
-            "required" : "false",
-            "indexed" : "true",
-            "type" : "string",
-            "property" : [],
-            "transform" : [],
-            "searchable" : "true"
-         }
-      ],
-      "display_name" : "General",
-      "schema_generating" : "true",
-      "document_category" : "general",
-      "_infile" : "/home/sjcarbon//local/src/git/amigo/metadata/general-config.yaml"
-   }
-};
-/*
- * Package: server.js
- * 
- * Namespace: amigo.data.server
- * 
- * This package was automatically created during AmiGO 2 installation.
- * 
- * Purpose: Useful information about GO and the AmiGO installation.
- *          Also serves as a repository and getter for web
- *          resources such as images.
- * 
- * NOTE: This file is generated dynamically at installation time.
- *       Hard to work with unit tests--hope it's not too bad.
- *       Want to keep this real simple.
- */
-
-// Module and namespace checking.
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
-
-/*
- * Constructor: server
- * 
- * The configuration for the server settings.
- * Essentially a JSONification of the config.pl AmiGO 2 file.
- * 
- * Arguments:
- *  n/a
- */
-amigo.data.server = function(){
-
-    // All of the server/instance-specific meta-data.
-    var meta_data = {"noctua_base":"http://noctua.berkeleybop.org/","js_dev_base":"http://localhost:9999/static/staging","evidence_codes":{},"css_base":"http://localhost:9999/static/css","galaxy_base":"http://galaxy.berkeleybop.org/","html_base":"http://localhost:9999/static","term_regexp":"all|GO:[0-9]{7}","species_map":{},"species":[],"ontologies":[],"beta":"1","gp_types":[],"sources":[],"image_base":"http://localhost:9999/static/images","bbop_img_star":"http://localhost:9999/static/images/star.png","app_base":"http://localhost:9999","golr_base":"http://localhost:8080/solr/","js_base":"http://localhost:9999/static/js"};
-
-    ///
-    /// Break out the data and various functions to access them...
-    ///
-
-    /*
-     * Function: noctua_base
-     * 
-     * Access to AmiGO variable noctua_base.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var noctua_base = meta_data.noctua_base;
-    this.noctua_base = function(){ return noctua_base; };
-
-    /*
-     * Function: js_dev_base
-     * 
-     * Access to AmiGO variable js_dev_base.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var js_dev_base = meta_data.js_dev_base;
-    this.js_dev_base = function(){ return js_dev_base; };
-
-    /*
-     * Function: evidence_codes
-     * 
-     * Access to AmiGO variable evidence_codes.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var evidence_codes = meta_data.evidence_codes;
-    this.evidence_codes = function(){ return evidence_codes; };
-
-    /*
-     * Function: css_base
-     * 
-     * Access to AmiGO variable css_base.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var css_base = meta_data.css_base;
-    this.css_base = function(){ return css_base; };
-
-    /*
-     * Function: galaxy_base
-     * 
-     * Access to AmiGO variable galaxy_base.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var galaxy_base = meta_data.galaxy_base;
-    this.galaxy_base = function(){ return galaxy_base; };
-
-    /*
-     * Function: html_base
-     * 
-     * Access to AmiGO variable html_base.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var html_base = meta_data.html_base;
-    this.html_base = function(){ return html_base; };
-
-    /*
-     * Function: term_regexp
-     * 
-     * Access to AmiGO variable term_regexp.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var term_regexp = meta_data.term_regexp;
-    this.term_regexp = function(){ return term_regexp; };
-
-    /*
-     * Function: species_map
-     * 
-     * Access to AmiGO variable species_map.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var species_map = meta_data.species_map;
-    this.species_map = function(){ return species_map; };
-
-    /*
-     * Function: species
-     * 
-     * Access to AmiGO variable species.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var species = meta_data.species;
-    this.species = function(){ return species; };
-
-    /*
-     * Function: ontologies
-     * 
-     * Access to AmiGO variable ontologies.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var ontologies = meta_data.ontologies;
-    this.ontologies = function(){ return ontologies; };
-
-    /*
-     * Function: beta
-     * 
-     * Access to AmiGO variable beta.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var beta = meta_data.beta;
-    this.beta = function(){ return beta; };
-
-    /*
-     * Function: gp_types
-     * 
-     * Access to AmiGO variable gp_types.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var gp_types = meta_data.gp_types;
-    this.gp_types = function(){ return gp_types; };
-
-    /*
-     * Function: sources
-     * 
-     * Access to AmiGO variable sources.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var sources = meta_data.sources;
-    this.sources = function(){ return sources; };
-
-    /*
-     * Function: image_base
-     * 
-     * Access to AmiGO variable image_base.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var image_base = meta_data.image_base;
-    this.image_base = function(){ return image_base; };
-
-    /*
-     * Function: bbop_img_star
-     * 
-     * Access to AmiGO variable bbop_img_star.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var bbop_img_star = meta_data.bbop_img_star;
-    this.bbop_img_star = function(){ return bbop_img_star; };
-
-    /*
-     * Function: app_base
-     * 
-     * Access to AmiGO variable app_base.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var app_base = meta_data.app_base;
-    this.app_base = function(){ return app_base; };
-
-    /*
-     * Function: golr_base
-     * 
-     * Access to AmiGO variable golr_base.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var golr_base = meta_data.golr_base;
-    this.golr_base = function(){ return golr_base; };
-
-    /*
-     * Function: js_base
-     * 
-     * Access to AmiGO variable js_base.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  string
-     */
-    var js_base = meta_data.js_base;
-    this.js_base = function(){ return js_base; };
-
-
-    // Does it look like a term?
-    var tre_str = meta_data.term_regexp;
-    var tre = new RegExp(tre_str);
-
-    /*
-     * Function: term_id_p
-     * 
-     * True or false on whether or not a string looks like a GO term id.
-     * 
-     * Parameters:
-     *  term_id - the string to test
-     * 
-     * Returns:
-     *  boolean
-     */
-    this.term_id_p = function(term_id){
-       var retval = false;
-       if( tre.test(term_id) ){
-          retval = true;
-       }
-       return retval;
-    };
-
-    /*
-     * Function: get_image_resource
-     * 
-     * Get a named resource from the meta_data hash if possible.
-     * 
-     * Parameters:
-     *  resource - the string id of the resource
-     * 
-     * Returns:
-     * string (url) of resource
-     */
-    this.get_image_resource = function(resource){
-
-       var retval = null;
-       var mangled_res = 'bbop_img_' + resource;
-
-       if( meta_data[mangled_res] ){
-          retval = meta_data[mangled_res];
-       }
-       return retval;
-    };
-};
-/*
- * Package: definitions.js
- * 
- * Namespace: amigo.data.definitions
- * 
- * Purpose: Useful information about common GO datatypes and
- * structures, as well as some constants.
- */
-
-// Module and namespace checking.
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
-
-/*
- * Constructor: definitions
- * 
- * Encapsulate common structures and constants.
- * 
- * Arguments:
- *  n/a
- */
-amigo.data.definitions = function(){
-
-    /*
-     * Function: gaf_from_golr_fields
-     * 
-     * A list of fields to generate a GAF from using golr fields.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  list of strings
-     */
-    this.gaf_from_golr_fields = function(){
-	return [
-	    'source', // c1
-	    'bioentity_internal_id', // c2; not bioentity
-	    'bioentity_label', // c3
-	    'qualifier', // c4
-	    'annotation_class', // c5
-	    'reference', // c6
-	    'evidence_type', // c7
-	    'evidence_with', // c8
-	    'aspect', // c9
-	    'bioentity_name', // c10
-	    'synonym', // c11
-	    'type', // c12
-	    'taxon', // c13
-	    'date', // c14
-	    'assigned_by', // c15
-	    'annotation_extension_class', // c16
-	    'bioentity_isoform' // c17
-	];
-    };
-
-    /*
-     * Function: download_limit
-     * 
-     * The maximum allowed number of items to download for out server.
-     * 
-     * Parameters:
-     *  n/a
-     * 
-     * Returns:
-     *  integer
-     */
-    this.download_limit = function(){
-	//return 7500;
-	return 10000;
-    };
-
-};
-/* 
- * Package: xrefs.js
- * 
- * Namespace: amigo.data.xrefs
- * 
- * This package was automatically created during an AmiGO 2 installation
- * from the GO.xrf_abbs file at: "https://raw.githubusercontent.com/geneontology/go-site/master/metadata/db-xrefs.yaml".
- *
- * NOTE: This file is generated dynamically at installation time.
- * Hard to work with unit tests--hope it's not too bad. You have to
- * occasionally copy back to keep the unit tests sane.
- */
-
-// All of the server/instance-specific meta-data.
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
-
-/*
- * Variable: xrefs
- * 
- * All the external references that we know about.
- */
-amigo.data.xrefs = {
-   "interpro" : {
-      "id" : "InterPro",
-      "url_syntax" : "http://www.ebi.ac.uk/interpro/entry/[example_id]",
-      "abbreviation" : "INTERPRO",
-      "database" : "InterPro database of protein domains and motifs",
-      "url_example" : "http://www.ebi.ac.uk/interpro/entry/IPR015421",
-      "name" : "InterPro database of protein domains and motifs",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : "InterPro:IPR000001",
-      "generic_url" : "http://www.ebi.ac.uk/interpro/",
-      "object" : "polypeptide region",
-      "datatype" : "polypeptide region"
-   },
-   "refseq" : {
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/RefSeq/",
-      "example_id" : "RefSeq:XP_001068954",
-      "datatype" : "protein",
-      "object" : "protein",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/entrez/viewer.fcgi?val=XP_001068954",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/entrez/viewer.fcgi?val=[example_id]",
-      "id" : "RefSeq",
-      "abbreviation" : "RefSeq",
-      "database" : "RefSeq",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "RefSeq"
-   },
-   "biopixie_mefit" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : null,
-      "generic_url" : "http://avis.princeton.edu/mefit/",
-      "name" : "biological Process Inference from eXperimental Interaction Evidence/Microarray Experiment Functional Integration Technology",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "id" : "bioPIXIE_MEFIT",
-      "url_syntax" : null,
-      "database" : "biological Process Inference from eXperimental Interaction Evidence/Microarray Experiment Functional Integration Technology",
-      "abbreviation" : "bioPIXIE_MEFIT",
-      "url_example" : null
-   },
-   "syscilia_ccnet" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://syscilia.org/",
-      "example_id" : null,
-      "fullname" : "A systems biology approach to dissect cilia function and its disruption in human genetic disease",
-      "uri_prefix" : null,
-      "name" : "Syscilia",
-      "url_example" : null,
-      "abbreviation" : "SYSCILIA_CCNET",
-      "url_syntax" : null,
-      "id" : "SYSCILIA_CCNET",
-      "database" : "Syscilia"
-   },
-   "echobase" : {
-      "object" : "gene",
-      "datatype" : "gene",
-      "generic_url" : "http://www.ecoli-york.org/",
-      "example_id" : "EchoBASE:EB0231",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "EchoBASE post-genomic database for Escherichia coli",
-      "url_example" : "http://www.biolws1.york.ac.uk/echobase/Gene.cfm?recordID=EB0231",
-      "abbreviation" : "EchoBASE",
-      "url_syntax" : "http://www.biolws1.york.ac.uk/echobase/Gene.cfm?recordID=[example_id]",
-      "database" : "EchoBASE post-genomic database for Escherichia coli",
-      "id" : "EchoBASE"
-   },
-   "fb" : {
-      "url_example" : "http://flybase.org/reports/FBgn0000024.html",
-      "url_syntax" : "http://flybase.org/reports/[example_id].html",
-      "id" : "FB",
-      "abbreviation" : "FB",
-      "database" : "FlyBase",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "FlyBase",
-      "generic_url" : "http://flybase.org/",
-      "example_id" : "FB:FBgn0000024",
-      "datatype" : "gene",
-      "object" : "gene"
-   },
-   "jcvi_egad" : {
-      "url_example" : "http://cmr.jcvi.org/cgi-bin/CMR/EgadSearch.cgi?search_string=74462",
-      "abbreviation" : "JCVI_EGAD",
-      "url_syntax" : "http://cmr.jcvi.org/cgi-bin/CMR/EgadSearch.cgi?search_string=[example_id]",
-      "id" : "JCVI_EGAD",
-      "database" : "JCVI CMR Egad",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "JCVI CMR Egad",
-      "generic_url" : "http://cmr.jcvi.org/",
-      "example_id" : "JCVI_EGAD:74462",
-      "datatype" : "entity",
-      "object" : "entity"
-   },
-   "vmd" : {
-      "example_id" : "VMD:109198",
-      "generic_url" : "http://phytophthora.vbi.vt.edu",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_syntax" : "http://vmd.vbi.vt.edu/cgi-bin/browse/browserDetail_new.cgi?gene_id=[example_id]",
-      "abbreviation" : "VMD",
-      "database" : "Virginia Bioinformatics Institute Microbial Database",
-      "id" : "VMD",
-      "url_example" : "http://vmd.vbi.vt.edu/cgi-bin/browse/browserDetail_new.cgi?gene_id=109198",
-      "name" : "Virginia Bioinformatics Institute Microbial Database",
-      "fullname" : null,
-      "uri_prefix" : null
-   },
-   "cl" : {
-      "url_syntax" : "http://purl.obolibrary.org/obo/CL_[example_id]",
-      "database" : "Cell Type Ontology",
-      "id" : "CL",
-      "abbreviation" : "CL",
-      "url_example" : "http://purl.obolibrary.org/obo/CL_0000041",
-      "name" : "Cell Type Ontology",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : "CL:0000041",
-      "generic_url" : "http://cellontology.org",
-      "object" : "cell",
-      "datatype" : "cell"
-   },
-   "embl" : {
-      "fullname" : "International nucleotide sequence database collaboration, comprising EMBL-EBI nucleotide sequence data library (EMBL-Bank), DNA DataBank of Japan (DDBJ), and NCBI GenBank",
-      "uri_prefix" : null,
-      "name" : "EMBL Nucleotide Sequence Database",
-      "url_example" : "http://www.ebi.ac.uk/cgi-bin/emblfetch?style=html&Submit=Go&id=AA816246",
-      "url_syntax" : "http://www.ebi.ac.uk/cgi-bin/emblfetch?style=html&Submit=Go&id=[example_id]",
-      "id" : "EMBL",
-      "abbreviation" : "EMBL",
-      "database" : "EMBL Nucleotide Sequence Database",
-      "object" : "gene",
-      "datatype" : "gene",
-      "generic_url" : "http://www.ebi.ac.uk/embl/",
-      "example_id" : "EMBL:AA816246"
-   },
-   "psi-mi" : {
-      "id" : "PSI-MI",
-      "url_syntax" : null,
-      "database" : "Proteomic Standard Initiative for Molecular Interaction",
-      "abbreviation" : "PSI-MI",
-      "url_example" : null,
-      "name" : "Proteomic Standard Initiative for Molecular Interaction",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "MI:0018",
-      "generic_url" : "http://psidev.sourceforge.net/mi/xml/doc/user/index.html",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "pombase" : {
-      "datatype" : "gene",
-      "object" : "gene",
-      "generic_url" : "http://www.pombase.org/",
-      "example_id" : "PomBase:SPBC11B10.09",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "PomBase",
-      "url_example" : "http://www.pombase.org/spombe/result/SPBC11B10.09",
-      "url_syntax" : "http://www.pombase.org/spombe/result/[example_id]",
-      "abbreviation" : "PomBase",
-      "id" : "PomBase",
-      "database" : "PomBase"
-   },
-   "cgd" : {
-      "generic_url" : "http://www.candidagenome.org/",
-      "example_id" : "CGD:CAL0005516",
-      "object" : "gene",
-      "datatype" : "gene",
-      "url_example" : "http://www.candidagenome.org/cgi-bin/locus.pl?dbid=CAL0005516",
-      "id" : "CGD",
-      "url_syntax" : "http://www.candidagenome.org/cgi-bin/locus.pl?dbid=[example_id]",
-      "database" : "Candida Genome Database",
-      "abbreviation" : "CGD",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Candida Genome Database"
-   },
-   "kegg" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.genome.ad.jp/kegg/",
-      "example_id" : null,
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Kyoto Encyclopedia of Genes and Genomes",
-      "url_example" : null,
-      "url_syntax" : null,
-      "abbreviation" : "KEGG",
-      "id" : "KEGG",
-      "database" : "Kyoto Encyclopedia of Genes and Genomes"
-   },
-   "biomd" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.ebi.ac.uk/biomodels/",
-      "example_id" : "BIOMD:BIOMD0000000045",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "BioModels Database",
-      "url_example" : "http://www.ebi.ac.uk/compneur-srv/biomodels-main/publ-model.do?mid=BIOMD0000000045",
-      "id" : "BIOMD",
-      "url_syntax" : "http://www.ebi.ac.uk/compneur-srv/biomodels-main/publ-model.do?mid=[example_id]",
-      "abbreviation" : "BIOMD",
-      "database" : "BioModels Database"
-   },
-   "patric" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "PATRIC:cds.000002.436951",
-      "generic_url" : "http://patric.vbi.vt.edu",
-      "name" : "PathoSystems Resource Integration Center",
-      "fullname" : "PathoSystems Resource Integration Center at the Virginia Bioinformatics Institute",
-      "uri_prefix" : null,
-      "database" : "PathoSystems Resource Integration Center",
-      "url_syntax" : "http://patric.vbi.vt.edu/gene/overview.php?fid=[example_id]",
-      "id" : "PATRIC",
-      "abbreviation" : "PATRIC",
-      "url_example" : "http://patric.vbi.vt.edu/gene/overview.php?fid=cds.000002.436951"
-   },
-   "pmcid" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Pubmed Central",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/sites/entrez?db=pmc&cmd=search&term=PMC201377",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/sites/entrez?db=pmc&cmd=search&term=[example_id]",
-      "abbreviation" : "PMCID",
-      "id" : "PMCID",
-      "database" : "Pubmed Central",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.pubmedcentral.nih.gov/",
-      "example_id" : "PMCID:PMC201377"
-   },
-   "prodom" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "ProDom:PD000001",
-      "generic_url" : "http://prodom.prabi.fr/prodom/current/html/home.php",
-      "name" : "ProDom protein domain families",
-      "uri_prefix" : null,
-      "fullname" : "ProDom protein domain families automatically generated from UniProtKB",
-      "abbreviation" : "ProDom",
-      "url_syntax" : "http://prodom.prabi.fr/prodom/current/cgi-bin/request.pl?question=DBEN&query=[example_id]",
-      "id" : "ProDom",
-      "database" : "ProDom protein domain families",
-      "url_example" : "http://prodom.prabi.fr/prodom/current/cgi-bin/request.pl?question=DBEN&query=PD000001"
-   },
-   "asap" : {
-      "url_example" : "https://asap.ahabs.wisc.edu/annotation/php/feature_info.php?FeatureID=ABE-0000008",
-      "url_syntax" : "https://asap.ahabs.wisc.edu/annotation/php/feature_info.php?FeatureID=[example_id]",
-      "id" : "ASAP",
-      "abbreviation" : "ASAP",
-      "database" : "A Systematic Annotation Package for Community Analysis of Genomes",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "A Systematic Annotation Package for Community Analysis of Genomes",
-      "generic_url" : "https://asap.ahabs.wisc.edu/annotation/php/ASAP1.htm",
-      "example_id" : "ASAP:ABE-0000008",
-      "object" : "gene",
-      "datatype" : "gene"
-   },
-   "locsvmpsi" : {
-      "abbreviation" : "LOCSVMpsi",
-      "url_syntax" : null,
-      "id" : "LOCSVMpsi",
-      "database" : "LOCSVMPSI",
-      "url_example" : null,
-      "name" : "LOCSVMPSI",
-      "fullname" : "Subcellular localization for eukayotic proteins based on SVM and PSI-BLAST",
-      "uri_prefix" : null,
-      "example_id" : null,
-      "generic_url" : "http://bioinformatics.ustc.edu.cn/locsvmpsi/locsvmpsi.php",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "iuphar_receptor" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "IUPHAR_RECEPTOR:2205",
-      "generic_url" : "http://www.iuphar.org/",
-      "name" : "International Union of Pharmacology",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "url_syntax" : "http://www.iuphar-db.org/DATABASE/ObjectDisplayForward?objectId=[example_id]",
-      "database" : "International Union of Pharmacology",
-      "abbreviation" : "IUPHAR_RECEPTOR",
-      "id" : "IUPHAR_RECEPTOR",
-      "url_example" : "http://www.iuphar-db.org/DATABASE/ObjectDisplayForward?objectId=56"
-   },
-   "uniprotkb" : {
-      "url_syntax" : "http://www.uniprot.org/uniprot/[example_id]",
-      "id" : "UniProtKB",
-      "abbreviation" : "UniProtKB",
-      "database" : "Universal Protein Knowledgebase",
-      "url_example" : "http://www.uniprot.org/uniprot/P51587",
-      "name" : "Universal Protein Knowledgebase",
-      "uri_prefix" : null,
-      "fullname" : "A central repository of protein sequence and function created by joining the information contained in Swiss-Prot, TrEMBL, and PIR database",
-      "example_id" : "UniProtKB:P51587",
-      "generic_url" : "http://www.uniprot.org",
-      "object" : "protein",
-      "datatype" : "protein"
-   },
-   "cazy" : {
-      "fullname" : "The CAZy database describes the families of structurally-related catalytic and carbohydrate-binding modules (or functional domains) of enzymes that degrade, modify, or create glycosidic bonds.",
-      "uri_prefix" : null,
-      "name" : "Carbohydrate Active EnZYmes",
-      "url_example" : "http://www.cazy.org/PL11.html",
-      "abbreviation" : "CAZY",
-      "url_syntax" : "http://www.cazy.org/[example_id].html",
-      "id" : "CAZY",
-      "database" : "Carbohydrate Active EnZYmes",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.cazy.org/",
-      "example_id" : "CAZY:PL11"
-   },
-   "aspgd_locus" : {
-      "example_id" : "AspGD_LOCUS:AN10942",
-      "generic_url" : "http://www.aspergillusgenome.org/",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_syntax" : "http://www.aspergillusgenome.org/cgi-bin/locus.pl?locus=[example_id]",
-      "id" : "AspGD_LOCUS",
-      "abbreviation" : "AspGD_LOCUS",
-      "database" : "Aspergillus Genome Database",
-      "url_example" : "http://www.aspergillusgenome.org/cgi-bin/locus.pl?locus=AN10942",
-      "name" : "Aspergillus Genome Database",
-      "uri_prefix" : null,
-      "fullname" : null
-   },
-   "eck" : {
-      "datatype" : "gene",
-      "object" : "gene",
-      "generic_url" : "http://www.ecogene.org/",
-      "example_id" : "ECK:ECK3746",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "EcoGene Database of Escherichia coli Sequence and Function",
-      "url_example" : "http://www.ecogene.org/geneInfo.php?eck_id=ECK3746",
-      "url_syntax" : "http://www.ecogene.org/geneInfo.php?eck_id=[example_id]",
-      "abbreviation" : "ECK",
-      "database" : "EcoGene Database of Escherichia coli Sequence and Function",
-      "id" : "ECK"
-   },
-   "rhea" : {
-      "generic_url" : "http://www.ebi.ac.uk/rhea/",
-      "example_id" : "RHEA:25811",
-      "datatype" : "entity",
-      "object" : "entity",
-      "url_example" : "http://www.ebi.ac.uk/rhea/reaction.xhtml?id=25811",
-      "id" : "RHEA",
-      "url_syntax" : "http://www.ebi.ac.uk/rhea/reaction.xhtml?id=[example_id]",
-      "abbreviation" : "RHEA",
-      "database" : "Rhea, the Annotated Reactions Database",
-      "fullname" : "Rhea is a freely available, manually annotated database of chemical reactions created in collaboration with the Swiss Institute of Bioinformatics (SIB).",
-      "uri_prefix" : null,
-      "name" : "Rhea, the Annotated Reactions Database"
-   },
-   "cas" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "CAS:58-08-2",
-      "generic_url" : "http://www.cas.org/expertise/cascontent/registry/index.html",
-      "name" : "CAS Chemical Registry",
-      "uri_prefix" : null,
-      "fullname" : "CAS REGISTRY is the most authoritative collection of disclosed chemical substance information, containing more than 54 million organic and inorganic substances and 62 million sequences. CAS REGISTRY covers substances identified from the scientific literature from 1957 to the present, with additional substances going back to the early 1900s.",
-      "url_syntax" : null,
-      "database" : "CAS Chemical Registry",
-      "abbreviation" : "CAS",
-      "id" : "CAS",
-      "url_example" : null
-   },
-   "nmpdr" : {
-      "url_example" : "http://www.nmpdr.org/linkin.cgi?id=fig|306254.1.peg.183",
-      "url_syntax" : "http://www.nmpdr.org/linkin.cgi?id=[example_id]",
-      "abbreviation" : "NMPDR",
-      "id" : "NMPDR",
-      "database" : "National Microbial Pathogen Data Resource",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "National Microbial Pathogen Data Resource",
-      "generic_url" : "http://www.nmpdr.org",
-      "example_id" : "NMPDR:fig|306254.1.peg.183",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "tigr_tigrfams" : {
-      "name" : "TIGRFAMs HMM collection at the J. Craig Venter Institute",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "url_syntax" : "http://search.jcvi.org/search?p&q=[example_id]",
-      "id" : "JCVI_TIGRFAMS",
-      "database" : "TIGRFAMs HMM collection at the J. Craig Venter Institute",
-      "abbreviation" : "TIGR_TIGRFAMS",
-      "url_example" : "http://search.jcvi.org/search?p&q=TIGR00254",
-      "object" : "polypeptide region",
-      "datatype" : "polypeptide region",
-      "example_id" : "JCVI_TIGRFAMS:TIGR00254",
-      "generic_url" : "http://search.jcvi.org/"
-   },
-   "wb" : {
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "WormBase database of nematode biology",
-      "url_example" : "http://www.wormbase.org/db/get?class=Gene;name=WBGene00003001",
-      "id" : "WB",
-      "url_syntax" : "http://www.wormbase.org/db/gene/gene?name=[example_id]",
-      "abbreviation" : "WB",
-      "database" : "WormBase database of nematode biology",
-      "object" : "protein",
-      "datatype" : "protein",
-      "generic_url" : "http://www.wormbase.org/",
-      "example_id" : "WB:WBGene00003001"
-   },
-   "img" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Integrated Microbial Genomes; JGI web site for genome annotation",
-      "url_example" : "http://img.jgi.doe.gov/cgi-bin/pub/main.cgi?section=GeneDetail&page=geneDetail&gene_oid=640008772",
-      "url_syntax" : "http://img.jgi.doe.gov/cgi-bin/pub/main.cgi?section=GeneDetail&page=geneDetail&gene_oid=[example_id]",
-      "database" : "Integrated Microbial Genomes; JGI web site for genome annotation",
-      "id" : "IMG",
-      "abbreviation" : "IMG",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://img.jgi.doe.gov",
-      "example_id" : "IMG:640008772"
-   },
-   "subtilistg" : {
-      "datatype" : "entity",
-      "object" : "entity",
-      "example_id" : "SUBTILISTG:accC",
-      "generic_url" : "http://genolist.pasteur.fr/SubtiList/",
-      "name" : "Bacillus subtilis Genome Sequence Project",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "id" : "SUBTILISTG",
-      "url_syntax" : null,
-      "abbreviation" : "SUBTILISTG",
-      "database" : "Bacillus subtilis Genome Sequence Project",
-      "url_example" : null
-   },
-   "mengo" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://mengo.vbi.vt.edu/",
-      "example_id" : null,
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Microbial ENergy processes Gene Ontology Project",
-      "url_example" : null,
-      "url_syntax" : null,
-      "database" : "Microbial ENergy processes Gene Ontology Project",
-      "abbreviation" : "MENGO",
-      "id" : "MENGO"
-   },
-   "intact" : {
-      "name" : "IntAct protein interaction database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "id" : "IntAct",
-      "url_syntax" : "http://www.ebi.ac.uk/intact/search/do/search?searchString=[example_id]",
-      "abbreviation" : "IntAct",
-      "database" : "IntAct protein interaction database",
-      "url_example" : "http://www.ebi.ac.uk/intact/search/do/search?searchString=EBI-17086",
-      "object" : "protein complex",
-      "datatype" : "protein complex",
-      "example_id" : "IntAct:EBI-17086",
-      "generic_url" : "http://www.ebi.ac.uk/intact/"
-   },
-   "hpa_antibody" : {
-      "example_id" : "HPA_antibody:HPA000237",
-      "generic_url" : "http://www.proteinatlas.org/",
-      "object" : "entity",
-      "datatype" : "entity",
-      "abbreviation" : "HPA_antibody",
-      "url_syntax" : "http://www.proteinatlas.org/antibody_info.php?antibody_id=[example_id]",
-      "id" : "HPA_antibody",
-      "database" : "Human Protein Atlas antibody information",
-      "url_example" : "http://www.proteinatlas.org/antibody_info.php?antibody_id=HPA000237",
-      "name" : "Human Protein Atlas antibody information",
-      "uri_prefix" : null,
-      "fullname" : null
-   },
-   "mo" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://mged.sourceforge.net/ontologies/MGEDontology.php",
-      "example_id" : "MO:Action",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "MGED Ontology",
-      "url_example" : "http://mged.sourceforge.net/ontologies/MGEDontology.php#Action",
-      "database" : "MGED Ontology",
-      "url_syntax" : "http://mged.sourceforge.net/ontologies/MGEDontology.php#[example_id]",
-      "id" : "MO",
-      "abbreviation" : "MO"
-   },
-   "genedb" : {
-      "url_example" : "http://www.genedb.org/gene/PF3D7_1467300",
-      "url_syntax" : "http://www.genedb.org/gene/[example_id]",
-      "abbreviation" : "GeneDB",
-      "database" : "GeneDB",
-      "id" : "GeneDB",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "GeneDB",
-      "generic_url" : "http://www.genedb.org/gene/",
-      "example_id" : "PF3D7_1467300",
-      "datatype" : "gene",
-      "object" : "gene"
-   },
-   "enzyme" : {
-      "example_id" : "ENZYME:EC 1.1.1.1",
-      "generic_url" : "http://www.expasy.ch/",
-      "datatype" : "entity",
-      "object" : "entity",
-      "url_syntax" : "http://www.expasy.ch/cgi-bin/nicezyme.pl?[example_id]",
-      "abbreviation" : "ENZYME",
-      "database" : "Swiss Institute of Bioinformatics enzyme database",
-      "id" : "ENZYME",
-      "url_example" : "http://www.expasy.ch/cgi-bin/nicezyme.pl?1.1.1.1",
-      "name" : "Swiss Institute of Bioinformatics enzyme database",
-      "fullname" : null,
-      "uri_prefix" : null
-   },
-   "pharmgkb" : {
-      "url_syntax" : "http://www.pharmgkb.org/do/serve?objId=[example_id]",
-      "id" : "PharmGKB",
-      "abbreviation" : "PharmGKB",
-      "database" : "Pharmacogenetics and Pharmacogenomics Knowledge Base",
-      "url_example" : "http://www.pharmgkb.org/do/serve?objId=PA267",
-      "name" : "Pharmacogenetics and Pharmacogenomics Knowledge Base",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : "PharmGKB:PA267",
-      "generic_url" : "http://www.pharmgkb.org",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "casspc" : {
-      "generic_url" : "http://research.calacademy.org/research/ichthyology/catalog/fishcatsearch.html",
-      "example_id" : null,
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : "http://research.calacademy.org/research/ichthyology/catalog/getname.asp?rank=Species&id=1979",
-      "database" : "Catalog of Fishes species database",
-      "url_syntax" : "http://research.calacademy.org/research/ichthyology/catalog/getname.asp?rank=Species&id=[example_id]",
-      "id" : "CASSPC",
-      "abbreviation" : "CASSPC",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Catalog of Fishes species database"
-   },
-   "cog_cluster" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "NCBI COG cluster",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/COG/new/release/cow.cgi?cog=COG0001",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/COG/new/release/cow.cgi?cog=[example_id]",
-      "abbreviation" : "COG_Cluster",
-      "database" : "NCBI COG cluster",
-      "id" : "COG_Cluster",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/COG/",
-      "example_id" : "COG_Cluster:COG0001"
-   },
-   "rgd" : {
-      "name" : "Rat Genome Database",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "url_syntax" : "http://rgd.mcw.edu/generalSearch/RgdSearch.jsp?quickSearch=1&searchKeyword=[example_id]",
-      "abbreviation" : "RGD",
-      "id" : "RGD",
-      "database" : "Rat Genome Database",
-      "url_example" : "http://rgd.mcw.edu/generalSearch/RgdSearch.jsp?quickSearch=1&searchKeyword=2004",
-      "datatype" : "gene",
-      "object" : "gene",
-      "example_id" : "RGD:2004",
-      "generic_url" : "http://rgd.mcw.edu/"
-   },
-   "ncbi" : {
-      "name" : "National Center for Biotechnology Information",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : null,
-      "database" : "National Center for Biotechnology Information",
-      "abbreviation" : "NCBI",
-      "id" : "NCBI",
-      "url_example" : null,
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : null,
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/"
-   },
-   "h-invdb_cdna" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.h-invitational.jp/",
-      "example_id" : "H-invDB_cDNA:AK093148",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "H-invitational Database",
-      "url_example" : "http://www.h-invitational.jp/hinv/spsoup/transcript_view?acc_id=AK093149",
-      "url_syntax" : "http://www.h-invitational.jp/hinv/spsoup/transcript_view?acc_id=[example_id]",
-      "abbreviation" : "H-invDB_cDNA",
-      "database" : "H-invitational Database",
-      "id" : "H-invDB_cDNA"
-   },
-   "ro" : {
-      "uri_prefix" : null,
-      "fullname" : "A collection of relations used across OBO ontologies",
-      "name" : "OBO Relation Ontology Ontology",
-      "url_example" : "http://purl.obolibrary.org/obo/RO_0002211",
-      "abbreviation" : "RO",
-      "url_syntax" : "http://purl.obolibrary.org/obo/RO_[example_id]",
-      "id" : "RO",
-      "database" : "OBO Relation Ontology Ontology",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://purl.obolibrary.org/obo/ro",
-      "example_id" : "RO:0002211"
-   },
-   "tigr_cmr" : {
-      "name" : "EGAD database at the J. Craig Venter Institute",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "id" : "JCVI_CMR",
-      "url_syntax" : "http://cmr.jcvi.org/cgi-bin/CMR/shared/GenePage.cgi?locus=[example_id]",
-      "abbreviation" : "TIGR_CMR",
-      "database" : "EGAD database at the J. Craig Venter Institute",
-      "url_example" : "http://cmr.jcvi.org/cgi-bin/CMR/shared/GenePage.cgi?locus=VCA0557",
-      "object" : "protein",
-      "datatype" : "protein",
-      "example_id" : "JCVI_CMR:VCA0557",
-      "generic_url" : "http://cmr.jcvi.org/"
-   },
-   "go" : {
-      "database" : "Gene Ontology Database",
-      "url_syntax" : "http://amigo.geneontology.org/amigo/term/GO:[example_id]",
-      "abbreviation" : "GO",
-      "id" : "GO",
-      "url_example" : "http://amigo.geneontology.org/amigo/term/GO:0004352",
-      "name" : "Gene Ontology Database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "GO:0004352",
-      "generic_url" : "http://amigo.geneontology.org/",
-      "object" : "macromolecular complex",
-      "datatype" : "macromolecular complex"
-   },
-   "modbase" : {
-      "datatype" : "entity",
-      "object" : "entity",
-      "generic_url" : "http://modbase.compbio.ucsf.edu/",
-      "example_id" : "ModBase:P10815",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "ModBase comprehensive Database of Comparative Protein Structure Models",
-      "url_example" : "http://salilab.org/modbase/searchbyid?databaseID=P04848",
-      "url_syntax" : "http://salilab.org/modbase/searchbyid?databaseID=[example_id]",
-      "database" : "ModBase comprehensive Database of Comparative Protein Structure Models",
-      "id" : "ModBase",
-      "abbreviation" : "ModBase"
-   },
-   "coriell" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://ccr.coriell.org/",
-      "example_id" : "GM07892",
-      "uri_prefix" : null,
-      "fullname" : "The Coriell Cell Repositories provide essential research reagents to the scientific community by establishing, verifying, maintaining, and distributing cell cultures and DNA derived from cell cultures. These collections, supported by funds from the National Institutes of Health (NIH) and several foundations, are extensively utilized by research scientists around the world.",
-      "name" : "Coriell Institute for Medical Research",
-      "url_example" : "http://ccr.coriell.org/Sections/Search/Sample_Detail.aspx?Ref=GM07892",
-      "database" : "Coriell Institute for Medical Research",
-      "url_syntax" : "http://ccr.coriell.org/Sections/Search/Sample_Detail.aspx?Ref=[example_id]",
-      "abbreviation" : "CORIELL",
-      "id" : "CORIELL"
-   },
-   "pamgo_vmd" : {
-      "example_id" : "PAMGO_VMD:109198",
-      "generic_url" : "http://phytophthora.vbi.vt.edu",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_syntax" : "http://vmd.vbi.vt.edu/cgi-bin/browse/go_detail.cgi?gene_id=[example_id]",
-      "database" : "Virginia Bioinformatics Institute Microbial Database",
-      "id" : "PAMGO_VMD",
-      "abbreviation" : "PAMGO_VMD",
-      "url_example" : "http://vmd.vbi.vt.edu/cgi-bin/browse/go_detail.cgi?gene_id=109198",
-      "name" : "Virginia Bioinformatics Institute Microbial Database",
-      "uri_prefix" : null,
-      "fullname" : "Virginia Bioinformatics Institute Microbial Database; member of PAMGO Interest Group"
-   },
-   "mi" : {
-      "generic_url" : "http://psidev.sourceforge.net/mi/xml/doc/user/index.html",
-      "example_id" : "MI:0018",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : null,
-      "url_syntax" : null,
-      "id" : "PSI-MI",
-      "abbreviation" : "MI",
-      "database" : "Proteomic Standard Initiative for Molecular Interaction",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Proteomic Standard Initiative for Molecular Interaction"
-   },
-   "uniprot" : {
-      "url_syntax" : "http://www.uniprot.org/uniprot/[example_id]",
-      "id" : "UniProtKB",
-      "abbreviation" : "UniProt",
-      "database" : "Universal Protein Knowledgebase",
-      "url_example" : "http://www.uniprot.org/uniprot/P51587",
-      "name" : "Universal Protein Knowledgebase",
-      "uri_prefix" : null,
-      "fullname" : "A central repository of protein sequence and function created by joining the information contained in Swiss-Prot, TrEMBL, and PIR database",
-      "example_id" : "UniProtKB:P51587",
-      "generic_url" : "http://www.uniprot.org",
-      "object" : "protein",
-      "datatype" : "protein"
-   },
-   "subtilist" : {
-      "object" : "protein",
-      "datatype" : "protein",
-      "generic_url" : "http://genolist.pasteur.fr/SubtiList/",
-      "example_id" : "SUBTILISTG:BG11384",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Bacillus subtilis Genome Sequence Project",
-      "url_example" : null,
-      "url_syntax" : null,
-      "id" : "SUBTILIST",
-      "database" : "Bacillus subtilis Genome Sequence Project",
-      "abbreviation" : "SUBTILIST"
-   },
-   "ensemblfungi" : {
-      "url_syntax" : "http://www.ensemblgenomes.org/id/[example_ID]",
-      "database" : "Ensembl Fungi, the Ensembl Genomes database for accessing fungal genome data",
-      "abbreviation" : "EnsemblFungi",
-      "id" : "EnsemblFungi",
-      "url_example" : "http://www.ensemblgenomes.org/id/YOR197W",
-      "name" : "Ensembl Fungi, the Ensembl Genomes database for accessing fungal genome data",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : "EnsemblFungi:YOR197W",
-      "generic_url" : "http://fungi.ensembl.org/",
-      "object" : "gene",
-      "datatype" : "gene"
-   },
-   "ec" : {
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Enzyme Commission",
-      "url_example" : "http://www.expasy.org/enzyme/1.4.3.6",
-      "url_syntax" : "http://www.expasy.org/enzyme/[example_id]",
-      "abbreviation" : "EC",
-      "database" : "Enzyme Commission",
-      "id" : "EC",
-      "datatype" : "catalytic activity",
-      "object" : "catalytic activity",
-      "generic_url" : "http://enzyme.expasy.org/",
-      "example_id" : "EC:1.4.3.6"
-   },
-   "sanger" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.sanger.ac.uk/",
-      "example_id" : null,
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Wellcome Trust Sanger Institute",
-      "url_example" : null,
-      "id" : "Sanger",
-      "url_syntax" : null,
-      "database" : "Wellcome Trust Sanger Institute",
-      "abbreviation" : "Sanger"
-   },
-   "tigr" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.jcvi.org/",
-      "example_id" : null,
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "J. Craig Venter Institute",
-      "url_example" : null,
-      "url_syntax" : null,
-      "id" : "JCVI",
-      "abbreviation" : "TIGR",
-      "database" : "J. Craig Venter Institute"
-   },
-   "issn" : {
-      "id" : "ISSN",
-      "url_syntax" : null,
-      "abbreviation" : "ISSN",
-      "database" : "International Standard Serial Number",
-      "url_example" : null,
-      "name" : "International Standard Serial Number",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "ISSN:1234-1231",
-      "generic_url" : "http://www.issn.org/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "ncbi_gene" : {
-      "url_example" : "http://www.ncbi.nlm.nih.gov/sites/entrez?cmd=Retrieve&db=gene&list_uids=4771",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/sites/entrez?cmd=Retrieve&db=gene&list_uids=[example_id]",
-      "id" : "NCBI_Gene",
-      "database" : "NCBI Gene",
-      "abbreviation" : "NCBI_Gene",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "NCBI Gene",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/",
-      "example_id" : "NCBI_Gene:4771",
-      "object" : "gene",
-      "datatype" : "gene"
-   },
-   "unipathway" : {
-      "datatype" : "biological_process",
-      "object" : "biological_process",
-      "generic_url" : "http://www.grenoble.prabi.fr/obiwarehouse/unipathway",
-      "example_id" : "UniPathway:UPA00155",
-      "uri_prefix" : null,
-      "fullname" : "UniPathway is a a metabolic door to UniProtKB/Swiss-Prot, a curated resource of metabolic pathways for the UniProtKB/Swiss-Prot knowledgebase.",
-      "name" : "UniPathway",
-      "url_example" : "http://www.grenoble.prabi.fr/obiwarehouse/unipathway/upa?upid=UPA00155",
-      "abbreviation" : "UniPathway",
-      "url_syntax" : "http://www.grenoble.prabi.fr/obiwarehouse/unipathway/upa?upid=[example_id]",
-      "id" : "UniPathway",
-      "database" : "UniPathway"
-   },
-   "ncbi_gi" : {
-      "abbreviation" : "NCBI_gi",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/entrez/viewer.fcgi?val=[example_id]",
-      "id" : "NCBI_gi",
-      "database" : "NCBI databases",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/entrez/viewer.fcgi?val=113194944",
-      "name" : "NCBI databases",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "NCBI_gi:113194944",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/",
-      "object" : "gene",
-      "datatype" : "gene"
-   },
-   "agricola_id" : {
-      "url_syntax" : null,
-      "id" : "AGRICOLA_ID",
-      "database" : "AGRICultural OnLine Access",
-      "abbreviation" : "AGRICOLA_ID",
-      "url_example" : null,
-      "name" : "AGRICultural OnLine Access",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : "AGRICOLA_NAL:TP248.2 P76 v.14",
-      "generic_url" : "http://agricola.nal.usda.gov/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "locusid" : {
-      "url_example" : "http://www.ncbi.nlm.nih.gov/sites/entrez?cmd=Retrieve&db=gene&list_uids=4771",
-      "id" : "NCBI_Gene",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/sites/entrez?cmd=Retrieve&db=gene&list_uids=[example_id]",
-      "database" : "NCBI Gene",
-      "abbreviation" : "LocusID",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "NCBI Gene",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/",
-      "example_id" : "NCBI_Gene:4771",
-      "datatype" : "gene",
-      "object" : "gene"
-   },
-   "rfam" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Rfam database of RNA families",
-      "url_example" : "http://rfam.sanger.ac.uk/family/RF00012",
-      "id" : "Rfam",
-      "url_syntax" : "http://rfam.sanger.ac.uk/family/[example_id]",
-      "database" : "Rfam database of RNA families",
-      "abbreviation" : "Rfam",
-      "datatype" : "entity",
-      "object" : "entity",
-      "generic_url" : "http://rfam.sanger.ac.uk/",
-      "example_id" : "Rfam:RF00012"
-   },
-   "sgn" : {
-      "example_id" : "SGN:4476",
-      "generic_url" : "http://www.sgn.cornell.edu/",
-      "datatype" : "gene",
-      "object" : "gene",
-      "url_syntax" : "http://www.sgn.cornell.edu/phenome/locus_display.pl?locus_id=[example_id]",
-      "abbreviation" : "SGN",
-      "database" : "Sol Genomics Network",
-      "id" : "SGN",
-      "url_example" : "http://www.sgn.cornell.edu/phenome/locus_display.pl?locus_id=4476",
-      "name" : "Sol Genomics Network",
-      "fullname" : null,
-      "uri_prefix" : null
-   },
-   "bfo" : {
-      "id" : "BFO",
-      "url_syntax" : "http://purl.obolibrary.org/obo/BFO_[example_id]",
-      "database" : "Basic Formal Ontology",
-      "abbreviation" : "BFO",
-      "url_example" : "http://purl.obolibrary.org/obo/BFO_0000066",
-      "name" : "Basic Formal Ontology",
-      "uri_prefix" : null,
-      "fullname" : "An upper ontology used by Open Bio Ontologies (OBO) Foundry. BFO contains upper-level classes as well as core relations such as part_of (BFO_0000050)",
-      "example_id" : "BFO:0000066",
-      "generic_url" : "http://purl.obolibrary.org/obo/bfo",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "cgsc" : {
-      "name" : "CGSC",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "url_syntax" : null,
-      "id" : "CGSC",
-      "database" : "CGSC",
-      "abbreviation" : "CGSC",
-      "url_example" : "http://cgsc.biology.yale.edu/Site.php?ID=315",
-      "datatype" : "entity",
-      "object" : "entity",
-      "example_id" : "CGSC:rbsK",
-      "generic_url" : "http://cgsc.biology.yale.edu/"
-   },
-   "pirsf" : {
-      "name" : "PIR Superfamily Classification System",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "abbreviation" : "PIRSF",
-      "url_syntax" : "http://pir.georgetown.edu/cgi-bin/ipcSF?id=[example_id]",
-      "database" : "PIR Superfamily Classification System",
-      "id" : "PIRSF",
-      "url_example" : "http://pir.georgetown.edu/cgi-bin/ipcSF?id=SF002327",
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "PIRSF:SF002327",
-      "generic_url" : "http://pir.georgetown.edu/pirsf/"
-   },
-   "phenoscape" : {
-      "example_id" : null,
-      "generic_url" : "http://phenoscape.org/",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_syntax" : null,
-      "abbreviation" : "PhenoScape",
-      "database" : "PhenoScape Knowledgebase",
-      "id" : "PhenoScape",
-      "url_example" : null,
-      "name" : "PhenoScape Knowledgebase",
-      "uri_prefix" : null,
-      "fullname" : null
-   },
-   "wbbt" : {
-      "example_id" : "WBbt:0005733",
-      "generic_url" : "http://www.wormbase.org/",
-      "object" : "metazoan anatomical entity",
-      "datatype" : "metazoan anatomical entity",
-      "database" : "C. elegans gross anatomy",
-      "url_syntax" : null,
-      "abbreviation" : "WBbt",
-      "id" : "WBbt",
-      "url_example" : null,
-      "name" : "C. elegans gross anatomy",
-      "uri_prefix" : null,
-      "fullname" : null
-   },
-   "dictybase_ref" : {
-      "name" : "dictyBase literature references",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "url_syntax" : "http://dictybase.org/db/cgi-bin/dictyBase/reference/reference.pl?refNo=[example_id]",
-      "abbreviation" : "dictyBase_REF",
-      "id" : "dictyBase_REF",
-      "database" : "dictyBase literature references",
-      "url_example" : "http://dictybase.org/db/cgi-bin/dictyBase/reference/reference.pl?refNo=10157",
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "dictyBase_REF:10157",
-      "generic_url" : "http://dictybase.org"
-   },
-   "ntnu_sb" : {
-      "example_id" : null,
-      "generic_url" : "http://www.ntnu.edu/nt/systemsbiology",
-      "datatype" : "entity",
-      "object" : "entity",
-      "url_syntax" : null,
-      "id" : "NTNU_SB",
-      "database" : "Norwegian University of Science and Technology, Systems Biology team",
-      "abbreviation" : "NTNU_SB",
-      "url_example" : null,
-      "name" : "Norwegian University of Science and Technology, Systems Biology team",
-      "uri_prefix" : null,
-      "fullname" : null
-   },
-   "apidb_plasmodb" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://plasmodb.org/",
-      "example_id" : "ApiDB_PlasmoDB:PF11_0344",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "PlasmoDB Plasmodium Genome Resource",
-      "url_example" : "http://www.plasmodb.org/gene/PF11_0344",
-      "abbreviation" : "ApiDB_PlasmoDB",
-      "url_syntax" : "http://www.plasmodb.org/gene/[example_id]",
-      "database" : "PlasmoDB Plasmodium Genome Resource",
-      "id" : "ApiDB_PlasmoDB"
-   },
-   "kegg_reaction" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.genome.jp/kegg/reaction/",
-      "example_id" : "KEGG:R02328",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "KEGG Reaction Database",
-      "url_example" : "http://www.genome.jp/dbget-bin/www_bget?rn:R02328",
-      "url_syntax" : "http://www.genome.jp/dbget-bin/www_bget?rn:[example_id]",
-      "abbreviation" : "KEGG_REACTION",
-      "id" : "KEGG_REACTION",
-      "database" : "KEGG Reaction Database"
-   },
-   "ri" : {
-      "url_example" : null,
-      "abbreviation" : "RI",
-      "url_syntax" : null,
-      "database" : "Roslin Institute",
-      "id" : "Roslin_Institute",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Roslin Institute",
-      "generic_url" : "http://www.roslin.ac.uk/",
-      "example_id" : null,
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "cdd" : {
-      "url_example" : "http://www.ncbi.nlm.nih.gov/Structure/cdd/cddsrv.cgi?uid=34222",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/Structure/cdd/cddsrv.cgi?uid=[example_id]",
-      "database" : "Conserved Domain Database at NCBI",
-      "abbreviation" : "CDD",
-      "id" : "CDD",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Conserved Domain Database at NCBI",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=cdd",
-      "example_id" : "CDD:34222",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "uniprotkb-kw" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "UniProtKB-KW:KW-0812",
-      "generic_url" : "http://www.uniprot.org/keywords/",
-      "name" : "UniProt Knowledgebase keywords",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "abbreviation" : "UniProtKB-KW",
-      "url_syntax" : "http://www.uniprot.org/keywords/[example_id]",
-      "id" : "UniProtKB-KW",
-      "database" : "UniProt Knowledgebase keywords",
-      "url_example" : "http://www.uniprot.org/keywords/KW-0812"
-   },
-   "cog" : {
-      "name" : "NCBI Clusters of Orthologous Groups",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "abbreviation" : "COG",
-      "url_syntax" : null,
-      "id" : "COG",
-      "database" : "NCBI Clusters of Orthologous Groups",
-      "url_example" : null,
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : null,
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/COG/"
-   },
-   "ncbi_locus_tag" : {
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "NCBI locus tag",
-      "url_example" : null,
-      "id" : "NCBI_locus_tag",
-      "url_syntax" : null,
-      "abbreviation" : "NCBI_locus_tag",
-      "database" : "NCBI locus tag",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/",
-      "example_id" : "NCBI_locus_tag:CTN_0547"
-   },
-   "pompep" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "ftp://ftp.sanger.ac.uk/pub/yeast/pombe/Protein_data/",
-      "example_id" : "Pompep:SPAC890.04C",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Schizosaccharomyces pombe protein data",
-      "url_example" : null,
-      "url_syntax" : null,
-      "abbreviation" : "Pompep",
-      "id" : "Pompep",
-      "database" : "Schizosaccharomyces pombe protein data"
-   },
-   "geo" : {
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/geo/",
-      "example_id" : "GEO:GDS2223",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc=GDS2223",
-      "abbreviation" : "GEO",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc=[example_id]",
-      "database" : "NCBI Gene Expression Omnibus",
-      "id" : "GEO",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "NCBI Gene Expression Omnibus"
-   },
-   "cog_function" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/COG/",
-      "example_id" : "COG_Function:H",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "NCBI COG function",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/COG/grace/shokog.cgi?fun=H",
-      "abbreviation" : "COG_Function",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/COG/grace/shokog.cgi?fun=[example_id]",
-      "id" : "COG_Function",
-      "database" : "NCBI COG function"
-   },
-   "cgd_locus" : {
-      "generic_url" : "http://www.candidagenome.org/",
-      "example_id" : "CGD_LOCUS:HWP1",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : "http://www.candidagenome.org/cgi-bin/locus.pl?locus=HWP1",
-      "database" : "Candida Genome Database",
-      "url_syntax" : "http://www.candidagenome.org/cgi-bin/locus.pl?locus=[example_id]",
-      "id" : "CGD_LOCUS",
-      "abbreviation" : "CGD_LOCUS",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Candida Genome Database"
-   },
-   "gr_gene" : {
-      "example_id" : "GR_GENE:GR:0060198",
-      "generic_url" : "http://www.gramene.org/",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_syntax" : "http://www.gramene.org/db/genes/search_gene?acc=[example_id]",
-      "abbreviation" : "GR_gene",
-      "database" : "Gramene",
-      "id" : "GR_GENE",
-      "url_example" : "http://www.gramene.org/db/genes/search_gene?acc=GR:0060198",
-      "name" : "Gramene",
-      "fullname" : null,
-      "uri_prefix" : null
-   },
-   "ipr" : {
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "InterPro database of protein domains and motifs",
-      "url_example" : "http://www.ebi.ac.uk/interpro/entry/IPR015421",
-      "url_syntax" : "http://www.ebi.ac.uk/interpro/entry/[example_id]",
-      "database" : "InterPro database of protein domains and motifs",
-      "id" : "InterPro",
-      "abbreviation" : "IPR",
-      "datatype" : "polypeptide region",
-      "object" : "polypeptide region",
-      "generic_url" : "http://www.ebi.ac.uk/interpro/",
-      "example_id" : "InterPro:IPR000001"
-   },
-   "ecogene" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "EcoGene Database of Escherichia coli Sequence and Function",
-      "url_example" : "http://www.ecogene.org/geneInfo.php?eg_id=EG10818",
-      "url_syntax" : "http://www.ecogene.org/geneInfo.php?eg_id=[example_id]",
-      "database" : "EcoGene Database of Escherichia coli Sequence and Function",
-      "abbreviation" : "ECOGENE",
-      "id" : "ECOGENE",
-      "object" : "gene",
-      "datatype" : "gene",
-      "generic_url" : "http://www.ecogene.org/",
-      "example_id" : "ECOGENE:EG10818"
-   },
-   "dictybase" : {
-      "object" : "gene",
-      "datatype" : "gene",
-      "example_id" : "dictyBase:DDB_G0277859",
-      "generic_url" : "http://dictybase.org",
-      "name" : "dictyBase",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "database" : "dictyBase",
-      "url_syntax" : "http://dictybase.org/gene/[example_id]",
-      "abbreviation" : "DictyBase",
-      "id" : "dictyBase",
-      "url_example" : "http://dictybase.org/gene/DDB_G0277859"
-   },
-   "psort" : {
-      "name" : "PSORT protein subcellular localization databases and prediction tools for bacteria",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : null,
-      "abbreviation" : "PSORT",
-      "id" : "PSORT",
-      "database" : "PSORT protein subcellular localization databases and prediction tools for bacteria",
-      "url_example" : null,
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : null,
-      "generic_url" : "http://www.psort.org/"
-   },
-   "gb" : {
-      "url_example" : "http://www.ncbi.nlm.nih.gov/entrez/viewer.fcgi?db=nucleotide&val=AA816246",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/entrez/viewer.fcgi?db=nucleotide&val=[example_id]",
-      "database" : "GenBank",
-      "abbreviation" : "GB",
-      "id" : "GenBank",
-      "uri_prefix" : null,
-      "fullname" : "The NIH genetic sequence database, an annotated collection of all publicly available DNA sequences.",
-      "name" : "GenBank",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/Genbank/",
-      "example_id" : "GB:AA816246",
-      "datatype" : "protein",
-      "object" : "protein"
-   },
-   "mim" : {
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=OMIM",
-      "example_id" : "OMIM:190198",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : "http://omim.org/entry/190198",
-      "url_syntax" : "http://omim.org/entry/[example_id]",
-      "database" : "Mendelian Inheritance in Man",
-      "id" : "OMIM",
-      "abbreviation" : "MIM",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Mendelian Inheritance in Man"
-   },
-   "obo_rel" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.obofoundry.org/ro/",
-      "example_id" : "OBO_REL:part_of",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "OBO relation ontology",
-      "url_example" : null,
-      "id" : "OBO_REL",
-      "url_syntax" : null,
-      "abbreviation" : "OBO_REL",
-      "database" : "OBO relation ontology"
-   },
-   "pinc" : {
-      "uri_prefix" : null,
-      "fullname" : "represents GO annotations created in 2001 for NCBI and extracted into UniProtKB-GOA from EntrezGene",
-      "name" : "Proteome Inc.",
-      "url_example" : null,
-      "url_syntax" : null,
-      "database" : "Proteome Inc.",
-      "abbreviation" : "PINC",
-      "id" : "PINC",
-      "datatype" : "entity",
-      "object" : "entity",
-      "generic_url" : "http://www.proteome.com/",
-      "example_id" : null
-   },
-   "vega" : {
-      "url_syntax" : "http://vega.sanger.ac.uk/id/[example_id]",
-      "id" : "VEGA",
-      "database" : "Vertebrate Genome Annotation database",
-      "abbreviation" : "VEGA",
-      "url_example" : "http://vega.sanger.ac.uk/id/OTTHUMP00000000661",
-      "name" : "Vertebrate Genome Annotation database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "VEGA:OTTHUMP00000000661",
-      "generic_url" : "http://vega.sanger.ac.uk/index.html",
-      "datatype" : "entity",
-      "object" : "entity"
-   },
-   "ecocyc" : {
-      "url_example" : "http://biocyc.org/ECOLI/NEW-IMAGE?type=PATHWAY&object=P2-PWY",
-      "url_syntax" : "http://biocyc.org/ECOLI/NEW-IMAGE?type=PATHWAY&object=[example_id]",
-      "id" : "EcoCyc",
-      "abbreviation" : "EcoCyc",
-      "database" : "Encyclopedia of E. coli metabolism",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Encyclopedia of E. coli metabolism",
-      "generic_url" : "http://ecocyc.org/",
-      "example_id" : "EcoCyc:P2-PWY",
-      "object" : "biological_process",
-      "datatype" : "biological_process"
-   },
-   "chebi" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Chemical Entities of Biological Interest",
-      "url_example" : "http://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:17234",
-      "abbreviation" : "ChEBI",
-      "url_syntax" : "http://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:[example_id]",
-      "database" : "Chemical Entities of Biological Interest",
-      "id" : "CHEBI",
-      "object" : "chemical entity",
-      "datatype" : "chemical entity",
-      "generic_url" : "http://www.ebi.ac.uk/chebi/",
-      "example_id" : "CHEBI:17234"
-   },
-   "ptarget" : {
-      "url_example" : null,
-      "url_syntax" : null,
-      "id" : "pTARGET",
-      "abbreviation" : "pTARGET",
-      "database" : "pTARGET Prediction server for protein subcellular localization",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "pTARGET Prediction server for protein subcellular localization",
-      "generic_url" : "http://bioinformatics.albany.edu/~ptarget/",
-      "example_id" : null,
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "aracyc" : {
-      "example_id" : "AraCyc:PWYQT-62",
-      "generic_url" : "http://www.arabidopsis.org/biocyc/index.jsp",
-      "datatype" : "entity",
-      "object" : "entity",
-      "abbreviation" : "AraCyc",
-      "url_syntax" : "http://www.arabidopsis.org:1555/ARA/NEW-IMAGE?type=NIL&object=[example_id]",
-      "id" : "AraCyc",
-      "database" : "AraCyc metabolic pathway database for Arabidopsis thaliana",
-      "url_example" : "http://www.arabidopsis.org:1555/ARA/NEW-IMAGE?type=NIL&object=PWYQT-62",
-      "name" : "AraCyc metabolic pathway database for Arabidopsis thaliana",
-      "fullname" : null,
-      "uri_prefix" : null
-   },
-   "sgn_ref" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Sol Genomics Network",
-      "url_example" : "http://www.sgn.cornell.edu/chado/publication.pl?pub_id=861",
-      "abbreviation" : "SGN_ref",
-      "url_syntax" : "http://www.sgn.cornell.edu/chado/publication.pl?pub_id=[example_id]",
-      "id" : "SGN_ref",
-      "database" : "Sol Genomics Network",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.sgn.cornell.edu/",
-      "example_id" : "SGN_ref:861"
-   },
-   "unimod" : {
-      "generic_url" : "http://www.unimod.org/",
-      "example_id" : "UniMod:1287",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : "http://www.unimod.org/modifications_view.php?editid1=1287",
-      "id" : "UniMod",
-      "url_syntax" : "http://www.unimod.org/modifications_view.php?editid1=[example_id]",
-      "abbreviation" : "UniMod",
-      "database" : "UniMod",
-      "uri_prefix" : null,
-      "fullname" : "protein modifications for mass spectrometry",
-      "name" : "UniMod"
-   },
-   "casgen" : {
-      "name" : "Catalog of Fishes genus database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "database" : "Catalog of Fishes genus database",
-      "url_syntax" : "http://research.calacademy.org/research/ichthyology/catalog/getname.asp?rank=Genus&id=[example_id]",
-      "abbreviation" : "CASGEN",
-      "id" : "CASGEN",
-      "url_example" : "http://research.calacademy.org/research/ichthyology/catalog/getname.asp?rank=Genus&id=1040",
-      "datatype" : "entity",
-      "object" : "entity",
-      "example_id" : "CASGEN:1040",
-      "generic_url" : "http://research.calacademy.org/research/ichthyology/catalog/fishcatsearch.html"
-   },
-   "mod" : {
-      "generic_url" : "http://psidev.sourceforge.net/mod/",
-      "example_id" : "MOD:00219",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : "http://www.ebi.ac.uk/ontology-lookup/?termId=MOD:00219",
-      "database" : "Proteomics Standards Initiative protein modification ontology",
-      "url_syntax" : "http://www.ebi.ac.uk/ontology-lookup/?termId=MOD:[example_id]",
-      "abbreviation" : "MOD",
-      "id" : "PSI-MOD",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Proteomics Standards Initiative protein modification ontology"
-   },
-   "nc-iubmb" : {
-      "url_syntax" : null,
-      "abbreviation" : "NC-IUBMB",
-      "database" : "Nomenclature Committee of the International Union of Biochemistry and Molecular Biology",
-      "id" : "NC-IUBMB",
-      "url_example" : null,
-      "name" : "Nomenclature Committee of the International Union of Biochemistry and Molecular Biology",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : null,
-      "generic_url" : "http://www.chem.qmw.ac.uk/iubmb/",
-      "datatype" : "entity",
-      "object" : "entity"
-   },
-   "ddb" : {
-      "generic_url" : "http://dictybase.org",
-      "example_id" : "dictyBase:DDB_G0277859",
-      "object" : "gene",
-      "datatype" : "gene",
-      "url_example" : "http://dictybase.org/gene/DDB_G0277859",
-      "abbreviation" : "DDB",
-      "url_syntax" : "http://dictybase.org/gene/[example_id]",
-      "id" : "dictyBase",
-      "database" : "dictyBase",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "dictyBase"
-   },
-   "dictybase_gene_name" : {
-      "url_example" : "http://dictybase.org/gene/mlcE",
-      "abbreviation" : "dictyBase_gene_name",
-      "url_syntax" : "http://dictybase.org/gene/[example_id]",
-      "database" : "dictyBase",
-      "id" : "dictyBase_gene_name",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "dictyBase",
-      "generic_url" : "http://dictybase.org",
-      "example_id" : "dictyBase_gene_name:mlcE",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "maizegdb_locus" : {
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "MaizeGDB",
-      "url_example" : "http://www.maizegdb.org/cgi-bin/displaylocusresults.cgi?term=ZmPK1",
-      "abbreviation" : "MaizeGDB_Locus",
-      "url_syntax" : "http://www.maizegdb.org/cgi-bin/displaylocusresults.cgi?term=[example_id]",
-      "id" : "MaizeGDB_Locus",
-      "database" : "MaizeGDB",
-      "object" : "gene",
-      "datatype" : "gene",
-      "generic_url" : "http://www.maizegdb.org",
-      "example_id" : "MaizeGDB_Locus:ZmPK1"
-   },
-   "psi-mod" : {
-      "url_example" : "http://www.ebi.ac.uk/ontology-lookup/?termId=MOD:00219",
-      "id" : "PSI-MOD",
-      "url_syntax" : "http://www.ebi.ac.uk/ontology-lookup/?termId=MOD:[example_id]",
-      "abbreviation" : "PSI-MOD",
-      "database" : "Proteomics Standards Initiative protein modification ontology",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Proteomics Standards Initiative protein modification ontology",
-      "generic_url" : "http://psidev.sourceforge.net/mod/",
-      "example_id" : "MOD:00219",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "ipi" : {
-      "example_id" : "IPI:IPI00000005.1",
-      "generic_url" : "http://www.ebi.ac.uk/IPI/IPIhelp.html",
-      "datatype" : "entity",
-      "object" : "entity",
-      "url_syntax" : null,
-      "database" : "International Protein Index",
-      "abbreviation" : "IPI",
-      "id" : "IPI",
-      "url_example" : null,
-      "name" : "International Protein Index",
-      "uri_prefix" : null,
-      "fullname" : null
-   },
-   "pamgo_gat" : {
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Genome Annotation Tool (Agrobacterium tumefaciens C58); PAMGO Interest Group",
-      "url_example" : "http://agro.vbi.vt.edu/public/servlet/GeneEdit?&Search=Search&level=2&genename=atu0001",
-      "id" : "PAMGO_GAT",
-      "url_syntax" : "http://agro.vbi.vt.edu/public/servlet/GeneEdit?&Search=Search&level=2&genename=[example_id]",
-      "abbreviation" : "PAMGO_GAT",
-      "database" : "Genome Annotation Tool (Agrobacterium tumefaciens C58); PAMGO Interest Group",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://agro.vbi.vt.edu/public/",
-      "example_id" : "PAMGO_GAT:Atu0001"
-   },
-   "ena" : {
-      "id" : "ENA",
-      "url_syntax" : "http://www.ebi.ac.uk/ena/data/view/[example_id]",
-      "database" : "European Nucleotide Archive",
-      "abbreviation" : "ENA",
-      "url_example" : "http://www.ebi.ac.uk/ena/data/view/AA816246",
-      "name" : "European Nucleotide Archive",
-      "uri_prefix" : null,
-      "fullname" : "ENA is made up of a number of distinct databases that includes EMBL-Bank, the newly established Sequence Read Archive (SRA) and the Trace Archive. International nucleotide sequence database collaboration, comprising ENA-EBI nucleotide sequence data library (EMBL-Bank), DNA DataBank of Japan (DDBJ), and NCBI GenBank",
-      "example_id" : "ENA:AA816246",
-      "generic_url" : "http://www.ebi.ac.uk/ena/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "obo_sf_po" : {
-      "datatype" : "entity",
-      "object" : "entity",
-      "generic_url" : "http://sourceforge.net/tracker/?func=browse&group_id=76834&atid=835555",
-      "example_id" : "OBO_SF_PO:3184921",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Source Forge OBO Plant Ontology (PO) term request tracker",
-      "url_example" : "https://sourceforge.net/tracker/index.php?func=detail&aid=3184921&group_id=76834&atid=835555",
-      "abbreviation" : "OBO_SF_PO",
-      "url_syntax" : "https://sourceforge.net/tracker/index.php?func=detail&aid=[example_id]&group_id=76834&atid=835555",
-      "id" : "OBO_SF_PO",
-      "database" : "Source Forge OBO Plant Ontology (PO) term request tracker"
-   },
-   "ddb_ref" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "dictyBase literature references",
-      "url_example" : "http://dictybase.org/db/cgi-bin/dictyBase/reference/reference.pl?refNo=10157",
-      "url_syntax" : "http://dictybase.org/db/cgi-bin/dictyBase/reference/reference.pl?refNo=[example_id]",
-      "database" : "dictyBase literature references",
-      "id" : "dictyBase_REF",
-      "abbreviation" : "DDB_REF",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://dictybase.org",
-      "example_id" : "dictyBase_REF:10157"
-   },
-   "cgen" : {
-      "name" : "Compugen Gene Ontology Gene Association Data",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "database" : "Compugen Gene Ontology Gene Association Data",
-      "url_syntax" : null,
-      "abbreviation" : "CGEN",
-      "id" : "CGEN",
-      "url_example" : null,
-      "datatype" : "entity",
-      "object" : "entity",
-      "example_id" : "CGEN:PrID131022",
-      "generic_url" : "http://www.cgen.com/"
-   },
-   "iuphar_gpcr" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "IUPHAR_GPCR:1279",
-      "generic_url" : "http://www.iuphar.org/",
-      "name" : "International Union of Pharmacology",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : "http://www.iuphar-db.org/DATABASE/FamilyMenuForward?familyId=[example_id]",
-      "id" : "IUPHAR_GPCR",
-      "abbreviation" : "IUPHAR_GPCR",
-      "database" : "International Union of Pharmacology",
-      "url_example" : "http://www.iuphar-db.org/DATABASE/FamilyMenuForward?familyId=13"
-   },
-   "tair" : {
-      "generic_url" : "http://www.arabidopsis.org/",
-      "example_id" : "TAIR:locus:2146653",
-      "object" : "primary transcript",
-      "datatype" : "primary transcript",
-      "url_example" : "http://arabidopsis.org/servlets/TairObject?accession=locus:2146653",
-      "url_syntax" : "http://arabidopsis.org/servlets/TairObject?accession=[example_id]",
-      "id" : "TAIR",
-      "abbreviation" : "TAIR",
-      "database" : "The Arabidopsis Information Resource",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "The Arabidopsis Information Resource"
-   },
-   "spd" : {
-      "name" : "Schizosaccharomyces pombe Postgenome Database at RIKEN; includes Orfeome Localisation data",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "abbreviation" : "SPD",
-      "url_syntax" : "http://www.riken.jp/SPD/[example_id].html",
-      "database" : "Schizosaccharomyces pombe Postgenome Database at RIKEN; includes Orfeome Localisation data",
-      "id" : "SPD",
-      "url_example" : "http://www.riken.jp/SPD/05/05F01.html",
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "SPD:05/05F01",
-      "generic_url" : "http://www.riken.jp/SPD/"
-   },
-   "kegg_pathway" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "KEGG Pathways Database",
-      "url_example" : "http://www.genome.jp/dbget-bin/www_bget?path:ot00020",
-      "id" : "KEGG_PATHWAY",
-      "url_syntax" : "http://www.genome.jp/dbget-bin/www_bget?path:[example_id]",
-      "database" : "KEGG Pathways Database",
-      "abbreviation" : "KEGG_PATHWAY",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.genome.jp/kegg/pathway.html",
-      "example_id" : "KEGG_PATHWAY:ot00020"
-   },
-   "pato" : {
-      "generic_url" : "http://www.bioontology.org/wiki/index.php/PATO:Main_Page",
-      "example_id" : "PATO:0001420",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : null,
-      "url_syntax" : null,
-      "database" : "Phenotypic quality ontology",
-      "id" : "PATO",
-      "abbreviation" : "PATO",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Phenotypic quality ontology"
-   },
-   "muscletrait" : {
-      "name" : "TRAnscript Integrated Table",
-      "fullname" : "an integrated database of transcripts expressed in human skeletal muscle",
-      "uri_prefix" : null,
-      "abbreviation" : "MuscleTRAIT",
-      "url_syntax" : null,
-      "id" : "TRAIT",
-      "database" : "TRAnscript Integrated Table",
-      "url_example" : null,
-      "datatype" : "entity",
-      "object" : "entity",
-      "example_id" : null,
-      "generic_url" : "http://muscle.cribi.unipd.it/"
-   },
-   "ddbj" : {
-      "url_syntax" : "http://arsa.ddbj.nig.ac.jp/arsa/ddbjSplSearch?KeyWord=[example_id]",
-      "id" : "DDBJ",
-      "database" : "DNA Databank of Japan",
-      "abbreviation" : "DDBJ",
-      "url_example" : "http://arsa.ddbj.nig.ac.jp/arsa/ddbjSplSearch?KeyWord=AA816246",
-      "name" : "DNA Databank of Japan",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "DDBJ:AA816246",
-      "generic_url" : "http://www.ddbj.nig.ac.jp/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "rebase" : {
-      "name" : "REBASE restriction enzyme database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : "http://rebase.neb.com/rebase/enz/[example_id].html",
-      "id" : "REBASE",
-      "abbreviation" : "REBASE",
-      "database" : "REBASE restriction enzyme database",
-      "url_example" : "http://rebase.neb.com/rebase/enz/EcoRI.html",
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "REBASE:EcoRI",
-      "generic_url" : "http://rebase.neb.com/rebase/rebase.html"
-   },
-   "smart" : {
-      "example_id" : "SMART:SM00005",
-      "generic_url" : "http://smart.embl-heidelberg.de/",
-      "object" : "polypeptide region",
-      "datatype" : "polypeptide region",
-      "url_syntax" : "http://smart.embl-heidelberg.de/smart/do_annotation.pl?BLAST=DUMMY&DOMAIN=[example_id]",
-      "id" : "SMART",
-      "abbreviation" : "SMART",
-      "database" : "Simple Modular Architecture Research Tool",
-      "url_example" : "http://smart.embl-heidelberg.de/smart/do_annotation.pl?BLAST=DUMMY&DOMAIN=SM00005",
-      "name" : "Simple Modular Architecture Research Tool",
-      "fullname" : null,
-      "uri_prefix" : null
-   },
-   "po_ref" : {
-      "name" : "Plant Ontology custom references",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : "http://wiki.plantontology.org:8080/index.php/PO_REF:[example_id]",
-      "id" : "PO_REF",
-      "database" : "Plant Ontology custom references",
-      "abbreviation" : "PO_REF",
-      "url_example" : "http://wiki.plantontology.org:8080/index.php/PO_REF:00001",
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "PO_REF:00001",
-      "generic_url" : "http://wiki.plantontology.org:8080/index.php/PO_references"
-   },
-   "pamgo_mgg" : {
-      "name" : "Magnaporthe grisea database",
-      "uri_prefix" : null,
-      "fullname" : "Magnaporthe grisea database at North Carolina State University; member of PAMGO Interest Group",
-      "id" : "PAMGO_MGG",
-      "url_syntax" : "http://scotland.fgl.ncsu.edu/cgi-bin/adHocQuery.cgi?adHocQuery_dbName=smeng_goannotation&Action=Data&QueryName=Functional+Categorization+of+MGG+GO+Annotation&P_KeyWord=[example_id]",
-      "abbreviation" : "PAMGO_MGG",
-      "database" : "Magnaporthe grisea database",
-      "url_example" : "http://scotland.fgl.ncsu.edu/cgi-bin/adHocQuery.cgi?adHocQuery_dbName=smeng_goannotation&Action=Data&QueryName=Functional+Categorization+of+MGG+GO+Annotation&P_KeyWord=MGG_05132",
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "PAMGO_MGG:MGG_05132",
-      "generic_url" : "http://scotland.fgl.ncsu.edu/smeng/GoAnnotationMagnaporthegrisea.html"
-   },
-   "agricola_ind" : {
-      "url_syntax" : null,
-      "id" : "AGRICOLA_IND",
-      "abbreviation" : "AGRICOLA_IND",
-      "database" : "AGRICultural OnLine Access",
-      "url_example" : null,
-      "name" : "AGRICultural OnLine Access",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "AGRICOLA_IND:IND23252955",
-      "generic_url" : "http://agricola.nal.usda.gov/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "rnacentral" : {
-      "url_syntax" : "http://rnacentral.org/rna/[example_id]",
-      "id" : "RNAcentral",
-      "abbreviation" : "RNAcentral",
-      "database" : "RNAcentral",
-      "url_example" : "http://rnacentral.org/rna/URS000047C79B_9606",
-      "name" : "RNAcentral",
-      "fullname" : "An international database of ncRNA sequences",
-      "uri_prefix" : null,
-      "example_id" : "RNAcentral:URS000047C79B_9606",
-      "generic_url" : "http://rnacentral.org",
-      "object" : "ribonucleic acid",
-      "datatype" : "ribonucleic acid"
-   },
-   "zfin" : {
-      "name" : "Zebrafish Information Network",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : "http://zfin.org/cgi-bin/ZFIN_jump?record=[example_id]",
-      "abbreviation" : "ZFIN",
-      "id" : "ZFIN",
-      "database" : "Zebrafish Information Network",
-      "url_example" : "http://zfin.org/cgi-bin/ZFIN_jump?record=ZDB-GENE-990415-103",
-      "datatype" : "variation",
-      "object" : "variation",
-      "example_id" : "ZFIN:ZDB-GENE-990415-103",
-      "generic_url" : "http://zfin.org/"
-   },
-   "go_ref" : {
-      "abbreviation" : "GO_REF",
-      "url_syntax" : "http://www.geneontology.org/cgi-bin/references.cgi#GO_REF:[example_id]",
-      "id" : "GO_REF",
-      "database" : "Gene Ontology Database references",
-      "url_example" : "http://www.geneontology.org/cgi-bin/references.cgi#GO_REF:0000001",
-      "name" : "Gene Ontology Database references",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : "GO_REF:0000001",
-      "generic_url" : "http://www.geneontology.org/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "wbphenotype" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "WormBase phenotype ontology",
-      "url_example" : "http://www.wormbase.org/species/c_elegans/phenotype/WBPhenotype:0000154",
-      "url_syntax" : "http://www.wormbase.org/species/c_elegans/phenotype/WBPhenotype:[example_id]",
-      "abbreviation" : "WBPhenotype",
-      "database" : "WormBase phenotype ontology",
-      "id" : "WBPhenotype",
-      "object" : "quality",
-      "datatype" : "quality",
-      "generic_url" : "http://www.wormbase.org/",
-      "example_id" : "WBPhenotype:0002117"
-   },
-   "cas_spc" : {
-      "generic_url" : "http://research.calacademy.org/research/ichthyology/catalog/fishcatsearch.html",
-      "example_id" : null,
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : "http://research.calacademy.org/research/ichthyology/catalog/getname.asp?rank=Species&id=1979",
-      "url_syntax" : "http://research.calacademy.org/research/ichthyology/catalog/getname.asp?rank=Species&id=[example_id]",
-      "id" : "CASSPC",
-      "abbreviation" : "CAS_SPC",
-      "database" : "Catalog of Fishes species database",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Catalog of Fishes species database"
-   },
-   "genbank" : {
-      "object" : "protein",
-      "datatype" : "protein",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/Genbank/",
-      "example_id" : "GB:AA816246",
-      "uri_prefix" : null,
-      "fullname" : "The NIH genetic sequence database, an annotated collection of all publicly available DNA sequences.",
-      "name" : "GenBank",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/entrez/viewer.fcgi?db=nucleotide&val=AA816246",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/entrez/viewer.fcgi?db=nucleotide&val=[example_id]",
-      "id" : "GenBank",
-      "database" : "GenBank",
-      "abbreviation" : "GenBank"
-   },
-   "jstor" : {
-      "id" : "JSTOR",
-      "url_syntax" : "http://www.jstor.org/stable/[example_id]",
-      "abbreviation" : "JSTOR",
-      "database" : "Digital archive of scholarly articles",
-      "url_example" : "http://www.jstor.org/stable/3093870",
-      "name" : "Digital archive of scholarly articles",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : "JSTOR:3093870",
-      "generic_url" : "http://www.jstor.org/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "pmid" : {
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/PubMed/",
-      "example_id" : "PMID:4208797",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/pubmed/4208797",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/pubmed/[example_id]",
-      "abbreviation" : "PMID",
-      "database" : "PubMed",
-      "id" : "PMID",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "PubMed"
-   },
-   "sgd" : {
-      "abbreviation" : "SGD",
-      "url_syntax" : "http://www.yeastgenome.org/locus/[example_id]/overview",
-      "database" : "Saccharomyces Genome Database",
-      "id" : "SGD",
-      "url_example" : "http://www.yeastgenome.org/locus/S000006169/overview",
-      "name" : "Saccharomyces Genome Database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "SGD:S000006169",
-      "generic_url" : "http://www.yeastgenome.org/",
-      "object" : "gene",
-      "datatype" : "gene"
-   },
-   "sgdid" : {
-      "url_example" : "http://www.yeastgenome.org/locus/S000006169/overview",
-      "url_syntax" : "http://www.yeastgenome.org/locus/[example_id]/overview",
-      "id" : "SGD",
-      "abbreviation" : "SGDID",
-      "database" : "Saccharomyces Genome Database",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Saccharomyces Genome Database",
-      "generic_url" : "http://www.yeastgenome.org/",
-      "example_id" : "SGD:S000006169",
-      "object" : "gene",
-      "datatype" : "gene"
-   },
-   "sp_kw" : {
-      "url_example" : "http://www.uniprot.org/keywords/KW-0812",
-      "url_syntax" : "http://www.uniprot.org/keywords/[example_id]",
-      "id" : "UniProtKB-KW",
-      "abbreviation" : "SP_KW",
-      "database" : "UniProt Knowledgebase keywords",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "UniProt Knowledgebase keywords",
-      "generic_url" : "http://www.uniprot.org/keywords/",
-      "example_id" : "UniProtKB-KW:KW-0812",
-      "datatype" : "entity",
-      "object" : "entity"
-   },
-   "pubchem_bioassay" : {
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "NCBI PubChem database of bioassay records",
-      "url_example" : "http://pubchem.ncbi.nlm.nih.gov/assay/assay.cgi?aid=177",
-      "abbreviation" : "PubChem_BioAssay",
-      "url_syntax" : "http://pubchem.ncbi.nlm.nih.gov/assay/assay.cgi?aid=[example_id]",
-      "database" : "NCBI PubChem database of bioassay records",
-      "id" : "PubChem_BioAssay",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://pubchem.ncbi.nlm.nih.gov/",
-      "example_id" : "PubChem_BioAssay:177"
-   },
-   "tgd_ref" : {
-      "id" : "TGD_REF",
-      "url_syntax" : "http://db.ciliate.org/cgi-bin/reference/reference.pl?dbid=[example_id]",
-      "database" : "Tetrahymena Genome Database",
-      "abbreviation" : "TGD_REF",
-      "url_example" : "http://db.ciliate.org/cgi-bin/reference/reference.pl?dbid=T000005818",
-      "name" : "Tetrahymena Genome Database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "TGD_REF:T000005818",
-      "generic_url" : "http://www.ciliate.org/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "biomdid" : {
-      "url_example" : "http://www.ebi.ac.uk/compneur-srv/biomodels-main/publ-model.do?mid=BIOMD0000000045",
-      "abbreviation" : "BIOMDID",
-      "url_syntax" : "http://www.ebi.ac.uk/compneur-srv/biomodels-main/publ-model.do?mid=[example_id]",
-      "database" : "BioModels Database",
-      "id" : "BIOMD",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "BioModels Database",
-      "generic_url" : "http://www.ebi.ac.uk/biomodels/",
-      "example_id" : "BIOMD:BIOMD0000000045",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "sgd_locus" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Saccharomyces Genome Database",
-      "url_example" : "http://www.yeastgenome.org/locus/S000006169/overview",
-      "url_syntax" : "http://www.yeastgenome.org/locus/[example_id]/overview",
-      "abbreviation" : "SGD_LOCUS",
-      "id" : "SGD_LOCUS",
-      "database" : "Saccharomyces Genome Database",
-      "datatype" : "entity",
-      "object" : "entity",
-      "generic_url" : "http://www.yeastgenome.org/",
-      "example_id" : "SGD_LOCUS:GAL4"
-   },
-   "geneid" : {
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/",
-      "example_id" : "NCBI_Gene:4771",
-      "datatype" : "gene",
-      "object" : "gene",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/sites/entrez?cmd=Retrieve&db=gene&list_uids=4771",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/sites/entrez?cmd=Retrieve&db=gene&list_uids=[example_id]",
-      "id" : "NCBI_Gene",
-      "database" : "NCBI Gene",
-      "abbreviation" : "GeneID",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "NCBI Gene"
-   },
-   "reac" : {
-      "url_example" : "http://www.reactome.org/cgi-bin/eventbrowser_st_id?ST_ID=REACT_604",
-      "abbreviation" : "REAC",
-      "url_syntax" : "http://www.reactome.org/cgi-bin/eventbrowser_st_id?ST_ID=[example_id]",
-      "id" : "Reactome",
-      "database" : "Reactome - a curated knowledgebase of biological pathways",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Reactome - a curated knowledgebase of biological pathways",
-      "generic_url" : "http://www.reactome.org/",
-      "example_id" : "Reactome:REACT_604",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "vz" : {
-      "url_example" : "http://viralzone.expasy.org/all_by_protein/957.html",
-      "url_syntax" : "http://viralzone.expasy.org/all_by_protein/[example_id].html",
-      "id" : "VZ",
-      "abbreviation" : "VZ",
-      "database" : "ViralZone",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "ViralZone",
-      "generic_url" : "http://viralzone.expasy.org/",
-      "example_id" : "VZ:957",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "imgt_hla" : {
-      "name" : "IMGT/HLA human major histocompatibility complex sequence database",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "database" : "IMGT/HLA human major histocompatibility complex sequence database",
-      "url_syntax" : null,
-      "abbreviation" : "IMGT_HLA",
-      "id" : "IMGT_HLA",
-      "url_example" : null,
-      "datatype" : "entity",
-      "object" : "entity",
-      "example_id" : "IMGT_HLA:HLA00031",
-      "generic_url" : "http://www.ebi.ac.uk/imgt/hla"
-   },
-   "wb_ref" : {
-      "name" : "WormBase database of nematode biology",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : "http://www.wormbase.org/db/misc/paper?name=[example_id]",
-      "id" : "WB_REF",
-      "abbreviation" : "WB_REF",
-      "database" : "WormBase database of nematode biology",
-      "url_example" : "http://www.wormbase.org/db/misc/paper?name=WBPaper00004823",
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "WB_REF:WBPaper00004823",
-      "generic_url" : "http://www.wormbase.org/"
-   },
-   "fypo" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "FYPO:0000001",
-      "generic_url" : "http://www.pombase.org/",
-      "name" : "Fission Yeast Phenotype Ontology",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "database" : "Fission Yeast Phenotype Ontology",
-      "url_syntax" : null,
-      "abbreviation" : "FYPO",
-      "id" : "FYPO",
-      "url_example" : null
-   },
-   "omssa" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : null,
-      "generic_url" : "http://pubchem.ncbi.nlm.nih.gov/omssa/",
-      "name" : "Open Mass Spectrometry Search Algorithm",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : null,
-      "abbreviation" : "OMSSA",
-      "id" : "OMSSA",
-      "database" : "Open Mass Spectrometry Search Algorithm",
-      "url_example" : null
-   },
-   "rnamods" : {
-      "example_id" : "RNAmods:037",
-      "generic_url" : "http://s59.cas.albany.edu/RNAmods/",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_syntax" : "http://s59.cas.albany.edu/RNAmods/cgi-bin/rnashow.cgi?[example_id]",
-      "id" : "RNAmods",
-      "abbreviation" : "RNAmods",
-      "database" : "RNA Modification Database",
-      "url_example" : "http://s59.cas.albany.edu/RNAmods/cgi-bin/rnashow.cgi?091",
-      "name" : "RNA Modification Database",
-      "fullname" : null,
-      "uri_prefix" : null
-   },
-   "gonuts" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "GONUTS:MOUSE:CD28",
-      "generic_url" : "http://gowiki.tamu.edu",
-      "name" : "Gene Ontology Normal Usage Tracking System (GONUTS)",
-      "uri_prefix" : null,
-      "fullname" : "Third party documentation for GO and community annotation system.",
-      "id" : "GONUTS",
-      "url_syntax" : "http://gowiki.tamu.edu/wiki/index.php/[example_id]",
-      "abbreviation" : "GONUTS",
-      "database" : "Gene Ontology Normal Usage Tracking System (GONUTS)",
-      "url_example" : "http://gowiki.tamu.edu/wiki/index.php/MOUSE:CD28"
-   },
-   "hamap" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://hamap.expasy.org/",
-      "example_id" : "HAMAP:MF_00031",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "High-quality Automated and Manual Annotation of microbial Proteomes",
-      "url_example" : "http://hamap.expasy.org/unirule/MF_00131",
-      "url_syntax" : "http://hamap.expasy.org/unirule/[example_id]",
-      "database" : "High-quality Automated and Manual Annotation of microbial Proteomes",
-      "id" : "HAMAP",
-      "abbreviation" : "HAMAP"
-   },
-   "prow" : {
-      "datatype" : "entity",
-      "object" : "entity",
-      "example_id" : null,
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/prow/",
-      "name" : "Protein Reviews on the Web",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "id" : "PROW",
-      "url_syntax" : null,
-      "database" : "Protein Reviews on the Web",
-      "abbreviation" : "PROW",
-      "url_example" : null
-   },
-   "phi" : {
-      "name" : "MeGO (Phage and Mobile Element Ontology)",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "id" : "PHI",
-      "url_syntax" : null,
-      "abbreviation" : "PHI",
-      "database" : "MeGO (Phage and Mobile Element Ontology)",
-      "url_example" : null,
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "PHI:0000055",
-      "generic_url" : "http://aclame.ulb.ac.be/Classification/mego.html"
-   },
-   "flybase" : {
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "FlyBase",
-      "url_example" : "http://flybase.org/reports/FBgn0000024.html",
-      "url_syntax" : "http://flybase.org/reports/[example_id].html",
-      "database" : "FlyBase",
-      "id" : "FB",
-      "abbreviation" : "FLYBASE",
-      "datatype" : "gene",
-      "object" : "gene",
-      "generic_url" : "http://flybase.org/",
-      "example_id" : "FB:FBgn0000024"
-   },
-   "brenda" : {
-      "url_syntax" : "http://www.brenda-enzymes.info/php/result_flat.php4?ecno=[example_id]",
-      "database" : "BRENDA, The Comprehensive Enzyme Information System",
-      "abbreviation" : "BRENDA",
-      "id" : "BRENDA",
-      "url_example" : "http://www.brenda-enzymes.info/php/result_flat.php4?ecno=4.2.1.3",
-      "name" : "BRENDA, The Comprehensive Enzyme Information System",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "BRENDA:4.2.1.3",
-      "generic_url" : "http://www.brenda-enzymes.info",
-      "object" : "catalytic activity",
-      "datatype" : "catalytic activity"
-   },
-   "merops_fam" : {
-      "url_example" : "http://merops.sanger.ac.uk/cgi-bin/famsum?family=m18",
-      "url_syntax" : "http://merops.sanger.ac.uk/cgi-bin/famsum?family=[example_id]",
-      "database" : "MEROPS peptidase database",
-      "abbreviation" : "MEROPS_fam",
-      "id" : "MEROPS_fam",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "MEROPS peptidase database",
-      "generic_url" : "http://merops.sanger.ac.uk/",
-      "example_id" : "MEROPS_fam:M18",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "uniparc" : {
-      "uri_prefix" : null,
-      "fullname" : "A non-redundant archive of protein sequences extracted from Swiss-Prot, TrEMBL, PIR-PSD, EMBL, Ensembl, IPI, PDB, RefSeq, FlyBase, WormBase, European Patent Office, United States Patent and Trademark Office, and Japanese Patent Office",
-      "name" : "UniProt Archive",
-      "url_example" : "http://www.uniprot.org/uniparc/UPI000000000A",
-      "url_syntax" : "http://www.uniprot.org/uniparc/[example_id]",
-      "abbreviation" : "UniParc",
-      "id" : "UniParc",
-      "database" : "UniProt Archive",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.uniprot.org/uniparc/",
-      "example_id" : "UniParc:UPI000000000A"
-   },
-   "ensemblplants" : {
-      "object" : "gene",
-      "datatype" : "gene",
-      "example_id" : "EnsemblPlants:LOC_Os01g22954",
-      "generic_url" : "http://plants.ensembl.org/",
-      "name" : "Ensembl Plants, the Ensembl Genomes database for accessing plant genome data",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "id" : "EnsemblPlants/Gramene",
-      "url_syntax" : "http://www.ensemblgenomes.org/id/[example_ID]",
-      "abbreviation" : "EnsemblPlants",
-      "database" : "Ensembl Plants, the Ensembl Genomes database for accessing plant genome data",
-      "url_example" : "http://www.ensemblgenomes.org/id/LOC_Os01g22954"
-   },
-   "um-bbd_ruleid" : {
-      "url_example" : "http://umbbd.msi.umn.edu/servlets/rule.jsp?rule=bt0330",
-      "url_syntax" : "http://umbbd.msi.umn.edu/servlets/rule.jsp?rule=[example_id]",
-      "id" : "UM-BBD_ruleID",
-      "database" : "University of Minnesota Biocatalysis/Biodegradation Database",
-      "abbreviation" : "UM-BBD_ruleID",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "University of Minnesota Biocatalysis/Biodegradation Database",
-      "generic_url" : "http://umbbd.msi.umn.edu/",
-      "example_id" : "UM-BBD_ruleID:bt0330",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "superfamily" : {
-      "fullname" : "A database of structural and functional protein annotations for completely sequenced genomes",
-      "uri_prefix" : null,
-      "name" : "SUPERFAMILY protein annotation database",
-      "url_example" : "http://supfam.cs.bris.ac.uk/SUPERFAMILY/cgi-bin/scop.cgi?ipid=SSF51905",
-      "abbreviation" : "SUPERFAMILY",
-      "url_syntax" : "http://supfam.cs.bris.ac.uk/SUPERFAMILY/cgi-bin/scop.cgi?ipid=SSF[example_id]",
-      "id" : "SUPERFAMILY",
-      "database" : "SUPERFAMILY protein annotation database",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://supfam.cs.bris.ac.uk/SUPERFAMILY/index.html",
-      "example_id" : "SUPERFAMILY:51905"
-   },
-   "pr" : {
-      "url_example" : "http://www.proconsortium.org/cgi-bin/pro/entry_pro?id=PR:000025380",
-      "url_syntax" : "http://www.proconsortium.org/cgi-bin/pro/entry_pro?id=PR:[example_id]",
-      "abbreviation" : "PR",
-      "database" : "Protein Ontology",
-      "id" : "PR",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Protein Ontology",
-      "generic_url" : "http://www.proconsortium.org/pro/pro.shtml",
-      "example_id" : "PR:000025380",
-      "object" : "protein",
-      "datatype" : "protein"
-   },
-   "h-invdb_locus" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.h-invitational.jp/",
-      "example_id" : "H-invDB_locus:HIX0014446",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "H-invitational Database",
-      "url_example" : "http://www.h-invitational.jp/hinv/spsoup/locus_view?hix_id=HIX0014446",
-      "database" : "H-invitational Database",
-      "url_syntax" : "http://www.h-invitational.jp/hinv/spsoup/locus_view?hix_id=[example_id]",
-      "id" : "H-invDB_locus",
-      "abbreviation" : "H-invDB_locus"
-   },
-   "uniprotkb-subcell" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "UniProt Knowledgebase Subcellular Location vocabulary",
-      "url_example" : "http://www.uniprot.org/locations/SL-0012",
-      "abbreviation" : "UniProtKB-SubCell",
-      "url_syntax" : "http://www.uniprot.org/locations/[example_id]",
-      "id" : "UniProtKB-SubCell",
-      "database" : "UniProt Knowledgebase Subcellular Location vocabulary",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.uniprot.org/locations/",
-      "example_id" : "UniProtKB-SubCell:SL-0012"
-   },
-   "smd" : {
-      "datatype" : "entity",
-      "object" : "entity",
-      "example_id" : null,
-      "generic_url" : "http://genome-www.stanford.edu/microarray",
-      "name" : "Stanford Microarray Database",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "abbreviation" : "SMD",
-      "url_syntax" : null,
-      "id" : "SMD",
-      "database" : "Stanford Microarray Database",
-      "url_example" : null
-   },
-   "eco" : {
-      "url_example" : null,
-      "id" : "ECO",
-      "url_syntax" : null,
-      "database" : "Evidence Code ontology",
-      "abbreviation" : "ECO",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Evidence Code ontology",
-      "generic_url" : "http://www.geneontology.org/",
-      "example_id" : "ECO:0000002",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "alzheimers_university_of_toronto" : {
-      "url_example" : null,
-      "id" : "Alzheimers_University_of_Toronto",
-      "url_syntax" : null,
-      "abbreviation" : "Alzheimers_University_of_Toronto",
-      "database" : "Alzheimers Project at University of Toronto",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Alzheimers Project at University of Toronto",
-      "generic_url" : "http://www.ims.utoronto.ca/",
-      "example_id" : null,
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "um-bbd" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://umbbd.msi.umn.edu/",
-      "example_id" : null,
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "University of Minnesota Biocatalysis/Biodegradation Database",
-      "url_example" : null,
-      "database" : "University of Minnesota Biocatalysis/Biodegradation Database",
-      "url_syntax" : null,
-      "id" : "UM-BBD",
-      "abbreviation" : "UM-BBD"
-   },
-   "kegg_enzyme" : {
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "KEGG Enzyme Database",
-      "url_example" : "http://www.genome.jp/dbget-bin/www_bget?ec:2.1.1.4",
-      "abbreviation" : "KEGG_ENZYME",
-      "url_syntax" : "http://www.genome.jp/dbget-bin/www_bget?ec:[example_id]",
-      "id" : "KEGG_ENZYME",
-      "database" : "KEGG Enzyme Database",
-      "datatype" : "entity",
-      "object" : "entity",
-      "generic_url" : "http://www.genome.jp/dbget-bin/www_bfind?enzyme",
-      "example_id" : "KEGG_ENZYME:2.1.1.4"
-   },
-   "tgd" : {
-      "generic_url" : "http://www.ciliate.org/",
-      "example_id" : null,
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : null,
-      "url_syntax" : null,
-      "database" : "Tetrahymena Genome Database",
-      "abbreviation" : "TGD",
-      "id" : "TGD",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Tetrahymena Genome Database"
-   },
-   "wormbase" : {
-      "generic_url" : "http://www.wormbase.org/",
-      "example_id" : "WB:WBGene00003001",
-      "object" : "protein",
-      "datatype" : "protein",
-      "url_example" : "http://www.wormbase.org/db/get?class=Gene;name=WBGene00003001",
-      "id" : "WB",
-      "url_syntax" : "http://www.wormbase.org/db/gene/gene?name=[example_id]",
-      "abbreviation" : "WormBase",
-      "database" : "WormBase database of nematode biology",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "WormBase database of nematode biology"
-   },
-   "ncbigene" : {
-      "object" : "gene",
-      "datatype" : "gene",
-      "example_id" : "NCBI_Gene:4771",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/",
-      "name" : "NCBI Gene",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "database" : "NCBI Gene",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/sites/entrez?cmd=Retrieve&db=gene&list_uids=[example_id]",
-      "id" : "NCBI_Gene",
-      "abbreviation" : "NCBIGene",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/sites/entrez?cmd=Retrieve&db=gene&list_uids=4771"
-   },
-   "seed" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.theseed.org",
-      "example_id" : "SEED:fig|83331.1.peg.1",
-      "fullname" : "Project to annotate the first 1000 sequenced genomes, develop detailed metabolic reconstructions, and construct the corresponding stoichiometric matrices",
-      "uri_prefix" : null,
-      "name" : "The SEED;",
-      "url_example" : "http://www.theseed.org/linkin.cgi?id=fig|83331.1.peg.1",
-      "id" : "SEED",
-      "url_syntax" : "http://www.theseed.org/linkin.cgi?id=[example_id]",
-      "abbreviation" : "SEED",
-      "database" : "The SEED;"
-   },
-   "mesh" : {
-      "abbreviation" : "MeSH",
-      "url_syntax" : "http://www.nlm.nih.gov/cgi/mesh/2015/MB_cgi?view=expanded&field=uid&term=[example_id]",
-      "database" : "Medical Subject Headings",
-      "id" : "MeSH",
-      "url_example" : "http://www.nlm.nih.gov/cgi/mesh/2015/MB_cgi?view=expanded&field=uid&term=D017209",
-      "name" : "Medical Subject Headings",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "MeSH:D017209",
-      "generic_url" : "https://www.nlm.nih.gov/mesh/MBrowser.html",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "biocyc" : {
-      "example_id" : "BioCyc:PWY-5271",
-      "generic_url" : "http://biocyc.org/",
-      "datatype" : "entity",
-      "object" : "entity",
-      "url_syntax" : "http://biocyc.org/META/NEW-IMAGE?type=PATHWAY&object=[example_id]",
-      "id" : "BioCyc",
-      "abbreviation" : "BioCyc",
-      "database" : "BioCyc collection of metabolic pathway databases",
-      "url_example" : "http://biocyc.org/META/NEW-IMAGE?type=PATHWAY&object=PWY-5271",
-      "name" : "BioCyc collection of metabolic pathway databases",
-      "uri_prefix" : null,
-      "fullname" : null
-   },
-   "casref" : {
-      "url_example" : "http://research.calacademy.org/research/ichthyology/catalog/getref.asp?id=2031",
-      "url_syntax" : "http://research.calacademy.org/research/ichthyology/catalog/getref.asp?id=[example_id]",
-      "database" : "Catalog of Fishes publications database",
-      "abbreviation" : "CASREF",
-      "id" : "CASREF",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Catalog of Fishes publications database",
-      "generic_url" : "http://research.calacademy.org/research/ichthyology/catalog/fishcatsearch.html",
-      "example_id" : "CASREF:2031",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "transfac" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.gene-regulation.com/pub/databases.html#transfac",
-      "example_id" : null,
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "TRANSFAC database of eukaryotic transcription factors",
-      "url_example" : null,
-      "id" : "TRANSFAC",
-      "url_syntax" : null,
-      "database" : "TRANSFAC database of eukaryotic transcription factors",
-      "abbreviation" : "TRANSFAC"
-   },
-   "vbrc" : {
-      "name" : "Viral Bioinformatics Resource Center",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : "http://vbrc.org/query.asp?web_id=VBRC:[example_id]",
-      "id" : "VBRC",
-      "abbreviation" : "VBRC",
-      "database" : "Viral Bioinformatics Resource Center",
-      "url_example" : "http://vbrc.org/query.asp?web_id=VBRC:F35742",
-      "datatype" : "entity",
-      "object" : "entity",
-      "example_id" : "VBRC:F35742",
-      "generic_url" : "http://vbrc.org"
-   },
-   "cgdid" : {
-      "object" : "gene",
-      "datatype" : "gene",
-      "example_id" : "CGD:CAL0005516",
-      "generic_url" : "http://www.candidagenome.org/",
-      "name" : "Candida Genome Database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "id" : "CGD",
-      "url_syntax" : "http://www.candidagenome.org/cgi-bin/locus.pl?dbid=[example_id]",
-      "abbreviation" : "CGDID",
-      "database" : "Candida Genome Database",
-      "url_example" : "http://www.candidagenome.org/cgi-bin/locus.pl?dbid=CAL0005516"
-   },
-   "jcvi_genprop" : {
-      "id" : "JCVI_GenProp",
-      "url_syntax" : "http://cmr.jcvi.org/cgi-bin/CMR/shared/GenomePropDefinition.cgi?prop_acc=[example_id]",
-      "abbreviation" : "JCVI_GenProp",
-      "database" : "Genome Properties database at the J. Craig Venter Institute",
-      "url_example" : "http://cmr.jcvi.org/cgi-bin/CMR/shared/GenomePropDefinition.cgi?prop_acc=GenProp0120",
-      "name" : "Genome Properties database at the J. Craig Venter Institute",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "JCVI_GenProp:GenProp0120",
-      "generic_url" : "http://cmr.jcvi.org/",
-      "datatype" : "biological_process",
-      "object" : "biological_process"
-   },
-   "cbs" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.cbs.dtu.dk/",
-      "example_id" : "CBS:TMHMM",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Center for Biological Sequence Analysis",
-      "url_example" : "http://www.cbs.dtu.dk/services/[example_id]/",
-      "url_syntax" : null,
-      "id" : "CBS",
-      "abbreviation" : "CBS",
-      "database" : "Center for Biological Sequence Analysis"
-   },
-   "mgi" : {
-      "object" : "variation",
-      "datatype" : "variation",
-      "generic_url" : "http://www.informatics.jax.org/",
-      "example_id" : "MGI:MGI:80863",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Mouse Genome Informatics",
-      "url_example" : "http://www.informatics.jax.org/accession/MGI:80863",
-      "url_syntax" : "http://www.informatics.jax.org/accession/[example_id]",
-      "abbreviation" : "MGI",
-      "id" : "MGI",
-      "database" : "Mouse Genome Informatics"
-   },
-   "multifun" : {
-      "url_syntax" : null,
-      "abbreviation" : "MultiFun",
-      "id" : "MultiFun",
-      "database" : "MultiFun cell function assignment schema",
-      "url_example" : null,
-      "name" : "MultiFun cell function assignment schema",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : null,
-      "generic_url" : "http://genprotec.mbl.edu/files/MultiFun.html",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "paint_ref" : {
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Phylogenetic Annotation INference Tool References",
-      "url_example" : "http://www.geneontology.org/gene-associations/submission/paint/PTHR10046/PTHR10046.txt",
-      "url_syntax" : "http://www.geneontology.org/gene-associations/submission/paint/[example_id]/[example_id].txt",
-      "id" : "PAINT_REF",
-      "abbreviation" : "PAINT_REF",
-      "database" : "Phylogenetic Annotation INference Tool References",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.pantherdb.org/",
-      "example_id" : "PAINT_REF:PTHR10046"
-   },
-   "panther" : {
-      "example_id" : "PANTHER:PTHR11455",
-      "generic_url" : "http://www.pantherdb.org/",
-      "object" : "protein family",
-      "datatype" : "protein family",
-      "abbreviation" : "PANTHER",
-      "url_syntax" : "http://www.pantherdb.org/panther/lookupId.jsp?id=[example_id]",
-      "id" : "PANTHER",
-      "database" : "Protein ANalysis THrough Evolutionary Relationships Classification System",
-      "url_example" : "http://www.pantherdb.org/panther/lookupId.jsp?id=PTHR10000",
-      "name" : "Protein ANalysis THrough Evolutionary Relationships Classification System",
-      "uri_prefix" : null,
-      "fullname" : null
-   },
-   "jcvi_tigrfams" : {
-      "url_syntax" : "http://search.jcvi.org/search?p&q=[example_id]",
-      "id" : "JCVI_TIGRFAMS",
-      "database" : "TIGRFAMs HMM collection at the J. Craig Venter Institute",
-      "abbreviation" : "JCVI_TIGRFAMS",
-      "url_example" : "http://search.jcvi.org/search?p&q=TIGR00254",
-      "name" : "TIGRFAMs HMM collection at the J. Craig Venter Institute",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : "JCVI_TIGRFAMS:TIGR00254",
-      "generic_url" : "http://search.jcvi.org/",
-      "object" : "polypeptide region",
-      "datatype" : "polypeptide region"
-   },
-   "uberon" : {
-      "datatype" : "anatomical entity",
-      "object" : "anatomical entity",
-      "generic_url" : "http://uberon.org",
-      "example_id" : "URBERON:0002398",
-      "fullname" : "A multi-species anatomy ontology",
-      "uri_prefix" : null,
-      "name" : "Uber-anatomy ontology",
-      "url_example" : "http://purl.obolibrary.org/obo/UBERON_0002398",
-      "database" : "Uber-anatomy ontology",
-      "url_syntax" : "http://purl.obolibrary.org/obo/UBERON_[example_id]",
-      "abbreviation" : "UBERON",
-      "id" : "UBERON"
-   },
-   "gr_qtl" : {
-      "abbreviation" : "GR_QTL",
-      "url_syntax" : "http://www.gramene.org/db/qtl/qtl_display?qtl_accession_id=[example_id]",
-      "id" : "GR_QTL",
-      "database" : "Gramene",
-      "url_example" : "http://www.gramene.org/db/qtl/qtl_display?qtl_accession_id=CQU7",
-      "name" : "Gramene",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : "GR_QTL:CQU7",
-      "generic_url" : "http://www.gramene.org/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "broad" : {
-      "generic_url" : "http://www.broad.mit.edu/",
-      "example_id" : null,
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : null,
-      "url_syntax" : null,
-      "database" : "Broad Institute",
-      "abbreviation" : "Broad",
-      "id" : "Broad",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Broad Institute"
-   },
-   "ensembl_transcriptid" : {
-      "datatype" : "transcript",
-      "object" : "transcript",
-      "example_id" : "ENSEMBL_TranscriptID:ENST00000371959",
-      "generic_url" : "http://www.ensembl.org/",
-      "name" : "Ensembl database of automatically annotated genomic data",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "url_syntax" : "http://www.ensembl.org/id/[example_id]",
-      "id" : "ENSEMBL_TranscriptID",
-      "abbreviation" : "ENSEMBL_TranscriptID",
-      "database" : "Ensembl database of automatically annotated genomic data",
-      "url_example" : "http://www.ensembl.org/id/ENST00000371959"
-   },
-   "agi_locuscode" : {
-      "generic_url" : "http://www.arabidopsis.org",
-      "example_id" : "AGI_LocusCode:At2g17950",
-      "datatype" : "gene",
-      "object" : "gene",
-      "url_example" : "http://arabidopsis.org/servlets/TairObject?type=locus&name=At2g17950",
-      "url_syntax" : "http://arabidopsis.org/servlets/TairObject?type=locus&name=[example_id]",
-      "id" : "AGI_LocusCode",
-      "database" : "Arabidopsis Genome Initiative",
-      "abbreviation" : "AGI_LocusCode",
-      "fullname" : "Comprises TAIR, TIGR and MIPS",
-      "uri_prefix" : null,
-      "name" : "Arabidopsis Genome Initiative"
-   },
-   "sabio-rk" : {
-      "database" : "SABIO Reaction Kinetics",
-      "url_syntax" : "http://sabio.villa-bosch.de/reacdetails.jsp?reactid=[example_id]",
-      "id" : "SABIO-RK",
-      "abbreviation" : "SABIO-RK",
-      "url_example" : "http://sabio.villa-bosch.de/reacdetails.jsp?reactid=1858",
-      "name" : "SABIO Reaction Kinetics",
-      "fullname" : "The SABIO-RK (System for the Analysis of Biochemical Pathways - Reaction Kinetics) is a web-based application based on the SABIO relational database that contains information about biochemical reactions, their kinetic equations with their parameters, and the experimental conditions under which these parameters were measured.",
-      "uri_prefix" : null,
-      "example_id" : "SABIO-RK:1858",
-      "generic_url" : "http://sabio.villa-bosch.de/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "um-bbd_reactionid" : {
-      "example_id" : "UM-BBD_reactionID:r0129",
-      "generic_url" : "http://umbbd.msi.umn.edu/",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_syntax" : "http://umbbd.msi.umn.edu/servlets/pageservlet?ptype=r&reacID=[example_id]",
-      "abbreviation" : "UM-BBD_reactionID",
-      "id" : "UM-BBD_reactionID",
-      "database" : "University of Minnesota Biocatalysis/Biodegradation Database",
-      "url_example" : "http://umbbd.msi.umn.edu/servlets/pageservlet?ptype=r&reacID=r0129",
-      "name" : "University of Minnesota Biocatalysis/Biodegradation Database",
-      "uri_prefix" : null,
-      "fullname" : null
-   },
-   "germonline" : {
-      "generic_url" : "http://www.germonline.org/",
-      "example_id" : null,
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : null,
-      "url_syntax" : null,
-      "id" : "GermOnline",
-      "abbreviation" : "GermOnline",
-      "database" : "GermOnline",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "GermOnline"
-   },
-   "dbsnp" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "dbSNP:rs3131969",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/projects/SNP",
-      "name" : "NCBI dbSNP",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=[example_id]",
-      "id" : "dbSNP",
-      "abbreviation" : "dbSNP",
-      "database" : "NCBI dbSNP",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=rs3131969"
-   },
-   "cacao" : {
-      "name" : "Community Assessment of Community Annotation with Ontologies",
-      "uri_prefix" : null,
-      "fullname" : "The Community Assessment of Community Annotation with Ontologies (CACAO) is a project to do large-scale manual community annotation of gene function using the Gene Ontology as a multi-institution student competition.",
-      "url_syntax" : "http://gowiki.tamu.edu/wiki/index.php/[example_id]",
-      "id" : "CACAO",
-      "abbreviation" : "CACAO",
-      "database" : "Community Assessment of Community Annotation with Ontologies",
-      "url_example" : "http://gowiki.tamu.edu/wiki/index.php/MYCS2:A0QNF5",
-      "datatype" : "entity",
-      "object" : "entity",
-      "example_id" : "MYCS2:A0QNF5",
-      "generic_url" : "http://gowiki.tamu.edu/wiki/index.php/Category:CACAO"
-   },
-   "h-invdb" : {
-      "datatype" : "entity",
-      "object" : "entity",
-      "example_id" : null,
-      "generic_url" : "http://www.h-invitational.jp/",
-      "name" : "H-invitational Database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : null,
-      "database" : "H-invitational Database",
-      "abbreviation" : "H-invDB",
-      "id" : "H-invDB",
-      "url_example" : null
-   },
-   "pseudocap" : {
-      "url_example" : "http://v2.pseudomonas.com/getAnnotation.do?locusID=PA4756",
-      "id" : "PseudoCAP",
-      "url_syntax" : "http://v2.pseudomonas.com/getAnnotation.do?locusID=[example_id]",
-      "abbreviation" : "PseudoCAP",
-      "database" : "Pseudomonas Genome Project",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Pseudomonas Genome Project",
-      "generic_url" : "http://v2.pseudomonas.com/",
-      "example_id" : "PseudoCAP:PA4756",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "hgnc" : {
-      "generic_url" : "http://www.genenames.org/",
-      "example_id" : "HGNC:29",
-      "object" : "gene",
-      "datatype" : "gene",
-      "url_example" : "http://www.genenames.org/data/hgnc_data.php?hgnc_id=HGNC:29",
-      "url_syntax" : "http://www.genenames.org/data/hgnc_data.php?hgnc_id=HGNC:[example_id]",
-      "abbreviation" : "HGNC",
-      "database" : "HUGO Gene Nomenclature Committee",
-      "id" : "HGNC",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "HUGO Gene Nomenclature Committee"
-   },
-   "lifedb" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.lifedb.de/",
-      "example_id" : "LIFEdb:DKFZp564O1716",
-      "uri_prefix" : null,
-      "fullname" : "LifeDB is a database for information on protein localization, interaction, functional assays and expression.",
-      "name" : "LifeDB",
-      "url_example" : "http://www.dkfz.de/LIFEdb/LIFEdb.aspx?ID=DKFZp564O1716",
-      "url_syntax" : "http://www.dkfz.de/LIFEdb/LIFEdb.aspx?ID=[example_id]",
-      "id" : "LIFEdb",
-      "abbreviation" : "LIFEdb",
-      "database" : "LifeDB"
-   },
-   "biosis" : {
-      "example_id" : "BIOSIS:200200247281",
-      "generic_url" : "http://www.biosis.org/",
-      "object" : "entity",
-      "datatype" : "entity",
-      "database" : "BIOSIS previews",
-      "url_syntax" : null,
-      "id" : "BIOSIS",
-      "abbreviation" : "BIOSIS",
-      "url_example" : null,
-      "name" : "BIOSIS previews",
-      "uri_prefix" : null,
-      "fullname" : null
-   },
-   "cog_pathway" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "NCBI COG pathway",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/COG/new/release/coglist.cgi?pathw=14",
-      "id" : "COG_Pathway",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/COG/new/release/coglist.cgi?pathw=[example_id]",
-      "database" : "NCBI COG pathway",
-      "abbreviation" : "COG_Pathway",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/COG/",
-      "example_id" : "COG_Pathway:14"
-   },
-   "gr_protein" : {
-      "generic_url" : "http://www.gramene.org/",
-      "example_id" : "GR_PROTEIN:Q6VSV0",
-      "datatype" : "protein",
-      "object" : "protein",
-      "url_example" : "http://www.gramene.org/db/protein/protein_search?acc=Q6VSV0",
-      "url_syntax" : "http://www.gramene.org/db/protein/protein_search?acc=[example_id]",
-      "database" : "Gramene",
-      "abbreviation" : "GR_protein",
-      "id" : "GR_PROTEIN",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Gramene"
-   },
-   "omim" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=OMIM",
-      "example_id" : "OMIM:190198",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Mendelian Inheritance in Man",
-      "url_example" : "http://omim.org/entry/190198",
-      "url_syntax" : "http://omim.org/entry/[example_id]",
-      "id" : "OMIM",
-      "abbreviation" : "OMIM",
-      "database" : "Mendelian Inheritance in Man"
-   },
-   "pdb" : {
-      "datatype" : "protein",
-      "object" : "protein",
-      "example_id" : "PDB:1A4U",
-      "generic_url" : "http://www.rcsb.org/pdb/",
-      "name" : "Protein Data Bank",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "abbreviation" : "PDB",
-      "url_syntax" : "http://www.rcsb.org/pdb/cgi/explore.cgi?pdbId=[example_id]",
-      "database" : "Protein Data Bank",
-      "id" : "PDB",
-      "url_example" : "http://www.rcsb.org/pdb/cgi/explore.cgi?pdbId=1A4U"
-   },
-   "tgd_locus" : {
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Tetrahymena Genome Database",
-      "url_example" : "http://db.ciliate.org/cgi-bin/locus.pl?locus=PDD1",
-      "url_syntax" : "http://db.ciliate.org/cgi-bin/locus.pl?locus=[example_id]",
-      "database" : "Tetrahymena Genome Database",
-      "id" : "TGD_LOCUS",
-      "abbreviation" : "TGD_LOCUS",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.ciliate.org/",
-      "example_id" : "TGD_LOCUS:PDD1"
-   },
-   "ppi" : {
-      "generic_url" : "http://genome.pseudomonas-syringae.org/",
-      "example_id" : null,
-      "datatype" : "entity",
-      "object" : "entity",
-      "url_example" : null,
-      "url_syntax" : null,
-      "database" : "Pseudomonas syringae community annotation project",
-      "abbreviation" : "PPI",
-      "id" : "PPI",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Pseudomonas syringae community annotation project"
-   },
-   "iuphar" : {
-      "example_id" : null,
-      "generic_url" : "http://www.iuphar.org/",
-      "datatype" : "entity",
-      "object" : "entity",
-      "id" : "IUPHAR",
-      "url_syntax" : null,
-      "database" : "International Union of Pharmacology",
-      "abbreviation" : "IUPHAR",
-      "url_example" : null,
-      "name" : "International Union of Pharmacology",
-      "fullname" : null,
-      "uri_prefix" : null
-   },
-   "maizegdb" : {
-      "url_example" : "http://www.maizegdb.org/cgi-bin/id_search.cgi?id=881225",
-      "abbreviation" : "MaizeGDB",
-      "url_syntax" : "http://www.maizegdb.org/cgi-bin/id_search.cgi?id=[example_id]",
-      "database" : "MaizeGDB",
-      "id" : "MaizeGDB",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "MaizeGDB",
-      "generic_url" : "http://www.maizegdb.org",
-      "example_id" : "MaizeGDB:881225",
-      "datatype" : "entity",
-      "object" : "entity"
-   },
-   "jcvi" : {
-      "example_id" : null,
-      "generic_url" : "http://www.jcvi.org/",
-      "object" : "entity",
-      "datatype" : "entity",
-      "abbreviation" : "JCVI",
-      "url_syntax" : null,
-      "id" : "JCVI",
-      "database" : "J. Craig Venter Institute",
-      "url_example" : null,
-      "name" : "J. Craig Venter Institute",
-      "fullname" : null,
-      "uri_prefix" : null
-   },
-   "nasc_code" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "NASC_code:N3371",
-      "generic_url" : "http://arabidopsis.info",
-      "name" : "Nottingham Arabidopsis Stock Centre Seeds Database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : "http://seeds.nottingham.ac.uk/NASC/stockatidb.lasso?code=[example_id]",
-      "id" : "NASC_code",
-      "database" : "Nottingham Arabidopsis Stock Centre Seeds Database",
-      "abbreviation" : "NASC_code",
-      "url_example" : "http://seeds.nottingham.ac.uk/NASC/stockatidb.lasso?code=N3371"
-   },
-   "poc" : {
-      "url_syntax" : null,
-      "database" : "Plant Ontology Consortium",
-      "abbreviation" : "POC",
-      "id" : "POC",
-      "url_example" : null,
-      "name" : "Plant Ontology Consortium",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : null,
-      "generic_url" : "http://www.plantontology.org/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "ensembl" : {
-      "url_syntax" : "http://www.ensembl.org/id/[example_id]",
-      "id" : "ENSEMBL",
-      "database" : "Ensembl database of automatically annotated genomic data",
-      "abbreviation" : "Ensembl",
-      "url_example" : "http://www.ensembl.org/id/ENSP00000265949",
-      "name" : "Ensembl database of automatically annotated genomic data",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : "ENSEMBL:ENSP00000265949",
-      "generic_url" : "http://www.ensembl.org/",
-      "object" : "transcript",
-      "datatype" : "transcript"
-   },
-   "aspgd_ref" : {
-      "name" : "Aspergillus Genome Database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "id" : "AspGD_REF",
-      "url_syntax" : "http://www.aspergillusgenome.org/cgi-bin/reference/reference.pl?dbid=[example_id]",
-      "abbreviation" : "AspGD_REF",
-      "database" : "Aspergillus Genome Database",
-      "url_example" : "http://www.aspergillusgenome.org/cgi-bin/reference/reference.pl?dbid=90",
-      "datatype" : "entity",
-      "object" : "entity",
-      "example_id" : "AspGD_REF:90",
-      "generic_url" : "http://www.aspergillusgenome.org/"
-   },
-   "pubmed" : {
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/pubmed/[example_id]",
-      "database" : "PubMed",
-      "abbreviation" : "PubMed",
-      "id" : "PMID",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/pubmed/4208797",
-      "name" : "PubMed",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : "PMID:4208797",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/PubMed/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "parkinsonsuk-ucl" : {
-      "url_example" : null,
-      "url_syntax" : null,
-      "id" : "ParkinsonsUK-UCL",
-      "database" : "Parkinsons Disease Gene Ontology Initiative",
-      "abbreviation" : "ParkinsonsUK-UCL",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Parkinsons Disease Gene Ontology Initiative",
-      "generic_url" : "http://www.ucl.ac.uk/functional-gene-annotation/neurological",
-      "example_id" : null,
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "hgnc_gene" : {
-      "url_example" : "http://www.genenames.org/data/hgnc_data.php?app_sym=ABCA1",
-      "url_syntax" : "http://www.genenames.org/data/hgnc_data.php?app_sym=[example_id]",
-      "abbreviation" : "HGNC_gene",
-      "id" : "HGNC_gene",
-      "database" : "HUGO Gene Nomenclature Committee",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "HUGO Gene Nomenclature Committee",
-      "generic_url" : "http://www.genenames.org/",
-      "example_id" : "HGNC_gene:ABCA1",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "trait" : {
-      "abbreviation" : "TRAIT",
-      "url_syntax" : null,
-      "id" : "TRAIT",
-      "database" : "TRAnscript Integrated Table",
-      "url_example" : null,
-      "name" : "TRAnscript Integrated Table",
-      "fullname" : "an integrated database of transcripts expressed in human skeletal muscle",
-      "uri_prefix" : null,
-      "example_id" : null,
-      "generic_url" : "http://muscle.cribi.unipd.it/",
-      "datatype" : "entity",
-      "object" : "entity"
-   },
-   "unigene" : {
-      "url_example" : "http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&CID=212293",
-      "database" : "UniGene",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=[organism_abbreviation]&CID=[cluster_id]",
-      "abbreviation" : "UniGene",
-      "id" : "UniGene",
-      "fullname" : "NCBI transcript cluster database, organized by transcriptome. Each UniGene entry is a set of transcript sequences that appear to come from the same transcription locus (gene or expressed pseudogene).",
-      "uri_prefix" : null,
-      "name" : "UniGene",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/UniGene",
-      "example_id" : "UniGene:Hs.212293",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "kegg_ligand" : {
-      "generic_url" : "http://www.genome.ad.jp/kegg/docs/upd_ligand.html",
-      "example_id" : "KEGG_LIGAND:C00577",
-      "datatype" : "chemical entity",
-      "object" : "chemical entity",
-      "url_example" : "http://www.genome.jp/dbget-bin/www_bget?cpd:C00577",
-      "abbreviation" : "KEGG_LIGAND",
-      "url_syntax" : "http://www.genome.jp/dbget-bin/www_bget?cpd:[example_id]",
-      "id" : "KEGG_LIGAND",
-      "database" : "KEGG LIGAND Database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "KEGG LIGAND Database"
-   },
-   "um-bbd_enzymeid" : {
-      "generic_url" : "http://umbbd.msi.umn.edu/",
-      "example_id" : "UM-BBD_enzymeID:e0413",
-      "datatype" : "entity",
-      "object" : "entity",
-      "url_example" : "http://umbbd.msi.umn.edu/servlets/pageservlet?ptype=ep&enzymeID=e0230",
-      "url_syntax" : "http://umbbd.msi.umn.edu/servlets/pageservlet?ptype=ep&enzymeID=[example_id]",
-      "abbreviation" : "UM-BBD_enzymeID",
-      "id" : "UM-BBD_enzymeID",
-      "database" : "University of Minnesota Biocatalysis/Biodegradation Database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "University of Minnesota Biocatalysis/Biodegradation Database"
-   },
-   "mgd" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.informatics.jax.org/",
-      "example_id" : "MGD:Adcy9",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Mouse Genome Database",
-      "url_example" : null,
-      "url_syntax" : null,
-      "id" : "MGD",
-      "abbreviation" : "MGD",
-      "database" : "Mouse Genome Database"
-   },
-   "go_central" : {
-      "example_id" : null,
-      "generic_url" : "http://www.geneontology.org/GO.refgenome.shtml",
-      "object" : "entity",
-      "datatype" : "entity",
-      "database" : "GO Central",
-      "url_syntax" : null,
-      "abbreviation" : "GO_Central",
-      "id" : "GO_Central",
-      "url_example" : null,
-      "name" : "GO Central",
-      "fullname" : "Manual annotation from PAINT curators into the UniProt Protein2GO curation tool.",
-      "uri_prefix" : null
-   },
-   "yeastfunc" : {
-      "url_syntax" : null,
-      "id" : "YeastFunc",
-      "abbreviation" : "YeastFunc",
-      "database" : "Yeast Function",
-      "url_example" : null,
-      "name" : "Yeast Function",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : null,
-      "generic_url" : "http://func.med.harvard.edu/yeast/",
-      "datatype" : "entity",
-      "object" : "entity"
-   },
-   "sp_sl" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.uniprot.org/locations/",
-      "example_id" : "UniProtKB-SubCell:SL-0012",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "UniProt Knowledgebase Subcellular Location vocabulary",
-      "url_example" : "http://www.uniprot.org/locations/SL-0012",
-      "database" : "UniProt Knowledgebase Subcellular Location vocabulary",
-      "url_syntax" : "http://www.uniprot.org/locations/[example_id]",
-      "abbreviation" : "SP_SL",
-      "id" : "UniProtKB-SubCell"
-   },
-   "nif_subcellular" : {
-      "url_example" : "http://www.neurolex.org/wiki/sao1770195789",
-      "url_syntax" : "http://www.neurolex.org/wiki/[example_id]",
-      "id" : "NIF_Subcellular",
-      "abbreviation" : "NIF_Subcellular",
-      "database" : "Neuroscience Information Framework standard ontology, subcellular hierarchy",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Neuroscience Information Framework standard ontology, subcellular hierarchy",
-      "generic_url" : "http://www.neurolex.org/wiki",
-      "example_id" : "NIF_Subcellular:sao1186862860",
-      "datatype" : "entity",
-      "object" : "entity"
-   },
-   "ecoliwiki" : {
-      "fullname" : "EcoliHub\\'s subsystem for community annotation of E. coli K-12",
-      "uri_prefix" : null,
-      "name" : "EcoliWiki from EcoliHub",
-      "url_example" : null,
-      "url_syntax" : null,
-      "database" : "EcoliWiki from EcoliHub",
-      "id" : "EcoliWiki",
-      "abbreviation" : "EcoliWiki",
-      "object" : "gene",
-      "datatype" : "gene",
-      "generic_url" : "http://ecoliwiki.net/",
-      "example_id" : null
-   },
-   "agbase" : {
-      "generic_url" : "http://www.agbase.msstate.edu/",
-      "example_id" : null,
-      "datatype" : "entity",
-      "object" : "entity",
-      "url_example" : null,
-      "url_syntax" : "http://www.agbase.msstate.edu/cgi-bin/getEntry.pl?db_pick=[ChickGO/MaizeGO]&uid=[example_id]",
-      "database" : "AgBase resource for functional analysis of agricultural plant and animal gene products",
-      "id" : "AgBase",
-      "abbreviation" : "AgBase",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "AgBase resource for functional analysis of agricultural plant and animal gene products"
-   },
-   "ma" : {
-      "id" : "MA",
-      "url_syntax" : "http://www.informatics.jax.org/searches/AMA.cgi?id=MA:[example_id]",
-      "abbreviation" : "MA",
-      "database" : "Adult Mouse Anatomical Dictionary",
-      "url_example" : "http://www.informatics.jax.org/searches/AMA.cgi?id=MA:0000003",
-      "name" : "Adult Mouse Anatomical Dictionary",
-      "uri_prefix" : null,
-      "fullname" : "Adult Mouse Anatomical Dictionary; part of Gene Expression Database",
-      "example_id" : "MA:0000003",
-      "generic_url" : "http://www.informatics.jax.org/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "tigr_ref" : {
-      "generic_url" : "http://cmr.jcvi.org/",
-      "example_id" : "JCVI_REF:GO_ref",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : "http://cmr.jcvi.org/CMR/AnnotationSops.shtml",
-      "abbreviation" : "TIGR_REF",
-      "url_syntax" : null,
-      "id" : "JCVI_REF",
-      "database" : "J. Craig Venter Institute",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "J. Craig Venter Institute"
-   },
-   "jcvi_ref" : {
-      "generic_url" : "http://cmr.jcvi.org/",
-      "example_id" : "JCVI_REF:GO_ref",
-      "datatype" : "entity",
-      "object" : "entity",
-      "url_example" : "http://cmr.jcvi.org/CMR/AnnotationSops.shtml",
-      "url_syntax" : null,
-      "database" : "J. Craig Venter Institute",
-      "id" : "JCVI_REF",
-      "abbreviation" : "JCVI_REF",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "J. Craig Venter Institute"
-   },
-   "doi" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://dx.doi.org/",
-      "example_id" : "DOI:10.1016/S0963-9969(99)00021-6",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Digital Object Identifier",
-      "url_example" : "http://dx.doi.org/DOI:10.1016/S0963-9969(99)00021-6",
-      "abbreviation" : "DOI",
-      "url_syntax" : "http://dx.doi.org/DOI:[example_id]",
-      "id" : "DOI",
-      "database" : "Digital Object Identifier"
-   },
-   "ensemblplants/gramene" : {
-      "object" : "gene",
-      "datatype" : "gene",
-      "generic_url" : "http://plants.ensembl.org/",
-      "example_id" : "EnsemblPlants:LOC_Os01g22954",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Ensembl Plants, the Ensembl Genomes database for accessing plant genome data",
-      "url_example" : "http://www.ensemblgenomes.org/id/LOC_Os01g22954",
-      "id" : "EnsemblPlants/Gramene",
-      "url_syntax" : "http://www.ensemblgenomes.org/id/[example_ID]",
-      "abbreviation" : "EnsemblPlants/Gramene",
-      "database" : "Ensembl Plants, the Ensembl Genomes database for accessing plant genome data"
-   },
-   "um-bbd_pathwayid" : {
-      "name" : "University of Minnesota Biocatalysis/Biodegradation Database",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "database" : "University of Minnesota Biocatalysis/Biodegradation Database",
-      "url_syntax" : "http://umbbd.msi.umn.edu/[example_id]/[example_id]_map.html",
-      "abbreviation" : "UM-BBD_pathwayID",
-      "id" : "UM-BBD_pathwayID",
-      "url_example" : "http://umbbd.msi.umn.edu/acr/acr_map.html",
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "UM-BBD_pathwayID:acr",
-      "generic_url" : "http://umbbd.msi.umn.edu/"
-   },
-   "roslin_institute" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : null,
-      "generic_url" : "http://www.roslin.ac.uk/",
-      "name" : "Roslin Institute",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "abbreviation" : "Roslin_Institute",
-      "url_syntax" : null,
-      "id" : "Roslin_Institute",
-      "database" : "Roslin Institute",
-      "url_example" : null
-   },
-   "jcvi_cmr" : {
-      "url_syntax" : "http://cmr.jcvi.org/cgi-bin/CMR/shared/GenePage.cgi?locus=[example_id]",
-      "id" : "JCVI_CMR",
-      "database" : "EGAD database at the J. Craig Venter Institute",
-      "abbreviation" : "JCVI_CMR",
-      "url_example" : "http://cmr.jcvi.org/cgi-bin/CMR/shared/GenePage.cgi?locus=VCA0557",
-      "name" : "EGAD database at the J. Craig Venter Institute",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : "JCVI_CMR:VCA0557",
-      "generic_url" : "http://cmr.jcvi.org/",
-      "datatype" : "protein",
-      "object" : "protein"
-   },
-   "gdb" : {
-      "datatype" : "entity",
-      "object" : "entity",
-      "example_id" : "GDB:306600",
-      "generic_url" : "http://www.gdb.org/",
-      "name" : "Human Genome Database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "abbreviation" : "GDB",
-      "url_syntax" : "http://www.gdb.org/gdb-bin/genera/accno?accessionNum=GDB:[example_id]",
-      "id" : "GDB",
-      "database" : "Human Genome Database",
-      "url_example" : "http://www.gdb.org/gdb-bin/genera/accno?accessionNum=GDB:306600"
-   },
-   "gorel" : {
-      "name" : "GO Extensions to OBO Relation Ontology Ontology",
-      "uri_prefix" : null,
-      "fullname" : "Additional relations pending addition into RO",
-      "url_syntax" : null,
-      "database" : "GO Extensions to OBO Relation Ontology Ontology",
-      "abbreviation" : "GOREL",
-      "id" : "GOREL",
-      "url_example" : null,
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : null,
-      "generic_url" : "http://purl.obolibrary.org/obo/ro"
-   },
-   "pamgo" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://pamgo.vbi.vt.edu/",
-      "example_id" : null,
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Plant-Associated Microbe Gene Ontology Interest Group",
-      "url_example" : null,
-      "url_syntax" : null,
-      "abbreviation" : "PAMGO",
-      "database" : "Plant-Associated Microbe Gene Ontology Interest Group",
-      "id" : "PAMGO"
-   },
-   "tc" : {
-      "database" : "Transport Protein Database",
-      "url_syntax" : "http://www.tcdb.org/tcdb/index.php?tc=[example_id]",
-      "abbreviation" : "TC",
-      "id" : "TC",
-      "url_example" : "http://www.tcdb.org/tcdb/index.php?tc=9.A.4.1.1",
-      "name" : "Transport Protein Database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "TC:9.A.4.1.1",
-      "generic_url" : "http://www.tcdb.org/",
-      "object" : "protein",
-      "datatype" : "protein"
-   },
-   "pir" : {
-      "name" : "Protein Information Resource",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "id" : "PIR",
-      "url_syntax" : "http://pir.georgetown.edu/cgi-bin/pirwww/nbrfget?uid=[example_id]",
-      "abbreviation" : "PIR",
-      "database" : "Protein Information Resource",
-      "url_example" : "http://pir.georgetown.edu/cgi-bin/pirwww/nbrfget?uid=I49499",
-      "object" : "protein",
-      "datatype" : "protein",
-      "example_id" : "PIR:I49499",
-      "generic_url" : "http://pir.georgetown.edu/"
-   },
-   "fma" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://sig.biostr.washington.edu/projects/fm/index.html",
-      "example_id" : "FMA:61905",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Foundational Model of Anatomy",
-      "url_example" : null,
-      "id" : "FMA",
-      "url_syntax" : null,
-      "abbreviation" : "FMA",
-      "database" : "Foundational Model of Anatomy"
-   },
-   "vida" : {
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Virus Database at University College London",
-      "url_example" : null,
-      "url_syntax" : null,
-      "abbreviation" : "VIDA",
-      "id" : "VIDA",
-      "database" : "Virus Database at University College London",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.biochem.ucl.ac.uk/bsm/virus_database/VIDA.html",
-      "example_id" : null
-   },
-   "pubchem_compound" : {
-      "object" : "chemical entity",
-      "datatype" : "chemical entity",
-      "example_id" : "PubChem_Compound:2244",
-      "generic_url" : "http://pubchem.ncbi.nlm.nih.gov/",
-      "name" : "NCBI PubChem database of chemical structures",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?CMD=search&DB=pccompound&term=[example_id]",
-      "database" : "NCBI PubChem database of chemical structures",
-      "abbreviation" : "PubChem_Compound",
-      "id" : "PubChem_Compound",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?CMD=search&DB=pccompound&term=2244"
-   },
-   "fbbt" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Drosophila gross anatomy",
-      "url_example" : "http://flybase.org/cgi-bin/fbcvq.html?query=FBbt:00005177",
-      "url_syntax" : "http://flybase.org/cgi-bin/fbcvq.html?query=FBbt:[example_id]",
-      "database" : "Drosophila gross anatomy",
-      "abbreviation" : "FBbt",
-      "id" : "FBbt",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://flybase.org/",
-      "example_id" : "FBbt:00005177"
-   },
-   "hugo" : {
-      "generic_url" : "http://www.hugo-international.org/",
-      "example_id" : null,
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : null,
-      "database" : "Human Genome Organisation",
-      "url_syntax" : null,
-      "abbreviation" : "HUGO",
-      "id" : "HUGO",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Human Genome Organisation"
-   },
-   "mips_funcat" : {
-      "url_example" : "http://mips.gsf.de/cgi-bin/proj/funcatDB/search_advanced.pl?action=2&wert=11.02",
-      "url_syntax" : "http://mips.gsf.de/cgi-bin/proj/funcatDB/search_advanced.pl?action=2&wert=[example_id]",
-      "abbreviation" : "MIPS_funcat",
-      "id" : "MIPS_funcat",
-      "database" : "MIPS Functional Catalogue",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "MIPS Functional Catalogue",
-      "generic_url" : "http://mips.gsf.de/proj/funcatDB/",
-      "example_id" : "MIPS_funcat:11.02",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "gr_ref" : {
-      "name" : "Gramene",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "id" : "GR_REF",
-      "url_syntax" : "http://www.gramene.org/db/literature/pub_search?ref_id=[example_id]",
-      "abbreviation" : "GR_REF",
-      "database" : "Gramene",
-      "url_example" : "http://www.gramene.org/db/literature/pub_search?ref_id=659",
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "GR_REF:659",
-      "generic_url" : "http://www.gramene.org/"
-   },
-   "pro" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Protein Ontology",
-      "url_example" : "http://www.proconsortium.org/cgi-bin/pro/entry_pro?id=PR:000025380",
-      "url_syntax" : "http://www.proconsortium.org/cgi-bin/pro/entry_pro?id=PR:[example_id]",
-      "database" : "Protein Ontology",
-      "abbreviation" : "PRO",
-      "id" : "PR",
-      "object" : "protein",
-      "datatype" : "protein",
-      "generic_url" : "http://www.proconsortium.org/pro/pro.shtml",
-      "example_id" : "PR:000025380"
-   },
-   "obi" : {
-      "database" : "Ontology for Biomedical Investigations",
-      "url_syntax" : null,
-      "abbreviation" : "OBI",
-      "id" : "OBI",
-      "url_example" : null,
-      "name" : "Ontology for Biomedical Investigations",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : "OBI:0000038",
-      "generic_url" : "http://obi-ontology.org/page/Main_Page",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "gene3d" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://gene3d.biochem.ucl.ac.uk/Gene3D/",
-      "example_id" : "Gene3D:G3DSA:3.30.390.30",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Domain Architecture Classification",
-      "url_example" : "http://gene3d.biochem.ucl.ac.uk/superfamily/?accession=G3DSA%3A3.30.390.30",
-      "database" : "Domain Architecture Classification",
-      "url_syntax" : "http://gene3d.biochem.ucl.ac.uk/superfamily/?accession=[example_id]",
-      "id" : "Gene3D",
-      "abbreviation" : "Gene3D"
-   },
-   "tigr_egad" : {
-      "example_id" : "JCVI_CMR:VCA0557",
-      "generic_url" : "http://cmr.jcvi.org/",
-      "object" : "protein",
-      "datatype" : "protein",
-      "url_syntax" : "http://cmr.jcvi.org/cgi-bin/CMR/shared/GenePage.cgi?locus=[example_id]",
-      "database" : "EGAD database at the J. Craig Venter Institute",
-      "id" : "JCVI_CMR",
-      "abbreviation" : "TIGR_EGAD",
-      "url_example" : "http://cmr.jcvi.org/cgi-bin/CMR/shared/GenePage.cgi?locus=VCA0557",
-      "name" : "EGAD database at the J. Craig Venter Institute",
-      "fullname" : null,
-      "uri_prefix" : null
-   },
-   "prosite" : {
-      "url_syntax" : "http://www.expasy.ch/cgi-bin/prosite-search-ac?[example_id]",
-      "abbreviation" : "Prosite",
-      "id" : "Prosite",
-      "database" : "Prosite database of protein families and domains",
-      "url_example" : "http://www.expasy.ch/cgi-bin/prosite-search-ac?PS00365",
-      "name" : "Prosite database of protein families and domains",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : "Prosite:PS00365",
-      "generic_url" : "http://www.expasy.ch/prosite/",
-      "object" : "polypeptide region",
-      "datatype" : "polypeptide region"
-   },
-   "hpa" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.proteinatlas.org/",
-      "example_id" : "HPA:HPA000237",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Human Protein Atlas tissue profile information",
-      "url_example" : "http://www.proteinatlas.org/tissue_profile.php?antibody_id=HPA000237",
-      "url_syntax" : "http://www.proteinatlas.org/tissue_profile.php?antibody_id=[example_id]",
-      "id" : "HPA",
-      "abbreviation" : "HPA",
-      "database" : "Human Protein Atlas tissue profile information"
-   },
-   "refgenome" : {
-      "database" : "GO Reference Genomes",
-      "url_syntax" : null,
-      "id" : "RefGenome",
-      "abbreviation" : "RefGenome",
-      "url_example" : null,
-      "name" : "GO Reference Genomes",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : null,
-      "generic_url" : "http://www.geneontology.org/GO.refgenome.shtml",
-      "datatype" : "entity",
-      "object" : "entity"
-   },
-   "medline" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.nlm.nih.gov/databases/databases_medline.html",
-      "example_id" : "MEDLINE:20572430",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Medline literature database",
-      "url_example" : null,
-      "url_syntax" : null,
-      "database" : "Medline literature database",
-      "abbreviation" : "MEDLINE",
-      "id" : "MEDLINE"
-   },
-   "metacyc" : {
-      "name" : "Metabolic Encyclopedia of metabolic and other pathways",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : "http://biocyc.org/META/NEW-IMAGE?type=NIL&object=[example_id]",
-      "id" : "MetaCyc",
-      "abbreviation" : "MetaCyc",
-      "database" : "Metabolic Encyclopedia of metabolic and other pathways",
-      "url_example" : "http://biocyc.org/META/NEW-IMAGE?type=NIL&object=GLUTDEG-PWY",
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "MetaCyc:GLUTDEG-PWY",
-      "generic_url" : "http://metacyc.org/"
-   },
-   "prints" : {
-      "object" : "polypeptide region",
-      "datatype" : "polypeptide region",
-      "example_id" : "PRINTS:PR00025",
-      "generic_url" : "http://www.bioinf.manchester.ac.uk/dbbrowser/PRINTS/",
-      "name" : "PRINTS compendium of protein fingerprints",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "url_syntax" : "http://www.bioinf.manchester.ac.uk/cgi-bin/dbbrowser/sprint/searchprintss.cgi?display_opts=Prints&category=None&queryform=false&regexpr=off&prints_accn=[example_id]",
-      "id" : "PRINTS",
-      "abbreviation" : "PRINTS",
-      "database" : "PRINTS compendium of protein fingerprints",
-      "url_example" : "http://www.bioinf.manchester.ac.uk/cgi-bin/dbbrowser/sprint/searchprintss.cgi?display_opts=Prints&category=None&queryform=false&regexpr=off&prints_accn=PR00025"
-   },
-   "pfam" : {
-      "uri_prefix" : null,
-      "fullname" : "Pfam is a collection of protein families represented by sequence alignments and hidden Markov models (HMMs)",
-      "name" : "Pfam database of protein families",
-      "url_example" : "http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?PF00046",
-      "id" : "Pfam",
-      "url_syntax" : "http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?[example_id]",
-      "abbreviation" : "Pfam",
-      "database" : "Pfam database of protein families",
-      "object" : "polypeptide region",
-      "datatype" : "polypeptide region",
-      "generic_url" : "http://www.sanger.ac.uk/Software/Pfam/",
-      "example_id" : "Pfam:PF00046"
-   },
-   "isbn" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "International Standard Book Number",
-      "url_example" : "https://en.wikipedia.org/w/index.php?title=Special%3ABookSources&isbn=0123456789",
-      "abbreviation" : "ISBN",
-      "url_syntax" : "https://en.wikipedia.org/w/index.php?title=Special%3ABookSources&isbn=[example_id]",
-      "id" : "ISBN",
-      "database" : "International Standard Book Number",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://isbntools.com/",
-      "example_id" : "ISBN:0781702534"
-   },
-   "unirule" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Manually curated rules for automatic annotation of UniProtKB unreviewed entries",
-      "url_example" : "http://www.uniprot.org/unirule/UR000107224",
-      "abbreviation" : "UniRule",
-      "url_syntax" : "http://www.uniprot.org/unirule/[example_id]",
-      "id" : "UniRule",
-      "database" : "Manually curated rules for automatic annotation of UniProtKB unreviewed entries",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.uniprot.org/unirule",
-      "example_id" : "UniRule:UR000107224"
-   },
-   "wbls" : {
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "C. elegans development",
-      "url_example" : null,
-      "database" : "C. elegans development",
-      "url_syntax" : null,
-      "id" : "WBls",
-      "abbreviation" : "WBls",
-      "datatype" : "nematoda life stage",
-      "object" : "nematoda life stage",
-      "generic_url" : "http://www.wormbase.org/",
-      "example_id" : "WBls:0000010"
-   },
-   "dflat" : {
-      "url_syntax" : null,
-      "id" : "DFLAT",
-      "abbreviation" : "DFLAT",
-      "database" : "Developmental FunctionaL Annotation at Tufts",
-      "url_example" : null,
-      "name" : "Developmental FunctionaL Annotation at Tufts",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : null,
-      "generic_url" : "http://bcb.cs.tufts.edu/dflat/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "imgt_ligm" : {
-      "example_id" : "IMGT_LIGM:U03895",
-      "generic_url" : "http://imgt.cines.fr",
-      "object" : "entity",
-      "datatype" : "entity",
-      "id" : "IMGT_LIGM",
-      "url_syntax" : null,
-      "abbreviation" : "IMGT_LIGM",
-      "database" : "ImMunoGeneTics database covering immunoglobulins and T-cell receptors",
-      "url_example" : null,
-      "name" : "ImMunoGeneTics database covering immunoglobulins and T-cell receptors",
-      "fullname" : "Database of immunoglobulins and T cell receptors from human and other vertebrates, with translation for fully annotated sequences.",
-      "uri_prefix" : null
-   },
-   "ncbitaxon" : {
-      "url_example" : "http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=3702",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=[example_id]",
-      "abbreviation" : "NCBITaxon",
-      "id" : "taxon",
-      "database" : "NCBI Taxonomy",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "NCBI Taxonomy",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/",
-      "example_id" : "taxon:7227",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "reactome" : {
-      "url_syntax" : "http://www.reactome.org/cgi-bin/eventbrowser_st_id?ST_ID=[example_id]",
-      "database" : "Reactome - a curated knowledgebase of biological pathways",
-      "id" : "Reactome",
-      "abbreviation" : "Reactome",
-      "url_example" : "http://www.reactome.org/cgi-bin/eventbrowser_st_id?ST_ID=REACT_604",
-      "name" : "Reactome - a curated knowledgebase of biological pathways",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "Reactome:REACT_604",
-      "generic_url" : "http://www.reactome.org/",
-      "datatype" : "entity",
-      "object" : "entity"
-   },
-   "rgdid" : {
-      "database" : "Rat Genome Database",
-      "url_syntax" : "http://rgd.mcw.edu/generalSearch/RgdSearch.jsp?quickSearch=1&searchKeyword=[example_id]",
-      "id" : "RGD",
-      "abbreviation" : "RGDID",
-      "url_example" : "http://rgd.mcw.edu/generalSearch/RgdSearch.jsp?quickSearch=1&searchKeyword=2004",
-      "name" : "Rat Genome Database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "RGD:2004",
-      "generic_url" : "http://rgd.mcw.edu/",
-      "object" : "gene",
-      "datatype" : "gene"
-   },
-   "cgd_ref" : {
-      "url_example" : "http://www.candidagenome.org/cgi-bin/reference/reference.pl?dbid=1490",
-      "url_syntax" : "http://www.candidagenome.org/cgi-bin/reference/reference.pl?dbid=[example_id]",
-      "id" : "CGD_REF",
-      "abbreviation" : "CGD_REF",
-      "database" : "Candida Genome Database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Candida Genome Database",
-      "generic_url" : "http://www.candidagenome.org/",
-      "example_id" : "CGD_REF:1490",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "rnamdb" : {
-      "url_example" : "http://s59.cas.albany.edu/RNAmods/cgi-bin/rnashow.cgi?091",
-      "url_syntax" : "http://s59.cas.albany.edu/RNAmods/cgi-bin/rnashow.cgi?[example_id]",
-      "database" : "RNA Modification Database",
-      "id" : "RNAmods",
-      "abbreviation" : "RNAMDB",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "RNA Modification Database",
-      "generic_url" : "http://s59.cas.albany.edu/RNAmods/",
-      "example_id" : "RNAmods:037",
-      "datatype" : "entity",
-      "object" : "entity"
-   },
-   "ddanat" : {
-      "url_syntax" : null,
-      "id" : "DDANAT",
-      "abbreviation" : "DDANAT",
-      "database" : "Dictyostelium discoideum anatomy",
-      "url_example" : null,
-      "name" : "Dictyostelium discoideum anatomy",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : "DDANAT:0000068",
-      "generic_url" : "http://dictybase.org/Dicty_Info/dicty_anatomy_ontology.html",
-      "object" : "anatomical entity",
-      "datatype" : "anatomical entity"
-   },
-   "broad_mgg" : {
-      "example_id" : "Broad_MGG:MGG_05132.5",
-      "generic_url" : "http://www.broad.mit.edu/annotation/genome/magnaporthe_grisea/Home.html",
-      "object" : "entity",
-      "datatype" : "entity",
-      "database" : "Magnaporthe grisea Database",
-      "url_syntax" : "http://www.broad.mit.edu/annotation/genome/magnaporthe_grisea/GeneLocus.html?sp=S[example_id]",
-      "abbreviation" : "Broad_MGG",
-      "id" : "Broad_MGG",
-      "url_example" : "http://www.broad.mit.edu/annotation/genome/magnaporthe_grisea/GeneLocus.html?sp=SMGG_05132",
-      "name" : "Magnaporthe grisea Database",
-      "uri_prefix" : null,
-      "fullname" : "Magnaporthe grisea Database at the Broad Institute"
-   },
-   "gr" : {
-      "name" : "Gramene",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "url_syntax" : "http://www.gramene.org/db/searches/browser?search_type=All&RGN=on&query=[example_id]",
-      "id" : "GR",
-      "abbreviation" : "GR",
-      "database" : "Gramene",
-      "url_example" : "http://www.gramene.org/db/searches/browser?search_type=All&RGN=on&query=sd1",
-      "object" : "protein",
-      "datatype" : "protein",
-      "example_id" : "GR:sd1",
-      "generic_url" : "http://www.gramene.org/"
-   },
-   "cas_gen" : {
-      "example_id" : "CASGEN:1040",
-      "generic_url" : "http://research.calacademy.org/research/ichthyology/catalog/fishcatsearch.html",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_syntax" : "http://research.calacademy.org/research/ichthyology/catalog/getname.asp?rank=Genus&id=[example_id]",
-      "abbreviation" : "CAS_GEN",
-      "database" : "Catalog of Fishes genus database",
-      "id" : "CASGEN",
-      "url_example" : "http://research.calacademy.org/research/ichthyology/catalog/getname.asp?rank=Genus&id=1040",
-      "name" : "Catalog of Fishes genus database",
-      "uri_prefix" : null,
-      "fullname" : null
-   },
-   "po" : {
-      "name" : "Plant Ontology Consortium Database",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "url_syntax" : "http://www.plantontology.org/amigo/go.cgi?action=query&view=query&search_constraint=terms&query=PO:[example_id]",
-      "abbreviation" : "PO",
-      "id" : "PO",
-      "database" : "Plant Ontology Consortium Database",
-      "url_example" : "http://www.plantontology.org/amigo/go.cgi?action=query&view=query&search_constraint=terms&query=PO:0009004",
-      "object" : "plant structure development stage",
-      "datatype" : "plant structure development stage",
-      "example_id" : "PO:0009004",
-      "generic_url" : "http://www.plantontology.org/"
-   },
-   "protein_id" : {
-      "abbreviation" : "protein_id",
-      "url_syntax" : null,
-      "id" : "protein_id",
-      "database" : "DDBJ / ENA / GenBank",
-      "url_example" : null,
-      "name" : "DDBJ / ENA / GenBank",
-      "fullname" : "protein identifier shared by DDBJ/EMBL-bank/GenBank nucleotide sequence databases",
-      "uri_prefix" : null,
-      "example_id" : "protein_id:CAA71991",
-      "generic_url" : "http://www.ddbj.nig.ac.jp/",
-      "object" : "protein",
-      "datatype" : "protein"
-   },
-   "ncbi_taxid" : {
-      "id" : "taxon",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=[example_id]",
-      "abbreviation" : "ncbi_taxid",
-      "database" : "NCBI Taxonomy",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=3702",
-      "name" : "NCBI Taxonomy",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "taxon:7227",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "ensembl_geneid" : {
-      "object" : "gene",
-      "datatype" : "gene",
-      "generic_url" : "http://www.ensembl.org/",
-      "example_id" : "ENSEMBL_GeneID:ENSG00000126016",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Ensembl database of automatically annotated genomic data",
-      "url_example" : "http://www.ensembl.org/id/ENSG00000126016",
-      "id" : "ENSEMBL_GeneID",
-      "url_syntax" : "http://www.ensembl.org/id/[example_id]",
-      "abbreviation" : "ENSEMBL_GeneID",
-      "database" : "Ensembl database of automatically annotated genomic data"
-   },
-   "genprotec" : {
-      "generic_url" : "http://genprotec.mbl.edu/",
-      "example_id" : null,
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : null,
-      "id" : "GenProtEC",
-      "url_syntax" : null,
-      "database" : "GenProtEC E. coli genome and proteome database",
-      "abbreviation" : "GenProtEC",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "GenProtEC E. coli genome and proteome database"
-   },
-   "pubchem_substance" : {
-      "object" : "chemical entity",
-      "datatype" : "chemical entity",
-      "example_id" : "PubChem_Substance:4594",
-      "generic_url" : "http://pubchem.ncbi.nlm.nih.gov/",
-      "name" : "NCBI PubChem database of chemical substances",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "database" : "NCBI PubChem database of chemical substances",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?CMD=search&DB=pcsubstance&term=[example_id]",
-      "abbreviation" : "PubChem_Substance",
-      "id" : "PubChem_Substance",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?CMD=search&DB=pcsubstance&term=4594"
-   },
-   "ncbi_gp" : {
-      "url_example" : "http://www.ncbi.nlm.nih.gov/entrez/viewer.fcgi?db=protein&val=EAL72968",
-      "abbreviation" : "NCBI_GP",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/entrez/viewer.fcgi?db=protein&val=[example_id]",
-      "id" : "NCBI_GP",
-      "database" : "NCBI GenPept",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "NCBI GenPept",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/",
-      "example_id" : "NCBI_GP:EAL72968",
-      "object" : "protein",
-      "datatype" : "protein"
-   },
-   "ecocyc_ref" : {
-      "example_id" : "EcoCyc_REF:COLISALII",
-      "generic_url" : "http://ecocyc.org/",
-      "datatype" : "entity",
-      "object" : "entity",
-      "url_syntax" : "http://biocyc.org/ECOLI/reference.html?type=CITATION-FRAME&object=[example_id]",
-      "abbreviation" : "ECOCYC_REF",
-      "database" : "Encyclopedia of E. coli metabolism",
-      "id" : "EcoCyc_REF",
-      "url_example" : "http://biocyc.org/ECOLI/reference.html?type=CITATION-FRAME&object=COLISALII",
-      "name" : "Encyclopedia of E. coli metabolism",
-      "fullname" : null,
-      "uri_prefix" : null
-   },
-   "tigr_genprop" : {
-      "object" : "biological_process",
-      "datatype" : "biological_process",
-      "example_id" : "JCVI_GenProp:GenProp0120",
-      "generic_url" : "http://cmr.jcvi.org/",
-      "name" : "Genome Properties database at the J. Craig Venter Institute",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : "http://cmr.jcvi.org/cgi-bin/CMR/shared/GenomePropDefinition.cgi?prop_acc=[example_id]",
-      "id" : "JCVI_GenProp",
-      "database" : "Genome Properties database at the J. Craig Venter Institute",
-      "abbreviation" : "TIGR_GenProp",
-      "url_example" : "http://cmr.jcvi.org/cgi-bin/CMR/shared/GenomePropDefinition.cgi?prop_acc=GenProp0120"
-   },
-   "mtbbase" : {
-      "name" : "Collection and Refinement of Physiological Data on Mycobacterium tuberculosis",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : null,
-      "abbreviation" : "MTBBASE",
-      "id" : "MTBBASE",
-      "database" : "Collection and Refinement of Physiological Data on Mycobacterium tuberculosis",
-      "url_example" : null,
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : null,
-      "generic_url" : "http://www.ark.in-berlin.de/Site/MTBbase.html"
-   },
-   "mitre" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.mitre.org/",
-      "example_id" : null,
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "The MITRE Corporation",
-      "url_example" : null,
-      "id" : "MITRE",
-      "url_syntax" : null,
-      "abbreviation" : "MITRE",
-      "database" : "The MITRE Corporation"
-   },
-   "corum" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "CORUM:837",
-      "generic_url" : "http://mips.gsf.de/genre/proj/corum/",
-      "name" : "CORUM - the Comprehensive Resource of Mammalian protein complexes",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "database" : "CORUM - the Comprehensive Resource of Mammalian protein complexes",
-      "url_syntax" : "http://mips.gsf.de/genre/proj/corum/complexdetails.html?id=[example_id]",
-      "id" : "CORUM",
-      "abbreviation" : "CORUM",
-      "url_example" : "http://mips.gsf.de/genre/proj/corum/complexdetails.html?id=837"
-   },
-   "bhf-ucl" : {
-      "database" : "Cardiovascular Gene Ontology Annotation Initiative",
-      "url_syntax" : null,
-      "id" : "BHF-UCL",
-      "abbreviation" : "BHF-UCL",
-      "url_example" : null,
-      "name" : "Cardiovascular Gene Ontology Annotation Initiative",
-      "fullname" : "The Cardiovascular Gene Ontology Annotation Initiative is supported by the British Heart Foundation (BHF) and located at University College London (UCL).",
-      "uri_prefix" : null,
-      "example_id" : null,
-      "generic_url" : "http://www.ucl.ac.uk/cardiovasculargeneontology/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "eurofung" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Eurofungbase community annotation",
-      "url_example" : null,
-      "id" : "Eurofung",
-      "url_syntax" : null,
-      "abbreviation" : "Eurofung",
-      "database" : "Eurofungbase community annotation",
-      "datatype" : "entity",
-      "object" : "entity",
-      "generic_url" : "http://www.eurofung.net/option=com_content&task=section&id=3&Itemid=4",
-      "example_id" : null
-   },
-   "broad_neurospora" : {
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.broadinstitute.org/annotation/genome/neurospora/MultiHome.html",
-      "example_id" : "BROAD_NEUROSPORA:7000007580576824",
-      "uri_prefix" : null,
-      "fullname" : "Neurospora crassa database at the Broad Institute",
-      "name" : "Neurospora crassa Database",
-      "url_example" : "http://www.broadinstitute.org/annotation/genome/neurospora/GeneDetails.html?sp=S7000007580576824",
-      "url_syntax" : "http://www.broadinstitute.org/annotation/genome/neurospora/GeneDetails.html?sp=S[example_id]",
-      "database" : "Neurospora crassa Database",
-      "abbreviation" : "Broad_NEUROSPORA",
-      "id" : "Broad_NEUROSPORA"
-   },
-   "ensembl_proteinid" : {
-      "datatype" : "protein",
-      "object" : "protein",
-      "generic_url" : "http://www.ensembl.org/",
-      "example_id" : "ENSEMBL_ProteinID:ENSP00000361027",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Ensembl database of automatically annotated genomic data",
-      "url_example" : "http://www.ensembl.org/id/ENSP00000361027",
-      "database" : "Ensembl database of automatically annotated genomic data",
-      "url_syntax" : "http://www.ensembl.org/id/[example_id]",
-      "abbreviation" : "ENSEMBL_ProteinID",
-      "id" : "ENSEMBL_ProteinID"
-   },
-   "aspgdid" : {
-      "name" : "Aspergillus Genome Database",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "abbreviation" : "AspGDID",
-      "url_syntax" : "http://www.aspergillusgenome.org/cgi-bin/locus.pl?dbid=[example_id]",
-      "id" : "AspGD",
-      "database" : "Aspergillus Genome Database",
-      "url_example" : "http://www.aspergillusgenome.org/cgi-bin/locus.pl?dbid=ASPL0000067538",
-      "object" : "gene",
-      "datatype" : "gene",
-      "example_id" : "AspGD:ASPL0000067538",
-      "generic_url" : "http://www.aspergillusgenome.org/"
-   },
-   "sgd_ref" : {
-      "name" : "Saccharomyces Genome Database",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "url_syntax" : "http://www.yeastgenome.org/reference/[example_id]/overview",
-      "database" : "Saccharomyces Genome Database",
-      "abbreviation" : "SGD_REF",
-      "id" : "SGD_REF",
-      "url_example" : "http://www.yeastgenome.org/reference/S000049602/overview",
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "SGD_REF:S000049602",
-      "generic_url" : "http://www.yeastgenome.org/"
-   },
-   "so" : {
-      "abbreviation" : "SO",
-      "url_syntax" : "http://song.sourceforge.net/SOterm_tables.html#SO:[example_id]",
-      "id" : "SO",
-      "database" : "Sequence Ontology",
-      "url_example" : "http://song.sourceforge.net/SOterm_tables.html#SO:0000195",
-      "name" : "Sequence Ontology",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "SO:0000195",
-      "generic_url" : "http://sequenceontology.org/",
-      "object" : "sequence feature",
-      "datatype" : "sequence feature"
-   },
-   "goc" : {
-      "example_id" : null,
-      "generic_url" : "http://www.geneontology.org/",
-      "object" : "entity",
-      "datatype" : "entity",
-      "abbreviation" : "GOC",
-      "url_syntax" : null,
-      "id" : "GOC",
-      "database" : "Gene Ontology Consortium",
-      "url_example" : null,
-      "name" : "Gene Ontology Consortium",
-      "uri_prefix" : null,
-      "fullname" : null
-   },
-   "wikipedia" : {
-      "generic_url" : "http://en.wikipedia.org/",
-      "example_id" : "Wikipedia:Endoplasmic_reticulum",
-      "object" : "entity",
-      "datatype" : "entity",
-      "url_example" : "http://en.wikipedia.org/wiki/Endoplasmic_reticulum",
-      "database" : "Wikipedia",
-      "url_syntax" : "http://en.wikipedia.org/wiki/[example_id]",
-      "abbreviation" : "Wikipedia",
-      "id" : "Wikipedia",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Wikipedia"
-   },
-   "resid" : {
-      "name" : "RESID Database of Protein Modifications",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "url_syntax" : null,
-      "id" : "RESID",
-      "abbreviation" : "RESID",
-      "database" : "RESID Database of Protein Modifications",
-      "url_example" : null,
-      "object" : "entity",
-      "datatype" : "entity",
-      "example_id" : "RESID:AA0062",
-      "generic_url" : "ftp://ftp.ncifcrf.gov/pub/users/residues/"
-   },
-   "aspgd" : {
-      "abbreviation" : "AspGD",
-      "url_syntax" : "http://www.aspergillusgenome.org/cgi-bin/locus.pl?dbid=[example_id]",
-      "database" : "Aspergillus Genome Database",
-      "id" : "AspGD",
-      "url_example" : "http://www.aspergillusgenome.org/cgi-bin/locus.pl?dbid=ASPL0000067538",
-      "name" : "Aspergillus Genome Database",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "example_id" : "AspGD:ASPL0000067538",
-      "generic_url" : "http://www.aspergillusgenome.org/",
-      "object" : "gene",
-      "datatype" : "gene"
-   },
-   "ecogene_g" : {
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "EcoGene Database of Escherichia coli Sequence and Function",
-      "url_example" : null,
-      "url_syntax" : null,
-      "id" : "ECOGENE_G",
-      "database" : "EcoGene Database of Escherichia coli Sequence and Function",
-      "abbreviation" : "ECOGENE_G",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.ecogene.org/",
-      "example_id" : "ECOGENE_G:deoC"
-   },
-   "pfamb" : {
-      "uri_prefix" : null,
-      "fullname" : null,
-      "name" : "Pfam-B supplement to Pfam",
-      "url_example" : null,
-      "id" : "PfamB",
-      "url_syntax" : null,
-      "abbreviation" : "PfamB",
-      "database" : "Pfam-B supplement to Pfam",
-      "object" : "entity",
-      "datatype" : "entity",
-      "generic_url" : "http://www.sanger.ac.uk/Software/Pfam/",
-      "example_id" : "PfamB:PB014624"
-   },
-   "taxon" : {
-      "abbreviation" : "taxon",
-      "url_syntax" : "http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=[example_id]",
-      "database" : "NCBI Taxonomy",
-      "id" : "taxon",
-      "url_example" : "http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=3702",
-      "name" : "NCBI Taxonomy",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "example_id" : "taxon:7227",
-      "generic_url" : "http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/",
-      "object" : "entity",
-      "datatype" : "entity"
-   },
-   "jcvi_medtr" : {
-      "generic_url" : "http://medicago.jcvi.org/cgi-bin/medicago/overview.cgi",
-      "example_id" : "JCVI_Medtr:Medtr5g024510",
-      "datatype" : "entity",
-      "object" : "entity",
-      "url_example" : "http://medicago.jcvi.org/cgi-bin/medicago/search/shared/ORF_infopage.cgi?orf=Medtr5g024510",
-      "url_syntax" : "http://medicago.jcvi.org/cgi-bin/medicago/search/shared/ORF_infopage.cgi?orf=[example_id]",
-      "database" : "Medicago truncatula genome database at the J. Craig Venter Institute",
-      "id" : "JCVI_Medtr",
-      "abbreviation" : "JCVI_Medtr",
-      "fullname" : null,
-      "uri_prefix" : null,
-      "name" : "Medicago truncatula genome database at the J. Craig Venter Institute"
-   },
-   "merops" : {
-      "datatype" : "protein",
-      "object" : "protein",
-      "example_id" : "MEROPS:A08.001",
-      "generic_url" : "http://merops.sanger.ac.uk/",
-      "name" : "MEROPS peptidase database",
-      "uri_prefix" : null,
-      "fullname" : null,
-      "database" : "MEROPS peptidase database",
-      "url_syntax" : "http://merops.sanger.ac.uk/cgi-bin/pepsum?mid=[example_id]",
-      "abbreviation" : "MEROPS",
-      "id" : "MEROPS",
-      "url_example" : "http://merops.sanger.ac.uk/cgi-bin/pepsum?mid=A08.001"
-   }
-};
-/* 
- * Package: dispatch.js
- * 
- * Namespace: amigo.data.dispatch
- * 
- * This package was automatically created during an AmiGO 2 installation
- * from the YAML configuration files that AmiGO pulls in.
- *
- * The mapping file for data fields and contexts to functions, often
- * used for displays. See the package <handler.js> for the API to interact
- * with this data file.
- *
- * NOTE: This file is generated dynamically at installation time.
- * Hard to work with unit tests--hope it's not too bad. You have to
- * occasionally copy back to keep the unit tests sane.
- *
- * NOTE: This file has a slightly different latout from the YAML
- * configuration file.
- */
-
-// All of the server/instance-specific meta-data.
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
-
-/*
- * Variable: dispatch
- * 
- * The configuration for the data.
- * Essentially a JSONification of the YAML file.
- * This should be consumed directly by <amigo.handler>.
- */
-amigo.data.dispatch = {
-   "annotation_extension_json" : {
-      "context" : {
-         "bbop.widgets.search_pane" : "amigo.handlers.owl_class_expression"
-      }
-   },
-   "qualifier" : {
-      "context" : {
-         "bbop.widgets.search_pane" : "amigo.handlers.qualifiers"
-      }
-   }
-};
-/*
- * Package: context.js
- * 
- * Namespace: amigo.data.context
- * 
- * Another context.
- */
-
-// Module and namespace checking.
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
-
-/*
- * Variable: context
- * 
- * Colors are X11: http://cng.seas.rochester.edu/CNG/docs/x11color.html
- */
-amigo.data.context = {
-    'instance_of':
-    {
-	readable: 'activity',
-	priority: 8,
-	aliases: [
-	    'activity'
-	],
-	color: '#FFFAFA' // snow
-    },
-    'BFO:0000050':
-    {
-	readable: 'part of',
-	priority: 15,
-	aliases: [
-		//'http://purl.obolibrary.org/obo/BFO_0000050',
-		//'http://purl.obolibrary.org/obo/part_of',
-	    'BFO_0000050',
-	    'part:of',
-	    'part of',
-	    'part_of'
-	],
-	color: '#add8e6' // light blue
-    },
-    'BFO:0000051':
-    {
-	readable: 'has part',
-	priority: 4,
-	aliases: [
-		//'http://purl.obolibrary.org/obo/BFO_0000051',
-	    'has:part',
-	    'has part',
-	    'has_part'
-	],
-	color: '#6495ED' // cornflower blue
-    },
-    'BFO:0000066':
-    {
-	readable: 'occurs in',
-	priority: 12,
-	aliases: [
-		//'http://purl.obolibrary.org/obo/BFO_0000066',
-		//'BFO_0000066',
-	    'occurs:in',
-	    'occurs in',
-	    'occurs_in'
-	],
-	color: '#66CDAA' // medium aquamarine
-    },
-    'RO:0002202':
-    {
-	readable: 'develops from',
-	priority: 0,
-	aliases: [
-	    'develops:from',
-	    'develops from',
-	    'develops_from'
-	],
-	color: '#A52A2A' // brown
-    },
-    'RO:0002211':
-    {
-	readable: 'regulates',
-	priority: 16,
-	aliases: [
-		//'http://purl.obolibrary.org/obo/RO_0002211'
-	    'regulates'
-	],
-	color: '#2F4F4F' // dark slate grey
-    },
-    'RO:0002212':
-    {
-	readable: 'negatively regulates',
-	priority: 17,
-	aliases: [
-		//'http://purl.obolibrary.org/obo/RO_0002212'
-	    'negatively:regulates',
-	    'negatively regulates',
-	    'negatively_regulates'
-	],
-	glyph: 'bar',
-	color: '#FF0000' // red
-    },
-    'RO:0002213':
-    {
-	readable: 'positively regulates',
-	priority: 18,
-	aliases: [
-		//'http://purl.obolibrary.org/obo/RO_0002213'
-	    'positively:regulates',
-	    'positively regulates',
-	    'positively_regulates'
-	],
-	glyph: 'arrow',
-	color: '#008000' //green
-    },
-    'RO:0002233':
-    {
-	readable: 'has input',
-	priority: 14,
-	aliases: [
-		//'http://purl.obolibrary.org/obo/BFO_0000051',
-	    'has:input',
-	    'has input',
-	    'has_input'
-	],
-	color: '#6495ED' // cornflower blue
-    },
-    'RO:0002234':
-    {
-	readable: 'has output',
-	priority: 0,
-	aliases: [
-	    'has:output',
-	    'has output',
-	    'has_output'
-	],
-	color: '#ED6495' // ??? - random
-    },
-    'RO:0002330':
-    {
-	readable: 'genomically related to',
-	priority: 0,
-	aliases: [
-	    'genomically related to',
-	    'genomically_related_to'
-	],
-	color: '#9932CC' // darkorchid
-    },
-    'RO:0002331':
-    {
-	readable: 'involved in',
-	priority: 3,
-	aliases: [
-	    'involved:in',
-	    'involved in',
-	    'involved_in'
-	],
-	color: '#E9967A' // darksalmon
-    },
-    'RO:0002332':
-    {
-	readable: 'regulates level of',
-	priority: 0,
-	aliases: [
-	    'regulates level of',
-	    'regulates_level_of'
-	],
-	color: '#556B2F' // darkolivegreen
-    },
-    'RO:0002333':
-    {
-	readable: 'enabled by',
-	priority: 13,
-	aliases: [
-	    'RO_0002333',
-	    'enabled:by',
-	    'enabled by',
-	    'enabled_by'
-	],
-	color: '#B8860B' // darkgoldenrod
-    },
-    'RO:0002334':
-    {
-	readable: 'regulated by',
-	priority: 0,
-	aliases: [
-	    'RO_0002334',
-	    'regulated by',
-	    'regulated_by'
-	],
-	color: '#86B80B' // ??? - random
-    },
-    'RO:0002335':
-    {
-	readable: 'negatively regulated by',
-	priority: 0,
-	aliases: [
-	    'RO_0002335',
-	    'negatively regulated by',
-	    'negatively_regulated_by'
-	],
-	color: '#0B86BB' // ??? - random
-    },
-    'RO:0002336':
-    {
-	readable: 'positively regulated by',
-	priority: 0,
-	aliases: [
-	    'RO_0002336',
-	    'positively regulated by',
-	    'positively_regulated_by'
-	],
-	color: '#BB0B86' // ??? - random
-    },
-    'activates':
-    {
-	readable: 'activates',
-	priority: 0,
-	aliases: [
-	    'http://purl.obolibrary.org/obo/activates'
-	],
-	//glyph: 'arrow',
-	//glyph: 'diamond',
-	//glyph: 'wedge',
-	//glyph: 'bar',
-	color: '#8FBC8F' // darkseagreen
-    },
-    'RO:0002404':
-    {
-	readable: 'causally downstream of',
-	priority: 2,
-	aliases: [
-	    'causally_downstream_of'
-	],
-	color: '#FF1493' // deeppink
-    },
-    'RO:0002406':
-    {
-	readable: 'directly activates',
-	priority: 20,
-	aliases: [
-		//'http://purl.obolibrary.org/obo/directly_activates',
-	    'directly:activates',
-	    'directly activates',
-	    'directly_activates'
-	],
-	glyph: 'arrow',
-	color: '#2F4F4F' // darkslategray
-    },
-    'upstream_of':
-    {
-	readable: 'upstream of',
-	priority: 2,
-	aliases: [
-		//'http://purl.obolibrary.org/obo/upstream_of'
-	    'upstream:of',
-	    'upstream of',
-	    'upstream_of'
-	],
-	color: '#FF1493' // deeppink
-    },
-    'RO:0002408':
-    {
-	readable: 'directly inhibits',
-	priority: 19,
-	aliases: [
-		//'http://purl.obolibrary.org/obo/directly_inhibits'
-	    'directly:inhibits',
-	    'directly inhibits',
-	    'directly_inhibits'
-	],
-	glyph: 'bar',
-	color: '#7FFF00' // chartreuse
-    },
-    'RO:0002411':
-    {
-	readable: 'causally upstream of',
-	priority: 2,
-	aliases: [
-	    'causally_upstream_of'
-	],
-	color: '#483D8B' // darkslateblue
-    },
-    'indirectly_disables_action_of':
-    {
-	readable: 'indirectly disables action of',
-	priority: 0,
-	aliases: [
-		//'http://purl.obolibrary.org/obo/indirectly_disables_action_of'
-	    'indirectly disables action of',
-	    'indirectly_disables_action_of'
-	],
-	color: '#483D8B' // darkslateblue
-    },
-    'provides_input_for':
-    {
-	readable: 'provides input for',
-	priority: 0,
-	aliases: [
-	    'GOREL_provides_input_for',
-	    'http://purl.obolibrary.org/obo/GOREL_provides_input_for'
-	],
-	color: '#483D8B' // darkslateblue
-    },
-    'RO:0002413':
-    {
-	readable: 'directly provides input for',
-	priority: 1,
-	aliases: [
-	    'directly_provides_input_for',
-	    'GOREL_directly_provides_input_for',
-	    'http://purl.obolibrary.org/obo/GOREL_directly_provides_input_for'
-	],
-	glyph: 'diamond',
-	color: '#483D8B' // darkslateblue
-    },
-    // New ones for monarch.
-    'subclass_of':
-    {
-	readable: 'subclass of',
-	priority: 100,
-	aliases: [
-	    'SUBCLASS_OF'
-	],
-	glyph: 'diamond',
-	color: '#E9967A' // darksalmon
-    },
-    'superclass_of':
-    {
-	readable: 'superclass of',
-	priority: 100,
-	aliases: [
-	    'SUPERCLASS_OF'
-	],
-	glyph: 'diamond',
-	color: '#556B2F' // darkolivegreen
-    },
-    'annotation':
-    {
-	readable: 'annotation',
-	priority: 100,
-	aliases: [
-	    'ANNOTATION'
-	],
-	glyph: 'diamond',
-	color: '#483D8B' // darkslateblue
-    }
-};
-/*
- * Package: statistics.js
- * 
- * Namespace: amigo.data.statistics
- * 
- * This package was automatically created during an AmiGO 2 installation.
- * 
- * Purpose: Useful numbers about the current data in the store.
- * 
- * Requirements: amigo2.js for bbop.amigo namespace.
- * 
- * NOTE: This file is generated dynamically at installation time.
- *       Hard to work with unit tests--hope it's not too bad.
- *       Want to keep this real simple.
- */
-
-// Module and namespace checking.
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
-if ( typeof amigo.data.statistics == "undefined" ){ amigo.data.statistics = {}; }
-
-/*
- * Variable: annotation_evidence
- * 
- * TBD
- */
-amigo.data.statistics.annotation_source = [["MGI", 143898], ["UniProtKB", 131680], ["ZFIN", 88093], ["WB", 68439], ["TAIR", 68319], ["SGD", 44070], ["PomBase", 38714], ["RGD", 23674], ["dictyBase", 20561], ["InterPro", 12251], ["TIGR", 11229], ["RefGenome", 7252], ["GOC", 6282], ["BHF-UCL", 4758], ["IntAct", 2036], ["HGNC", 532], ["UniPathway", 499], ["DFLAT", 311], ["PINC", 18], ["Roslin_Institute", 10], ["ENSEMBL", 5], ["Reactome", 3]];
-
-/*
- * Variable: annotation_source
- * 
- * TBD
- */
-amigo.data.statistics.annotation_evidence = [["experimental evidence", 192016], ["similarity evidence", 132787], ["curator inference", 68788], ["combinatorial evidence", 15414], ["author statement", 11503]];
-
-/*
- * Variable: annotation_overview
- * 
- * TBD
- */
-amigo.data.statistics.annotation_overview = [["Source", "similarity evidence", "experimental evidence", "curator inference", "author statement", "combinatorial evidence", "genomic context evidence", "biological system reconstruction", "imported information"], ["dictyBase", 9289, 4311, 6478, 483, 0, 0, 0, 0], ["EcoCyc", 0, 0, 0, 0, 0, 0, 0, 0], ["FlyBase", 0, 0, 0, 0, 0, 0, 0, 0], ["MGI", 53520, 55284, 32957, 2002, 135, 0, 0, 0], ["PomBase", 10204, 16257, 3661, 2286, 511, 0, 0, 0], ["RGD", 23674, 0, 0, 0, 0, 0, 0, 0], ["SGD", 3396, 33774, 4578, 2321, 1, 0, 0, 0], ["TAIR", 11078, 16661, 6626, 1663, 14752, 0, 0, 0], ["WB", 861, 33166, 60, 144, 1, 0, 0, 0], ["ZFIN", 507, 10672, 10946, 127, 0, 0, 0, 0]];
-/*
- * Package: rollup.js
- * 
- * Namespace: amigo.ui.rollup
- * 
- * BBOP method to roll an information are up to save real estate.
- * This requires jQuery and an HTML format like:
- * 
- * : <div id="ID_TEXT" class="SOME_CLASS_FOR_YOUR_STYLING">
- * :  <span class="ANOTHERONE">ANCHOR_TEXT<a href="#"><img src="?" /></span></a>
- * :  <div>
- * :   ABC
- * :  </div>
- * : </div>
- * 
- * Usage would then simply be:
- * 
- * : amigo.ui.rollup(['ID_TEXT']);
- * 
- * As a note, for AmiGO 2, his is handled by the common templates
- * info_rollup_start.tmpl and info_rollup_end.tmpl in the amigo git
- * repo. Usage would be like:
- * 
- * : [% rollup_id = "ID_TEXT" %]
- * : [% rollup_anchor = "ANCHOR_TEXT" %]
- * : [% INCLUDE "common/info_rollup_start.tmpl" %]
- * : ABC
- * : [% INCLUDE "common/info_rollup_end.tmpl" %]
- * 
- * Again, this is a method, not an object constructor.
- */
-
-// Module and namespace checking.
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.ui == "undefined" ){ amigo.ui = {}; }
-
-/*
- * Method: rollup
- * 
- * See top-level for details.
- * 
- * Arguments:
- *  elt_ids - a list if element ids of the areas to roll up
- * 
- * Returns:
- *  n/a
- */
-amigo.ui.rollup = function(elt_ids){
-
-    var each = bbop.core.each;
-    each(elt_ids,
-    	 function(eltid){
-	     var eheader = '#' + eltid + ' > div';
-	     var earea = '#' + eltid + ' > span > a';
-	     jQuery(eheader).hide();
-    	     var click_elt =
-		 jQuery(earea).click(function(){
-					 jQuery(eheader).toggle("blind",{},250);
-					 return false;
-				     });
-	 });
-};
-
-// If it looks like we're in an environment that supports CommonJS
-// Modules 1.0, take the amigo namespace whole and export it. Otherwise
-// (browser environment, etc.), take no action and depend on the
-// global namespace.
-if( typeof(exports) != 'undefined' ){
-
-    // Old style--exporting separate namespace.
-    exports.amigo = amigo;
-
-    // New, better, style--assemble; these should not collide.
-    bbop.core.each(amigo, function(k, v){
-	exports[k] = v;
-    });
-}
-
-},{"bbop":27}],3:[function(require,module,exports){
+},{"bbop":23,"bbop-core":2,"bbop-graph-noctua":3,"bbop-manager-golr":6,"bbop-response-golr":9,"bbop-rest-manager":10,"class-expression":59,"cytoscape":60,"golr-conf":61,"minerva-requests":62,"underscore":63}],2:[function(require,module,exports){
 /**
  * BBOP language extensions to JavaScript, complimenting Underscore.js.
  * Purpose: Helpful basic utilities and operations to fix common needs in JS.
@@ -12351,7 +1545,7 @@ module.exports = {
 
 };
 
-},{"underscore":66}],4:[function(require,module,exports){
+},{"underscore":63}],3:[function(require,module,exports){
 /** 
  * Purpose: Noctua editing operations ove a bbop-graph base.
  * 
@@ -14674,7 +3868,7 @@ module.exports = {
 
 };
 
-},{"bbop-core":3,"bbop-graph":5,"class-expression":63,"underscore":66}],5:[function(require,module,exports){
+},{"bbop-core":2,"bbop-graph":4,"class-expression":59,"underscore":63}],4:[function(require,module,exports){
 /** 
  * Purpose: Basic edged graph and operations.
  * 
@@ -16127,34 +5321,63 @@ module.exports = {
 
 };
 
-},{"bbop-core":6,"underscore":66}],6:[function(require,module,exports){
-arguments[4][3][0].apply(exports,arguments)
-},{"dup":3,"underscore":66}],7:[function(require,module,exports){
+},{"bbop-core":5,"underscore":63}],5:[function(require,module,exports){
+arguments[4][2][0].apply(exports,arguments)
+},{"dup":2,"underscore":63}],6:[function(require,module,exports){
 /**
- * Manager for handling communication and callbacks with a Minerva
- * instances (mediated by Barista).
+ * Manager for handling communication and callbacks with GOlr
+ * instances.
  *
- * See also: {module:bbop-response-barista}
- *
- * @modules bbop-manager-minerva
+ * @modules bbop-manager-golr
  */
 
 var bbop = require('bbop-core');
+var golr_conf = require('golr-conf');
+var golr_response = require('bbop-response-golr');
 var registry = require('bbop-registry');
 
 var us = require('underscore');
 
-var class_expression = require('class-expression');
-var requests = require('minerva-requests');
-//var rest_manager = require('bbop-rest-manager');
-var barista_response = require('bbop-response-barista');
-
 // Aliasing.
 var each = us.each;
-var request = requests.request;
-var request_set = requests.request_set;
 
-/**
+/* 
+ * Package: manager.js
+ * 
+ * Namespace: bbop.golr.manager
+ * 
+ * Generic BBOP manager for dealing with gross GOlr configuration and
+ * management. Remember, this is actually a "subclass" of
+ * <bbop.registry>. The defined events for this registry are: "reset",
+ * "search", and "error".
+ * 
+ *  reset - functions for initializing and resetting
+ *  search - functions for receiving standard search results
+ *  error - functions to call when something goes very wrong
+ * 
+ * Both <bbop.golr.response> (or clean error data) and the manager
+ * itself (this as anchor) should be passed to the callbacks.
+ * 
+ * TODO/BUG: <set_query> and <set_default_query> should both take
+ * strings or <bbop.logic> as arguments. Those, as well as <get_query>
+ * and <get_query> should only return <bbop.logic>.
+ */
+
+/*
+ * Constructor: manager
+ * 
+ * Contructor for the GOlr query manager
+ * 
+ * Arguments:
+ *  golr_loc - string url to GOlr server;
+ *  golr_conf_obj - a <bbop.golr.conf> object
+ * 
+ * Returns:
+ *  golr manager object
+ * 
+ * See also:
+ *  <bbop.registry>
+ *
  * A manager for handling the AJAX and registry. Initial take from
  * {module:bbop-rest-manager}.
  * 
@@ -16166,915 +5389,2613 @@ var request_set = requests.request_set;
  * @param {String} mode - whether or not to have utility methods (most besides fetch_with and start_with be in); options are "sync" and "async", which correspond to internally using fetch and start respectively
  * @returns {manager} a classic manager
  */
-var manager = function(barista_location, namespace, user_token, engine, mode){
-    registry.call(this, ['prerun', // internal; anchor only
-			 'postrun', // internal
-			 'manager_error', // internal/external...odd
-			 //'success', // uninformative
-			 'merge',
-			 'rebuild',
-			 'meta',
-			 'warning', // trump
-			 'error' //trump
-			]);
-    this._is_a = 'bbop-manager-minerva';
-    var anchor = this;
+var manager = function (golr_loc, golr_conf_obj, engine, mode){
+    registry.call(this, ['prerun',
+			 'reset',
+			 'search',
+			 'error',
+			 'postrun']);
+    this._is_a = 'bbop-manager-golr';
+    var anchor = this; // get a good self-reference point
 
-    //var url = barista_location + '/api/' + namespace + '/m3Batch';
-    anchor._batch_url = null;
-    anchor._seed_url = null;
+    // Per-manager logger.
+    this._logger = new bbop.logger(this._is_a);
+    //this._logger.DEBUG = true;
+    this._logger.DEBUG = false;
+    function ll(str){ anchor._logger.kvetch(str); }
 
-    anchor._user_token = user_token;
-
-    anchor._use_reasoner_p = false;
-
-    //  
-    anchor._engine = engine;
-    anchor._mode = mode;
+    // Setup right handler subsystem--either returning a direct
+    // response or a promise, depending.
+    anchor._engine = engine || null;
+    anchor._mode = mode || null;
     anchor._runner = function(resource, payload){
 	var ret = null;
+	// if( typeof(anchor._engine) === 'undefined' ){
+	//     throw new Error('"engine" not set in new bbop-manager-golr');
+	// }
 	if( anchor._mode === 'sync' ){
 	    ret = anchor._engine.fetch(resource, payload);
 	}else if( anchor._mode === 'async' ){
 	    ret = anchor._engine.start(resource, payload);
 	}else{
-	    throw new Error('"mode" not set in new bbop-manager-minerva');
+	    // throw new Error('"mode" not set in new bbop-manager-golr');
+	    return resource;
 	}
 	return ret;
     };
 
-    // Will use this one other spot, where the user can change the
-    // token.
-    function _set_url_from_token(in_token){	
+    // The callback function called after a successful AJAX
+    // intialization/reset call. First it runs some template code,
+    // then it does all of the callbacks.
+    anchor._run_reset_callbacks = function(response){
+	ll('run reset callbacks...');
+	//var response = new golr_response(json_data);
+	anchor.apply_callbacks('reset', [response, anchor]);
+	anchor.apply_callbacks('postrun', [response, anchor]);
+    };
 
-	var batch_url =
-		barista_location + '/api/' + namespace + '/m3Batch';
-	var seed_url =
-		barista_location + '/api/' + namespace + '/seed/fromProcess';
+    // The main callback function called after a successful AJAX call in
+    // the update function.
+    anchor._run_search_callbacks = function(response){
+	ll('run search callbacks...');
+	//var response = new golr_response(json_data);
+	anchor.apply_callbacks('search', [response, anchor]);
+	anchor.apply_callbacks('postrun', [response, anchor]);
+    };
 
-	if( in_token ){
-	    batch_url = batch_url + 'Privileged';
-	    seed_url = seed_url + 'Privileged';
+    // This set is called when we run into a problem.
+    anchor._run_error_callbacks = function(response){
+	ll('run error callbacks...');
+	//var response = new golr_response(json_data);
+	anchor.apply_callbacks('error', [response, anchor]);
+	anchor.apply_callbacks('postrun', [response, anchor]);
+    };
+
+    // The registries can only be applied if the engine is present.
+    if( engine ){
+
+	// Setup the appropriate callbacks in the engine for success.
+	anchor._engine.register('success', function(response){
+	    
+    	    //console.log(anchor._engine);
+    	    //console.log(response._raw);
+	    
+            // 
+            if( ! response.success() ){
+		throw new Error("Unsuccessful response from golr server!");
+            }else{
+		var cb_type = response.callback_type();
+		//console.log('okay response from server, will probe type...: '+cb_type);
+		if( cb_type === 'reset' ){
+                    anchor._run_reset_callbacks(response);
+		}else if( cb_type === 'search' ){
+                    anchor._run_search_callbacks(response);
+		}else{
+                    throw new Error("Unknown callback type (runner): "+cb_type);
+		}
+            }
+	});
+	
+	// And, more easily, setup the appropriate callbacks in the
+	// engine for failure.
+	anchor._engine.register('error', function(response){
+    	    anchor._run_error_callbacks(response);
+	});
+	
+    }
+
+    // Just want to compile these once.
+    var alphanum = new RegExp(/^[a-zA-Z0-9 ]+$/);
+
+    // To help keep requests from the past haunting us. Actually doing
+    // something with this number is up to the UI.
+    this.last_sent_packet = 0;
+    //this.last_received_packet = 0;
+
+    // Lightly check incoming arguments.
+    // There should be a string url argument.
+    // There could be a hash of pinned filters argument.
+    if( ! golr_loc || ! golr_conf_obj ){
+	ll('ERROR: no proper arguments');
+    }
+    if( typeof golr_loc !== 'string' ){
+	ll('ERROR: no proper golr url string argument');
+    }
+    if(	! golr_conf_obj._is_a || golr_conf_obj._is_a !== 'golr-conf.conf' ){
+	    ll('ERROR: no proper golr-conf.conf object argument');
+	    throw new Error('boink! ' + bbop.what_is(golr_conf_obj) );
+	}
+    
+    // Whether or not to prevent ajax events from going.
+    // This may not be usable, or applicable, to all backends.
+    this._safety = false;
+
+    // Our default target url.
+    this._solr_url = golr_loc;
+
+    // Settle in the configurations.
+    // this._golr_conf = new bbop_golr.conf(golr_conf_var);
+    this._golr_conf = golr_conf_obj;
+
+    // The current data batches that we are storing.
+    this._batch_urls = [];
+    this._batch_accumulator_func = function(){};
+    this._batch_final_func = function(){};
+
+    // The current state stack.
+    this._excursions = [];
+
+    // The current class/personality that we're using. It may be none.
+    this._current_class = null;
+
+    // Our (default) query and the real deal.
+    this.fundamental_query = '*:*'; // cannot be changed
+    this.default_query = '*:*'; // changable
+    this.query = this.default_query; // current
+
+    // Our (default) fl and whatever we have now.
+    //this.default_fl = '*%2Cscore';
+    this.default_fl = '*,score';
+    this.current_fl = this.default_fl;
+
+    // We remember defaults in the case of rows and start since they
+    // are the core to any paging mechanisms and may change often.
+    //this.default_rows = 25;
+    //this.default_rows = 100;
+    this.default_rows = 10;
+    this.default_start = 0;
+    this.current_rows = this.default_rows;
+    this.current_start = this.default_start;
+
+    // There is a reason for this...TODO: later (25+)
+    this.default_facet_limit = 25;
+    this.current_facet_limit = 25;
+    // {facet_field_name: value, ...}
+    this.current_facet_field_limits = {};
+    // TODO: paging for facets;
+    this.current_facet_offset = 25;
+    this.current_facet_field_offsets = {};
+
+    // Our default query args, with facet fields plugged in.
+    this.query_variants =
+	{
+	    // Our default standard search type. This means we don't
+	    // have to explicitly add fields to the search (although
+	    // the query fields ('qf') are still necessary to make
+	    // anything real happen).
+	    defType: 'edismax',
+	    
+	    // Things unlikely to be touched.
+	    // There are unlikely to be messed with too much.
+	    qt: 'standard',
+	    indent: 'on',
+	    wt: 'json',
+	    //version: '2.2',
+	    rows: anchor.current_rows,
+	    start: anchor.current_start, // Solr is offset indexing
+	    //fl: '*%2Cscore',
+	    fl: anchor.default_fl,
+    
+	    // Deprecated: see query_filters
+	    //fq: {},
+	    
+	    // Deprecated: see query_fields
+	    //qf: {},
+	    
+	    // Deprecated: see query
+	    //q: '*:*'
+
+	    // Control of facets.
+	    facet: 'true',
+	    'facet.mincount': 1,
+	    'facet.sort': 'count',
+	    'json.nl': 'arrarr', // only in facets right now
+	    'facet.limit': anchor.default_facet_limit
+	    // TODO?: 'f.???.facet.limit': 50,
+	    // TODO: 'json.nl': [flat|map|arrarr]
+
+	    // Deprecated: see facet_fields
+	    //'facet.field': []
+	};
+
+    // This is the 'qf' parameter. Although we keep it, it only needs
+    // to be exposed when the query ('q') field is set.
+    //this.query_fields = [];
+    this.query_fields = {};
+
+    // A richer way to handle the 'fq' query variant.
+    // It should look like:
+    // {<filter>: {<value>:{'sticky_p':(t|f), 'negative_p':(t|f)}, ...}}
+    this.query_filters = {};
+
+    // The engine for the facet.field list.
+    this.facet_fields = {};
+
+    /*
+     * Function: debug
+     * 
+     * Turn on or off the verbose messages. Uses <bbop.logger>, so
+     * they should come out everywhere.
+     * 
+     * Parameters: 
+     *  p - *[optional]* true or false for debugging
+     *
+     * Returns: 
+     *  boolean; the current state of debugging
+     */
+    this.debug = function(p){
+	if( p === true || p === false ){
+	    this._logger.DEBUG = p;
+	    // TODO: add debug parameter a la include_highlighting
+	}
+	return this._logger.DEBUG;
+    };
+
+    /*
+     * Function: lite
+     * 
+     * Limit the returns fields (the parameter "fl") to the ones
+     * defined in the set of fields defined in results, label fields
+     * if available (i.e. "_label", "_map" when "_label" is
+     * multi=valued), and "score" and "id".
+     * 
+     * The default is "false".
+     * 
+     * Parameters: 
+     *  use_lite_p - *[optional]* true or false, none just returns current
+     *
+     * Returns: 
+     *  boolean; the current state of lite-ness
+     */
+    this.lite = function(use_lite_p){
+
+	// Adjust the current state accordingly.
+	if( use_lite_p === true || use_lite_p === false ){
+	    if( use_lite_p === true ){
+		
+		// The actual collections and adjustment.
+		// First, this only works if we have a personality, so
+		// check to see if we have one.
+		var per = anchor.get_personality();
+		if( per ){
+		    // Since we have a personality, collect all of the
+		    // mentioned fields.
+		    var field_collection = {};
+		    var union = bbop.merge;
+		    var ccl = anchor._current_class;
+
+		    // Fill field_collection with the fields
+		    // in the given category.
+		    //loop(['boost', 'result', 'filter'],
+		    //loop(['result', 'filter'],
+		    each(['result'], function(cat){
+			field_collection = 
+			    union(field_collection, ccl.get_weights(cat));
+		    });
+		    
+		    // Next, flatten into a list.
+		    var flist = us.keys(field_collection);
+
+		    // Now for all the fields in these categories, see
+		    // if we can find additional "special" labels to
+		    // go with them.
+		    each(flist, function(flist_item){
+			//loop(['_label', '_label_searchable'],
+			each(['_label'], function(field_suffix){
+			    var new_field = flist_item + field_suffix;
+			    var nf_obj = ccl.get_field(new_field);
+			    if( nf_obj ){
+				flist.push(new_field);
+				
+				// There appears to be the
+				// thing label. If they are
+				// both multi-valued, then
+				// there will be a map as
+				// well.
+				if( nf_obj.is_multi() ){
+				    flist.push(flist_item + '_map');
+				}
+			    }
+			});
+		    });
+		    
+		    // Finally, set these fields (plus score) as the
+		    // new return fields.
+		    flist.push('score');
+		    flist.push('id');
+		    //anchor.current_fl = flist.join('%2C');
+		    anchor.current_fl = flist.join(',');
+		    anchor.set('fl', anchor.current_fl);
+		}
+		
+	    }else{ // else false
+		// Reset.
+		anchor.current_fl = anchor.default_fl;
+		anchor.set('fl', anchor.current_fl);
+	    }
 	}
 
-	anchor._batch_url = batch_url;
-	anchor._seed_url = seed_url;
-    }
-    _set_url_from_token(user_token);
+	// Return the current state.
+	var retval = false;
+	if( anchor.default_fl !== anchor.current_fl ){
+	    retval = true;
+	}
+	return retval;
+    };
 
-    // How to deal with failure.
-    function _on_fail(resp, man){	
+    // An internal helper function to munge the name of a field into
+    // the name of its corresponding facet field.
+    function _field_to_facet_field(field){
+	return 'f.' + field + '.facet.limit';
+    }
+    
+    /*
+     * Function: get_facet_limit
+     * 
+     * Get the limit for a specified facet or the global limit.
+     * 
+     * Parameters: 
+     *  field - *[optional]* limit for a specific field; otherwise global value
+     *
+     * Returns: 
+     *  integer or null
+     */
+    this.get_facet_limit = function(field){
 	var retval = null;
 
-	// See if we got any traction.
-	if( ! resp || ! resp.message_type() || ! resp.message() ){
-	    // Something dark has happened, try to put something
-	    // together.
-	    // console.log('bad resp!?: ', resp);
-	    var resp_seed = {
-		'message_type': 'error',
-		'message': 'deep manager error'
-	    };
-	    resp = new barista_response(resp_seed);
-	    retval = resp;
-	}
-	anchor.apply_callbacks('manager_error', [resp, anchor]);
-
-	return retval;
-    }
-    anchor._engine.register('error', _on_fail);
-
-    // When we have nominal success, we still need to do some kind of
-    // dispatch to the proper functionality.
-    function _on_nominal_success(resp, man){
-	var retval = resp;
-	
-	// Switch on message type when there isn't a complete failure.
-	var m = resp.message_type();
-	if( m === 'error' ){
-	    // Errors trump everything.
-	    anchor.apply_callbacks('error', [resp, anchor]);
-	}else if( m === 'warning' ){
-	    // Don't really have anything for warning yet...remove?
-	    anchor.apply_callbacks('warning', [resp, anchor]);
-	}else if( m === 'success' ){
-	    var sig = resp.signal();
-	    if( sig === 'merge' || sig === 'rebuild' || sig === 'meta' ){
-		//console.log('run on signal: ' + sig);
-		anchor.apply_callbacks(sig, [resp, anchor]);		
-	    }else{
-		alert('unknown signal: very bad');
+	if( ! field ){
+	    retval = anchor.current_facet_limit;
+	}else{
+	    var f = _field_to_facet_field(field);
+	    var try_val = anchor.current_facet_field_limits[f];
+	    if( typeof(try_val) !== 'undefined' ){
+		retval = try_val;
 	    }
-	}else{
-	    alert('unimplemented message_type');	    
 	}
-
-	// Postrun goes no matter what.
-	anchor.apply_callbacks('postrun', [resp, anchor]);
 
 	return retval;
-    }
-    anchor._engine.register('success', _on_nominal_success);
+    };
 
-    ///
-    /// Control our identity and other meta operations.
-    ///
-
-    /**
-     * Get/set the user token.
+    /*
+     * Function: set_facet_limit
      * 
-     * @param {String} [user_token] - string to set user token to
-     * @returns {String} current user token
+     * Change the number of facet values returned per call.
+     * The default is likely 25.
+     * 
+     * Just as in Solr, a -1 argument is how to indicate unlimted
+     * facet returns.
+     * 
+     * This setting does not survive things like <resets_facet_limit>.
+     * 
+     * Parameters: 
+     *  arg1 - (integer) set the global limit
+     *
+     * Parameters: 
+     *  arg1 - (string) the name of the field to check
+     *  arg2 - (integer) set the limit for this field
+     *
+     * Returns: 
+     *  boolean on whether something was set
      */
-    anchor.user_token = function(user_token){
+    this.set_facet_limit = function(arg1, arg2){
+	var retval = false;
 
-	// Adjust the internal token.
-	if( user_token ){
-	    anchor._user_token = user_token;
+	// Decide which form of the function we're using.
+	if( typeof(arg2) === 'undefined' &&
+	    bbop.what_is(arg1) === 'number' ){ // form one
+		
+		// Set
+		var nlimit = arg1;
+		anchor.current_facet_limit = nlimit;
+		anchor.set('facet.limit', anchor.current_facet_limit);
+		
+		retval = true;
+	
+	}else if( typeof(arg1) !== 'undefined' && 
+		  typeof(arg2) !== 'undefined' && 
+		  bbop.what_is(arg1) === 'string' &&
+		  bbop.what_is(arg2) === 'number' ){
+		      
+		      var field = _field_to_facet_field(arg1);
+		      var limit = arg2;
+		      anchor.current_facet_field_limits[field] = limit;
+		      
+		      retval = true;
 	}
 
-	// Make sure we're using the right URL considering how we're
-	// identified.
-	_set_url_from_token(anchor._user_token);
-
-	return anchor._user_token;
+	return retval;
     };
 
-    /**
-     * Get/set the use reasoner flag. Default false.
+    /*
+     * Function: set_default_facet_limit
      * 
-     * @param {Boolean} [bool] - optional value to set the reasoner
-     * @returns {Boolean} current reasoner use value
+     * Permanently change the default number of facet values returned
+     * per call. The default's default is likely 25.
+     * 
+     * Just as in Solr, a -1 argument is how to indicate unlimted
+     * facet returns.
+     * 
+     * Parameters: 
+     *  lim - (integer) set the global default limit
+     *
+     * Returns: 
+     *  old default
      */
-    anchor.use_reasoner_p = function(bool){
+    this.set_default_facet_limit = function(lim){
 
-	// Adjust the internal token.
-	if( typeof(bool) === 'boolean' ){
-	    anchor._use_reasoner_p = bool;
+	// Capture ret.
+	var retval = anchor.default_facet_limit;
+
+	// Set
+	anchor.default_facet_limit = lim;
+	//anchor.set('facet.limit', anchor.default_facet_limit);
+		
+	return retval;
+    };
+
+    /*
+     * Function: reset_facet_limit
+     * 
+     * Either reset the global limit to the original (likely 25)
+     * and/or remove the specified filter. Sets everything back to the
+     * original values or whatever was set by
+     * <set_default_facet_limit>.
+     * 
+     * Parameters: 
+     *  field - *[optional]* remove limit for a field; otherwise all and global
+     *
+     * Returns: 
+     *  boolean on whether something was reset
+     */
+    this.reset_facet_limit = function(field){
+	var retval = false;
+
+	if( typeof(field) === 'undefined' ){
+	    // Eliminate all fields by blowing them away.
+	    anchor.current_facet_limit = anchor.default_facet_limit;
+	    anchor.set('facet.limit', anchor.current_facet_limit);
+	    anchor.current_facet_field_limits = {};
+	    retval = true;
+	}else{ // eliminate just the one field
+	    var f = _field_to_facet_field(field);
+	    if( typeof(anchor.current_facet_field_limits[f]) !== 'undefined' ){
+		delete anchor.current_facet_field_limits[f];
+		retval = true;
+	    }
 	}
 
-	return anchor._use_reasoner_p;
+	return retval;
     };
 
-    ///
-    /// Actual mechanism.
-    ///
-
-    /**
-     * Trigger a rebuild {module:bbop-response-barista} with a model.
+    /*
+     * Function: get_results_count
      * 
-     * Intent: "query".
-     * Expect: "success" and "rebuild".
+     * Get the current number of results that will be returned.
      * 
-     * @param {String} model_id - string
-     * @returns {module:bbop-barista-response#response} barista response
+     * Parameters: 
+     *  n/a
+     *
+     * Returns: 
+     *  integer
      */
-    anchor.get_model = function(model_id){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.get_model();
-
- 	return anchor.request_with(reqs);
-    };
-    
-    // /*
-    //  * Method: get_model_ids
-    //  * 
-    //  * Trigger meta {module:bbop-response-barista} with a list of all model
-    //  * ids.
-    //  * 
-    //  * Intent: "query".
-    //  * Expect: "success" and "meta".
-    //  * 
-    //  * @param {}    //  *  n/a
-    //  * 
-    //  * @returns {}    //  *  n/a
-    //  */
-    // anchor.get_model_ids = function(){
-
-    // 	// 
-    // 	var reqs = new request_set(anchor.user_token());
-    // 	var req = new request('model', 'all-model-ids');
-    // 	reqs.add(req);
-
-    // 	var args = reqs.callable();	
-    // 	anchor.apply_callbacks('prerun', [anchor]);
-    // 	jqm.action(anchor._batch_url, args, 'GET');
-    // };
-    
-    /**
-     * Trigger meta {module:bbop-response-barista} with a list of all model
-     * meta-information.
-     * 
-     * Intent: "query".
-     * Expect: "success" and "meta".
-     * 
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.get_meta = function(){
-
-	var reqs = new request_set(anchor.user_token());
-	reqs.get_meta();
-
- 	return anchor.request_with(reqs);
+    this.get_results_count = function(field){
+	return anchor.get('rows');
     };
 
-    /**
-     * Trigger meta {module:bbop-response-barista} of requested
-     * model's undo/redo information.
+    /*
+     * Function: set_results_count
      * 
-     * This will make the request whether or not the user has an okay
-     * token defined.
+     * Change the number of result documents returned per call.
+     * The default is likely 10.
+     * 
+     * Parameters: 
+     *  count - (integer) set the global results count
      *
-     * Intent: "query".
-     * Expect: "success" and "meta".
-     * 
-     * @param {String} model_id - string
-     * @returns {module:bbop-barista-response#response} barista response
+     * Returns:
+     *  the count set
      */
-    anchor.get_model_undo_redo = function(model_id){
-
-	// 
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.get_undo_redo();
-
- 	return anchor.request_with(reqs);
+    this.set_results_count = function(count){
+	anchor.set('rows', count);
+	anchor.current_rows = count;
+	return anchor.current_rows;
     };
-    
-    /**
-     * Trigger rebuild {module:bbop-response-barista} after an attempt
-     * to roll back the model to "last" state.
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
+
+    /*
+     * Function: reset_results_count
      * 
-     * @param {String} model_id - string
-     * @returns {module:bbop-barista-response#response} barista response
+     * Reset the number of documents to their original setting, likely
+     * 10.
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns:
+     *  the new count
      */
-    anchor.perform_undo = function(model_id){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.undo_last_model_batch();
-
- 	return anchor.request_with(reqs);
+    this.reset_results_count = function(){
+	anchor.set('rows', anchor.default_rows);
+	anchor.current_rows = anchor.default_rows;
+	return anchor.current_rows;
     };
-    
-    /**
-     * Trigger rebuild {module:bbop-response-barista} after an attempt
-     * to roll forward the model to "next" state.
+
+    /*
+     * Function: plist_to_property_hash
      *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
-     * 
-     * @param {String} model_id - string
-     * @returns {module:bbop-barista-response#response} barista response
+     * Turn a plist to a hash containing the different properties that
+     * can be defined for a query filter. Possible values are: '+'
+     * (positive filter), '-' (negative filter), '*' (sticky filter),
+     * '$' (transient). If mutually exclusive properties are defined
+     * (e.g. both '+' and '-'), the last one will be used. Or, since
+     * that is a call to silliness, let's say the behavior is
+     * undefined.
+     *
+     * Parameters: 
+     *  plist - *[optional]* a list of properties to apply to the filter
+     *
+     * Returns: 
+     *  A hash version of the plist; otherwise, the default property hash
      */
-    anchor.perform_redo = function(model_id){
+    this.plist_to_property_hash = function(plist){
 
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.redo_last_model_batch();
+	// Let's start with the default values.
+	var phash = {
+	    //'positive_p': true,
+	    'negative_p': false,
+	    //'transient_p': true
+	    'sticky_p': false
+	};
 
- 	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger merge (or possibly a rebuild)
-     * {module:bbop-response-barista} on attempt to add a single fact
-     * to a model.
-     *
-     * Intent: "action".
-     * Expect: "success" and "merge".
-     * 
-     * @param {String} model_id - string
-     * @param {String} source_id - string
-     * @param {String} target_id - string
-     * @param {String} rel_id - string
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.add_fact = function(model_id, source_id, target_id, rel_id){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.add_fact([source_id, target_id, rel_id]);
-
- 	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger merge (or possibly a rebuild)
-     * {module:bbop-response-barista} on attempt to remove a single
-     * fact to a model.
-     *
-     * Intent: "action".
-     * Expect: "success" and "merge".
-     * 
-     * @param {String} model_id - string
-     * @param {String} source_id - string
-     * @param {String} target_id - string
-     * @param {String} rel_id - string
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.remove_fact = function(model_id, source_id, target_id, rel_id){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.remove_fact([source_id, target_id, rel_id]);
-
- 	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger merge (or possibly a rebuild)
-     * {module:bbop-response-barista.response} on attempt to add a
-     * simple composite unit (class, enabled_by, and occurs_in) to a
-     * model.
-     *
-     * Intent: "action".
-     * Expect: "success" and "merge".
-     * 
-     * @param {String} model_id - string
-     * @param {String} cls_exp - anything taken by {module:class-expression}
-     * @param {String} [enabled_by_expr] - anything taken by {module:class-expression}
-     * @param {String} [occurs_in_expr] - anything taken by {module:class-expression}
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.add_simple_composite = function(model_id, cls_expr,
-    					   enabled_by_expr, occurs_in_expr){
-
-	// Minimal requirements.
-	var reqs = new request_set(anchor.user_token(), model_id);
-     	var ind = reqs.add_individual(cls_expr);
-
-	// Optional set expressions.
-	if( enabled_by_expr ){
-	    reqs.add_type_to_individual(
-		class_expression.svf(enabled_by_expr, 'RO:0002333'), ind);
-	}
-	if( occurs_in_expr ){
-	    reqs.add_type_to_individual(
-		class_expression.svf(occurs_in_expr, 'occurs_in'), ind);
-	}
-
- 	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger merge (or possibly a rebuild)
-     * {module:bbop-response-barista.response} on attempt to add a
-     * complex class expression to an individual in a model.
-     *
-     * Intent: "action".
-     * Expect: "success" and "merge".
-     * 
-     * @param {String} model_id - string
-     * @param {String} individual_id - string
-     * @param {String} cls_expr - anything acceptible to {module:class-expression}
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.add_class_expression = function(model_id, individual_id, cls_expr){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.add_type_to_individual(cls_expr, individual_id);
-
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger merge (or possibly a rebuild) {module:bbop-response-barista}
-     * on attempt to remove a complex class expression from an
-     * individual in a model.
-     *
-     * Intent: "action".
-     * Expect: "success" and "merge".
-     * 
-     * @param {String} model_id - string
-     * @param {String} individual_id - string
-     * @param {String} cls_expr - or anything acceptible to {module:class-expression}
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.remove_class_expression = function(model_id, individual_id, cls_expr){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.remove_type_from_individual(cls_expr, individual_id);
-
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger a rebuild {module:bbop-response-barista} on attempt to remove
-     * an individual from a model.
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
-     * 
-     * @param {String} model_id - string
-     * @param {String} individual_id - string
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.remove_individual = function(model_id, indv_id){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.remove_individual(indv_id);
-
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger a rebuild response {module:bbop-response-barista} on
-     * attempting to create a new model...from nothing. Or something!
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
-     * 
-     * @param {String} taxon_id - *[DEPRECATED]* *[optional]* string (full ncbi)
-     * @param {String} class_id - *[DEPRECATED]* *[optional]* string
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.add_model = function(taxon_id, class_id){
-
-	// Conditions taken care of by request_set.
-	var reqs = new request_set(anchor.user_token());
-	reqs.add_model({'class-id': class_id, 'taxon_id': taxon_id});
-	
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * *[DEPRECATED]*
-     * 
-     * Trigger a meta {module:bbop-response-barista} containing model
-     * export text.
-     *
-     * Intent: "action".
-     * Expect: "success" and "meta".
-     * 
-     * @deprecated
-     * @param {String} model_id - string
-     * @param {String} [format] - string (for legacy, "gaf" or "gpad")
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.export_model = function(model_id, format){
-
-	if( typeof(format) === 'undefined' ){ format = 'default'; }
-
-	var reqs = new request_set(anchor.user_token());
-	var req = null;
-	if( format === 'gaf' ){
-	    req = new request('model', 'export-legacy');
-	    req.special('format', 'gaf');
-	}else if( format === 'gpad' ){
-	    req = new request('model', 'export-legacy');
-	    req.special('format', 'gpad');
-	}else{
-	    // Default (non-legacy) case is simpler.
-	    req = new request('model', 'export');
-	}
-
-	// Add the model to the request.
-	req.model(model_id);
-	reqs.add(req);
-
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * *[DEPRECATED]*
-     * 
-     * Trigger a rebuild response {module:bbop-response-barista} for a
-     * new model seeded/created from the argument string.
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
-     * 
-     * @deprecated
-     * @param {String} model_string - string representation of a model
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.import_model = function(model_string){
-
-	// 
-	var reqs = new request_set(anchor.user_token());
-	var req = new request('model', 'import');
-	req.special('importModel', model_string);
-	reqs.add(req);
-
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger a rebuild response {module:bbop-response-barista} on a
-     * "permanent" store operation on a model.
-     *
-     * What?! A "rebuild" and not "meta"? Yes. This allows a workflow
-     * where a model is created, edited, and stored all in one pass.
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
-     * 
-     * @param {String} model_id - string
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.store_model = function(model_id){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.store_model();
-
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger a rebuild response {module:bbop-response-barista} on an
-     * evidence addition referencing an individual in a model.
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
-     * 
-     * @param {String} model_id - string
-     * @param {String} indv_id - string
-     * @param {String} evidence_id - string
-     * @param {Array|String} source_ids - string or list of strings
-     * @param {Array|String|null} with_strs - string or list of strings or null
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.add_individual_evidence = function(model_id, indv_id, evidence_id,
-					      source_ids, with_strs){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.add_evidence(evidence_id, source_ids, with_strs, indv_id, model_id);
-	
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger a rebuild response {module:bbop-response-barista} on an
-     * evidence addition referencing a fact in a model.
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
-     * 
-     * @param {String} model_id - string
-     * @param {String} source_id - string
-     * @param {String} target_id - string
-     * @param {String} rel_id - string
-     * @param {String} evidence_id - string
-     * @param {Array|String} source_ids - string or list of strings
-     * @param {Array|String|null} with_strs - string or list of strings or null
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.add_fact_evidence = function(model_id,
-					source_id, target_id, rel_id,
-					evidence_id, source_ids, with_strs){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.add_evidence(evidence_id, source_ids, with_strs,
-			  [source_id, target_id, rel_id], model_id);
-
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger a rebuild response {module:bbop-response-barista} on an
-     * evidence addition referencing an individual in a model.
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
-     * 
-     * @param {String} model_id - string
-     * @param {String} evidence_individual_id - string
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.remove_evidence = function(model_id, evidence_individual_id){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.remove_evidence(evidence_individual_id, model_id);
-	
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger a rebuild response {module:bbop-response-barista} on
-     * updating an entities annotations to a new set.
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
-     * 
-     * @param {String} model_id - string
-     * @param {Object} entity - string
-     * @param {String} key - string
-     * @param {Array|String} values - string
-     * @param {String|null} [value_type] - string
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.update_annotations = function(model_id, entity,
-					 key, values, value_type){
-	
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.update_annotations(entity, key, values, value_type, model_id);
-	
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger a rebuild response {module:bbop-response-barista} on an
-     * annotation addition to an individual in a model.
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
-     * 
-     * @param {String} model_id - string
-     * @param {String} indv_id - string
-     * @param {String} key - string
-     * @param {String} value - string
-     * @param {String|null} [value_type] - string
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.add_individual_annotation = function(model_id, indv_id,
-						key, value, value_type){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.add_annotation_to_individual(key, value, value_type, indv_id);
-
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger a rebuild response {module:bbop-response-barista} on an
-     * annotation addition to a referenced fact (edge) in a model.
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
-     * 
-     * @param {String} model_id - string
-     * @param {String} source_id - string
-     * @param {String} target_id - string
-     * @param {String} rel_id - string
-     * @param {String} key - string
-     * @param {String} value - string
-     * @param {String|null} [value_type] - string
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.add_fact_annotation = function(model_id,
-					  source_id, target_id, rel_id,
-					  key, value, value_type){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.add_annotation_to_fact(key, value, value_type,
-				    [source_id, target_id, rel_id]);
-
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger a rebuild response {module:bbop-response-barista} on an
-     * annotation addition to a model.
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
-     * 
-     * @param {String} model_id - string
-     * @param {String} key - string
-     * @param {String} value - string
-     * @param {String|null} [value_type] - string
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.add_model_annotation = function(model_id, key, value, value_type){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.add_annotation_to_model(key, value, value_type);
-
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger a rebuild response {module:bbop-response-barista} on an
-     * annotation removeal from an individual in a model.
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
-     * 
-     * @param {String} model_id - string
-     * @param {String} indv_id - string
-     * @param {String} key - string
-     * @param {String} value - string
-     * @param {String|null} [value_type] - string
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.remove_individual_annotation = function(model_id, indv_id,
-						   key, value, value_type){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.remove_annotation_from_individual(key, value, value_type, indv_id);
-
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger a rebuild response {module:bbop-response-barista} on an
-     * annotation removeal from a referenced fact (edge) in a model.
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
-     * 
-     * @param {String} model_id - string
-     * @param {String} source_id - string
-     * @param {String} target_id - string
-     * @param {String} rel_id - string
-     * @param {String} key - string
-     * @param {String} value - string
-     * @param {String|null} [value_type] - string
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.remove_fact_annotation = function(model_id,
-					     source_id, target_id, rel_id,
-					     key, value, value_type){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.remove_annotation_from_fact(key, value, value_type,
-					 [source_id, target_id, rel_id]);
-
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * Trigger a rebuild response {module:bbop-response-barista} on an
-     * annotation removal from a model.
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
-     * 
-     * @param {String} model_id - string
-     * @param {String} key - string
-     * @param {String} value - string
-     * @param {String|null} [value_type] - string
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.remove_model_annotation = function(model_id, key, value, value_type){
-
-	var reqs = new request_set(anchor.user_token(), model_id);
-	reqs.remove_annotation_from_model(key, value, value_type);
-
-	return anchor.request_with(reqs);
-    };
-    
-    /**
-     * WARNING: This is currently very very old code and is mostly
-     * here as a bookmark on where to restart.
-     * 
-     * Trigger a rebuild response {module:bbop-response-barista} on
-     * attempting to create a new model with information provided by
-     * Capella.
-     *
-     * If you're attempting to use this, you probably want to revisit
-     * everything and everbody first...
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
-     * 
-     * @param {Object} bootstrap_obj - JSON object ???
-     * @param {String} term2aspect - ???
-     * @returns {module:bbop-barista-response#response} barista response
-     */
-    anchor.capella_bootstrap_model = function(bootstrap_obj, term2aspect){
-
-	var reqs = new request_set(anchor.user_token());
-
-	// Just get a new model going.
-	var req = new request('model', 'generate-blank');
-	//req.special('db', db_id); // unecessary
-	reqs.add(req);
-
-	each(bootstrap_obj, function(ob){
-
-	    // Now, for each of these, we are going to be adding
-	    // stuff to MF instances. If there is no MF coming
-	    // in, we are just going to use GO:0003674.
-	    var mfs = [];
-	    var bps = [];
-	    var ccs = [];
-	    each(ob['terms'], function(tid){
-		if( term2aspect[tid] === 'molecular_function' ){
-		    mfs.push(tid);
-		}else if( term2aspect[tid] === 'biological_process' ){
-		    bps.push(tid);
-		}else if( term2aspect[tid] === 'cellular_component' ){
-		    ccs.push(tid);
+	// If not defined, just return the default list.
+	if( plist ){	    
+	    each(plist, function(item){
+		if( item === '+' ){
+		    phash['negative_p'] = false;
+		    //phash['positive_p'] = true;
+		}else if( item === '-' ){
+		    phash['negative_p'] = true;
+		    //phash['positive_p'] = false;
+		}else if( item === '*' ){
+		    phash['sticky_p'] = true;
+		    //phash['transient_p'] = false;
+		}else if( item === '$' ){
+		    phash['sticky_p'] = false;
+		    //phash['transient_p'] = true;
 		}
 	    });
-	    // There must be this no matter what.
-	    if( us.isEmpty(mfs) ){
- 		mfs.push('GO:0003674');
+	}
+
+	return phash;
+    };
+
+    /*
+     * Function: add_query_filter_as_string
+     *
+     * Setter for query filters ('fq'). Acts as a 
+     *
+     * Parameters: 
+     *  filter_string - filter (type) string (e.g. "-type:gene")
+     *  plist - *[optional]* list of properties of the filter
+     *
+     * Returns: 
+     *  (TODO) The current query filter hash.
+     * 
+     * See also:
+     *  <add_query_filter>
+     */
+    this.add_query_filter_as_string = function(filter_string, plist){
+	
+	// Split the incoming filter string into its component parts.
+	var f_v = bbop.first_split(':', filter_string);
+	var fname = f_v[0];
+	var fval = f_v[1];
+
+	// Need to shuck the value from the quotes, as in load_url.
+	fval = bbop.dequote(fval);
+
+	//var props = plist || ['$'];
+	var props = plist;
+
+	// Only continue on sensible inputs.
+	var ret = {};
+	if( fname !== '' && fval !== '' ){
+
+	    // Similar to the URL loader.
+	    var lead_char = fname.charAt(0);
+	    if( lead_char === '-' || lead_char === '+' ){
+		props.push(lead_char);
+		fname = fname.substr(1, fname.length -1);
+	    }
+	    
+	    ret = this.add_query_filter(fname, fval, props);
+	}
+
+	return ret;
+    };
+
+    /*
+     * Function: add_query_filter
+     *
+     * Setter for query filters ('fq').
+     *
+     * Parameters: 
+     *  filter - filter (type) string
+     *  value - filter value string (or TODO: defined logic hash)
+     *  plist - *[optional]* list of properties of the filter
+     *
+     * Returns: 
+     *  (TODO) The current query filter hash.
+     * 
+     * See also:
+     *  <plist_to_property_hash>
+     */
+    this.add_query_filter = function(filter, value, plist){
+	
+	// Make sure we've defined the group.
+	if( typeof(this.query_filters[filter]) === 'undefined' ){
+	    this.query_filters[filter] = {};
+	}
+
+	this.query_filters[filter][value] = this.plist_to_property_hash(plist);
+	
+	//ll("Current state: " + bbop.dump(this.query_filters));
+
+	return {}; // TODO
+    };
+
+    /*
+     * Function: remove_query_filter
+     *
+     * Remover for query filters ('fq'), is a plist is specified, it
+     * will only remove if all of the listed criteria are met.
+     *
+     * Parameters: 
+     *  filter - filter (type) string
+     *  value - filter value string (TODO: or defined logic hash)
+     *  plist - *[optional]* list of properties of the filter
+     *
+     * Returns: 
+     *  boolean (on success)
+     */
+    this.remove_query_filter = function(filter, value, plist){
+
+	// Default return value.
+	var retval = false;
+
+	// Internal helper to delete a low level key, and then if the
+	// top-level is empty, get that one too.
+	function _full_delete(hash, key1, key2){
+	    if( key1 && key2 && hash &&
+		hash[key1] && hash[key1][key2] ){
+		    delete hash[key1][key2];
+		}
+	    if( us.isEmpty(hash[key1]) ){
+		delete hash[key1];
+	    }
+	}
+
+	// If we have a filter, a value, and it's there...
+	if( filter && value &&
+	    anchor.query_filters[filter] &&
+	    anchor.query_filters[filter][value] ){
+
+		// If no real plist hash been defined, just go ahead
+		// and get rid of that. Otherwise, make sure that the
+		// defined plist and the stored properties are the
+		// same before deleting.
+		if( ! plist || us.isEmpty(plist) ){
+		    _full_delete(anchor.query_filters, filter, value);
+		    retval = true;
+		}else{
+		    
+		    var filter_phash = anchor.query_filters[filter][value];
+		    var in_phash = anchor.plist_to_property_hash(plist);
+		    
+		    if( bbop.is_same(filter_phash, in_phash) ){		
+			_full_delete(anchor.query_filters, filter, value);
+			retval = true;
+		    }
+		}
 	    }
 
-	    // We are going to be creating instances off of the
-	    // MFs.
-	    each(mfs, function(mf){
-		var req = new request('individual', 'add');
-			  
-		// Add in the occurs_in from CC.
-		each(ccs, function(cc){
-		    req.add_svf_expression(cc, 'occurs_in');
-		});
+	return retval;
+    };
 
-		// Add in the enabled_by from entities.
-		each(ob['entities'], function(ent){
-		    req.add_svf_expression(ent, 'RO:0002333');
-		});
+    /*
+     * Function: reset_query_filters
+     *
+     * Reset the query filters ('fq'); but leave sticky filters alone.
+     *
+     * Parameters: 
+     *  n/a
+     * 
+     * Returns: 
+     *  (TODO) The current query filter hash.
+     */
+    this.reset_query_filters = function(){
+
+	// Drill down and delete all non-stickies.
+	each(anchor.query_filters, function(values, filter){
+	    //ll('filter: ' + filter);
+	    each(values, function(props, value){
+		//ll('  value: ' + value);
+		var sticky_p = props['sticky_p'];
+		if( ! sticky_p ){
+		    //ll('hit: ' + filter + ', ' + value);
+		    anchor.remove_query_filter(filter, value);
+		}
+	    });
+	});
+	
+	return {}; // TODO
+    };
+
+    /*
+     * Function: get_query_filter_properties
+     *
+     * Get a hash representing a query filter ('fq').
+     *
+     * Parameters: 
+     *  key - filter string (TODO: or defined logic hash)
+     *
+     * Returns: 
+     *  The current query filter hash for key.
+     */
+    this.get_query_filter_properties = function(filter, value){
+
+	// Default return value.
+	var retobj = null;
+	
+	// If we have a key and it's there...
+	var aqf = anchor.query_filters;
+	if( filter && value && aqf[filter] && aqf[filter][value] ){
+	    retobj =
+		{
+		    'filter' : filter,
+		    'value' : value,
+		    //'polarity': aqf[filter][value]['negative_p'],
+		    'negative_p': aqf[filter][value]['negative_p'],
+		    'sticky_p': aqf[filter][value]['sticky_p']
+		};
+	}
+
+	return retobj;
+    };
+
+    /*
+     * Function: get_query_filters
+     *
+     * Get a list of hashes representing the query filters ('fq'). The
+     * return lists look like:
+     *
+     * : [{'filter': A, 'value': B, 'negative_p': C, 'sticky_p': D}, ...]
+     *
+     * Where A and B are strings and C and D are booleans.
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns: 
+     *  A list of the current query filter hashs.
+     */
+    this.get_query_filters = function(){
+
+	var retlist = [];	
+	each(anchor.query_filters, function(values, f){
+	    each(values, function(props, v){
+		retlist.push(anchor.get_query_filter_properties(f, v));
 	    });
 	});
 
-	// Final send-off.
-	return anchor.request_with(reqs);
+	return retlist;
+    };
+
+    /*
+     * Function: get_sticky_query_filters
+     *
+     * Get a list of hashes representing the current stucky query
+     * filters ('fq'). See <get_query_filters> for a specification of
+     * what the return type looks like.
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns: 
+     *  A list of the current sticky query filter hashs.
+     * 
+     * See also:
+     *  <get_query_filters>
+     */
+    this.get_sticky_query_filters = function(){
+
+	var retlist = [];	
+	each(anchor.query_filters, function(values, f){
+	    each(values, function(props, v){
+		var qfp = anchor.get_query_filter_properties(f, v);
+		if( qfp['sticky_p'] === true ){
+		    retlist.push(qfp);			      
+		}
+	    });
+	});
+
+	return retlist;
+    };
+
+    // A little extra thing that we might need sometimes.
+    this.query_extra = null;
+
+    // Spaces can cause problems in URLs in some environments.
+    //final_qurl = final_qurl.replace(/ /g, '%20');
+    // Convert the URL into something more usable.
+    // Because we internally use %09 as a special case, make sure
+    // we don't double-up on it.
+    this._query_encode = function(str_to_encode){
+
+	var fs1 = encodeURI(str_to_encode);
+	var fs2 = fs1.replace(/\%2509/g, '%09');
+
+	var final_encoding = fs2;
+	return final_encoding;
+    };
+
+    /*
+     * Function: filter_list_to_assemble_hash
+     *
+     * Get all of our query filter variables and try and make
+     * something of them that <get_assemble> can understand.
+     *
+     * Sticky doesn't matter here, but negativity does. However, we
+     * can be pretty naive since the hashing should have already taken
+     * out mutually exclusive dupes.
+     * 
+     * The argument is a list of query filter properties, as returned
+     * by <get_query_filters> and <get_sticky_query_filters>.
+     *
+     * Parameters:
+     *  flist - a list of query filter properties (see above)
+     *
+     * Returns:
+     *  hash of filter names to value lists
+     * 
+     * See also:
+     *  <get_query_filters>
+     *  <get_sticky_query_filters>
+     */
+    this.filter_list_to_assemble_hash = function(flist){
+	var h = {};
+	each(flist, function(filter_property){
+	    
+	    // Grab only the properties that affect the
+	    // URL.
+	    var filter = filter_property['filter'];
+	    var value = filter_property['value'];
+	    var negative_p = filter_property['negative_p'];
+	    
+	    // We need to alter at the filter level.
+	    if( negative_p ){
+		filter = '-' + filter;
+	    }
+	    
+	    // Make sure it is defined.
+	    if( typeof(h[filter]) === 'undefined' ){
+		h[filter] = [];
+	    }
+	    h[filter].push(value);
+	});
+	return h;
     };
     
-    /**
-     * Trigger a rebuild response {module:bbop-response-barista} on
-     * attempting to create a new model with information provided by
-     * a seed service.
-     *
-     * This code will 
-     *
-     * Intent: "action".
-     * Expect: "success" and "rebuild".
+    /*
+     * Function: sensible_query_p
      * 
-     * @param {String} process_id - the GOlr resolvable process identifier
-     * @param {String} taxon_id - the GOlr resolvable taxon identifier
-     * @returns {module:bbop-barista-response#response} barista response
+     * Simply ask the manager if a free text query ('q') makes sense
+     * at this point.
+     * 
+     * This currently means that the query text ('q') is three (3) or
+     * longer and that query fields ('qf') are defined.
+     * 
+     * This is an overridable opinion of the manager.
+     * 
+     * Parameters:
+     *  n/a
+     *
+     * Returns:
+     *  boolean
      */
-    anchor.seed_from_process = function(process_id, taxon_id){
+    this.sensible_query_p = function(qfs){
+	var retval = false;
+	var q = anchor.get_query();
+	var qf = anchor.query_field_set();
+	if( q && q.length >= 3 && qf && ! us.isEmpty(qf) ){
+	    retval = true;
+	}
+	return retval;
+    };
 
-	var reqs = new request_set(anchor.user_token());
+    /*
+     * Function: last_packet_sent
+     *
+     * It is up to the UI to do something interesting with this number.
+     * 
+     * Also remember that this number only rises through calls to
+     * <update> or one of its wrappers. Calls to <get_query_url> and
+     * the like will not affect this number.
+     * 
+     * Parameters:
+     *  n/a 
+     *
+     * Returns:
+     *  integer
+     * 
+     * See also:
+     *  <update>
+     */
+    this.last_packet_sent = function(){
+    	return anchor.last_sent_packet;
+    };
 
-	// Just get a new model going.
-	var req = new request('model', 'seed-from-process');
-	req.special('process', process_id);
-	req.special('taxon', taxon_id);
+    /*
+     * Function: clear
+     *
+     * Clear all non-sticky query parameters to get back to a more
+     * "original" state.
+     * 
+     * Not to be confused with <reset>.
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns:
+     *  n/a
+     */
+    this.clear = function(){
 
-	reqs.add(req);
+	// Reset 'q'.
+	anchor.query = anchor.default_query;
 
-	// Final send-off.
-	return anchor.request_with(reqs);
+	// Reset 'fq', all but sticky.
+	anchor.reset_query_filters();
+    };
+
+    /*
+     * Function: reset
+     *
+     * Manually trigger the "reset" chain of events.
+     *
+     * This is a curried wrapper for <update> and should be preferred
+     * over a direct call to update.
+     *
+     * Note to be confused with <clear>.
+     *
+     * Returns:
+     *  the query url (with the jQuery callback specific parameters)
+     * 
+     * See also:
+     *  <update>
+     */
+    this.reset = function(){
+	return anchor.update('reset');
+    };
+
+    /*
+     * Function: search
+     *
+     * Trigger the "search" chain of events.
+     * Takes a field-keyed hash of bbop.logics as an argument.
+     * 
+     * This is a curried wrapper for <update> and should be preferred
+     * over a direct call to update.
+     * 
+     * Parameters:
+     *  n/a
+     *
+     * Returns:
+     *  the query url (with the jQuery callback specific parameters)
+     * 
+     * See also:
+     *  <update>
+     */
+    this.search = function(){
+	return anchor.update('search');
+    };
+
+    /*
+     * Function: page
+     *
+     * Re-trigger the "search" chain of events, but with the variables
+     * set for a different section of the results.
+     * 
+     * Note that this operates independently of any impossibilites in
+     * the results--just how such paging would look and
+     * triggering. Ths UI should handle impossibilities and the like.
+     * 
+     * This is a wrapper for <update> and should be preferred over a
+     * direct call to update.
+     * 
+     * Parameters: 
+     *  rows - the number of rows to return
+     *  start - the offset of the rows to return
+     *
+     * Returns:
+     *  the query url (with the jQuery callback specific parameters)
+     * 
+     * See also:
+     *  <update>
+     */
+    this.page = function(rows, start){
+	anchor.set('rows', rows);
+	anchor.set('start', start);
+	return anchor.update('search', rows, start);
+    };
+
+    /*
+     * Function: page_first
+     *
+     * Currently a convenience alias for <search>. Think about it--it
+     * makes sense.
+     * 
+     * This is a wrapper for <page> and should be preferred over a
+     * direct call to page.
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns:
+     *  n/a
+     * 
+     * See also:
+     *  <page>
+     */
+    this.page_first = anchor.search;
+    
+    /*
+     * Function: page_previous
+     * 
+     * This is a wrapper for <page> and should be preferred over a
+     * direct call to page.
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns:
+     *  the query url (with the jQuery callback specific parameters)
+     * 
+     * See also:
+     *  <page>
+     */
+    this.page_previous = function(){
+	var do_rows = anchor.get_page_rows();
+	var do_offset = anchor.get_page_start() - do_rows;
+	return anchor.page(do_rows, do_offset);
     };
     
-    /**
-     * Make a custom request with your own request set.
-     *
-     * Depending on the mode that you set, in addition to running the
-     * callbacks as usual, it will either return a response object
-     * ("sync") or a deferred promise for the response object ("async").
-     *
-     * Intent: ??? - whatever you set
-     * Expect: "success" and ??? (depends on your request)
+    /*
+     * Function: page_next
      * 
-     * @param {module:minerva-requests#request_set} request_set
-     * @param {String} [model_id] - string
-     * @returns {Object} the deferred Q promise for the eventual response
+     * This is a wrapper for <page> and should be preferred over a
+     * direct call to page.
+     * 
+     * Parameters: 
+     *  the query url (with the jQuery callback specific parameters)
+     *
+     * Returns:
+     *  n/a
+     * 
+     * See also:
+     *  <page>
      */
-    anchor.request_with = function(request_set, model_id){
-
-	// For this manager, globally at the reasoner flag to outgoing
-	// requests if set.
-	if( anchor._use_reasoner_p ){
-	    request_set.use_reasoner(true);
+    this.page_next = function(){
+	var do_rows = anchor.get_page_rows();
+	var do_offset = anchor.get_page_start() + do_rows;
+	return anchor.page(do_rows, do_offset);
+    };
+    
+    /*
+     * Function: page_last
+     * 
+     * Trigger search on last page parameters.
+     * 
+     * Since the manager has no idea about what is actually being
+     * returned, the real world number of total documents needs to be
+     * added as an argument.
+     * 
+     * This is a wrapper for <page> and should be preferred over a
+     * direct call to page.
+     * 
+     * Parameters: 
+     *  total_document_count - integer for the total number of docs found
+     *
+     * Returns:
+     *  the query url (with the jQuery callback specific parameters)
+     * 
+     * See also:
+     *  <page>
+     */
+    this.page_last = function(total_document_count){
+	var do_rows = anchor.get_page_rows();
+	var mod = total_document_count % do_rows;
+	var do_offset = total_document_count - mod;
+	// ll("page_last: " + total_document_count + " " +
+	//    do_rows + " " + mod + " " + do_offset);
+	var ret = null;
+	if( mod === 0 ){
+	    ret = anchor.page(do_rows, do_offset - do_rows);
 	}else{
-	    request_set.use_reasoner(false);
+	    ret = anchor.page(do_rows, do_offset);
+	}
+	return ret;
+    };
+
+    /*
+     * Function: get_page_rows
+     *
+     * Return the number of rows the manager is currently set
+     * to. Useful as an argument to <page>.
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns:
+     *  integer; the number of rows the manager is currently set to
+     * 
+     * See also:
+     *  <page>
+     */
+    this.get_page_rows = function(){
+	return anchor.get('rows');
+    };
+
+    /*
+     * Function: get_page_start
+     *
+     * Return the rows offset the manager is currently set to. Useful
+     * as an argument to <page>.
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns:
+     *  integer; the offset the manager is currently set to
+     * 
+     * See also:
+     *  <page>
+     */
+    this.get_page_start = function(){
+	return anchor.get('start');
+    };
+
+    /*
+     * Function: add_query_field
+     * 
+     * Add a new query field to the query. 
+     * 
+     * This does not go through and expand into searchable fields, for
+     * that see: <query_field_set>.
+     *
+     * Parameters: 
+     *  qf - the query field to add
+     *  boost - *[optional]* defaults to 1.0
+     *
+     * Returns:
+     *  true or false on whether or not it is a new field
+     * 
+     * See also:
+     *  <query_field_set>
+     */
+    this.add_query_field = function(qf, boost){
+	
+	var retval = false;
+
+	// Make sure that some boost is there.
+	if( typeof(boost) === 'undefined' ){
+	    boost = 1.0;
 	}
 
-	// Assembly. Using callable() here seems to cause double
-	// encoding, so we're doing it a little more manually.
-	//var args = request_set.callable();
-	var args = request_set.structure();
-	//console.log('_args', args);
-	var reqs = args['requests'];
-	var str = JSON.stringify(reqs);
-	//var enc = encodeURIComponent(str);
-	args['requests'] = str;
+	// Check.
+	if( typeof(anchor.query_fields[qf]) === 'undefined' ){
+	    retval = true;
+	}
 
-	//console.log('_batch_url', anchor._batch_url);
-	//console.log('_request_set', request_set);
-	//console.log('_args', args);
+	// Add.
+	anchor.query_fields[qf] = boost;
 
-	// Take care of prerun now (postrun handled elsewhere).
-    	anchor.apply_callbacks('prerun', [anchor]);
+	return retval;
+    };
 
-	// Get what ever output and move on. We'll need to switch on
-	// whatever our target URL is.
-	var thing = null;
-	// Check if known seeding, then direct to known seeding service.
-	var rs = request_set.structure();
-	if( rs && rs['requests'] && rs['requests'][0] &&
-	    rs['requests'][0]['operation'] &&
-	    rs['requests'][0]['operation'] === 'seed-from-process' ){
-		// seed
-		//console.log('running to seeder');
-		thing = anchor._runner(anchor._seed_url, args);
+    /*
+     * Function: query_field_set
+     *
+     * Bulk getter/setter for the query fields--the fields that are
+     * searched (and by what weight) when using a query ('q' or
+     * set_query(), i.e. the 'qf' field).
+     * 
+     * This will always use searchable fields if possible,
+     * automatically replacing the non-searchable versions (I can't
+     * think of any reason to use non-searchable versions unless you
+     * want your searches to not work) if a personality is set. If no
+     * personality is set, it will just use the arguments as-is.
+     * 
+     * The argument replaces the current set.
+     *
+     * The qfs argument should be a hash like:
+     * 
+     *  {'field01': value01, ...}
+     * 
+     * Parameters: 
+     *  qfs - *[optional]* query fields to set
+     *
+     * Returns:
+     *  the current query_fields array (e.g. ["field01^value01", ...])
+     */
+    this.query_field_set = function(qfs){
+
+	// Covenience.
+	var cclass = anchor._current_class;
+
+	// Only do something if we have a query field set.
+	if( qfs ){
+	    
+	    // Only do the probing if a personality has been set.
+	    if( cclass ){
+
+		// Get the current searchable extension string from
+		// the personality class.
+		//var s_ext = cclass.searchable_extension();
+		// Actually, we're going to make this non-variable.
+		var s_ext = '_searchable';
+
+		// Probe the input to see if there are any searchable
+		// alternatives to try, use those instead.
+		var searchable_qfs = {};
+		each(qfs, function(value, filter){
+		    // If the probe fails, just put in
+		    // whatever is there.
+		    var cfield = cclass.get_field(filter);
+		    if( cfield && cfield.searchable() ){
+			//ll('filter/value:');
+			var new_f = filter + s_ext;
+			searchable_qfs[new_f] = value;
+		    }else{
+			searchable_qfs[filter] = value;
+		    }
+	    	});
+		qfs = searchable_qfs;
+	    }	    
+	    
+	    // Overwrite the current.
+	    anchor.query_fields = qfs;
+	}
+	
+	// Using the original information, convert them to the
+	// proper output format.
+	var output_format = [];
+	each(anchor.query_fields, function(value, filter){
+	    output_format.push(filter + '^' + value);
+	});
+	return output_format;
+    };
+
+    /*
+     * Function: facets
+     *
+     * Bulk getter/setter for facets (technically 'facet.field').
+     *
+     * Parameters: 
+     *  key - *[optional]* facet to add to the facet list
+     *
+     * Parameters: 
+     *  list - *[optional]* list to replace the current list with
+     *
+     * Returns:
+     *  the current facets hash.
+     */
+    this.facets = function(list_or_key){
+	if( list_or_key ){
+	    if( bbop.what_is(list_or_key) !== 'array' ){
+		// Arrayify it.
+		list_or_key = [list_or_key];
 	    }else{
-		// batch
-		thing = anchor._runner(anchor._batch_url, args);
+		// When there is a list, we are replacing the whole
+		// thing, so let's just poof it out of existance.
+		anchor.facet_fields = {};
+	    }
+	    each(list_or_key, function(item){
+		anchor.facet_fields[item] = true;
+	    });
+	}
+	return us.keys(anchor.facet_fields);
+    };
+
+    /*
+     * Function: set_default_query
+     *
+     * Setter for the default query for the query variable ('q').
+     * 
+     * Call <reset_query> if you want to affect query immediately.
+     * 
+     * Parameters: 
+     *  new_default_query - new default query string (or TODO: <bbop.logic>)
+     *
+     * Returns:
+     *  the current setting of default query for ('q')
+     */
+    this.set_default_query = function(new_default_query){
+	anchor.default_query = new_default_query;
+	return anchor.default_query;
+    };
+
+    // /*
+    //  * Function: set_first_run_query
+    //  *
+    //  * Setter for a first run query.  Normally, when <reset_query>, or
+    //  * related method, is executed, we reset back to the default
+    //  * query. This method sets a one time variable so a non empty
+    //  * value can be used for the first reset.
+    //  * 
+    //  * Call <reset_query> if you want to affect query immediately.
+    //  * 
+    //  * Parameters: 
+    //  *  first_run_query - query_string (or TODO: <bbop.logic>)
+    //  *
+    //  * Returns:
+    //  *  the current setting of default query for ('q')
+    //  */
+    // this.set_first_run_query = function(first_run_query){
+    // 	anchor.default_query = new_default_query;
+    // 	return anchor.default_query;
+    // };
+
+    /*
+     * Function: reset_default_query
+     *
+     * Reset the default query back to "*:*".
+     * 
+     * Call <reset_query> if you want to affect query immediately.
+     * 
+     * Parameters:
+     *  n/a
+     *
+     * Returns:
+     *  the current setting of default query ('q')
+     */
+    this.reset_default_query = function(){
+	anchor.default_query = anchor.fundamental_query;
+	return anchor.default_query;
+    };
+
+    /*
+     * Function: set_query
+     *
+     * Setter for the query variable ('q').
+     * 
+     * Parameters: 
+     *  new_query - new value for the query string (or TODO: <bbop.logic>)
+     *
+     * Returns:
+     *  the current setting of query ('q')
+     * 
+     * Also see:
+     *  <set_comfy_query>
+     */
+    this.set_query = function(new_query){
+	anchor.query = new_query;
+	return anchor.query;
+    };
+
+    /*
+     * Function: set_comfy_query
+     *
+     * A specialized setter for the query variable ('q'), as follows:
+     *
+     * If the input is all alphanum or space, the input is
+     * tokenized. If there is one token, if it is at least three
+     * characters, gets a wildcard '*'; if there are more tokens, the
+     * last one gets a wild card.
+     * 
+     * This might be a more comfortable way to search for most naive
+     * (non-power user) interfaces.
+     * 
+     * Parameters: 
+     *  new_query - new value for the query string (or TODO: <bbop.logic>)
+     *
+     * Returns:
+     *  the current setting of query ('q')
+     * 
+     * Also see:
+     *  <set_query>
+     */
+    this.set_comfy_query = function(new_query){
+
+	var comfy_query = new_query;
+
+	// Check that there is something there.
+	if( new_query && new_query.length && new_query.length > 0 ){
+
+	    // Check if the last real input has a space after it.
+	    var has_cursor_p = true;
+	    if( new_query.slice(-1) === ' ' ){
+		has_cursor_p = false;
+	    }
+
+	    // Now chomp it down again to get rid of whitespace.
+	    new_query = bbop.chomp(new_query);
+
+	    // Check (again) that there is something there.
+	    if( new_query && new_query.length && new_query.length > 0 ){
+
+		// That it is alphanum+space-ish and that we actually
+		// might want to add a wildcard (i.e. has cursor).
+		if( alphanum.test(new_query) && has_cursor_p ){
+	    
+		    // Break it into tokens and get the last.
+		    var tokens = new_query.split(new RegExp('\\s+'));
+		    var last_token = tokens[tokens.length -1];
+		    //ll('last: ' + last_token);
+		
+		    if( tokens.length === 1 ){
+			
+			// If it is three or more, add the wildcard.
+			if( last_token.length >= 3 ){
+			    tokens[tokens.length -1] = last_token + '*';
+			}
+		    }else{
+			tokens[tokens.length -1] = last_token + '*';
+		    }
+		    // And join it all back into our comfy query.
+		    comfy_query = tokens.join(' ');
+		}
+	    }
+	}
+
+	// Kick it back to the normal set_query.
+	return anchor.set_query(comfy_query);
+    };
+
+    /*
+     * Function: set_id
+     *
+     * A limited setter, removing whatever else is on query. This is
+     * for when you want to lock into one (unique) document by id
+     * (essentially 'q=id:"foo"'). All other query operations behave
+     * as they should around it.
+     * 
+     * Parameters: 
+     *  new_id - string id
+     *
+     * Returns:
+     *  the current setting of query ('q')
+     * 
+     * Also see:
+     *  <set_ids>
+     */
+    this.set_id = function(new_id){
+	anchor.query = 'id:' + bbop.ensure(new_id, '"');
+	return anchor.query;
+    };
+
+    // Function to unwind and lock a list if identifiers onto a field.
+    function _lock_map(field, id_list){
+	var fixed_list = [];
+	each(id_list, function(item){
+	    fixed_list.push(bbop.ensure(item, '"'));
+	});
+	
+	var base_id_list = '(' + fixed_list.join(' OR ') + ')';
+
+	var ret_query = field + ':' + base_id_list;
+	return ret_query;
+	
+    }
+
+    /*
+     * Function: set_ids
+     *
+     * Like <set_id>, a limited setter. It removes whatever else is on
+     * query and replaces it with something like:
+     * 
+     * : gm.set_ids(['GO:1', 'GO:2'])
+     * 
+     * This is for when you want to lock into a set of documents by id. All
+     * other query operations behave as they should around it.
+     * 
+     * Parameters: 
+     *  id_list - a list of ids to search for
+     *
+     * Returns:
+     *  the current setting of query ('q')
+     * 
+     * Also see:
+     *  <set_ids>
+     */
+    this.set_ids = function(id_list){
+	anchor.query = _lock_map('id', id_list);
+	return anchor.query;
+    };
+
+    /*
+     * Function: set_targets
+     *
+     * Like a more generalized version of <set_ids>, a limited. It
+     * removes whatever else is on query and replaces it with
+     * something like:
+     * 
+     * : gm.set_targets(['GO:1', 'GO:2'], ['field_1', 'field_2'])
+     * 
+     * This is for when you want to lock into a set of documents by
+     * locking onto identifiers in some set of search fields. All
+     * other query operations behave as they should around it.
+     * 
+     * Parameters: 
+     *  id_list - a list of ids to search for
+     *  field_list - a list of fields ids to search across
+     *
+     * Returns:
+     *  the current setting of query ('q')
+     * 
+     * Also see:
+     *  <set_ids>
+     */
+    this.set_targets = function(id_list, field_list){
+
+	var fixed_list = [];
+	each(field_list, function(field){
+	    fixed_list.push(_lock_map(field, id_list));
+	});
+
+	var sum = fixed_list.join(' OR ');
+
+	anchor.query = sum;
+	return anchor.query;
+    };
+
+    /*
+     * Function: get_query
+     *
+     * Getter for the query variable ('q').
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns:
+     *  the current setting of extra
+     */
+    this.get_query = function(){
+	return anchor.query;
+    };
+
+    /*
+     * Function: get_default_query
+     *
+     * Getter for what the query variable 'q' will be set to on a
+     * <reset_query>.
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns:
+     *  the current setting of the default query
+     */
+    this.get_default_query = function(){
+	return anchor.default_query;
+    };
+
+    /*
+     * Function: get_fundamental_query
+     *
+     * Getter for what the query variable 'q' will be set to on a
+     * <reset_default_query>.
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns:
+     *  the current setting of the fundamental default query
+     */
+    this.get_fundamental_query = function(){
+	return anchor.fundamental_query;
+    };
+
+    /*
+     * Function: get_query
+     *
+     * Getter for the query variable ('q').
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns:
+     *  the current setting of extra
+     */
+    this.get_query = function(){
+	return anchor.query;
+    };
+
+    /*
+     * Function: reset_query
+     *
+     * Remove/reset the query variable ('q'); this set it back to the
+     * default query.
+     *
+     * Parameters:
+     *  none
+     *
+     * Returns:
+     *  the current value of query
+     * 
+     * Also see:
+     *  <set_default_query>
+     *  <reset_default_query>
+     */
+    this.reset_query = function(){
+	anchor.query = anchor.default_query;
+	ll('reset query to default: ' + anchor.query);
+	return anchor.query;
+    };
+
+    /*
+     * Function: set_extra
+     *
+     * Setter for the internal string variable to be appended to the
+     * end of a query. For special use cases only (e.g. extend
+     * functionality of the API safely).
+     * 
+     * Parameters: 
+     *  new_extra - *[optional]* new value for the extras string
+     *
+     * Returns:
+     *  the current setting of extra
+     */
+    this.set_extra = function(new_extra){
+	anchor.query_extra = new_extra;
+	return anchor.query_extra;
+    };
+
+    /*
+     * Function: get_extra
+     *
+     * Getter for the internal string variable to be appended
+     * to the end of a query.
+     *
+     * Parameters: 
+     *  n/a
+     *
+     * Returns:
+     *  the current setting of extra
+     */
+    this.get_extra = anchor.set_extra;
+
+    /*
+     * Function: remove_extra
+     *
+     * Remove/reset the extra bit.
+     *
+     * Parameters:
+     *  none
+     *
+     * Returns:
+     *  ""
+     */
+    this.remove_extra = function(){
+	anchor.query_extra = "";
+	return anchor.query_extra;
+    };
+
+    /*
+     * Function: set
+     *
+     * Set an internal variable for the query. The internal variables
+     * are typically things like 'qt', 'indent', etc.--things that you
+     * might set and forget a while. It does /not/ include highly
+     * dynamic variables (like callback and packet) or querying
+     * variables like 'q' and 'fq'; for those you need to use the API.
+     *
+     * Parameters: 
+     *  key - the name of the parameter to change
+     *  new_val - what you want the new value to be
+     *
+     * Returns:
+     *  n/a
+     */
+    this.set = function(key, new_val){
+	anchor.query_variants[key] = new_val;
+    };
+
+    /*
+     * Function: get
+     *
+     * Get an internal variable for the query.
+     *
+     * See <set> for the kinds of parameters that can be read.
+     * 
+     * Parameters: 
+     *  key - the name of the parameter to get
+     *
+     * Returns:
+     *  The found value of the key.
+     */
+    this.get = function(key){
+	return anchor.query_variants[key];
+    };
+
+    /*
+     * Function: unset
+     *
+     * Unset (remove) an internal variable for the query. Only usable on certain types of 
+     * 
+     * Only use is you really know what you're doing.
+     *
+     * Parameters: 
+     *  key - the name of the parameter to unset/remove
+     *
+     * Returns:
+     *  boolean; true false on whether the key was found
+     */
+    this.unset = function(key){
+	var retval = false;
+
+	if( typeof(anchor.query_variants[key]) !== 'undefined' ){
+	    retval = true;
+	    delete anchor.query_variants[key];
+	}
+
+	return retval;
+    };
+
+    /*
+     * Function: include_highlighting
+     *
+     * Turn hilighting on or off (with true or false).
+     * 
+     * This essentially adds the parameters to the query string to
+     * make sure that basic highlighting on the search is returned.
+     * 
+     * It starts off as false. The optional html_elt_str argument
+     * defaults to:
+     *  : <em class="hilite">
+     *
+     * Parameters: 
+     *  hilite_p - *[optional]* boolean
+     *  html_elt_str - *[serially optional]* the HTML element string to use
+     *
+     * Returns:
+     *  either false or the current string being used for the return element
+     */
+    this.include_highlighting = function(hilite_p, html_elt_str){
+	var retval = false;
+
+	if( typeof(hilite_p) !== 'undefined' &&
+	    (hilite_p === true || hilite_p === false) ){
+	    if( hilite_p === true ){
+
+		// Set the default string if necessary.
+		if( ! html_elt_str ){ html_elt_str = '<em class="hilite">'; }
+
+		// Set the parameters.
+		anchor.set('hl', 'true');
+		anchor.set('hl.simple.pre', html_elt_str);
+
+		// And the retval is not longer false.
+		retval = html_elt_str;
+
+	    }else{
+		
+		// Unset the parameters.
+		anchor.unset('hl');
+		anchor.unset('hl.simple.pre');
+	    }
+
+	}else{
+	    // Otherwise, just discover the current state and return
+	    // it.
+	    var cl_tmp = anchor.get('hl.simple.pre');
+	    if( typeof(cl_tmp) !== 'undefined' ){
+		retval = cl_tmp;
+	    }
+	}
+
+	return retval;
+    };
+
+    /*
+     * Function: set_personality
+     *
+     * While we are always contacting the same Solr instance, we
+     * sometimes want to have different weights, facets, etc. This
+     * function allows us to use the pre-set ones defined in the
+     * constructor configuration argument.
+     * 
+     * Currently, this only sets the 'facet.field' internal variable.
+     *
+     * Parameters: 
+     *  personality_id - string
+     *
+     * Returns:
+     *  Will return false if personality doesn't exist
+     */
+    this.set_personality = function(personality_id){
+	var retval = false;
+
+	// This sets the facet.field internal variable.
+	var cclass = anchor._golr_conf.get_class(personality_id);
+	if( cclass ){
+
+	    // Remember what our personality is.
+	    // WARNING: this line must go before the query_field_set
+	    // line below, or else we won't get the "smart" search.
+	    this._current_class = cclass;
+
+	    // Set the facets for our class.
+	    anchor.facets(cclass.field_order_by_weight('filter'));
+
+	    // Set the query field weights ('qf') necessary to make
+	    // queries run properly.
+	    anchor.query_field_set(cclass.get_weights('boost'));
+	    
+	    // Show that we did indeed set a personality.
+	    retval = true;
+	}
+
+	return retval;
+    };
+
+    /*
+     * Function: get_personality
+     *
+     * Returns the current personality, null if none.
+     * 
+     * Parameters: 
+     *  n/a
+     *
+     * Returns:
+     *  Returns the current personality as a string, null if none is set
+     */
+    this.get_personality = function(){
+	var retval = null;
+
+	if( typeof(anchor._current_class) !== 'undefined' &&
+	    bbop.what_is(anchor._current_class) === 'golr-conf.conf_class'){
+	    retval = anchor._current_class.id();
+	}
+
+	return retval;
+    };
+
+    /*
+     * Function: get_query_url
+     *
+     * Get the current invariant state of the manager returned as a
+     * encoded URL string (using encodeURI()).
+     * 
+     * This means the URL for the current query to the GOlr store, but
+     * without extra information about packets, callbacks, and the
+     * like.
+     * 
+     * This is generally appropriate for getting data, but maybe not
+     * for things like high-speed autocomplete where races can
+     * occur. For those, you might want to consider <update> or
+     * <search>.
+     *
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  URL string
+     * 
+     * Also see:
+     *  <update>, <search>
+     */
+    this.get_query_url = function(){
+
+	// Structure of the necessary invariant parts.	
+	var qurl = anchor._solr_url + 'select?';
+
+	// Filters to assemble.
+	var assemf = anchor.get_query_filters();
+	var fq = anchor.filter_list_to_assemble_hash(assemf);
+
+	// Add all of our different specialized hashes.
+	var things_to_add = [
+	    //bbop.get_assemble(anchor.query_invariants),
+	    //bbop.get_assemble(anchor.query_facets),
+	    bbop.get_assemble(anchor.query_variants),
+	    bbop.get_assemble(anchor.current_facet_field_limits),
+	    //bbop.get_assemble({'fq': anchor.query_sticky_filters}),
+	    bbop.get_assemble({'fq': fq}),
+	    bbop.get_assemble({'facet.field':
+			       us.keys(anchor.facet_fields)}),
+	    bbop.get_assemble({'q': anchor.query}),
+	    anchor.query_extra
+	];
+	// Add query_fields ('qf') iff query ('q') is set and it is
+	// not length 0.
+	if( anchor.query &&
+	    anchor.query.length &&
+	    anchor.query.length !== 0 &&
+	    anchor.query !== anchor.fundamental_query ){
+		var in_qf =
+		    bbop.get_assemble({'qf': anchor.query_field_set()});
+		things_to_add.push(in_qf);
 	    }
 	
-	return thing;
-    };    
-    
+	// Assemble the assemblies into a single URL, throw out
+	// everything that seems like it isn't real to keep the URL as
+	// clean a possible.
+	var filtered_things =
+		bbop.pare(things_to_add, function(item, index){
+		    var retval = true;
+		    if( item && item !== '' ){
+			retval = false;
+		    }
+		    return retval;
+		});
+
+	var final_qurl = qurl + filtered_things.join('&');
+	final_qurl = anchor._query_encode(final_qurl);
+	ll('qurl: ' + final_qurl);
+    	return final_qurl;
+    };
+
+    /*
+     * Function: push_excursion
+     *
+     * Save the current state of the manager--data and sticky filter
+     * information--onto an internal stack. Batch information is not
+     * stored.
+     * 
+     * Useful for gettinginto a state, doing something else, then
+     * returning to the original state.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  the number of items on the excursion stack
+     * 
+     * Also see:
+     *  <get_query_url>
+     *  <pop_excursion>
+     */
+    this.push_excursion = function(){
+	
+	var now = {
+	    // Save current state (data).
+	    data_url: anchor.get_query_url(),
+	    // Save current state (session).
+	    session: {
+		// Get the sticky filters.
+		sticky_filters: anchor.get_sticky_query_filters()
+	    }
+	};
+
+	// Save.
+	anchor._excursions.push(now);
+
+	// ...
+    	return anchor._excursions.length;
+    };
+
+    /*
+     * Function: pop_excursion
+     *
+     * Return to a previously pushed state. Batch items are not
+     * recovered.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  boolean on whether a state was recovered
+     * 
+     * Also see:
+     *  <get_query_url>
+     *  <gpush_excursion>
+     */
+    this.pop_excursion = function(){
+	
+	var retval = false;
+
+	var then = anchor._excursions.pop();
+	if( then ){
+	    retval = true;
+
+	    // Recover data state.
+	    var then_data_url = then['data_url'];
+	    anchor.load_url(then_data_url);
+
+	    // Recover the session state.
+	    var then_session_stickies = then['session']['sticky_filters'];
+	    // Add the sticky filters.
+	    each(then_session_stickies, function(sticky){
+		var flt = sticky['filter'];
+		var fvl = sticky['value'];
+		var fpl = [];
+		if( sticky['negative_p'] === true ){
+		    fpl.push('-');
+		}
+		if( sticky['sticky_p'] === true ){
+		    fpl.push('*');
+		}
+		anchor.add_query_filter(flt, fvl, fpl);
+	    });	    
+	}
+	
+    	return retval;
+    };
+
+    /*
+     * Function: get_download_url
+     *
+     * Get the current invariant state of the manager returned as a
+     * URL string.
+     * 
+     * This differs from <get_query_url> in that the generated string
+     * is intended for text-processing uses rather than computerized
+     * searching uses. The idea where is to create a TSV file for
+     * downloading and consumption.
+     * 
+     * Instead of downloading all of the results, a limited listed set
+     * can be downloaded using entity_list, which identifies documents by id.
+     * 
+     * The optional argument hash looks like:
+     *  rows - the number of rows to return; defaults to: 1000
+     *  encapsulator - how to enclose whitespace fields; defaults to: ""
+     *  separator - separator between fields; defaults to: "%09" (tab)
+     *  header - whether or not to show headers; defaults to: "false"
+     *  mv_separator - separator for multi-valued fields; defaults to: "|"
+     *  entity_list - list of specific download items in results; default null
+     * 
+     * With the entity list, keep in mind that null and an empty list
+     * are handled in pretty much the same way--they are an indication
+     * that we are going after nothing specific, and so all results
+     * are game.
+     * 
+     * Parameters:
+     *  field_list - a list of fields to return
+     *  in_arg_hash - *[optional]* additional optional arguments
+     * 
+     * Returns:
+     *  URL string
+     * 
+     * Also see:
+     *  <get_query_url>
+     */
+    this.get_download_url = function(field_list, in_arg_hash){
+	
+	// Save current state.
+	anchor.push_excursion();
+
+	// Deal with getting arguments in properly.
+	var default_hash =
+	    {
+		rows : 1000,
+		encapsulator : '',
+		separator : "%09",
+		header : 'false',
+		mv_separator : "|",
+		entity_list : []
+	    };
+	var arg_hash = bbop.fold(default_hash, in_arg_hash);
+
+	// Make the changes we want.
+	anchor.set('wt', 'csv');
+	anchor.set('start', 0);
+	anchor.set('fl', field_list.join(','));
+	anchor.set('rows', arg_hash['rows']);
+	anchor.set('csv.encapsulator', arg_hash['encapsulator']);
+	anchor.set('csv.separator', arg_hash['separator']);
+	anchor.set('csv.header', arg_hash['header']);
+	anchor.set('csv.mv.separator', arg_hash['mv_separator']);
+
+	// A little more tricky, jimmy the entity list into the query
+	// if it's viable.
+	var entity_list = arg_hash['entity_list'];
+	if( typeof(entity_list) !== 'undefined' &&
+	    us.isArray(entity_list) &&
+	    entity_list.length > 0 ){
+		anchor.set_ids(entity_list);
+	}
+
+	// Get url.
+	var returl = anchor.get_query_url();
+
+	// Reset the old state.
+	anchor.pop_excursion();
+
+    	return returl;
+    };
+
+    /*
+     * Function: get_filter_query_string
+     *
+     * Get the current state of the manager, as defined by the current
+     * gross filter set--query, sticky filters, and standard filters--
+     * returned as a URL query string (sans the '?').
+     * 
+     * This differs from <get_query_url> and <get_state_url> in that
+     * the generated string is intended for applications that may want
+     * just enough information to recover filter state when the
+     * personality, and other types of information, are already
+     * known. It is intended to be part of a light RESTy bookmarking
+     * mechanism in larger application.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  query string for current filters (sans the '?')
+     * 
+     * Also see:
+     *  <get_query_url>
+     *  <get_state_url>
+     */
+    this.get_filter_query_string = function(){
+	
+	// // Save current state.
+	// anchor.push_excursion();
+
+	var q = anchor.get_query();
+
+	// Get the filters and sort them into sticky and "normal"
+	// sets.
+	var filters = anchor.get_query_filters();
+	var std_filters = [];
+	var sticky_filters = [];
+	each(filters, function(filter){
+	    if( filter['sticky_p'] ){
+		sticky_filters.push(filter);
+	    }else{
+		std_filters.push(filter);
+	    }
+	});
+	
+	var fq = anchor.filter_list_to_assemble_hash(std_filters);
+	var sfq = anchor.filter_list_to_assemble_hash(sticky_filters);
+
+	var things_to_add = [];
+	if( q ){
+	    things_to_add.push(bbop.get_assemble({'q': q}));
+	}
+	if( ! us.isEmpty(fq) ){
+	    things_to_add.push(bbop.get_assemble({'fq': fq}));
+	}
+	if( ! us.isEmpty(sfq) ){
+	    things_to_add.push(bbop.get_assemble({'sfq': sfq}));
+	}
+	    
+	// // Reset the old state.
+	// anchor.pop_excursion();
+
+	var final_qstr = things_to_add.join('&');
+	final_qstr = anchor._query_encode(final_qstr);
+    	return final_qstr;
+    };
+
+    /*
+     * Function: get_state_url
+     *
+     * Get the current invariant state of the manager, plus the
+     * current personality as a parameter, returned as a URL string.
+     * 
+     * This differs from <get_query_url> in that the generated string
+     * is intended for applications that may want a little more
+     * information and hinting over just what the current search
+     * is. This method essentially parameterizes some of the "hidden
+     * state" of the manager.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  URL string
+     * 
+     * Also see:
+     *  <get_query_url>
+     */
+    this.get_state_url = function(){
+	
+	// Save current state.
+	anchor.push_excursion();
+
+	// Make the changes we want. First, physically set the
+	// "personality", then set pins for jump-in recovery.
+	anchor.set('personality', anchor.get_personality());
+
+	// Explicitly set sticky pins for later recovery.
+	// Do this pretty much exactly like we do for get_query_url().
+	var sticky_filters = anchor.get_sticky_query_filters();
+	var sfq = anchor.filter_list_to_assemble_hash(sticky_filters);
+	anchor.set('sfq', sfq);
+	
+	// Get url.
+	var returl = anchor.get_query_url();
+
+	// Reset the old state.
+	anchor.pop_excursion();
+
+    	return returl;
+    };
+
+    /*
+     * Function: load_url
+     *
+     * Makes a a best attempt to recover the state of a manager from
+     * the clues left in a data url. This can also (and probably
+     * should) be thought of as a "load bookmark"
+     * function. Theoretically, you should even be able to use
+     * "bookmarks" from alien installations.
+     * 
+     * Note that while this recovers enough to get the same data,
+     * certain "session"/"preference" type things that are not encoded
+     * in the url (e.g. filter stickiness, the contents of batch
+     * queues, non-default base queries, etc.) will not be replayed
+     * and must be recovered or guessed on an app by app basis..
+     * 
+     * Warning: this currently only replays a small subset of possible
+     * parameters. Currently: personality, q, fq, ???. In the future,
+     * this should no all non-session information.
+     * 
+     * Warning: Because there is more to bookmarks than just the major
+     * stuff, variants not supplied in the bookmark will be removed.
+     * 
+     * This returns true if the parameter portions of the new and
+     * bookmark urls match. However, this is often not the case--think
+     * shifting personalities, etc.
+     * 
+     * Parameters:
+     *  url - A URL string generated by a manager's get_query_url (or similar)
+     * 
+     * Returns:
+     *  boolean
+     */
+    this.load_url = function(url){
+
+	// // Some Regexps that would be nice to just compile once.
+	// var regexp_url_space = /\%20/g; // '%20' === ' '
+	// var regexp_url_quote = /\%22/g; // '%22' === '"'
+	// var regexp_url_left_paren = /\%28/g; // '%28' === '('
+	// var regexp_url_right_paren = /\%29/g; // '%29' === ')'
+
+	// We are assuming that we are consuming our own URLs from
+	// get_query_url(), so we start by attempting to decode it
+	// (TODO: need a tab watch here)?
+	var decoded_url = decodeURI(url);
+
+	// Break down url.
+	var in_params = bbop.url_parameters(decoded_url);
+
+	// First, look for the personality setting and invoke it if
+	// it's there--it will dominate unless we take care of it first.
+	// Also note the all the keys that we see (for later erasure
+	// of excess).
+	var seen_params = {};
+	each(in_params, function(ip){
+	    var key = ip[0];
+	    var val = ip[1];
+	    if( key === 'personality' && val && val !== '' ){
+		anchor.set_personality(val);
+	    }
+	    seen_params[key] = true;
+	});
+	
+	// Now cycle through the the parameters again and invoke the
+	// appropriate functions to bring them in line.
+	var sticky_cache = {};
+	each(in_params, function(ip){
+	    var key = ip[0];
+	    var val = ip[1];
+	    if( typeof(val) !== 'undefined' && val !== '' ){
+		if( key === 'personality' ){
+		    // Already did it, skip.
+		}else if( key === 'q' ){
+		    anchor.set_query(val);
+		}else if( key === 'fq' || key === 'sfq' ){
+		    // Split the fq (or sfq) parameter.
+		    var fnv = bbop.first_split(':', val);
+		    var fname = fnv[0];
+		    var fval = fnv[1];
+		    //ll('HERE: fname: ' + fname);
+		    //ll('HERE: fval: ' + fval);
+		    if( fname && fval ){
+			
+			var plist = [];
+			
+			// Remove leading sign on a filter and
+			// add it to the plist.
+			var lead_char = fname.charAt(0);
+			if( lead_char === '-' || lead_char === '+' ){
+			    plist.push(lead_char);
+			    fname = fname.substr(1, fname.length -1);
+			}
+			
+			// // TODO: 
+			// // If the fval looks like it has not been
+			// // decoded (like from a URL-safe
+			// // bookmark), go ahead and do so.
+			// fval = fval.replace(regexp_url_space, ' ');
+			// fval = fval.replace(regexp_url_quote, '"');
+			// fval = fval.replace(regexp_url_left_paren, '(');
+			// fval = fval.replace(regexp_url_right_paren,')');
+			
+			// Do not allow quotes in--they will be
+			// added by the assembler.
+			fval = bbop.dequote(fval);
+			
+			// Make it sticky it it came in on "sfq".
+			// Note if this is the sticky form.
+			var skey = fname + '^' + fval;
+			if( key === 'sfq' ){
+			    sticky_cache[skey] = true;
+			    plist.push('*');
+			}
+			
+			// Add the query filter properly, but
+			// only if we have not already added the
+			// sticky form (prevent clobbering).
+			if( ! bbop.is_defined(sticky_cache[skey]) ||
+			    key === 'sfq'){
+			    anchor.add_query_filter(fname, fval, plist);
+			    
+			}
+		    }
+		}else if( key === 'qf' ){
+		    // qf is handles a little strangely...
+		    var foo = bbop.first_split('^', val);
+		    //ll('qf: key: '+ key +', val: '+ val +', foo: '+ foo);
+		    anchor.add_query_field(foo[0], foo[1]);
+		}else if( key === 'facet.field' ){
+		    anchor.facets(val);
+		}else if( key === 'start' || key === 'rows' ){
+		    // Numbers need to be handled carefully.
+		    if( bbop.what_is(val) === 'string' ){
+			val = parseFloat(val);
+		    }
+		    anchor.set(key, val);
+		}else{
+		    // This one catches all of the non-special
+		    // parameters and resets them using .set().
+		    anchor.set(key, val);
+		    // if( key === 'fq' ){
+		    //     throw new Error("OI");			     
+		    // }
+		}
+	    }
+	});
+	
+	// Now go through and remove all of the query variant
+	// parameters that were not seen in the bookmark.
+	each(anchor.query_variants, function(val, key){
+	    if( typeof(seen_params[key]) === 'undefined'){
+		anchor.unset(key);
+	    }
+	});
+	
+	// Produce our own url from what we've done. If the parameters
+	// match with the incoming argument's return true.
+	var curr_url = anchor.get_query_url();
+	var curr_params = bbop.url_parameters(curr_url);
+	var differences = 0;
+	if( in_params.length === curr_params.length ){
+	    each(in_params, function(in_p, i){
+		var curr_p = curr_params[i];
+		if( in_p.length === curr_p.length ){
+		    if( in_p.length === 1 ){
+			if( in_p[0] === curr_p[0] ){
+			    // match!
+			}else{
+			    differences++;
+			}
+		    }else if( in_p.length === 2 ){
+			if( in_p[0] === curr_p[0] && in_p[1] === curr_p[1] ){
+			    // match!
+			}else{
+			    differences++;
+			}
+		    }
+		}else{
+		    differences++;
+		}
+	    });
+	}else{
+	    differences++;
+	}
+	
+	// Tally the differences and decides if they're the same.
+	var retval = false;
+	if( differences === 0 ){
+	    retval = true;
+	}
+    	return retval;
+    };
+
+    /*
+     * Function: add_to_batch
+     *
+     * "Save" the current manager state to run later in serial batch
+     * mode.
+     * 
+     * The actual job of running these batches is left to the
+     * implementation of the sub-managers; probably in "run_batch".
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  state url
+     */
+    this.add_to_batch = function(){
+	var qurl = anchor.get_query_url();
+	anchor._batch_urls.push(qurl);
+    	return qurl;
+    };
+
+    /*
+     * Function: batch_urls
+     *
+     * Return a pointer to the current batch urls.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  array
+     */
+    this.batch_urls = function(){
+    	return anchor._batch_urls;
+    };
+
+    /*
+     * Function: next_batch_url
+     *
+     * Return the next data to be processed, removing it from the
+     * batch queue in the process.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  state url or null
+     */
+    this.next_batch_url = function(){
+    	return anchor._batch_urls.shift() || null;
+    };
+
+    /*
+     * Function: reset_batch
+     *
+     * Clear the currently queued data batch.
+     * 
+     * The actual job of running these batches is left to the
+     * implementation of the sub-managers; probably in "run_batch".
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     *  the number of items cleared
+     */
+    this.reset_batch = function(){
+	var num = anchor._batch_urls.length;
+	anchor._batch_urls = [];
+    	return num;
+    };
 };
 bbop.extend(manager, registry);
+
+/*
+ * Function: to_string
+ *
+ * Output writer for this object/class.
+ * See the documentation in <core.js> on <dump> and <to_string>.
+ * 
+ * Parameters: 
+ *  n/a
+ *
+ * Returns:
+ *  string
+ */
+manager.prototype.to_string = function (){
+    return '<' + this._is_a + '>';
+};
+
+/*
+ * Function: update
+ *
+ * The user code to select the type of update (and thus the type
+ * of callbacks to be called on data return).
+ * 
+ * This mechanism adds a couple of variables over other methods
+ * for bookkeeping: packet (incremented every time) and callback_type.
+ * 
+ * The currently recognized callback types are "reset" (for when you
+ * are starting or starting over) and "search" (what you typically
+ * want when you get new data) and "error" for when something went
+ * wrong. But only "search" and "reset" manipulate the system.
+ * 
+ * If rows or start are not set, they will both be reset to their
+ * initial values--this is to allow for paging on "current"
+ * results and then getting back to the business of searching with
+ * as little fuss as possible. Because of things like this, one
+ * should avoid calling this directly whenever possible and prefer
+ * simpler functionality of the wrapper methods: <search>,
+ * <reset>, and <page>.
+ * 
+ * Parameters: 
+ *  callback_type - callback type string; 'search', 'reset' and 'error'
+ *  rows - *[optional]* integer; the number of rows to return
+ *  start - *[serially optional]* integer; the offset of the returned rows
+ *
+ * Returns:
+ *  the query url (with the jQuery callback specific parameters)
+ * 
+ * Also see:
+ *  <get_query_url>
+ */
+manager.prototype.update = function(callback_type, rows, start){
+
+    var anchor = this;
+    //function ll(s){ this._logger.kvetch(s); }
+
+    // Handle paging in this main section by resetting to
+    // the defaults if rows and offset are not explicitly
+    // defined.
+    if( typeof(rows) === 'undefined' || typeof(start) === 'undefined' ){
+    	this.set('rows', this.current_rows);
+    	this.set('start', this.current_start);
+    }
+    
+    // Our bookkeeping--increment packet.
+    this.last_sent_packet = this.last_sent_packet + 1;
+    
+    // Necessary updated query variants.
+    var update_query_variants = {
+    	packet: this.last_sent_packet,
+    	callback_type: callback_type
+    };
+    var update_qv = bbop.get_assemble(update_query_variants);
+    
+    // Structure of the necessary invariant parts.	
+    //var qurl = this.get_query_url();
+    var qurl = null;
+    
+    // Conditional merging of the remaining variant parts.
+    if( callback_type === 'reset' ){
+	
+    	// Take everything back to the initial state--this means
+    	// resetting the query and removing all non-sticky
+    	// filters.
+	
+    	// Reset and do completely open query.
+    	//ll('reset assembly');
+	
+    	// Save the q vals, do a fundamental get, then reset to
+    	// what we had.
+    	//var tmp_save = this.get_query();
+    	//this.reset_default_query();
+    	this.reset_query();
+    	this.reset_query_filters();
+    	qurl = this.get_query_url();
+    	qurl = qurl + '&' + update_qv;
+    	//this.set_query(tmp_save);
+	
+    }else if( callback_type === 'search' ){
+	
+    	//ll('search assembly');
+    	qurl = this.get_query_url();
+    	qurl = qurl + '&' + update_qv;
+	
+    }else{
+    	throw new Error("Unknown callback_type (in update): " + callback_type);
+    }
+
+    // Start run.
+    this.apply_callbacks('prerun', [anchor]);
+
+    //console.log('qurl: ' + qurl);
+
+    //var thing = anchor._runner(anchor._seed_url, args);
+    var thing = anchor._runner(qurl);
+    
+    return thing;
+};
 
 ///
 /// Exportable body.
@@ -17082,7 +8003,7 @@ bbop.extend(manager, registry);
 
 module.exports = manager;
 
-},{"bbop-core":3,"bbop-registry":8,"bbop-response-barista":11,"class-expression":63,"minerva-requests":10,"underscore":66}],8:[function(require,module,exports){
+},{"bbop-core":2,"bbop-registry":7,"bbop-response-golr":9,"golr-conf":61,"underscore":63}],7:[function(require,module,exports){
 /* 
  * Generic lightweight listener/callback registry system.
  *
@@ -17261,1979 +8182,849 @@ var registry = function(evt_list){
 
 module.exports = registry;
 
-},{"bbop-core":9,"underscore":66}],9:[function(require,module,exports){
-arguments[4][3][0].apply(exports,arguments)
-},{"dup":3,"underscore":66}],10:[function(require,module,exports){
-/** 
- * Purpose: Request construction library for interacting with Minerva.
+},{"bbop-core":8,"underscore":63}],8:[function(require,module,exports){
+arguments[4][2][0].apply(exports,arguments)
+},{"dup":2,"underscore":63}],9:[function(require,module,exports){
+/* 
+ * Package: response.js
  * 
- * This module includes the following objects:
- *  - request_variable
- *  - request
- *  - request_set
+ * Namespace: bbop.golr.response
  * 
- * @module minerva-requests
+ * Generic BBOP handler for dealing with the gross parsing of
+ * responses from a GOlr server (whereas <golr_conf> deals with the
+ * reported configuration). This is not intended to do anything like
+ * modeling the data in the store (<golr_manager>), but rather to deal
+ * with things like checking for success, what paging would look like,
+ * what parameters were passed, etc.
  */
 
+var bbop = require('bbop-core');
 var us = require('underscore');
+
+// Aliasing.
+//var bbop_logger = bbop.logger;
 var each = us.each;
-var bbop = require('bbop-core');
-var what_is = bbop.what_is;
-var uuid = bbop.uuid;
-var class_expression = require('class-expression');
 
-/**
- * Contructor for a request variable, used to relate references during
- * a request.
+/*
+ * Constructor: response
  * 
- * Internal usage variable for keeping track of implicit
- * assignToVariable on the client (see Minerva).
+ * Contructor for a GOlr query response object.
  * 
- * @constructor
- * @param {String} [varvalue] - string representing a future variable value
- * @returns {request_variable} request variable object
+ * The constructor argument is an object, not a string.
+ * 
+ * Arguments:
+ *  json_data - the JSON data (as object) returned from a request
+ * 
+ * Returns:
+ *  golr response object
  */
-var request_variable = function(varvalue){
-    var anchor = this;
-    anchor._is_a = 'minerva-requests.request_variable';
-
-    anchor._var = uuid(); // primo
-    anchor._use_var_p = false;
-
-    function _value(value){
-	if( value ){
-	    anchor._var = value;
-	    anchor._use_var_p = true;
-	}
-	return anchor._var;
-    }
-    // Do an initial revalue depending on the constructor's incoming
-    // arguments.
-    _value(varvalue);
-
-    /**
-     * The value of the variable to be used.
-     *
-     * @alias module:minerva-requests~request_variable#value
-     * @function
-     * @memberof module:minerva-requests~request_variable
-     * @returns {String} string
-     */
-    anchor.value = _value;
-
-    /**
-     * Returns true or false on whether or not the user changed the
-     * value of the setting.
-     *
-     * @alias module:minerva-requests~request_variable#set_p
-     * @function
-     * @memberof module:minerva-requests~request_variable
-     * @returns {Boolean} boolean
-     */
-    anchor.set_p = function(){
-	return anchor._use_var_p;
-    };
-};
-
-/**
- * Contructor for a Minerva request item. See table for
- * operation/entity combinations:
- * https://github.com/berkeleybop/bbopx-js/wiki/MinervaRequestAPI .
- * 
- * Handle requests to Minerva in a somewhat structured way.
- * 
- * @constructor
- * @param {String} entity - string, see table
- * @param {String} operation - string, see table
- * @returns {request} request object
- */
-var request = function(entity, operation){
-    var anchor = this;
-    anchor._is_a = 'minerva-requests.request';
-
-    // Minerva entity to make a call against.
-    anchor._entity = entity;
-
-    // Minerva operation to perform on entity.
-    anchor._operation = operation;
-
-    // Almost all non-meta operations require a model id. However,
-    // this is sometimes implied in the case of new model creation.
-    anchor._model_id = null;
-
-    // Tons of ops require individuals, and they need to be implicitly
-    // passable.
-    anchor._individual_id = new request_variable();    
-
-    // Hold most other additional arguments to the request.
-    // TODO: Could use some checking here? Maybe per-entity?
-    // Could possibly explore using swagger or json-schema?
-    anchor._arguments = {};
-
-    ///
-    /// Internal helper functions.
-    ///
-
-    // Our list of values must be defined if we go this way.
-    anchor._ensure_list = function(key){
-	if( ! anchor._arguments[key] ){
-	    anchor._arguments[key] = [];
-	}
-    };
-
-    // Add generic property (non-list).
-    anchor._add = function(key, val){
-	anchor._arguments[key] = val;
-	return anchor._arguments[key];
-    };
-
-    // Get generic property (non-list).
-    anchor._get = function(key){
-	var ret = null;
-	var t = anchor._arguments[key];
-	if( t != null ){
-	    ret = t;
-	}
-	return ret;
-    };
-
-    // Getter/setter (non-list).
-    anchor._get_set = function(key, variable){
-	if( variable ){
-	    anchor._add(key, variable);
-	}
-	return anchor._get(key);
-    };
-
-    ///
-    /// Public API.
-    ///
-
-    /**
-     * The specified entity string.
-     *
-     * @alias module:minerva-requests~request#entity
-     * @function
-     * @memberof module:minerva-requests~request
-     * @returns {String|null} string or null
-     */
-    anchor.entity = function(){
-	return anchor._entity;
-    };
-
-    /**
-     * Add a "special" variable to the request. For a subset of
-     * requests, this may be required. See table:
-     * https://github.com/berkeleybop/bbopx-js/wiki/MinervaRequestAPI .
-     *
-     * @alias module:minerva-requests~request#special
-     * @function
-     * @memberof module:minerva-requests~request
-     * @param {String} name - string
-     * @param {String} val - string
-     * @returns {String} added value
-     */
-    anchor.special = function(name, val){
-	return anchor._get_set(name, val);
-    };
-
-    /**
-     * Should only be used in the context of making a request set.
-     *
-     * Return a higher-level representation/"serialization" of the
-     * complete object.
-     *
-     * @alias module:minerva-requests~request#objectify
-     * @function
-     * @memberof module:minerva-requests~request
-     * @returns {Object} simple object
-     */
-    anchor.objectify = function(){
-
-	// Things we will always return.
-	var base = {
-	    'entity': anchor._entity,
-	    'operation': anchor._operation,
-	    'arguments': anchor._arguments
-	};
-
-	// If we're using an implicitly set individual id, make sure
-	// that is added to the call.
-	if( anchor._entity === 'individual' && ! anchor._individual_id.set_p() ){
-	    base['arguments']['assign-to-variable'] =
-		anchor._individual_id.value();
-	}
-
-	return base;
-    };
-
-    /**
-     * Get/set the individual/instance in this request. If not set
-     * explicitly, will fall back to a default value.
-     *
-     * @alias module:minerva-requests~request#individual
-     * @function
-     * @memberof module:minerva-requests~request
-     * @param {String} [ind_id] - individual id we're going to refer to
-     * @param {Boolean} [force_id_p] - when an ID is supplied, in the case that the request is being used to create a *new individual* and the ID for it is already known, use ind_id as the IRI; defaults to not true
-     * @returns {String} string
-     */
-    anchor.individual = function(ind_id, force_id_p){
-	if( ind_id ){
-	    if( force_id_p && force_id_p === true ){ // known ind
-		anchor._individual_id.value(ind_id);
-		anchor._add('individual-iri', ind_id);
-	    }else{ // reference
-		anchor._individual_id.value(ind_id);
-		anchor._add('individual', ind_id);
-	    }
-	}else{
-	    // Fallback to using anonymous one (no change to default).
-	}
-	//anchor._add('individual', anchor._individual_id.value());
-	return anchor._individual_id.value();
-    };
-
-    /**
-     * Get/set the subject of this request.
-     *
-     * @alias module:minerva-requests~request#subject
-     * @function
-     * @memberof module:minerva-requests~request
-     * @param {String} [sub] - string
-     * @returns {String|null} string or null
-     */
-    anchor.subject = function(sub){
-	return anchor._get_set('subject', sub);
-    };
-
-    /**
-     * Get/set the object of this request. This will be used in
-     * fact/edge requests, but not much else.
-     *
-     * @alias module:minerva-requests~request#object
-     * @function
-     * @memberof module:minerva-requests~request
-     * @param {String} [obj] - a string
-     * @returns {String|null} string or null
-     */
-    anchor.object = function(obj){
-	return anchor._get_set('object', obj);
-    };
-
-    /**
-     * Get/set the predicate of this request. This will be used in
-     * fact/edge requests, but not much else.
-     *
-     * @alias module:minerva-requests~request#predicate
-     * @function
-     * @memberof module:minerva-requests~request
-     * @param {String} [pred] - a string
-     * @returns {String|null} string or null
-     */
-    anchor.predicate = function(pred){
-	return anchor._get_set('predicate', pred);
-    };
-
-    /**
-     * Get/set the topic model of this request.
-     *
-     * If a model is not set, like during requests in a set to a
-     * not-yet-created model, Minerva will often add this itself if it
-     * can after the fact.
-     *
-     * @alias module:minerva-requests~request#model
-     * @function
-     * @memberof module:minerva-requests~request
-     * @param {String} [model] - a string id
-     * @returns {String|null} string or null
-     */
-    anchor.model = function(model){
-	return anchor._get_set('model-id', model);
-    };
-    
-    /**
-     * Add a fact to the request. The same as adding subject, object,
-     * and predicate all separately.
-     *
-     * @alias module:minerva-requests~request#fact
-     * @function
-     * @memberof module:minerva-requests~request
-     * @param {String} sub - string
-     * @param {String} obj - string
-     * @param {String} pred - string
-     * @returns {} n/a
-     */
-    anchor.fact = function(sub, obj, pred){
-	// Update the request's internal variables.
-	anchor.subject(sub);
-	anchor.object(obj);
-	anchor.predicate(pred);
-    };
-
-    /**
-     * Add an annotation pair (or series of pairs) to the request.
-     * All annotations should be converted into strings for upstream consumption.
-     * You may also add the optional value-type argument.
-     *
-     * @alias module:minerva-requests~request#add_annotation
-     * @function
-     * @memberof module:minerva-requests~request
-     * @param {String} key - string
-     * @param {String} vals - string or list of strings
-     * @param {String} [val_type] - value-type to use, as string; defaults to nothing (an implied string, i.e. "xsd:string"), although not explicitly sent
-     * @returns {Number} number of annotations
-     */
-    anchor.add_annotation = function(key, vals, val_type){
-
-	// Convert val to a list if necessary.
-	if( what_is(vals) === 'string' || what_is(vals) === 'number' ){
-	    vals = [vals];
-	}
-	if( what_is(vals) !== 'array' ){ throw new Error('unknown argument'); }
-
-	// Our list of values must be defined if we go this way.
-	anchor._ensure_list('values');
-
-	// Add all of the incoming values.
-	each(vals, function(val){
-	    // Numbers to strings.
-	    var final_val = val;
-	    if( what_is(val) === 'number' ){ final_val = val.toString(); }
-	    // Add on, slightly different if we have the optional
-	    // value-type on board since we will not send it in most
-	    // cases.
-	    if( val_type && what_is(val_type) === 'string' ){
-		anchor._arguments['values'].push({
-		    'key': key,
-		    'value': final_val,
-		    'value-type': val_type
-		});
-	    }else{
-		anchor._arguments['values'].push({
-		    'key': key,
-		    'value': final_val
-		});
-	    }
-	});
-
-	return anchor._arguments['values'].length;
-    };
-
-    /**
-     * Return list of annotations in request.
-     *
-     * @alias module:minerva-requests~request#annotations
-     * @function
-     * @memberof module:minerva-requests~request
-     * @returns {Array} (actual) list of request "values" pairs (or triples)
-     */
-    anchor.annotations = function(){
-	return anchor._arguments['values'];
-    };
-
-    /**
-     * General use for whatever.
-     *
-     * @alias module:minerva-requests~request#class_expression
-     * @function
-     * @memberof module:minerva-requests~request
-     * @param {class_expression|String} class_expr - anything that can be taken by <class_expression> constructor
-     * @param {String} property_id - string
-     * @returns {Number} number of expressions
-     */
-    anchor.add_class_expression = function(class_expr){
-	// Our list of values must be defined if we go this way.
-	anchor._ensure_list('expressions');
-
-	var expr = new class_expression(class_expr);
-	anchor._arguments['expressions'].push(expr.structure());
-
-	return anchor._arguments['expressions'].length;
-    };
-
-    /**
-     * Function: add_svf_expression
-     *
-     * Special use.
-     * A short form for "addition" requests that can overload the
-     * literal (on the server side) with Manchester syntax.
-     *
-     * @alias module:minerva-requests~request#add_svf_expression
-     * @function
-     * @memberof module:minerva-requests~request
-     * @param {class_expression|String} class_expr - anything that can be taken by <class_expression> constructor
-     * @param {String} property_id - string (id or...something more complicated?)
-     * @returns {Number} number of expressions
-     */
-    anchor.add_svf_expression = function(class_expr, property_id){
-	// Our list of values must be defined if we go this way.
-	anchor._ensure_list('expressions');
-
-	var expr = new class_expression();
-	expr.as_svf(class_expr, property_id);
-	anchor._arguments['expressions'].push(expr.structure());
-
-	return anchor._arguments['expressions'].length;
-    };
-
-    /**
-     * Intersections and unions.
-     *
-     * @alias module:minerva-requests~request#add_set_class_expression
-     * @function
-     * @memberof module:minerva-requests~request
-     * @param {String} type - 'intersection' or 'union'
-     * @param {Array} class_expr_list - a list of anything that can be taken by <class_expression> constructor
-     * @returns {Number} number of expressions
-     */
-    anchor.add_set_class_expression = function(type, class_expr_list){
-    	// Our list of values must be defined if we go this way.
-    	anchor._ensure_list('expressions');
-
-	var expr = new class_expression();
-	expr.as_set(type, class_expr_list);
-	anchor._arguments['expressions'].push(expr.structure());
-
-    	return anchor._arguments['expressions'].length;
-    };
-
-    /**
-     * Return list of expressions in request.
-     *
-     * @alias module:minerva-requests~request#expressions
-     * @function
-     * @memberof module:minerva-requests~request
-     * @returns {Array} (actual) list of request "expressions".
-     */
-    anchor.expressions = function(){
-	return anchor._arguments['expressions'];
-    };
-};
-
-/**
- * Constructor for a Minerva request item set.
- * 
- * Handle sets of requests and serialize for Minerva call.
- * 
- * Request sets are essentially serial request queues, that reference
- * eachother using the request_variables contained in invididual
- * requests.
- * 
- * As the request_set operations almost always produce request_sets
- * (with senisible defaults and fail modes), they can easily be
- * chained together.
- * 
- * If a model_id is given, it will be applied to any request that does
- * not have one.
- *
- * If reasoner_p is set to true, the request will make the request for
- * the use of the reaonser on the server; otherwise, no effect.
- *
- * @constructor
- * @param {String} user_token - string
- * @param {String} [model_id] - string
- * @param {Boolean} [reasoner_p] - bool
- * @returns {request_set} request set object
- */
-var request_set = function(user_token, model_id, reasoner_p){
-    var anchor = this;
-    anchor._is_a = 'minerva-requests.request_set';
-
-    // 
-    anchor._user_token = user_token || null;
-    //anchor._intention = intention;
-    anchor._model_id = model_id || null;
-    anchor._requests = [];
-    anchor._last_entity_id = null;
-
-    // Intentions, whether one wants their actions to be communicated
-    // to the outside world ('action' vs 'query') are now silently
-    // handled withint the request_set framework. The default is the
-    // weakest, unles less (almost always) a creative operation is
-    // attempted.
-    anchor._intention = 'query';
-
-    // Whether or not to use the on-demand reasoner.
-    anchor._use_reasoner = false;
-    if( typeof(reasoner_p) === 'boolean' && reasoner_p ){
-	anchor._use_reasoner = true;
-    }
-
-    /**
-     * Return the ID of the last individual identified in a call
-     * (implicitly or explicitly).
-     * 
-     * @see request_set#last_fact_triple
-     * @alias module:minerva-requests~request_set#last_individual_id
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {Number} [number_to_skip] - number of matches to skip (default: 0)
-     * @returns {String|null} string or null
-     */
-    anchor.last_individual_id = function(number_to_skip){
-	var retval = null;
-
-	// Get the last thing identifiable as an individual.
-	// 'for' necessary for backwards breakable iteration.
-	for( var ugh = anchor._requests.length; ugh > 0; ugh-- ){
-	    var req = anchor._requests[ugh -1];
-	    if( req.entity() === 'individual' ){
-		if( number_to_skip > 0 ){ // knock off skippables
-		    number_to_skip--;
-		}else{
-		    retval = req.individual();
-		    break;
-		}
-	    }
-	}
-	
-	return retval;
-    };
-
-    /**
-     * In our model, facts are anonymous (do not have an ID) and need
-     * to be referred to by their unique triple: subject id, object
-     * id, and predicate (edge type) id.
-     * 
-     * This methods return a list of the three string or null.
-     * 
-     * @see request_set#last_individual_id
-     * @alias module:minerva-requests~request_set#last_triple_fact
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {Number} [number_to_skip] - number of matches to skip (default: 0)
-     * @returns {Array|null} list of three strings or null
-     */
-    anchor.last_fact_triple = function(number_to_skip){
-	var retval = null;
-
-	// Get the last thing identifiable as an individual. 'for'
-	// necessary for backwards breakable iteration.
-	for( var ugh = anchor._requests.length; ugh > 0; ugh-- ){
-	    var req = anchor._requests[ugh -1];
-	    if( req.entity() === 'edge' ){
-		if( number_to_skip > 0 ){ // knock off skippables
-		    number_to_skip--;
-		}else{
-		    retval = [];
-		    retval.push(req.subject());
-		    retval.push(req.object());
-		    retval.push(req.predicate());
-		    break;
-		}
-	    }
-	}
-	
-	return retval;
-    };
-
-    /**
-     * Add a request to the queue. This is the most "primitive" method
-     * of adding things to the request queue and should only be used
-     * when other methods (look at the API) are not available.
-     * 
-     * @alias module:minerva-requests~request_set#add
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {request} req - <request>
-     * @param {intention} [intention] - 'action' or 'query' ('action' default)
-     * @returns {request_set} current request set, modified; suitable for chaining 
-     */
-    anchor.add = function(req, intention){
-
-	// We always want the "strongest" intention for the batch.
-	// If no explicit intention is mentioned, assume that this is
-	// a custom op (outside of the API) and is there for an
-	// 'action'.
-	if( ! intention ){
-	    anchor._intention = 'action';
-	}else if( intention === 'action' ){
-	    anchor._intention = intention;
-	}else if( intention === 'query' ){
-	    // Skip as it is at least weaker than a possibly set
-	    // 'action'.
-	}
-
-	anchor._requests.push(req);
-	return anchor;
-    };
-
-    /**
-     * Requests necessary to add an instance of with type class to the
-     * model.
-     * 
-     * Expect: "success" and "merge".
-     * 
-     * @alias module:minerva-requests~request_set#add_individual
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {class_expression} [class_expr] - anything that can be taken by <class_expression> constructor; technically optional, but c'mon buddy
-     * @param {String} [individual_id] - if none given, generate random one (preferred in most use cases); if one given, it's assumed to be a known "forced" one (see {individual})
-     * @param {String} [model_id] - string
-     * @returns {String} id of individual added, as string
-     */
-    anchor.add_individual = function(class_expr, individual_id, model_id){
-
-	var retval = null;
-
-	var ind_req = new request('individual', 'add');
-	
-	if( class_expr ){
-	    ind_req.add_class_expression(class_expr);
-	}
-	    
-	if( typeof(individual_id) === 'string' ){ // optionally add known id
-	    //ind_req.special('individual-iri', individual_id);
-	    retval = ind_req.individual(individual_id, true);
-	}else{ // generate id (norm)
-	    retval = ind_req.individual();
-	}
-
-	if( model_id ){ // optionally add
-	    ind_req.model(model_id);
-	}
-
-	anchor.add(ind_req, 'action');
-
-	//return anchor;
-	return retval;
-    };
-
-    /**
-     * Requests necessary to remove an individual.
-     * 
-     * Expect: "success" and "rebuild".
-     * 
-     * @alias module:minerva-requests~request_set#remove_individual
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {String} individual_id - string
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.remove_individual = function(individual_id, model_id){
-
-	if( individual_id ){
-
-	    var ind_req = new request('individual', 'remove');
-	    if( model_id ){ ind_req.model(model_id); } // optionally add
-
-	    ind_req.individual(individual_id); 
-
-	    anchor.add(ind_req, 'action');
-	}
-
-	return anchor;
-    };
-
-    //  value - string
-    //  model_id - (optional with fact and individual) string
-    anchor._op_type_to_individual = function(op, class_expr, individual_id,
-					     model_id){
-
-	if( op && class_expr && individual_id ){
-	    if( op !== 'add' && op !== 'remove' ){
-		throw new Error('unknown type operation');
-	    }else{
-		var type_req =
-			new request('individual', op + '-type');
-		type_req.individual(individual_id);
-
-		if( model_id ){ type_req.model(model_id); } // optionally add
-
-		// 
-		type_req.add_class_expression(class_expr);
-
-		anchor.add(type_req, 'action');
-	    }
-	}
-
-	return anchor;
-    };
-
-    /**
-     * Add the identified type to the individual. Multiple calls are
-     * logicially treated as an "intersection", but not processed and
-     * displayed as such.
-     * 
-     * @alias module:minerva-requests~request_set#add_type_to_individual
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {class_expression} class_expr - anything that can be taken by <class_expression> constructor
-     * @param {String} individual_id - string
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.add_type_to_individual = function(class_expr, individual_id,
-					     model_id){
-	return anchor._op_type_to_individual('add', class_expr, individual_id,
-					     model_id);
-    };
-
-    /**
-     * Remove the identified type from the individual.
-     * 
-     * @alias module:minerva-requests~request_set#remove_type_from_individual
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {class_expression} class_expr - anything that can be taken by <class_expression> constructor
-     * @param {String} individual_id - string
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining 
-     */
-    anchor.remove_type_from_individual = function(class_expr, individual_id,
-						  model_id){
-	return anchor._op_type_to_individual('remove', class_expr, individual_id,
-					     model_id);
-    };
-
-    // Throw an error if no subject, object, predicate triple as
-    // argument.
-    anchor._ensure_fact = function(triple){
-	if( triple && triple[0] && triple[1] && triple[2] ){
-	    // Okay.
-	}else{
-	    throw new Error('triple did not look like a proper fact');
-	}
-    };
-
-    /**
-     * Requests necessary to add an edge between two instances in a
-     * model.
-     *
-     * Expect: "success" and "merge".
-     * 
-     * @alias module:minerva-requests~request_set#add_fact
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {Array} triple - list of three strings: [SUBJECT_ID, OBJECT_ID, PREDICATE_ID]
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.add_fact = function(triple, model_id){
-	anchor._ensure_fact(triple);
-
-	var edge_req = new request('edge', 'add');
-	if( model_id ){ edge_req.model(model_id); } // optionally add
-
-	edge_req.fact(triple[0], triple[1], triple[2]);
-
-	anchor.add(edge_req, 'action');
-
-	return triple;
-    };
-
-    /**
-     * Requests necessary to remove an edge between two instances in a
-     * model.
-     *
-     * Expect: "success" and "rebuild".
-     * 
-     * @alias module:minerva-requests~request_set#remove_fact
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {Array} triple - list of three strings: [SUBJECT_ID, OBJECT_ID, PREDICATE_ID]
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.remove_fact = function(triple, model_id){
-	anchor._ensure_fact(triple);
-
-	var edge_req = new request('edge', 'remove');
-	if( model_id ){ edge_req.model(model_id); } // optionally add
-	
-	edge_req.fact(triple[0], triple[1], triple[2]);
-	
-	anchor.add(edge_req, 'action');
-
-	return anchor;
-    };
-
-    /**
-     * Adds "anonymous" (current GO-style) evidence individual that is
-     * referenced in the individual's or fact's annotations to the
-     * batch.
-     * 
-     * @alias module:minerva-requests~request_set#add_evidence
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {String} evidence_id - string
-     * @param {String} source_ids - string or list of strings (i.e. PMIDs)
-     * @param {String} with_strs - string or list of strings (i.e. "foo"); use null if evidence code does not support "with"
-     * @param {String} target_identifier - string (individual_id) or list of 3 strings (fact)
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.add_evidence = function(evidence_id, source_ids, with_strs,
-				   target_identifier, model_id){
-
-	// Quick check.
-	if( evidence_id && source_ids ){
-
-	    // Create floating evidence instance...
-	    var ev_ind_req = new request('individual', 'add');
-	    if( model_id ){ ev_ind_req.model(model_id); } // optional
-	    ev_ind_req.add_class_expression(evidence_id);
-	    anchor.add(ev_ind_req, 'action');
-
-	    // Add each source as an annotation to the floating
-	    // evidence instance.
-	    var ev_ind_ann_req = new request('individual', 'add-annotation');
-	    if( model_id ){ ev_ind_ann_req.model(model_id); } // optional
-	    ev_ind_ann_req.individual(ev_ind_req.individual());
-	    ev_ind_ann_req.add_annotation('source', source_ids);
-	    // Optionally add the with fields, if defined.
-	    if( with_strs ){
-		ev_ind_ann_req.add_annotation('with', with_strs);
-	    }
-	    anchor.add(ev_ind_ann_req, 'action');
-
-	    // Switch the final tie-down object--either individual or
-	    // fact (triple).
-	    if( ! target_identifier ){
-		throw new Error('no target identified for evidence add');
-	    }else if( what_is(target_identifier) === 'string' ){
-
-		// Tie the floating evidence to the individual
-		// with an annotation to it.
-		var ind_ann_req = new request('individual',
-							    'add-annotation');
-		if( model_id ){ ind_ann_req.model(model_id); } // optional
-		ind_ann_req.individual(target_identifier);
-		ind_ann_req.add_annotation('evidence', ev_ind_req.individual());
-		anchor.add(ind_ann_req, 'action');
-		
-	    }else{
-		// Bomb if not a legit triple.
-		anchor._ensure_fact(target_identifier);
-		
-		// Tie the floating evidence to the edge with an
-		// annotation to the edge.
-		var ed_ann_req = new request('edge', 'add-annotation');
-		if( model_id ){ ed_ann_req.model(model_id); } // optional
-		var t = target_identifier;
-		ed_ann_req.fact(t[0], t[1], t[2]);
-		ed_ann_req.add_annotation('evidence', ev_ind_req.individual());
-		anchor.add(ed_ann_req, 'action');
-	    }
-	}
-
-	return anchor;
-    };
-
-    /**
-     * Remove an evidence annotation from an individual or edge.
-     * 
-     * Do not need to worry about the "floating" evidence instance
-     * made by evidence creation--clean-up will be taken care of by
-     * Minerva.
-     * 
-     * @alias module:minerva-requests~request_set#remove_evidence
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {String} evidence_individual_id - string
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.remove_evidence = function(evidence_individual_id, model_id){
-
-	// In our simplified world, evidence deletion just becomes a
-	// specific case of individual deletion.
-    	if( evidence_individual_id ){
-	    anchor.remove_individual(evidence_individual_id, model_id);
-	}
-
-    	return anchor;
-    };
-
-    /**
-     * Adds "anonymous" evidence individual that is referenced in the
-     * individual's annotations, as well as a fact of it's own to the
-     * batch.
-     * 
-     * *[WARNING: Should only be used once, probably not at all!]*
-     * 
-     * @alias module:minerva-requests~request_set#add_evidence_to_last_individual
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {String} evidence_id - string
-     * @param {String} source_ids - null, string, or list of strings (PMIDs, etc.)
-     * @param {String} with_strs - string or list of strings (i.e. "foo"); use null if evidence code does not support "with"
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.add_evidence_to_last_individual = function(evidence_id, source_ids,
-						      with_strs, model_id){
-
-	var tmp_indv = anchor.last_individual_id();
-	if( tmp_indv ){
-	    anchor.add_evidence(evidence_id, source_ids, with_strs, tmp_indv, model_id);
-	}
-
-	return anchor;
-    };
-
-    /**
-     * Adds "anonymous" evidence individual that is referenced in the
-     * fact's annotations, as well as a fact of it's own to the batch.
-     * 
-     * *[WARNING: Should only be used once, probably not at all!]*
-     * 
-     * @alias module:minerva-requests~request_set#add_evidence_to_last_fact
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {String} evidence_id - string
-     * @param {String} source_ids - null, string, or list of strings (PMIDs, etc.)
-     * @param {String} with_strs - string or list of strings (i.e. "foo"); use null if evidence code does not support "with"
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.add_evidence_to_last_fact = function(evidence_id, source_ids,
-						with_strs, model_id){
-
-	var tmp_triple = anchor.last_fact_triple();
-	if( tmp_triple ){
-	    anchor.add_evidence(evidence_id, source_ids, with_strs, tmp_triple, model_id);
-	}
-
-	return anchor;
-    };
-
-    // A helper function to sort out all of the different annotation
-    // operations and targets in one function.
-    //
-    // Args:
-    //  op - "add" | "remove"
-    //  thing - "model" | "individual" | "edge" 
-    //  thing_identifier - ind: id; fact: triple; model: implied
-    //  key - string 
-    //  value - string
-    //  value_type - string, representing value-type, or nothing
-    //  model_id - (optional with fact and individual) string
-    anchor._op_annotation_to_target = function(op, target, target_identifier,
-					       key, value, value_type,
-					       model_id){
-
-	// First, decide the request.
-	var req = null;
-	if( op === 'add' || op === 'remove' ){
-	    req = new request(target, op + '-annotation');
-	    if( model_id ){ req.model(model_id); } // optional
-	}else{
-	    throw new Error('unknown annotation operation');
-	}
-
-	// Add necessary arguments to identify the target.
-	if( target === 'model' ){
-	    // Already done.
-	}else if( target === 'individual' ){
-	    req.individual(target_identifier);
-	}else if( target === 'edge' ){
-	    anchor._ensure_fact(target_identifier);
-	    req.fact(target_identifier[0],
-		     target_identifier[1],
-		     target_identifier[2]);
-	}else{
-	    throw new Error('unknown annotation target');
-	}
-
-	// Add the annotation.
-	if( key && value ){
-	    req.add_annotation(key, value, value_type);
-	    anchor.add(req, 'action');
-	}
-    };
-
-    /**
-     * The purpose here is to update the set of annotations within an
-     * entity with a new set of annotations. This process will happen
-     * by key and key only (different value-types will be considered
-     * the same).
-     * 
-     * Since this takes the entire entity as an argument, it will
-     * auto-detect what it is and add the correct ops.
-     * 
-     * I suspect that this will be the Swiss army hammer as it can be
-     * used to update, add, and remove annotations in the request set.
-     * 
-     * We are going to ignore the possibility of races.
-     * 
-     * @alias module:minerva-requests~request_set#update_annotations
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {Object} entity - the enity from {module:bbop-graph-noctua} that you want to probe for annotation information to create the update
-     * @param {String} key - the key to update
-     * @param {String} values - string or list of strings
-     * @param {String} [val_type] - value-type to use, as string; defaults to nothing (an implied string, i.e. "xsd:string"), although not explicitly sent
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.update_annotations = function(entity, key, values, value_type,
-					 model_id){
-
-	// Convert val to a list if necessary.
-	if( what_is(values) === 'string' || what_is(values) === 'number' ){
-	    values = [values];
-	}
-	if( what_is(values) !== 'array' ){ throw new Error('unknown argument'); }
-
-	// 
-	var target = null; // string representing the entity internally.
-	var target_identifier = null; // thing identifying the object
-	if( what_is(entity) === 'bbop-graph-noctua.graph' ){
-	    target = 'model';
-	    target_identifier = null;
-	}else if( what_is(entity) === 'bbop-graph-noctua.node' ){
-	    target = 'individual';
-	    target_identifier = entity.id();
-	}else if( what_is(entity) === 'bbop-graph-noctua.edge' ){
-	    target = 'edge';
-	    target_identifier = [
-		entity.subject_id(),
-		entity.object_id(),
-		entity.predicate_id()
-	    ];
-	}else{
-	    throw new Error('update annotations internal error in enity type');
-	}
-
-	// Create requests to remove the current contents of the keyed
-	// annotations in the entity.
-	var anns = entity.get_annotations_by_key(key);
-	each(anns, function(ann){
-	    anchor._op_annotation_to_target(
-		'remove', target, target_identifier,
-    		ann.key(), ann.value(), ann.value_type(), model_id);		
-	});
-
-	// Now add all of the pending annotations.
-	each(values, function(val){
-	    anchor._op_annotation_to_target(
-		'add', target, target_identifier, 
-		key, val, value_type, model_id);
-	});
-
-	return anchor;
-    };
-
-    /**
-     * Adds unique key/value set to model.
-     * 
-     * @deprecated
-     * @alias module:minerva-requests~request_set#add_annotation_to_model
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {String} key - string
-     * @param {String} value - string
-     * @param {String|null} [value_type] - string
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.add_annotation_to_model = function(key, value, value_type, model_id){
-	anchor._op_annotation_to_target('add', 'model', null,
-					key, value, value_type, model_id);
-	return anchor;
-    };
-
-    /**
-     * Adds unique key/value set to model.
-     * 
-     * @deprecated
-     * @alias module:minerva-requests~request_set#remove_annotation_from_model
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {String} key - string
-     * @param {String} value - string
-     * @param {String|null} [value_type] - string
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.remove_annotation_from_model = function(key, value, value_type,
-						   model_id){
-	anchor._op_annotation_to_target('remove', 'model', null,
-					key, value, value_type, model_id);
-	return anchor;
-    };
-
-    /**
-     * Adds unique key/value set to an individual.
-     * 
-     * @deprecated
-     * @alias module:minerva-requests~request_set#add_annotation_to_individual
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {String} key - string
-     * @param {String} value - string
-     * @param {String|null} [value_type] - string
-     * @param {String} individual_id - string
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.add_annotation_to_individual = function(key, value, value_type,
-						   individual_id, model_id){
-	anchor._op_annotation_to_target('add', 'individual', individual_id,
-					key, value, value_type, model_id);
-	return anchor;
-    };
-
-    /**
-     * Removes unique key/value set from an individual.
-     * 
-     * @deprecated
-     * @alias module:minerva-requests~request_set#remove_annotation_from_individual
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {String} key - string
-     * @param {String} value - string
-     * @param {String|null} [value_type] - string
-     * @param {String} individual_id - string
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.remove_annotation_from_individual = function(key, value, value_type,
-							individual_id, model_id){
-	anchor._op_annotation_to_target('remove', 'individual', individual_id,
-					key, value, value_type, model_id);
-	return anchor;
-    };
-
-    /**
-     * Adds unique key/value set to a fact.
-     * 
-     * @deprecated
-     * @alias module:minerva-requests~request_set#add_annotation_to_fact
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {String} key - string
-     * @param {String} value - string
-     * @param {String|null} [value_type] - string
-     * @param {String} triple - list of three strings: [SUBJECT_ID, OBJECT_ID, PREDICATE_ID]
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.add_annotation_to_fact = function(key, value, value_type,
-					     triple, model_id){
-	anchor._ensure_fact(triple);
-	anchor._op_annotation_to_target('add', 'edge', triple,
-					key, value, value_type, model_id);
-	return anchor;
-    };
-
-    /**
-     * Removes unique key/value set from a fact.
-     * 
-     * @deprecated
-     * @alias module:minerva-requests~request_set#remove_annotation_from_fact
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {String} key - string
-     * @param {String} value - string
-     * @param {String|null} [value_type] - string
-     * @param {String} triple - list of three strings: [SUBJECT_ID, OBJECT_ID, PREDICATE_ID]
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.remove_annotation_from_fact = function(key, value, value_type,
-						  triple, model_id){
-	anchor._ensure_fact(triple);
-	anchor._op_annotation_to_target('remove', 'edge', triple,
-					key, value, value_type, model_id);
-	return anchor;
-    };
-
-    /**
-     * Undo the last batch of operations performed on the model.
-     * 
-     * @alias module:minerva-requests~request_set#undo_last_model_batch
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {String} [model_id] - string
-     * @returns {request_set} 
-     */
-    anchor.undo_last_model_batch = function(model_id){
-
-	var mod_req = new request('model', 'undo');
-	if( model_id ){ mod_req.model(model_id); } // optionally add
-
-	anchor.add(mod_req, 'action');
-
-	return anchor;
-    };
-
-    /**
-     * Redo the last batch of operations performed on the model.
-     * 
-     * @alias module:minerva-requests~request_set#redo_last_model_batch
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.redo_last_model_batch = function(model_id){
-
-	var mod_req = new request('model', 'redo');
-	if( model_id ){ mod_req.model(model_id); } // optionally add
-
-	anchor.add(mod_req, 'action');
-
-	return anchor;
-    };
-
-    /**
-     * Getter/setter to add (or not) a request to use an optional
-     * reasoner.
-     * 
-     * @alias module:minerva-requests~request_set#use_reasoner
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {Boolean} [bool] - optional 
-     * @returns {Boolean} bool
-     */
-    anchor.use_reasoner = function(bool){
-	
-	if( typeof(bool) === 'boolean' ){
-	    anchor._use_reasoner = bool;
-	}
-
-	return anchor._use_reasoner;
-    };
-
-    /**
-     * Essentially, get the list of relations.
-     * 
-     * @alias module:minerva-requests~request_set#get_meta
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.get_meta = function(){
-
-	var req = new request('meta', 'get');
-
-	// Just personal question.
-	anchor.add(req, 'query');
-	
-	return anchor;
-    };
-
-    /**
-     * The the state of a model.
-     * 
-     * This *[CANNOT]* be used with any other request.
-     * 
-     * @alias module:minerva-requests~request_set#get_model
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {String} model_id - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.get_model = function(model_id){
-	
-	var req = new request('model', 'get');
-	if( model_id ){ req.model(model_id); }
-	
-	// Just personal question.
-	anchor.add(req, 'query');
-	
-	return anchor;
-    };
-
-    /**
-     * Get the current undo/redo information for a model.
-     * 
-     * This *[CANNOT]* be used with any other request.
-     * 
-     * @alias module:minerva-requests~request_set#get_undo_redo
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.get_undo_redo = function(model_id){
-
-	var req = new request('model', 'get-undo-redo');
-	if( model_id ){ req.model(model_id); }
-	
-	// Just personal question.
-	anchor.add(req, 'query');
-
-	return anchor;
-    };
-
-    /**
-     * Essentially a wrapper for the "generate" class of model
-     * methods. The possible seeding arguments fir the argument hash
-     * are:
-     *  class-id - *[optional]* string; an initial class to build around
-     *  taxon-id - *[optional]* string; the background species
-     * 
-     * @alias module:minerva-requests~request_set#add_model
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {Object} argument_hash - string (see above for properties)
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.add_model = function(argument_hash){
-
-	// Work out all incoming arguments to testable state.
-	var cls_id = null;
-	var tax_id = null;
-	if( argument_hash ){	    
-	    if( argument_hash['class-id'] ){
-		cls_id = argument_hash['class-id'];
-	    }
-	    if( argument_hash['taxon-id'] ){
-		tax_id = argument_hash['taxon-id'];
-	    }
-	}
-
-	// Now that all arguments are defined, build up the request.
-	var model_req = new request('model', 'add');
-	if( cls_id ){ model_req.special('class-id', cls_id); }
-	if( tax_id ){ model_req.special('taxon-id', tax_id); }
-	// Unlikely to have any listeners though...
-	anchor.add(model_req, 'action');
-
-	return anchor;
-    };
-
-    /**
-     * Store the model to the model store (file on disk as of this
-     * writing, but may change soon).
-     * 
-     * @alias module:minerva-requests~request_set#store_model
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @param {String} [model_id] - string
-     * @returns {request_set} current request set, modified; suitable for chaining
-     */
-    anchor.store_model = function(model_id){
-
-	var store_req = new request('model', 'store');
-	if( model_id ){ store_req.model(model_id); } // optionally add
-
-	// No need to broadcast and disrupt to others on the model if
-	// it's just this.
-	anchor.add(store_req, 'query');
-
-	return anchor;
-    };
-
-    /**
-     * Create the JSON object that will be passed to the Minerva
-     * server.
-     * 
-     * @alias module:minerva-requests~request_set#structure
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @returns {Object} final object of all queued requests
-     */
-    anchor.structure = function(){
-
-	// Ready the base return.
-	var rset = {
-	    'token': anchor._user_token,
-	    'intention': anchor._intention
-	};
-	// Only add use use of the reasoner if requested.
-	// Depending on it actually being a boolean here to make the string
-	// request.
-	if( anchor._use_reasoner && typeof(anchor._use_reasoner) === 'boolean' ){
-	    rset['use-reasoner'] = anchor._use_reasoner.toString();
-	}
-
-	// Add a JSON stringified request arguments.
-	var reqs = [];
-	each(anchor._requests, function(req){
-	    // If possible, add model in cases where is was not supplied.
-	    if( ! req.model() && anchor._model_id ){
-		req.model(anchor._model_id);
-	    }
-	    reqs.push(req.objectify());
-	});
-	rset['requests'] = reqs;
-
-	return rset;
-    };
-
-    /**
-     * Serialize a request set and the component requests.
-     * 
-     * @alias module:minerva-requests~request_set#callable
-     * @function
-     * @memberof module:minerva-requests~request_set
-     * @returns {Object} serialization of all queued requests
-     */
-    anchor.callable = function(){
-
-	var rset = anchor.structure();
-	var reqs = rset['requests'];
-
-	var str = JSON.stringify(reqs);
-	var enc = encodeURIComponent(str);
-	rset['requests'] = enc;
-
-	return rset;
-    };
-};
-
-///
-/// Exportable body.
-///
-
-module.exports = {
-
-    'request_variable': request_variable,
-    'request': request,
-    'request_set': request_set
-
-};
-
-},{"bbop-core":3,"class-expression":63,"underscore":66}],11:[function(require,module,exports){
-/**
- * Response handler for dealing with the parsing of responses from
- * Barista (enveloping Minerva).
- *
- * It will detect if the incoming response is structured correctly and
- * give safe access to fields and properties.
- * 
- * It is not meant to be a model for the parts in the data section,
- * see the graph sections for that.
- * 
- * @module bbop-response-barista
- */
-
-var bbop = require('bbop-core');
-var us = require('underscore');
-var bbop_rest_response = require('bbop-rest-response').base;
-
-/**
- * Contructor for a Minerva REST JSON response object.
- * 
- * The constructor argument is an object or a string.
- * 
- * @constructor
- * @param {Object|String} raw - the JSON object as a string or object
- * @returns {response} response object
- */
-var response = function(raw){
-    bbop_rest_response.call(this);
-    this._is_a = 'bbop-response-barista';
-
-    // Required top-level strings in the response.
-    // message and message_type are defined in the superclass.
-    this._uid = null; // initiating user
-    this._packet_id = null; // identify the packet
-    this._intention = null; // what the user wanted to do ('query', 'action')
-    this._reasoner_p = null; // was the reasoner used?
-    this._signal = null; // 'merge', 'rebuild', 'meta', etc.
-
-    // Optional top-level strings in the response.
-    this._commentary = null;
-
-    // Optional top-level objects.
-    // Data contains model_id, inconsistency, etc.
-    this._data = null;
-
-    // Start with the assumption that the response is bad, try and
-    // prove otherwise.
-    this.okay(false);
-
-    // Raw will only be provided in that cases that it makes sense.
-    this._raw = null;
-    
-    // If we have no data coming in, there is a problem...
-    if( ! raw ){
-	
-	this.message('empty response in handler');
-	this.message_type('error');
-
+var response = function(json_data){
+    this._is_a = 'bbop-response-golr';
+
+    // Work with the raw incoming document.
+    if( typeof(json_data) === 'string' ){ 
+	this._raw = JSON.parse(json_data);
+    }else if( typeof(json_data) === 'object' ){ 
+	this._raw = json_data;
     }else{
+	throw new Error('unable to deal with incoming: ' + typeof(json_data));
+    }
 
-	// If we do have something coming in, And it looks like
-	// something we might be able to deal with, do our best to
-	// decode it.
-	var itsa = bbop.what_is(raw);
-	if( itsa !== 'string' && itsa !== 'object' ){
-	    
-	    // No idea what this thing is...
-	    this.message('bad argument type in handler');
-	    this.message_type('error');
+    // Cache for repeated calls to success().
+    this._success = null;
 
-	}else{
-	    
-	    // Try to make the string an object.
-	    if( itsa === 'string' ){
-		try {
-		    this._raw = JSON.parse(raw);
-		}catch(e){
-		    // Didn't make it--chuck it to create a signal.
-		    this._raw = null;
-		    this.message('handler could not parse string response: ' +
-				 raw);
-		    this.message_type('error');
-		}
+    // Cache for repeated calls to get_doc* functions.
+    // These are non-incremental indices--they are either full formed
+    // (the first time they are hit) or they are null.
+    this._doc_id2index = null;
+    this._doc_index2_id = null;
+
+    // Cache for repeated calls to resolve labels.
+    // This cache is incremental--the more it's used the larger it gets.
+    this._doc_label_maps = {}; // {<field_1>: <parsed_json_map_1>, ...}
+
+    // For highlight stripping, I just want to compile this once.
+    this._hl_regexp = new RegExp("\<\[\^\>\]\*\>", "g");
+
+};
+
+/*
+ * Function: raw
+ * 
+ * returns a pointer to the initial response object
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  object
+ */
+response.prototype.raw = function(){
+    return this._raw;
+};
+
+/*
+ * Function: success
+ * 
+ * Simple return verification of sane response from server.
+ * 
+ * Success caches its return value.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  boolean
+ */
+response.prototype.success = function(){
+
+    if( this._success === null ){
+
+	var robj = this._raw;
+	if( robj &&
+	    robj.responseHeader &&
+	    typeof robj.responseHeader.status !== 'undefined' &&
+	    robj.responseHeader.status === 0 &&
+	    robj.responseHeader.params &&
+	    robj.response &&
+	    typeof robj.response.numFound !== 'undefined' &&
+	    typeof robj.response.start !== 'undefined' &&
+	    typeof robj.response.maxScore !== 'undefined' &&
+	    robj.response.docs &&
+	    robj.facet_counts &&
+	    robj.facet_counts.facet_fields ){
+		this._success = true;
 	    }else{
-		// Looks like somebody else got here first.
-		this._raw = raw;
+		this._success = false;
 	    }
+    }
 
-	    // If we managed to define some kind of raw incoming data
-	    // that is (or has been parsed to) a model, start probing
-	    // it out to see if it is structured correctly.
-	    if( this._raw ){
+    return this._success;
+};
 
-		// Check required fields.
-		var jresp = this._raw;
-		// These must always be defined.
-		if( ! jresp['message-type'] || ! jresp['message'] ){
-		    // Core info.
-		    this.message_type('error');
-		    this.message('message and message_type must always exist');
+/*
+ * Function: okay
+ * 
+ * Alias for <success>.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  boolean
+ */
+response.prototype.okay = function(){
+    return this.success();
+};
+
+/*
+ * Function: callback_type
+ * 
+ * Return the callback type if it was specified in the query,
+ * otherwise return null. For example "reset" and "response".
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  string (or null)
+ */
+response.prototype.callback_type = function(){
+    var robj = this._raw;
+    var retval = null;
+    if( robj.responseHeader.params.callback_type &&
+	typeof robj.responseHeader.params.callback_type !== 'undefined' ){
+	    retval = robj.responseHeader.params.callback_type;
+	}
+    return retval;
+};
+
+/*
+ * Function: parameters
+ * 
+ * Get the parameter chunk--variable stuff we put in.
+ * 
+ * Pretty general, specialized functions are better.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  hash
+ */
+response.prototype.parameters = function(){
+    var robj = this._raw;
+    return robj.responseHeader.params;
+};
+
+/*
+ * Function: parameter
+ * 
+ * Get the parameter chunk--variable stuff we put in.
+ * 
+ * Pretty general, specialized functions are better.
+ * 
+ * Arguments:
+ *  n/a
+ *  key - string id for the wanted parameter
+ * 
+ * Returns:
+ *  hash, string, whatever is there at that key (otherwise null)
+ */
+response.prototype.parameter = function(key){
+    var robj = this._raw;
+    var retval = null;
+    if( robj.responseHeader.params[key] && robj.responseHeader.params[key] ){
+	retval = robj.responseHeader.params[key];
+    }
+    return retval;
+};
+
+/*
+ * Function: row_step
+ * 
+ * Returns the number of rows requested (integer).
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  integer
+ */
+response.prototype.row_step = function(){	
+    var robj = this._raw;
+    return parseInt(robj.responseHeader.params.rows);
+};
+
+/*
+ * Function: total_documents
+ * 
+ * Return the total number of documents found.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  integer
+ */
+response.prototype.total_documents = function(){
+    var robj = this._raw;
+    return parseInt(robj.response.numFound);
+};
+
+/*
+ * Function: start_document
+ * 
+ * Returns the start document for this response as an integer.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  integer
+ */
+response.prototype.start_document = function(){
+    var robj = this._raw;
+    return parseInt(robj.response.start) + 1;
+};
+
+/*
+ * Function: end_document
+ * 
+ * Returns the end document for this response as an integer.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  integer
+ */
+response.prototype.end_document = function(){
+    var robj = this._raw;
+    return this.start_document() +
+	parseInt(robj.response.docs.length) - 1;
+};
+
+/*
+ * Function: packet
+ * 
+ * Return the packet number of the current response.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  integer or null (no packet defined)
+ */
+response.prototype.packet = function(){
+    var robj = this._raw;
+    var retval = null;
+    var pval = robj.responseHeader.params.packet;
+    if( pval ){
+	retval = parseInt(pval);
+    }
+    return retval;
+};
+
+/*
+ * Function: paging_p
+ * 
+ * Whether or not paging is necessary with the given results set.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  boolean
+ */
+response.prototype.paging_p = function(){
+    var robj = this._raw;
+    var retval = false;
+    if( this.total_documents() > this.row_step() ){
+	retval = true;
+    }
+    return retval;
+};
+
+/*
+ * Function: paging_previous_p
+ * 
+ * Whether or paging backwards is an option right now.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  boolean
+ */
+response.prototype.paging_previous_p = function(){
+    // We'll take this as a proxy that a step was taken.
+    // Remember: we offset the start_document by one for readability.
+    var robj = this._raw;
+    var retval = false;
+    if( this.start_document() > 1 ){
+	retval = true;
+    }
+    return retval;
+};
+
+/*
+ * Function: paging_next_p
+ * 
+ * Whether or paging forwards is an option right now.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  boolean
+ */
+response.prototype.paging_next_p = function(){
+    // We'll take this as a proxy that a step was taken.
+    var robj = this._raw;
+    var retval = false;
+    if( this.total_documents() > this.end_document() ){
+	retval = true;	
+    }
+    return retval;
+};
+
+/*
+ * Function: documents
+ * 
+ * Returns an array of raw and unprocessed document hashes.
+ * 
+ * Arguments:
+ *  n/a
+ * 
+ * Returns:
+ *  hash
+ */
+response.prototype.documents = function(){
+    var robj = this._raw;
+    return robj.response.docs;
+};
+
+/*
+ * Function: get_doc
+ * 
+ * Returns a specified document, in its raw hash form.
+ * 
+ * Arguments:
+ *  doc_id - document identifier either an id (first) or place in the array
+ * 
+ * Returns:
+ *  document hash or null
+ */
+response.prototype.get_doc = function(doc_id){
+
+    var doc = null;
+    var robj = this._raw;
+
+    // First check if the document is available by position.
+    var docs = robj.response.docs;
+    if( docs && docs[doc_id] ){
+	doc = docs[doc_id];
+    }else{ // Not available by position, so lets see if we can get it by id.
+	
+	//print('in: ' + doc_id + ' _' + this._doc_id2index);
+
+	// Build the doc index if it isn't there.
+	var local_anchor = this;
+	if( ! this._doc_id2index ){
+	    //print('BUILD triggered on: ' + doc_id);
+	    this._doc_id2index = {};
+	    this._doc_index2id = {};
+	    each(docs, function(doc_item, doc_index){
+		var did = doc_item['id'];
+		//print('BUILD: ' + did + ' => ' + doc_index);
+		local_anchor._doc_id2index[did] = doc_index;
+		local_anchor._doc_index2id[doc_index] = did;
+	    });
+	}
+	
+	//print('pre-probe: ' + doc_id + ' _' + this._doc_id2index);
+
+	// Try and probe it out.
+	if( this._doc_id2index &&
+	    typeof(this._doc_id2index[doc_id]) !== 'undefined' ){
+		//print('PROBE: ' + doc_id);
+		var doc_i = this._doc_id2index[doc_id];
+		doc = docs[doc_i];
+	    }
+    }
+
+    return doc;
+};
+
+/*
+ * Function: get_doc_field
+ * 
+ * Returns the value(s) of the requested fields.
+ * 
+ * Remember that determining whether the returned value is a string or
+ * a list is left as an exercise for the reader when using this
+ * function.
+ * 
+ * Arguments:
+ *  doc_id - document identifier either an id (first) or place in the array
+ *  field_id - the identifier of the field we're trying to pull
+ * 
+ * Returns:
+ *  value or list of values
+ */
+response.prototype.get_doc_field = function(doc_id, field_id){
+
+    var ret = null;
+
+    // If we found our doc, go ahead and start looking for the field.
+    var doc = this.get_doc(doc_id);
+    if( doc && typeof(doc[field_id]) !== 'undefined' ){
+	
+	// We have an answer with this.
+	ret = doc[field_id];
+    }
+
+    return ret;
+};
+
+/*
+ * Function: get_doc_label
+ * 
+ * Tries to return a label for a document, field, and id combination.
+ * 
+ * WARNING: This function could be potentially slow on large datasets.
+ * 
+ * Arguments:
+ *  doc_id - document identifier either an id (first) or place in the array
+ *  field_id - the identifier of the field we're trying to pull
+ *  item_id - *[optional]* the item identifier that we're trying to resolve; if the field in question is a string or a single-valued list (as opposed to a multi-values list), this argument is not necessary, but it wouldn't hurt either
+ * 
+ * Returns:
+ *  null (not found) or string
+ */
+response.prototype.get_doc_label = function(doc_id,field_id,item_id){
+
+    var retval = null;
+
+    var anchor = this;
+
+    // If we found our doc, and confirmed that the field in question
+    // exists in the doc, go ahead and start digging to resolve the id.
+    var doc = this.get_doc(doc_id);
+    if( doc && typeof(doc[field_id]) !== 'undefined' ){
+	
+	// First try the '_label' extension.
+	var ilabel = this.get_doc_field(doc_id, field_id + '_label');
+
+	if( ilabel && bbop.what_is(ilabel) === 'string' ){
+	    // It looks like the simple solution.
+	    //print('trivial hit');
+	    retval = ilabel; // Hit!
+	}else if( ilabel && bbop.what_is(ilabel) === 'array' ){
+	    
+	    // Well, it's multi-valued, but id might just be the one.
+	    var iid = this.get_doc_field(doc_id, field_id);
+	    if( ilabel.length === 1 && iid &&
+		bbop.what_is(iid) === 'array' &&
+		iid.length === 1 ){
+		    // Case of a single id trivially mapping to a
+		    // single label.
+		    //print('forced hit');
+		    retval = ilabel[0]; // Hit!
 		}else{
 
-		    // Take out the individual optional bits for
-		    // examination.
-		    var cdata = jresp['commentary'] || null;
-		    var odata = jresp['data'] || null;
+		    //print('need to probe');
 
-		    // If data, object.
-		    if( odata && bbop.what_is(odata) !== 'object' ){
-		    // if( odata && bbop.what_is(odata) != 'object' &&
-		    // 	bbop.what_is(odata) != 'array' ){
-			this.message('data not object');
-			this.message_type('error');
-		    }else{
-			// If commentary, string.
-			if( cdata && bbop.what_is(cdata) !== 'string' ){
-			    this.message('commentary not string');
-			    this.message_type('error');
-			}else{
-			    // Looks fine then I guess.
-			    this.okay(true);
+		    // Since we'll do this twice with different map
+		    // fields, a generic function to try and probe a JSON
+		    // string map (caching it along the way) for a label.
+		    var _map_to_try = function(doc_key, map_field, item_key){
 
-			    // Super-class.
-			    this.message_type(jresp['message-type']);
-			    this.message(jresp['message']);
+			var retlbl = null;
 
-			    // Plug in the other required fields.
-			    this._uid = jresp['uid'] || 'unknown';
-			    this._intention = jresp['intention'] || 'unknown';
-			    this._reasoner_p = false;
-			    if( typeof(jresp['is-reasoned']) === 'boolean' ){
-				this._reasoner_p = jresp['is-reasoned'];
+			var map_str = anchor.get_doc_field(doc_key, map_field);
+
+			if( map_str && bbop.what_is(map_str) === 'string' ){
+
+			    // First, check the cache. If it's not there
+			    // add it.
+			    if( typeof(anchor._doc_label_maps[doc_key]) ===  'undefined'){
+				anchor._doc_label_maps[doc_key] = {};
 			    }
-			    this._signal = jresp['signal'] || 'unknown';
-			    this._packet_id = jresp['packet-id'] || 'unknown';
+			    if( typeof(anchor._doc_label_maps[doc_key][map_field]) === 'undefined'){
+				// It looks like a map wasn't defined, so let's
+				// convert it into JSON now.
+				anchor._doc_label_maps[doc_key][map_field] =
+				    JSON.parse(map_str);
+			    }
 
-			    // Add any additional fields.
-			    if( cdata ){ this._commentary = cdata; }
-			    if( odata ){ this._data = odata; }
+			    // Pull our map out of the cache.
+			    var map = anchor._doc_label_maps[doc_key][map_field];
+
+			    // Probe to see if we have anything in the map.
+			    if( map && map[item_key] ){
+				retlbl = map[item_key];
+			    }
+			}
+
+			return retlbl;
+		    };
+
+		    // Well, now we know that either we have to find a map
+		    // or the information isn't there. First try the
+		    // standard "_map".
+		    var mlabel = _map_to_try(doc_id, field_id + '_map', item_id);
+		    if( mlabel ){
+			//print('map hit');
+			retval = mlabel; // Hit!
+		    }else{
+			// If that didn't work, try again with
+			// "_closure_map".
+			var cmlabel =
+				_map_to_try(doc_id, field_id + '_closure_map', item_id);
+			if( cmlabel ){
+			    //print('closure map hit');
+			    retval = cmlabel; // Hit!
+			}else{
+			    // If that didn't work, try again with
+			    // "_list_map".
+			    var lmlabel =
+				    _map_to_try(doc_id, field_id +'_list_map', item_id);
+			    if( lmlabel ){
+				//print('list map hit');
+				retval = lmlabel; // Hit!
+			    }
 			}
 		    }
 		}
+	}
+    }
+
+    return retval;
+};
+
+/*
+ * Function: get_doc_highlight
+ * 
+ * Returns the highlighted value(s) of the requested fields.
+ * 
+ * WARNING: This function is a work in progress and will not return
+ * multi-valued fields, just the first match it finds.
+ * 
+ * WARNING: This function could be potentially slow on large datasets.
+ * 
+ * Arguments:
+ *  doc_id - document id
+ *  field_id - the identifier of the field we're trying to pull
+ *  item - the item that we're looking for the highlighted HTML for
+ * 
+ * Returns:
+ *  string of highlight or null if nothing was found
+ */
+response.prototype.get_doc_highlight = function(doc_id,field_id,item){
+
+    var ret = null;
+    var robj = this._raw;
+    var hlre = this._hl_regexp;
+
+    // See if we can find a highlighted version in the raw
+    // response. First, see if the document is in the hilight section;
+    // otherwise try and pull the id out first, then head for the
+    // highlight section.
+    var hilite_obj = null;
+    if( robj.highlighting && robj.highlighting[doc_id] ){
+	hilite_obj = robj.highlighting[doc_id];
+    }else{
+	var iid = this._doc_index2id[doc_id];
+	if( iid ){
+	    var new_doc = this.get_doc(iid);
+	    var new_doc_id = new_doc['id'];
+	    if( robj.highlighting && robj.highlighting[new_doc_id] ){
+		hilite_obj = robj.highlighting[new_doc_id];
 	    }
 	}
     }
-};
-bbop.extend(response, bbop_rest_response);
 
-/**
- * Returns the user id (uid) for a call if it was generated my a known
- * user.
- * 
- * @returns {String|null} string or null
- */
-response.prototype.user_id = function(){
-    var ret = null;
-    if( this._uid ){ ret = this._uid; }
-    return ret;
-};
+    // If we got a highlight object, see if the highlighted field is
+    // there--search the different possibilities for what a highlight
+    // field may be called.
+    if( hilite_obj ){
+	
+	//print('here (field_id): ' + field_id);
 
-/**
- * Returns the user intention for a call.
- * 
- * @returns {String|null} string or null
- */
-response.prototype.intention = function(){
-    var ret = null;
-    if( this._intention ){ ret = this._intention; }
-    return ret;
-};
+	var ans = null;
 
-/**
- * Returns whether the reasoner was used or not.
- * 
- * @returns {Boolean} if none, then false
- */
-response.prototype.reasoner_p = function(){
-    var ret = this._reasoner_p;
-    return ret;
-};
+	if( hilite_obj[field_id + '_label_searchable'] ){
+	    ans = hilite_obj[field_id + '_label_searchable'];
+	}
 
-/**
- * Returns the server's action signal, if there was one.
- * 
- * @returns {String|null} string or null
- */
-response.prototype.signal = function(){
-    var ret = null;
-    if( this._signal ){ ret = this._signal; }
-    return ret;
-};
+	if( ! ans ){
+	    if( hilite_obj[field_id + '_label'] ){
+		ans = hilite_obj[field_id + '_label'];
+	    }	    
+	}
 
-/**
- * Returns the response's unique id. Usful to make sure you're not
- * talking to yourself in some cases.
- * 
- * @returns {String|null} string or null
- */
-response.prototype.packet_id = function(){
-    var ret = null;
-    if( this._packet_id ){ ret = this._packet_id; }
-    return ret;
-};
+	if( ! ans ){
+	    if( hilite_obj[field_id + '_searchable'] ){
+		ans = hilite_obj[field_id + '_searchable'];
+	    }
+	}
 
-/**
- * Returns the commentary object (whatever that might be in any given
- * case).
- * 
- * @returns {Object|null} copy of commentary object or null
- */
-response.prototype.commentary = function(){
-    var ret = null;
-    if( this._commentary ){
-	ret = bbop.clone(this._commentary);
+	if( ! ans ){
+	    if( hilite_obj[field_id] ){
+		//print('here (field_id): ' + field_id);
+		ans = hilite_obj[field_id];
+	    }
+	}
+
+	if( ans ){ // looks like I found a list of something
+
+	    // Use only the first match.
+	    var matches_p = false;
+	    each(ans, function(an){
+		if( ! matches_p ){
+		    var stripped = an.replace(hlre, '');
+		    //print('stripped: ' + stripped);
+		    //print('item: ' + item);
+		    if( item === stripped ){
+			matches_p = true;
+			ret = an;
+		    }
+		}
+	    });
+	}
     }
+
     return ret;
 };
 
-/**
- * Returns the data object (whatever that might be in any given
- * case). This grossly returns all response data, if any.
+// /*
+//  * Function: facet_fields
+//  * 
+//  * Return a count sorted array of the response's facet fields and counts.
+//  * 
+//  * Arguments:
+//  *  n/a
+//  * 
+//  * Returns:
+//  *  list of string/integer doublets
+//  */
+// response.prototype.facet_fields = function(){
+//     var robj = this._raw;
+//     return robj.facet_counts.facet_fields;
+// };
+
+/*
+ * Function: facet_field_list
  * 
- * @returns {Object|null} copy of data object or null
- */
-response.prototype.data = function(){
-    var ret = null;
-    if( this._data ){
-	ret = bbop.clone(this._data);
-    }
-    return ret;
-};
-
-///
-/// From here on out, we're in non-generic barista territory.
-/// Minerva from here.
-/// Model.
-///
-
-/**
- * Returns the model id of the response.
+ * Return a count sorted array of the response's facet fields.
  * 
- * @returns {String|null} string or null
- */
-response.prototype.model_id = function(){
-    var ret = null;
-    if( this._data && this._data['id'] ){
-	ret = this._data['id'];
-    }
-    return ret;
-};
-
-/**
- * Returns true or false on whether or not the returned model is
- * thought to be inconsistent. Starting assumption is that it is not.
+ * Arguments:
+ *  n/a
  * 
- * @returns {Boolean} true or false
+ * Returns:
+ *  list of strings
  */
-response.prototype.inconsistent_p = function(){
-    var ret = false;
-    if( this._data &&
-	typeof(this._data['inconsistent-p']) !== 'undefined' &&
-	this._data['inconsistent-p'] === true ){
-	ret = true;
-    }
-    return ret;
+response.prototype.facet_field_list = function(){
+    var robj = this._raw;
+    return us.keys(robj.facet_counts.facet_fields).sort();
 };
 
-/**
- * Returns true or false on whether or not the returned model is
- * thought to have been modified since it's last disk save. Starting
- * assumption is that it has not.
+/*
+ * Function: facet_field
  * 
- * @returns {Boolean} true or false
- */
-response.prototype.modified_p = function(){
-    var ret = false;
-    if( this._data &&
-	typeof(this._data['modified-p']) !== 'undefined' &&
-	this._data['modified-p'] === true ){
-	ret = true;
-    }
-    return ret;
-};
-
-/**
- * Returns a true or false depending on the existence an undo list.
+ * Return a count-sorted array of a facet field's response.
  * 
- * @returns {Boolean} boolean
- */
-response.prototype.has_undo_p = function(){
-    var ret = false;
-    if( this._data && this._data['undo'] && 
-	us.isArray(this._data['undo']) &&
-	this._data['undo'].length > 0 ){
-	ret = true;
-    }
-    return ret;
-};
-
-/**
- * Returns a true or false depending on the existence a redo list.
+ * : [["foo", 60], ...]
  * 
- * @returns {Boolean} boolean
- */
-response.prototype.has_redo_p = function(){
-    var ret = false;
-    if( this._data && this._data['redo'] && 
-	us.isArray(this._data['redo']) &&
-	this._data['redo'].length > 0 ){
-	ret = true;
-    }
-    return ret;
-};
-
-/**
- * Returns the undo list.
+ * Arguments:
+ *  facet_name - name of the facet to examine
  * 
- * @returns {Array} list of undo IDs.
+ * Returns:
+ *  list of nested lists
  */
-response.prototype.undo = function(){
-    var ret = [];
-    if( this._data && this._data['undo'] && us.isArray(this._data['undo']) ){
-	ret = this._data['undo'];
-    }
-    return ret;
+response.prototype.facet_field = function(facet_name){
+    var robj = this._raw;
+    return robj.facet_counts.facet_fields[facet_name];
 };
 
-/**
- * Returns the redo list.
+/*
+ * Function: facet_counts
  * 
- * @returns {Array} list of redo IDs.
- */
-response.prototype.redo = function(){
-    var ret = [];
-    if( this._data && this._data['redo'] && us.isArray(this._data['redo']) ){
-	ret = this._data['redo'];
-    }
-    return ret;
-};
-
-/**
- * Returns a list of the facts in the response. Empty list if none.
+ * For a given facet field, return a hash of that field's items and
+ * their counts.
  * 
- * @returns {Array} list
- */
-response.prototype.facts = function(){
-    var ret = [];
-    if( this._data && this._data['facts'] && 
-	us.isArray(this._data['facts']) ){
-	ret = this._data['facts'];
-    }
-    return ret;
-};
-
-/**
- * Returns a list of owl data properties, may be used in Monarch, for
- * things like type restrictions. Empty list if none.
+ * Arguments:
+ *  n/a
  * 
- * @returns {Array} list
+ * Returns:
+ *  hash of facets to their integer counts
  */
-response.prototype.data_properties = function(){
-    var ret = [];
-    if( this._data && this._data['data-properties'] && 
-	us.isArray(this._data['data-properties']) ){
-	ret = this._data['data-properties'];
-    }
-    return ret;
+response.prototype.facet_counts = function(){
+
+    var robj = this._raw;
+    var ret_hash = {};
+
+    var anchor = this;
+    
+    var facet_field_list = this.facet_field_list();
+    each(facet_field_list, function(ffield){
+	
+	// Make sure the top field is present,
+	if( ! ret_hash[ffield] ){
+	    ret_hash[ffield] = {};		
+	}
+	
+	var facet_field_items = anchor.facet_field(ffield);
+	each(facet_field_items, function(item, index){
+	    var name = item[0];
+	    var count = item[1];
+	    ret_hash[ffield][name] = count;
+	});
+    });
+    
+    return ret_hash;
 };
 
-/**
- * Returns a list of relationships (represented like:{ "type":
- * "property", "id": "BFO:0000050", "label": "part of" }) found in the
- * model in the response. Empty list if none.
+/*
+ * Function: query
  * 
- * @returns {Array} list
- */
-response.prototype.properties = function(){
-    var ret = [];
-    if( this._data && this._data['properties'] && 
-	us.isArray(this._data['properties']) ){
-	ret = this._data['properties'];
-    }
-    return ret;
-};
-
-/**
- * Returns a list of the individuals in the response. Empty list if none.
+ * Return the raw query parameter "q".
  * 
- * @returns {Array} list
- */
-response.prototype.individuals = function(){
-    var ret = [];
-    if( this._data && this._data['individuals'] && 
-	us.isArray(this._data['individuals']) ){
-	ret = this._data['individuals'];
-    }
-    return ret;
-};
-
-/**
- * Returns a list of the inferred_individuals in the response. Empty
- * list if none.
+ * Arguments:
+ *  n/a
  * 
- * @returns {Array} list
+ * Returns:
+ *  string or null
  */
-response.prototype.inferred_individuals = function(){
-    var ret = [];
-    if( this._data && this._data['individuals-i'] && 
-	us.isArray(this._data['individuals-i']) ){
-	ret = this._data['individuals-i'];
+response.prototype.query = function(){
+    var robj = this._raw;    
+    var retval = null;
+    
+    if( robj.responseHeader.params && robj.responseHeader.params.q ){
+	retval = robj.responseHeader.params.q;
     }
-    return ret;
+    
+    return retval;
 };
 
-/**
- * Returns a list of the (complex) annotations found in the
- * response. Sometimes not there, so check the return.
- * 
- * @returns {Array} list
- */
-response.prototype.annotations = function(){
-    var ret = [];
-    if( this._data && this._data['annotations'] && 
-	us.isArray(this._data['annotations']) ){
-	ret = this._data['annotations'];
-    }
-    return ret;
-};
-
-/**
- * Returns the string of the export found in the return.
- * 
- * @returns {String} string
- */
-response.prototype.export_model = function(){
-    var ret = '';
-    if( this._data && this._data['export-model'] ){
-	ret = this._data['export-model'];
-    }
-    return ret;
-};
-
-///
-/// Meta.
-///
-
-/**
- * Returns a list of the relations found in the response. Sometimes not
- * there, so check the return.
+/*
+ * Function: query_filters
  *
- * This is a function mostly for meta responses.
+ * A sensible handling of the not-so-great format of "fq" returned by
+ * Solr (fq can be irritating single value or irritating array, along
+ * with things like "-" in front of values). Since plus and minus
+ * filters are mutually exclusive, we have a return format like:
  * 
- * @returns {Array} list
+ * : {field1: {filter1: (true|false), ...}, ...}
+ * 
+ * Where the true|false value represents a positive (true) or negative
+ * (false) filter.
+ * 
+ * Parameters:
+ *  n/a
+ *
+ * Returns:
+ *  a hash of keyed hashes
  */
-response.prototype.relations = function(){
-    var ret = [];
-    if( this._data && this._data['meta'] && this._data['meta']['relations'] && 
-	us.isArray(this._data['meta']['relations']) ){
-	ret = this._data['meta']['relations'];
+response.prototype.query_filters = function(){
+    var robj = this._raw;    
+    var ret_hash = {};
+    var fq_list = this.parameter('fq');
+    if( fq_list ){
+	
+	// Ensure that it's a list and not just a naked string (as can
+	// sometimes happen).
+	if( bbop.what_is(fq_list) === 'string'){
+	    fq_list = [fq_list];
+	}
+	
+	// Make the return fq more tolerable.
+	each(fq_list, function(fq_item){
+	    
+	    // Split everything on colons. Field is the first
+	    // one, and everything else joined back together is
+	    // the value of the filter. Best if you think about
+	    // the GO id and non-GO id cases.
+	    var splits = fq_item.split(":");
+	    var field = splits.shift();
+	    var value = splits.join(":"); // GO 0022008 -> GO:0022008
+	    
+	    // First let's just assume that we have a positive
+	    // filter.
+	    var polarity = true;
+	    
+	    // Check and see if the first value in our
+	    // field is '-' or '+'. If so, edit it out, but
+	    // change the polarity in the '-' case.
+	    if( field.charAt(0) === '-' ){
+		polarity = false;
+		field = field.substring(1, field.length);
+	    }else if( field.charAt(0) === '+' ){
+		field = field.substring(1, field.length);
+	    }
+	    
+	    // Ensure that there is a place in the return hash
+	    // for us.
+	    if( ! ret_hash[field] ){
+		ret_hash[field] = {};
+	    }
+	    
+	    // I want just the first quote and the final quote
+	    // gone from the value if they are matching quotes.
+	    if( value.charAt(0) === '"' &&
+		value.charAt(value.length -1) === '"' ){
+		    value = value.substring(1, value.length -1);
+		}
+	    
+	    // The final filter note.
+	    ret_hash[field][value] = polarity;
+	    
+	});
     }
-    return ret;
-};
-
-/**
- * Returns a list of the evidence found in the response. Sometimes not
- * there, so check the return.
- *
- * This is a function mostly for meta responses.
- * 
- * @returns {Array} list
- */
-response.prototype.evidence = function(){
-    var ret = [];
-    if( this._data && this._data['meta'] && this._data['meta']['evidence'] && 
-	us.isArray(this._data['meta']['evidence']) ){
-	ret = this._data['meta']['evidence'];
-    }
-    return ret;
-};
-
-/**
- * Returns a list the model ids found in the response. Sometimes not
- * there, so check the return.
- *
- * This is a function mostly for meta responses.
- * 
- * See Also: <models_meta>
- * 
- * @returns {Array} list
- */
-response.prototype.model_ids = function(){
-    var ret = [];
-    if( this._data && this._data['meta'] && this._data['meta']['models-meta'] && 
-	us.isObject(this._data['meta']['models-meta']) ){
-	ret = us.keys(this._data['meta']['models-meta']);
-    }
-    return ret;
-};
-
-/**
- * Returns a hash of the model ids to models properties found in the
- * response.
- *
- * Sometimes not there, so check the return.
- *
- * WARNING: A work in progress, but this is intended as an eventual
- * replacement to model_ids.
- *
- * This is a function mostly for meta responses.
- *
- * See Also: <model_ids>
- * 
- * @returns {Object} model ids to arrays of serialized annotation objects
- */
-response.prototype.models_meta = function(){
-    var ret = {};
-    if( this._data && this._data['meta'] && this._data['meta']['models-meta'] && 
-	us.isObject(this._data['meta']['models-meta']) ){
-	ret = this._data['meta']['models-meta'];
-    }
-    return ret;
-};
-
-/**
- * Returns a hash of the model ids to read-only models properties
- * found in the response.
- *
- * Sometimes not there, so check the return.
- *
- * This is a function mostly for meta responses.
- *
- * See Also: {models_meta}
- * 
- * @returns {Object} hash
- */
-response.prototype.models_meta_read_only = function(){
-    var ret = {};
-    if( this._data && this._data['meta'] && 
-	this._data['meta']['models-meta-read-only'] && 
-	us.isObject(this._data['meta']['models-meta-read-only']) ){
-	ret = this._data['meta']['models-meta-read-only'];
-    }
-    return ret;
+    
+    return ret_hash;
 };
 
 ///
@@ -19242,201 +9033,7 @@ response.prototype.models_meta_read_only = function(){
 
 module.exports = response;
 
-},{"bbop-core":3,"bbop-rest-response":12,"underscore":66}],12:[function(require,module,exports){
-/**
- * This module contains two response handlers.
- *
- * First, a generic BBOP handler for dealing with the gross parsing of
- * responses from a REST server. This is just an example pass-thru
- * handler that needs to be overridden (see subclasses).
- * 
- * Second, a generic BBOP handler for dealing with the gross parsing
- * of responses from a REST JSON server. It will detect if the
- * incoming response is a string, and if so, try to parse it to
- * JSON. Otherwise, if the raw return is already an Object, we assume
- * that somebody got to it before us (e.g. jQuery's handling).
- *
- * A little more discussion of the base class.
- *
- * You may note that things like status and status codes are not part
- * of the base response. The reason is is that not all methods of REST
- * in the environments that we use support them. For example: readURL
- * in rhino. For this reason, the "health" of the response is left to
- * the simple okay() function--just enought to be able to choose
- * between "success" and "failure" in the managers. To give a bit more
- * information in case of early error, there is message and
- * message_type.
- * 
- * Similarly, there are no toeholds in the returned data except
- * raw(). All data views and operations are implemented in the
- * subclasses.
- *
- * This module includes the following objects:
- *  - base: essentially uninteresting base class
- *  - json: json parsing attmpted
- *
- * @module bbop-rest-response
- */
-
-var bbop = require('bbop-core');
-var us = require('underscore');
-
-/**
- * Contructor for a REST query response object.
- * 
- * The constructor argument is an object, not a string.
- * 
- * @constructor
- * @param {String} in_data - the string returned from a request
- * @returns {Object} rest response object
- */
-var response = function(in_data){
-    this._is_a = 'bbop-rest-response';
-
-    // The raw incoming document.
-    this._raw = in_data;
-
-    // Cache for repeated calls to okay().
-    this._okay = null;
-    this._message = null;
-    this._message_type = null;
-};
-
-/**
- * Returns the initial response object, whatever it was.
- * 
- * @returns {Object} object
- */
-response.prototype.raw = function(){
-    return this._raw;
-};
-
-/**
- * Simple return verification of sane response from server.
- * 
- * This okay() caches its return value, so harder probes don't need to
- * be performed more than once.
- * 
- * @param {Boolean} [okay_p] - setter for okay
- * @returns {Boolean}
- */
-response.prototype.okay = function(okay_p){
-
-    // Optionally set from the outside.
-    if( bbop.is_defined(okay_p) ){
-	this._okay = okay_p;
-    }
-
-    //print('a: ' + this._okay);
-    if( this._okay == null ){ // only go if answer not cached
-	//print('b: ' + this._raw);
-	if( ! this._raw || this._raw === '' ){
-	    //print('c: if');
-	    this._okay = false;
-	}else{
-	    //print('c: else');
-	    this._okay = true;
-	}
-    }
-    
-    return this._okay;
-};
-
-/**
- * A message that the response wants to let you know about its
- * creation.
- * 
- * @param {String} [message] - setter for message
- * @returns {String} message string
- */
-response.prototype.message = function(message){
-    if( bbop.is_defined(message) ){
-	this._message = message;
-    }
-    return this._message;
-};
-
-/**
- * A message about the message (a string classifier) that the response
- * wants to let you know about its message.
- * 
- * @param {String} [message_type] - setter for message_type
- * @returns {String} message type string
- */
-response.prototype.message_type = function(message_type){
-    if( bbop.is_defined(message_type) ){
-	this._message_type = message_type;
-    }
-    return this._message_type;
-};
-
-///
-///
-///
-
-/**
- * Contructor for a REST JSON response object.
- * 
- * The constructor argument is an object or a string.
- * 
- * @constructor
- * @param {Object|String} json_data - the JSON object as a string (as returned from a request)
- * @returns {response_json} rest response object
- */
-var response_json = function(json_data){
-    response.call(this);
-    this._is_a = 'bbop-rest-response-json';
-
-    // The raw incoming document.
-    //this._raw_string = json_data_str;
-    this._raw_string = null;
-    this._okay = null;
-
-    if( json_data ){
-
-	if( bbop.what_is(json_data) === 'string' ){
-
-	    // Try and parse out strings.
-	    try {
-		this._raw = JSON.parse(json_data);
-		this._okay = true;
-	    }catch(e){
-		// Didn't make it, but still a string.
-		this._raw = json_data;
-		this._okay = false;
-	    }
-
-	}else if( bbop.what_is(json_data) === 'object' ||
-		  bbop.what_is(json_data) === 'array' ){
-
-	    // Looks like somebody else got here first.
-	    this._raw = json_data;
-	    this._okay = true;
-	    
-	}else{
-
-	    // No idea what this thing is...
-	    this._raw = null;
-	    this._okay = null;
-	}
-    }
-};
-bbop.extend(response_json, response);
-
-///
-/// Exportable body.
-///
-
-module.exports = {
-
-    'base': response,
-    'json': response_json
-
-};
-
-},{"bbop-core":13,"underscore":66}],13:[function(require,module,exports){
-arguments[4][3][0].apply(exports,arguments)
-},{"dup":3,"underscore":66}],14:[function(require,module,exports){
+},{"bbop-core":2,"underscore":63}],10:[function(require,module,exports){
 /** 
  * Generic BBOP manager for dealing with basic generic REST calls.
  * This specific one is designed to be overridden by its subclasses.
@@ -20238,11 +9835,11 @@ module.exports = {
 
 };
 
-},{"bbop-core":15,"bbop-registry":16,"http":34,"jquery":17,"q":18,"querystring":46,"sync-request":19,"underscore":66,"url":60}],15:[function(require,module,exports){
-arguments[4][3][0].apply(exports,arguments)
-},{"dup":3,"underscore":66}],16:[function(require,module,exports){
-arguments[4][8][0].apply(exports,arguments)
-},{"bbop-core":15,"dup":8,"underscore":66}],17:[function(require,module,exports){
+},{"bbop-core":11,"bbop-registry":12,"http":30,"jquery":13,"q":14,"querystring":42,"sync-request":15,"underscore":63,"url":56}],11:[function(require,module,exports){
+arguments[4][2][0].apply(exports,arguments)
+},{"dup":2,"underscore":63}],12:[function(require,module,exports){
+arguments[4][7][0].apply(exports,arguments)
+},{"bbop-core":11,"dup":7,"underscore":63}],13:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
@@ -29454,7 +19051,7 @@ return jQuery;
 
 }));
 
-},{}],18:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 (function (process){
 // vim:ts=4:sts=4:sw=4:
 /*!
@@ -31506,7 +21103,7 @@ return Q;
 });
 
 }).call(this,require('_process'))
-},{"_process":42}],19:[function(require,module,exports){
+},{"_process":38}],15:[function(require,module,exports){
 'use strict';
 
 var Response = require('http-response-object');
@@ -31579,7 +21176,7 @@ function doRequest(method, url, options, callback) {
   return new Response(xhr.status, headers, xhr.responseText);
 }
 
-},{"http-response-object":20,"then-request/lib/handle-qs.js":21}],20:[function(require,module,exports){
+},{"http-response-object":16,"then-request/lib/handle-qs.js":17}],16:[function(require,module,exports){
 'use strict';
 
 module.exports = Response;
@@ -31624,7 +21221,7 @@ Response.prototype.getBody = function (encoding) {
   return encoding ? this.body.toString(encoding) : this.body;
 };
 
-},{}],21:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 var parse = require('qs').parse;
@@ -31648,10 +21245,10 @@ function handleQs(url, query) {
   return start + qs + end;
 }
 
-},{"qs":22}],22:[function(require,module,exports){
+},{"qs":18}],18:[function(require,module,exports){
 module.exports = require('./lib/');
 
-},{"./lib/":23}],23:[function(require,module,exports){
+},{"./lib/":19}],19:[function(require,module,exports){
 // Load modules
 
 var Stringify = require('./stringify');
@@ -31668,7 +21265,7 @@ module.exports = {
     parse: Parse
 };
 
-},{"./parse":24,"./stringify":25}],24:[function(require,module,exports){
+},{"./parse":20,"./stringify":21}],20:[function(require,module,exports){
 // Load modules
 
 var Utils = require('./utils');
@@ -31827,7 +21424,7 @@ module.exports = function (str, options) {
     return Utils.compact(obj);
 };
 
-},{"./utils":26}],25:[function(require,module,exports){
+},{"./utils":22}],21:[function(require,module,exports){
 // Load modules
 
 var Utils = require('./utils');
@@ -31926,7 +21523,7 @@ module.exports = function (obj, options) {
     return keys.join(delimiter);
 };
 
-},{"./utils":26}],26:[function(require,module,exports){
+},{"./utils":22}],22:[function(require,module,exports){
 // Load modules
 
 
@@ -32060,7 +21657,7 @@ exports.isBuffer = function (obj) {
         obj.constructor.isBuffer(obj));
 };
 
-},{}],27:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 /* 
  * Package: core.js
  * 
@@ -56738,9 +46335,9 @@ if( typeof(exports) != 'undefined' ){
 }
 
 
-},{"http":34,"ringo/httpclient":undefined,"url":60}],28:[function(require,module,exports){
+},{"http":30,"ringo/httpclient":undefined,"url":56}],24:[function(require,module,exports){
 
-},{}],29:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -58275,7 +47872,7 @@ function blitBuffer (src, dst, offset, length) {
   return i
 }
 
-},{"base64-js":30,"ieee754":31,"is-array":32}],30:[function(require,module,exports){
+},{"base64-js":26,"ieee754":27,"is-array":28}],26:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -58401,7 +47998,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 	exports.fromByteArray = uint8ToBase64
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
-},{}],31:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = nBytes * 8 - mLen - 1
@@ -58487,7 +48084,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],32:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 
 /**
  * isArray
@@ -58522,7 +48119,7 @@ module.exports = isArray || function (val) {
   return !! val && '[object Array]' == str.call(val);
 };
 
-},{}],33:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -58825,7 +48422,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],34:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 var http = module.exports;
 var EventEmitter = require('events').EventEmitter;
 var Request = require('./lib/request');
@@ -58971,7 +48568,7 @@ http.STATUS_CODES = {
     510 : 'Not Extended',               // RFC 2774
     511 : 'Network Authentication Required' // RFC 6585
 };
-},{"./lib/request":35,"events":33,"url":60}],35:[function(require,module,exports){
+},{"./lib/request":31,"events":29,"url":56}],31:[function(require,module,exports){
 var Stream = require('stream');
 var Response = require('./response');
 var Base64 = require('Base64');
@@ -59182,7 +48779,7 @@ var isXHR2Compatible = function (obj) {
     if (typeof FormData !== 'undefined' && obj instanceof FormData) return true;
 };
 
-},{"./response":36,"Base64":37,"inherits":38,"stream":58}],36:[function(require,module,exports){
+},{"./response":32,"Base64":33,"inherits":34,"stream":54}],32:[function(require,module,exports){
 var Stream = require('stream');
 var util = require('util');
 
@@ -59304,7 +48901,7 @@ var isArray = Array.isArray || function (xs) {
     return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{"stream":58,"util":62}],37:[function(require,module,exports){
+},{"stream":54,"util":58}],33:[function(require,module,exports){
 ;(function () {
 
   var object = typeof exports != 'undefined' ? exports : this; // #8: web workers
@@ -59366,7 +48963,7 @@ var isArray = Array.isArray || function (xs) {
 
 }());
 
-},{}],38:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -59391,12 +48988,12 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],39:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 module.exports = Array.isArray || function (arr) {
   return Object.prototype.toString.call(arr) == '[object Array]';
 };
 
-},{}],40:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 exports.endianness = function () { return 'LE' };
 
 exports.hostname = function () {
@@ -59443,7 +49040,7 @@ exports.tmpdir = exports.tmpDir = function () {
 
 exports.EOL = '\n';
 
-},{}],41:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -59671,7 +49268,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
-},{"_process":42}],42:[function(require,module,exports){
+},{"_process":38}],38:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -59763,7 +49360,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],43:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.3.2 by @mathias */
 ;(function(root) {
@@ -60297,7 +49894,7 @@ process.umask = function() { return 0; };
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],44:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -60383,7 +49980,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],45:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -60470,16 +50067,16 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],46:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":44,"./encode":45}],47:[function(require,module,exports){
+},{"./decode":40,"./encode":41}],43:[function(require,module,exports){
 module.exports = require("./lib/_stream_duplex.js")
 
-},{"./lib/_stream_duplex.js":48}],48:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":44}],44:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -60572,7 +50169,7 @@ function forEach (xs, f) {
 }
 
 }).call(this,require('_process'))
-},{"./_stream_readable":50,"./_stream_writable":52,"_process":42,"core-util-is":53,"inherits":38}],49:[function(require,module,exports){
+},{"./_stream_readable":46,"./_stream_writable":48,"_process":38,"core-util-is":49,"inherits":34}],45:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -60620,7 +50217,7 @@ PassThrough.prototype._transform = function(chunk, encoding, cb) {
   cb(null, chunk);
 };
 
-},{"./_stream_transform":51,"core-util-is":53,"inherits":38}],50:[function(require,module,exports){
+},{"./_stream_transform":47,"core-util-is":49,"inherits":34}],46:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -61575,7 +51172,7 @@ function indexOf (xs, x) {
 }
 
 }).call(this,require('_process'))
-},{"./_stream_duplex":48,"_process":42,"buffer":29,"core-util-is":53,"events":33,"inherits":38,"isarray":39,"stream":58,"string_decoder/":59,"util":28}],51:[function(require,module,exports){
+},{"./_stream_duplex":44,"_process":38,"buffer":25,"core-util-is":49,"events":29,"inherits":34,"isarray":35,"stream":54,"string_decoder/":55,"util":24}],47:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -61786,7 +51383,7 @@ function done(stream, er) {
   return stream.push(null);
 }
 
-},{"./_stream_duplex":48,"core-util-is":53,"inherits":38}],52:[function(require,module,exports){
+},{"./_stream_duplex":44,"core-util-is":49,"inherits":34}],48:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -62267,7 +51864,7 @@ function endWritable(stream, state, cb) {
 }
 
 }).call(this,require('_process'))
-},{"./_stream_duplex":48,"_process":42,"buffer":29,"core-util-is":53,"inherits":38,"stream":58}],53:[function(require,module,exports){
+},{"./_stream_duplex":44,"_process":38,"buffer":25,"core-util-is":49,"inherits":34,"stream":54}],49:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -62377,10 +51974,10 @@ function objectToString(o) {
   return Object.prototype.toString.call(o);
 }
 }).call(this,require("buffer").Buffer)
-},{"buffer":29}],54:[function(require,module,exports){
+},{"buffer":25}],50:[function(require,module,exports){
 module.exports = require("./lib/_stream_passthrough.js")
 
-},{"./lib/_stream_passthrough.js":49}],55:[function(require,module,exports){
+},{"./lib/_stream_passthrough.js":45}],51:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = require('stream');
 exports.Readable = exports;
@@ -62389,13 +51986,13 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":48,"./lib/_stream_passthrough.js":49,"./lib/_stream_readable.js":50,"./lib/_stream_transform.js":51,"./lib/_stream_writable.js":52,"stream":58}],56:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":44,"./lib/_stream_passthrough.js":45,"./lib/_stream_readable.js":46,"./lib/_stream_transform.js":47,"./lib/_stream_writable.js":48,"stream":54}],52:[function(require,module,exports){
 module.exports = require("./lib/_stream_transform.js")
 
-},{"./lib/_stream_transform.js":51}],57:[function(require,module,exports){
+},{"./lib/_stream_transform.js":47}],53:[function(require,module,exports){
 module.exports = require("./lib/_stream_writable.js")
 
-},{"./lib/_stream_writable.js":52}],58:[function(require,module,exports){
+},{"./lib/_stream_writable.js":48}],54:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -62524,7 +52121,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":33,"inherits":38,"readable-stream/duplex.js":47,"readable-stream/passthrough.js":54,"readable-stream/readable.js":55,"readable-stream/transform.js":56,"readable-stream/writable.js":57}],59:[function(require,module,exports){
+},{"events":29,"inherits":34,"readable-stream/duplex.js":43,"readable-stream/passthrough.js":50,"readable-stream/readable.js":51,"readable-stream/transform.js":52,"readable-stream/writable.js":53}],55:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -62747,7 +52344,7 @@ function base64DetectIncompleteChar(buffer) {
   this.charLength = this.charReceived ? 3 : 0;
 }
 
-},{"buffer":29}],60:[function(require,module,exports){
+},{"buffer":25}],56:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -63456,14 +53053,14 @@ function isNullOrUndefined(arg) {
   return  arg == null;
 }
 
-},{"punycode":43,"querystring":46}],61:[function(require,module,exports){
+},{"punycode":39,"querystring":42}],57:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],62:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -64053,7 +53650,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":61,"_process":42,"inherits":38}],63:[function(require,module,exports){
+},{"./support/isBuffer":57,"_process":38,"inherits":34}],59:[function(require,module,exports){
 /** 
  * Class expressions.
  * 
@@ -64694,7 +54291,7 @@ class_expression.cls = function(id){
 // Exportable body.
 module.exports = class_expression;
 
-},{"bbop-core":3,"underscore":66}],64:[function(require,module,exports){
+},{"bbop-core":2,"underscore":63}],60:[function(require,module,exports){
 (function (process,__dirname){
 /*!
  * This file is part of Cytoscape.js 2.4.6.
@@ -91031,9 +80628,1972 @@ this.cytoscape = cytoscape;
 })( cytoscape );
 
 }).call(this,require('_process'),"/node_modules/cytoscape/dist")
-},{"_process":42,"child_process":28,"os":40,"path":41}],65:[function(require,module,exports){
-arguments[4][10][0].apply(exports,arguments)
-},{"bbop-core":3,"class-expression":63,"dup":10,"underscore":66}],66:[function(require,module,exports){
+},{"_process":38,"child_process":24,"os":36,"path":37}],61:[function(require,module,exports){
+/* 
+ * Package: conf.js
+ * 
+ * Generic BBOP manager for dealing with gross GOlr configuration
+ * and management.
+ * 
+ * Contains <bbop.golr.conf_field>, <bbop.golr.conf_class>, and
+ * <bbop.golr.conf>.
+ * 
+ * TODO: better document all of this. Essentially, this is all for
+ * getting data out of a JSONized version of the YAML files used to
+ * drive the OWLTools-Solr parts of GOlr.
+ */
+
+var bbop = require('bbop-core');
+var us = require('underscore');
+
+// Aliasing.
+var bbop_logger = bbop.logger;
+var each = us.each;
+
+/*
+ * Constructor: conf_field
+ * 
+ * Contructor for a GOlr search field.
+ * 
+ * Arguments:
+ *  field_conf_struct - JSONized config
+ * 
+ * Returns:
+ *  conf_field object
+ */
+var conf_field = function (field_conf_struct){
+    this._is_a = 'golr-conf.conf_field';
+
+    // Get a good self-reference point.
+    var anchor = this;
+
+    // Per-manager logger.
+    var logger = new bbop_logger(this._is_a);
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch(str); }
+
+    // Capture search fields.
+    this._field = field_conf_struct;
+
+    /*
+     * Function: display_name
+     * 
+     * The user-facing display name. Suitable for label or title
+     * somewhere.
+     * 
+     * Returns:
+     *  Display name string.
+     */
+    this.display_name = function(){
+	return this._field['display_name'];
+    };
+
+    /*
+     * Function: description
+     * 
+     * A longer description. Suitable for tooltips.
+     * 
+     * Returns:
+     *  Description string.
+     */
+    this.description = function(){
+	return this._field['description'];
+    };
+
+    /*
+     * Function: id
+     * 
+     * The unique ID of this profile.
+     * 
+     * Returns:
+     *  String.
+     */
+    this.id = function(){
+	return this._field['id'];
+    };
+
+    /*
+     * Function: searchable
+     * 
+     * Returns whether or not a string field has a shadow
+     * "*_searchable" field defined that is suitable for dismax
+     * searches. Defaults to false.
+     * 
+     * Returns:
+     *  boolean
+     */
+    this.searchable = function(){
+	var retval = false;
+	if( this._field['searchable'] === 'true' ||
+	    this._field['searchable'] === true ){
+		retval = true;	
+	    }
+	return retval;
+    };
+
+    /*
+     * Function: required
+     * 
+     * Returns whether or not this field is required. Defaults to
+     * false.
+     * 
+     * Not of particular use.
+     * 
+     * Returns:
+     *  Boolean.
+     */
+    this.required = function(){
+	var retval = false;
+	if( this._field['required'] === 'true' ||
+	    this._field['required'] === true ){
+		retval = true;	
+	    }
+	return retval;
+    };
+
+    /*
+     * Function: is_multi
+     * 
+     * Using the "cardinality" entry, returns whether or not this
+     * field is "single" (false) or "multi" (true). Defaults to false.
+     * 
+     * Returns:
+     *  Boolean.
+     */
+    this.is_multi = function(){
+	var retval = false;
+	if( this._field['cardinality'] === 'multi' ){
+	    retval = true;	
+	}
+	return retval;
+    };
+
+    /*
+     * Function: is_fixed
+     * 
+     * Using the "property_type" entry, returns whether or not this
+     * field is "dynamic" (false) or "fixed" (true). Defaults to false.
+     * 
+     * Not of particular use.
+     * 
+     * Returns:
+     *  Boolean.
+     */
+    this.is_fixed = function(){
+	var retval = false;
+	if( this._field['property_type'] === 'fixed' ){
+	    retval = true;	
+	}
+	return retval;
+    };
+
+    /*
+     * Function: property
+     * 
+     * Returns the method of this field's generation in the loader.
+     * 
+     * Not of particular use.
+     * 
+     * Returns:
+     *  String.
+     */
+    this.property = function(){
+	var retval = '???';
+	if( this._field['property'] ){
+	    retval = this._field['property'];
+	}
+	return retval;
+    };
+
+    // TODO: ...
+};
+
+/*
+ * Namespace: bbop.golr.conf_class
+ *
+ * Constructor: conf_class
+ * 
+ * Contructor for a GOlr search class.
+ * 
+ * Arguments:
+ *  class_conf_struct - JSONized config
+ * 
+ * Returns:
+ *  conf_class object
+ */
+var conf_class = function (class_conf_struct){
+    this._is_a = 'golr-conf.conf_class';
+
+    // Get a good self-reference point.
+    var anchor = this;
+
+    // Per-manager logger.
+    var logger = new bbop_logger(this._is_a);
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch(str); }
+
+    // Capture class and the component fields into variables.
+    this._class = class_conf_struct;
+    // this._fields = {};
+    // bbop.core.each(this._class['fields'],
+    // 		   function(item, index){
+    // 		       var sf = new bbop.golr.conf_field(item);
+    // 		       anchor._fields[sf.id()] = sf;
+    // 		  });
+
+    /*
+     * Function: display_name
+     * 
+     * The user-facing display name. Suitable for label or title
+     * somewhere.
+     * 
+     * Returns:
+     *  Display name string.
+     */
+    this.display_name = function(){
+	return this._class['display_name'];
+    };
+
+    /*
+     * Function: description
+     * 
+     * A longer description. Suitable for tooltips.
+     * 
+     * Returns:
+     *  Description string.
+     */
+    this.description = function(){
+	return this._class['description'];
+    };
+
+    /*
+     * Function: weight
+     * 
+     * The relative weight of this search class.
+     * 
+     * Returns:
+     *  Integer.
+     */
+    this.weight = function(){
+    	return parseInt(this._class['weight']) || 0;
+    };
+
+    /*
+     * Function: id
+     * 
+     * The unique ID of this profile.
+     * 
+     * Returns:
+     *  String.
+     */
+    this.id = function(){
+	return this._class['id'];
+    };
+
+    /*
+     * Function: document_category
+     * 
+     * The document category that this personality is meant to work
+     * with. Otherwise, returns the class id.
+     * 
+     * Returns:
+     *  String.
+     */
+    this.document_category = function(){
+	return this._class['document_category'] || this.id();
+    };
+
+    /*
+     * Function: searchable_extension
+     * 
+     * This returns the searchable extension used for this
+     * class. There is a typical default, but it might be change in
+     * namespace collisions, so it's better to just use this.
+     * 
+     * Parameters:
+     *  n/a
+     * 
+     * Returns:
+     * string
+     */
+    this.searchable_extension = function(){
+    	//return this._class['searchable_extension'] || '_searchable';
+    	return '_searchable';
+    };
+
+    /*
+     * Function: get_field
+     * 
+     * Returns a search field by id string. Null otherwise.
+     * 
+     * Parameters:
+     *  fid - a string id for the field
+     * 
+     * Returns:
+     *  <bbop.golr.conf_field>
+     */
+    this.get_field = function(fid){
+	var retval = null;
+	if( this._class.fields_hash &&
+	    this._class.fields_hash[fid] ){
+		retval = new conf_field(this._class.fields_hash[fid]);
+	    }
+	return retval;
+    };
+
+    /*
+     * Function: get_fields
+     * 
+     * Return all of the fields in this search class.
+     * 
+     * Returns:
+     *  Array of <bbop.golr.conf_field> (unordered).
+     */
+    this.get_fields = function(){
+	var retval = [];
+	if( this._class.fields_hash ){
+	    each(this._class.fields_hash, function(struct, fid){
+		var cf = new conf_field(struct);
+		retval.push(cf);
+	    });
+	}
+	return retval;
+    };
+
+    // Internal function to determine if the weight category that's
+    // used by several functions is okay.
+    this._munge_weight_category = function(weight_category){
+
+	// Not defined or only the defined few.
+	if( ! weight_category ){
+	    throw new Error("Missing weight category");	
+	}else if( weight_category !== 'boost' &&
+	    weight_category !== 'result' &&
+	    weight_category !== 'filter' ){
+	    throw new Error("Unknown weight category: " + weight_category);
+	}
+
+	return weight_category + '_weights';
+    };
+
+    /*
+     * Function: get_weights
+     * 
+     * Get the various weights we need to run.
+     * 
+     * The weight category can be 'boost', 'result', or 'filter'.
+     * 
+     * Arguments:
+     *  weight_category - string identifying the legal weight category
+     * 
+     * Returns:
+     *  object of {field => weight, ...}
+     */
+    this.get_weights = function(weight_category){
+	
+	var rethash = {};
+
+	// Only the defined few.
+	weight_category = this._munge_weight_category(weight_category);
+
+	// Collect the good bits.
+	if( typeof(this._class[weight_category]) === 'undefined' ){
+	    throw new Error("Missing weight category: " + weight_category);
+	}else{
+	    // Only work it if there is something there more than "".
+	    var wcs = this._class[weight_category];
+	    if( wcs && wcs !== "" && wcs !== " " ){
+		var dfab = wcs;
+		var fields = dfab.split(/\s+/);
+		each(fields, function(item, i){
+		    var field_val = item.split(/\^/);
+		    rethash[field_val[0]] =
+			parseFloat(field_val[1]);
+		});
+	    }
+	}
+
+	return rethash;
+    };
+
+    /*
+     * Function: field_order_by_weight
+     * 
+     * Returns an array of field ids ordered by weight.
+     * 
+     * The weight category can be 'boost', 'result', or 'filter'.
+     * 
+     * Arguments:
+     * weight_category - string identifying the legal weight category
+     * cutoff - *[optional]* if not defined, all listed fields in set returned
+     * 
+     * Returns:
+     *  array like [field5, field4, ...]
+     */
+    this.field_order_by_weight = function(weight_category, cutoff){
+
+    	var retset = [];
+
+	var weights = this.get_weights(weight_category);
+
+	// Add the ones that meet threshold (if there is one) to the
+	// set.
+	each(weights, function(val, key){
+	    if( cutoff ){
+		if( val >= cutoff ){
+		    retset.push(key);			       
+		}
+	    }else{
+		retset.push(key);			       
+	    }
+	});
+	
+	// Order the set.
+	retset.sort(function(a, b){
+			return weights[b] - weights[a];
+		    });
+
+    	return retset;
+    };
+};
+
+/*
+ * Namespace: bbop.golr.conf
+ *
+ * Constructor: conf
+ * 
+ * Contructor for the GOlr query manager.
+ * Why don't we just take bbop.golr.golr_meta as read? We want to
+ * leave the door open to having multiple GOlrs running in the same area.
+ * 
+ * Arguments:
+ *  golr_conf_var - JSized GOlr config
+ * 
+ * Returns:
+ *  golr conf object
+ * 
+ */
+var conf = function (golr_conf_var){
+    this._is_a = 'golr-conf.conf';
+
+    // Get a good self-reference point.
+    var anchor = this;
+
+    // Per-manager logger.
+    var logger = new bbop_logger(this._is_a);
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch(str); }
+
+    // Lightly check incoming arguments.
+    // There could be a hash of pinned filters argument.
+    if( ! golr_conf_var || typeof golr_conf_var !== 'object' ){
+	ll('ERROR: no proper golr conf var argument');
+    }
+    
+    // Settle in the conf.
+    this._golr_conf = golr_conf_var;
+
+    // Process the conf classes into one spot.
+    this._classes = {};
+    each(anchor._golr_conf, function(val, key){
+	var new_asp = new conf_class(val);
+	anchor._classes[new_asp.id()] = new_asp;
+    });
+
+    /*
+     * Function: get_class
+     * 
+     * Returns a class info object by id string. Null otherwise.
+     * 
+     * Arguments:
+     *  fid - TODO
+     * 
+     * Returns:
+     *  bbop.golr.conf_class.
+     */
+    this.get_class = function(fid){
+	var retval = null;
+	if( this._classes && this._classes[fid] ){
+	    retval = this._classes[fid];
+	}
+	return retval;
+    };
+
+    /*
+     * Function: get_classes
+     * 
+     * Returns an array of all search classes.
+     * 
+     * Returns:
+     *  Array of <bbop.golr.conf_class> (unordered).
+     */
+    this.get_classes = function(){
+	var ret = [];
+	each(anchor._classes, function(val, key){
+	    ret.push(val);
+	});
+	return ret;
+    };
+
+    /*
+     * Function: get_classes_by_weight
+     * 
+     * Returns an array of all search classes. Ordered by weight.
+     * 
+     * Returns:
+     *  Array of <bbop.golr.conf_class>.
+     */
+    this.get_classes_by_weight = function(){
+	var ret = this.get_classes();
+
+	ret.sort(
+	    function(cc1, cc2){
+		var w1 = cc1.weight() || 0;
+		var w2 = cc2.weight() || 0;
+		return w2 - w1;
+	    });
+
+	return ret;
+    };
+};
+
+///
+/// Exportable body.
+///
+
+module.exports = {};
+module.exports['conf_field'] = conf_field;
+module.exports['conf_class'] = conf_class;
+module.exports['conf'] = conf;
+
+},{"bbop-core":2,"underscore":63}],62:[function(require,module,exports){
+/** 
+ * Purpose: Request construction library for interacting with Minerva.
+ * 
+ * This module includes the following objects:
+ *  - request_variable
+ *  - request
+ *  - request_set
+ * 
+ * @module minerva-requests
+ */
+
+var us = require('underscore');
+var each = us.each;
+var bbop = require('bbop-core');
+var what_is = bbop.what_is;
+var uuid = bbop.uuid;
+var class_expression = require('class-expression');
+
+/**
+ * Contructor for a request variable, used to relate references during
+ * a request.
+ * 
+ * Internal usage variable for keeping track of implicit
+ * assignToVariable on the client (see Minerva).
+ * 
+ * @constructor
+ * @param {String} [varvalue] - string representing a future variable value
+ * @returns {request_variable} request variable object
+ */
+var request_variable = function(varvalue){
+    var anchor = this;
+    anchor._is_a = 'minerva-requests.request_variable';
+
+    anchor._var = uuid(); // primo
+    anchor._use_var_p = false;
+
+    function _value(value){
+	if( value ){
+	    anchor._var = value;
+	    anchor._use_var_p = true;
+	}
+	return anchor._var;
+    }
+    // Do an initial revalue depending on the constructor's incoming
+    // arguments.
+    _value(varvalue);
+
+    /**
+     * The value of the variable to be used.
+     *
+     * @alias module:minerva-requests~request_variable#value
+     * @function
+     * @memberof module:minerva-requests~request_variable
+     * @returns {String} string
+     */
+    anchor.value = _value;
+
+    /**
+     * Returns true or false on whether or not the user changed the
+     * value of the setting.
+     *
+     * @alias module:minerva-requests~request_variable#set_p
+     * @function
+     * @memberof module:minerva-requests~request_variable
+     * @returns {Boolean} boolean
+     */
+    anchor.set_p = function(){
+	return anchor._use_var_p;
+    };
+};
+
+/**
+ * Contructor for a Minerva request item. See table for
+ * operation/entity combinations:
+ * https://github.com/berkeleybop/bbopx-js/wiki/MinervaRequestAPI .
+ * 
+ * Handle requests to Minerva in a somewhat structured way.
+ * 
+ * @constructor
+ * @param {String} entity - string, see table
+ * @param {String} operation - string, see table
+ * @returns {request} request object
+ */
+var request = function(entity, operation){
+    var anchor = this;
+    anchor._is_a = 'minerva-requests.request';
+
+    // Minerva entity to make a call against.
+    anchor._entity = entity;
+
+    // Minerva operation to perform on entity.
+    anchor._operation = operation;
+
+    // Almost all non-meta operations require a model id. However,
+    // this is sometimes implied in the case of new model creation.
+    anchor._model_id = null;
+
+    // Tons of ops require individuals, and they need to be implicitly
+    // passable.
+    anchor._individual_id = new request_variable();    
+
+    // Hold most other additional arguments to the request.
+    // TODO: Could use some checking here? Maybe per-entity?
+    // Could possibly explore using swagger or json-schema?
+    anchor._arguments = {};
+
+    ///
+    /// Internal helper functions.
+    ///
+
+    // Our list of values must be defined if we go this way.
+    anchor._ensure_list = function(key){
+	if( ! anchor._arguments[key] ){
+	    anchor._arguments[key] = [];
+	}
+    };
+
+    // Add generic property (non-list).
+    anchor._add = function(key, val){
+	anchor._arguments[key] = val;
+	return anchor._arguments[key];
+    };
+
+    // Get generic property (non-list).
+    anchor._get = function(key){
+	var ret = null;
+	var t = anchor._arguments[key];
+	if( t != null ){
+	    ret = t;
+	}
+	return ret;
+    };
+
+    // Getter/setter (non-list).
+    anchor._get_set = function(key, variable){
+	if( variable ){
+	    anchor._add(key, variable);
+	}
+	return anchor._get(key);
+    };
+
+    ///
+    /// Public API.
+    ///
+
+    /**
+     * The specified entity string.
+     *
+     * @alias module:minerva-requests~request#entity
+     * @function
+     * @memberof module:minerva-requests~request
+     * @returns {String|null} string or null
+     */
+    anchor.entity = function(){
+	return anchor._entity;
+    };
+
+    /**
+     * Add a "special" variable to the request. For a subset of
+     * requests, this may be required. See table:
+     * https://github.com/berkeleybop/bbopx-js/wiki/MinervaRequestAPI .
+     *
+     * @alias module:minerva-requests~request#special
+     * @function
+     * @memberof module:minerva-requests~request
+     * @param {String} name - string
+     * @param {String} val - string
+     * @returns {String} added value
+     */
+    anchor.special = function(name, val){
+	return anchor._get_set(name, val);
+    };
+
+    /**
+     * Should only be used in the context of making a request set.
+     *
+     * Return a higher-level representation/"serialization" of the
+     * complete object.
+     *
+     * @alias module:minerva-requests~request#objectify
+     * @function
+     * @memberof module:minerva-requests~request
+     * @returns {Object} simple object
+     */
+    anchor.objectify = function(){
+
+	// Things we will always return.
+	var base = {
+	    'entity': anchor._entity,
+	    'operation': anchor._operation,
+	    'arguments': anchor._arguments
+	};
+
+	// If we're using an implicitly set individual id, make sure
+	// that is added to the call.
+	if( anchor._entity === 'individual' && ! anchor._individual_id.set_p() ){
+	    base['arguments']['assign-to-variable'] =
+		anchor._individual_id.value();
+	}
+
+	return base;
+    };
+
+    /**
+     * Get/set the individual/instance in this request. If not set
+     * explicitly, will fall back to a default value.
+     *
+     * @alias module:minerva-requests~request#individual
+     * @function
+     * @memberof module:minerva-requests~request
+     * @param {String} [ind_id] - individual id we're going to refer to
+     * @param {Boolean} [force_id_p] - when an ID is supplied, in the case that the request is being used to create a *new individual* and the ID for it is already known, use ind_id as the IRI; defaults to not true
+     * @returns {String} string
+     */
+    anchor.individual = function(ind_id, force_id_p){
+	if( ind_id ){
+	    if( force_id_p && force_id_p === true ){ // known ind
+		anchor._individual_id.value(ind_id);
+		anchor._add('individual-iri', ind_id);
+	    }else{ // reference
+		anchor._individual_id.value(ind_id);
+		anchor._add('individual', ind_id);
+	    }
+	}else{
+	    // Fallback to using anonymous one (no change to default).
+	}
+	//anchor._add('individual', anchor._individual_id.value());
+	return anchor._individual_id.value();
+    };
+
+    /**
+     * Get/set the subject of this request.
+     *
+     * @alias module:minerva-requests~request#subject
+     * @function
+     * @memberof module:minerva-requests~request
+     * @param {String} [sub] - string
+     * @returns {String|null} string or null
+     */
+    anchor.subject = function(sub){
+	return anchor._get_set('subject', sub);
+    };
+
+    /**
+     * Get/set the object of this request. This will be used in
+     * fact/edge requests, but not much else.
+     *
+     * @alias module:minerva-requests~request#object
+     * @function
+     * @memberof module:minerva-requests~request
+     * @param {String} [obj] - a string
+     * @returns {String|null} string or null
+     */
+    anchor.object = function(obj){
+	return anchor._get_set('object', obj);
+    };
+
+    /**
+     * Get/set the predicate of this request. This will be used in
+     * fact/edge requests, but not much else.
+     *
+     * @alias module:minerva-requests~request#predicate
+     * @function
+     * @memberof module:minerva-requests~request
+     * @param {String} [pred] - a string
+     * @returns {String|null} string or null
+     */
+    anchor.predicate = function(pred){
+	return anchor._get_set('predicate', pred);
+    };
+
+    /**
+     * Get/set the topic model of this request.
+     *
+     * If a model is not set, like during requests in a set to a
+     * not-yet-created model, Minerva will often add this itself if it
+     * can after the fact.
+     *
+     * @alias module:minerva-requests~request#model
+     * @function
+     * @memberof module:minerva-requests~request
+     * @param {String} [model] - a string id
+     * @returns {String|null} string or null
+     */
+    anchor.model = function(model){
+	return anchor._get_set('model-id', model);
+    };
+    
+    /**
+     * Add a fact to the request. The same as adding subject, object,
+     * and predicate all separately.
+     *
+     * @alias module:minerva-requests~request#fact
+     * @function
+     * @memberof module:minerva-requests~request
+     * @param {String} sub - string
+     * @param {String} obj - string
+     * @param {String} pred - string
+     * @returns {} n/a
+     */
+    anchor.fact = function(sub, obj, pred){
+	// Update the request's internal variables.
+	anchor.subject(sub);
+	anchor.object(obj);
+	anchor.predicate(pred);
+    };
+
+    /**
+     * Add an annotation pair (or series of pairs) to the request.
+     * All annotations should be converted into strings for upstream consumption.
+     * You may also add the optional value-type argument.
+     *
+     * @alias module:minerva-requests~request#add_annotation
+     * @function
+     * @memberof module:minerva-requests~request
+     * @param {String} key - string
+     * @param {String} vals - string or list of strings
+     * @param {String} [val_type] - value-type to use, as string; defaults to nothing (an implied string, i.e. "xsd:string"), although not explicitly sent
+     * @returns {Number} number of annotations
+     */
+    anchor.add_annotation = function(key, vals, val_type){
+
+	// Convert val to a list if necessary.
+	if( what_is(vals) === 'string' || what_is(vals) === 'number' ){
+	    vals = [vals];
+	}
+	if( what_is(vals) !== 'array' ){ throw new Error('unknown argument'); }
+
+	// Our list of values must be defined if we go this way.
+	anchor._ensure_list('values');
+
+	// Add all of the incoming values.
+	each(vals, function(val){
+	    // Numbers to strings.
+	    var final_val = val;
+	    if( what_is(val) === 'number' ){ final_val = val.toString(); }
+	    // Add on, slightly different if we have the optional
+	    // value-type on board since we will not send it in most
+	    // cases.
+	    if( val_type && what_is(val_type) === 'string' ){
+		anchor._arguments['values'].push({
+		    'key': key,
+		    'value': final_val,
+		    'value-type': val_type
+		});
+	    }else{
+		anchor._arguments['values'].push({
+		    'key': key,
+		    'value': final_val
+		});
+	    }
+	});
+
+	return anchor._arguments['values'].length;
+    };
+
+    /**
+     * Return list of annotations in request.
+     *
+     * @alias module:minerva-requests~request#annotations
+     * @function
+     * @memberof module:minerva-requests~request
+     * @returns {Array} (actual) list of request "values" pairs (or triples)
+     */
+    anchor.annotations = function(){
+	return anchor._arguments['values'];
+    };
+
+    /**
+     * General use for whatever.
+     *
+     * @alias module:minerva-requests~request#class_expression
+     * @function
+     * @memberof module:minerva-requests~request
+     * @param {class_expression|String} class_expr - anything that can be taken by <class_expression> constructor
+     * @param {String} property_id - string
+     * @returns {Number} number of expressions
+     */
+    anchor.add_class_expression = function(class_expr){
+	// Our list of values must be defined if we go this way.
+	anchor._ensure_list('expressions');
+
+	var expr = new class_expression(class_expr);
+	anchor._arguments['expressions'].push(expr.structure());
+
+	return anchor._arguments['expressions'].length;
+    };
+
+    /**
+     * Function: add_svf_expression
+     *
+     * Special use.
+     * A short form for "addition" requests that can overload the
+     * literal (on the server side) with Manchester syntax.
+     *
+     * @alias module:minerva-requests~request#add_svf_expression
+     * @function
+     * @memberof module:minerva-requests~request
+     * @param {class_expression|String} class_expr - anything that can be taken by <class_expression> constructor
+     * @param {String} property_id - string (id or...something more complicated?)
+     * @returns {Number} number of expressions
+     */
+    anchor.add_svf_expression = function(class_expr, property_id){
+	// Our list of values must be defined if we go this way.
+	anchor._ensure_list('expressions');
+
+	var expr = new class_expression();
+	expr.as_svf(class_expr, property_id);
+	anchor._arguments['expressions'].push(expr.structure());
+
+	return anchor._arguments['expressions'].length;
+    };
+
+    /**
+     * Intersections and unions.
+     *
+     * @alias module:minerva-requests~request#add_set_class_expression
+     * @function
+     * @memberof module:minerva-requests~request
+     * @param {String} type - 'intersection' or 'union'
+     * @param {Array} class_expr_list - a list of anything that can be taken by <class_expression> constructor
+     * @returns {Number} number of expressions
+     */
+    anchor.add_set_class_expression = function(type, class_expr_list){
+    	// Our list of values must be defined if we go this way.
+    	anchor._ensure_list('expressions');
+
+	var expr = new class_expression();
+	expr.as_set(type, class_expr_list);
+	anchor._arguments['expressions'].push(expr.structure());
+
+    	return anchor._arguments['expressions'].length;
+    };
+
+    /**
+     * Return list of expressions in request.
+     *
+     * @alias module:minerva-requests~request#expressions
+     * @function
+     * @memberof module:minerva-requests~request
+     * @returns {Array} (actual) list of request "expressions".
+     */
+    anchor.expressions = function(){
+	return anchor._arguments['expressions'];
+    };
+};
+
+/**
+ * Constructor for a Minerva request item set.
+ * 
+ * Handle sets of requests and serialize for Minerva call.
+ * 
+ * Request sets are essentially serial request queues, that reference
+ * eachother using the request_variables contained in invididual
+ * requests.
+ * 
+ * As the request_set operations almost always produce request_sets
+ * (with senisible defaults and fail modes), they can easily be
+ * chained together.
+ * 
+ * If a model_id is given, it will be applied to any request that does
+ * not have one.
+ *
+ * If reasoner_p is set to true, the request will make the request for
+ * the use of the reaonser on the server; otherwise, no effect.
+ *
+ * @constructor
+ * @param {String} user_token - string
+ * @param {String} [model_id] - string
+ * @param {Boolean} [reasoner_p] - bool
+ * @returns {request_set} request set object
+ */
+var request_set = function(user_token, model_id, reasoner_p){
+    var anchor = this;
+    anchor._is_a = 'minerva-requests.request_set';
+
+    // 
+    anchor._user_token = user_token || null;
+    //anchor._intention = intention;
+    anchor._model_id = model_id || null;
+    anchor._requests = [];
+    anchor._last_entity_id = null;
+
+    // Intentions, whether one wants their actions to be communicated
+    // to the outside world ('action' vs 'query') are now silently
+    // handled withint the request_set framework. The default is the
+    // weakest, unles less (almost always) a creative operation is
+    // attempted.
+    anchor._intention = 'query';
+
+    // Whether or not to use the on-demand reasoner.
+    anchor._use_reasoner = false;
+    if( typeof(reasoner_p) === 'boolean' && reasoner_p ){
+	anchor._use_reasoner = true;
+    }
+
+    /**
+     * Return the ID of the last individual identified in a call
+     * (implicitly or explicitly).
+     * 
+     * @see request_set#last_fact_triple
+     * @alias module:minerva-requests~request_set#last_individual_id
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {Number} [number_to_skip] - number of matches to skip (default: 0)
+     * @returns {String|null} string or null
+     */
+    anchor.last_individual_id = function(number_to_skip){
+	var retval = null;
+
+	// Get the last thing identifiable as an individual.
+	// 'for' necessary for backwards breakable iteration.
+	for( var ugh = anchor._requests.length; ugh > 0; ugh-- ){
+	    var req = anchor._requests[ugh -1];
+	    if( req.entity() === 'individual' ){
+		if( number_to_skip > 0 ){ // knock off skippables
+		    number_to_skip--;
+		}else{
+		    retval = req.individual();
+		    break;
+		}
+	    }
+	}
+	
+	return retval;
+    };
+
+    /**
+     * In our model, facts are anonymous (do not have an ID) and need
+     * to be referred to by their unique triple: subject id, object
+     * id, and predicate (edge type) id.
+     * 
+     * This methods return a list of the three string or null.
+     * 
+     * @see request_set#last_individual_id
+     * @alias module:minerva-requests~request_set#last_triple_fact
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {Number} [number_to_skip] - number of matches to skip (default: 0)
+     * @returns {Array|null} list of three strings or null
+     */
+    anchor.last_fact_triple = function(number_to_skip){
+	var retval = null;
+
+	// Get the last thing identifiable as an individual. 'for'
+	// necessary for backwards breakable iteration.
+	for( var ugh = anchor._requests.length; ugh > 0; ugh-- ){
+	    var req = anchor._requests[ugh -1];
+	    if( req.entity() === 'edge' ){
+		if( number_to_skip > 0 ){ // knock off skippables
+		    number_to_skip--;
+		}else{
+		    retval = [];
+		    retval.push(req.subject());
+		    retval.push(req.object());
+		    retval.push(req.predicate());
+		    break;
+		}
+	    }
+	}
+	
+	return retval;
+    };
+
+    /**
+     * Add a request to the queue. This is the most "primitive" method
+     * of adding things to the request queue and should only be used
+     * when other methods (look at the API) are not available.
+     * 
+     * @alias module:minerva-requests~request_set#add
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {request} req - <request>
+     * @param {intention} [intention] - 'action' or 'query' ('action' default)
+     * @returns {request_set} current request set, modified; suitable for chaining 
+     */
+    anchor.add = function(req, intention){
+
+	// We always want the "strongest" intention for the batch.
+	// If no explicit intention is mentioned, assume that this is
+	// a custom op (outside of the API) and is there for an
+	// 'action'.
+	if( ! intention ){
+	    anchor._intention = 'action';
+	}else if( intention === 'action' ){
+	    anchor._intention = intention;
+	}else if( intention === 'query' ){
+	    // Skip as it is at least weaker than a possibly set
+	    // 'action'.
+	}
+
+	anchor._requests.push(req);
+	return anchor;
+    };
+
+    /**
+     * Requests necessary to add an instance of with type class to the
+     * model.
+     * 
+     * Expect: "success" and "merge".
+     * 
+     * @alias module:minerva-requests~request_set#add_individual
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {class_expression} [class_expr] - anything that can be taken by <class_expression> constructor; technically optional, but c'mon buddy
+     * @param {String} [individual_id] - if none given, generate random one (preferred in most use cases); if one given, it's assumed to be a known "forced" one (see {individual})
+     * @param {String} [model_id] - string
+     * @returns {String} id of individual added, as string
+     */
+    anchor.add_individual = function(class_expr, individual_id, model_id){
+
+	var retval = null;
+
+	var ind_req = new request('individual', 'add');
+	
+	if( class_expr ){
+	    ind_req.add_class_expression(class_expr);
+	}
+	    
+	if( typeof(individual_id) === 'string' ){ // optionally add known id
+	    //ind_req.special('individual-iri', individual_id);
+	    retval = ind_req.individual(individual_id, true);
+	}else{ // generate id (norm)
+	    retval = ind_req.individual();
+	}
+
+	if( model_id ){ // optionally add
+	    ind_req.model(model_id);
+	}
+
+	anchor.add(ind_req, 'action');
+
+	//return anchor;
+	return retval;
+    };
+
+    /**
+     * Requests necessary to remove an individual.
+     * 
+     * Expect: "success" and "rebuild".
+     * 
+     * @alias module:minerva-requests~request_set#remove_individual
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {String} individual_id - string
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.remove_individual = function(individual_id, model_id){
+
+	if( individual_id ){
+
+	    var ind_req = new request('individual', 'remove');
+	    if( model_id ){ ind_req.model(model_id); } // optionally add
+
+	    ind_req.individual(individual_id); 
+
+	    anchor.add(ind_req, 'action');
+	}
+
+	return anchor;
+    };
+
+    //  value - string
+    //  model_id - (optional with fact and individual) string
+    anchor._op_type_to_individual = function(op, class_expr, individual_id,
+					     model_id){
+
+	if( op && class_expr && individual_id ){
+	    if( op !== 'add' && op !== 'remove' ){
+		throw new Error('unknown type operation');
+	    }else{
+		var type_req =
+			new request('individual', op + '-type');
+		type_req.individual(individual_id);
+
+		if( model_id ){ type_req.model(model_id); } // optionally add
+
+		// 
+		type_req.add_class_expression(class_expr);
+
+		anchor.add(type_req, 'action');
+	    }
+	}
+
+	return anchor;
+    };
+
+    /**
+     * Add the identified type to the individual. Multiple calls are
+     * logicially treated as an "intersection", but not processed and
+     * displayed as such.
+     * 
+     * @alias module:minerva-requests~request_set#add_type_to_individual
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {class_expression} class_expr - anything that can be taken by <class_expression> constructor
+     * @param {String} individual_id - string
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.add_type_to_individual = function(class_expr, individual_id,
+					     model_id){
+	return anchor._op_type_to_individual('add', class_expr, individual_id,
+					     model_id);
+    };
+
+    /**
+     * Remove the identified type from the individual.
+     * 
+     * @alias module:minerva-requests~request_set#remove_type_from_individual
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {class_expression} class_expr - anything that can be taken by <class_expression> constructor
+     * @param {String} individual_id - string
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining 
+     */
+    anchor.remove_type_from_individual = function(class_expr, individual_id,
+						  model_id){
+	return anchor._op_type_to_individual('remove', class_expr, individual_id,
+					     model_id);
+    };
+
+    // Throw an error if no subject, object, predicate triple as
+    // argument.
+    anchor._ensure_fact = function(triple){
+	if( triple && triple[0] && triple[1] && triple[2] ){
+	    // Okay.
+	}else{
+	    throw new Error('triple did not look like a proper fact');
+	}
+    };
+
+    /**
+     * Requests necessary to add an edge between two instances in a
+     * model.
+     *
+     * Expect: "success" and "merge".
+     * 
+     * @alias module:minerva-requests~request_set#add_fact
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {Array} triple - list of three strings: [SUBJECT_ID, OBJECT_ID, PREDICATE_ID]
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.add_fact = function(triple, model_id){
+	anchor._ensure_fact(triple);
+
+	var edge_req = new request('edge', 'add');
+	if( model_id ){ edge_req.model(model_id); } // optionally add
+
+	edge_req.fact(triple[0], triple[1], triple[2]);
+
+	anchor.add(edge_req, 'action');
+
+	return triple;
+    };
+
+    /**
+     * Requests necessary to remove an edge between two instances in a
+     * model.
+     *
+     * Expect: "success" and "rebuild".
+     * 
+     * @alias module:minerva-requests~request_set#remove_fact
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {Array} triple - list of three strings: [SUBJECT_ID, OBJECT_ID, PREDICATE_ID]
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.remove_fact = function(triple, model_id){
+	anchor._ensure_fact(triple);
+
+	var edge_req = new request('edge', 'remove');
+	if( model_id ){ edge_req.model(model_id); } // optionally add
+	
+	edge_req.fact(triple[0], triple[1], triple[2]);
+	
+	anchor.add(edge_req, 'action');
+
+	return anchor;
+    };
+
+    /**
+     * Adds "anonymous" (current GO-style) evidence individual that is
+     * referenced in the individual's or fact's annotations to the
+     * batch.
+     * 
+     * @alias module:minerva-requests~request_set#add_evidence
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {String} evidence_id - string
+     * @param {String} source_ids - string or list of strings (i.e. PMIDs)
+     * @param {String} with_strs - string or list of strings (i.e. "foo"); use null if evidence code does not support "with"
+     * @param {String} target_identifier - string (individual_id) or list of 3 strings (fact)
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.add_evidence = function(evidence_id, source_ids, with_strs,
+				   target_identifier, model_id){
+
+	// Quick check.
+	if( evidence_id && source_ids ){
+
+	    // Create floating evidence instance...
+	    var ev_ind_req = new request('individual', 'add');
+	    if( model_id ){ ev_ind_req.model(model_id); } // optional
+	    ev_ind_req.add_class_expression(evidence_id);
+	    anchor.add(ev_ind_req, 'action');
+
+	    // Add each source as an annotation to the floating
+	    // evidence instance.
+	    var ev_ind_ann_req = new request('individual', 'add-annotation');
+	    if( model_id ){ ev_ind_ann_req.model(model_id); } // optional
+	    ev_ind_ann_req.individual(ev_ind_req.individual());
+	    ev_ind_ann_req.add_annotation('source', source_ids);
+	    // Optionally add the with fields, if defined.
+	    if( with_strs ){
+		ev_ind_ann_req.add_annotation('with', with_strs);
+	    }
+	    anchor.add(ev_ind_ann_req, 'action');
+
+	    // Switch the final tie-down object--either individual or
+	    // fact (triple).
+	    if( ! target_identifier ){
+		throw new Error('no target identified for evidence add');
+	    }else if( what_is(target_identifier) === 'string' ){
+
+		// Tie the floating evidence to the individual
+		// with an annotation to it.
+		var ind_ann_req = new request('individual',
+							    'add-annotation');
+		if( model_id ){ ind_ann_req.model(model_id); } // optional
+		ind_ann_req.individual(target_identifier);
+		ind_ann_req.add_annotation('evidence', ev_ind_req.individual());
+		anchor.add(ind_ann_req, 'action');
+		
+	    }else{
+		// Bomb if not a legit triple.
+		anchor._ensure_fact(target_identifier);
+		
+		// Tie the floating evidence to the edge with an
+		// annotation to the edge.
+		var ed_ann_req = new request('edge', 'add-annotation');
+		if( model_id ){ ed_ann_req.model(model_id); } // optional
+		var t = target_identifier;
+		ed_ann_req.fact(t[0], t[1], t[2]);
+		ed_ann_req.add_annotation('evidence', ev_ind_req.individual());
+		anchor.add(ed_ann_req, 'action');
+	    }
+	}
+
+	return anchor;
+    };
+
+    /**
+     * Remove an evidence annotation from an individual or edge.
+     * 
+     * Do not need to worry about the "floating" evidence instance
+     * made by evidence creation--clean-up will be taken care of by
+     * Minerva.
+     * 
+     * @alias module:minerva-requests~request_set#remove_evidence
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {String} evidence_individual_id - string
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.remove_evidence = function(evidence_individual_id, model_id){
+
+	// In our simplified world, evidence deletion just becomes a
+	// specific case of individual deletion.
+    	if( evidence_individual_id ){
+	    anchor.remove_individual(evidence_individual_id, model_id);
+	}
+
+    	return anchor;
+    };
+
+    /**
+     * Adds "anonymous" evidence individual that is referenced in the
+     * individual's annotations, as well as a fact of it's own to the
+     * batch.
+     * 
+     * *[WARNING: Should only be used once, probably not at all!]*
+     * 
+     * @alias module:minerva-requests~request_set#add_evidence_to_last_individual
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {String} evidence_id - string
+     * @param {String} source_ids - null, string, or list of strings (PMIDs, etc.)
+     * @param {String} with_strs - string or list of strings (i.e. "foo"); use null if evidence code does not support "with"
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.add_evidence_to_last_individual = function(evidence_id, source_ids,
+						      with_strs, model_id){
+
+	var tmp_indv = anchor.last_individual_id();
+	if( tmp_indv ){
+	    anchor.add_evidence(evidence_id, source_ids, with_strs, tmp_indv, model_id);
+	}
+
+	return anchor;
+    };
+
+    /**
+     * Adds "anonymous" evidence individual that is referenced in the
+     * fact's annotations, as well as a fact of it's own to the batch.
+     * 
+     * *[WARNING: Should only be used once, probably not at all!]*
+     * 
+     * @alias module:minerva-requests~request_set#add_evidence_to_last_fact
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {String} evidence_id - string
+     * @param {String} source_ids - null, string, or list of strings (PMIDs, etc.)
+     * @param {String} with_strs - string or list of strings (i.e. "foo"); use null if evidence code does not support "with"
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.add_evidence_to_last_fact = function(evidence_id, source_ids,
+						with_strs, model_id){
+
+	var tmp_triple = anchor.last_fact_triple();
+	if( tmp_triple ){
+	    anchor.add_evidence(evidence_id, source_ids, with_strs, tmp_triple, model_id);
+	}
+
+	return anchor;
+    };
+
+    // A helper function to sort out all of the different annotation
+    // operations and targets in one function.
+    //
+    // Args:
+    //  op - "add" | "remove"
+    //  thing - "model" | "individual" | "edge" 
+    //  thing_identifier - ind: id; fact: triple; model: implied
+    //  key - string 
+    //  value - string
+    //  value_type - string, representing value-type, or nothing
+    //  model_id - (optional with fact and individual) string
+    anchor._op_annotation_to_target = function(op, target, target_identifier,
+					       key, value, value_type,
+					       model_id){
+
+	// First, decide the request.
+	var req = null;
+	if( op === 'add' || op === 'remove' ){
+	    req = new request(target, op + '-annotation');
+	    if( model_id ){ req.model(model_id); } // optional
+	}else{
+	    throw new Error('unknown annotation operation');
+	}
+
+	// Add necessary arguments to identify the target.
+	if( target === 'model' ){
+	    // Already done.
+	}else if( target === 'individual' ){
+	    req.individual(target_identifier);
+	}else if( target === 'edge' ){
+	    anchor._ensure_fact(target_identifier);
+	    req.fact(target_identifier[0],
+		     target_identifier[1],
+		     target_identifier[2]);
+	}else{
+	    throw new Error('unknown annotation target');
+	}
+
+	// Add the annotation.
+	if( key && value ){
+	    req.add_annotation(key, value, value_type);
+	    anchor.add(req, 'action');
+	}
+    };
+
+    /**
+     * The purpose here is to update the set of annotations within an
+     * entity with a new set of annotations. This process will happen
+     * by key and key only (different value-types will be considered
+     * the same).
+     * 
+     * Since this takes the entire entity as an argument, it will
+     * auto-detect what it is and add the correct ops.
+     * 
+     * I suspect that this will be the Swiss army hammer as it can be
+     * used to update, add, and remove annotations in the request set.
+     * 
+     * We are going to ignore the possibility of races.
+     * 
+     * @alias module:minerva-requests~request_set#update_annotations
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {Object} entity - the enity from {module:bbop-graph-noctua} that you want to probe for annotation information to create the update
+     * @param {String} key - the key to update
+     * @param {String} values - string or list of strings
+     * @param {String} [val_type] - value-type to use, as string; defaults to nothing (an implied string, i.e. "xsd:string"), although not explicitly sent
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.update_annotations = function(entity, key, values, value_type,
+					 model_id){
+
+	// Convert val to a list if necessary.
+	if( what_is(values) === 'string' || what_is(values) === 'number' ){
+	    values = [values];
+	}
+	if( what_is(values) !== 'array' ){ throw new Error('unknown argument'); }
+
+	// 
+	var target = null; // string representing the entity internally.
+	var target_identifier = null; // thing identifying the object
+	if( what_is(entity) === 'bbop-graph-noctua.graph' ){
+	    target = 'model';
+	    target_identifier = null;
+	}else if( what_is(entity) === 'bbop-graph-noctua.node' ){
+	    target = 'individual';
+	    target_identifier = entity.id();
+	}else if( what_is(entity) === 'bbop-graph-noctua.edge' ){
+	    target = 'edge';
+	    target_identifier = [
+		entity.subject_id(),
+		entity.object_id(),
+		entity.predicate_id()
+	    ];
+	}else{
+	    throw new Error('update annotations internal error in enity type');
+	}
+
+	// Create requests to remove the current contents of the keyed
+	// annotations in the entity.
+	var anns = entity.get_annotations_by_key(key);
+	each(anns, function(ann){
+	    anchor._op_annotation_to_target(
+		'remove', target, target_identifier,
+    		ann.key(), ann.value(), ann.value_type(), model_id);		
+	});
+
+	// Now add all of the pending annotations.
+	each(values, function(val){
+	    anchor._op_annotation_to_target(
+		'add', target, target_identifier, 
+		key, val, value_type, model_id);
+	});
+
+	return anchor;
+    };
+
+    /**
+     * Adds unique key/value set to model.
+     * 
+     * @deprecated
+     * @alias module:minerva-requests~request_set#add_annotation_to_model
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {String} key - string
+     * @param {String} value - string
+     * @param {String|null} [value_type] - string
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.add_annotation_to_model = function(key, value, value_type, model_id){
+	anchor._op_annotation_to_target('add', 'model', null,
+					key, value, value_type, model_id);
+	return anchor;
+    };
+
+    /**
+     * Adds unique key/value set to model.
+     * 
+     * @deprecated
+     * @alias module:minerva-requests~request_set#remove_annotation_from_model
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {String} key - string
+     * @param {String} value - string
+     * @param {String|null} [value_type] - string
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.remove_annotation_from_model = function(key, value, value_type,
+						   model_id){
+	anchor._op_annotation_to_target('remove', 'model', null,
+					key, value, value_type, model_id);
+	return anchor;
+    };
+
+    /**
+     * Adds unique key/value set to an individual.
+     * 
+     * @deprecated
+     * @alias module:minerva-requests~request_set#add_annotation_to_individual
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {String} key - string
+     * @param {String} value - string
+     * @param {String|null} [value_type] - string
+     * @param {String} individual_id - string
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.add_annotation_to_individual = function(key, value, value_type,
+						   individual_id, model_id){
+	anchor._op_annotation_to_target('add', 'individual', individual_id,
+					key, value, value_type, model_id);
+	return anchor;
+    };
+
+    /**
+     * Removes unique key/value set from an individual.
+     * 
+     * @deprecated
+     * @alias module:minerva-requests~request_set#remove_annotation_from_individual
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {String} key - string
+     * @param {String} value - string
+     * @param {String|null} [value_type] - string
+     * @param {String} individual_id - string
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.remove_annotation_from_individual = function(key, value, value_type,
+							individual_id, model_id){
+	anchor._op_annotation_to_target('remove', 'individual', individual_id,
+					key, value, value_type, model_id);
+	return anchor;
+    };
+
+    /**
+     * Adds unique key/value set to a fact.
+     * 
+     * @deprecated
+     * @alias module:minerva-requests~request_set#add_annotation_to_fact
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {String} key - string
+     * @param {String} value - string
+     * @param {String|null} [value_type] - string
+     * @param {String} triple - list of three strings: [SUBJECT_ID, OBJECT_ID, PREDICATE_ID]
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.add_annotation_to_fact = function(key, value, value_type,
+					     triple, model_id){
+	anchor._ensure_fact(triple);
+	anchor._op_annotation_to_target('add', 'edge', triple,
+					key, value, value_type, model_id);
+	return anchor;
+    };
+
+    /**
+     * Removes unique key/value set from a fact.
+     * 
+     * @deprecated
+     * @alias module:minerva-requests~request_set#remove_annotation_from_fact
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {String} key - string
+     * @param {String} value - string
+     * @param {String|null} [value_type] - string
+     * @param {String} triple - list of three strings: [SUBJECT_ID, OBJECT_ID, PREDICATE_ID]
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.remove_annotation_from_fact = function(key, value, value_type,
+						  triple, model_id){
+	anchor._ensure_fact(triple);
+	anchor._op_annotation_to_target('remove', 'edge', triple,
+					key, value, value_type, model_id);
+	return anchor;
+    };
+
+    /**
+     * Undo the last batch of operations performed on the model.
+     * 
+     * @alias module:minerva-requests~request_set#undo_last_model_batch
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {String} [model_id] - string
+     * @returns {request_set} 
+     */
+    anchor.undo_last_model_batch = function(model_id){
+
+	var mod_req = new request('model', 'undo');
+	if( model_id ){ mod_req.model(model_id); } // optionally add
+
+	anchor.add(mod_req, 'action');
+
+	return anchor;
+    };
+
+    /**
+     * Redo the last batch of operations performed on the model.
+     * 
+     * @alias module:minerva-requests~request_set#redo_last_model_batch
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.redo_last_model_batch = function(model_id){
+
+	var mod_req = new request('model', 'redo');
+	if( model_id ){ mod_req.model(model_id); } // optionally add
+
+	anchor.add(mod_req, 'action');
+
+	return anchor;
+    };
+
+    /**
+     * Getter/setter to add (or not) a request to use an optional
+     * reasoner.
+     * 
+     * @alias module:minerva-requests~request_set#use_reasoner
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {Boolean} [bool] - optional 
+     * @returns {Boolean} bool
+     */
+    anchor.use_reasoner = function(bool){
+	
+	if( typeof(bool) === 'boolean' ){
+	    anchor._use_reasoner = bool;
+	}
+
+	return anchor._use_reasoner;
+    };
+
+    /**
+     * Essentially, get the list of relations.
+     * 
+     * @alias module:minerva-requests~request_set#get_meta
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.get_meta = function(){
+
+	var req = new request('meta', 'get');
+
+	// Just personal question.
+	anchor.add(req, 'query');
+	
+	return anchor;
+    };
+
+    /**
+     * The the state of a model.
+     * 
+     * This *[CANNOT]* be used with any other request.
+     * 
+     * @alias module:minerva-requests~request_set#get_model
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {String} model_id - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.get_model = function(model_id){
+	
+	var req = new request('model', 'get');
+	if( model_id ){ req.model(model_id); }
+	
+	// Just personal question.
+	anchor.add(req, 'query');
+	
+	return anchor;
+    };
+
+    /**
+     * Get the current undo/redo information for a model.
+     * 
+     * This *[CANNOT]* be used with any other request.
+     * 
+     * @alias module:minerva-requests~request_set#get_undo_redo
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.get_undo_redo = function(model_id){
+
+	var req = new request('model', 'get-undo-redo');
+	if( model_id ){ req.model(model_id); }
+	
+	// Just personal question.
+	anchor.add(req, 'query');
+
+	return anchor;
+    };
+
+    /**
+     * Essentially a wrapper for the "generate" class of model
+     * methods. The possible seeding arguments fir the argument hash
+     * are:
+     *  class-id - *[optional]* string; an initial class to build around
+     *  taxon-id - *[optional]* string; the background species
+     * 
+     * @alias module:minerva-requests~request_set#add_model
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {Object} argument_hash - string (see above for properties)
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.add_model = function(argument_hash){
+
+	// Work out all incoming arguments to testable state.
+	var cls_id = null;
+	var tax_id = null;
+	if( argument_hash ){	    
+	    if( argument_hash['class-id'] ){
+		cls_id = argument_hash['class-id'];
+	    }
+	    if( argument_hash['taxon-id'] ){
+		tax_id = argument_hash['taxon-id'];
+	    }
+	}
+
+	// Now that all arguments are defined, build up the request.
+	var model_req = new request('model', 'add');
+	if( cls_id ){ model_req.special('class-id', cls_id); }
+	if( tax_id ){ model_req.special('taxon-id', tax_id); }
+	// Unlikely to have any listeners though...
+	anchor.add(model_req, 'action');
+
+	return anchor;
+    };
+
+    /**
+     * Store the model to the model store (file on disk as of this
+     * writing, but may change soon).
+     * 
+     * @alias module:minerva-requests~request_set#store_model
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @param {String} [model_id] - string
+     * @returns {request_set} current request set, modified; suitable for chaining
+     */
+    anchor.store_model = function(model_id){
+
+	var store_req = new request('model', 'store');
+	if( model_id ){ store_req.model(model_id); } // optionally add
+
+	// No need to broadcast and disrupt to others on the model if
+	// it's just this.
+	anchor.add(store_req, 'query');
+
+	return anchor;
+    };
+
+    /**
+     * Create the JSON object that will be passed to the Minerva
+     * server.
+     * 
+     * @alias module:minerva-requests~request_set#structure
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @returns {Object} final object of all queued requests
+     */
+    anchor.structure = function(){
+
+	// Ready the base return.
+	var rset = {
+	    'token': anchor._user_token,
+	    'intention': anchor._intention
+	};
+	// Only add use use of the reasoner if requested.
+	// Depending on it actually being a boolean here to make the string
+	// request.
+	if( anchor._use_reasoner && typeof(anchor._use_reasoner) === 'boolean' ){
+	    rset['use-reasoner'] = anchor._use_reasoner.toString();
+	}
+
+	// Add a JSON stringified request arguments.
+	var reqs = [];
+	each(anchor._requests, function(req){
+	    // If possible, add model in cases where is was not supplied.
+	    if( ! req.model() && anchor._model_id ){
+		req.model(anchor._model_id);
+	    }
+	    reqs.push(req.objectify());
+	});
+	rset['requests'] = reqs;
+
+	return rset;
+    };
+
+    /**
+     * Serialize a request set and the component requests.
+     * 
+     * @alias module:minerva-requests~request_set#callable
+     * @function
+     * @memberof module:minerva-requests~request_set
+     * @returns {Object} serialization of all queued requests
+     */
+    anchor.callable = function(){
+
+	var rset = anchor.structure();
+	var reqs = rset['requests'];
+
+	var str = JSON.stringify(reqs);
+	var enc = encodeURIComponent(str);
+	rset['requests'] = enc;
+
+	return rset;
+    };
+};
+
+///
+/// Exportable body.
+///
+
+module.exports = {
+
+    'request_variable': request_variable,
+    'request': request,
+    'request_set': request_set
+
+};
+
+},{"bbop-core":2,"class-expression":59,"underscore":63}],63:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
