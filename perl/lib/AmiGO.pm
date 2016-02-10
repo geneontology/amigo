@@ -703,8 +703,8 @@ sub database_link {
   my $db = shift || '';
   my $id = shift || '';
 
-  #print STDERR "_db_" . $db . "\n";
-  #print STDERR "_id_" . $id . "\n";
+  #$self->kvetch("_db_" . $db);
+  #$self->kvetch("_id_" . $id);
 
   # ## WARNING
   # ## TODO: Temporary Reactome special case. This should be removeable
@@ -806,6 +806,10 @@ sub database_link_set {
   foreach my $dbid (@$dbids){
 
     my($db, $id) = $self->split_gene_product_acc($dbid);
+
+    #$self->kvetch('FOO dbid: ' . $dbid);
+    #$self->kvetch('FOO db: ' . $db);
+    #$self->kvetch('FOO id: ' . $id);
 
     push @$retlist,
       {
