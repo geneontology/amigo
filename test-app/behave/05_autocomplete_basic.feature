@@ -16,7 +16,7 @@ Feature: Basic autocomplete works
  @go
  Scenario: "neurogenesis" in the general search with a click goes to term page
     Given I go to page "/amigo/landing"
-     and I type "neurogenesis" into the general search
+     and I type "neurogenesis " into the general search
      and I wait until "neurogenesis (GO:0022008)" appears in the autocomplete 
      and I click the general search item "neurogenesis (GO:0022008)"
      then the title should be "AmiGO 2: Term Details for "neurogenesis" (GO:0022008)"
