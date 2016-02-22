@@ -55,6 +55,12 @@ fields:
     searchable: true
     type: string
     property: []
+  - id: owl_blob_json
+    description: ???
+    display_name: ???
+    type: string
+    property: []
+    indexed: false
   # - id: general_blob
   #   description: A hidden searchable blob document to access this item. It should contain all the goodies that we want to search for, like species(?), synonyms, etc.
   #   display_name: Generic blob
