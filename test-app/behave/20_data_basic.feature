@@ -10,7 +10,7 @@ Feature: Basic loaded data seems sane
  @data
  Scenario: the ontology search page contains sufficient terms
     Given I go to page "/amigo/search/ontology"
-     then the number of documents should be greater than "70000"
+     then the number of documents should be greater than "40000"
 
  ## Using a data bookmark
  @data
