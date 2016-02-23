@@ -48,6 +48,8 @@
     <!-- bioentity: Database source. -->
     <!-- annotation: Database source. -->
     <field name="source" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- ontology: Term ID space. -->
+    <field name="idspace" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- ontology: Is the term obsolete? -->
     <field name="is_obsolete" type="boolean" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- ontology: Term comments. -->
@@ -443,6 +445,7 @@
     <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
     <field name="location_list_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- model_annotation: ??? -->
+    <!-- noctua_model_meta: ??? -->
     <field name="owl_blob_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- model_annotation: Evidence type. -->
     <field name="evidence_type_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>

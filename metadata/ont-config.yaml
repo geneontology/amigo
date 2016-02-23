@@ -45,6 +45,11 @@ fields:
     display_name: Ontology source
     type: string
     property: [getNamespace]
+  - id: idspace
+    description: "Term ID space."
+    display_name: Ontology ID space
+    type: string
+    property: [getIdSpace]
   - id: is_obsolete
     description: Is the term obsolete?
     display_name: Obsoletion
