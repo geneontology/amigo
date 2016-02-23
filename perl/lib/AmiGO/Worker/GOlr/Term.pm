@@ -49,6 +49,7 @@ sub new {
 	 #ontology_readable => $self->{A_AID}->readable($found_doc->{source}),
 	 ontology_readable => $found_doc->{source},
 	 ontology => $found_doc->{source},
+	 idspace => $found_doc->{idspace},
 	 term_link =>
 	 $self->get_interlink({mode=>'term_details',
 			       arg=>{acc=>$found_doc->{id}}}),
