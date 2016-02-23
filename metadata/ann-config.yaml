@@ -254,7 +254,7 @@ fields:
 #     property: []
   - id: qualifier
     description: "Annotation qualifier."
-    display_name: Qualifier
+    display_name: Annotation qualifier
     type: string
     cardinality: multi
     property: []
