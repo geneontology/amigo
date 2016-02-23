@@ -832,6 +832,7 @@ sub amigo_env_to_js {
      js_dev_base => $core->amigo_env('AMIGO_JS_DEV_URL'),
      term_regexp => $core->amigo_env('AMIGO_TERM_REGEXP'),
      beta => $core->amigo_env('AMIGO_BETA'),
+     browse_filter_idspace => $core->amigo_env('AMIGO_BROWSE_FILTER_IDSPACE'),
 
      ## Data.
      evidence_codes => $evcodes,

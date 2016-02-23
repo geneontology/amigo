@@ -8,12 +8,12 @@
 /* global jQuery */
 /* global bbop */
 /* global amigo */
-/* global global_live_search_bookmark */
 /* global global_live_search_pins */
 /* global global_live_search_query */
 /* global global_live_search_personality */
 /* global global_live_search_filters */
 /* global global_live_search_bookmark */
+/* global global_live_search_filter_idspace */
 
 //
 function LiveSearchGOlrInit(){
@@ -84,6 +84,12 @@ function LiveSearchGOlrInit(){
     	'ontology': function(manager){
     	    manager.add_query_filter('document_category',
     				     'ontology_class', ['*']);
+	    if( typeof(global_live_search_filter_idspace) !== 'undefined' &&
+		global_live_search_filter_idspace ){
+    		manager.add_query_filter('idspace',
+					 global_live_search_filter_idspace);
+	    }
+    	    manager.add_query_filter('is_obsolete', 'false');
     	    _establish_buttons('ontology', manager);
     	},
     	'bioentity': function(manager){

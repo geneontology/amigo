@@ -986,6 +986,9 @@ sub _common_params_settings {
   $params->{session_id_for_url} = 'session_id=' . $sid;
   $params->{server_name} =
     $self->{CORE}->amigo_env('AMIGO_SERVER_NAME') || '';
+  ## Filters and the like.
+  $params->{browse_filter_idspace} =
+      $self->{CORE}->amigo_env('AMIGO_BROWSE_FILTER_IDSPACE') || undef;
 
   ## Titles seems to be the odds ones out for some reason.
   $params->{page_title} = 'AmiGO';

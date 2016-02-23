@@ -1132,7 +1132,7 @@ sub mode_search {
   ## Now add the filters that come in from the YAML-defined simple
   ## public bookmarking API.
   $filters = $self->_add_search_bookmark_api_to_filters($params, $filters);
-  
+
   ## Try and come to terms with Galaxy.
   my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
   $self->galaxy_settings($in_galaxy, $galaxy_external_p);
@@ -1150,11 +1150,15 @@ sub mode_search {
   my $page_name = 'live_search';
   my($page_title, 
      $page_content_title,
-     $page_help_link) = $self->_resolve_page_settings($page_name);  
+     $page_help_link) = $self->_resolve_page_settings($page_name);
   $self->set_template_parameter('page_name', $page_name);
   $self->set_template_parameter('page_title', $page_title);
   $self->set_template_parameter('page_content_title', $page_content_title);
   $self->set_template_parameter('page_help_link', $page_help_link);
+
+  ## See if there is a desired browsing filter.
+  my $browse_filter_idspace =
+    $self->{WEBAPP_TEMPLATE_PARAMS}{browse_filter_idspace} || undef;
 
   ## Make sure the personality is in our known set if it's even
   ## defined.
@@ -1223,6 +1227,8 @@ sub mode_search {
       $self->{JS}->make_var('global_live_search_bookmark', $bookmark),
       $self->{JS}->make_var('global_live_search_query', $query),
       $self->{JS}->make_var('global_live_search_filters', $filters),
+      $self->{JS}->make_var('global_live_search_filter_idspace',
+			    $browse_filter_idspace),
       $self->{JS}->make_var('global_live_search_pins', $pins),
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('LiveSearchGOlr.js')
