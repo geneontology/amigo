@@ -9,7 +9,7 @@ document_category: annotation
 weight: 20
 boost_weights: annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 bioentity_name^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 reference^1.0 panther_family^1.0 panther_family_label^1.0 bioentity_isoform^1.0 regulates_closure^1.0 regulates_closure_label^1.0
 result_weights: bioentity^7.0 bioentity_name^6.0 qualifier^5.0 annotation_class^4.7 annotation_extension_json^4.5 assigned_by^4.0 taxon^3.0 evidence_type^2.5 evidence_with^2.0 panther_family^1.5 bioentity_isoform^0.5 reference^0.25 date^0.10
-filter_weights: source^7.0 assigned_by^6.5 aspect^6.25 evidence_type_closure^6.0 panther_family_label^5.5 qualifier^5.25 taxon_label^5.0 annotation_class_label^4.5 regulates_closure_label^3.0 annotation_extension_class_closure_label^2.0
+filter_weights: aspect^6.25 taxon_label^5.0 evidence_type_closure^6.0 regulates_closure_label^3.0 annotation_class_label^4.5 qualifier^5.25 annotation_extension_class_closure_label^2.0 assigned_by^6.5 panther_family_label^5.5
 fields:
   - id: id
     description: A unique (and internal) combination of bioentity and ontology class.
@@ -38,7 +38,7 @@ fields:
     property: []
   - id: assigned_by
     description: "Annotations assigned by group."
-    display_name: Assigned by
+    display_name: Contributor
     type: string
     property: []
   - id: is_redundant_for
@@ -60,24 +60,24 @@ fields:
 #     property: []
   - id: taxon
     description: "Taxonomic group."
-    display_name: Taxon
+    display_name: Organism
     type: string
     property: []
   - id: taxon_label
     description: "Taxonomic group and ancestral groups."
-    display_name: Taxon
+    display_name: Organism
     type: string
     property: []
     searchable: true
   - id: taxon_closure
     description: "Taxonomic group and ancestral groups."
-    display_name: Taxon
+    display_name: Organism
     type: string
     cardinality: multi
     property: []
   - id: taxon_closure_label
     description: "Taxonomic group and ancestral groups."
-    display_name: Taxon
+    display_name: Organism
     type: string
     cardinality: multi
     property: []
@@ -134,13 +134,13 @@ fields:
     searchable: true
   - id: regulates_closure
     description: "Annotations for this term or its children (over regulates)."
-    display_name: Inferred annotation
+    display_name: GO class
     type: string
     cardinality: multi
     property: []
   - id: regulates_closure_label
     description: "Annotations for this term or its children (over regulates)."
-    display_name: Inferred annotation
+    display_name: GO class
     type: string
     cardinality: multi
     property: []
@@ -260,12 +260,12 @@ fields:
     property: []
   - id: annotation_class
     description: "Direct annotations."
-    display_name: Direct annotation
+    display_name: GO class (direct)
     type: string
     property: []
   - id: annotation_class_label
     description: "Direct annotations."
-    display_name: Direct annotation
+    display_name: GO class (direct)
     type: string
     property: []
     searchable: true

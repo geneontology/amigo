@@ -365,9 +365,9 @@ jQuery(document).ready(function(){
     var engine = new jquery_engine(golr_response);
     engine.method('GET');
     engine.use_jsonp(true);
-    var tmp_srv = 'http://amigo-dev-golr.berkeleybop.org/';
-    var manager = new golr_manager(tmp_srv, gconf, engine, 'async');
-    //var manager = new golr_manager(gserv, gconf, engine, 'async');
+    //var tmp_srv = 'http://amigo-dev-golr.berkeleybop.org/';
+    //var manager = new golr_manager(tmp_srv, gconf, engine, 'async');
+    var manager = new golr_manager(gserv, gconf, engine, 'async');
     //var confc = gconf.get_class('noctua_model_meta');
     manager.set_personality('noctua_model_meta');
     manager.add_query_filter('document_category',
