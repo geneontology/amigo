@@ -489,6 +489,13 @@ gulp.task('buffer-check', shell.task(_run_cmd_list(
 gulp.task('default', ['install', 'tests', 'docs']);
 
 ///
+/// Trying out possible approach to AmiGO 3.x.
+///
+gulp.task('run-amigo3', shell.task(_run_cmd_list(
+    ['node ./bin/amigo.js -g http://golr.berkeleybop.org/solr/ -p 6455']
+)));
+
+///
 /// Old Makefile that has not yet been transferred.
 ///
 

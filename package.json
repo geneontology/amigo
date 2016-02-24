@@ -33,6 +33,7 @@
         "bbop-response-barista": "0.0.7",
         "bbop-response-golr": "0.0.5",
         "body-parser": "1.13.3",
+        "cors": "2.4.1",
         "class-expression": "0.0.9",
         "cytoscape": "2.4.6",
         "dagre": "0.7.4",
@@ -92,6 +93,9 @@
     "directories": {
         "doc": "doc",
         "test": "tests"
+    },
+    "bin": {
+        "amigo": "./bin/amigo.js"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
