@@ -21,8 +21,9 @@ var source = require('vinyl-source-stream');
 var yaml = require('yamljs');
 var tilde = require('expand-home-dir');
 var request = require('request');
-//var git = require('gulp-git');
+var server_restarter = require('gulp-develop-server');
 //var watch = require('gulp-watch');
+//var git = require('gulp-git');
 //var watchify = require('watchify');
 //var concat = require('gulp-concat');
 //var sourcemaps = require('gulp-sourcemaps');
@@ -491,9 +492,30 @@ gulp.task('default', ['install', 'tests', 'docs']);
 ///
 /// Trying out possible approach to AmiGO 3.x.
 ///
+
+var exp_cmd = 'node ./bin/amigo.js -g http://golr.berkeleybop.org/solr/ -p 6455';
 gulp.task('run-amigo3', shell.task(_run_cmd_list(
-    ['node ./bin/amigo.js -g http://golr.berkeleybop.org/solr/ -p 6455']
+    [exp_cmd]
 )));
+
+// Quick restart development for amigo3.
+gulp.task('develop-amigo3', function(){
+    //console.log(server_restarter);
+    server_restarter.listen({path: './bin/amigo.js',
+			     args: ['-g', 'http://golr.berkeleybop.org/solr/',
+				    '-p', '6455'],
+			     successMessage: /started/,
+			     }, function(err){
+				 if( err ){
+				     console.log('Gulp startup error:', err);
+				 }
+			     });
+    // Restart server if changed.
+    gulp.watch( ['./bin/amigo.js'], function(){
+	//console.log(server_restarter);
+	server_restarter.restart();
+    });
+});
 
 ///
 /// Old Makefile that has not yet been transferred.
