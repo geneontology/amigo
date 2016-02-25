@@ -785,7 +785,8 @@ app.get('/api/overview', function (req, res){
 
 // Spin up.
 app.listen(port);
-//process.send({message: 'Server started.'});
-process.send('Server started.'); // For gulp-develop-server, if listening
+if( process && process.send ){
+    process.send('Server started.'); // For gulp-develop-server, if listening
+}
 ll('Server started.');
 
