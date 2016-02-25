@@ -500,9 +500,11 @@ if( process && process.env && process.env['GOLR_URL'] ){
 }
 
 var exp_cmd = 'node ./bin/amigo.js -g ' + amigo_api_golr + ' -p 6455';
-gulp.task('run-amigo-api', shell.task(_run_cmd_list(
-    [exp_cmd]
-)));
+gulp.task('run-amigo-api', shell.task(_run_cmd([
+    'node', './bin/amigo.js',
+    '-g', amigo_api_golr,
+    '-p', '6455'
+])));
 
 // Quick restart development for AmiGO JSON API.
 gulp.task('develop-amigo-api', function(){
