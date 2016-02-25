@@ -34,6 +34,7 @@ The general JSON API return envelope looks like:
   status: ('success'|'failure'),
   date: '<DATE_STRING>',
   time: '<PROCESSING_TIME>',
+  arguments: {},
   comments: [],
   data: {}
 }

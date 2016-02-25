@@ -68,7 +68,8 @@ function envelope(service_name){
     anchor._envelope = {
 	service: 'n/a',
 	status: 'success',
-	comments: ['Success.'],
+	arguments: {},
+	comments: [],
 	data: {}
     };
 
@@ -88,6 +89,18 @@ envelope.prototype.service = function(arg){
     
     // Required get.
     return anchor._envelope['service'];
+};
+
+envelope.prototype.arguments = function(arg){
+    var anchor = this;
+
+    // Optional set.
+    if( arg && typeof(arg) === 'object' ){
+	anchor._envelope['arguments'] = arg;
+    }
+    
+    // Required get.
+    return anchor._envelope['arguments'];
 };
 
 envelope.prototype.status = function(arg){
@@ -268,7 +281,7 @@ app.get('/api/term/:term_id', function (req, res){
     var term_id = _param(req, 'term_id', null);
 	
     // Theoretical good result envelope to start.
-    var envl = new envelope('term');
+    var envl = new envelope('/api/term/' + term_id);
 
     // Setup manager and basic.
     ll('Setting up manager to search for: ' + term_id);
@@ -321,7 +334,7 @@ app.get('/api/bioentity/:bioentity_id', function (req, res){
     var bioentity_id = _param(req, 'bioentity_id', null);
 	
     // Theoretical good result envelope to start.
-    var envl = new envelope('bioentity');
+    var envl = new envelope('/api/bioentity/' + bioentity_id);
 
     // Setup manager and basic.
     ll('Setting up manager to search for: ' + bioentity_id);
@@ -377,7 +390,18 @@ app.get('/api/bioentity/:bioentity_id', function (req, res){
 function abstract_search(req, res, personality, queries, filters, lite_p){
 
     // Theoretical good result envelope to start.
-    var envl = new envelope('search/' + personality);
+    var envl = null;
+    if( lite_p ){ 
+	envl = new envelope('/api/autocomplete/' + personality);
+    }else{
+	envl = new envelope('/api/search/' + personality);
+    }
+
+    // Note arguments.
+    var args = {};
+    if( ! us.isEmpty(queries) ){ args['q'] = queries; }
+    if( ! us.isEmpty(filters) ){ args['fq'] = filters; }
+    envl.arguments(args);
 
     // Setup manager and basic.
     var srch_report = personality + '; queries: ' + queries.join(', ') + 
@@ -461,7 +485,7 @@ app.get('/api/search/:personality', function (req, res){
     abstract_search(req, res, personality, queries, filters, false);
 });
 
-// Heavy/full search.
+// Lite/autocomplete search.
 app.get('/api/autocomplete/:personality', function (req, res){
 
     // Get request parameters.
@@ -481,15 +505,13 @@ app.get('/api/autocomplete/:personality', function (req, res){
 // 
 app.get('/api/gene-to-term', function (req, res){
 
-    // Prep default response.
-    var ret = {
-	service: 'gene-to-term',
-	status: 'fail'
-    };
+    // Theoretical good result envelope to start.
+    var envl = new envelope('/api/gene-to-term');
 
     // Get parameters as lists.
     var gp_accs = _extract(req, 'q');
     var species = _extract(req, 's');
+    envl.arguments({'q': gp_accs, 's': species});
 
     // req.stringify(req.query); GET
     // JSON.stringify(req.body) POST
@@ -579,16 +601,16 @@ app.get('/api/gene-to-term', function (req, res){
 	var final_fun = function(){
 	    ll('Starting final in stage 01...');
 	    
-	    console.log('gp_info: ', gp_info);
-	    
-	    ret['status'] = 'success';
-	    ret['q'] = gp_accs;
-	    ret['s'] = species;
-	    ret['summary'] = {
+	    console.log('gp_info: ', gp_info);	    
+	    envl.arguments({
+		'q': gp_accs,
+		's': species
+	    });
+	    envl.data({
 		'gene-to-term-summary-count': term_info//,
 		//'gene-to-term-annotation-count': gp_info
-	    };
-	    res.json(ret);
+	    });
+	    res.json(envl.structure());
 
 	    ll('Completed stage 01!');
 	};
