@@ -490,16 +490,16 @@ gulp.task('buffer-check', shell.task(_run_cmd_list(
 gulp.task('default', ['install', 'tests', 'docs']);
 
 ///
-/// Trying out possible approach to AmiGO 3.x.
+/// Trying out possible approach to AmiGO JSON API.
 ///
 
 var exp_cmd = 'node ./bin/amigo.js -g http://golr.berkeleybop.org/solr/ -p 6455';
-gulp.task('run-amigo3', shell.task(_run_cmd_list(
+gulp.task('run-amigo-api', shell.task(_run_cmd_list(
     [exp_cmd]
 )));
 
-// Quick restart development for amigo3.
-gulp.task('develop-amigo3', function(){
+// Quick restart development for AmiGO JSON API.
+gulp.task('develop-amigo-api', function(){
     //console.log(server_restarter);
     server_restarter.listen({path: './bin/amigo.js',
 			     args: ['-g', 'http://golr.berkeleybop.org/solr/',

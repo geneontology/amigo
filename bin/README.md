@@ -1,6 +1,6 @@
 # Welcome...
 
-...to the experimental AmiGO 3.x server.
+...to the experimental AmiGO JSON API server.
 
 ## Setup/run
 
@@ -13,6 +13,63 @@ version of node:
 Then point your browser to: http://localhost:6455
 
 ## API
+
+The general JSON API return envelope looks like:
+
+```
+{
+  service: '<SERVICE_NAME>',
+  status: ('success'|'failure'),
+  date: '<DATE_STRING>',
+  time: '<PROCESSING_TIME>',
+  comments: [],
+  data: {}
+}
+```
+
+### /api/term/<TERM_ID>
+
+Given a term ID, find all information.
+
+#### Example
+
+[/api/term/GO:0022008](/api/term/GO:0022008)
+
+```
+TOO LARGE
+```
+
+### /api/bioentity/<BIOENTITY_ID>
+
+Given a bioentity ID, find all information.
+
+#### Example
+
+[/api/bioentity/SGD:S000001666](/api/bioentity/SGD:S000001666)
+
+```
+TOO LARGE
+```
+
+### /api/search/<PERSONALITY>
+
+Given a search personality and some parameters, find items that match.
+
+#### Example 1
+
+[/api/search/ontology?q=neuro](/api/search/ontology?q=neuro)
+
+```
+TOO LARGE
+```
+
+#### Example 2
+
+[/api/search/annotation?q=nucleus&fq=assigned\_by:%22MGI%22](/api/search/annotation?q=nucleus&fq=assigned\_by:%22MGI%22)
+
+```
+TOO LARGE
+```
 
 ### /api/gene-to-term
 
