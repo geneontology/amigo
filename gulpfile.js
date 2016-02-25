@@ -493,7 +493,13 @@ gulp.task('default', ['install', 'tests', 'docs']);
 /// Trying out possible approach to AmiGO JSON API.
 ///
 
-var exp_cmd = 'node ./bin/amigo.js -g http://golr.berkeleybop.org/solr/ -p 6455';
+// Use the GOLR_URL environmental variable if available.
+var amigo_api_golr = golr_public_url;
+if( process && process.env && process.env['GOLR_URL'] ){
+    amigo_api_golr = process.env['GOLR_URL'];
+}
+
+var exp_cmd = 'node ./bin/amigo.js -g ' + amigo_api_golr + ' -p 6455';
 gulp.task('run-amigo-api', shell.task(_run_cmd_list(
     [exp_cmd]
 )));
@@ -502,7 +508,7 @@ gulp.task('run-amigo-api', shell.task(_run_cmd_list(
 gulp.task('develop-amigo-api', function(){
     //console.log(server_restarter);
     server_restarter.listen({path: './bin/amigo.js',
-			     args: ['-g', 'http://golr.berkeleybop.org/solr/',
+			     args: ['-g', amigo_api_golr,
 				    '-p', '6455'],
 			     successMessage: /started/,
 			     }, function(err){
