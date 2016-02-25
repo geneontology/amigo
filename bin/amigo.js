@@ -22,7 +22,8 @@ var us = require('underscore');
 //var yaml = require('yamljs');
 
 // Templating.
-var md = require('markdown');
+//var md = require('markdown');
+var marked = require('marked');
 
 ///
 /// Envelope.
@@ -313,7 +314,7 @@ app.get('/', function (req, res){
 
     // Grab markdown renderable file.
     var landing_raw = fs.readFileSync('./bin/README.md').toString();
-    var landing_md = md.markdown.toHTML(landing_raw);
+    var landing_md = marked(landing_raw);
     res.send(landing_md);
 });
 
