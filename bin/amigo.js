@@ -276,6 +276,7 @@ app.get('/api/term/:term_id', function (req, res){
     var engine = new node_engine(golr_response);
     var manager = new golr_manager(golr_url, gconf, engine, 'async');
     manager.set_personality('ontology');
+    manager.set_facet_limit(0); // care not about facets
     manager.add_query_filter('document_category', 'ontology_class');
 
     // Let's get information by target.
@@ -328,6 +329,7 @@ app.get('/api/bioentity/:bioentity_id', function (req, res){
     var engine = new node_engine(golr_response);
     var manager = new golr_manager(golr_url, gconf, engine, 'async');
     manager.set_personality('bioentity');
+    manager.set_facet_limit(0); // care not about facets
     manager.add_query_filter('document_category', 'bioentity');
 
     // Let's get information by target.
@@ -372,33 +374,29 @@ app.get('/api/bioentity/:bioentity_id', function (req, res){
 // This is an API for "personality" based searches. Very similar in
 // functionality to the LiveSearch system in the perl/JS client. TODO:
 // These code bases eventually need to be merged.
-app.get('/api/search/:personality/:lite?', function (req, res){
+function abstract_search(req, res, personality, queries, filters, lite_p){
 
-    // Get request parameters.
-    var personality = _param(req, 'personality', null);
-    var lite_p = _param(req, 'lite', false);
-    // Get query parameters as lists.
-    var queries = _extract(req, 'q');
-    var filters = _extract(req, 'fq');
-	
     // Theoretical good result envelope to start.
     var envl = new envelope('search/' + personality);
 
     // Setup manager and basic.
-    ll('Setting up manager...');
+    var srch_report = personality + '; queries: ' + queries.join(', ') + 
+	    '; filters: ' +  filters.join(', ');
+    ll('Setting up manager to search for: ' + srch_report);
     var gconf = new golr_conf.conf(amigo.data.golr);
     var engine = new node_engine(golr_response);
     var manager = new golr_manager(golr_url, gconf, engine, 'async');
     var found_personality = manager.set_personality(personality);
+    manager.set_facet_limit(0); // care not about facets
     var doc_cat = gconf.get_class(personality).document_category();
 
     // Basic sanity checks before main.
-    ll(' personality: ' + personality);
-    ll(' lite_p: ' + lite_p);
-    ll(' doc_cat: ' + doc_cat);
-    ll(' has_p: ' + found_personality);
-    ll(' q: ' + queries);
-    ll(' fq: ' + filters);
+    // ll(' personality: ' + personality);
+    // ll(' lite_p: ' + lite_p);
+    // ll(' doc_cat: ' + doc_cat);
+    // ll(' has_p: ' + found_personality);
+    // ll(' q: ' + queries);
+    // ll(' fq: ' + filters);
     if( ! found_personality ){
 	return _response_json_fail(res, envl,
 				   'Death by lack of known personality.');
@@ -424,12 +422,7 @@ app.get('/api/search/:personality/:lite?', function (req, res){
 	    manager.lite(true);
 	}
 
-	//http://amigo.geneontology.org/search/annotation?q=nucleus&fq=assigned_by:%22MGI%22
-	//http://amigo.geneontology.org/search/bioentity?fq=annotation_class_list_label:%22Notch%20signaling%20pathway%22
 	// Failure callbacks.
-	var srch_report =  personality +
-		'; queries: ' + queries.join('|') + 
-		'; filters: ' +  filters.join('|');
 	manager.register('error', function(resp, man){
 	    envl.status('failure');
 	    envl.comments('Unable to process search: ' + srch_report);
@@ -453,6 +446,32 @@ app.get('/api/search/:personality/:lite?', function (req, res){
 	// Trigger async try.
 	manager.search();
     }
+}
+
+// Heavy/full search.
+app.get('/api/search/:personality', function (req, res){
+
+    // Get request parameters.
+    var personality = _param(req, 'personality', null);
+    // Get query parameters as lists.
+    var queries = _extract(req, 'q');
+    var filters = _extract(req, 'fq');
+
+    // Feed into the search abstraction.
+    abstract_search(req, res, personality, queries, filters, false);
+});
+
+// Heavy/full search.
+app.get('/api/autocomplete/:personality', function (req, res){
+
+    // Get request parameters.
+    var personality = _param(req, 'personality', null);
+    // Get query parameters as lists.
+    var queries = _extract(req, 'q');
+    var filters = _extract(req, 'fq');
+
+    // Feed into the search abstraction.
+    abstract_search(req, res, personality, queries, filters, true);
 });
 
 ///

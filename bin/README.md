@@ -71,6 +71,19 @@ TOO LARGE
 TOO LARGE
 ```
 
+### /api/autocomplete/<PERSONALITY>
+
+The same as /api/search/<PERSONALITY>, except with a lighter payload
+(using manager.lite(true)).
+
+#### Example
+
+[/api/autocomplete/ontology?q=neuro](/api/autocomplete/ontology?q=neuro)
+
+```
+TOO LARGE
+```
+
 ### /api/gene-to-term
 
 Given some gene IDs, find the number of terms associated with them by group, single counting a gene product / term relationship (i.e. all annotations count for "1").
