@@ -170,6 +170,53 @@ envelope.prototype.structure = function(){
 };
 
 ///
+/// Manager extension.
+///
+
+// Coordinate an arbitary number of promises serially.
+// TODO: With testing, this may be best folded back into the manager
+// code proper, where we could also get the benefits of callbacks.
+function run_promises(promise_runner_stack, 
+		      accumulator_function, final_function, error_function){
+    if( ! us.isEmpty(promise_runner_stack) ){
+	var promise_runner = promise_runner_stack.shift();
+	promise_runner().then(function(resp){
+	    accumulator_function(resp);
+	    run_promises(promise_runner_stack,
+			 accumulator_function, final_function, error_function);
+	}).fail(function(err){
+	    if(err){
+		error_function(err);
+	    }
+	}).done();
+    }else{
+	final_function();
+    }
+}
+
+// This was a previous attempt at the above code. The necessary
+// coordination and accumulation functions were caught in the closure;
+// unnecessary if the lexical closing works as expected in the above.
+// // 
+// var recwalk = function(promise_runner_stack, final_function){
+//     if( ! us.isEmpty(promise_runner_stack) ){
+// 	var promise_runner = promise_runner_stack.shift();
+// 	promise_runner().then(function(resp){
+// 	    accumulator_fun(resp);
+// 	    recwalk(promise_runner_stack, final_function);
+// 	}).fail(function(err){
+// 	    if(err){
+// 	    	return _response_json_fail(res, envl,
+// 					   'Error processing set');
+// 	    }
+// 	}).done();
+//     }else{
+// 	final_function();
+//     }
+// };
+// recwalk(promise_runners, final_fun);
+
+///
 /// Helpers and aliases.
 ///
 
@@ -275,13 +322,13 @@ app.get('/', function (req, res){
 ///
 
 // Return all term information.
-app.get('/api/term/:term_id', function (req, res){
+app.get('/api/entity/term/:term_id', function (req, res){
 
     // Get request parameters.
     var term_id = _param(req, 'term_id', null);
 	
     // Theoretical good result envelope to start.
-    var envl = new envelope('/api/term/' + term_id);
+    var envl = new envelope('/api/entity/term/' + term_id);
 
     // Setup manager and basic.
     ll('Setting up manager to search for: ' + term_id);
@@ -328,13 +375,13 @@ app.get('/api/term/:term_id', function (req, res){
 });
 
 // Return all bioentity information.
-app.get('/api/bioentity/:bioentity_id', function (req, res){
+app.get('/api/entity/bioentity/:bioentity_id', function (req, res){
 
     // Get request parameters.
     var bioentity_id = _param(req, 'bioentity_id', null);
 	
     // Theoretical good result envelope to start.
-    var envl = new envelope('/api/bioentity/' + bioentity_id);
+    var envl = new envelope('/api/entity/bioentity/' + bioentity_id);
 
     // Setup manager and basic.
     ll('Setting up manager to search for: ' + bioentity_id);
@@ -415,12 +462,6 @@ function abstract_search(req, res, personality, queries, filters, lite_p){
     var doc_cat = gconf.get_class(personality).document_category();
 
     // Basic sanity checks before main.
-    // ll(' personality: ' + personality);
-    // ll(' lite_p: ' + lite_p);
-    // ll(' doc_cat: ' + doc_cat);
-    // ll(' has_p: ' + found_personality);
-    // ll(' q: ' + queries);
-    // ll(' fq: ' + filters);
     if( ! found_personality ){
 	return _response_json_fail(res, envl,
 				   'Death by lack of known personality.');
@@ -503,51 +544,54 @@ app.get('/api/autocomplete/:personality', function (req, res){
 ///
 
 // 
-app.get('/api/gene-to-term', function (req, res){
+app.get('/api/statistics/gene-to-term', function (req, res){
 
     // Theoretical good result envelope to start.
-    var envl = new envelope('/api/gene-to-term');
+    var envl = new envelope('/api/statistics/gene-to-term');
 
     // Get parameters as lists.
-    var gp_accs = _extract(req, 'q');
-    var species = _extract(req, 's');
-    envl.arguments({'q': gp_accs, 's': species});
+    var gp_accs = _extract(req, 'bioentity');
+    var species = _extract(req, 'species');
+    envl.arguments({'bioentity': gp_accs, 'species': species});
 
-    // req.stringify(req.query); GET
-    // JSON.stringify(req.body) POST
     // Get our query terms.
-    if( ! us.isEmpty(gp_accs) ){
-	
-	// Next, setup the manager environment.
-	ll('Setting up manager.');
-	var gconf = new golr_conf.conf(amigo.data.golr);
-	var engine = new node_engine(golr_response);
-	var go = new golr_manager(golr_url, gconf, engine, 'async');
-	go.set_personality('annotation'); // always this
-	//go.debug(false);
+    if( us.isEmpty(gp_accs) ){
+	return _response_json_fail(res, envl, 'Death by lack of gp accs.');
+    }else{
 
-	// Now, cycle though all of the gps to collect info on.
-	ll('Gathering batch URLs for annotation data...');
-	each(gp_accs, function(acc, index){
-	    
-    	    // Set/reset for the next query.
-    	    go.reset_query_filters(); // reset from the last iteration
-	    
-	    // 
-	    go.add_query_filter('document_category', 'annotation', ['*']);
-	    go.add_query_filter('bioentity', acc);
-	    // Pin species if possible.
-	    each(species,
-		 function(spc){ go.add_query_filter('taxon_closure', spc); });
-	    go.set('rows', 0); // we don't need any actual rows returned
-	    go.set_facet_limit(-1); // we are only interested in facet counts
-	    go.facets(['regulates_closure']);
+	// Setup promises to accumulate--dynamically create the set of
+	// functions that we want to run serially.
+	var promise_runners = [];
+	each(gp_accs, function(gp_acc){
+	    promise_runners.push(
+		function(){
+		    // Next, setup the manager environment.
+		    var srch_report = 'b: '+gp_acc+'; s: '+species.join(', ');
+		    ll('Setting up manager: ' + srch_report);
+		    var gconf = new golr_conf.conf(amigo.data.golr);
+		    var engine = new node_engine(golr_response);
+		    var go = new golr_manager(golr_url, gconf, engine, 'async');
+		    go.set_personality('annotation');
 
-	    // Remember for the batching.
-    	    go.add_to_batch();
+		    // 
+		    go.add_query_filter('document_category', 'annotation');
+		    go.add_query_filter('bioentity', gp_acc);
+		    // Pin species if possible.
+		    each(species, function(spc){
+			go.add_query_filter('taxon_closure', spc);
+		    });
+		    go.set('rows', 0); // we don't need any actual rows returned
+		    go.set_facet_limit(-1); // we only want facet counts
+		    go.facets(['regulates_closure']);
+
+		    // Return promise.
+		    var prom = go.search();
+		    return prom;
+		}
+	    );
 	});
 	
-	// Fetch the data and grab the number we want.
+	// Fetch the data and grab the numbers we want.
 	var gp_info = {};
 	var term_info = {};
 	var accumulator_fun = function(resp){	
@@ -555,11 +599,7 @@ app.get('/api/gene-to-term', function (req, res){
 	    // Who was this?
 	    var acc = null;
 	    var fqs = resp.parameter('fq');
-	    //console.log(fqs);
-	    //console.log(resp);
 	    each(fqs, function(fq){
-		//console.log(fq);
-		//console.log(fq.substr(0, 9));
 		if( fq.substr(0, 9) === 'bioentity' ){
 		    acc = fq.substr(10, fq.length-1);
 		    acc = bbop.dequote(acc);
@@ -568,8 +608,6 @@ app.get('/api/gene-to-term', function (req, res){
 	    });
 	    
 	    if( acc ){
-		//ll('Looking at info for: ' + acc);
-		//console.log(resp);
 		
 		var ffs = resp.facet_field('regulates_closure');
 		each(ffs, function(pair){
@@ -589,98 +627,82 @@ app.get('/api/gene-to-term', function (req, res){
 		    
 		    // Add gp info
 		    gp_info[acc][tid] = acnt;
-		    
+
 		    // Add term info
 		    term_info[tid] = term_info[tid] +1;
 		});
-	    }
-	    
+	    }	    
 	};
 
-	// The final function is the data renderer.
+	// When all done, assemble and send.
 	var final_fun = function(){
-	    ll('Starting final in stage 01...');
-	    
-	    console.log('gp_info: ', gp_info);	    
-	    envl.arguments({
-		'q': gp_accs,
-		's': species
-	    });
 	    envl.data({
 		'gene-to-term-summary-count': term_info//,
 		//'gene-to-term-annotation-count': gp_info
 	    });
 	    res.json(envl.structure());
-
-	    ll('Completed stage 01!');
 	};
 
-	ll('Start "batch" run.');
-	//go.run_batch(accumulator_fun, final_fun);
-	var done_p = false;
-	while( ! done_p ){
-	    var next_url = go.next_batch_url();
-	    if( ! next_url ){
-		done_p = true;
-	    }else{
-
-		// BUG/TODO: Hack.
-		console.log(next_url);
-		var resp = go._runner(next_url + '&callback_type=search');
-		accumulator_fun(resp);
+	// In case of error.
+	var error_fun = function(err){
+	    if(err){
+		return _response_json_fail(res, envl, 'Error processing set');
 	    }
-	}
+	};
 
-	final_fun();
+	run_promises(promise_runners, accumulator_fun, final_fun, error_fun);
+
+	ll('End of accumulation starter.');
     }
 });
 
 // 
-app.get('/api/term-to-gene', function (req, res){
+app.get('/api/statistics/term-to-gene', function (req, res){
 
-    // Prep default response.
-    var ret = {
-	service: 'term-to-gene',
-	status: 'fail'
-    };
+    // Theoretical good result envelope to start.
+    var envl = new envelope('/api/statistics/gene-to-term');
 
     // Get parameters as lists.
-    var term_accs = _extract(req, 'q');
-    var species = _extract(req, 's');
+    var term_accs = _extract(req, 'term');
+    var species = _extract(req, 'species');
+    envl.arguments({'term': term_accs, 'species': species});
 
-    // req.stringify(req.query); GET
-    // JSON.stringify(req.body) POST
     // Get our query terms.
-    if( ! us.isEmpty(term_accs) ){
+    if( us.isEmpty(term_accs) ){
+	return _response_json_fail(res, envl, 'Death by lack of term accs.');
+    }else{
 	
-	// Next, setup the manager environment.
-	ll('Setting up manager.');
-	var gconf = new golr_conf.conf(amigo.data.golr);
-	var engine = new node_engine(golr_response);
-	var go = new golr_manager(golr_url, gconf, engine, 'async');
-	go.set_personality('bioentity'); // always this
-	//go.debug(false);
+	// Setup promises to accumulate--dynamically create the set of
+	// functions that we want to run serially.
+	var promise_runners = [];
+	each(term_accs, function(term_acc){
+	    promise_runners.push(
+		function(){
 
-	// Now, cycle though all of the gps to collect info on.
-	ll('Gathering batch URLs for bioentity/term data...');
-	each(term_accs, function(acc, index){
-	    
-    	    // Set/reset for the next query.
-    	    go.reset_query_filters(); // reset from the last iteration
-	    
-	    // 
-	    go.add_query_filter('document_category', 'bioentity', ['*']);
-	    go.add_query_filter('regulates_closure', acc);
-	    // Pin species if possible.
-	    each(species,
-		 function(spc){ go.add_query_filter('taxon_closure', spc); });
-	    go.set('rows', 0); // care not about rows
-	    go.set_facet_limit(0); // care not about facets
+		    // Next, setup the manager environment.
+		    var srch_report = 'q: '+term_acc+'; s: '+species.join(', ');
+		    ll('Setting up manager: ' + srch_report);
+		    var gconf = new golr_conf.conf(amigo.data.golr);
+		    var engine = new node_engine(golr_response);
+		    var go = new golr_manager(golr_url, gconf, engine, 'async');
+		    go.set_personality('bioentity');
 
-	    // Remember for the batching.
-    	    go.add_to_batch();
+		    // 
+		    go.add_query_filter('document_category', 'bioentity');
+		    go.add_query_filter('regulates_closure', term_acc);
+		    each(species, function(spc){
+			go.add_query_filter('taxon_closure', spc);
+		    });
+		    go.set('rows', 0); // care not about rows
+		    go.set_facet_limit(0); // care not about facets
+
+		    // Return promise.
+		    var prom = go.search();
+		    return prom;
+		}
+	    );
 	});
-	
+
 	// Fetch the data and grab the number we want.
 	var term_info = {};
 	var accumulator_fun = function(resp){	
@@ -688,15 +710,10 @@ app.get('/api/term-to-gene', function (req, res){
 	    // Who was this?
 	    var acc = null;
 	    var fqs = resp.parameter('fq');
-	    //console.log(fqs);
-	    //console.log(resp);
 	    each(fqs, function(fq){
-		//console.log(fq);
-		//console.log(fq.substr(0, 17));
 		if( fq.substr(0, 17) === 'regulates_closure' ){
 		    acc = fq.substr(18, fq.length-1);
 		    acc = bbop.dequote(acc);
-		    ll('Looking at info for: ' + acc);
 		}
 	    });
 	    
@@ -709,115 +726,118 @@ app.get('/api/term-to-gene', function (req, res){
 
 	// The final function is the data renderer.
 	var final_fun = function(){
-	    ll('Starting final in stage 01...');
-	    
-	    console.log('term_info: ', term_info);
-	    
-	    ret['status'] = 'success';
-	    ret['q'] = term_accs;
-	    ret['s'] = species;
-	    ret['summary'] = {
+	    envl.data({
 		'term-to-gene-summary-count': term_info
-	    };
-	    res.json(ret);
-
-	    ll('Completed stage 01!');
+	    });
+	    res.json(envl.structure());
 	};
 
-	ll('Start "batch" run.');
-	//go.run_batch(accumulator_fun, final_fun);
-	var done_p = false;
-	while( ! done_p ){
-	    var next_url = go.next_batch_url();
-	    if( ! next_url ){
-		done_p = true;
-	    }else{
-
-		// BUG/TODO: Hack.
-		console.log(next_url);
-		var resp = go._runner(next_url + '&callback_type=search');
-		accumulator_fun(resp);
+	// In case of error.
+	var error_fun = function(err){
+	    if(err){
+		return _response_json_fail(res, envl, 'Error processing set');
 	    }
-	}
+	};
 
-	final_fun();
+	run_promises(promise_runners, accumulator_fun, final_fun, error_fun);
+
+	ll('End of accumulation starter.');
     }
 });
 
-app.get('/api/overview', function (req, res){
+app.get('/api/statistics/overview', function (req, res){
  
-    // Prep default response.
-    var ret = {
-	service: 'overview',
-	status: 'fail'
-    };
+    // Theoretical good result envelope to start.
+    var envl = new envelope('/api/statistics/overview');
 
     // Get parameters as lists.
-    var species = _extract(req, 's');
-    ll('Species filter: ' + species);
+    var species = _extract(req, 'species');
+    //ll('Species filter: ' + species);
+    envl.arguments({'species': species});
 
-    // Setup the manager environment.
-    ll('Setting up manager.');
-    var gconf = new golr_conf.conf(amigo.data.golr);
-    var engine = new node_engine(golr_response);
-    var go = new golr_manager(golr_url, gconf, engine, 'async');
-    go.set_personality('bioentity'); // always this
-    //go.debug(false);
-
-    // Set/reset for bioentity count.
-    go.reset_query_filters(); // reset from the last iteration	    
-    go.add_query_filter('document_category', 'bioentity');
-    // Pin species if possible.
-    each(species, function(spc){ go.add_query_filter('taxon_closure', spc); });
-    go.set('rows', 0); // care not about rows
-    go.set_facet_limit(0); // care not about facets
-    var b_resp = go.search();
-    var total_gps = b_resp.total_documents();
-
-    // Set/reset for ontology term count.
-    go.reset_query_filters(); // reset from the last iteration	    
-    go.add_query_filter('document_category', 'ontology_class');
-    go.set('rows', 0); // care not about rows
-    go.set_facet_limit(0); // care not about facets
-    var t_resp = go.search();
-    var total_terms = t_resp.total_documents();
+    // 
+    var total_terms = null;
+    var total_gps = null;
+    var total_anns = null;
+    (function(){
 	
-    // Set/reset for annotation count.
-    go.reset_query_filters(); // reset from the last iteration	    
-    go.add_query_filter('document_category', 'annotation');
-    go.set('rows', 0); // care not about rows
-    go.set_facet_limit(0); // care not about facets
-    // Pin species if possible.
-    each(species, function(spc){ go.add_query_filter('taxon_closure', spc); });
-    var a_resp = go.search();
-    var total_anns = a_resp.total_documents();
+	// Setup the manager environment.
+	var srch_report = 's: '+species.join(', ');
+	ll('Setting up manager (gps): ' + srch_report);
+	var gconf = new golr_conf.conf(amigo.data.golr);
+	var engine = new node_engine(golr_response);
+	var go = new golr_manager(golr_url, gconf, engine, 'async');
+	go.set_personality('bioentity');
 	
-    // Set/reset for species list.
-    go.reset_query_filters(); // reset from the last iteration	    
-    go.add_query_filter('document_category', 'bioentity');
-    go.set('rows', 0); // we don't need any actual rows returned
-    go.set_facet_limit(-1); // we are only interested in facet counts
-    go.facets(['taxon_closure']);
-    // var s_resp = go.search();
-    // var ffs = s_resp.facet_field('taxon_closure');
-    // var spcs = us.map(ffs, function(x){ return x[0]; });
-    // // each(ffs, function(pair){
-    // // 	//console.log(pair);
-    // // 	var sid = pair[0];
-    // // 	var acnt = pair[1];
-    // // });
+	// 
+	go.add_query_filter('document_category', 'bioentity');
+	each(species, function(spc){
+	    go.add_query_filter('taxon_closure', spc);
+	});
+	go.set('rows', 0); // care not about rows
+	go.set_facet_limit(0); // care not about facets
+	
+	// Return promise.
+	var prom = go.search();
+	return prom;
+    })().then(function(resp){
 
-    // Reponse.
-    ret['status'] = 'success';
-    ret['s'] = species;
-    ret['summary'] = {
-	'term-count': total_terms,
-	'gene-product-count': total_gps,
-	'annotation-count': total_anns//,
-	//'species': spcs.length
-    };
+	// Collect the previous results...
+	total_gps = resp.total_documents();
 
-    res.json(ret);    
+	// ...and move on to the next number.
+	var srch_report = 's: '+species.join(', ');
+	ll('Setting up manager (terms): ' + srch_report);
+	var gconf = new golr_conf.conf(amigo.data.golr);
+	var engine = new node_engine(golr_response);
+	var go = new golr_manager(golr_url, gconf, engine, 'async');
+
+	// Set/reset for ontology term count.
+	go.add_query_filter('document_category', 'ontology_class');
+	go.set('rows', 0); // care not about rows
+	go.set_facet_limit(0); // care not about facets
+
+	// Return promise.
+	var prom = go.search();
+	return prom;
+
+    }).then(function(resp){
+
+	// Collect the previous results...
+	total_terms = resp.total_documents();
+	
+	// ...and move on to the next number.
+	var srch_report = 's: '+species.join(', ');
+	ll('Setting up manager (anns): ' + srch_report);
+	var gconf = new golr_conf.conf(amigo.data.golr);
+	var engine = new node_engine(golr_response);
+	var go = new golr_manager(golr_url, gconf, engine, 'async');
+
+	go.add_query_filter('document_category', 'annotation');
+	go.set('rows', 0); // care not about rows
+	go.set_facet_limit(0); // care not about facets
+	each(species, function(spc){
+	    go.add_query_filter('taxon_closure', spc);
+	});
+
+	// Return promise.
+	var prom = go.search();
+	return prom;
+
+    }).then(function(resp){
+
+	// Collect the previous results...
+	var total_anns = resp.total_documents();
+	
+	// ...and finally deliver the reponse.
+	envl.data({
+	    'term-count': total_terms,
+	    'gene-product-count': total_gps,
+	    'annotation-count': total_anns
+	});
+
+	res.json(envl.structure());
+    });
 });
 
 ///
