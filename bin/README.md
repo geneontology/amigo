@@ -12,6 +12,18 @@ version of node:
 
 Then point your browser to: http://localhost:6455
 
+You can also use gulpfile.js to reuse your amigo.yaml like:
+
+- gulp run-amigo-api
+
+Or to override the target GOlr instance URL:
+
+- GOLR_URL='http://golr.geneontology.org/' gulp run-amigo-api
+
+There is also a developer restart server setup with:
+
+- gulp develop-amigo-api
+
 ## API
 
 The general JSON API return envelope looks like:
