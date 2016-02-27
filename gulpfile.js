@@ -166,6 +166,11 @@ var count_url =
 if( a['AMIGO_COUNTER_URL'] && a['AMIGO_COUNTER_URL'].value ){
     count_url = a['AMIGO_COUNTER_URL'].value;
 }
+// Optional API port.
+var amigo_api_port = 6455;
+if( a['AMIGO_API_PORT'] && a['AMIGO_API_PORT'].value ){
+    amigo_api_port = a['AMIGO_API_PORT'].value;
+}
 
 // The OWLTools options are a little harder, and variable with the
 // load we're attempting.
@@ -503,7 +508,7 @@ var exp_cmd = 'node ./bin/amigo.js -g ' + amigo_api_golr + ' -p 6455';
 gulp.task('run-amigo-api', shell.task(_run_cmd([
     'node', './bin/amigo.js',
     '-g', amigo_api_golr,
-    '-p', '6455'
+    '-p', amigo_api_port
 ])));
 
 // Quick restart development for AmiGO JSON API.
@@ -511,7 +516,7 @@ gulp.task('develop-amigo-api', function(){
     //console.log(server_restarter);
     server_restarter.listen({path: './bin/amigo.js',
 			     args: ['-g', amigo_api_golr,
-				    '-p', '6455'],
+				    '-p', amigo_api_port],
 			     successMessage: /started/,
 			     }, function(err){
 				 if( err ){
