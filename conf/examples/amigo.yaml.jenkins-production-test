@@ -38,6 +38,10 @@ AMIGO_LAYOUT_SEARCH:
     - annotation
     - ontology
     - bioentity
+AMIGO_PRIVATE_GOLR_URL:
+  comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading. Can be the same as the public URL if you have no proxy or firewall to deal with.
+  type: url
+  value: http://localhost:8080/solr/
 AMIGO_PUBLIC_GALAXY_URL:
   comment: Please enter the public URL of the Galaxy server.
   type: url
@@ -46,10 +50,6 @@ AMIGO_PUBLIC_GOLR_URL:
   comment: The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.
   type: url
   value: http://golr.geneontology.org/solr/
-AMIGO_PRIVATE_GOLR_URL:
-  comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading. Can be the same as the public URL if you have no proxy or firewall to deal with.
-  type: url
-  value: http://localhost:8080/solr/
 AMIGO_PUBLIC_NOCTUA_URL:
   comment: The public URL of the Noctua system (including slash).
   type: url

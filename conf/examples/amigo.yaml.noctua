@@ -7,6 +7,10 @@ AMIGO_BALANCER:
   comment: 'Mark this AmiGO 2 installation as behind a load balanacer or similar system. The practical effect of this flag is that if AmiGO detects *.error files (usually created by the global-message.pl script), it will return a 503 page signalling any upstream system that the instance is not currently ready.'
   type: boolean
   value: 1
+AMIGO_API_PORT:
+  comment: OPTIONAL. The port on which to make available the experimental AmiGO JSON API. Defaults to 6455.
+  type: number
+  value: 6455
 AMIGO_BETA:
   comment: Mark the AmiGO site as BETA (triggers some changes in variables and installed features).
   type: boolean
@@ -55,10 +59,6 @@ AMIGO_PUBLIC_GOLR_URL:
   comment: The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.
   type: url
   value: http://noctua-golr.berkeleybop.org/
-AMIGO_PRIVATE_GOLR_URL:
-  comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading. Can be the same as the public URL if you have no proxy or firewall to deal with.
-  type: url
-  value: http://localhost:8080/solr/
 AMIGO_PUBLIC_NOCTUA_URL:
   comment: The public URL of the Noctua system (including slash).
   type: url
