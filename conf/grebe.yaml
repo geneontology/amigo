@@ -36,6 +36,18 @@
       widget_options: bbop_term_ac
       widget_personality: ontology
       widget_document: ontology_class
+- question_id: q9
+  question: What are the <em>experimental</em> direct and indirect annotations for organism (scientific name) {{q9f1}}?
+  personality: annotation
+  document_category: annotation
+  field_translations:
+    - field_id: q9f1
+      field_filter: taxon_closure
+      widget_options: bbop_term_ac
+      widget_personality: ontology
+      widget_document: ontology_class
+      widget_filters:
+        - 'source:ncbi_taxonomy'
 - group_label: Gene product annotations
 - question_id: q5
   question: What are all the annotations for gene product {{q5f1}}
