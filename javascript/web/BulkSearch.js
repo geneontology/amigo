@@ -3,6 +3,18 @@
 //// widgets.
 //// 
 
+// Let jshint pass over over our external globals (browserify takes
+// care of it all).
+/* global jQuery */
+/* global bbop */
+/* global amigo */
+/* global global_bulk_search_pins */
+/* global global_bulk_search_query */
+/* global global_bulk_search_personality */
+/* global global_bulk_search_filters */
+/* global global_bulk_search_bookmark */
+/* global global_bulk_search_filter_idspace */
+
 //
 function BulkSearchInit(){
 
@@ -60,7 +72,7 @@ function BulkSearchInit(){
     // Check for incoming personality.
     // A little handling if we came in on a personality dispatch.
     if( ! global_bulk_search_personality ||
-	global_bulk_search_personality == ''){
+	global_bulk_search_personality === ''){
 	ll('ERROR: No personality defined, cannot continue.');
 	alert('ERROR: No personality defined, cannot continue.');
     }else{
@@ -181,7 +193,7 @@ function BulkSearchInit(){
 
 	// Now that we're setup, activate the display button, and make
 	// it so that it will only work on "good" input.
-	function _trigger_bulk_search(identifiers, search_fields){
+	var _trigger_bulk_search = function(identifiers, search_fields){
 
 	    ll('run search');
 	    search.set_targets(identifiers, search_fields);
@@ -193,20 +205,20 @@ function BulkSearchInit(){
 	    jQuery('html, body').animate({
 		scrollTop: jQuery('#' + 'results-area').offset().top
 	    }, 500);
-	}	
+	};
 	jQuery(submit_button_elt).removeClass('disabled');
 	jQuery(submit_button_elt).click(function(e){
 	    e.preventDefault();
 
 	    var bulk_raw = jQuery(bulk_input_elt).val();
-	    if( ! bulk_raw || bulk_raw == '' ){
+	    if( ! bulk_raw || bulk_raw === '' ){
 		alert('You must input the identifiers for the items you are searching for to use this tool.');
 	    }else{
 		// Attempt to process input.
 		var bulk_trim = chomp(bulk_raw) || '';
 		var bulk_list = splode(bulk_trim) || [];
-		if( ! bulk_list || bulk_list.length == 0 ||
-		    (bulk_list.length == 1 && bulk_list[0] == '' )){
+		if( ! bulk_list || bulk_list.length === 0 ||
+		    (bulk_list.length === 1 && bulk_list[0] === '' )){
 		    alert('You must input the identifiers for the items you are searching for to use this tool.');
 		}else if( bulk_list.length > dlimit ){
 		    alert('The input limit for this tool is currently: ' +
@@ -220,7 +232,7 @@ function BulkSearchInit(){
 		    var bulk_search_fields =
 			jQuery(simp).map(function(){ return this.value; }).get();
 		    //console.log(bulk_search_fields)
-		    if( ! bulk_search_fields || bulk_search_fields.length == 0 ){
+		    if( ! bulk_search_fields || bulk_search_fields.length === 0 ){
 			alert('You must select at least one search field from the list to make use of the bulk search.');
 		    }else{
 			_trigger_bulk_search(bulk_list, bulk_search_fields);
