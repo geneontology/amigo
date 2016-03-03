@@ -7,8 +7,8 @@
  */
 
 // Module and namespace checking.
-if ( typeof amigo == "undefined" ){ var amigo = {}; }
-if ( typeof amigo.data == "undefined" ){ amigo.data = {}; }
+if ( typeof amigo === "undefined" ){ var amigo = {}; }
+if ( typeof amigo.data === "undefined" ){ amigo.data = {}; }
 
 /*
  * Variable: context
@@ -339,6 +339,29 @@ amigo.data.context = {
 	priority: 100,
 	aliases: [
 	    'ANNOTATION'
+	],
+	glyph: 'diamond',
+	color: '#483D8B' // darkslateblue
+    },
+    'RO:0002215':
+    {
+	readable: 'capable of',
+	priority: 9,
+	aliases: [
+	    'capable_of',
+	    'capable of'
+	],
+	glyph: 'diamond',
+	color: '#483D8B' // darkslateblue
+    },
+    'RO:0002216':
+    {
+	readable: 'capable of part of',
+	priority: 8,
+	aliases: [
+	    'capable_of_part_of',
+	    'capable_of part_of',
+	    'capable of part of'
 	],
 	glyph: 'diamond',
 	color: '#483D8B' // darkslateblue

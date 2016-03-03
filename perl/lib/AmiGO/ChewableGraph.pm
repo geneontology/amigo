@@ -130,6 +130,11 @@ sub _relation_weight {
      'positively regulates' => 6,
      'occurs_in' => 7,
      'occurs in' => 7,
+     'capable_of_part_of' => 8,
+     'capable_of part_of' => 8,
+     'capable of part of' => 8,
+     'capable_of' => 9,
+     'capable of' => 9,
     };
 
   my $ret = $default;
