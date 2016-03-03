@@ -3,6 +3,12 @@
 //// will probably leave DEBUG in.
 ////
 
+// Let jshint pass over over our external globals (browserify takes
+// care of it all).
+/* global bbop */
+/* global amigo */
+/* global global_grebe_questions */
+
 //
 function GrebeInit(){
 
@@ -186,10 +192,37 @@ function GrebeInit(){
 		     var dc = smap['document_category'];
 		     var prs = smap['personality'];
 		     var fts = smap['field_translations'];
+		     var pins = smap['question_pins'];
 
 		     // The primary filters.
 		     mgr.set_personality(prs);
 		     mgr.add_query_filter('document_category', dc, ['*']);
+
+		     // Add all of the pins that we can.
+		     each(pins, function(pin_def){
+
+			 var fname = null;
+			 var fval = null;
+			 //var fmods = [];
+
+			 if( typeof(pin_def['field_name']) !== 'undefined'){
+			     fname = pin_def['field_name'];
+			 }
+			 if( typeof(pin_def['field_value']) !== 'undefined'){
+			     fval = pin_def['field_value'];
+			 }
+			 // if( typeof(pin_def['field_modifiers']) !== 'undefined'){
+			 //     fmods = pin_def['field_modifiers'];
+			 //     if( typeof(fmods) === 'string' ){
+			 // 	 fmods = [fmods];
+			 //     }
+			 // }
+			     
+			 // Only add if minimally defined.
+			 if( fname && fval ){
+			     mgr.add_query_filter(fname, fval);
+			 }
+		     });
 
 		     // Unwind the map of names to autocompletes
 		     each(fts,

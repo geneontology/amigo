@@ -48,6 +48,9 @@
       widget_document: ontology_class
       widget_filters:
         - 'source:ncbi_taxonomy'
+  question_pins:
+    - field_name: evidence_type_closure
+    - field_value: experimental evidence
 - group_label: Gene product annotations
 - question_id: q5
   question: What are all the annotations for gene product {{q5f1}}
