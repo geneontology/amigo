@@ -164,17 +164,14 @@ function LiveSearchGOlrInit(){
     var btmpl = bbop.widget.display.button_templates;
 
     var id_download_button =
-	btmpl.field_download('Download IDs (up to ' +
-			     dlimit + ')',
+	btmpl.field_download('Download IDs (up to ' + dlimit + ')',
 			     dlimit, ['id']);
     var id_label_download_button =
-	btmpl.field_download('Download IDs and labels (up to ' +
-			     dlimit + ')',
+	btmpl.field_download('Download IDs and labels (up to ' + dlimit + ')',
 			     dlimit, ['annotation_class',
 				      'annotation_class_label']);
     var gaf_download_button =
-	btmpl.field_download('GAF chunk download (up to ' +
-			     dlimit + ')',
+	btmpl.field_download('GAF chunk download (up to ' + dlimit + ')',
 			     dlimit, _gaf_fl);
     // Flexible download buttons.
     var ont_flex_download_button =
