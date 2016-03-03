@@ -104,7 +104,8 @@ function GrebeInit(){
 		     'question_id': question_id,
 		     'document_category': document_category,
 		     'personality': personality,
-		     'field_translations': []
+		     'field_translations': [],
+		     'question_pins': []
 		 };
 	     }
 
