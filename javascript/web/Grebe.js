@@ -95,6 +95,7 @@ function GrebeInit(){
 	     var document_category = grebe_item['document_category'];
 	     var personality = grebe_item['personality'];
 	     var field_translations = grebe_item['field_translations'] || [];
+	     var question_pins = grebe_item['question_pins'] || [];
 
 	     ll('processing: ' + question_id);
 
@@ -105,7 +106,7 @@ function GrebeInit(){
 		     'document_category': document_category,
 		     'personality': personality,
 		     'field_translations': [],
-		     'question_pins': []
+		     'question_pins': question_pins
 		 };
 	     }
 
@@ -179,7 +180,7 @@ function GrebeInit(){
 	     // Finally, set the icon to open a new window when
 	     // clicked.
 	     var grebe_action_class = '.amigo-grebe-action';
-	     jQuery('#'+question_id).find(grebe_action_class).click(function(){
+	     jQuery('#' + question_id).find(grebe_action_class).click(function(){
 
 		 // First, create a new manager for this line item.
 		 // We'll build-up its filters as we go.
@@ -199,6 +200,7 @@ function GrebeInit(){
 		 mgr.add_query_filter('document_category', dc, ['*']);
 		 
 		 // Add all of the pins that we can.
+		 ll('pin count for (' + dc + '): ' + pins.length);
 		 each(pins, function(pin_def){
 		     
 		     var fname = null;
@@ -246,8 +248,7 @@ function GrebeInit(){
 		 
 		 // Jump to that search in AmiGO 2.
 		 var state = mgr.get_state_url();
-		 var pop = linker.url(encodeURIComponent(state),
-				      'search', prs);
+		 var pop = linker.url(encodeURIComponent(state), 'search', prs);
 		 window.open(pop, '_blank');
 	     });
 	 });
