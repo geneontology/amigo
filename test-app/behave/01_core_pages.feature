@@ -17,7 +17,7 @@ Feature: AmiGO basic pages okay
     | /amigo/search/ontology   | AmiGO 2: Search                              |
     | /amigo/search/bioentity  | AmiGO 2: Search                              |
     | /amigo/software_list     | AmiGO 2: Tools and Resources                 |
-    | /grebe                   | AmiGO 2: Grebe                               |
+    | /grebe                   | AmiGO 2: Search Templates                    |
     | /goose                   | AmiGO 2: GO Online SQL/Solr Environment (GOOSE) |
     | /rte                     | Term Enrichment Service                      |
     | /visualize               | AmiGO 2: Service Status for visualize        |

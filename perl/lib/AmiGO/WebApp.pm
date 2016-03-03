@@ -813,9 +813,9 @@ sub _resolve_page_settings {
     $page_content_title = 'Gannet';
     $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Gannet';
   }elsif( $page_name eq 'grebe' ){
-    $page_title = 'AmiGO 2: Grebe';
-    $page_content_title = 'Grebe Search Wizard';
-    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Grebe';
+    $page_title = 'AmiGO 2: Search Templates';
+    $page_content_title = 'Search Templates';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Search_Templates';
   }elsif( $page_name eq 'visualize' ){
     $page_title = 'AmiGO 2: Visualize';
     $page_content_title = 'Visualize an Arbitrary GO Graph';
