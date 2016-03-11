@@ -1,5 +1,5 @@
 {
-    "name": "amigo2",
+    "name": "amigo2-instance-data",
     "version": "2.4.10",
     "license": "BSD-3-Clause",
     "description": "The AmiGO production data package, for use with BBOP tools.",
@@ -52,7 +52,7 @@
         "doc": "doc",
         "test": "tests"
     },
-    "main": "lib/amigo2.js",
+    "main": "lib/amigo2-instance-data.js",
     "bugs": {
         "url": "https://github.com/geneontology/amigo/issues"
     },

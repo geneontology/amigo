@@ -10,12 +10,9 @@
  * package. However, the future should be here.
  */
 
-var us = require('underscore');
 var bbop = require('bbop-core');
-
-// Need acces to the server data.
-var amigo_data_server = new (require('./data/server'))();
-var amigo_data_xrefs = new (require('./data/xrefs'))();
+var us = require('underscore');
+var each = us.each;
 
 /*
  * Constructor: linker
@@ -31,15 +28,18 @@ var amigo_data_xrefs = new (require('./data/xrefs'))();
  * Returns:
  *  self
  */
-var linker = function (){
-    this._is_a = 'amigo.linker';
+var linker = function (xrefs, server){
+    this._is_a = 'amigo2.linker';
+
+    // TODO:BUG: With the new dispatcher, relative URLs no longer work.
+
+    this._xrefs = xrefs;
 
     // Easy app base.
-    var sd = amigo_data_server;
-    this.app_base = sd.app_base();
+    this.app_base = server.app_base;
     // Internal term matcher.
     this.term_regexp = null;
-    var internal_regexp_str = sd.term_regexp();    
+    var internal_regexp_str = server.term_regexp;
     if( internal_regexp_str ){
 	this.term_regexp = new RegExp(internal_regexp_str);
     }
@@ -112,8 +112,6 @@ var linker = function (){
 linker.prototype.url = function (id, xid, modifier){
     
     var retval = null;
-
-    return 'foo';
 
     ///
     /// AmiGO hard-coded internal link types.
@@ -197,11 +195,14 @@ linker.prototype.url = function (id, xid, modifier){
 	    
 	    // Now, check to see if it is indeed in our store.
 	    var lc_src = src.toLowerCase();
-	    var xref = amigo_data_xrefs[lc_src];
+	    var xref = this._xrefs[lc_src];
 	    if( xref && xref['url_syntax'] ){
-		console.log('url_syntax', xref['url_syntax']);
-		throw new Error();
-		retval = xref['url_syntax'].replace('[example_id]', sid, 'g');
+		// Careful, as the global flag has been deprecated;
+		// now need to compile at runtime:
+		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
+		//retval = xref['url_syntax'].replace('[example_id]', sid, 'g');
+		var scn = new RegExp('\\[example_id\\]', 'g');
+		retval = xref['url_syntax'].replace(scn, sid);
 	    }
 	}
     }
@@ -238,7 +239,7 @@ linker.prototype.anchor = function(args, xid, modifier){
 	    // Infer label from id if not present.
 	    var label = args['label'];
 	    if( ! label ){ label = id; }
-	    
+	
 	    // Infer hilite from label if not present.
 	    var hilite = args['hilite'];
 	    if( ! hilite ){ hilite = label; }

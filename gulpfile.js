@@ -247,25 +247,15 @@ gulp.task('docs', shell.task(_run_cmd_list(
 /// AmiGO install.
 ///
 
+gulp.task('build', ['install']);
 gulp.task('install', shell.task(_run_cmd_list(
-    ['./node_modules/.bin/browserify javascript/web/AmiGOCytoViewSource.js -o javascript/web/AmiGOCytoView.js --exclude "ringo/httpclient"',
-    './node_modules/.bin/browserify javascript/web/AmiGOBioViewSource.js -o javascript/web/AmiGOBioView.js --exclude "ringo/httpclient"',
-    './install -v -g -V ' + amigo_version]
-)));
-
-gulp.task('install-uncompressed', shell.task(_run_cmd_list(
-    ['./node_modules/.bin/browserify javascript/web/AmiGOCytoViewSource.js -o javascript/web/AmiGOCytoView.js --exclude "ringo/httpclient"',
-    './node_modules/.bin/browserify javascript/web/AmiGOBioViewSource.js -o javascript/web/AmiGOBioView.js --exclude "ringo/httpclient"',
-     './install -v -g -u -V ' + amigo_version]
-)));
-
-// Create exportable JS bundle. Only captures the statistics data if
-// it has been generated separately.
-gulp.task('bundle', shell.task(_run_cmd_list(
-    ['./install -b -V ' + amigo_version]
-)));
-gulp.task('bundle-uncompressed', shell.task(_run_cmd_list(
-    ['./install -b -u -V ' + amigo_version]
+    // First, make sure our subservient amigo2 package has what it
+    // needs to run at all.
+    ['cd ./javascript/npm/amigo2 && npm install',
+//    './node_modules/.bin/browserify javascript/web/AmiGOCytoViewSource.js -o javascript/web/AmiGOCytoView.js --exclude "ringo/httpclient"',
+//    './node_modules/.bin/browserify javascript/web/AmiGOBioViewSource.js -o javascript/web/AmiGOBioView.js --exclude "ringo/httpclient"',
+    //'./install -v -g -V ' + amigo_version
+    ]
 )));
 
 ///

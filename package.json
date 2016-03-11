@@ -81,6 +81,7 @@
     },
     "browser": {
         "jquery": "./node_modules/jquery/jquery.js"
+        "amigo2-instance-data": "./javascript/npm/amigo2-instance-data"
     },
     "browserify-shim": {
         "jquery": {
