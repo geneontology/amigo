@@ -55,6 +55,10 @@ AMIGO_PUBLIC_GALAXY_URL:
   comment: Please enter the public URL of the Galaxy server.
   type: url
   value: http://galaxy.berkeleybop.org/
+AMIGO_PUBLIC_GOLR_BULK_URL:
+  comment: The public URL of the GOlr bulk download server (including slash); possibly the same as AMIGO_PUBLIC_GOLR_URL.
+  type: url
+  value: http://amigo-dev-golr.berkeleybop.org/
 AMIGO_PUBLIC_GOLR_URL:
   comment: The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.
   type: url
