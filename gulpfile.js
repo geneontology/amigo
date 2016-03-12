@@ -118,10 +118,10 @@ var paths = {
 	'perl/lib/t/*.t'
     ],
     'tests-js': [
-	'javascript/lib/amigo/*.js.tests',
-	'javascript/lib/amigo/data/*.js.tests',
-	'javascript/lib/amigo/ui/*.js.tests',
-	'javascript/lib/amigo/handlers/*.js.tests'
+	// 'javascript/lib/amigo/*.js.tests',
+	// 'javascript/lib/amigo/data/*.js.tests',
+	// 'javascript/lib/amigo/ui/*.js.tests',
+	// 'javascript/lib/amigo/handlers/*.js.tests'
     ]
 };
 
@@ -138,7 +138,10 @@ if( ! a ){
 }
 
 // Common variables.
-var amigo_version =  a['AMIGO_VERSION'].value;
+//var amigo_version =  a['AMIGO_VERSION'].value;
+var amigo_root_path = a['AMIGO_ROOT'].value;
+var amigo_js_dev_path = amigo_root_path + '/javascript/web';
+var amigo_js_out_path = amigo_root_path + '/javascript/staging';
 var amigo_url = a['AMIGO_DYNAMIC_URL'].value;
 var golr_private_url = a['AMIGO_PRIVATE_GOLR_URL'].value;
 var golr_public_url = a['AMIGO_PUBLIC_GOLR_URL'].value;
@@ -187,7 +190,7 @@ var owltools_ops_flags =
 	all_owltools_ops_flags_list.join(' ').replace(/ +/g, ' ');
 
 // Verbosity.
-console.log('AmiGO version: ' + amigo_version);
+//console.log('AmiGO version: ' + amigo_version);
 console.log('AmiGO location: ' + amigo_url);
 console.log('GOlr (private loading) location: ' + golr_private_url);
 console.log('OWLTools invocation: ' +
@@ -239,7 +242,7 @@ gulp.task('test-app', shell.task(_run_cmd_list(
 ///
 
 gulp.task('docs', shell.task(_run_cmd_list(
-    ['naturaldocs --rebuild-output --input ./javascript/lib/amigo --project javascript/docs/.naturaldocs_project/ --output html javascript/docs',
+    [//'naturaldocs --rebuild-output --input ./javascript/lib/amigo --project javascript/docs/.naturaldocs_project/ --output html javascript/docs',
      'naturaldocs --rebuild-output --input ./perl/lib/ --project perl/docs/.naturaldocs_project/ --output html perl/docs']
 )));
 
@@ -247,14 +250,49 @@ gulp.task('docs', shell.task(_run_cmd_list(
 /// AmiGO install.
 ///
 
-gulp.task('build', ['install']);
+// TODO/BUG: This should eventually be replaced by a read of
+// javascript/web.
+var web_compilables = [
+    'GeneralSearchForwarding.js',
+];
+
+// See what browserify-shim is up to.
+//process.env.BROWSERIFYSHIM_DIAGNOSTICS = 1;
+// Browser runtime environment construction.
+function _client_compile_task(file) {
+
+    var infile = amigo_js_dev_path + '/' +file;
+    //var outfile = amigo_js_out_path + '/' +file;
+
+    var b = browserify(infile);
+    return b
+    // not in npm, don't need in browser
+	.exclude('ringo/httpclient')
+	.bundle()
+    // desired output filename to vinyl-source-stream
+	.pipe(source(file))
+	.pipe(gulp.dest(amigo_js_out_path));
+}
+
+gulp.task('build', ['install', 'compile']);
+
+// Compile all JS used in AmiGO and move it to the staging/deployment
+// directory.
+gulp.task('compile', function(cb){
+    us.each(web_compilables, function(file){
+	_client_compile_task(file);
+    });
+    cb(null);
+});
+
+// 
 gulp.task('install', shell.task(_run_cmd_list(
     // First, make sure our subservient amigo2 package has what it
     // needs to run at all.
-    ['cd ./javascript/npm/amigo2 && npm install',
-//    './node_modules/.bin/browserify javascript/web/AmiGOCytoViewSource.js -o javascript/web/AmiGOCytoView.js --exclude "ringo/httpclient"',
-//    './node_modules/.bin/browserify javascript/web/AmiGOBioViewSource.js -o javascript/web/AmiGOBioView.js --exclude "ringo/httpclient"',
-    //'./install -v -g -V ' + amigo_version
+    ['cd ./javascript/npm/amigo2-instance-data && npm install',
+     //    './node_modules/.bin/browserify javascript/web/AmiGOCytoViewSource.js -o javascript/web/AmiGOCytoView.js --exclude "ringo/httpclient"',
+     //    './node_modules/.bin/browserify javascript/web/AmiGOBioViewSource.js -o javascript/web/AmiGOBioView.js --exclude "ringo/httpclient"',
+     './install -v'
     ]
 )));
 
@@ -437,9 +475,9 @@ gulp.task('run-amigo', shell.task(_run_cmd_list(
 /// Publishing.
 ///
 
-gulp.task('assemble-npm', shell.task(_run_cmd_list(
-    ['./scripts/release-npm.pl -v -i ./javascript/staging/amigo2.js -o javascript/npm/amigo2 -r ' + amigo_version]
-)));
+// gulp.task('assemble-npm', shell.task(_run_cmd_list(
+//     ['./scripts/release-npm.pl -v -i ./javascript/staging/amigo2.js -o javascript/npm/amigo2 -r ' + amigo_version]
+// )));
 
 gulp.task('publish-npm', shell.task(_run_cmd_list(
     ['npm publish javascript/npm/amigo2']
