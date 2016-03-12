@@ -136,9 +136,6 @@ if( $version ){
   die "Unable to figure out version!";
 }
 
-## Override any lies found in the YAML/env config.
-$env_conf{AMIGO_VERSION} = $version;
-
 ## Remove trailing slashes from all such variables.
 my @pvars = qw(
 		AMIGO_ROOT
@@ -204,6 +201,9 @@ $env_conf{AMIGO_SCRATCH_DIR} =
   $env_conf{AMIGO_WORKING_PATH} . '/sessions/scratch';
 safe_make_dir( $env_conf{AMIGO_SCRATCH_DIR} );
 make_permissive( $env_conf{AMIGO_SCRATCH_DIR} );
+
+## Override any lies found in the YAML/env config.
+$env_conf{AMIGO_VERSION} = $version;
 
 ## Finally, check to see if we can find the GOlr timestamp file and
 ## see if we can get a little early info from it--the latest file
