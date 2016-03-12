@@ -3,6 +3,10 @@ AMIGO_1X_PUBLIC_CGI_BASE_URL:
   comment: The public URL of an available AmiGO 1.x instance for link references.
   type: url
   value: http://amigo1.geneontology.org/cgi-bin/amigo
+AMIGO_API_PORT:
+  comment: OPTIONAL. The port on which to make available the experimental AmiGO JSON API. Defaults to 6455.
+  type: number
+  value: 6455
 AMIGO_BALANCER:
   comment: 'Mark this AmiGO 2 installation as behind a load balanacer or similar system. The practical effect of this flag is that if AmiGO detects *.error files (usually created by the global-message.pl script), it will return a 503 page signalling any upstream system that the instance is not currently ready.'
   type: boolean
@@ -43,6 +47,10 @@ AMIGO_LAYOUT_SEARCH:
     - family
     - general
     - bbop_term_ac
+AMIGO_PRIVATE_GOLR_URL:
+  comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading. Can be the same as the public URL if you have no proxy or firewall to deal with.
+  type: url
+  value: http://localhost:8080/solr/
 AMIGO_PUBLIC_GALAXY_URL:
   comment: Please enter the public URL of the Galaxy server.
   type: url
@@ -51,10 +59,6 @@ AMIGO_PUBLIC_GOLR_URL:
   comment: The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.
   type: url
   value: http://amigo-dev-golr.berkeleybop.org/
-AMIGO_PRIVATE_GOLR_URL:
-  comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading. Can be the same as the public URL if you have no proxy or firewall to deal with.
-  type: url
-  value: http://localhost:8080/solr/
 AMIGO_PUBLIC_NOCTUA_URL:
   comment: The public URL of the Noctua system (including slash).
   type: url
@@ -83,10 +87,6 @@ AMIGO_VERBOSE:
   comment: Log verbose AmiGO debugging messages.
   type: boolean
   value: 0
-AMIGO_VERSION:
-  comment: The version of AmiGO to report; not generally changed unless running a forked instance.
-  type: string
-  value: 2.4.1
 AMIGO_WORKING_PATH:
   comment: Please enter the full path to readable/writable directory that will be used for things like temporary files, logs (if enabled), and the golr_timestamp.log file.
   type: directory

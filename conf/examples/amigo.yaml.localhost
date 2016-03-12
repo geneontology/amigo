@@ -3,6 +3,10 @@ AMIGO_1X_PUBLIC_CGI_BASE_URL:
   comment: The public URL of an available AmiGO 1.x instance for link references.
   type: url
   value: http://amigo1.geneontology.org/cgi-bin/amigo
+AMIGO_API_PORT:
+  comment: OPTIONAL. The port on which to make available the experimental AmiGO JSON API. Defaults to 6455.
+  type: number
+  value: 6455
 AMIGO_BALANCER:
   comment: 'Mark this AmiGO 2 installation as behind a load balanacer or similar system. The practical effect of this flag is that if AmiGO detects *.error files (usually created by the global-message.pl script), it will return a 503 page signalling any upstream system that the instance is not currently ready.'
   type: boolean
@@ -83,10 +87,6 @@ AMIGO_VERBOSE:
   comment: Log verbose AmiGO debugging messages.
   type: boolean
   value: 1
-AMIGO_VERSION:
-  comment: The version of AmiGO to report; not generally changed unless running a forked instance.
-  type: string
-  value: 2.4.3
 AMIGO_WORKING_PATH:
   comment: 'Please enter the full path to readable/writable directory that will be used for things like temporary files, logs (if enabled), and the golr_timestamp.log file.'
   type: directory
