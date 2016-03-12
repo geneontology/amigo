@@ -10,6 +10,9 @@ screenshots*
 ## Ignore the npm stuff that we now have.
 node_modules
 
+## Ignore generated data in sub-module.
+javascript/npm/amigo2-instance-data/lib/data
+
 ## Don't want the virtualenv stuff for python leaking in.
 test-app/behave/'pwd'
 test-app/behave/screenshots*

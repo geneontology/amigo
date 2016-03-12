@@ -38,6 +38,7 @@ use URI::Escape;
 #use JSON;
 #use JSON::PP;
 use JSON::XS;
+use File::Slurp;
 use Data::UUID;
 use List::Util 'shuffle';
 
@@ -1471,6 +1472,8 @@ sub _read_json_string {
   my $json_str = shift || die 'yes, but what string do you want read?';
 
   #$self->kvetch("JSON contents: " . $json_str);
+  #$| = 1;
+  #print STDOUT "JSON contents|||" . $json_str . '|||';
 
   ## Read in data.
   # $self->kvetch("json: " . $self->{JSON});
@@ -1479,7 +1482,13 @@ sub _read_json_string {
 
   my $rethash = undef;
   # eval {
-  $rethash = $self->{JSON}->decode($json_str);
+  if( $self ){
+      $rethash = $self->{JSON}->decode($json_str);
+  }else{
+      #my $local_json = JSON::XS->new();
+      #$rethash = $local_json->decode($json_str);
+      $rethash = JSON::XS->new->utf8->decode($json_str);
+  }
   # };
   # if( $@ ){
   # die "nope: $@: $!";
@@ -1498,12 +1507,20 @@ sub _read_json_file {
 
   ## Try and get it.
   die "No hash file found ($file): $!" if ! -f $file;
-  open(FILE, '<', $file) or die "Cannot open $file: $!";
-  my $json_str = <FILE>;
-  close FILE;
+  # open(FILE, '<', $file) or die "Cannot open $file: $!";
+  # my $json_str = <FILE>;
+  # close FILE;
+  my $json_str = read_file($file);
 
   ## Punt to string reader.
-  return $self->_read_json_string($json_str);
+  my $retval = undef;
+  if( $self ){
+      $retval = $self->_read_json_string($json_str);
+  }else{
+      $retval = _read_json_string(undef, $json_str);
+  }
+
+  return $retval;
 }
 
 

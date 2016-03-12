@@ -1,6 +1,6 @@
 {
     "name": "amigo2",
-    "version": "2.4.3",
+    "version": "2.4.4",
     "license": "BSD-3-Clause",
     "description": "AmiGO 2: Your friend in the Gene Ontology.",
     "keywords": [
@@ -22,7 +22,6 @@
         "npm": ">= 2.7.4"
     },
     "dependencies": {
-        "amigo2": "2.4.3",
         "bbop": "2.4.3",
         "bbop-core": "0.0.5",
         "bbop-graph": "0.0.16",
@@ -80,8 +79,9 @@
         ]
     },
     "browser": {
-        "jquery": "./node_modules/jquery/jquery.js"
-        "amigo2-instance-data": "./javascript/npm/amigo2-instance-data"
+        "jquery": "./node_modules/jquery/jquery.js",
+        "amigo2-instance-data": "./javascript/npm/amigo2-instance-data",
+        "amigo2-widgetry": "./javascript/lib/amigo2-widgetry"
     },
     "browserify-shim": {
         "jquery": {
