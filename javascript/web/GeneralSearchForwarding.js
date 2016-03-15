@@ -18,11 +18,6 @@ var jquery_engine = require('bbop-rest-manager').jquery;
 var golr_manager = require('bbop-manager-golr');
 var golr_response = require('bbop-response-golr');
 
-// // Setup the annotation profile and make the annotation document
-// // category and the current acc sticky in the filters.
-// var sd = new amigo.data.server(); // resource locations
-// var gconf = new bbop.golr.conf(amigo.data.golr);
-// var linker = new amigo.linker();
 
 function GeneralSearchForwardingInit(){
     

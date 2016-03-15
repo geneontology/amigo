@@ -2,6 +2,8 @@
 //// ...
 ////
 
+var bbop = require('bbop-core');
+
 function LandingGraphsInit(){
     
     // For debugging.
@@ -22,3 +24,8 @@ function LandingGraphsInit(){
     };
     jQuery('.amigo-landing-tooltip').tooltip(tt_args);
 }
+
+// Embed the jQuery setup runner.
+(function (){
+    jQuery(document).ready(function(){ LandingGraphsInit(); });
+})();

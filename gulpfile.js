@@ -254,6 +254,7 @@ gulp.task('docs', shell.task(_run_cmd_list(
 // javascript/web.
 var web_compilables = [
     'GeneralSearchForwarding.js',
+    'LandingGraphs.js',
 ];
 
 // See what browserify-shim is up to.

@@ -207,7 +207,7 @@ sub mode_landing {
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-      #$self->{JS}->get_lib('LandingGraphs.js')
+      $self->{JS}->get_lib('LandingGraphs.js')
      ],
      # javascript_init =>
      # [
