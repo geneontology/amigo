@@ -80,12 +80,18 @@
     },
     "browser": {
         "jquery": "./node_modules/jquery/jquery.js",
-        "amigo2-instance-data": "./javascript/npm/amigo2-instance-data",
-        "amigo2-widgetry": "./javascript/lib/amigo2-widgetry"
+        "jquery-ui": "./javascript/lib/jquery-ui-1.10.3.custom.min.js",
+        "amigo2-instance-data": "./javascript/npm/amigo2-instance-data/lib/amigo2-instance-data.js",
+        "bbop-widget-set": "../bbop-widget-set/lib/set.js"
     },
     "browserify-shim": {
         "jquery": {
             "exports": "global:jQuery"
+        },
+        "jquery-ui": {
+            "depends": [
+                "jquery"
+            ]
         }
     },
     "bundleDependencies": [],

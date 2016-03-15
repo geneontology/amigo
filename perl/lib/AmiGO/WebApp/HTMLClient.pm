@@ -201,19 +201,20 @@ sub mode_landing {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      'bbop',
-      'amigo2'
+      #'bbop',
+      #'amigo2'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-      $self->{JS}->get_lib('LandingGraphs.js')
+      #$self->{JS}->get_lib('LandingGraphs.js')
      ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      'LandingGraphsInit();'
-     ],
+     # javascript_init =>
+     # [
+     #  #'GeneralSearchForwardingInit();',
+     #  #'LandingGraphsInit();'
+     #  'function(){};'
+     # ],
      content =>
      [
       'pages/landing.tmpl'
