@@ -279,7 +279,7 @@ sub mode_browse {
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();',
+#      'GeneralSearchForwardingInit();',
       'BrowseInit();'
      ],
      content =>
@@ -347,7 +347,7 @@ sub mode_dd_browse {
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();',
+#      'GeneralSearchForwardingInit();',
       'DDBrowseInit();'
      ],
      content =>
@@ -415,7 +415,7 @@ sub mode_free_browse {
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();',
+#      'GeneralSearchForwardingInit();',
       'FreeBrowseInit();'
      ],
      content =>
@@ -633,7 +633,7 @@ sub mode_simple_search {
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();'
+#      'GeneralSearchForwardingInit();'
      ],
      content =>
      [
@@ -795,7 +795,7 @@ sub mode_medial_search {
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();',
+#      'GeneralSearchForwardingInit();',
       'MedialInit();'
      ],
      content =>
@@ -869,7 +869,7 @@ sub mode_software_list {
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();'
+#      'GeneralSearchForwardingInit();'
      ],
      content =>
      [
@@ -932,7 +932,7 @@ sub mode_schema_details {
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();',
+#      'GeneralSearchForwardingInit();',
       'SchemaInit();'
      ],
      content =>
@@ -1026,7 +1026,7 @@ sub mode_load_details {
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();',
+#      'GeneralSearchForwardingInit();',
       'LoadDetailsInit();'
      ],
      content =>
@@ -1096,7 +1096,7 @@ sub mode_owltools_details {
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();',
+#      'GeneralSearchForwardingInit();',
      ],
      content =>
      [
@@ -1219,8 +1219,8 @@ sub mode_search {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      'bbop',
-      'amigo2'
+      #'bbop',
+      #'amigo2'
      ],
      javascript =>
      [
@@ -1234,11 +1234,11 @@ sub mode_search {
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('LiveSearchGOlr.js')
      ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      'LiveSearchGOlrInit();'
-     ],
+     # javascript_init =>
+     # [
+     #  'GeneralSearchForwardingInit();',
+     #  'LiveSearchGOlrInit();'
+     # ],
      content =>
      [
       'pages/live_search_golr.tmpl'
@@ -1266,7 +1266,7 @@ sub mode_bulk_search {
   my $page_name = 'bulk_search';
   my($page_title, 
      $page_content_title,
-     $page_help_link) = $self->_resolve_page_settings($page_name);  
+     $page_help_link) = $self->_resolve_page_settings($page_name);
   $self->set_template_parameter('page_name', $page_name);
   $self->set_template_parameter('page_title', $page_title);
   $self->set_template_parameter('page_content_title', $page_content_title);
@@ -1336,8 +1336,8 @@ sub mode_bulk_search {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      'bbop',
-      'amigo2'
+      #'bbop',
+      #'amigo2'
      ],
      javascript =>
      [
@@ -1348,11 +1348,11 @@ sub mode_bulk_search {
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('BulkSearch.js')
      ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      'BulkSearchInit();'
-     ],
+     # javascript_init =>
+     # [
+     #  'GeneralSearchForwardingInit();',
+     #  'BulkSearchInit();'
+     # ],
      content =>
      [
       'pages/bulk_search.tmpl'
@@ -1671,7 +1671,7 @@ sub mode_term_details {
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();',
+#      'GeneralSearchForwardingInit();',
       'TermDetailsInit();'
      ],
      content =>
@@ -1822,7 +1822,7 @@ sub mode_gene_product_details {
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();',
+#      'GeneralSearchForwardingInit();',
       'GPDetailsInit();'
      ],
      content =>
@@ -1973,7 +1973,7 @@ sub mode_model_details {
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();' #,
+#      'GeneralSearchForwardingInit();'
       #'ModelDetailsInit();'
      ],
      content =>
@@ -2045,7 +2045,7 @@ sub mode_model_biology {
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();'#,
+#      'GeneralSearchForwardingInit();
       #'ModelDetailsInit();'
      ],
      content =>
@@ -2131,7 +2131,7 @@ sub mode_phylo_graph {
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();',
+#      'GeneralSearchForwardingInit();',
       'PhyloGraphInit();'
      ],
      content =>
