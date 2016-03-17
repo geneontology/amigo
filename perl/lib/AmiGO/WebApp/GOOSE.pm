@@ -547,19 +547,11 @@ sub mode_goose {
 	'com.jquery',
 	'com.bootstrap',
 	'com.jquery-ui',
-	#'com.jquery.tablesorter',
-	'bbop',
-	'amigo2'
        ],
        javascript =>
        [
 	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
 	$self->{JS}->get_lib('GOOSE.js')
-       ],
-       javascript_init =>
-       [
-	'GeneralSearchForwardingInit();',
-	'GOOSEInit();'
        ],
        content =>
        [

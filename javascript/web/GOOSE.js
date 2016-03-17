@@ -3,6 +3,7 @@
 //// will probably leave DEBUG in.
 ////
 
+var bbop = require('bbop-core');
 
 //
 function GOOSEInit(){
@@ -33,3 +34,8 @@ function GOOSEInit(){
 
     ll('GOOSEInit done.');
 }
+
+// Embed the jQuery setup runner.
+(function (){
+    jQuery(document).ready(function(){ GOOSEInit(); });
+})();

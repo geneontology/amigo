@@ -255,11 +255,12 @@ gulp.task('install', ['build', 'compile']);
 // TODO/BUG: This should eventually be replaced by a read of
 // javascript/web.
 var web_compilables = [
+    'BulkSearch.js',
     'GeneralSearchForwarding.js',
-    'LandingGraphs.js',
-    'LiveSearchGOlr.js',
+    'GOOSE.js',
     'Grebe.js',
-    'BulkSearch.js'
+    'LandingGraphs.js',
+    'LiveSearchGOlr.js'
 ];
 
 // See what browserify-shim is up to.
