@@ -768,19 +768,13 @@ sub mode_medial_search {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo2'
+      'com.jquery-ui'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('Medial.js'),
       $self->{JS}->make_var('global_acc', $probable_term)
-     ],
-     javascript_init =>
-     [
-      'MedialInit();'
      ],
      content =>
      [
