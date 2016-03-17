@@ -187,20 +187,13 @@ sub mode_grebe {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo2'
+      'com.jquery-ui'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('Grebe.js'),
       $self->{JS}->make_var('global_grebe_questions', $questions_info),
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      'GrebeInit();'
      ],
      content =>
      [

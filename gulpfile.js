@@ -250,12 +250,15 @@ gulp.task('docs', shell.task(_run_cmd_list(
 /// AmiGO install.
 ///
 
+gulp.task('install', ['build', 'compile']);
+
 // TODO/BUG: This should eventually be replaced by a read of
 // javascript/web.
 var web_compilables = [
     'GeneralSearchForwarding.js',
     'LandingGraphs.js',
     'LiveSearchGOlr.js',
+    'Grebe.js',
     'BulkSearch.js'
 ];
 
@@ -277,8 +280,6 @@ function _client_compile_task(file) {
 	.pipe(gulp.dest(amigo_js_out_path));
 }
 
-gulp.task('build', ['install', 'compile']);
-
 // Compile all JS used in AmiGO and move it to the staging/deployment
 // directory.
 gulp.task('compile', function(cb){
@@ -289,7 +290,7 @@ gulp.task('compile', function(cb){
 });
 
 // 
-gulp.task('install', shell.task(_run_cmd_list(
+gulp.task('build', shell.task(_run_cmd_list(
     // First, make sure our subservient amigo2 package has what it
     // needs to run at all.
     ['cd ./javascript/npm/amigo2-instance-data && npm install',

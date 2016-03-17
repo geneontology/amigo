@@ -209,12 +209,6 @@ sub mode_landing {
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('LandingGraphs.js')
      ],
-     # javascript_init =>
-     # [
-     #  #'GeneralSearchForwardingInit();',
-     #  #'LandingGraphsInit();'
-     #  'function(){};'
-     # ],
      content =>
      [
       'pages/landing.tmpl'
@@ -279,7 +273,6 @@ sub mode_browse {
      ],
      javascript_init =>
      [
-#      'GeneralSearchForwardingInit();',
       'BrowseInit();'
      ],
      content =>
@@ -347,7 +340,6 @@ sub mode_dd_browse {
      ],
      javascript_init =>
      [
-#      'GeneralSearchForwardingInit();',
       'DDBrowseInit();'
      ],
      content =>
@@ -415,7 +407,6 @@ sub mode_free_browse {
      ],
      javascript_init =>
      [
-#      'GeneralSearchForwardingInit();',
       'FreeBrowseInit();'
      ],
      content =>
@@ -624,16 +615,10 @@ sub mode_simple_search {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      'bbop',
-      'amigo2'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js')
-     ],
-     javascript_init =>
-     [
-#      'GeneralSearchForwardingInit();'
      ],
      content =>
      [
@@ -795,7 +780,6 @@ sub mode_medial_search {
      ],
      javascript_init =>
      [
-#      'GeneralSearchForwardingInit();',
       'MedialInit();'
      ],
      content =>
@@ -859,18 +843,11 @@ sub mode_software_list {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui'
-      #'com.jquery.tablesorter',
-      #'bbop',
-      #'amigo2'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js')
      ],
-#      javascript_init =>
-#      [
-#      'GeneralSearchForwardingInit();'
-#      ],
      content =>
      [
       'pages/software_list.tmpl'
@@ -932,7 +909,6 @@ sub mode_schema_details {
      ],
      javascript_init =>
      [
-#      'GeneralSearchForwardingInit();',
       'SchemaInit();'
      ],
      content =>
@@ -1026,7 +1002,6 @@ sub mode_load_details {
      ],
      javascript_init =>
      [
-#      'GeneralSearchForwardingInit();',
       'LoadDetailsInit();'
      ],
      content =>
@@ -1086,17 +1061,10 @@ sub mode_owltools_details {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      'com.jquery.tablesorter',
-      'bbop',
-      'amigo2'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js')
-     ],
-     javascript_init =>
-     [
-#      'GeneralSearchForwardingInit();',
      ],
      content =>
      [
@@ -1822,7 +1790,6 @@ sub mode_gene_product_details {
      ],
      javascript_init =>
      [
-#      'GeneralSearchForwardingInit();',
       'GPDetailsInit();'
      ],
      content =>
@@ -1945,9 +1912,7 @@ sub mode_model_details {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo2'
+      'com.jquery-ui'
      ],
      javascript =>
      [
@@ -1970,11 +1935,6 @@ sub mode_model_details {
 			     "BFO:0000066",
 			     "RO:0002233",
 			     "RO:0002488"])
-     ],
-     javascript_init =>
-     [
-#      'GeneralSearchForwardingInit();'
-      #'ModelDetailsInit();'
      ],
      content =>
      [
@@ -2024,8 +1984,6 @@ sub mode_model_biology {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      'bbop',
-      'amigo2'
      ],
      javascript =>
      [
@@ -2042,11 +2000,6 @@ sub mode_model_biology {
 			     "BFO:0000066",
 			     "RO:0002233",
 			     "RO:0002488"])
-     ],
-     javascript_init =>
-     [
-#      'GeneralSearchForwardingInit();
-      #'ModelDetailsInit();'
      ],
      content =>
      [
@@ -2119,9 +2072,6 @@ sub mode_phylo_graph {
       #'com.raphael.graffle',
       'bbop',
       'amigo2'
-      #'bbop.model',
-      #'bbop.model.tree',
-      #'bbop.graph.render.phylo',
      ],
      javascript =>
      [
@@ -2131,7 +2081,6 @@ sub mode_phylo_graph {
      ],
      javascript_init =>
      [
-#      'GeneralSearchForwardingInit();',
       'PhyloGraphInit();'
      ],
      content =>
