@@ -261,6 +261,7 @@ var web_compilables = [
     'Grebe.js',
     'LandingGraphs.js',
     'LiveSearchGOlr.js',
+    'LoadDetails.js',
     'Schema.js'
 ];
 
