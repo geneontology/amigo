@@ -858,19 +858,19 @@ sub mode_software_list {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
+      'com.jquery-ui'
       #'com.jquery.tablesorter',
-      'bbop',
-      'amigo2'
+      #'bbop',
+      #'amigo2'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js')
      ],
-     javascript_init =>
-     [
+#      javascript_init =>
+#      [
 #      'GeneralSearchForwardingInit();'
-     ],
+#      ],
      content =>
      [
       'pages/software_list.tmpl'
