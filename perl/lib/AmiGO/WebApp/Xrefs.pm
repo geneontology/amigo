@@ -89,10 +89,8 @@ sub mode_xrefs {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
+      'com.jquery-ui'
       #'com.jquery.tablesorter',
-      'bbop',
-      'amigo2'
      ],
      javascript =>
      [
@@ -101,11 +99,6 @@ sub mode_xrefs {
       #$self->{JS}->make_var('global_manager', $manager),
       $self->{JS}->get_lib('GeneralSearchForwarding.js')#,
       #$self->{JS}->get_lib('Xrefs.js')
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();'#,
-	#'XrefsInit();'
      ],
      content =>
      [
