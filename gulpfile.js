@@ -255,7 +255,7 @@ gulp.task('docs', shell.task(_run_cmd_list(
 var web_compilables = [
     'GeneralSearchForwarding.js',
     'LandingGraphs.js',
-    //'LiveSearchGOlr.js',
+    'LiveSearchGOlr.js',
     'BulkSearch.js'
 ];
 
