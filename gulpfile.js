@@ -260,7 +260,8 @@ var web_compilables = [
     'GOOSE.js',
     'Grebe.js',
     'LandingGraphs.js',
-    'LiveSearchGOlr.js'
+    'LiveSearchGOlr.js',
+    'Schema.js'
 ];
 
 // See what browserify-shim is up to.

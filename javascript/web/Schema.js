@@ -2,6 +2,23 @@
 //// Render the schema information that we can squeeze out of the API.
 ////
 
+var us = require('underscore');
+var bbop = require('bbop-core');
+var widgets = require('bbop-widget-set');
+var html = widgets.html;
+
+// Config.
+var amigo = new (require('amigo2-instance-data'))(); // no overload
+var golr_conf = require('golr-conf');
+var gconf = new golr_conf.conf(amigo.data.golr);
+var gserv = amigo.data.server.golr_base;
+var sd = amigo.data.server;
+// Linker.
+var linker = amigo.linker;
+// Management.
+var jquery_engine = require('bbop-rest-manager').jquery;
+var golr_manager = require('bbop-manager-golr');
+var golr_response = require('bbop-response-golr');
 
 //
 function SchemaInit(){
@@ -11,17 +28,10 @@ function SchemaInit(){
     logger.DEBUG = true;
     function ll(str){ logger.kvetch(str); }
 
-    // External meta-data.
-    var sd = new amigo.data.server();
-    var solr_server = sd.golr_base();
-    var gconf = new bbop.golr.conf(amigo.data.golr);
-
     // Aliases.
-    var each = bbop.core.each;
-    var hashify = bbop.core.hashify;
-    var get_keys = bbop.core.get_keys;
-    var is_def = bbop.core.is_defined;
-    var is_empty = bbop.core.is_empty;
+    var hashify = bbop.hashify;
+    var get_keys = bbop.get_keys;
+    var is_def = bbop.is_defined;
 
     // Helper: dedupe a list...might be nice in core?
     function dedupe(list){
@@ -40,15 +50,14 @@ function SchemaInit(){
 	var retval = '';
 
 	var cache = [];
-	each(hash,
-	     function(str, loc_list){
-		 var locs = dedupe(loc_list);
-		 cache.push( str + ' <small>[' + locs.join(', ') + ']</small>');
-	     });
+	us.each(hash, function(loc_list, str){
+	    var locs = dedupe(loc_list);
+	    cache.push( str + ' <small>[' + locs.join(', ') + ']</small>');
+	});
 	if( cache.length > 0 ){
 	    retval = cache.join('<br />');	    
 	}
-    
+	
 	return retval;
     }
 
@@ -62,133 +71,125 @@ function SchemaInit(){
 
     // First, let's go through all of the fields and figure out their
     // capacities.
-	     //
+    //
     var field_cap_cache = {};
     var capacities = ['boost', 'result', 'filter'];
-    each(classes,
-	 function(conf_class, ccindex){
-	     var personality = conf_class.id();
-	     
-	     each(capacities,
-		  function(capacity){
-		      var by_weights = conf_class.get_weights(capacity);
-		      each(by_weights,
-			   function(field){
-			       //var fid = field.id();
-			       var fid = field;
-			       if( ! is_def(field_cap_cache[fid]) ){
-				   field_cap_cache[fid] = {};
-			       }
-			       if( ! is_def(field_cap_cache[fid][capacity]) ){
-				   field_cap_cache[fid][capacity] = [];
-			       }
-			       field_cap_cache[fid][capacity].push(
-				   personality);
-			   });
-		  });
-	 });
+    us.each(classes, function(conf_class, ccindex){
+	var personality = conf_class.id();
+	
+	us.each(capacities, function(capacity){
+	    var by_weights = conf_class.get_weights(capacity);
+	    us.each(by_weights, function(field){
+		//var fid = field.id();
+		var fid = field;
+		if( ! is_def(field_cap_cache[fid]) ){
+		    field_cap_cache[fid] = {};
+		}
+		if( ! is_def(field_cap_cache[fid][capacity]) ){
+		    field_cap_cache[fid][capacity] = [];
+		}
+		field_cap_cache[fid][capacity].push(
+		    personality);
+	    });
+	});
+    });
 
     // Now cycle through the main schema and build up an object for
     // use in table building.
     var fields = {};
-    each(classes,
-	 function(conf_class, ccindex){
-	     var personality = conf_class.id();
+    us.each(classes, function(conf_class, ccindex){
+	var personality = conf_class.id();
 
-	     var cfs = conf_class.get_fields();
-	     each(cfs,
-		  function(cf, cfindex){
-		      // If we haven't seen it before, go ahead and
-		      // add it.
-		      var cid = cf.id();
-		      if( ! bbop.core.is_defined( fields[cid]) ){
-			  fields[cid] = {
-			      personality: [],
-			      label: {},
-			      description: {},
-			      capacity: {},
-			      //required: 
-			      multi: '???',
-			      id: cid
-			  };
-		      }
+	var cfs = conf_class.get_fields();
+	us.each(cfs, function(cf, cfindex){
+	    // If we haven't seen it before, go ahead and
+	    // add it.
+	    var cid = cf.id();
+	    if( ! bbop.is_defined( fields[cid]) ){
+		fields[cid] = {
+		    personality: [],
+		    label: {},
+		    description: {},
+		    capacity: {},
+		    //required: 
+		    multi: '???',
+		    id: cid
+		};
+	    }
 
-		      // Personality is easy.
-		      fields[cid]['personality'].push(personality);
+	    // Personality is easy.
+	    fields[cid]['personality'].push(personality);
 
-		      // Multi is easy too since it must be uniform.
-		      if( cf.is_multi() ){
-			  fields[cid]['multi'] = 'yes';
-		      }else{
-			  fields[cid]['multi'] = 'no';
-		      }
-		      
-		      // Capacity not too bad since we already
-		      // did the work above.
-		      if( field_cap_cache[cid] && 
-			  ! is_empty(field_cap_cache[cid]) ){
-			  fields[cid]['capacity'] = field_cap_cache[cid];
-		      }
-		      
-		      // Label and description are harder. First grab
-		      // raw versions, assert, then mark personality.
-		      // Label.
-		      var lbl = cf.display_name();
-		      if( ! is_def(fields[cid]['label'][lbl]) ){
-			  fields[cid]['label'][lbl] = [];
-		      }
-		      fields[cid]['label'][lbl].push(personality);
-		      // Description.
-		      var desc = cf.description();
-		      if( ! is_def(fields[cid]['description'][desc]) ){
-			  fields[cid]['description'][desc] = [];
-		      }
-		      fields[cid]['description'][desc].push(personality);
-		  });
-	 });
+	    // Multi is easy too since it must be uniform.
+	    if( cf.is_multi() ){
+		fields[cid]['multi'] = 'yes';
+	    }else{
+		fields[cid]['multi'] = 'no';
+	    }
+	    
+	    // Capacity not too bad since we already
+	    // did the work above.
+	    if( field_cap_cache[cid] && ! us.isEmpty(field_cap_cache[cid]) ){
+		fields[cid]['capacity'] = field_cap_cache[cid];
+	    }
+	    
+	    // Label and description are harder. First grab
+	    // raw versions, assert, then mark personality.
+	    // Label.
+	    var lbl = cf.display_name();
+	    if( ! is_def(fields[cid]['label'][lbl]) ){
+		fields[cid]['label'][lbl] = [];
+	    }
+	    fields[cid]['label'][lbl].push(personality);
+	    // Description.
+	    var desc = cf.description();
+	    if( ! is_def(fields[cid]['description'][desc]) ){
+		fields[cid]['description'][desc] = [];
+	    }
+	    fields[cid]['description'][desc].push(personality);
+	});
+    });
 
     // Generate a nice table head.    
-    var thead = new bbop.html.tag('thead');
-    each(['id', 'multi', 'display label(s)', 'description(s)',
-	  'in capacity', 'personalities'],
-	 function(title_item){
-	     thead.add_to('<th>' + title_item +
-			  '<img style="border: 0px;" src="' +
-			  sd.image_base() + '/reorder.gif" />' +
-			  '</th>');
-	 });
+    var thead = new html.tag('thead');
+    us.each(['id', 'multi', 'display label(s)', 'description(s)',
+	     'in capacity', 'personalities'], function(title_item){
+		 thead.add_to('<th>' + title_item +
+			      '<img style="border: 0px;" src="' +
+			      sd.image_base + '/reorder.gif" />' +
+			      '</th>');
+	     });
 
     // Now a nice body. Add some buttons, but keep them for later.
-    var tbody = new bbop.html.tag('tbody');
-    each(fields,
-	 function(fkey, fobj){
-	     var cache = [];
+    var tbody = new html.tag('tbody');
+    us.each(fields, function(fobj, fkey){
+	var cache = [];
 
-	     // Unique.
-	     cache.push(fobj['id']);
-	     cache.push(fobj['multi']);
+	// Unique.
+	cache.push(fobj['id']);
+	cache.push(fobj['multi']);
 
-	     // Label and description need to be handled carefully.
-	     cache.push( sfuse(fobj['label']) );
-	     cache.push( sfuse(fobj['description']) );
+	// Label and description need to be handled carefully.
+	cache.push( sfuse(fobj['label']) );
+	cache.push( sfuse(fobj['description']) );
 
-	     // Careful handling.
-	     cache.push( sfuse(fobj['capacity']) );
+	// Careful handling.
+	cache.push( sfuse(fobj['capacity']) );
 
-	     // Personality easily deduped.
-	     cache.push(dedupe(fobj['personality']).join(', '));
+	// Personality easily deduped.
+	cache.push(dedupe(fobj['personality']).join(', '));
 
-	     // Assemble.
-	     var tr = '<tr><td>' + cache.join('</td><td>') + '</td></tr>';
-	     tbody.add_to(tr);
-	 });
+	// Assemble.
+	var tr = '<tr><td>' + cache.join('</td><td>') + '</td></tr>';
+	tbody.add_to(tr);
+    });
 
     // Generate the table itself.
     var tbl_attrs = {
 	generate_id: true,
 	'class': 'table table-hover table-striped'
     };
-    var tbl = new bbop.html.tag('table', tbl_attrs);
+    var tbl = new html.tag('table', tbl_attrs);
     tbl.add_to(thead);
     tbl.add_to(tbody);
 
@@ -207,9 +208,14 @@ function SchemaInit(){
     jQuery('#' + tbl.get_id()).tablesorter(); 
 
     // Add filtering to table.
-    var ft = new bbop.widget.filter_table(filter_inject_id, tbl.get_id(),
-					  sd.image_base() + '/waiting_ajax.gif',
-					  null, 'Filter:&nbsp;');
+    var ft = new widgets.display.filter_table(filter_inject_id, tbl.get_id(),
+					      sd.image_base +'/waiting_ajax.gif',
+					      null, 'Filter:&nbsp;');
     
     ll('SchemaInit done.');
 }
+
+// Embed the jQuery setup runner.
+(function (){
+    jQuery(document).ready(function(){ SchemaInit(); });
+})();

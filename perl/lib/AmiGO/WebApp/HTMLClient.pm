@@ -898,18 +898,12 @@ sub mode_schema_details {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      'com.jquery.tablesorter',
-      'bbop',
-      'amigo2'
+      'com.jquery.tablesorter'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('Schema.js')
-     ],
-     javascript_init =>
-     [
-      'SchemaInit();'
      ],
      content =>
      [
