@@ -308,3 +308,8 @@ jQuery(document).ready(function(){
 	AmiGOCytoViewInit();
     }
 });
+
+// Embed the jQuery setup runner.
+(function (){
+    jQuery(document).ready(function(){ AmiGOCytoViewInit(); });
+})();

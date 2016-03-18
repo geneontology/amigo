@@ -393,3 +393,8 @@ jQuery(document).ready(function(){
     console.log('model_ids', model_ids);
     console.log('foo', p);
 });
+
+// Embed the jQuery setup runner.
+(function (){
+    jQuery(document).ready(function(){ AmiGOBioViewInit(); });
+})();
