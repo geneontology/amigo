@@ -58,6 +58,9 @@ function LiveSearchGOlrInit(){
     engine.method('GET');
     engine.use_jsonp(true);
     var manager = new golr_manager(gserv, gconf, engine, 'async');
+    
+    // Allow for smaller queries.
+    // manager.minimal_query(0);
 
     ///
     /// Defined some useful buttons.
@@ -348,19 +351,19 @@ function LiveSearchGOlrInit(){
 	// because it needs persistance for the UI.
 	ll("Post query: " + manager.get_query());
 	ll("Post default query: " + manager.get_default_query());
-	// if( manager.get_query() === manager.get_default_query() ){
-	//     // The default is the same as nothing at all since it is
-	//     // default.
-	//     manager.set_query_field_text('');
-	// }else{
-	//     // Wild cards are set after the fact in comfy, so just
-	//     // remove the wildcard if it is sitting there at the end.
-	//     var gq = manager.get_query();
-	//     if( '*' === gq.charAt(gq.length - 1) ){
-	// 	gq = gq.substring(0, gq.length - 1);		
-	//     }
-	//     manager.set_query_field_text(gq);
-	// }
+	if( manager.get_query() === manager.get_default_query() ){
+	    // The default is the same as nothing at all since it is
+	    // default.
+	    filters.query_field_text('');
+	}else{
+	    // Wild cards are set after the fact in comfy, so just
+	    // remove the wildcard if it is sitting there at the end.
+	    var gq = manager.get_query();
+	    if( '*' === gq.charAt(gq.length - 1) ){
+		gq = gq.substring(0, gq.length - 1);		
+	    }
+	    filters.query_field_text(gq);
+	}
 	
 	// Destroy the bookmark so we don't keep hitting it.
 	// NOTE: jshint does not like the redefinition of the global,
