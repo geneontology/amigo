@@ -146,6 +146,57 @@ var amigo = function(more_dispatch){
     
     // .ui subsection.
     //    this.ui = {};
+
+    /*
+     * Function: readable
+     * 
+     * Get readable label for the entity, if it can be found in the
+     * context.
+     * 
+     * Parameters:
+     *  id - the string id of the entity
+     * 
+     * Returns:
+     *  string label, or incoming id if not found
+     */
+    this.readable = function(id){
+	
+	var retval = id;
+
+	if( anchor.data && anchor.data.context && anchor.data.context[id] ){
+	    var entry =  anchor.data.context[id];
+	    if( entry['readable'] ){
+		retval = entry['readable'];
+	    }
+	}
+	return retval;
+    };
+
+    /*
+     * Function: color
+     * 
+     * Get color string for the entity, if it can be found in the
+     * context.
+     * 
+     * Parameters:
+     *  id - the string id of the entity
+     * 
+     * Returns:
+     *  string label, or "#888888" if not found
+     */
+    this.color = function(id){
+	
+	var retval = '#888888';
+
+	if( anchor.data && anchor.data.context && anchor.data.context[id] ){
+	    var entry =  anchor.data.context[id];
+	    if( entry['color'] ){
+		retval = entry['color'];
+	    }
+	}
+	return retval;
+    };
+
 };
 
 ///
