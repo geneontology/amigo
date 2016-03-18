@@ -264,7 +264,8 @@ var web_compilables = [
     'LandingGraphs.js',
     'LiveSearchGOlr.js',
     'LoadDetails.js',
-    'Schema.js'
+    'Schema.js',
+    'TermDetails.js'
 ];
 
 // See what browserify-shim is up to.
@@ -524,13 +525,6 @@ gulp.task('buffer-check', shell.task(_run_cmd_list(
     ['perl -e "for (0..1500000){ print STDOUT \\"0123456789\\n\\";}"'] // okay
 )));
 
-//
-/// Default.
-///
-
-// The default task (called when you run `gulp` from cli)
-gulp.task('default', ['install', 'tests', 'docs']);
-
 ///
 /// Trying out possible approach to AmiGO JSON API.
 ///
@@ -566,6 +560,13 @@ gulp.task('develop-amigo-api', function(){
 	server_restarter.restart();
     });
 });
+
+///
+/// Default.
+///
+
+// The default task (called when you run `gulp` from cli)
+gulp.task('default', ['install', 'tests', 'docs']);
 
 ///
 /// Old Makefile that has not yet been transferred.

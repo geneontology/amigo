@@ -1345,7 +1345,7 @@ sub mode_term_details {
   ## Now add the filters that come in from the YAML-defined simple
   ## public bookmarking API.
   $filters = $self->_add_search_bookmark_api_to_filters($params, $filters);
-  
+
   ## Input sanity check.
   if( ! $input_term_id ){
     return $self->mode_fatal("No term acc input argument.");
@@ -1601,9 +1601,7 @@ sub mode_term_details {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      'com.jquery.tablesorter',
-      'bbop',
-      'amigo2'
+      'com.jquery.tablesorter'
      ],
      javascript =>
      [
@@ -1618,11 +1616,6 @@ sub mode_term_details {
       $self->{JS}->make_var('global_label',
 			    $term_info_hash->{$input_term_id}{'name'}),
       $self->{JS}->make_var('global_acc', $input_term_id)
-     ],
-     javascript_init =>
-     [
-#      'GeneralSearchForwardingInit();',
-      'TermDetailsInit();'
      ],
      content =>
      [
