@@ -1659,7 +1659,7 @@ sub mode_gene_product_details {
   ## Now add the filters that come in from the YAML-defined simple
   ## public bookmarking API.
   $filters = $self->_add_search_bookmark_api_to_filters($params, $filters);
-  
+
   ## Input sanity check.
   if( ! $input_gp_id ){
     return $self->mode_fatal("No input gene product acc argument.");
@@ -1747,9 +1747,7 @@ sub mode_gene_product_details {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo2'
+      'com.jquery-ui'
      ],
      javascript =>
      [
@@ -1762,10 +1760,6 @@ sub mode_gene_product_details {
       $self->{JS}->make_var('global_live_search_filters', $filters),
       $self->{JS}->make_var('global_live_search_pins', $pins),
       $self->{JS}->make_var('global_acc', $input_gp_id)
-     ],
-     javascript_init =>
-     [
-      'GPDetailsInit();'
      ],
      content =>
      [

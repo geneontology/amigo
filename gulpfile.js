@@ -261,6 +261,7 @@ var web_compilables = [
     'GeneralSearchForwarding.js',
     'Gannet.js',
     'GOOSE.js',
+    'GPDetails.js',
     'Grebe.js',
     'Medial.js',
     'LandingGraphs.js',
