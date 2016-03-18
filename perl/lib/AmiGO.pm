@@ -1588,7 +1588,7 @@ sub golr_configuration {
 
   my $self = shift;
   my $json_file = $self->amigo_env('AMIGO_ROOT') .
-    '/javascript/lib/amigo/data/golr.js';
+    '/javascript/npm/amigo2-instance-data/lib/data/golr.js';
 
   ## Try and get the string out.
   ## Crop to just the parts that are interesting.
@@ -1597,7 +1597,7 @@ sub golr_configuration {
   my $read_buffer = [];
   my $read_p = 0;
   while( <FILE> ){
-    if( /amigo.data.golr\ \=\ \{/ ){
+    if( /var golr\ \=\ \{/ ){
       $read_p = 1;
       push @$read_buffer, '{';
     }elsif( /^\}\;/ ){
@@ -1859,6 +1859,7 @@ sub get_amigo_layout {
   my $clist = $self->clean_list($str_raw);
   foreach my $citem (@$clist){
     my $try_class = $self->golr_class_info($citem);
+    #$self->kvetch('layout entry: ' . $citem . ', ' . $try_class);
     if( $try_class ){
       push @$retlist, $try_class;
     }

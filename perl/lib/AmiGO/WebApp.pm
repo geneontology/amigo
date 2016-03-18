@@ -60,14 +60,17 @@ sub cgiapp_init {
   if( defined $self->{AW_SEARCH_LIST} ){
     $self->{CORE}->kvetch('already have assembled layouts');
   }else{
+    $self->{CORE}->kvetch('create assembled layouts variable');
 
     ## Pulling: AMIGO_LAYOUT_SEARCH
     my $search_list_to_try =
-      $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_SEARCH');
+	$self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_SEARCH');
     my $golr_conf = $self->{CORE}->golr_configuration();
     my $search_list = [];
     foreach my $search_entry (@$search_list_to_try){
       my $search_entry_id = $search_entry->{'id'};
+
+      $self->{CORE}->kvetch('   entry: ' . $search_entry_id);
       if( defined $golr_conf->{$search_entry_id} ){
 	## Add in the search link.
 	my $item_conf = $golr_conf->{$search_entry_id};
