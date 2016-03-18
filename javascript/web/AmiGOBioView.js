@@ -19,8 +19,6 @@ var bbop = require('bbop-core');
 // Help with strings and colors--configured separately.
 var amigo = new (require('amigo2-instance-data'))(); // no overload
 
-var aid = amigo.data.context;
-
 var model = require('bbop-graph-noctua');
 
 var cytoscape = require('cytoscape');
@@ -52,8 +50,7 @@ var minerva_requests = require('minerva-requests');
 var noctua_model = require('bbop-graph-noctua');
 
 //
-var sd = new amigo.data.server();
-var gserv = sd.golr_base();
+var gserv = amigo.data.server.golr_base;
 
 var jquery_engine = require('bbop-rest-manager').jquery;
 var golr_manager = require('bbop-manager-golr');
@@ -168,8 +165,8 @@ var AmiGOBioViewInit = function(model_ids){
 		    source: e.subject_id(),
 		    target: e.object_id(),
 		    predicate: e.predicate_id(),
-		    label: aid.readable(e.predicate_id()),
-		    color: aid.color(e.predicate_id())
+		    label: amigo.readable(e.predicate_id()),
+		    color: amigo.color(e.predicate_id())
 		}
 	    });
 	});

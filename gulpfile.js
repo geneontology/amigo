@@ -255,6 +255,8 @@ gulp.task('install', ['build', 'compile']);
 // TODO/BUG: This should eventually be replaced by a read of
 // javascript/web.
 var web_compilables = [
+    'AmiGOBioView.js',
+    'AmiGOCytoView.js',
     'BulkSearch.js',
     'GeneralSearchForwarding.js',
     'Gannet.js',

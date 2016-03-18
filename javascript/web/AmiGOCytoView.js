@@ -21,7 +21,7 @@ var amigo = new (require('amigo2-instance-data'))(); // no overload
 var barista_response = require('bbop-response-barista');
 
 // Help with strings and colors--configured separately.
-var aid = amigo.data.context;
+//var aid = amigo.data.context;
 
 var model = require('bbop-graph-noctua');
 
@@ -152,8 +152,8 @@ var AmiGOCytoViewInit = function(user_token){
 		    source: e.subject_id(),
 		    target: e.object_id(),
 		    predicate: e.predicate_id(),
-		    label: aid.readable(e.predicate_id()),
-		    color: aid.color(e.predicate_id())
+		    label: amigo.readable(e.predicate_id()),
+		    color: amigo.color(e.predicate_id())
 		}
 	    });
 	});
