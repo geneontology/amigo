@@ -241,9 +241,11 @@ function LiveSearchGOlrInit(){
 	// Add the appropriate filters, and gather the appropriate buttons
 	// (that we'll add later.)
 	var buttons_to_use = [];
+	var label_to_use = 'pool';
 	ll('Using _personality_buttons');
 	if( personality === 'annotation' ){
 	    
+	    label_to_use = 'annotation(s)';
     	    manager.add_query_filter('document_category',
     				     'annotation', ['*']);
 	    
@@ -258,6 +260,7 @@ function LiveSearchGOlrInit(){
 
 	}else if( personality === 'ontology' ){
 
+	    label_to_use = 'term(s)';
     	    manager.add_query_filter('document_category',
 				     'ontology_class', ['*']);
 	    if( typeof(global_live_search_filter_idspace) !== 'undefined' &&
@@ -274,6 +277,7 @@ function LiveSearchGOlrInit(){
 
 	}else if( personality === 'bioentity' ){
 
+	    label_to_use = 'gene product(s)';
     	    manager.add_query_filter('document_category', 
 				     'bioentity', ['*']);
 
@@ -284,26 +288,31 @@ function LiveSearchGOlrInit(){
 
 	}else if( personality === 'model_annotation' ){
 
+	    label_to_use = 'annotation(s)';
     	    manager.add_query_filter('document_category',
     				     'model_annotation', ['*']);
 
 	}else if( personality === 'noctua_model_meta' ){
 
+	    label_to_use = 'model(s)';
     	    manager.add_query_filter('document_category',
     				     'noctua_model_meta', ['*']);
 
 	}else if( personality === 'family' ){
 
+	    label_to_use = 'famlies';
     	    manager.add_query_filter('document_category',
     				     'family', ['*']);
 	    
 	}else if( personality === 'general' ){
 	    
+	    label_to_use = 'thing(s)';
     	    manager.add_query_filter('document_category',
     				     'general', ['*']);
 	    
 	}else if( personality === 'bbop_term_ac' ){
 	    
+	    label_to_use = 'term(s)';
     	    manager.add_query_filter('document_category',
     				     'ontology_class', ['*']);
 
@@ -317,7 +326,7 @@ function LiveSearchGOlrInit(){
 
 	// Attach filters to manager.
 	var hargs = {
-	    meta_label: 'Total pool:&nbsp;',
+	    meta_label: 'Total ' + label_to_use + ':&nbsp;',
 	    // free_text_placeholder:
 	    // 'Input text to filter against all remaining documents',
 	    //'display_free_text_p': false
@@ -329,6 +338,7 @@ function LiveSearchGOlrInit(){
 
 	// Attach pager to manager.
 	var pager_opts = {
+	    results_title: 'Total ' + label_to_use + ':&nbsp;',
 	};
 	var pager = new widgets.live_pager('pager', manager, pager_opts);
 
