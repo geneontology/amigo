@@ -257,6 +257,7 @@ gulp.task('install', ['build', 'compile']);
 var web_compilables = [
     'BulkSearch.js',
     'GeneralSearchForwarding.js',
+    'Gannet.js',
     'GOOSE.js',
     'Grebe.js',
     'Medial.js',

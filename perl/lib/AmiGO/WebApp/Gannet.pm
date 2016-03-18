@@ -589,19 +589,12 @@ sub mode_gannet {
        [
 	'com.jquery',
 	'com.bootstrap',
-	'com.jquery-ui',
-	'bbop',
-	'amigo2'
+	'com.jquery-ui'
        ],
        javascript =>
        [
 	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
 	$self->{JS}->get_lib('Gannet.js')
-       ],
-       javascript_init =>
-       [
-	'GeneralSearchForwardingInit();',
-	'GannetInit();'
        ],
        content =>
        [
