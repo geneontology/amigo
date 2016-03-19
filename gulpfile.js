@@ -250,10 +250,11 @@ gulp.task('docs', shell.task(_run_cmd_list(
 /// AmiGO install.
 ///
 
-gulp.task('install', ['build', 'compile']);
+gulp.task('install', ['compile', 'build']);
 
 // TODO/BUG: This should eventually be replaced by a read of
-// javascript/web.
+// javascript/web. For now, we'll just have this so we can work our
+// way through the garage fixing things at our leisure.
 var web_compilables = [
     'AmiGOBioView.js',
     'AmiGOCytoView.js',
@@ -291,23 +292,27 @@ function _client_compile_task(file) {
 
 // Compile all JS used in AmiGO and move it to the staging/deployment
 // directory.
-gulp.task('compile', function(cb){
+gulp.task('compile', ['build'], function(cb){
+    console.log('Start compile');
     us.each(web_compilables, function(file){
+	console.log('Compiling: ' + file);
 	_client_compile_task(file);
     });
+    console.log('End compile');
     cb(null);
 });
 
-// 
+// Correctly build/deploy/roll out files into working AmiGO
+// configuration.
 gulp.task('build', shell.task(_run_cmd_list(
-    // First, make sure our subservient amigo2 package has what it
-    // needs to run at all.
-    ['cd ./javascript/npm/amigo2-instance-data && npm install',
-     //    './node_modules/.bin/browserify javascript/web/AmiGOCytoViewSource.js -o javascript/web/AmiGOCytoView.js --exclude "ringo/httpclient"',
-     //    './node_modules/.bin/browserify javascript/web/AmiGOBioViewSource.js -o javascript/web/AmiGOBioView.js --exclude "ringo/httpclient"',
-     './install -v'
-    ]
-)));
+	// First, make sure our subservient amigo2 package has what it
+	// needs to run at all.
+	[
+	    'cd ./javascript/npm/amigo2-instance-data && npm install',
+	    './install -v'
+	]
+    ))
+);
 
 ///
 /// GOlr operations and handling.
