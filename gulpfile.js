@@ -293,12 +293,18 @@ function _client_compile_task(file) {
 // Compile all JS used in AmiGO and move it to the staging/deployment
 // directory.
 gulp.task('compile', ['build'], function(cb){
-    console.log('Start compile');
     us.each(web_compilables, function(file){
-	console.log('Compiling: ' + file);
 	_client_compile_task(file);
     });
-    console.log('End compile');
+    cb(null);
+});
+
+// A version of compile that does not care about build--for rapid JS
+// development.
+gulp.task('compile-js-dev', function(cb){
+    us.each(web_compilables, function(file){
+	_client_compile_task(file);
+    });
     cb(null);
 });
 
@@ -462,12 +468,14 @@ gulp.task('clean-load-log', shell.task(_run_cmd_list(
 /// Development.
 ///
 
-// // Rerun tasks when a file changes.
-// gulp.task('watch', function(cb) {
-//   gulp.watch(paths.clients, ['build']);
-//   gulp.watch(paths.support, ['build']);
-//   cb(null);
-// });
+// Rerun tasks when a file changes.
+gulp.task('watch-js', function(cb) {
+    //gulp.watch(web_compilables, ['compile-js-dev']);
+    gulp.watch(us.map(web_compilables,
+		      function(file){ return amigo_js_dev_path + '/'+file; } ),
+	       ['compile-js-dev']);
+    cb(null);
+});
 
 // Clean out stuff. There needs to be a "-x" to actually run.
 gulp.task('clean-filesystem', shell.task(_run_cmd_list(
