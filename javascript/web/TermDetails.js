@@ -21,6 +21,7 @@ var golr_conf = require('golr-conf');
 var gconf = new golr_conf.conf(amigo.data.golr);
 var sd = amigo.data.server;
 var gserv = amigo.data.server.golr_base;
+var gserv_download = amigo.data.server.golr_download_base;
 var defs = amigo.data.definitions;
 // Linker.
 var linker = amigo.linker;
@@ -231,15 +232,6 @@ function TermDetailsInit(){
     // TODO: And or this in as well.
     //gps.add_query_filter('annotation_class', global_acc, ['*']);
 
-    // Add a bioentity download button.
-    var btmpl = widgets.display.button_templates;
-    var ont_flex_download_button =
-	    btmpl.flexible_download('Flex download (up to ' + dlimit + ')',
-				    dlimit,
-				    defs.gaf_from_golr_fields,
-				    'annotation',
-				    gconf);
-
     // Experiment.
     // Process incoming queries, pins, and filters (into
     // manager)--the RESTy bookmarking API.
@@ -281,12 +273,14 @@ function TermDetailsInit(){
     
     // Attach the results pane and download buttons to manager.
     var default_fields = confc.field_order_by_weight('result');
+    var btmpl = widgets.display.button_templates;
     var flex_download_button = btmpl.flexible_download_b3(
 	'Download',
 	dlimit,
 	default_fields,
 	'annotation',
-	gconf);
+	gconf,
+	gserv_download);
     var results_opts = {
 	//'callback_priority': -200,
 	'user_buttons_div_id': pager.button_span_id(),
@@ -364,7 +358,8 @@ function TermDetailsInit(){
 	man.add_query_filter('regulates_closure', global_acc);
 	var dstate = man.get_download_url(defs.gaf_from_golr_fields, {
 	    'rows': dlimit,
-	    'encapsulator': ''
+	    'encapsulator': '',
+	    'golr_download_url': gserv_download
 	});
 	jQuery('#prob_ann_dl_href').attr('href', dstate);
 	jQuery('#prob_ann_dl').removeClass('hidden');

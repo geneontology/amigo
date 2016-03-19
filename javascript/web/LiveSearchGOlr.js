@@ -23,6 +23,7 @@ var golr_conf = require('golr-conf');
 var gconf = new golr_conf.conf(amigo.data.golr);
 var sd = amigo.data.server;
 var gserv = amigo.data.server.golr_base;
+var gserv_download = amigo.data.server.golr_download_base;
 var defs = amigo.data.definitions;
 // Linker.
 var linker = amigo.linker;
@@ -81,16 +82,16 @@ function LiveSearchGOlrInit(){
     var id_download_button =
 	    btmpl.field_download(
 		'Download IDs <small>(up to ' + dlimit + ')</small>',
-		dlimit, ['id']);
+		dlimit, ['id'], gserv_download);
     var id_label_download_button =
 	    btmpl.field_download(
 		'Download IDs and labels <small>(up to ' + dlimit + ')</small>',
 		dlimit, ['annotation_class',
-			 'annotation_class_label']);
+			 'annotation_class_label'], gserv_download);
     var gaf_download_button =
 	    btmpl.field_download(
 		'GAF <small>(up to ' + dlimit + ')</small>',
-		dlimit, _gaf_fl);
+		dlimit, _gaf_fl, gserv_download);
     // Flexible download buttons.
     var ont_flex_download_button =
 	    btmpl.flexible_download_b3(
@@ -98,21 +99,24 @@ function LiveSearchGOlrInit(){
 		dlimit,
 		['annotation_class', 'annotation_class_label'],
 		'ontology',
-		gconf);
+		gconf,
+		gserv_download);
     var bio_flex_download_button =
 	    btmpl.flexible_download_b3(
 		'Download <small>(up to ' + dlimit + ')</small>',
 		dlimit,
 		['bioentity', 'bioentity_label'],
 		'bioentity',
-		gconf);
+		gconf,
+		gserv_download);
     var ann_flex_download_button =
 	    btmpl.flexible_download_b3(
 		'Download <small>(up to ' + dlimit + ')</small>',
 		dlimit,
 		defs.gaf_from_golr_fields,
 		'annotation',
-		gconf);
+		gconf,
+		gserv_download);
     //var bookmark_button = btmpl.bookmark(linker);
     var bookmark_button = btmpl.restmark(linker);
     var facet_matrix_button = btmpl.open_facet_matrix(gconf, sd);

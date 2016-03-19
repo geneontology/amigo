@@ -21,6 +21,7 @@ var golr_conf = require('golr-conf');
 var gconf = new golr_conf.conf(amigo.data.golr);
 var sd = amigo.data.server;
 var gserv = amigo.data.server.golr_base;
+var gserv_download = amigo.data.server.golr_download_base;
 var defs = amigo.data.definitions;
 // Linker.
 var linker = amigo.linker;
@@ -136,7 +137,8 @@ function GPDetailsInit(){
 	dlimit,
 	default_fields,
 	'annotation',
-	gconf);
+	gconf,
+	gserv_download);
     var results_opts = {
 	//'callback_priority': -200,
 	'user_buttons_div_id': pager.button_span_id(),
@@ -196,7 +198,8 @@ function GPDetailsInit(){
 	man.add_query_filter('bioentity', global_acc);
 	var dstate = man.get_download_url(defs.gaf_from_golr_fields, {
 	    'rows': dlimit,
-	    'encapsulator': ''
+	    'encapsulator': '',
+	    'golr_download_url': gserv_download
 	});
 	jQuery('#prob_ann_dl_href').attr('href', dstate);
 	jQuery('#prob_ann_dl').removeClass('hidden');
