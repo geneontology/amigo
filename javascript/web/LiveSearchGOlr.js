@@ -79,34 +79,40 @@ function LiveSearchGOlrInit(){
     var btmpl = widgets.display.button_templates;
 
     var id_download_button =
-	    btmpl.field_download('Download IDs (up to ' + dlimit + ')',
-				 dlimit, ['id']);
+	    btmpl.field_download(
+		'Download IDs <small>(up to ' + dlimit + ')</small>',
+		dlimit, ['id']);
     var id_label_download_button =
-	    btmpl.field_download('Download IDs and labels (up to ' + dlimit + ')',
-				 dlimit, ['annotation_class',
-					  'annotation_class_label']);
+	    btmpl.field_download(
+		'Download IDs and labels <small>(up to ' + dlimit + ')</small>',
+		dlimit, ['annotation_class',
+			 'annotation_class_label']);
     var gaf_download_button =
-	    btmpl.field_download('GAF chunk download (up to ' + dlimit + ')',
-				 dlimit, _gaf_fl);
+	    btmpl.field_download(
+		'GAF <small>(up to ' + dlimit + ')</small>',
+		dlimit, _gaf_fl);
     // Flexible download buttons.
     var ont_flex_download_button =
-	    btmpl.flexible_download_b3('Flex download (up to ' + dlimit + ')',
-				       dlimit,
-				       ['annotation_class', 'annotation_class_label'],
-				       'ontology',
-				       gconf);
+	    btmpl.flexible_download_b3(
+		'Download <small>(up to ' + dlimit + ')</small>',
+		dlimit,
+		['annotation_class', 'annotation_class_label'],
+		'ontology',
+		gconf);
     var bio_flex_download_button =
-	    btmpl.flexible_download_b3('Flex download (up to ' + dlimit + ')',
-				       dlimit,
-				       ['bioentity', 'bioentity_label'],
-				       'bioentity',
-				       gconf);
+	    btmpl.flexible_download_b3(
+		'Download <small>(up to ' + dlimit + ')</small>',
+		dlimit,
+		['bioentity', 'bioentity_label'],
+		'bioentity',
+		gconf);
     var ann_flex_download_button =
-	    btmpl.flexible_download_b3('Flex download (up to ' + dlimit + ')',
-				       dlimit,
-				       defs.gaf_from_golr_fields,
-				       'annotation',
-				       gconf);
+	    btmpl.flexible_download_b3(
+		'Download <small>(up to ' + dlimit + ')</small>',
+		dlimit,
+		defs.gaf_from_golr_fields,
+		'annotation',
+		gconf);
     //var bookmark_button = btmpl.bookmark(linker);
     var bookmark_button = btmpl.restmark(linker);
     var facet_matrix_button = btmpl.open_facet_matrix(gconf, sd);

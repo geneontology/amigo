@@ -89,19 +89,6 @@ function GPDetailsInit(){
     gps.add_query_filter('document_category', 'annotation', ['*']);
     gps.add_query_filter('bioentity', global_acc, ['*']);
 
-    // Add a term id download button.
-    var btmpl = widgets.display.button_templates;
-    // var id_download_button =
-    // 	btmpl.field_download('Download term IDs (up to ' + dlimit + ')',
-    // 			     dlimit, ['annotation_class']);
-    // gps.add_button(id_download_button);
-    var bio_flex_download_button =
-	    btmpl.flexible_download('Flex download (up to ' + dlimit + ')',
-				    dlimit,
-				    defs.gaf_from_golr_fields,
-				    'annotation',
-				    gconf);   
-
     // Experiment.
     // Process incoming queries, pins, and filters (into
     // manager)--the RESTy bookmarking API.
@@ -143,8 +130,9 @@ function GPDetailsInit(){
     
     // Attach the results pane and download buttons to manager.
     var default_fields = confc.field_order_by_weight('result');
+    var btmpl = widgets.display.button_templates;    
     var flex_download_button = btmpl.flexible_download_b3(
-	'<span class="glyphicon glyphicon-download"></span> Download',
+	'Download <small>(up to ' + dlimit + ')</small>',
 	dlimit,
 	default_fields,
 	'annotation',

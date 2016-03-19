@@ -282,7 +282,7 @@ function TermDetailsInit(){
     // Attach the results pane and download buttons to manager.
     var default_fields = confc.field_order_by_weight('result');
     var flex_download_button = btmpl.flexible_download_b3(
-	'<span class="glyphicon glyphicon-download"></span> Download',
+	'Download',
 	dlimit,
 	default_fields,
 	'annotation',

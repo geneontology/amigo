@@ -1168,9 +1168,7 @@ sub mode_search {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      #'bbop',
-      #'amigo2'
+      'com.jquery-ui'
      ],
      javascript =>
      [
@@ -1184,11 +1182,6 @@ sub mode_search {
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('LiveSearchGOlr.js')
      ],
-     # javascript_init =>
-     # [
-     #  'GeneralSearchForwardingInit();',
-     #  'LiveSearchGOlrInit();'
-     # ],
      content =>
      [
       'pages/live_search_golr.tmpl'
