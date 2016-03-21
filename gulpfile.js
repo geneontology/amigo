@@ -1,4 +1,5 @@
 ////
+//// gulpfile.js for AmiGO.
 ////
 //// Comprehensive for more flexible programmatic replacement for
 //// Makefile (which depended to much on weird hard-coded chains of
@@ -493,32 +494,24 @@ gulp.task('w3c-validate', shell.task(_run_cmd_list(
     ['./scripts/w3c-validate.pl -v --html']
 )));
 
-// Run the local-only/embedded testing server.
-gulp.task('run-amigo', shell.task(_run_cmd_list(
-    ['perl -I./perl/bin/ -I./perl/lib/ scripts/amigo-runner']
-)));
-
 ///
-/// Publishing.
+/// Versioning and publishing.
 ///
 
-// gulp.task('assemble-npm', shell.task(_run_cmd_list(
-//     ['./scripts/release-npm.pl -v -i ./javascript/staging/amigo2.js -o javascript/npm/amigo2 -r ' + amigo_version]
-// )));
+// Release tools for patch release.
+gulp.task('release', ['install', // compile and roll out files and js templates
+		      'publish-npm', // put to 
+		      'patch-bump', // bump the main amigo
+		      'sync-package-version']); // bump the subordinates
 
-gulp.task('publish-npm', shell.task(_run_cmd_list(
-    ['npm publish javascript/npm/amigo2']
-)));
-
-// TODO: This version will have to wait until the app and lib are unified.
-// gulp.task('publish-npm', function(cb) {
-//   var npm = require("npm");
-//   npm.load(function(er, npm) {
-//     // NPM
-//     npm.commands.publish();
-//   });
-//   cb(null);
-// });
+gulp.task('publish-npm', function(cb) {
+  var npm = require("npm");
+  npm.load(function(er, npm) {
+    // NPM
+    npm.commands.publish();
+  });
+  cb(null);
+});
 
 gulp.task('patch-bump', function(cb) {
     gulp.src('./package.json')
@@ -529,8 +522,24 @@ gulp.task('patch-bump', function(cb) {
     cb(null);
 });
 
-// Release tools for patch release.
-//gulp.task('release', ['bundle', 'assemble-npm', 'publish-npm', 'patch-bump']);
+// Make sure that the instance data takes the same version as the
+// install.
+gulp.task('sync-package-version', function(cb) {
+
+    var a_ver = require('./package.json').version;
+
+    var to_sync = ['./javascript/npm/amigo2-instance-data/',
+		   './javascript/npm/bbop-widget-set/'];
+
+    us.each(to_sync, function(pkg_path){
+	gulp.src(pkg_path + 'package.json')
+	    .pipe(bump({
+		version: a_ver
+	    }))
+	    .pipe(gulp.dest(pkg_path));
+    });
+    cb(null);
+});
 
 ///
 /// DEBUG.
@@ -540,6 +549,15 @@ gulp.task('patch-bump', function(cb) {
 gulp.task('buffer-check', shell.task(_run_cmd_list(
     //['perl -e "for (0..1600000){ print STDOUT \\"0123456789\\n\\";}"'] // fail
     ['perl -e "for (0..1500000){ print STDOUT \\"0123456789\\n\\";}"'] // okay
+)));
+
+///
+/// Runner.
+///
+
+// Run the local-only/embedded testing server.
+gulp.task('run-amigo', shell.task(_run_cmd_list(
+    ['perl -I./perl/bin/ -I./perl/lib/ scripts/amigo-runner']
 )));
 
 ///

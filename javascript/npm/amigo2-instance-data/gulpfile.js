@@ -1,4 +1,6 @@
 ////
+//// gulpfile.js for amigo2-instance-data
+////
 //// Usage: ./node_modules/.bin/gulp build, clean, test, etc.
 ////
 

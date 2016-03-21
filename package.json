@@ -1,6 +1,6 @@
 {
     "name": "amigo2",
-    "version": "2.4.12",
+    "version": "2.4.13",
     "license": "BSD-3-Clause",
     "description": "AmiGO 2: Your friend in the Gene Ontology.",
     "keywords": [
@@ -31,7 +31,6 @@
         "bbop-manager-golr": "0.0.8",
         "bbop-response-barista": "0.0.7",
         "bbop-response-golr": "0.0.5",
-        "bbop-widget-set": "0.0.16",
         "body-parser": "1.13.3",
         "cors": "2.4.1",
         "class-expression": "0.0.9",
@@ -51,7 +50,7 @@
         "pup-tent": "0.9.10",
         "expand-home-dir": "0.0.2",
         "request": "2.65.0",
-	"time": "0.11.4",
+        "time": "0.11.4",
         "underscore": "1.8.3",
         "yamljs": "0.2.3"
     },
@@ -80,10 +79,10 @@
         ]
     },
     "browser": {
-	"jquery": "./node_modules/jquery/jquery.js",
+        "jquery": "./node_modules/jquery/jquery.js",
         "jquery-ui": "./javascript/lib/jquery-ui-1.10.3.custom.min.js",
         "amigo2-instance-data": "./javascript/npm/amigo2-instance-data/lib/amigo2-instance-data.js",
-        "bbop-widget-set": "../bbop-widget-set/lib/set.js"
+        "bbop-widget-set": "./javascript/npm/bbop-widget-set/lib/set.js"
     },
     "browserify-shim": {
         "jquery": {
