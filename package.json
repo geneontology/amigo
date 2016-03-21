@@ -31,6 +31,7 @@
         "bbop-manager-golr": "0.0.8",
         "bbop-response-barista": "0.0.7",
         "bbop-response-golr": "0.0.5",
+        "bbop-widget-set": "0.0.16",
         "body-parser": "1.13.3",
         "cors": "2.4.1",
         "class-expression": "0.0.9",
@@ -79,7 +80,7 @@
         ]
     },
     "browser": {
-        "jquery": "./node_modules/jquery/jquery.js",
+	"jquery": "./node_modules/jquery/jquery.js",
         "jquery-ui": "./javascript/lib/jquery-ui-1.10.3.custom.min.js",
         "amigo2-instance-data": "./javascript/npm/amigo2-instance-data/lib/amigo2-instance-data.js",
         "bbop-widget-set": "../bbop-widget-set/lib/set.js"

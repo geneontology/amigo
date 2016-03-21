@@ -3,6 +3,13 @@
 //// going.
 ////
 
+// Code here will be ignored by JSHint, as we are technically
+// "redefining" jQuery (although we are not).
+/* jshint ignore:start */
+var jQuery = require('jquery');
+require('jquery-ui');
+/* jshint ignore:end */
+
 var bbop = require('bbop-core');
 var bbop_widget_set = require("bbop-widget-set");
 
