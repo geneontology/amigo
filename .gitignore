@@ -10,8 +10,10 @@ screenshots*
 ## Ignore the npm stuff that we now have.
 node_modules
 
-## Ignore generated data in sub-module.
+## Ignore generated data in sub-modules.
 javascript/npm/amigo2-instance-data/lib/data
+javascript/npm/amigo2-instance-data/doc
+javascript/npm/bbop-widget-set/doc
 
 ## Don't want the virtualenv stuff for python leaking in.
 test-app/behave/'pwd'
