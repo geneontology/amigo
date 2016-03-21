@@ -1,4 +1,5 @@
 ////
+////
 //// Comprehensive for more flexible programmatic replacement for
 //// Makefile (which depended to much on weird hard-coded chains of
 //// ENV vars).
@@ -529,7 +530,7 @@ gulp.task('patch-bump', function(cb) {
 });
 
 // Release tools for patch release.
-gulp.task('release', ['bundle', 'assemble-npm', 'publish-npm', 'patch-bump']);
+//gulp.task('release', ['bundle', 'assemble-npm', 'publish-npm', 'patch-bump']);
 
 ///
 /// DEBUG.

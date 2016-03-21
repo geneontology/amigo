@@ -1,6 +1,6 @@
 {
     "name": "amigo2",
-    "version": "2.4.4",
+    "version": "2.4.12",
     "license": "BSD-3-Clause",
     "description": "AmiGO 2: Your friend in the Gene Ontology.",
     "keywords": [
@@ -109,6 +109,7 @@
         "amigo": "./bin/amigo.js"
     },
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "release-instance-data": "cp ./conf/examples/amigo.yaml.public ./conf/amigo.yaml && npm install && gulp install"
     }
 }
