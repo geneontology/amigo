@@ -44,29 +44,6 @@ function GeneralSearchForwardingInit(){
     };
     jQuery('.bbop-js-tooltip').tooltip(tt_args);
 
-    // // Activate hint/tooltop via Bootstrap.
-    // // var jquitt = jQuery.fn.tooltip.noConflict();
-    // jQuery("#gsf-query").tooltip({'container': 'body',
-    // 				  'placement': 'left',
-    // 				  'title': 'foo'});
-    // //jQuery("#foofoo").tooltip();
-    // // jQuery.fn.tooltip = jquitt;
-
-    // // Make unnecessary things roll up, need custom code since the
-    // // header search is a strange space.
-    // var eltid = 'gsf01';
-    // //var einfo = '#' + eltid + ' > div';
-    // var einfo = '#' + eltid + '-info';
-    // var earea = '#' + eltid + ' > span > a';
-    // if( jQuery(einfo) && jQuery(einfo).length && jQuery(einfo).length > 0 ){
-    // 	jQuery(einfo).hide();
-    // 	var click_elt =
-    // 	    jQuery(earea).click(function(){
-    // 				    jQuery(einfo).toggle("blind",{},250);
-    // 				    return false;
-    // 				});
-    // }
-    
     ///
     /// This next section is dedicated getting the autocomplete (and
     /// associated toggle) working.
@@ -111,14 +88,9 @@ function GeneralSearchForwardingInit(){
     engine.method('GET');
     engine.use_jsonp(true);
     var manager = new golr_manager(gserv, gconf, engine, 'async');
-    //var confc = gconf.get_class('noctua_model_meta');
     manager.set_personality('general'); // profile in gconf
     manager.add_query_filter('document_category', 'general');
     manager.add_query_filter('category', 'family', ['-']);
-    // manager.set_personality('noctua_model_meta');
-    // manager.add_query_filter('document_category',
-    // 			     confc.document_category(), ['*']);    
-    // manager.set_results_count(1000);
 
     // Actually initialize the widget.
     var auto = new bbop_widget_set.autocomplete_simple(manager, gserv, gconf,
