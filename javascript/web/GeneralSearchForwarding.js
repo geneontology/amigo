@@ -7,7 +7,7 @@
 // "redefining" jQuery (although we are not).
 /* jshint ignore:start */
 var jQuery = require('jquery');
-require('jquery-ui');
+//require('jquery-ui');
 /* jshint ignore:end */
 
 var bbop = require('bbop-core');

@@ -1,0 +1,88 @@
+{
+    "name": "bbop-widget-set",
+    "version": "2.4.13",
+    "license": "BSD-3-Clause",
+    "description": "The set package for commpnly used BBOP widgets. This replaces the widgets from the old monolithic bundle.",
+    "keywords": [
+        "npm",
+        "client",
+        "server",
+        "Gene Ontology",
+        "GO",
+        "bbop",
+        "Berkeley BOP",
+        "table",
+        "autocomplete",
+        "GOlr",
+        "widgets"
+    ],
+    "author": "SJC <sjcarbon@lbl.gov> (http://berkeleybop.org/)",
+    "homepage": "http://berkeleybop.org/",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/berkeleybop/bbbop-widget-set.git"
+    },
+    "engines": {
+        "node": ">= 0.12.2",
+        "npm": ">= 2.7.4"
+    },
+    "dependencies": {
+        "bbop-core": "0.0.5",
+        "bbop-response-golr": "0.0.5",
+        "jquery": "1.9.1",
+        "mustache": "2.2.1",
+        "underscore": "1.8.3"
+    },
+    "devDependencies": {
+        "browserify-shim": "^3.8.6",
+        "browserify": "^10.1.3",
+        "chai": "^2.3.0",
+        "del": "^1.1.1",
+        "gulp": "^3.8.11",
+        "gulp-bump": "^0.3.0",
+        "gulp-git": "^1.2.3",
+        "gulp-jsdoc": "^0.1.4",
+        "gulp-mocha": "^2.0.1",
+        "gulp-pandoc": "^0.2.1",
+        "gulp-rename": "^1.2.2",
+        "gulp-shell": "^0.4.2",
+        "gulp-uglify": "^1.2.0",
+        "vinyl-source-stream": "1.1.0",
+        "jsdoc": "^3.3.0",
+        "jsdoc-baseline": "git://github.com/hegemonic/jsdoc-baseline.git#74d1dc8075"
+    },
+    "browserify": {
+        "transform": [
+            "browserify-shim"
+        ]
+    },
+    "browser": {
+        "jquery": "./node_modules/jquery/jquery.js",
+        "jquery-ui": "./lib/jquery-ui-1.10.3.custom.min.js"
+    },
+    "browserify-shim": {
+        "jquery": {
+            "exports": "global:jQuery"
+        },
+        "jquery-ui": {
+            "depends": [
+                "jquery"
+            ]
+        }
+    },
+    "bundleDependencies": [],
+    "private": false,
+    "directories": {
+        "doc": "doc",
+        "lib": "lib",
+        "tests": "tests"
+    },
+    "main": "./lib/set.js",
+    "bugs": {
+        "url": "https://github.com/berkeleybop/bbop-widget-set/issues"
+    },
+    "scripts": {
+        "update-docs": "git checkout gh-pages && git pull && git merge master && gulp doc && git commit -a -m 'bump docs' && git push && git checkout master",
+        "test": "./node_modules/.bin/gulp test"
+    }
+}
