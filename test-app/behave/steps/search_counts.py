@@ -22,7 +22,7 @@ def step_impl(context, count):
     eltext = webelt.text
 
     ## Extract by bounding between ': ' and ';'
-    btm = eltext.index(': ')
+    btm = eltext.index(': ') +2
     top = eltext.index(';')
     if btm != -1 and top != -1:
         count = float(count)
