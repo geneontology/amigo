@@ -16,7 +16,7 @@ def step_impl(context, searchpage):
     
 @then('the total should be within 10% of recent count "{count}"')
 def step_impl(context, count):
-    webelt = context.browser.find_element_by_class_name('bbop-js-search-pane-meta')
+    webelt = context.browser.find_element_by_class_name('bbop-widget-set-live-pager')
     assert webelt.text.rfind('Total:') != -1
     line = webelt.text
     linetotal = map(int, re.findall('\d+', line))
