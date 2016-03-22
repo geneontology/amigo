@@ -16,10 +16,17 @@ def step_impl(context, searchpage):
     
 @then('the total should be within 10% of recent count "{count}"')
 def step_impl(context, count):
-    webelt = context.browser.find_element_by_class_name('bbop-widget-set-live-pager')
-    assert webelt.text.rfind('Total:') != -1
-    line = webelt.text
-    linetotal = map(int, re.findall('\d+', line))
-    total = linetotal[0]
-    thiscount = float(count)
-    assert ((total < 1.1 * thiscount) and (total > .9 * thiscount))
+
+    target_clss = "bbop-widget-set-live-pager"
+    webelt = context.browser.find_element_by_class_name(target_clss)
+    eltext = webelt.text
+
+    ## Extract by bounding between ': ' and ';'
+    btm = eltext.index(': ')
+    top = eltext.index(';')
+    if btm != -1 and top != -1:
+        count = float(count)
+        found_number = float(eltext[btm:top])
+        assert ((number_found <= 1.1 * count) and (number_found >= .9 * count))
+    else:
+        assert True is False
