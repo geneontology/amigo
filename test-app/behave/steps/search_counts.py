@@ -27,6 +27,6 @@ def step_impl(context, count):
     if btm != -1 and top != -1:
         count = float(count)
         found_number = float(eltext[btm:top])
-        assert ((number_found <= 1.1 * count) and (number_found >= .9 * count))
+        assert ((found_number <= 1.1 * count) and (found_number >= .9 * count))
     else:
         assert True is False
