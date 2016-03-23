@@ -196,8 +196,12 @@ function DDBrowseInit(){
 	}
     });
 
-    // Initial trigger.
-    search.set_ids(['GO:0008150', 'GO:0005575', 'GO:0003674']);
+    // Initial trigger over root terms.
+    var rt = [];
+    us.each(sd.root_terms, function(pair){
+	rt.push(pair['id']);
+    });
+    search.set_ids(rt);
     search.search();
 
     ///

@@ -791,9 +791,9 @@ sub mode_software_list {
 
   ## Page settings.
   my $page_name = 'software_list';
-  my($page_title, 
+  my($page_title,
      $page_content_title,
-     $page_help_link) = $self->_resolve_page_settings($page_name);  
+     $page_help_link) = $self->_resolve_page_settings($page_name);
   $self->set_template_parameter('page_name', $page_name);
   $self->set_template_parameter('page_title', $page_title);
   $self->set_template_parameter('page_content_title', $page_content_title);

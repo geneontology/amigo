@@ -969,6 +969,7 @@ sub _common_params_settings {
     $self->_atoi($self->{CORE}->amigo_env('AMIGO_VERBOSE'));
   $params->{last_load_date} =
     $self->{CORE}->amigo_env('GOLR_TIMESTAMP_LAST');
+  $params->{root_terms} = $self->{CORE}->get_root_terms();
   #$params->{release_name} = $self->{CORE}->release_name();
   #$params->{release_type} = $self->{CORE}->release_type();
   $params->{release_date} = $params->{release_name};

@@ -143,6 +143,13 @@
     made templates.
   </li>
   
+  <!-- http://gannet.berkeleybop.org -->
+  <li class="list-group-item">
+    <a href="[% interlink_gannet %]" title="Gannet: query the SOlr index directly">Gannet</a> is the Solr analog to GOOSE. This page can
+    interact with the <a title="GO Galaxy" href="[% GO_GALAXY %]">GO
+      Galaxy</a> instance. Also see the <a href="[% interlink_schema_details %]" title="Instance schema details">schema details</a>.
+  </li>
+  
 </ul>
 
 <h2>Instance information</h2>
@@ -178,20 +185,16 @@
       For users unable to use JavaScript and spiders, the root GO
       terms can be found here.
     </p>
+    <!-- <ul class="list-unstyled"> -->
     <ul class="list-inline">
-      <!-- <ul class="list-unstyled"> -->
+      [% FOREACH root_pair = root_terms %]
+      [%   root_id = root_pair.id %]
+      [%   root_label = root_pair.label %]
       <li>
-	<a href="[% interlink_term_details_base %]/GO:0008150"
-	   title="Jump to biological_process">Biological process</a>
+	<a href="[% interlink_term_details_base %]/[% root_id %]"
+	   title="Jump to [% root_label %]">[% root_label %]</a>
       </li>
-      <li>
-	<a href="[% interlink_term_details_base %]/GO:0005575"
-	   title="Jump to cellular_component">Cellular component</a>
-      </li>
-      <li>
-	<a href="[% interlink_term_details_base %]/GO:0003674"
-	   title="Jump to molecular_function">Molecular function</a>
-      </li>
+      [% END %]
     </ul>
   </li>
 
@@ -233,13 +236,6 @@
   <li class="list-group-item">
     <a href="[% interlink_browse %]">Browse</a> the Gene Ontology
     term data in an interactive hierarchical form.
-  </li>
-  
-  <!-- http://gannet.berkeleybop.org -->
-  <li class="list-group-item">
-    <a href="[% interlink_gannet %]" title="Gannet: query the SOlr index directly">Gannet</a> is the Solr analog to GOOSE. This page can
-    interact with the <a title="GO Galaxy" href="[% GO_GALAXY %]">GO
-      Galaxy</a> instance. Also see the <a href="[% interlink_schema_details %]" title="Instance schema details">schema details</a>.
   </li>
   
   <li class="list-group-item">
