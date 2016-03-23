@@ -329,18 +329,12 @@ sub mode_dd_browse {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      'com.jstree',
-      'bbop',
-      'amigo2'
+      'com.jstree'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('DDBrowse.js')
-     ],
-     javascript_init =>
-     [
-      'DDBrowseInit();'
      ],
      content =>
      [
