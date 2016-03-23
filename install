@@ -112,6 +112,12 @@ for my $var (keys %$yconf){
       ## Lists need to be processed into something that the env conf
       ## can take through perl.
       $env_conf{$var} = join(' ', @{$yconf->{$var}{value}});
+    }elsif( $var_type eq 'json' ){
+      ## Like list, except we're getting serious now--turn into a JSON
+      ## string that can be recovered later.
+      my $js = JSON::XS->new();
+      my $js_str = $js->encode($yconf->{$var}{value});
+      $env_conf{$var} = $js_str;
     }else{
       ## Take strings as-is.
       $env_conf{$var} = $yconf->{$var}{value};
@@ -732,75 +738,6 @@ sub golr_config_to_meta_js {
   make_readable($js_file_str);
 }
 
-# ## file: <local_js_tree>/lib/amigo/data/dispatch.js
-# sub handlers_yaml_to_dispatch_js {
-
-#   my $js_file_str = shift || die "need a js file string or something";
-#   my $yaml_conf = shift || die "need a yaml conf";
-#   my $rethash = {};
-
-#   ## 
-#   use lib getcwd() . '/perl/lib';
-
-#   ## Bring in necessaries.
-#   use AmiGO::JavaScript;
-#   use YAML;
-
-#   my $core = AmiGO::JavaScript->new();
-
-#   ## Read the config and pull the handlers.
-#   my $conf_list = YAML::LoadFile($yaml_conf);
-
-#   foreach my $list_elt (@$conf_list){
-#     my $field = $list_elt->{field} || undef;
-#     my $context = $list_elt->{context} || undef;
-#     my $func = $list_elt->{function} || undef;
-
-#     ## These are required--bad form otherwise.
-#     if( ! $field || ! $func ){
-#       die $yaml_conf . " not correct--please fix and retry";
-#     }
-
-#     ##
-#     if( ! $rethash->{$field} ){
-#       $rethash->{$field} = {};
-#     }
-#     if( ! $context ){
-#       $rethash->{$field}{default} = $func;
-#     }else{
-#       if( ! $rethash->{$field}{context} ){
-# 	$rethash->{$field}{context} = {};
-#       }
-#       $rethash->{$field}{context}{$context} = $func;
-#     }
-#   }
-
-#   ###
-#   ### Conf to JS.
-#   ###
-
-#   my $js = JSON::XS->new()->pretty(1);
-#   #$js->allow_bignum(1); # if needed, go back to ::PP
-#   my $js_str = $js->encode($rethash);
-#   chomp $js_str;
-
-#   ## If the file is already there, blow it away.
-#   unlink $js_file_str if -f $js_file_str;
-#   open(FILE, ">$js_file_str") or die "cannot open $js_file_str: $!";
-
-#   ## Template to string output.
-#   my $output = '';
-#   my $tt = Template->new();
-#   $tt->process('javascript/npm/amigo2-instance-data/generation-templates/dispatch.js.tmpl',
-# 	       {dispatch_data => $js_str}, \$output)
-#     || die $tt->error;
-#   print FILE $output;
-
-#   ## Close file.
-#   close(FILE);
-#   make_readable($js_file_str);
-# }
-
 ## file: <local_js_tree>/lib/amigo/data/server.js
 sub amigo_env_to_js {
 
@@ -860,6 +797,12 @@ sub amigo_env_to_js {
     return $thing;
   };
 
+  # print STDOUT "VVVVVVVV\n";
+  # my $terms_raw = $core->amigo_env('AMIGO_ROOT_TERMS');
+  # print STDOUT scalar($terms);
+  # print STDOUT "\n";
+  # print STDOUT "^^^^^^^^\n";
+
   ## Assemble all meta information.
   my $ret =
     {
@@ -887,6 +830,7 @@ sub amigo_env_to_js {
      ontologies => &$fix($onts),
      #release_name => $relname,
      #release_type => $reltype,
+     root_terms => $core->get_root_terms(),
 
      ## Resources (note naming convention).
      bbop_img_star => $core->get_image_resource('star'),

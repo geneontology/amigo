@@ -588,71 +588,6 @@ sub kvetch {
 }
 
 
-# ###
-# ### Pre-rendering.
-# ###
-
-
-# =item url_pre_render
-
-# Args: string of filename
-# Decides whether or not a file a page has been pre-rendered.
-# Returns undef or url.
-
-# =cut
-# sub url_pre_render {
-
-#   my $self = shift;
-#   my $fname = shift;
-#   my $ret_url = undef;
-
-#   my $file_back_half = '/' . $fname;
-#   my $complete_file_pr_url =
-#     $self->amigo_env('AMIGO_PRE_RENDER_URL') . $file_back_half;
-#   my $complete_file_pr_file =
-#     $self->amigo_env('AMIGO_PRE_RENDER_DIR') . $file_back_half;
-
-#   if( -f $complete_file_pr_file ){
-#     $ret_url = $complete_file_pr_url;
-#   }
-
-#   return $ret_url;
-# }
-
-
-# =item file_pre_render
-
-# Args: string of filename
-# Decides whether or not a file a page has been pre-rendered.
-# Returns undef or page contents.
-
-# =cut
-# sub file_pre_render {
-
-#   my $self = shift;
-#   my $fname = shift;
-#   my $ret_file = undef;
-
-#   my $file_back_half = '/' . $fname;
-#   my $complete_file_pr_file =
-#     $self->amigo_env('AMIGO_PRE_RENDER_DIR') . $file_back_half;
-
-#   if( -f $complete_file_pr_file ){
-
-#     open(FILE, $complete_file_pr_file)
-#       or die "Cannot open $complete_file_pr_file: $!";
-
-#     my @buf = ();
-#     while (<FILE>) {
-#       push @buf, $_;
-#     }
-#     $ret_file = join '', @buf;
-#   }
-
-#   return $ret_file;
-# }
-
-
 ###
 ### HTTP
 ###
@@ -1839,6 +1774,34 @@ sub bookmark_api_configuration {
 ###
 ### Misc.
 ###
+
+=item get_root_terms
+
+Arguments: n/a
+
+Return: an ordered aref of id/value and label/value hashref pairs.
+
+=cut
+sub get_root_terms {
+
+  my $self = shift;
+
+  my $retlist = [];
+
+  ## 
+  my $str_raw = $self->amigo_env('AMIGO_ROOT_TERMS') || '';
+  if( $str_raw ){
+      my $root_set = $self->_read_json_string($str_raw);
+      foreach my $try_root (@$root_set){
+	  if( $try_root->{'id'} && $try_root->{'label'} ){
+	      push @$retlist, $try_root;
+	  }
+      }
+  }
+
+  return $retlist;
+}
+
 
 =item get_amigo_layout
 
