@@ -1525,7 +1525,7 @@ button_templates.field_download = function(label, count, fields, download_url){
 	diabled_p: false,
 	// text_p: false,
 	// icon: 'ui-icon-document',
-	click_function_generator: function(manager, results_table){
+	click_function_generator: function(results_table, manager){
 	    return function(event){
 		var dialog_props = {
 		    title: 'Download',
@@ -1575,7 +1575,7 @@ button_templates.restmark = function(linker){
 	diabled_p: false,
 	text_p: false,
 	icon: 'ui-icon-link',
-	click_function_generator: function(manager){
+	click_function_generator: function(results_table, manager){
 	    return function(event){
 		//alert('GAF download: ' + manager.get_query_url());
 		//alert('URL: ' + manager.get_query_url());
@@ -1619,7 +1619,7 @@ button_templates.bookmark = function(linker){
 	diabled_p: false,
 	text_p: false,
 	icon: 'ui-icon-link',
-	click_function_generator: function(manager){
+	click_function_generator: function(results_table, manager){
 	    return function(event){
 		//alert('GAF download: ' + manager.get_query_url());
 		//alert('URL: ' + manager.get_query_url());
@@ -1669,7 +1669,7 @@ button_templates.send_fields_to_galaxy = function(label, count, fields, galaxy,
 	diabled_p: false,
 	text_p: false,
 	icon: 'ui-icon-mail-closed',
-	click_function_generator: function(manager){
+	click_function_generator: function(results_table, manager){
 	    return function(event){
 		
 		// If we have something, construct a form
@@ -1690,7 +1690,7 @@ button_templates.send_fields_to_galaxy = function(label, count, fields, galaxy,
 						   value: 'get'});
 		    
 		    // See GAF download button for more info.
-		    dl_props['entity_list'] = manager.get_selected_items();
+		    dl_props['entity_list'] = results_table.get_selected_items();
 		    dl_props['golr_download_url'] = download_url;
 		    var raw_gdl =
 			    manager.get_download_url(fields, dl_props);
@@ -1741,7 +1741,7 @@ button_templates.open_facet_matrix = function(gconf, instance_data){
 	text_p: false,
 	//icon: 'ui-icon-caret-2-e-w',
 	icon: 'ui-icon-calculator',
-	click_function_generator: function(manager){
+	click_function_generator: function(results_table, manager){
 	    return function(event){
 		
 		// 
@@ -1828,7 +1828,7 @@ button_templates.flexible_download = function(label, count, start_fields,
 	diabled_p: false,
 	text_p: false,
 	icon: 'ui-icon-circle-arrow-s',
-	click_function_generator: function(manager){
+	click_function_generator: function(results_table, manager){
 	    
 	    return function(event){
 		
@@ -1889,7 +1889,7 @@ button_templates.flexible_download = function(label, count, start_fields,
 			action_label: 'Download',
 			action: function(selected_items){
 			    dl_props['entity_list'] =
-			    	manager.get_selected_items();
+			    	results_table.get_selected_items();
 			    dl_props['golr_download_url'] = download_url;
 			    var raw_gdl =manager.get_download_url(selected_items,
 			    					  dl_props);
