@@ -66,6 +66,16 @@ AMIGO_ROOT:
   comment: 'Unless you are doing something strange, the parent directory of this file.'
   type: directory
   value: /home/sjcarbon/local/src/git/amigo
+AMIGO_ROOT_TERMS:
+  comment: 'For some widgets, we need to know what root terms you are going to be considering in your ontology. Requires both "id" and "label" to be defined.'
+  type: json
+  value:
+    - id: GO:0008150
+      label: biological process
+    - id: GO:0005575
+      label: cellular component
+    - id: GO:0003674
+      label: molecular function
 AMIGO_SERVER_NAME:
   comment: 'The name by which your AmiGO instance wishes to known--think load balancer or cache situations. If you would rather this information not be reported, leave blank.'
   type: string
