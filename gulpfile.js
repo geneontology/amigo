@@ -262,6 +262,7 @@ var web_compilables = [
     'AmiGOCytoView.js',
     'BulkSearch.js',
     'DDBrowse.js',
+    'FacetMatrix.js',
     'GeneralSearchForwarding.js',
     'Gannet.js',
     'GOOSE.js',
