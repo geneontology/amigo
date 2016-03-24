@@ -1780,7 +1780,7 @@ button_templates.open_facet_matrix = function(gconf, instance_data){
 			    var f2 = selected_args[1] || '';
 			    var jmp_state = manager.get_state_url();
 			    var mngr = encodeURIComponent(jmp_state);
-			    var jump_url = instance_data.app_base() +
+			    var jump_url = instance_data.app_base +
 				    '/facet_matrix?'+
 				    [
 					'facet1=' + f1,
