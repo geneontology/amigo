@@ -90,12 +90,12 @@ function LiveSearchGOlrInit(){
 			 'annotation_class_label'], gserv_download);
     var gaf_download_button =
 	    btmpl.field_download(
-		'GAF <small>(up to ' + dlimit + ')</small>',
+		'Download <small>(up to ' + dlimit + ')</small>',
 		dlimit, _gaf_fl, gserv_download);
     // Flexible download buttons.
     var ont_flex_download_button =
 	    btmpl.flexible_download_b3(
-		'Download <small>(up to ' + dlimit + ')</small>',
+		'Custom DL <small>(up to ' + dlimit + ')</small>',
 		dlimit,
 		['annotation_class', 'annotation_class_label'],
 		'ontology',
@@ -103,7 +103,7 @@ function LiveSearchGOlrInit(){
 		gserv_download);
     var bio_flex_download_button =
 	    btmpl.flexible_download_b3(
-		'Download <small>(up to ' + dlimit + ')</small>',
+		'Custom DL <small>(up to ' + dlimit + ')</small>',
 		dlimit,
 		['bioentity', 'bioentity_label'],
 		'bioentity',
@@ -111,7 +111,7 @@ function LiveSearchGOlrInit(){
 		gserv_download);
     var ann_flex_download_button =
 	    btmpl.flexible_download_b3(
-		'Download <small>(up to ' + dlimit + ')</small>',
+		'Custom DL <small>(up to ' + dlimit + ')</small>',
 		dlimit,
 		defs.gaf_from_golr_fields,
 		'annotation',
