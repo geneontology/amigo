@@ -11,6 +11,26 @@
 </p>
 [% INCLUDE "common/info_rollup_end.tmpl" %]
 
+[% IF NOT have_cache_p %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      Cannot display statistics
+    </div>
+  </div>
+  <div class="panel-body">
+
+    <p>
+      No stastitics cache was found at this time. Please check back
+      later once the data has refreshed.
+    </p>
+    
+  </div>
+</div>
+
+[% ELSE %]
+
 <div class="panel panel-default">
   <!-- <div class="panel-heading"> -->
     <!-- <div class="panel-title"> -->
@@ -22,4 +42,7 @@
     
   </div>
 </div>
+
+[% END %]
+
 <!-- End: base_statistics.tmpl -->

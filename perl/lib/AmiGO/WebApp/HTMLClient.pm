@@ -360,6 +360,14 @@ sub mode_base_statistics {
 
   ## Get cached statistics, if possible.
   my $cache = $self->{CORE}->amigo_statistics_cache();
+  ## Pass existance info to the app.
+  if( %$cache ){
+    $self->set_template_parameter('have_cache_p', 1);
+  }else{
+    $self->set_template_parameter('have_cache_p', 0);
+  }
+
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Our AmiGO services CSS.
   my $prep =
