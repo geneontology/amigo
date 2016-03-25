@@ -133,8 +133,8 @@ function BaseStatisticsInit(){
 		title: 'Sources',
 		autorange: 'reversed',
 		tickfont: {
-		    // 12, 10 too big
-		    size: 9
+		    // 12, 10, 9 too big
+		    size: 8
 		}
 	    },
 	    yaxis: {
