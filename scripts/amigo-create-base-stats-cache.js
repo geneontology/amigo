@@ -62,6 +62,7 @@ var glob = {
     annotations: {
 	species_by_exp : {},
 	species_by_nonexp : {},
+	species_by_evidence_by_aspect : {},
 	sources_by_exp : {},
 	sources_by_nonexp : {},
 	evidence : {}
@@ -159,8 +160,9 @@ function second_pass(){
 				     'experimental evidence');
 
 	    manager.register('search', function(resp){
-		glob['annotations']['sources_by_exp'][src] = resp.total_documents();
-		//	    console.log(glob);
+		glob['annotations']['sources_by_exp'][src] =
+		    resp.total_documents();
+		// console.log(glob);
 	    });
 
 	    return manager.search();
@@ -176,8 +178,9 @@ function second_pass(){
 				     'experimental evidence', ['-']);
 
 	    manager.register('search', function(resp){
-		glob['annotations']['sources_by_nonexp'][src]=resp.total_documents();
-		//	    console.log(glob);
+		glob['annotations']['sources_by_nonexp'][src] =
+		    resp.total_documents();
+		// console.log(glob);
 	    });
 
 	    return manager.search();
@@ -189,20 +192,21 @@ function second_pass(){
     us.each(our_species_of_interest, function(species){
 
 	var lbl = species[0];
-	var id = species[1];
+	var sid = species[1];
 
 	// Experimental.
 	glob_funs.push(function(){
 
 	    //  Minimal, only want count.
 	    var manager = _new_totals_manager_by_personality('annotation');
-	    manager.add_query_filter('taxon', 'NCBITaxon:' + id);
+	    manager.add_query_filter('taxon', 'NCBITaxon:' + sid);
 	    manager.add_query_filter('evidence_type_closure',
 				     'experimental evidence');
 
 	    manager.register('search', function(resp){
-		glob['annotations']['species_by_exp'][id] = resp.total_documents();
-		//	    console.log(glob);
+		glob['annotations']['species_by_exp'][sid] =
+		    resp.total_documents();
+		// console.log(glob);
 	    });
 
 	    return manager.search();
@@ -213,15 +217,55 @@ function second_pass(){
 
 	    //  Minimal, only want count.
 	    var manager = _new_totals_manager_by_personality('annotation');
-	    manager.add_query_filter('taxon', 'NCBITaxon:' + id);
+	    manager.add_query_filter('taxon', 'NCBITaxon:' + sid);
 	    manager.add_query_filter('evidence_type_closure',
 				     'experimental evidence', ['-']);
 
 	    manager.register('search', function(resp){
-		glob['annotations']['species_by_nonexp'][id] =resp.total_documents();
+		glob['annotations']['species_by_nonexp'][sid] =
+		    resp.total_documents();
 	    });
 
 	    return manager.search();
+	});
+	
+	// Okay, a little deeper here. We're going to grab aspect as
+	// well.
+	// glob['annotation']['species_by_aspect_by_evidence'] : {},
+	us.each(our_evidence_of_interest, function(ev){
+
+	    us.each(['P', 'F', 'C'], function(aspect){
+	    
+		
+		glob_funs.push(function(){
+
+		    //  Minimal, only want count.
+		    var manager =
+			    _new_totals_manager_by_personality('annotation');
+		    manager.add_query_filter('taxon', 'NCBITaxon:' + sid);
+		    manager.add_query_filter('aspect', aspect);
+		    manager.add_query_filter('evidence_type_closure', ev);
+		    
+		    manager.register('search', function(resp){
+
+			// Ensure.
+			var ga = glob['annotations'];
+			var gas = ga['species_by_evidence_by_aspect'];
+			if( typeof(gas[sid]) === 'undefined' ){
+			    gas[sid] = {};
+			}
+			if( typeof(gas[sid][ev]) === 'undefined' ){
+			    gas[sid][ev] = {};
+			}
+			
+			// Finally, add.
+			gas[sid][ev][aspect] = resp.total_documents();
+		    });
+		    
+		    return manager.search();
+		});
+		
+	    });
 	});
 	
     });
@@ -237,7 +281,8 @@ function second_pass(){
 	    manager.add_query_filter('evidence_type_closure', ev);
 
 	    manager.register('search', function(resp){
-		glob['annotations']['evidence'][ev] = resp.total_documents();
+		glob['annotations']['evidence'][ev] =
+		    resp.total_documents();
 	    });
 
 	    return manager.search();
@@ -256,9 +301,9 @@ function second_pass(){
 	console.log(fun_count + ' of ' + total_funs);
     }, function(man){
 	// Dump to file.
+	console.log(JSON.stringify(glob, true, 3));
 	fs.writeFileSync('./perl/bin/amigo-base-statistics-cache.json',
 			 JSON.stringify(glob));
-	console.log(glob);
     }, function(err, man){
 	// No error code.
     });

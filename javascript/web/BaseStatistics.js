@@ -182,6 +182,62 @@ function BaseStatisticsInit(){
 	Plotly.newPlot('graph03', data, layout);
 
     })();
+
+    ///
+    /// Annotation \ species | aspect | evidence
+    ///
+
+    (function(){
+
+	var data = [];
+	
+	// Okay, create some tracks.
+	us.each(glob['evidence_of_interest'], function(ev){
+	    
+	    // There will only be #ev "traces" here.
+	    var ev_trace = {
+		x: [],
+		y: [],
+		name: ev,
+		type: 'bar'
+	    };
+
+	    us.each(glob['species_of_interest'], function(spc){
+		var slbl = spc[0];
+		var sid = spc[1];
+	    
+		us.each(['P', 'F', 'C'], function(aspect){
+		    
+		    // Add axis label.
+		    ev_trace.x.unshift(aspect + ': ' + slbl);
+
+		    // Add data.
+		    ev_trace.y.unshift(glob.annotations.species_by_evidence_by_aspect[sid][ev][aspect]);
+		});
+
+	    });
+
+	    // Onto data stack.
+	    data.unshift(ev_trace);
+	});
+
+	var layout = {
+	    title: 'Annotations by aspect/species by evidence',
+	    barmode: 'stack',
+	    xaxis: {
+		title: 'Aspect: Species',
+		autorange: 'reversed',
+		tickangle: 45 // not automatic due to density
+	    },
+	    yaxis: {
+		title: 'Annotations'
+	    }
+	};
+	
+	Plotly.newPlot('graph04', data, layout);
+
+    })();
+
 }
 
 ///
