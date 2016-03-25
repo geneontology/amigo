@@ -325,6 +325,10 @@ gulp.task('build', shell.task(_run_cmd_list(
     ))
 );
 
+gulp.task('cache', shell.task(_run_cmd_list(
+    ['node ./scripts/amigo-create-base-stats-cache.js']
+)));
+
 ///
 /// GOlr operations and handling.
 ///
