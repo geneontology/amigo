@@ -106,7 +106,7 @@ function FacetMatrixInit(){
     ll('Completed init! Next is "init on callback."');
 
     // Action.
-    manager.register('search', init, 0, 'next step');
+    manager.register('search', next_step, 0, 'next step');
     manager.search();
 
     // Initialize the global matrix and node data structure.
@@ -121,15 +121,15 @@ function FacetMatrixInit(){
 
     // Get the information for the incoming terms, launch stage 02.
     //function init(response, manager){
-    function init(response, search){
+    function next_step(response, search){
 
 	ll('init start...');
 
 	// Prevent future actions (the register would be sticky).
-	search.unregister('next step');
+	search.unregister('search', 'next step');
 
 	// Take a look at the two facets that we'll be iterating over.
-	ll('Gathering batch URLs for term data...');
+	ll('Gathering functions for term data...');
 	var reqs_to_do = 0;
 	f1 = response.facet_field(global_facet1);
 	f2 = response.facet_field(global_facet2);
@@ -146,46 +146,48 @@ function FacetMatrixInit(){
 		id_to_index[sid] = set_index;
 	    });
 	});
-	ll('id_to_index: ' + id_to_index);
+	ll('id_to_index #: ' + us.keys(id_to_index).length);
 
 	// Now collect the batch URLs along one facet in reference to
 	// the other (arbitrary)--we should be able to get what we
 	// want by just looking at once facet and checking the other
 	// as we vary it.
+	var collected_functions = [];
 	us.each(f1, function(f1_pair){
-	    var f1_id = f1_pair[0];
-	    
-	    // Return the state.
-	    // We have to reset the rows as well since rows is
-	    // not sticky across a search action (think about
-	    // it).
-	    search.set('rows', 0); // we don't need any actual rows
-	    search.set_facet_limit(flimit);
-	    search.reset_query_filters();
-	    
-	    search.add_query_filter(global_facet1, f1_id);
-	    search.add_to_batch();
-	    
 	    reqs_to_do++;
+	    collected_functions.push(
+		function(){
+		    var f1_id = f1_pair[0];
+		    
+		    // Return the state.
+		    // We have to reset the rows as well since rows is
+		    // not sticky across a search action (think about
+		    // it).
+		    search.set('rows', 0); // we don't need any actual rows
+		    search.set_facet_limit(flimit);
+		    search.reset_query_filters();
+		    
+		    search.add_query_filter(global_facet1, f1_id);
+		    return search.search();
+		});
 	});
 
 	// Fetch the data and scrape out what we want.
 	var reqs_done = 0;
 	var accumulator_fun = function(resp){
 
-	    // Update progress.
+	    // Update progress bar.
 	    reqs_done++;
 	    var per = Math.round((reqs_done / reqs_to_do) * 100);
 	    //ll(reqs_done + ' of ' + reqs_to_do + ' = ' + per + '%');
 	    // jQuery(pwidget).progressbar('value', per);
-
 	    jQuery(pwidget_bs3_bar).css('width', per + '%');
 	    jQuery(pwidget_bs3_bar).attr('aria-valuenow', per);
 
 	    // Recover the facet that we're currently looking at: 1.
+	    var f1_name = '???';
     	    var fq_set = resp.parameter('fq');
 	    //ll('accumu: ' + dump(fq_set));
-	    var f1_name = '???';
 	    us.each(fq_set, function(fq_item){
 		// Split up each line in the set.
 		var two_part = bbop.first_split(':', fq_item);
@@ -287,6 +289,7 @@ function FacetMatrixInit(){
 	
 	// The final function is the data renderer.
 	var final_fun = function(){
+	    ll('Entering final_fun...');
 
 	    // We are done!
 	    jQuery(pwidget_bs3_container).hide();
@@ -295,7 +298,13 @@ function FacetMatrixInit(){
 	    render();
 	};
 
-	search.run_batch(accumulator_fun, final_fun);
+	// The final function is the data renderer.
+	var error_fun = function(err){
+	    alert('Encountered error while running: ' + err.toString());
+	};
+
+	search.run_promise_functions(collected_functions,
+				     accumulator_fun, final_fun, error_fun);
     }
 
     // Final stage: do the graphics and layout.
@@ -324,6 +333,7 @@ function FacetMatrixInit(){
 
 	var td_id_to_data = {};
 	function _assemble_table(haxis, vaxis){
+	    ll('try to _assemble_table...');
 	    
 	    // Start assembling the table parts.	
 	    var thead = new html.tag('thead');
@@ -339,7 +349,7 @@ function FacetMatrixInit(){
 	    us.each(title_list, function(title_item){
 		thead.add_to('<th>' + title_item +
 			     '<img style="border: 0px;" src="' +
-			     sd.image_base() + '/reorder.gif" />' +
+			     sd.image_base + '/reorder.gif" />' +
 			     '</th>');
 	    });
 	    
