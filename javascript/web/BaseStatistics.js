@@ -134,7 +134,11 @@ function BaseStatisticsInit(){
 		autorange: 'reversed'
 	    },
 	    yaxis: {
-		title: 'Annotations'
+		title: 'Annotations',
+		tickfont: {
+		    // 12, 10 too big
+		    size: 9
+		}
 	    }
 	};
 	
@@ -227,7 +231,6 @@ function BaseStatisticsInit(){
 	    xaxis: {
 		title: 'Aspect: Species',
 		autorange: 'reversed',
-		//tickangle: 45 // not automatic due to density
 		tickfont: {
 		    // 12, 10 too big
 		    size: 9
@@ -272,7 +275,11 @@ function BaseStatisticsInit(){
 	    barmode: 'stack',
 	    xaxis: {
 		title: 'Source',
-		autorange: 'reversed'
+		autorange: 'reversed',
+		tickfont: {
+		    // 12, 10 too big
+		    size: 9
+		}
 	    },
 	    yaxis: {
 		title: 'Publications'
