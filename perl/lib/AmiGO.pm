@@ -902,6 +902,7 @@ sub get_interlink {
      'owltools_details' => sub { $ilink = 'amigo/owltools_details'; },
      'browse' => sub { $ilink = 'amigo/browse'; },
      'dd_browse' => sub { $ilink = 'amigo/dd_browse'; },
+     'base_statistics' => sub { $ilink = 'amigo/base_statistics'; },
      'free_browse' => sub { $ilink = 'amigo/free_browse'; },
      'goose' => sub { $ilink = 'goose'; },
      'grebe' => sub { $ilink = 'grebe'; },
@@ -2277,6 +2278,7 @@ sub dynamic_dispatch_table_amigo {
      'owltools_details'    => { app => $aapp, rm => 'owltools_details' },
      'browse'              => { app => $aapp, rm => 'browse' },
      'dd_browse'           => { app => $aapp, rm => 'dd_browse' },
+     'base_statistics'     => { app => $aapp, rm => 'base_statistics' },
      'free_browse'         => { app => $aapp, rm => 'free_browse' },
      ##
      ## Soft applications (may take some parameters, browser-only).

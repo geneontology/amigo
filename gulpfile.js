@@ -260,6 +260,7 @@ gulp.task('install', ['compile', 'build']);
 var web_compilables = [
     'AmiGOBioView.js',
     'AmiGOCytoView.js',
+    'BaseStatistics.js',
     'BulkSearch.js',
     'DDBrowse.js',
     'FacetMatrix.js',
