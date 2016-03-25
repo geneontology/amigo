@@ -6,7 +6,8 @@ var us = require('underscore');
 var bbop = require('bbop-core');
 var fs = require('fs');
 
-var amigo = new (require('amigo2-instance-data'))();
+//var amigo = new (require('amigo2-instance-data'))();
+var amigo = new (require('../javascript/npm/amigo2-instance-data'))();
 
 var golr_conf = require('golr-conf');
 var gconf = new golr_conf.conf(amigo.data.golr);
