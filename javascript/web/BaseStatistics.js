@@ -2,6 +2,12 @@
 //// Render pretty numbers!
 ////
 
+// Let jshint pass over over our external globals (browserify takes
+// care of it all).
+/* global jQuery */
+/* global global_statistics_cache */
+/* global Plotly */
+
 var us = require('underscore');
 var bbop = require('bbop-core');
 var widgets = require('bbop-widget-set');
@@ -24,44 +30,80 @@ var jquery_engine = require('bbop-rest-manager').jquery;
 var golr_manager = require('bbop-manager-golr');
 var golr_response = require('bbop-response-golr');
 
-function BaseStatisticsInit(){
-    
+function BasePageInit(){    
     // Use jQuery UI to tooltip-ify doc.
     var tt_args = {'position': {'my': 'left bottom', 'at': 'right top'}};
     jQuery('.bbop-js-tooltip').tooltip(tt_args);
+}
+
+function BaseStatisticsInit(){
+
+    var glob = global_statistics_cache;
 
     ///
-    /// General setup--resource locations.
-    /// Solr server, GOlr config, etc.
+    /// Play!
     ///
-
-    // Manager creation wrapper (we use it a couple of times).
-    function _create_manager(){
-
-	// Create manager.
-	var engine = new jquery_engine(golr_response);
-	engine.method('GET');
-	engine.use_jsonp(true);
-	var manager = new golr_manager(gserv, gconf, engine, 'async');
-
-	// Manager settings.
-	var personality = 'ontology';
-	var confc = gconf.get_class(personality);
-	manager.set_personality(personality);
-	manager.add_query_filter('document_category',
-				 confc.document_category(), ['*']);
-
-	return manager;	
-    }
 
     // TODO: 
+    var exp_trace = {
+	// x: [0, 1, 2, 3, 4, 5, 6, 7],
+	// y: [12, 18, 29, 12, 18, 29],
+	x: [],
+	y: [],
+	name: 'Experimental',
+	type: 'bar'
+    };
+
+    var nonexp_trace = {
+	x: [],
+	y: [],
+	name: 'Non-experimental',
+	type: 'bar'
+    };
+    
+    // Okay, create some tracks.
+    us.each(glob['species_of_interest'], function(spec){
+	var lbl = spec[0];
+	var id = spec[1];
+
+	// Add axis label.
+	exp_trace.x.unshift(lbl);
+	nonexp_trace.x.unshift(lbl);
+
+	// Add data.
+	exp_trace.y.unshift(glob.annotations.species_by_exp[id]);
+	nonexp_trace.y.unshift(glob.annotations.species_by_nonexp[id]);
+    });
+
+    var data = [exp_trace, nonexp_trace];
+    
+    var layout = {
+	title: 'Experimental annotations by species',
+	barmode: 'stack',
+	xaxis: {
+	    title: 'Species',
+	    autorange: 'reversed'
+	},
+	yaxis: {
+	    title: 'Annotations'
+	}
+    };
+    
+    Plotly.newPlot('graph01', data, layout);
 }
 
 ///
-///
+/// A slightly more complicated starter: don't start unless we got the
+/// goods passed in from the server.
 ///
 
 // Embed the jQuery setup runner.
 (function (){
-    jQuery(document).ready(function(){ BaseStatisticsInit(); });
+    jQuery(document).ready(function(){
+	BasePageInit();
+	if( us.isObject(global_statistics_cache) &&
+	    ! us.isEmpty(global_statistics_cache) ){
+	   BaseStatisticsInit();
+	}
+    });
 })();

@@ -385,7 +385,8 @@ sub mode_base_statistics {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui'
+      'com.jquery-ui',
+      'ly.plot'
      ],
      javascript =>
      [

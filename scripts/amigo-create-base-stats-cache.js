@@ -77,6 +77,8 @@ function _new_total_manager_by_personality(personality){
 // coordinator.
 var glob_manager = _new_total_manager_by_personality('annotation');
 var glob = {
+    species_of_interest: our_species_of_interest,
+    evidence_of_interest: our_evidence_of_interest,
     annotations: {
 	species_by_exp : {},
 	species_by_nonexp : {},

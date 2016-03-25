@@ -184,6 +184,9 @@ my $sig2path =
 
    'org.d3' =>
    'org/d3.v3.min.js',
+
+   'ly.plot' =>
+   'ly/plotly.min.js',
   };
 
 
