@@ -141,6 +141,47 @@ function BaseStatisticsInit(){
 	Plotly.newPlot('graph02', data, layout);
 
     })();
+
+    ///
+    /// Annotation \ evidence
+    ///
+
+    (function(){
+
+	var ev_trace = {
+	    x: [],
+	    y: [],
+	    name: 'Evidence',
+	    type: 'bar'
+	};
+
+	// Okay, create some tracks.
+	us.each(glob['evidence_of_interest'], function(ev){
+
+	    // Add axis label.
+	    ev_trace.x.unshift(ev);
+
+	    // Add data.
+	    ev_trace.y.unshift(glob.annotations.evidence[ev]);
+	});
+
+	var data = [ev_trace];
+	
+	var layout = {
+	    title: 'Annotations by evidence',
+	    barmode: 'stack',
+	    xaxis: {
+		title: 'Evidence type',
+		autorange: 'reversed'
+	    },
+	    yaxis: {
+		title: 'Annotations'
+	    }
+	};
+	
+	Plotly.newPlot('graph03', data, layout);
+
+    })();
 }
 
 ///
