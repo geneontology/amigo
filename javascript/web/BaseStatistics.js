@@ -41,55 +41,106 @@ function BaseStatisticsInit(){
     var glob = global_statistics_cache;
 
     ///
-    /// Play!
+    /// Annotation \ species | exp/non-exp
+    ///
+    
+    (function(){
+
+	var exp_trace = {
+	    x: [],
+	    y: [],
+	    name: 'Experimental',
+	    type: 'bar'
+	};
+
+	var nonexp_trace = {
+	    x: [],
+	    y: [],
+	    name: 'Non-experimental',
+	    type: 'bar'
+	};
+	
+	// Okay, create some tracks.
+	us.each(glob['species_of_interest'], function(spec){
+	    var lbl = spec[0];
+	    var id = spec[1];
+
+	    // Add axis label.
+	    exp_trace.x.unshift(lbl);
+	    nonexp_trace.x.unshift(lbl);
+
+	    // Add data.
+	    exp_trace.y.unshift(glob.annotations.species_by_exp[id]);
+	    nonexp_trace.y.unshift(glob.annotations.species_by_nonexp[id]);
+	});
+
+	var data = [exp_trace, nonexp_trace];
+	
+	var layout = {
+	    title: 'Experimental annotations by species',
+	    barmode: 'stack',
+	    xaxis: {
+		title: 'Species',
+		autorange: 'reversed'
+	    },
+	    yaxis: {
+		title: 'Annotations'
+	    }
+	};
+	
+	Plotly.newPlot('graph01', data, layout);
+
+    })();
+
+    ///
+    /// Annotation \ sources | exp/non-exp
     ///
 
-    // TODO: 
-    var exp_trace = {
-	// x: [0, 1, 2, 3, 4, 5, 6, 7],
-	// y: [12, 18, 29, 12, 18, 29],
-	x: [],
-	y: [],
-	name: 'Experimental',
-	type: 'bar'
-    };
+    (function(){
 
-    var nonexp_trace = {
-	x: [],
-	y: [],
-	name: 'Non-experimental',
-	type: 'bar'
-    };
-    
-    // Okay, create some tracks.
-    us.each(glob['species_of_interest'], function(spec){
-	var lbl = spec[0];
-	var id = spec[1];
+	var exp_trace = {
+	    x: [],
+	    y: [],
+	    name: 'Experimental',
+	    type: 'bar'
+	};
 
-	// Add axis label.
-	exp_trace.x.unshift(lbl);
-	nonexp_trace.x.unshift(lbl);
+	var nonexp_trace = {
+	    x: [],
+	    y: [],
+	    name: 'Non-experimental',
+	    type: 'bar'
+	};
+	
+	// Okay, create some tracks.
+	us.each(glob['sources_of_interest'], function(src){
 
-	// Add data.
-	exp_trace.y.unshift(glob.annotations.species_by_exp[id]);
-	nonexp_trace.y.unshift(glob.annotations.species_by_nonexp[id]);
-    });
+	    // Add axis label.
+	    exp_trace.x.unshift(src);
+	    nonexp_trace.x.unshift(src);
 
-    var data = [exp_trace, nonexp_trace];
-    
-    var layout = {
-	title: 'Experimental annotations by species',
-	barmode: 'stack',
-	xaxis: {
-	    title: 'Species',
-	    autorange: 'reversed'
-	},
-	yaxis: {
-	    title: 'Annotations'
-	}
-    };
-    
-    Plotly.newPlot('graph01', data, layout);
+	    // Add data.
+	    exp_trace.y.unshift(glob.annotations.sources_by_exp[src]);
+	    nonexp_trace.y.unshift(glob.annotations.sources_by_nonexp[src]);
+	});
+
+	var data = [exp_trace, nonexp_trace];
+	
+	var layout = {
+	    title: 'Experimental annotations by source',
+	    barmode: 'stack',
+	    xaxis: {
+		title: 'Sources',
+		autorange: 'reversed'
+	    },
+	    yaxis: {
+		title: 'Annotations'
+	    }
+	};
+	
+	Plotly.newPlot('graph02', data, layout);
+
+    })();
 }
 
 ///
@@ -103,7 +154,7 @@ function BaseStatisticsInit(){
 	BasePageInit();
 	if( us.isObject(global_statistics_cache) &&
 	    ! us.isEmpty(global_statistics_cache) ){
-	   BaseStatisticsInit();
+	    BaseStatisticsInit();
 	}
     });
 })();
