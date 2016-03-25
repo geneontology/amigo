@@ -215,7 +215,7 @@ function FacetMatrixInit(){
 		//var comb_val = f2_line[1];
 		var comb_val = 0;
 		var results_val = 0;
-		if( bbop.is_def(in_hash[f2_name]) ){
+		if( typeof(in_hash[f2_name]) !== 'undefined' ){
 		    results_val = in_hash[f2_name];
 		}
 		ll([f1_name, f2_name].join(', ') + ': ' + results_val);
@@ -227,13 +227,13 @@ function FacetMatrixInit(){
 		
 		// While we're here, let's also create a lookup
 		// structure.
-		if( ! bbop.is_def(val_hash[f1_name]) ){
+		if( typeof(val_hash[f1_name]) === 'undefined' ){
 		    val_hash[f1_name] = {}; }
-		if( ! bbop.is_def(val_hash[f2_name]) ){
+		if( typeof(val_hash[f2_name]) === 'undefined' ){
 		    val_hash[f2_name] = {}; }
-		if( ! bbop.is_def(val_hash[f1_name][f2_name]) ){
+		if( typeof(val_hash[f1_name][f2_name]) === 'undefined' ){
 		    val_hash[f1_name][f2_name] = results_val; }
-		if( ! bbop.is_def(val_hash[f2_name][f1_name]) ){
+		if( typeof(val_hash[f2_name][f1_name]) === 'undefined' ){
 		    val_hash[f2_name][f1_name] = results_val; }
 	    });
 	};
