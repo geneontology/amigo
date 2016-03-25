@@ -743,22 +743,21 @@ var live_filters = function(interface_id, manager, golr_conf_obj,
     			    // activation with callbacks to
     			    // the manager.
     			    var b_plus = new html.button(
-    				ui_icon_positive_label,
+				ui_icon_positive_label,
 				{
 				    'generate_id': true,
 				    'type': 'button',
 				    'class':
 				    'btn btn-success btn-xs'
 				});
-    			    var b_minus =
-    				    new html.button(
-    					ui_icon_negative_label,
-					{
-					    'generate_id': true,
-					    'type': 'button',
-					    'class':
-					    'btn btn-danger btn-xs'
-					});
+    			    var b_minus = new html.button(
+    				ui_icon_negative_label,
+				{
+				    'generate_id': true,
+				    'type': 'button',
+				    'class':
+				    'btn btn-danger btn-xs'
+				});
 			    
     			    // Store in hash for later keying to
     			    // event.
@@ -938,7 +937,10 @@ var live_filters = function(interface_id, manager, golr_conf_obj,
     			// Draw the proper contents of the shield.
     			filter_shield.draw(fina, flist, manager);
     		    }
-    		    manager.fetch(draw_shield);
+    		    var draw_promise = manager.search();
+		    draw_promise.then(function(resp){
+			draw_shield(resp);
+		    });
 		    
     		    // Reset the manager to more sane settings.
     		    manager.reset_facet_limit();
