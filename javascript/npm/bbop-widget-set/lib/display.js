@@ -445,7 +445,7 @@ var results_table_by_class_conf = function(cclass, golr_resp, linker,
     anchor._handler = handler;
 
     // The context we'll deliver to
-    var display_context = 'bbop-widget-sets.search_pane';
+    var display_context = 'bbop-widget-set.live_results';
 
     // Only want to compile once.
     var ea_regexp = new RegExp("\<\/a\>", "i"); // detect an <a>
@@ -752,9 +752,9 @@ results_table_by_class_conf.prototype.process_entry = function(bit, field_id,
     // the local return. The major difference that we'll have here
     // is between standard fields and special handler fields. If
     // the handler resolves to null, fall back onto standard.
-    //ll('! B:' + bit + ', F:' + fid + ', D:' + display_context);
+    //console.log('! B:' + bit + ', F:' + field_id + ', D:' + display_context);
     var out = anchor._handler.dispatch(bit, field_id, display_context);
-    if( bbop.is_defined(out) && out != null ){
+    if( typeof(out) !== 'undefined' && out != null ){
 	return out;
     }
     

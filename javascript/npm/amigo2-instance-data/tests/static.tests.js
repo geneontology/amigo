@@ -98,7 +98,7 @@ describe('explore the structure of default dispatch', function(){
 
     it('data.dispatch', function(){
 	assert.isTrue(us.isFunction(a.data.dispatch.example_field.context['example_context']), 'has default dispatch A');
-	assert.isTrue(us.isFunction(a.data.dispatch.annotation_extension_json.context['bbop.widgets.search_pane']), 'has default dispatch B');
+	assert.isTrue(us.isFunction(a.data.dispatch.annotation_extension_json.context['bbop-widget-set.live_results']), 'has default dispatch B');
     });
 
 });

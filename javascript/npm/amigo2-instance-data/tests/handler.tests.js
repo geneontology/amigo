@@ -27,7 +27,7 @@ describe('extant tests for new system', function(){
 	var correct = '<a title="RO:0002315 (go to the page for results_in_acquisition_of_features_of)" href="http://purl.obolibrary.org/obo/RO_0002315">results_in_acquisition_of_features_of</a> <a title="CL:0000136 (go to the page for fat cell)" href="http://purl.obolibrary.org/obo/CL_0000136">fat cell</a>';
 	assert.equal(h.dispatch(aej,
 				'annotation_extension_json',
-				'bbop.widgets.search_pane'),
+				'bbop-widget-set.live_results'),
 		     correct,
 		     "got complicated rendering");
 	
