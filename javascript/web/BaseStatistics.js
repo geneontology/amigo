@@ -232,8 +232,8 @@ function BaseStatisticsInit(){
 		title: 'Aspect: Species',
 		autorange: 'reversed',
 		tickfont: {
-		    // 12, 10 too big
-		    size: 9
+		    // 12, 10 too big; 9 okay right now
+		    size: 8
 		}
 	    },
 	    yaxis: {
@@ -277,8 +277,8 @@ function BaseStatisticsInit(){
 		title: 'Source',
 		autorange: 'reversed',
 		tickfont: {
-		    // 12, 10 too big
-		    size: 9
+		    // 12, 10 too big; 9 okay right now
+		    size: 8
 		}
 	    },
 	    yaxis: {
