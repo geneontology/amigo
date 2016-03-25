@@ -131,14 +131,14 @@ function BaseStatisticsInit(){
 	    barmode: 'stack',
 	    xaxis: {
 		title: 'Sources',
-		autorange: 'reversed'
-	    },
-	    yaxis: {
-		title: 'Annotations',
+		autorange: 'reversed',
 		tickfont: {
 		    // 12, 10 too big
 		    size: 9
 		}
+	    },
+	    yaxis: {
+		title: 'Annotations'
 	    }
 	};
 	
