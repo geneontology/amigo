@@ -1740,6 +1740,32 @@ sub golr_class_weights {
   return $rethash;
 }
 
+###
+###
+###
+
+=item amigo_statistics_cache
+
+Return href of the statistics cache, if found.
+Empty otherwise.
+
+=cut
+sub amigo_statistics_cache {
+
+  my $self = shift;
+  my $ret = {};
+
+  my $json_file = $self->amigo_env('AMIGO_ROOT') .
+    '/perl/bin/amigo-base-statistics-cache.json';
+
+  ## Try and get the string out.
+  ## Crop to just the parts that are interesting.
+  if( -f $json_file ){
+    $ret = $self->_read_json_file($json_file);
+  }
+
+  return $ret;
+}
 
 ###
 ### Public bookmark API.

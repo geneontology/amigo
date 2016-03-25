@@ -924,6 +924,8 @@ sub _common_params_settings {
     $self->{CORE}->get_interlink({mode=>'browse'});
   $params->{interlink_dd_browse} =
     $self->{CORE}->get_interlink({mode=>'dd_browse'});
+  $params->{interlink_base_statistics} =
+    $self->{CORE}->get_interlink({mode=>'base_statistics'});
   $params->{interlink_free_browse} =
     $self->{CORE}->get_interlink({mode=>'free_browse'});
   $params->{interlink_medial_search} =
