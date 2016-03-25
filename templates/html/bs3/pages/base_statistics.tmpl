@@ -16,7 +16,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     <div class="panel-title">
-      Cannot display statistics
+      <h4>Cannot display statistics</h4>
     </div>
   </div>
   <div class="panel-body">
@@ -32,11 +32,40 @@
 [% ELSE %]
 
 <div class="panel panel-default">
-  <!-- <div class="panel-heading"> -->
-  <!--   <div class="panel-title"> -->
-  <!--     <h4>Experimental annotations by species</h4> -->
-  <!--   </div> -->
-  <!-- </div> -->
+  <div class="panel-heading">
+    <div class="panel-title">
+      <h4>Available graphs</h4>
+    </div>
+  </div>
+  <div class="panel-body">
+
+    <ul>
+      <li>
+	<a href="#experimental-annotations-by-species">
+	  Experimental annotations by species
+	</a>
+      </li>
+      <li>
+	<a href="#experimental-annotations-by-source">
+	  Experimental annotations by source
+	</a>
+      </li>
+      <li>
+	<a href="#annotations-by-evidence">
+	  Annotations by evidence
+	</a>
+      </li>
+      <li>
+	<a href="#annotations-by-aspect-species-by-evidence">
+	  Annotations by aspect/species by evidence
+	</a>
+      </li>
+    </ul>
+    
+  </div>
+</div>
+
+<div id="experimental-annotations-by-species" class="panel panel-default">
   <div class="panel-body">
 
     <div id="graph01" style="width: 800px; height: 600px;"></div>
@@ -44,15 +73,21 @@
   </div>
 </div>
 
-<div class="panel panel-default">
+<div id="experimental-annotations-by-source" class="panel panel-default">
   <div class="panel-body">
     <div id="graph02" style="width: 800px; height: 600px;"></div>
   </div>
 </div>
 
-<div class="panel panel-default">
+<div id="annotations-by-evidence" class="panel panel-default">
   <div class="panel-body">
     <div id="graph03" style="width: 800px; height: 600px;"></div>
+  </div>
+</div>
+
+<div id="annotations-by-aspect-species-by-evidence" class="panel panel-default">
+  <div class="panel-body">
+    <div id="graph04" style="width: 800px; height: 600px;"></div>
   </div>
 </div>
 
