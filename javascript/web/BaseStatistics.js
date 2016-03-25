@@ -242,6 +242,47 @@ function BaseStatisticsInit(){
 
     })();
 
+    ///
+    /// Experimental annotation pub \ source
+    ///
+
+    (function(){
+
+	var pub_trace = {
+	    x: [],
+	    y: [],
+	    name: 'Experimental annotation publications',
+	    type: 'bar'
+	};
+
+	// Okay, create some tracks.
+	us.each(glob['sources_of_interest'], function(src){
+
+	    // Add axis label.
+	    pub_trace.x.unshift(src);
+
+	    // Add data.
+	    pub_trace.y.unshift(glob.annotations.sources_by_exp_publication[src]);
+	});
+
+	var data = [pub_trace];
+	
+	var layout = {
+	    title: 'Experimental annotation publications by source',
+	    barmode: 'stack',
+	    xaxis: {
+		title: 'Source',
+		autorange: 'reversed'
+	    },
+	    yaxis: {
+		title: 'Publications'
+	    }
+	};
+	
+	Plotly.newPlot('graph05', data, layout);
+
+    })();
+
 }
 
 ///

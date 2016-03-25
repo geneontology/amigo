@@ -65,6 +65,7 @@ var glob = {
 	species_by_evidence_by_aspect : {},
 	sources_by_exp : {},
 	sources_by_nonexp : {},
+	sources_by_exp_publication : {},
 	evidence : {}
     }
 };
@@ -168,7 +169,7 @@ function second_pass(){
 	    return manager.search();
 	});
 	
-	// Experimental.
+	// Non-experimental.
 	glob_funs.push(function(){
 
 	    //  Minimal, only want count.
@@ -180,6 +181,36 @@ function second_pass(){
 	    manager.register('search', function(resp){
 		glob['annotations']['sources_by_nonexp'][src] =
 		    resp.total_documents();
+		// console.log(glob);
+	    });
+
+	    return manager.search();
+	});
+	
+	// Experimental publications.
+	// sources_by_exp_publication : {},
+	glob_funs.push(function(){
+
+	    //  Minimal, only want count.
+	    var manager = _new_facets_manager_by_personality('annotation');
+	    manager.add_query_filter('assigned_by', src);
+	    manager.add_query_filter('evidence_type_closure',
+				     'experimental evidence');
+	    manager.facets('reference');
+
+	    manager.register('search', function(resp){
+
+		// Extract the facet.
+		var ref_facet = resp.facet_field('reference') || [];
+		//console.log('raw_data', raw_data);
+		var ref_count = 0;
+		us.each(ref_facet, function(datum){
+		    var count = datum[1];
+		    ref_count += count;
+		});
+		
+		glob['annotations']['sources_by_exp_publication'][src] =
+		    ref_count;
 		// console.log(glob);
 	    });
 
