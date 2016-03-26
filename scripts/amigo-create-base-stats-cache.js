@@ -62,8 +62,8 @@ var glob = {
     assigners_of_interest: [], // Done in first pass.
     // Counts.
     publications: {
-	assigners_with_exp : {},
-	assigners_by_aspect : {}
+	//assigners_by_aspect : {},
+	assigners_with_exp : {}
     },
     annotations: {
 	species_with_exp : {},
@@ -71,7 +71,7 @@ var glob = {
 	species_by_evidence_by_aspect : {},
 	assigners_with_exp : {},
 	assigners_with_nonexp : {},
-	assigners_by_aspect_with_exp : {},
+	//assigners_by_aspect_with_exp : {},
 	evidence : {}
     }
 };
@@ -193,33 +193,33 @@ function second_pass(){
 	    return manager.search();
 	});
 	
-	// Experimental ann by aspect.
-	us.each(['P', 'F', 'C'], function(aspect){
+	// // Experimental ann by aspect.
+	// us.each(['P', 'F', 'C'], function(aspect){
 	    
-	    glob_funs.push(function(){
+	//     glob_funs.push(function(){
 
-		//  Minimal, only want count.
-		var manager = _new_totals_manager_by_personality('annotation');
-		manager.add_query_filter('assigned_by', src);
-		manager.add_query_filter('evidence_type_closure',
-					 'experimental evidence');
-		manager.add_query_filter('aspect', aspect);
+	// 	//  Minimal, only want count.
+	// 	var manager = _new_totals_manager_by_personality('annotation');
+	// 	manager.add_query_filter('assigned_by', src);
+	// 	manager.add_query_filter('evidence_type_closure',
+	// 				 'experimental evidence');
+	// 	manager.add_query_filter('aspect', aspect);
 
-		manager.register('search', function(resp){
+	// 	manager.register('search', function(resp){
 
-		    // Ensure.
-		    var sea = glob['annotations']['assigners_by_aspect_with_exp'];
-		    if( typeof(sea[src]) === 'undefined' ){
-			sea[src] = {};
-		    }
+	// 	    // Ensure.
+	// 	    var sea = glob['annotations']['assigners_by_aspect_with_exp'];
+	// 	    if( typeof(sea[src]) === 'undefined' ){
+	// 		sea[src] = {};
+	// 	    }
 
-		    sea[src][aspect] = resp.total_documents();
-		    // console.log(glob);
-		});
+	// 	    sea[src][aspect] = resp.total_documents();
+	// 	    // console.log(glob);
+	// 	});
 		
-		return manager.search();
-	    });
-	});
+	// 	return manager.search();
+	//     });
+	// });
 	
 	// Experimental publications.
 	// publications.assigners_with_exp : {},
@@ -250,35 +250,35 @@ function second_pass(){
 	    return manager.search();
 	});
 	
-	// Publications by aspect.
-	// publications.assigners_by_aspect : {},
-	us.each(['P', 'F', 'C'], function(aspect){
+	// // Publications by aspect.
+	// // publications.assigners_by_aspect : {},
+	// us.each(['P', 'F', 'C'], function(aspect){
 
-	    glob_funs.push(function(){
+	//     glob_funs.push(function(){
 		
-		//  Minimal, only want count.
-		var manager = _new_facets_manager_by_personality('annotation');
-		manager.add_query_filter('assigned_by', src);
-		manager.add_query_filter('aspect', aspect);
+	// 	//  Minimal, only want count.
+	// 	var manager = _new_facets_manager_by_personality('annotation');
+	// 	manager.add_query_filter('assigned_by', src);
+	// 	manager.add_query_filter('aspect', aspect);
 		
-		manager.register('search', function(resp){
+	// 	manager.register('search', function(resp){
 		    
-		    // Extract the facet.
-		    var ref_facet = resp.facet_field('reference') || [];
-		    //console.log('raw_data', raw_data);
-		    var ref_count = 0;
-		    us.each(ref_facet, function(datum){
-			var count = datum[1];
-			ref_count += count;
-		    });
+	// 	    // Extract the facet.
+	// 	    var ref_facet = resp.facet_field('reference') || [];
+	// 	    //console.log('raw_data', raw_data);
+	// 	    var ref_count = 0;
+	// 	    us.each(ref_facet, function(datum){
+	// 		var count = datum[1];
+	// 		ref_count += count;
+	// 	    });
 		    
-		    glob['publications']['assigners_by_aspect'][src] = ref_count;
-		    // console.log(glob);
-		});
+	// 	    glob['publications']['assigners_by_aspect'][src] = ref_count;
+	// 	    // console.log(glob);
+	// 	});
 		
-		return manager.search();
-	    });
-	});
+	// 	return manager.search();
+	//     });
+	// });
 	
     });
 
