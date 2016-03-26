@@ -70,8 +70,8 @@ function BaseStatisticsInit(){
 	    nonexp_trace.x.unshift(lbl);
 
 	    // Add data.
-	    exp_trace.y.unshift(glob.annotations.species_by_exp[id]);
-	    nonexp_trace.y.unshift(glob.annotations.species_by_nonexp[id]);
+	    exp_trace.y.unshift(glob.annotations.species_with_exp[id]);
+	    nonexp_trace.y.unshift(glob.annotations.species_with_nonexp[id]);
 	});
 
 	var data = [exp_trace, nonexp_trace];
@@ -120,8 +120,8 @@ function BaseStatisticsInit(){
 	    nonexp_trace.x.unshift(src);
 
 	    // Add data.
-	    exp_trace.y.unshift(glob.annotations.sources_by_exp[src]);
-	    nonexp_trace.y.unshift(glob.annotations.sources_by_nonexp[src]);
+	    exp_trace.y.unshift(glob.annotations.sources_with_exp[src]);
+	    nonexp_trace.y.unshift(glob.annotations.sources_with_nonexp[src]);
 	});
 
 	var data = [exp_trace, nonexp_trace];
@@ -265,7 +265,7 @@ function BaseStatisticsInit(){
 	    pub_trace.x.unshift(src);
 
 	    // Add data.
-	    pub_trace.y.unshift(glob.annotations.sources_by_exp_publication[src]);
+	    pub_trace.y.unshift(glob.publications.sources_with_exp[src]);
 	});
 
 	var data = [pub_trace];

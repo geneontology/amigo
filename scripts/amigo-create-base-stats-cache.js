@@ -56,16 +56,22 @@ var our_sources_of_interest = [
 
 // The data that we'll be filling out and returning.
 var glob = {
+    // Metadata.
     species_of_interest: our_species_of_interest,
     evidence_of_interest: our_evidence_of_interest,
     sources_of_interest: [], // Done in first pass.
+    // Counts.
+    publications: {
+	sources_with_exp : {},
+	sources_by_aspect : {}
+    },
     annotations: {
-	species_by_exp : {},
-	species_by_nonexp : {},
+	species_with_exp : {},
+	species_with_nonexp : {},
 	species_by_evidence_by_aspect : {},
-	sources_by_exp : {},
-	sources_by_nonexp : {},
-	sources_by_exp_publication : {},
+	sources_with_exp : {},
+	sources_with_nonexp : {},
+	sources_by_aspect_with_exp : {},
 	evidence : {}
     }
 };
@@ -161,7 +167,7 @@ function second_pass(){
 				     'experimental evidence');
 
 	    manager.register('search', function(resp){
-		glob['annotations']['sources_by_exp'][src] =
+		glob['annotations']['sources_with_exp'][src] =
 		    resp.total_documents();
 		// console.log(glob);
 	    });
@@ -179,7 +185,7 @@ function second_pass(){
 				     'experimental evidence', ['-']);
 
 	    manager.register('search', function(resp){
-		glob['annotations']['sources_by_nonexp'][src] =
+		glob['annotations']['sources_with_nonexp'][src] =
 		    resp.total_documents();
 		// console.log(glob);
 	    });
@@ -187,8 +193,36 @@ function second_pass(){
 	    return manager.search();
 	});
 	
+	// Experimental ann by aspect.
+	us.each(['P', 'F', 'C'], function(aspect){
+	    
+	    glob_funs.push(function(){
+
+		//  Minimal, only want count.
+		var manager = _new_totals_manager_by_personality('annotation');
+		manager.add_query_filter('assigned_by', src);
+		manager.add_query_filter('evidence_type_closure',
+					 'experimental evidence');
+		manager.add_query_filter('aspect', aspect);
+
+		manager.register('search', function(resp){
+
+		    // Ensure.
+		    var sea = glob['annotations']['sources_by_aspect_with_exp'];
+		    if( typeof(sea[src]) === 'undefined' ){
+			sea[src] = {};
+		    }
+
+		    sea[src][aspect] = resp.total_documents();
+		    // console.log(glob);
+		});
+		
+		return manager.search();
+	    });
+	});
+	
 	// Experimental publications.
-	// sources_by_exp_publication : {},
+	// publications.sources_with_exp : {},
 	glob_funs.push(function(){
 
 	    //  Minimal, only want count.
@@ -209,12 +243,41 @@ function second_pass(){
 		    ref_count += count;
 		});
 		
-		glob['annotations']['sources_by_exp_publication'][src] =
-		    ref_count;
+		glob['publications']['sources_with_exp'][src] = ref_count;
 		// console.log(glob);
 	    });
 
 	    return manager.search();
+	});
+	
+	// Publications by aspect.
+	// publications.sources_by_aspect : {},
+	us.each(['P', 'F', 'C'], function(aspect){
+
+	    glob_funs.push(function(){
+		
+		//  Minimal, only want count.
+		var manager = _new_facets_manager_by_personality('annotation');
+		manager.add_query_filter('assigned_by', src);
+		manager.add_query_filter('aspect', aspect);
+		
+		manager.register('search', function(resp){
+		    
+		    // Extract the facet.
+		    var ref_facet = resp.facet_field('reference') || [];
+		    //console.log('raw_data', raw_data);
+		    var ref_count = 0;
+		    us.each(ref_facet, function(datum){
+			var count = datum[1];
+			ref_count += count;
+		    });
+		    
+		    glob['publications']['sources_by_aspect'][src] = ref_count;
+		    // console.log(glob);
+		});
+		
+		return manager.search();
+	    });
 	});
 	
     });
@@ -235,7 +298,7 @@ function second_pass(){
 				     'experimental evidence');
 
 	    manager.register('search', function(resp){
-		glob['annotations']['species_by_exp'][sid] =
+		glob['annotations']['species_with_exp'][sid] =
 		    resp.total_documents();
 		// console.log(glob);
 	    });
@@ -253,8 +316,9 @@ function second_pass(){
 				     'experimental evidence', ['-']);
 
 	    manager.register('search', function(resp){
-		glob['annotations']['species_by_nonexp'][sid] =
+		glob['annotations']['species_with_nonexp'][sid] =
 		    resp.total_documents();
+		// console.log(glob);
 	    });
 
 	    return manager.search();
@@ -266,7 +330,6 @@ function second_pass(){
 	us.each(our_evidence_of_interest, function(ev){
 
 	    us.each(['P', 'F', 'C'], function(aspect){
-	    
 		
 		glob_funs.push(function(){
 
