@@ -2,6 +2,32 @@
 //// Experiment in D3 JS; no cart like in NMatrix.
 ////
 
+// Let jshint pass over over our external globals (browserify takes
+// care of it all).
+/* global d3 */
+
+var us = require('underscore');
+var bbop = require('bbop-core');
+var widgets = require('bbop-widget-set');
+var html = widgets.html;
+
+// Config.
+var amigo = new (require('amigo2-instance-data'))(); // no overload
+var golr_conf = require('golr-conf');
+var gconf = new golr_conf.conf(amigo.data.golr);
+var sd = amigo.data.server;
+var gserv = amigo.data.server.golr_base;
+var gserv_download = amigo.data.server.golr_download_base;
+var defs = amigo.data.definitions;
+// Linker.
+var linker = amigo.linker;
+// Handler.
+var handler = amigo.handler;
+// Management.
+var jquery_engine = require('bbop-rest-manager').jquery;
+var golr_manager = require('bbop-manager-golr');
+var golr_response = require('bbop-response-golr');
+
 // TODO: Interact with the user, launch stage 01.
 function MatrixInit(){
 
@@ -18,17 +44,16 @@ function MatrixInit(){
     ll('MatrixInit start...');
 
     // Pull in and fix the GO term data.
-    jQuery('#button').click(
-	function(e){
-	    //alert(jQuery('#input-terms').val());
-	    var raw_text = jQuery('#input-terms').val();
-	    raw_text = raw_text.replace(/^\s+/,'');
-	    raw_text = raw_text.replace(/\s+$/,'');
-	    var term_accs = raw_text.split(/\s+/); // split on any ws
-	    ll('Running: ' + bbop.core.dump(term_accs));
-	    jQuery('#matrix_results').empty();
-	    stage_01(term_accs);
-	});
+    jQuery('#button').click(function(e){
+	//alert(jQuery('#input-terms').val());
+	var raw_text = jQuery('#input-terms').val();
+	raw_text = raw_text.replace(/^\s+/,'');
+	raw_text = raw_text.replace(/\s+$/,'');
+	var term_accs = raw_text.split(/\s+/); // split on any ws
+	ll('Running: ' + bbop.dump(term_accs));
+	jQuery('#matrix_results').empty();
+	stage_01(term_accs);
+    });
 
     // Let's start with this test.
     //GO:0043473 GO:0009987 GO:0022008
@@ -43,6 +68,15 @@ function MatrixInit(){
     ll('Completed init!');    
 }
 
+// Create fresh manager.
+function _new_manager(){
+    var engine = new jquery_engine(golr_response);
+    engine.method('GET');
+    engine.use_jsonp(true);
+    var manager = new golr_manager(gserv, gconf, engine, 'async');
+    return manager;
+}
+
 // Get the information for the incoming terms, launch stage 02.
 function stage_01(term_accs){
 
@@ -53,10 +87,6 @@ function stage_01(term_accs){
     ll('');
     ll('Stage 01 start...');
 
-    // Helpers.
-    var each = bbop.core.each;
-    var dump = bbop.core.dump;
-
     // Prep the progress bar and hide the order selector until we're
     // done.
     jQuery("#progress-text").empty();
@@ -65,34 +95,35 @@ function stage_01(term_accs){
     jQuery("#progress-widget").show();
     jQuery("#order-selector").hide();
 
-    // Next, setup the manager environment.
-    ll('Setting up manager.');
-    var server_meta = new amigo.data.server();
-    var gloc = server_meta.golr_base();
-    var gconf = new bbop.golr.conf(amigo.data.golr);
-    var go = new bbop.golr.manager.jquery(gloc, gconf);
-    go.set_personality('bbop_ont');
-    //go.debug(false);
-
     // Now, cycle though all of the terms to collect info on.
     ll('Gathering batch URLs for term data...');
+    var run_funs = [];
     var term_user_order = {};
-    for(var r_i = 0; r_i < term_accs.length; r_i++){
-    	var r = term_accs[r_i];	
-    	// Set the next query.
-    	go.reset_query_filters(); // reset from the last iteration
-    	go.set_id(r);
-    	go.add_to_batch();
+    us.each(term_accs, function(r, r_i){
+
+	// Remember the incoming order.
 	term_user_order[r] = r_i;
-    }
+
+	// Create runner function.
+	run_funs.push(function(){
+	    // Manager settings.
+	    var go = _new_manager();
+	    go.set_personality('bbop_ont');
+	    
+    	    // Set the next query.
+    	    go.reset_query_filters(); // reset from the last iteration
+    	    go.set_id(r);
+    	    return go.search();
+	});
+    });
 
     var term_info = {};
     // Fetch the data and grab the number we want.
-    var accumulator_fun = function(resp){	
+    var accumulator_fun = function(resp){
 	// Who was this?
 	var qval = resp.parameter('q');
-	var two_part = bbop.core.first_split(':', qval);
-	var acc = bbop.core.dequote(two_part[1]);
+	var two_part = bbop.first_split(':', qval);
+	var acc = bbop.dequote(two_part[1]);
 	ll('Looking at info for: ' + acc);
 	term_info[acc] = {
 	    id : acc,
@@ -114,13 +145,20 @@ function stage_01(term_accs){
     var final_fun = function(){
 	ll('Starting final in stage 01...');
 
-	ll('term_info: ' + dump(term_info));
+	ll('term_info: ' + bbop.dump(term_info));
 	stage_02(term_info, term_accs);
-
 	ll('Completed stage 01!');
     };
-    go.run_batch(accumulator_fun, final_fun);
 
+    // Create and run coordinating manager.
+    var manager = _new_manager();
+    manager.run_promise_functions(
+	run_funs,
+	accumulator_fun,
+	final_fun,
+	function(err){
+	    alert(err.toString());
+	});
 }
 
 // Get the joint data, get it into the specified format, and launch
@@ -134,38 +172,21 @@ function stage_02(term_info, term_accs){
     ll('');
     ll('Stage 02 start...');
 
-    // Helpers.
-    var each = bbop.core.each;
-    var dump = bbop.core.dump;
-
     // Get the data that we want.
     // A variation on BBOP JS's shared_annotation_count.js.
 
     // Before we start, decide our taxon.
     var taxon_filter = null; // default to no filter
     var curr_taxon_selection = jQuery("input:radio[name=taxon]:checked").val();
-    if( curr_taxon_selection == 'pombe' ){
+    if( curr_taxon_selection === 'pombe' ){
         // "taxon":"NCBITaxon:4896",
         // "taxon_label":"Schizosaccharomyces pombe",
 	 taxon_filter = "NCBITaxon:4896";
     }
 
-    // Next, setup the manager environment.
-    ll('Setting up manager.');
-    var server_meta = new amigo.data.server();
-    var gloc = server_meta.golr_base();
-    var gconf = new bbop.golr.conf(amigo.data.golr);
-    var go = new bbop.golr.manager.jquery(gloc, gconf);
-    //go.add_query_filter('document_category', 'annotation', ['*']);
-    go.add_query_filter('document_category', 'bioentity', ['*']);
-    if( taxon_filter ){	go.add_query_filter('taxon', taxon_filter, ['*']); }
-    go.set_personality('bbop_ann');
-    go.set('rows', 1); // we don't need any actual rows returned
-    go.set_facet_limit(0); // we don't need any actual facets returned
-    //go.debug(false);
-
     // The number of requests that we will make.
     var request_count = 0;
+    var run_funs = [];
 
     // Now, cycle though all of the posible pairs of terms while setting
     // and unsetting the query filter on the manager.
@@ -177,32 +198,70 @@ function stage_02(term_info, term_accs){
 	    var v = term_accs[v_i];
 	    var h = term_accs[h_i];
 	    
-	    // Set the next query.
-	    go.reset_query_filters(); // reset from the last iteration
-	    go.add_query_filter('isa_partof_closure', v);
-	    go.add_query_filter('isa_partof_closure', h);
-	    go.add_to_batch();
+	    // Code here will be ignored by JSHint, as we are defining
+	    // functions in a loop, which apparently is usually
+	    // naughty.
+	    /* jshint ignore:start */
+	    run_funs.push(function(){
+		// Manager settings.
+		var go = _new_manager();
+		go.set_personality('bbop_ann');
+		go.add_query_filter('document_category', 'bioentity', ['*']);
+		if( taxon_filter ){
+		    go.add_query_filter('taxon', taxon_filter, ['*']);
+		}
+		go.set_personality('bbop_ann');
+		go.set('rows', 1); // we don't need any actual rows returned
+		go.set_facet_limit(0); // don't need any actual facets returned
+		//go.debug(false);
+
+		// Set the next query.
+		go.add_query_filter('isa_partof_closure', v);
+		go.add_query_filter('isa_partof_closure', h);
+
+		return go.search();
+	    });
+	    /* jshint ignore:end */
 
 	    request_count++;
 	}
     }
     // Reflexive.
     for(var r_i = 0; r_i < term_accs.length; r_i++){
+
     	var r = term_accs[r_i];
 	
-    	// Set the next query.
-    	go.reset_query_filters(); // reset from the last iteration
-    	go.add_query_filter('isa_partof_closure', r);
-    	go.add_to_batch();
-
+	// Code here will be ignored by JSHint, as we are defining
+	// functions in a loop, which apparently is usually naughty.
+	/* jshint ignore:start */
+	run_funs.push(function(){
+	    // Manager settings.
+	    var go = _new_manager();
+	    go.set_personality('bbop_ann');
+	    go.add_query_filter('document_category', 'bioentity', ['*']);
+	    if( taxon_filter ){
+		go.add_query_filter('taxon', taxon_filter, ['*']);
+	    }
+	    go.set_personality('bbop_ann');
+	    go.set('rows', 1); // we don't need any actual rows returned
+	    go.set_facet_limit(0); // don't need any actual facets returned
+	    //go.debug(false);
+	    
+    	    // Set the next query.
+    	    go.add_query_filter('isa_partof_closure', r);
+	    
+	    return go.search();
+	});
+	/* jshint ignore:end */
+	
 	request_count++;
     }
 
     // Now that we know how many requests we will make, initialize the
     // progress bar.
     jQuery("#progress-text").empty();
-    jQuery("#progress-text").append('<b><span id="progress-count">0</span> of '
-				    + request_count + '</b>');
+    jQuery("#progress-text").append('<b><span id="progress-count">0</span> of '+
+				    request_count + '</b>');
     //jQuery("#progress-bar").empty();
     jQuery("#progress-bar").progressbar({ max: request_count });
     jQuery("#progress-widget").show();
@@ -231,22 +290,21 @@ function stage_02(term_info, term_accs){
 	var fprops = fqs['isa_partof_closure'];
 
 	var axes = [];
-	each(fprops,
-	     function(fkey, fval){
-		 axes.push(fkey);
-	     });	
+	us.each(fprops, function(fval, fkey){
+	    axes.push(fkey);
+	});	
 	var axis1 = axes[0];
 	var axis2 = axes[1] || axis1; // the reflexive case
 
 	// Structure for the links we've seen, level 1.
-	if( ! bbop.core.is_defined(seen_links[axis1]) ){
+	if( ! bbop.is_defined(seen_links[axis1]) ){
 	    seen_links[axis1] = {}; }
-	if( ! bbop.core.is_defined(seen_links[axis2]) ){
+	if( ! bbop.is_defined(seen_links[axis2]) ){
 	    seen_links[axis2] = {}; }
 	// Mark the links we've seen, level 2.
-	if( ! bbop.core.is_defined(seen_links[axis2][axis1]) ){
+	if( ! bbop.is_defined(seen_links[axis2][axis1]) ){
 	    seen_links[axis2][axis1] = count; }
-	if( ! bbop.core.is_defined(seen_links[axis1][axis2]) ){
+	if( ! bbop.is_defined(seen_links[axis1][axis2]) ){
 	    seen_links[axis1][axis2] = count; }
     };
 
@@ -268,48 +326,45 @@ function stage_02(term_info, term_accs){
 
 	// Now we map out term information into the same format as the
 	// example.
-	each(term_accs,
-	     function(acc){
-		 var node = {
-		     'id': acc,
-		     'name': term_info[acc]['name'],
-		     'source': term_info[acc]['source'],
-		     'index': term_info[acc]['index']
-		 };
-		 data.nodes.push(node);
-	     });
+	us.each(term_accs, function(acc){
+	    var node = {
+		'id': acc,
+		'name': term_info[acc]['name'],
+		'source': term_info[acc]['source'],
+		'index': term_info[acc]['index']
+	    };
+	    data.nodes.push(node);
+	});
 
 	// Next, we put our link information into the same format as
 	// the example.
 	var already_done_links = {};
-	each(seen_links,
-	     function(sub, sub_data){
-		 each(sub_data,
-		      function(obj, link_count){
+	us.each(seen_links, function(sub_data, sub){
+	    us.each(sub_data, function(link_count, obj){
 
-			  // Only add links that we haven't yet.
-			  var li1 = sub + '_' + obj;
-			  var li2 = obj + '_' + sub;
-			  if( ! bbop.core.is_defined(already_done_links[li1]) ){
+		// Only add links that we haven't yet.
+		var li1 = sub + '_' + obj;
+		var li2 = obj + '_' + sub;
+		if( ! bbop.is_defined(already_done_links[li1]) ){
+		    
+		    // Add it to our done list. Either way
+		    // we'll catch it.
+		    already_done_links[li1] = true;
+		    already_done_links[li2] = true;
+		    
+		    // Push the new link data.
+		    var link = {
+			'source': term_info[sub]['index'],
+			'target': term_info[obj]['index'],
+			'value': link_count
+		    };
+		    data.links.push(link);
+		}
+	    });
+	});
 
-			      // Add it to our done list. Either way
-			      // we'll catch it.
-			      already_done_links[li1] = true;
-			      already_done_links[li2] = true;
-			      
-			      // Push the new link data.
-			      var link = {
-				  'source': term_info[sub]['index'],
-				  'target': term_info[obj]['index'],
-				  'value': link_count
-			      };
-			      data.links.push(link);
-			  }
-		      });
-	     });
-
-	ll('Seen links: ' + dump(seen_links));
-	ll('Data: ' + dump(data));
+	ll('Seen links: ' + bbop.dump(seen_links));
+	ll('Data: ' + bbop.dump(data));
 	ll('Max count: ' + max_count);
 	// //ll(h + ', ' + v + ': ' + count);
 	// ll('accumulate: ' + axis1 + ', ' + axis2 + ': ' + count);
@@ -317,8 +372,16 @@ function stage_02(term_info, term_accs){
 	ll('Completed stage 02!');
 	stage_03(data, max_count);
     };
-    go.run_batch(accumulator_fun, final_fun);
 
+    // Create and run coordinating manager.
+    var manager = _new_manager();
+    manager.run_promise_functions(
+	run_funs,
+	accumulator_fun,
+	final_fun,
+	function(err){
+	    alert(err.toString());
+	});
 }
 
 // Final stage: do the graphics and layout.
@@ -331,10 +394,6 @@ function stage_03 (data, max_count){
     function ll(str){ logger.kvetch('JSM03: ' + str); }
     ll('');
     ll('Stage 03 start...');
-
-    // Helpers.
-    var each = bbop.core.each;
-    var dump = bbop.core.dump;
 
     ///
     /// Setup the canvas and margin/header area.
@@ -358,12 +417,12 @@ function stage_03 (data, max_count){
     function value_to_color_dark(val){
 	//var retval = '#efefef';
 	var retval = '#fafafa';
-	if( val != 0 ){
+	if( val !== 0 ){
 	    var cval = c(val);
 	    var cinv = 255 - cval;
 	    var chex = cinv.toString(16);
 	    if( cval ){
-		if( chex.length == 1 ){ chex = '0' + chex; }
+		if( chex.length === 1 ){ chex = '0' + chex; }
 		retval = '#' + chex + chex + chex + '';
 	    }
 	}
@@ -372,7 +431,7 @@ function stage_03 (data, max_count){
     function value_to_color_step(val){
 	//var retval = '#efefef';
 	var retval = '#fafafa';
-	if( val != 0 ){
+	if( val !== 0 ){
 	    // 1-3 = pale green
 	    // 4-10 = yellow
 	    // 11-100 = orange
@@ -394,9 +453,9 @@ function stage_03 (data, max_count){
     // Decide our coloration live at this point.
     var value_to_color = value_to_color_dark; // default
     var curr_color_selection = jQuery("input:radio[name=color]:checked").val();
-    if( curr_color_selection == 'dark' ){
+    if( curr_color_selection === 'dark' ){
 	 value_to_color = value_to_color_dark;
-    }else if( curr_color_selection == 'step' ){
+    }else if( curr_color_selection === 'step' ){
 	 value_to_color = value_to_color_step;
     }
 
@@ -417,36 +476,34 @@ function stage_03 (data, max_count){
     var n = nodes.length;
     
     // Compute index per node.
-    nodes.forEach(
-	function(node, i) {
-	    //node.index = i;
-	    node.count = 0;
-	    matrix[i] = d3.range(n).map(
-		function(j) {
-		    return {x: j, y: i, z: 0};
-		});
-	});
+    nodes.forEach(function(node, i) {
+	//node.index = i;
+	node.count = 0;
+	matrix[i] = d3.range(n).map(
+	    function(j) {
+		return {x: j, y: i, z: 0};
+	    });
+    });
     
     // TODO: Is this bit necessary?
     // Convert links to matrix; count character occurrences.
-    data.links.forEach(
-    	function(link) {
-	    var s_index = link.source;
-	    var t_index = link.target;
-	    var sid = nodes[s_index]['id'];
-	    var tid = nodes[t_index]['id'];
-	    // Matrix fill.
-    	    matrix[link.source][link.target].z = data.graph[sid][tid] || 0;
-    	    matrix[link.target][link.source].z = data.graph[tid][sid] || 0;
-    	    matrix[link.source][link.source].z = data.graph[sid][sid] || 0;
-    	    matrix[link.target][link.target].z = data.graph[tid][tid] || 0;
-	    // Tally the per-node count.
-    	    nodes[link.source].count += link.value || 0;
-    	    nodes[link.target].count += link.value || 0;
-    	});
+    data.links.forEach(function(link) {
+	var s_index = link.source;
+	var t_index = link.target;
+	var sid = nodes[s_index]['id'];
+	var tid = nodes[t_index]['id'];
+	// Matrix fill.
+    	matrix[link.source][link.target].z = data.graph[sid][tid] || 0;
+    	matrix[link.target][link.source].z = data.graph[tid][sid] || 0;
+    	matrix[link.source][link.source].z = data.graph[sid][sid] || 0;
+    	matrix[link.target][link.target].z = data.graph[tid][tid] || 0;
+	// Tally the per-node count.
+    	nodes[link.source].count += link.value || 0;
+    	nodes[link.target].count += link.value || 0;
+    });
     
-    ll('Nodes: ' + dump(nodes));
-    ll('Matrix: ' + dump(matrix));
+    ll('Nodes: ' + bbop.dump(nodes));
+    ll('Matrix: ' + bbop.dump(matrix));
 
     ///
     /// The ordering profiles.
@@ -454,27 +511,22 @@ function stage_03 (data, max_count){
     
     // Precompute the orders.
     var orders = {
-	name: d3.range(n).sort(
-	    function(a, b) {
-		return d3.ascending(nodes[a].name, nodes[b].name);
-	    }),
-	source: d3.range(n).sort(
-	    function(a, b) {
-		return d3.ascending(nodes[a].source, nodes[b].source);
-	    }),
-	id: d3.range(n).sort(
-	    function(a, b) {
-		return d3.descending(nodes[a].id, nodes[b].id);
-	    }),
-	count: d3.range(n).sort(
-	    function(a, b) {
-		return nodes[b].count - nodes[a].count;
-	    }),
-	index: d3.range(n).sort(
-	    function(a, b) {
-		//return nodes[b].index - nodes[a].index;
-		return nodes[a].index - nodes[b].index;
-	    })
+	name: d3.range(n).sort(function(a, b) {
+	    return d3.ascending(nodes[a].name, nodes[b].name);
+	}),
+	source: d3.range(n).sort(function(a, b) {
+	    return d3.ascending(nodes[a].source, nodes[b].source);
+	}),
+	id: d3.range(n).sort(function(a, b) {
+	    return d3.descending(nodes[a].id, nodes[b].id);
+	}),
+	count: d3.range(n).sort(function(a, b) {
+	    return nodes[b].count - nodes[a].count;
+	}),
+	index: d3.range(n).sort(function(a, b) {
+	    //return nodes[b].index - nodes[a].index;
+	    return nodes[a].index - nodes[b].index;
+	})
     };
     
     // The default sort order.
@@ -495,10 +547,9 @@ function stage_03 (data, max_count){
 	.enter().append("g")
 	//.attr("style", "fill: #ff0000;")
 	.attr("class", "row") // mark with class for later reference
-	.attr("transform",
-	      function(d, i) {
-		  return "translate(0," + x(i) + ")";
-	      })
+	.attr("transform", function(d, i) {
+	    return "translate(0," + x(i) + ")";
+	})
 	.each(row_fun);
     
     // ???: Unfamiliar properties.
@@ -512,8 +563,8 @@ function stage_03 (data, max_count){
 	.attr("dy", ".30em")
 	.attr("text-anchor", "end")
 	.text(function(d, i) {
-		  return nodes[i].name + ' (' + nodes[i].id + ')';
-	      });
+	    return nodes[i].name + ' (' + nodes[i].id + ')';
+	});
     
     // For each of the column headers, translate them by a certain
     // amount, color, etc.
@@ -522,10 +573,9 @@ function stage_03 (data, max_count){
 	.enter().append("g")
 	//.attr("style", "fill: #00ff00;")
 	.attr("class", "column") // mark with class for later reference
-	.attr("transform",
-	      function(d, i) {
-		  return "translate(" + x(i) + ")rotate(-90)";
-	      });
+	.attr("transform", function(d, i) {
+	    return "translate(" + x(i) + ")rotate(-90)";
+	});
     
     // ???: Unfamiliar properties.
     column.append("line")
@@ -538,28 +588,27 @@ function stage_03 (data, max_count){
 	.attr("dy", ".30em")
 	.attr("text-anchor", "start")
 	.text(function(d, i) {
-		  return nodes[i].name + ' (' + nodes[i].id + ')';
-	      });
+	    return nodes[i].name + ' (' + nodes[i].id + ')';
+	});
 
     // Make sure the tha info dialog follows the mouse.
     // Using jQuery so we get a continuous event stream (necessary for
     // proper hover following).
-    jQuery(document).mousemove(
-	function(event) {
+    jQuery(document).mousemove(function(event) {
+	
+	if( jQuery("#info").is(":visible") ){
 	    
-	    if( jQuery("#info").is(":visible") ){
-		
-		var pre_x = event.pageX;
-		var pre_y = event.pageY;
-		
-		var xpos = pre_x + 10;
-		var ypos = pre_y + 10;
-		
-		jQuery("#info").css('left', xpos);
-		jQuery("#info").css('top', ypos);
-	    }
-	});
-
+	    var pre_x = event.pageX;
+	    var pre_y = event.pageY;
+	    
+	    var xpos = pre_x + 10;
+	    var ypos = pre_y + 10;
+	    
+	    jQuery("#info").css('left', xpos);
+	    jQuery("#info").css('top', ypos);
+	}
+    });
+    
     function mouseover(p) {
 
 	// Grab the shared annotation value.
@@ -675,7 +724,7 @@ function stage_03 (data, max_count){
 
 		      var final_str = '';
 		      var val_holder = matrix[d.x][d.y].z;
-		      if( val_holder != 0 ){
+		      if( val_holder !== 0 ){
 			  // Make the string we'll use.
 			  final_str = '' + val_holder + '';
 		      }
@@ -697,40 +746,36 @@ function stage_03 (data, max_count){
 	    	      return final_str;
 		  })
 	    .attr("class", "cell") // tag as cell with class for later ref
-	    .attr("x",
-	    	  function(d) {
-	    	      return x(d.x);
-	    	  })
+	    .attr("x", function(d) {
+	    	return x(d.x);
+	    })
 	    // .attr("y",
 	    // 	  function(d) {
 	    // 	      return x(d.x);
 	    // 	  })
 	    .attr("dy", "1em")
-	    .attr("font-size",
-	    	  function(d) {
-		      // WARNING: This works, but saving the value in
-		      // a higher scope did not--I can't imagine what
-		      // this all folds out to...
-	    	      return matrix[d.x][d.y].font_size;
-	    	  })
+	    .attr("font-size", function(d) {
+		// WARNING: This works, but saving the value in
+		// a higher scope did not--I can't imagine what
+		// this all folds out to...
+	    	return matrix[d.x][d.y].font_size;
+	    })
 	    .attr("text-anchor", "beginning"); // middle, end
 
 	// Add colored squares.
 	d3.select(this).selectAll(".cell")
 	    .append("rect")
-	.attr("class", "cell") // tag as cell with class for later ref
-	    .attr("x",
-	    	  function(d) {
-	    	      return x(d.x);
-	    	  })
+	    .attr("class", "cell") // tag as cell with class for later ref
+	    .attr("x", function(d) {
+	    	return x(d.x);
+	    })
 	    .attr("width", cw)
 	    .attr("height", cw)
-	    .style("fill",
-		   function(d) {
-		       var mval = matrix[d.x][d.y].z;
-		       var retcolor = value_to_color(mval);
-		       return retcolor;
-		   })
+	    .style("fill", function(d) {
+		var mval = matrix[d.x][d.y].z;
+		var retcolor = value_to_color(mval);
+		return retcolor;
+	    })
     	    .style("fill-opacity", "0.50")
 	    .on("mouseover", mouseover)
 	    .on("mouseout", mouseout);
@@ -747,27 +792,24 @@ function stage_03 (data, max_count){
 	
 	t.selectAll(".row")
 	    .delay(function(d, i) { return x(i) * 4; })
-	    .attr("transform",
-		  function(d, i) {
-		      return "translate(0," + x(i) + ")";
-		  })
+	    .attr("transform", function(d, i) {
+		return "translate(0," + x(i) + ")";
+	    })
 	    .selectAll(".cell")
 	    .delay(function(d) { return x(d.x) * 4; })
 	    .attr("x", function(d) { return x(d.x); });
 	
 	t.selectAll(".column")
 	    .delay(function(d, i) { return x(i) * 4; })
-	    .attr("transform",
-		  function(d, i) {
-		      return "translate(" + x(i) + ")rotate(-90)";
-		  });
+	    .attr("transform", function(d, i) {
+		return "translate(" + x(i) + ")rotate(-90)";
+	    });
     }
     
-    d3.select("#order").on("change",
-			   function() {
-			       //clearTimeout(timeout);
-			       order(this.value);
-			   });
+    d3.select("#order").on("change", function() {
+	//clearTimeout(timeout);
+	order(this.value);
+    });
     
     // var timeout = setTimeout(
     //     function() {
@@ -781,3 +823,12 @@ function stage_03 (data, max_count){
     ll('Completed stage 03!');
     ll('Done!');
 }
+
+///
+///
+///
+
+// Embed the jQuery setup runner.
+(function (){
+    jQuery(document).ready(function(){ MatrixInit(); });
+})();

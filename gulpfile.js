@@ -269,6 +269,7 @@ var web_compilables = [
     'GOOSE.js',
     'GPDetails.js',
     'Grebe.js',
+    'Matrix.js',
     'Medial.js',
     'LandingGraphs.js',
     'LiveSearchGOlr.js',
