@@ -93,7 +93,7 @@ function BaseStatisticsInit(){
     })();
 
     ///
-    /// Annotation \ sources | exp/non-exp
+    /// Annotation \ assigners | exp/non-exp
     ///
 
     (function(){
@@ -113,24 +113,24 @@ function BaseStatisticsInit(){
 	};
 	
 	// Okay, create some tracks.
-	us.each(glob['sources_of_interest'], function(src){
+	us.each(glob['assigners_of_interest'], function(src){
 
 	    // Add axis label.
 	    exp_trace.x.unshift(src);
 	    nonexp_trace.x.unshift(src);
 
 	    // Add data.
-	    exp_trace.y.unshift(glob.annotations.sources_with_exp[src]);
-	    nonexp_trace.y.unshift(glob.annotations.sources_with_nonexp[src]);
+	    exp_trace.y.unshift(glob.annotations.assigners_with_exp[src]);
+	    nonexp_trace.y.unshift(glob.annotations.assigners_with_nonexp[src]);
 	});
 
 	var data = [exp_trace, nonexp_trace];
 	
 	var layout = {
-	    title: 'Experimental annotations by source',
+	    title: 'Experimental annotations by assigner',
 	    barmode: 'stack',
 	    xaxis: {
-		title: 'Sources',
+		title: 'Assigners',
 		autorange: 'reversed',
 		tickfont: {
 		    // 12, 10, 9 too big
@@ -246,7 +246,7 @@ function BaseStatisticsInit(){
     })();
 
     ///
-    /// Experimental annotation pub \ source
+    /// Experimental annotation pub \ assigner
     ///
 
     (function(){
@@ -259,22 +259,22 @@ function BaseStatisticsInit(){
 	};
 
 	// Okay, create some tracks.
-	us.each(glob['sources_of_interest'], function(src){
+	us.each(glob['assigners_of_interest'], function(src){
 
 	    // Add axis label.
 	    pub_trace.x.unshift(src);
 
 	    // Add data.
-	    pub_trace.y.unshift(glob.publications.sources_with_exp[src]);
+	    pub_trace.y.unshift(glob.publications.assigners_with_exp[src]);
 	});
 
 	var data = [pub_trace];
 	
 	var layout = {
-	    title: 'Experimental annotation publications by source',
+	    title: 'Experimental annotation publications by assigner',
 	    barmode: 'stack',
 	    xaxis: {
-		title: 'Source',
+		title: 'Assigner',
 		autorange: 'reversed',
 		tickfont: {
 		    // 12, 10 too big; 9 okay right now

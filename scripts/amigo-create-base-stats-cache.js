@@ -50,7 +50,7 @@ var our_species_of_interest = [
     ['C. albicans', '5476']
 ];
 
-var our_sources_of_interest = [
+var our_assigners_of_interest = [
     // Done in first pass.
 ];
 
@@ -59,19 +59,19 @@ var glob = {
     // Metadata.
     species_of_interest: our_species_of_interest,
     evidence_of_interest: our_evidence_of_interest,
-    sources_of_interest: [], // Done in first pass.
+    assigners_of_interest: [], // Done in first pass.
     // Counts.
     publications: {
-	sources_with_exp : {},
-	sources_by_aspect : {}
+	assigners_with_exp : {},
+	assigners_by_aspect : {}
     },
     annotations: {
 	species_with_exp : {},
 	species_with_nonexp : {},
 	species_by_evidence_by_aspect : {},
-	sources_with_exp : {},
-	sources_with_nonexp : {},
-	sources_by_aspect_with_exp : {},
+	assigners_with_exp : {},
+	assigners_with_nonexp : {},
+	assigners_by_aspect_with_exp : {},
 	evidence : {}
     }
 };
@@ -119,11 +119,11 @@ function _new_facets_manager_by_personality(personality){
 
 function first_pass(){
 
-    //First, collect all our sources.
+    //First, collect all our assigners.
     var manager = _new_facets_manager_by_personality('annotation');
     manager.register('search', function(resp){
 		
-	// Extract the sources facet.
+	// Extract the assigners facet.
 	// console.log('resp', resp);
 	// console.log(resp.facet_field_list());
 	var src_facet = resp.facet_field('assigned_by') || [];
@@ -132,8 +132,8 @@ function first_pass(){
 	    return datum[0];
 	});
 	
-	our_sources_of_interest = srcs;
-	glob['sources_of_interest'] = srcs;
+	our_assigners_of_interest = srcs;
+	glob['assigners_of_interest'] = srcs;
 	//console.log('glob', glob);
 	
 	console.log('Going to second pass...');
@@ -154,8 +154,8 @@ function second_pass(){
     var glob_manager = _new_manager_by_personality('annotation');
     var glob_funs = [];
 
-    // Looking by sources.
-    us.each(our_sources_of_interest, function(src){
+    // Looking by assigners.
+    us.each(our_assigners_of_interest, function(src){
 
 	// Experimental.
 	glob_funs.push(function(){
@@ -167,7 +167,7 @@ function second_pass(){
 				     'experimental evidence');
 
 	    manager.register('search', function(resp){
-		glob['annotations']['sources_with_exp'][src] =
+		glob['annotations']['assigners_with_exp'][src] =
 		    resp.total_documents();
 		// console.log(glob);
 	    });
@@ -185,7 +185,7 @@ function second_pass(){
 				     'experimental evidence', ['-']);
 
 	    manager.register('search', function(resp){
-		glob['annotations']['sources_with_nonexp'][src] =
+		glob['annotations']['assigners_with_nonexp'][src] =
 		    resp.total_documents();
 		// console.log(glob);
 	    });
@@ -208,7 +208,7 @@ function second_pass(){
 		manager.register('search', function(resp){
 
 		    // Ensure.
-		    var sea = glob['annotations']['sources_by_aspect_with_exp'];
+		    var sea = glob['annotations']['assigners_by_aspect_with_exp'];
 		    if( typeof(sea[src]) === 'undefined' ){
 			sea[src] = {};
 		    }
@@ -222,7 +222,7 @@ function second_pass(){
 	});
 	
 	// Experimental publications.
-	// publications.sources_with_exp : {},
+	// publications.assigners_with_exp : {},
 	glob_funs.push(function(){
 
 	    //  Minimal, only want count.
@@ -243,7 +243,7 @@ function second_pass(){
 		    ref_count += count;
 		});
 		
-		glob['publications']['sources_with_exp'][src] = ref_count;
+		glob['publications']['assigners_with_exp'][src] = ref_count;
 		// console.log(glob);
 	    });
 
@@ -251,7 +251,7 @@ function second_pass(){
 	});
 	
 	// Publications by aspect.
-	// publications.sources_by_aspect : {},
+	// publications.assigners_by_aspect : {},
 	us.each(['P', 'F', 'C'], function(aspect){
 
 	    glob_funs.push(function(){
@@ -272,7 +272,7 @@ function second_pass(){
 			ref_count += count;
 		    });
 		    
-		    glob['publications']['sources_by_aspect'][src] = ref_count;
+		    glob['publications']['assigners_by_aspect'][src] = ref_count;
 		    // console.log(glob);
 		});
 		
