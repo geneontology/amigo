@@ -161,7 +161,7 @@ function stage_01(term_accs){
 	});
 }
 
-// Get the joint data, get it into the specified format, and launch
+// Get the term data, get it into the specified format, and launch
 // stage 03.
 function stage_02(term_info, term_accs){
 
@@ -272,6 +272,7 @@ function stage_02(term_info, term_accs){
     var requests_done = 0;
     // Fetch the data and grab the number we want.
     var accumulator_fun = function(resp){	
+
 	// Update the bar.
 	requests_done++;
 	jQuery('#progress-bar').progressbar({ value: requests_done });
@@ -297,14 +298,14 @@ function stage_02(term_info, term_accs){
 	var axis2 = axes[1] || axis1; // the reflexive case
 
 	// Structure for the links we've seen, level 1.
-	if( ! bbop.is_defined(seen_links[axis1]) ){
+	if( typeof(seen_links[axis1]) === 'undefined' ){
 	    seen_links[axis1] = {}; }
-	if( ! bbop.is_defined(seen_links[axis2]) ){
+	if( typeof(seen_links[axis2]) === 'undefined' ){
 	    seen_links[axis2] = {}; }
 	// Mark the links we've seen, level 2.
-	if( ! bbop.is_defined(seen_links[axis2][axis1]) ){
+	if( typeof(seen_links[axis2][axis1]) === 'undefined' ){
 	    seen_links[axis2][axis1] = count; }
-	if( ! bbop.is_defined(seen_links[axis1][axis2]) ){
+	if( typeof(seen_links[axis1][axis2]) === 'undefined' ){
 	    seen_links[axis1][axis2] = count; }
     };
 
@@ -345,7 +346,7 @@ function stage_02(term_info, term_accs){
 		// Only add links that we haven't yet.
 		var li1 = sub + '_' + obj;
 		var li2 = obj + '_' + sub;
-		if( ! bbop.is_defined(already_done_links[li1]) ){
+		if( typeof(already_done_links[li1]) === 'undefined' ){
 		    
 		    // Add it to our done list. Either way
 		    // we'll catch it.
