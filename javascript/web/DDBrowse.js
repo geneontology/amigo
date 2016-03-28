@@ -40,7 +40,7 @@ var global_root_docs = [];
 ///
 
 // Manager creation wrapper (we use it a couple of times).
-function _create_ontology_manager(){
+function _create_manager(personality){
     
     // Create manager.
     var engine = new jquery_engine(golr_response);
@@ -49,7 +49,6 @@ function _create_ontology_manager(){
     var manager = new golr_manager(gserv, gconf, engine, 'async');
     
     // Manager settings.
-    var personality = 'ontology';
     var confc = gconf.get_class(personality);
     manager.set_personality(personality);
     manager.add_query_filter('document_category',
@@ -89,7 +88,7 @@ var _create_count_promise = function(term_id){
 
 function GetInitialRootInformation(){
 
-    var search = _create_ontology_manager();
+    var search = _create_manager('ontology');
 
     // Initial trigger over root terms.
     var rt = [];
@@ -176,7 +175,7 @@ function GetRootAnnotationInformation(root_docs, filters){
 	}
     };
 	
-    var coordinator = _create_ontology_manager();
+    var coordinator = _create_manager('ontology');
     coordinator.run_promise_functions(
 	root_promises,
 	accumulator_fun,
@@ -328,7 +327,7 @@ function ResetTreeWithRootInfo(root_docs, annotation_counts, filters){
 		if( jstree_node.id === '#' ){
 		    cb(roots);
 		}else{
-		    var csearch = _create_ontology_manager();
+		    var csearch = _create_manager('ontology');
 		    csearch.register('search', function(resp,man){
 			var children = [];
 			if( resp && resp.documents() &&
@@ -351,13 +350,9 @@ function ResetTreeWithRootInfo(root_docs, annotation_counts, filters){
     /// The info shield.
     ///
 
-    // var shield = new widgets.display.term_shield(sd.golr_base, gconf,
-    // 						 {'linker_function': linker});
-    // shield.set_personality('ontology');
-
     jQuery('#' + bid).on('select_node.jstree', function(node, data){
 
-	console.log('node', node);
+	//console.log('node', node);
 
 	// Collect selection (possibly more than one).
 	var r = [];
@@ -365,9 +360,37 @@ function ResetTreeWithRootInfo(root_docs, annotation_counts, filters){
 	    r.push(data.instance.get_node(item)['id']);
 	});
 	console.log('Selected: ' + r.join(', '));
-	if( r.length > 0 ){
-	    alert(r[0]);
-	    //shield.draw(r[0]);
+	if( r.length !== 1 ){
+	    alert('selection got weird: ' + r.length);
+	}else{
+
+	    //
+	    var o = _create_manager('ontology');
+	    var tid = r[0];
+	    o.set_id(tid);
+	    o.register('search', function(resp){
+
+		console.log('resp', resp);
+
+		var doc = resp.get_doc(0);
+		var confc = gconf.get_class('ontology');
+
+		// Add-ons.
+		var add_ons = [];
+
+		// Add a link to the annotation search.
+		var ann_man = _create_manager('annotation');
+		ann_man.add_query_filter('regulates_closure', tid);
+		var lstate = ann_man.get_filter_query_string();
+		var lurl = linker.url(lstate, 'search', 'annotation');
+
+		add_ons.push(['Annotations',
+			      '<a href="' + lurl + '" target="_blank">go to this annotation search</a>']);
+
+		// 
+		widgets.display.term_shield(doc, confc, linker, {}, add_ons);
+	    });
+	    o.search();
 	}
     });
 
@@ -557,7 +580,7 @@ function AnnotationCountBadges(){
 	    }
         };
 	
-	var coordinator = _create_ontology_manager();
+	var coordinator = _create_manager('ontology');
 	coordinator.run_promise_functions(
 	    badge_promises,
 	    accumulator_fun,

@@ -1422,7 +1422,7 @@ var drop_select_shield = function(in_argument_hash){
  * The optional hash arguments look like:
  * 
  * Arguments:
- *  item - string or bbop.html to display.
+ *  item - string or html obj to display.
  *  in_argument_hash - *[optional]* optional hash of optional arguments
  * 
  * Returns:
@@ -2044,13 +2044,13 @@ button_templates.flexible_download_b3 = function(label, count, start_fields,
  * 
  * Arguments:
  *  golr_loc - string url to GOlr server; not needed if local
- *  golr_conf_obj - a <bbop.golr.conf> object
+ *  golr_conf_obj - a <golr-conf.conf> object
  *  in_argument_hash - *[optional]* optional hash of optional arguments
  * 
  * Returns:
  *  self
  */
-var term_shield = function(golr_loc, golr_conf_obj, in_argument_hash){
+var term_shield = function(doc, confclass, linker, in_argument_hash, add_ons){
     
     this._is_a = 'bbop-widget-set.term_shield';
     var anchor = this;
@@ -2068,116 +2068,80 @@ var term_shield = function(golr_loc, golr_conf_obj, in_argument_hash){
     var folding_hash = in_argument_hash || {};
     var arg_hash = bbop.fold(default_hash, folding_hash);
     var width = arg_hash['width'];
-    var linker = arg_hash['linker_function'];
 
-    // Draw a locally help Solr response doc.
-    function _draw_local_doc(doc){
+    ///
+    ///
+    ///
+
+    var txt = 'Nothing here...';
+    if( doc && confclass ){
 	
-	//ll(doc['id']);
-
-	var personality = anchor.get_personality();
-	var cclass = golr_conf_obj.get_class(personality);
-
-	var txt = 'Nothing here...';
-	if( doc && cclass ){
-
-	    var tbl = new bbop.html.table();
-	    var results_order = cclass.field_order_by_weight('result');
-	    us.each(results_order, function(fid){
-		// 
-		var field = cclass.get_field(fid);
-		var val = doc[fid];
+	var tbl = new html.table();
+	var results_order = confclass.field_order_by_weight('result');
+	us.each(results_order, function(fid){
+	    // 
+	    var field = confclass.get_field(fid);
+	    var val = doc[fid];
+	    
+	    // Determine if we have a list that we're working
+	    // with or not.
+	    if( field.is_multi() ){
 		
-		// Determine if we have a list that we're working
-		// with or not.
-		if( field.is_multi() ){
-		    
-		    if( val ){
-			     val = val.join(', ');
-		    }else{
-			val = 'n/a';
-		    }
-		    
+		if( val ){
+		    val = val.join(', ');
 		}else{
-		    
-		    // When handling just the single value, see
-		    // if we can link out the value.
-		    var link = null;
-		    if( val ){
-			//link = linker.anchor({id: val});
-			//link = linker.anchor({id: val}, 'term');
-			link = linker.anchor({id: val}, fid);
-			if( link ){ val = link; }
-		    }else{
-			val = 'n/a';
-		    }
+		    val = 'n/a';
 		}
 		
-		tbl.add_to([field.display_name(), val]);
-	    });
-	    txt = tbl.to_string();
-	}
+	    }else{
+		
+		// When handling just the single value, see
+		// if we can link out the value.
+		var link = null;
+		if( val ){
+		    //link = linker.anchor({id: val});
+		    //link = linker.anchor({id: val}, 'term');
+		    link = linker.anchor({id: val}, fid);
+		    if( link ){ val = link; }
+		}else{
+		    val = 'n/a';
+		}
+	    }
+	    
+	    tbl.add_to([field.display_name(), val]);
+	});
 
-	// Create div.
-	var div = new html.tag('div', {'generate_id': true});
-	var div_id = div.get_id();
+	us.each(add_ons, function(add_on){
+	    tbl.add_to(add_on);
+	});
 
-	// Append div to body.
-	jQuery('body').append(div.to_string());
-
-	// Add text to div.
-	jQuery('#' + div_id).append(txt);
-
-	// Modal dialogify div; include self-destruct.
-	var diargs = {
-	    modal: true,
-	    draggable: false,
-	    width: width,
-	    close:
-	    function(){
-		// TODO: Could maybe use .dialog('destroy') instead?
-		jQuery('#' + div_id).remove();
-	    }	    
-	};
-	var dia = jQuery('#' + div_id).dialog(diargs);
+	txt = tbl.to_string();
     }
-
-    // Get a doc by id from a remote server then display it when it
-    // gets local.
-    // TODO: spinner?
-    function _draw_remote_id(id_string){
-	function _process_resp(resp){
-	    var doc = resp.get_doc(0);
-	    _draw_local_doc(doc);
-	}
-	anchor.register('search', 'do', _process_resp);
-	anchor.set_id(id_string);
-	//ll('FOO: ' + id_string);
-	anchor.search();
-    }
-
-    /*
-     * Function: draw
-     * 
-     * Render a temporary modal information shield. 
-     * 
-     * Arguments:
-     *  item - either a document id or a Solr-returned document
-     * 
-     * Returns:
-     *  n/a
-     */
-    this.draw = function(item){
-    // Call the render directly if we already have a document,
-    // otherwise, if it seems like a string (potential id), do a
-    // callback on it and pull the doc out.
-	if( bbop.what_is(item) === 'string' ){
-	    _draw_remote_id(item);
-	}else{
-	    _draw_local_doc(item);
-	}
-    };
     
+    // Create div.
+    var div = new html.tag('div', {'generate_id': true});
+    var div_id = div.get_id();
+    
+    // Append div to body.
+    jQuery('body').append(div.to_string());
+    
+    // Add text to div.
+    jQuery('#' + div_id).append(txt);
+    
+    // Modal dialogify div; include self-destruct.
+    var diargs = {
+	modal: true,
+	draggable: false,
+	width: width,
+	close:
+	function(){
+	    // TODO: Could maybe use .dialog('destroy') instead?
+	    jQuery('#' + div_id).remove();
+	}	    
+    };
+
+    var dia = jQuery('#' + div_id).dialog(diargs);
+    return dia;
 };
 
 ///
