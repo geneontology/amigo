@@ -61,15 +61,8 @@ function _create_manager(personality){
 var _create_count_promise = function(term_id, filter_manager){
 
     // First, extract the filters being used in the filter manager.
-    var lstate = filter_manager.get_filter_query_string();
-    var lparams = bbop.url_parameters(decodeURIComponent(lstate));
-    var filters_as_strings = [];
-    us.each(lparams, function(lparam){
-	if( lparam[0] === 'fq' && lparam[1] ){
-	    filters_as_strings.push(lparam[1]);
-	}
-    });
-    console.log('pass filter state: ', filters_as_strings);
+    var filter_strs = _get_filters(filter_manager);
+    console.log('pass filter state: ', filter_strs);
 
     // Return the funtion that will give us the annotation cound for
     // this particular filter set.
@@ -90,7 +83,7 @@ var _create_count_promise = function(term_id, filter_manager){
         manager.set_facet_limit(0); // care not about facets
 
 	// Add the passed filters from the filter_manager.
-	us.each(filters_as_strings, function(fas){
+	us.each(filter_strs, function(fas){
 	    manager.add_query_filter_as_string(fas, []);
 	});
 	
@@ -100,6 +93,22 @@ var _create_count_promise = function(term_id, filter_manager){
 	return manager.search();
     };
 };
+
+// Extract the filters being used in the filter manager.
+function _get_filters(filter_manager){
+
+    var lstate = filter_manager.get_filter_query_string();
+    var lparams = bbop.url_parameters(decodeURIComponent(lstate));
+    var filters_as_strings = [];
+    us.each(lparams, function(lparam){
+	if( lparam[0] === 'fq' && lparam[1] ){
+	    filters_as_strings.push(lparam[1]);
+	}
+    });
+    //console.log('pass filter state: ', filters_as_strings);
+
+    return filters_as_strings;
+}
 
 ///
 /// Create a over-arching manager that we will not actually pull
@@ -458,6 +467,14 @@ function ResetTreeWithRootInfo(root_docs, annotation_counts, filter_manager){
 		// Add a link to the annotation search.
 		var ann_man = _create_manager('annotation');
 		ann_man.add_query_filter('regulates_closure', tid);
+
+		// Stack on the filters from the filter box.
+		var filter_strs = _get_filters(filter_manager);
+		us.each(filter_strs, function(fas){
+		    ann_man.add_query_filter_as_string(fas, []);
+		});
+
+		// Produce final URL.
 		var lstate = ann_man.get_filter_query_string();
 		var lurl = linker.url(lstate, 'search', 'annotation');
 
