@@ -24,8 +24,8 @@
   "dependencies": {
     "bbop": "2.4.3",
     "bbop-core": "0.0.5",
-    "bbop-graph": "0.0.16",
-    "bbop-graph-noctua": "0.0.24",
+    "bbop-graph": "0.0.18",
+    "bbop-graph-noctua": "0.0.28",
     "bbop-manager-golr": "0.0.11",
     "bbop-manager-minerva": "0.0.7",
     "bbop-response-barista": "0.0.7",
