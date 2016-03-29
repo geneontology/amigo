@@ -355,6 +355,31 @@ fields:
     type: string
     searchable: true
     property: []
+## Experimental fields.
+  - id: geospatial_x
+    description: Experimental numeric type (X).
+    display_name: X
+    type: integer
+    searchable: false
+    indexed: true
+    cardinality: multi
+    property: []
+  - id: geospatial_y
+    description: Experimental numeric type (Y).
+    display_name: Y
+    type: integer
+    searchable: false
+    indexed: true
+    cardinality: multi
+    property: []
+  - id: geospatial_z
+    description: Experimental numeric type (Z).
+    display_name: Z
+    type: integer
+    searchable: false
+    indexed: true
+    cardinality: multi
+    property: []
   ## TODO:
   # - id: phylo_graph
   #   description: JSON blob form of the phylogenic tree.

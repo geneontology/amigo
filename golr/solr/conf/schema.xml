@@ -114,6 +114,10 @@
     <field name="topology_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- ontology: JSON blob form of the local relation transitivity graph. Uses various relations (including regulates, occurs in, capable_of). -->
     <field name="regulates_transitivity_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- ontology: JSON blob form of all immediate neighbors of the term. -->
+    <field name="neighborhood_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- ontology: JSON blob form of all immediate neighbors of the term; in the case that there are too many neighbors to transport, the number will be artificially reduced. -->
+    <field name="neighborhood_limited_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- ontology: Only in taxon. -->
     <field name="only_in_taxon" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of only_in_taxon.-->
@@ -333,6 +337,12 @@
     <field name="annotation_extension_class_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- annotation: Extension class for the annotation (JSON). -->
     <field name="annotation_extension_json" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- annotation: Experimental numeric type (X). -->
+    <field name="geospatial_x" type="integer" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- annotation: Experimental numeric type (Y). -->
+    <field name="geospatial_y" type="integer" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- annotation: Experimental numeric type (Z). -->
+    <field name="geospatial_z" type="integer" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- general: The ID/label for this entity. -->
     <field name="entity" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- general: The label for this entity. -->
