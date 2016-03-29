@@ -258,6 +258,7 @@ gulp.task('install', ['compile', 'build']);
 // javascript/web. For now, we'll just have this so we can work our
 // way through the garage fixing things at our leisure.
 var web_compilables = [
+    // 'DDBrowse.js' // current working set
     'AmiGOBioView.js',
     'AmiGOCytoView.js',
     'BaseStatistics.js',
