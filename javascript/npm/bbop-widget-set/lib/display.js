@@ -2099,9 +2099,13 @@ var term_shield = function(doc, confclass, linker, in_argument_hash, add_ons){
 		// if we can link out the value.
 		var link = null;
 		if( val ){
-		    //link = linker.anchor({id: val});
-		    //link = linker.anchor({id: val}, 'term');
-		    link = linker.anchor({id: val}, fid);
+		    // Try and extract the label.
+		    var lbl = doc[fid + '_label'];
+		    if( us.isString(lbl) ){
+			link = linker.anchor({id: val, label: lbl}, fid);
+		    }else{
+			link = linker.anchor({id: val}, fid);
+		    }
 		    if( link ){ val = link; }
 		}else{
 		    val = 'n/a';
