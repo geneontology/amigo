@@ -58,8 +58,21 @@ function _create_manager(personality){
 }
 
 // Create a new function that returns a promise when called.
-var _create_count_promise = function(term_id){
-    
+var _create_count_promise = function(term_id, filter_manager){
+
+    // First, extract the filters being used in the filter manager.
+    var lstate = filter_manager.get_filter_query_string();
+    var lparams = bbop.url_parameters(lstate);
+    var filters_as_strings = [];
+    us.each(lparams, function(lparam){
+	if( lparam[0] === 'fq' && lparam[1] ){
+	    filters_as_strings.push(lparam[1]);
+	}
+    });
+    console.log('pass filter state: ', filters_as_strings);
+
+    // Return the funtion that will give us the annotation cound for
+    // this particular filter set.
     return function(){
 	// Create manager.
 	var engine = new jquery_engine(golr_response);
@@ -75,7 +88,13 @@ var _create_count_promise = function(term_id){
 				 confc.document_category());
 	manager.set('rows', 0); // care not about rows
         manager.set_facet_limit(0); // care not about facets
+
+	// Add the passed filters from the filter_manager.
+	us.each(filters_as_strings, function(fas){
+	    manager.add_query_filter_as_string(fas, []);
+	});
 	
+	// Finally, filter on our term in question.
 	manager.add_query_filter('regulates_closure', term_id);
 	
 	return manager.search();
@@ -83,10 +102,62 @@ var _create_count_promise = function(term_id){
 };
 
 ///
+/// Create a over-arching manager that we will not actually pull
+/// numbers or documents from, but to use as a way of keeping track of
+/// the filters we're working with and applying.
+///
+
+function CreateFilterManager(){
+
+    // Create manager.
+    var engine = new jquery_engine(golr_response);
+    engine.method('GET');
+    engine.use_jsonp(true);
+    var filter_manager = new golr_manager(gserv, gconf, engine, 'async');
+    
+    // Manager settings.
+    var personality = 'annotation';
+    var confc = gconf.get_class(personality);
+    filter_manager.set_personality(personality);
+    filter_manager.add_query_filter('document_category',
+				    confc.document_category(), ['*']);
+    filter_manager.set('rows', 0); // care not about rows, only facets
+    
+    // Add the filter widget and hook to manager.
+    var hargs = {
+	meta_label: 'Total annotations:&nbsp;',
+	// free_text_placeholder:
+	// 'Input text to filter against all remaining documents',
+	'display_free_text_p': false
+    };
+    var filters = new widgets.live_filters('accordion',
+					   filter_manager, gconf, hargs);
+    filters.establish_display();
+    
+    // Add pre and post run spinner (borrow filter's for now).
+    filter_manager.register('prerun', function(){
+	filters.spin_up();
+    });
+    filter_manager.register('postrun', function(){
+	filters.spin_down();
+    });
+    
+    filter_manager.register('search', function(resp, manager){
+	console.log('filter_manager search callback');
+	GetInitialRootInformation(filter_manager);
+    });
+    
+    filter_manager.search();
+}
+
+///
 ///
 ///
 
-function GetInitialRootInformation(){
+// This must run first--getting docs associated with the roots--no
+// filter information needed yet. Pass the filter manager through--not
+// use here as we're just getting ontology information.
+function GetInitialRootInformation(filter_manager){
 
     var search = _create_manager('ontology');
 
@@ -105,7 +176,7 @@ function GetInitialRootInformation(){
 	    global_root_docs = resp.documents();
 	    console.log('Starting root annotation search with (' +
 			global_root_docs.length + ') documents.');
-	    GetRootAnnotationInformation(global_root_docs, []);
+	    GetRootAnnotationInformation(global_root_docs, filter_manager);
 	}else{
 	    alert('failure to find root information');
 	}
@@ -118,7 +189,7 @@ function GetInitialRootInformation(){
 ///
 ///
 
-function GetRootAnnotationInformation(root_docs, filters){
+function GetRootAnnotationInformation(root_docs, filter_manager){
 
     // Collect the root ids from the docs.
     var root_ids = [];
@@ -131,7 +202,7 @@ function GetRootAnnotationInformation(root_docs, filters){
 	    
 	//If it was not in our cache, we have to go out and
 	//find it.
-	var resp_promise = _create_count_promise(id);
+	var resp_promise = _create_count_promise(id, filter_manager);
 	root_promises.push(resp_promise);
     });	
 
@@ -165,13 +236,13 @@ function GetRootAnnotationInformation(root_docs, filters){
     // The final function is the data renderer.
     var final_fun = function(){
 	console.log('root annotation info collected: ', id_to_count);
-	ResetTreeWithRootInfo(root_docs, id_to_count, filters);
+	ResetTreeWithRootInfo(root_docs, id_to_count, filter_manager);
     };
 	
     // In case of error.
     var error_fun = function(err){
 	if(err){
-	    console.log('error before end of batch');
+	    console.log('error before end of batch (root): ' + err.toString());
 	}
     };
 	
@@ -187,10 +258,16 @@ function GetRootAnnotationInformation(root_docs, filters){
 ///
 ///
 
-function ResetTreeWithRootInfo(root_docs, annotation_counts, filters){
+function ResetTreeWithRootInfo(root_docs, annotation_counts, filter_manager){
 
     // Nuke current tree and put in "spinner" placeholder.
-    jQuery('#' + bid).empty();
+    try {
+	jQuery('#' + bid).jstree(true).destroy();
+	console.log('found a tree and destroyed it');
+    }catch(err){
+	console.log('no tree found');
+    }
+    //jQuery('#' + bid).empty();
     jQuery('#' + bid).html('<h4>Loading tree...</h4>');
     
     // Convert a term callback into the proper json. This method is
@@ -225,7 +302,7 @@ function ResetTreeWithRootInfo(root_docs, annotation_counts, filters){
 	}
 
 	// Using the badge template, get the spans for the IDs.
-	var ac_badges = new AnnotationCountBadges();
+	var ac_badges = new AnnotationCountBadges(filter_manager);
 	var id_to_badge_text =
 		ac_badges.make_badge(root_id, annotation_counts[root_id]);
 	var lbl_txt = doc['annotation_class_label'] || root_id;
@@ -271,7 +348,7 @@ function ResetTreeWithRootInfo(root_docs, annotation_counts, filters){
 	});
 
 	// Using the annotation, get the spans for the IDs.
-	var ac_badges = new AnnotationCountBadges();
+	var ac_badges = new AnnotationCountBadges(filter_manager);
 	var ids_to_badge_text = ac_badges.get_future_badges(child_ids);
 
 	//
@@ -401,7 +478,7 @@ function ResetTreeWithRootInfo(root_docs, annotation_counts, filters){
 ///
 
 //
-function AnnotationCountBadges(){
+function AnnotationCountBadges(filter_manager){
     
     var anchor = this;
     
@@ -487,7 +564,7 @@ function AnnotationCountBadges(){
 	    
 		//If it was not in our cache, we have to go out and
 		//find it.
-		var resp_promise = _create_count_promise(id);
+		var resp_promise = _create_count_promise(id, filter_manager);
 		badge_promises.push(resp_promise);
 		
 		// The easy case where we have it.
@@ -576,7 +653,8 @@ function AnnotationCountBadges(){
         // In case of error.
         var error_fun = function(err){
 	    if(err){
-		console.log('error before end of batch');
+		console.log('error before end of batch (badging): ' +
+			    err.toString());
 	    }
         };
 	
@@ -606,7 +684,8 @@ function AnnotationCountBadges(){
 	var tt_args = {'position': {'my': 'left bottom', 'at': 'right top'}};
 	jQuery('.bbop-js-tooltip').tooltip(tt_args);
 
-	GetInitialRootInformation();
+	CreateFilterManager();
+	//GetInitialRootInformation();
 	//DDBrowseInit();
     });
 })();

@@ -14,6 +14,10 @@
   This browser performs no lookahead, so you will not know if a term
   has children until you attempt to open it.
 </p>
+<p>
+  The <b>best practice for use</b> would be to set filters before
+  exploration--setting/resetting filters will also reset the tree.
+</p>
 [% INCLUDE "common/info_rollup_end.tmpl" %]
 
 <div class="panel panel-default">
@@ -23,10 +27,27 @@
   <!-- </div> -->
   <div class="panel-body">
 
-    <h4>Root terms</h4>
-    <div id="dd_browser_id">
-    </div>
-    
+    <!-- <h4>Root terms</h4> -->
+
+    <div id="results-area" class="row">
+
+      <!-- Filter section. -->
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+	<div>
+	  <h4>Filter tree annotations</h4>
+	  <div id="accordion" class="bbop-widget-set-live-filters">
+	    Loading...
+	  </div>
+	</div>	  
+      </div>
+
+      <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+	<div id="dd_browser_id"><h4>Loading tree...</h4></div>
+      </div>
+
+    </div>    
+
   </div>
+  
 </div>
 <!-- End: dd_browse.tmpl -->
