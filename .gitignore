@@ -15,6 +15,9 @@ javascript/npm/amigo2-instance-data/lib/data
 javascript/npm/amigo2-instance-data/doc
 javascript/npm/bbop-widget-set/doc
 
+## Ignore generated data.
+perl/bin/amigo-base-statistics-cache.json
+
 ## Don't want the virtualenv stuff for python leaking in.
 test-app/behave/'pwd'
 test-app/behave/screenshots*
