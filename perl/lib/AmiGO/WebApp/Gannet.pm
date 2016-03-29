@@ -233,11 +233,11 @@ sub mode_gannet {
   my $default_mirror = 'amigo_2_local_default';
   $mirror_conf_info->{$default_mirror} =
     {
-     'database' => $self->{CORE}->amigo_env('AMIGO_PUBLIC_GOLR_URL'),
-     'location' => 'in this installation',
+     'database' => $self->{CORE}->amigo_env('AMIGO_PUBLIC_GOLR_BULK_URL'),
+     'location' => 'at this installation',
      'type' => 'solr',
      'class' => 'local',
-     'label' => 'This installation'
+     'label' => 'Current'
     };
 
   #$self->{CORE}->kvetch("_mirror_conf_info_dump_:".Dumper($mirror_conf_info));

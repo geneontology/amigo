@@ -2,15 +2,15 @@
 #### Current public GO mirrors.
 ####
 ---
-production_golr:
-  label: Production GO Solr
-  location: at Stanford
-  class: main
-  database: http://golr.geneontology.org/solr/
-  type: solr
-bbop_golr:
-  label: Experimental GO Solr
-  location: in Berkeley, CA
-  class: exp
-  database: http://golr.berkeleybop.org/
-  type: solr
+# production_golr:
+#   label: Production GO Solr
+#   location: at Stanford
+#   class: main
+#   database: http://golr.geneontology.org/solr/
+#   type: solr
+# bbop_golr:
+#   label: Experimental GO Solr
+#   location: in Berkeley, CA
+#   class: exp
+#   database: http://golr.berkeleybop.org/
+#   type: solr
