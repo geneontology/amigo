@@ -71,6 +71,10 @@ sub new {
 	 topology_graph_json => $found_doc->{topology_graph_json},
 	 regulates_transitivity_graph_json =>
 	 $found_doc->{regulates_transitivity_graph_json},
+	 neighborhood_graph_json =>
+	 $found_doc->{neighborhood_graph_json},
+	 neighborhood_limited_graph_json =>
+	 $found_doc->{neighborhood_limited_graph_json},
 
 	 ## Convert the dbxrefs into something usable/linkable.
 	 term_dbxref_links =>
@@ -83,6 +87,10 @@ sub new {
 	 AmiGO::ChewableGraph->new($found_doc->{id},
 				   $found_doc->{topology_graph_json},
 				   $found_doc->{regulates_transitivity_graph_json}),
+	 chewable_neighborhood_graph =>
+	 AmiGO::ChewableGraph->new($found_doc->{id},
+				   $found_doc->{neighborhood_graph_json},
+				   $found_doc->{neighborhood_graph_json}),
 	};
     }
     $self->{AWGT_INFO}{$arg} = $intermediate;
@@ -128,7 +136,7 @@ sub get_info {
 =item get_child_info_for
 
 Args: term acc string of term we already got info for
-Returns: hash containing various term infomation, keyed by (int) order
+Returns: hash containing various term information, keyed by (int) order
 
 =cut
 sub get_child_info_for {
@@ -141,7 +149,7 @@ sub get_child_info_for {
     || die 'not searched for document';
 
   ###
-  ### Get neighborhood below term.
+  ### Get nodes below term.
   ###
 
   ## Go through the relationships and find the most representative.
@@ -190,7 +198,7 @@ sub get_child_info_for {
 
 Args: term acc string or arrayref of term acc strings.
     : takes optional arg {reflexive => (0|1)}
-Returns: hash containing various term infomation, keyed by (string) type
+Returns: hash containing various term information, keyed by (string) type
 
 =cut
 sub get_ancestor_info {
@@ -210,7 +218,7 @@ sub get_ancestor_info {
   # if( ref $arg ne 'ARRAY' ){ $arg = [$arg]; }
 
   ###
-  ### Get neighborhood above term(s).
+  ### Get transitive nodes above term(s).
   ###
 
   #$self->{AW_TG}->verbose(1);
@@ -311,6 +319,74 @@ sub get_ancestor_info {
      'max_depth' => $max_ldepth,
      'max_displacement' => $max_ldepth + 2,
      'parent_chunks_by_depth' => $nodes_sorted_by_depth,
+    };
+}
+
+
+=item get_neighborhood_info
+
+Args: term acc string or arrayref of term acc strings.
+Returns: hash containing various term information, keyed by (string) type
+
+=cut
+sub get_neighborhood_info {
+
+  my $self = shift;
+  my $arg = shift || die "need an argument";
+
+  ## First see if this is one that we can actually use.
+  my $cgraph = $self->{AWGT_INFO}{$arg}{chewable_neighborhood_graph}
+    || die 'not searched for document';
+
+  my $ret_parents = [];
+  my $parents = $cgraph->get_parents($arg);
+  foreach my $acc (@$parents){
+
+    my $rel = $cgraph->get_direct_relationship($arg, $acc);
+    if( ! defined $rel ){
+      $rel = 'related_to';
+    }
+    $rel =~ s/ /_/;
+
+    push @$ret_parents,
+      {
+       acc => $acc,
+       name => $cgraph->node_label($acc) || $acc,
+       rel => $rel,
+       link => $self->get_interlink({
+				     mode => 'term_details',
+				     arg => {acc => $acc},
+				    }),
+      };
+  }
+
+  my $ret_kids = [];
+  my $kids = $cgraph->get_children($arg);
+  foreach my $acc (@$kids){
+
+    my $rel = $cgraph->get_direct_relationship($acc, $arg);
+    if( ! defined $rel ){
+      $rel = 'related_to';
+    }
+    $rel =~ s/ /_/;
+
+    push @$ret_kids,
+      {
+       acc => $acc,
+       name => $cgraph->node_label($acc) || $acc,
+       rel => $rel,
+       link => $self->get_interlink({
+				     mode => 'term_details',
+				     arg => {acc => $acc},
+				    }),
+      };
+  }
+
+  ## Out.
+  return
+    {
+     'parents' => $ret_parents,
+     'children' => $ret_kids
     };
 }
 

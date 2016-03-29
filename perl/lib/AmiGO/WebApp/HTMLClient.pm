@@ -1529,7 +1529,18 @@ sub mode_term_details {
   				$anc_info->{parent_chunks_by_depth});
   push @$acc_list_for_gpc_info, @{$anc_info->{seen_acc_list}};
 
-  ## Bridge variables from old system.
+  ###
+  ### Get term ultra-local neighborhood information.
+  ###
+
+  my $nay_info = $term_worker->get_neighborhood_info($input_term_id);
+  #$self->set_template_parameter('NEIGHBORHOOD_INFO', Dumper($nay_info));
+  $self->set_template_parameter('NEIGHBORHOOD_INFO', $nay_info);
+
+  ###
+  ### Bridge variables from old system.
+  ###
+
   #$self->set_template_parameter('cgi', 'term-details');
   $self->set_template_parameter('cgi', 'browse');
   $self->set_template_parameter('vbridge', 'term=' . $input_term_id);
