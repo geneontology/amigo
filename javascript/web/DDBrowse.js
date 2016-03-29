@@ -62,7 +62,7 @@ var _create_count_promise = function(term_id, filter_manager){
 
     // First, extract the filters being used in the filter manager.
     var lstate = filter_manager.get_filter_query_string();
-    var lparams = bbop.url_parameters(lstate);
+    var lparams = bbop.url_parameters(decodeURIComponent(lstate));
     var filters_as_strings = [];
     us.each(lparams, function(lparam){
 	if( lparam[0] === 'fq' && lparam[1] ){
