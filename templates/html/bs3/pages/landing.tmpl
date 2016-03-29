@@ -22,21 +22,22 @@
 
 <!-- <div class="col-xs-12 col-sm-9"> -->
 
-[% three_row_classes = "col-xs-12 col-sm-6 col-md-4 col-lg-4" %]
+[% four_row_classes = "col-xs-12 col-sm-6 col-md-3 col-lg-3" %]
+[% three_row_classes = "col-xs-12 col-sm-12 col-md-4 col-lg-4" %]
 [% two_row_classes = "col-xs-12 col-sm-6 col-md-6 col-lg-6" %]
 <div class="container-fluid">
   <div class="row">
 
     <!-- grebe -->
     [% landing_item_header = "<b>Get Started</b> with Search Templates" %]
-    [% landing_item_classes = three_row_classes %]
+    [% landing_item_classes = four_row_classes %]
     [% landing_item_image = image_dir _ "/formula.50.png" %]
     [% landing_item_body = "Use Search Templates to <strong>get started</strong> in exploring the Gene Ontology data." %]
     [% landing_item_link = interlink_grebe %]
     [% INCLUDE "common/landing_item.tmpl" %]
     
     <!-- search -->
-    <div class="[% three_row_classes %]">
+    <div class="[% four_row_classes %]">
       <div class="panel panel-default">
 	<div class="panel-heading">
 	  <h3 class="panel-title">Advanced Search</h3>
@@ -73,18 +74,17 @@
       </div>
     </div>
     
-    <!--   <a href="[% interlink_browse %]"> -->
-    <!-- 	<img src="[% image_dir %]/browse-icon.50.png" -->
-    <!-- 	     title="Browse page." -->
-    <!-- 	     alt="[Browse]" /> -->
-    <!-- 	Interactively <strong>browse the graph</strong> of the Gene -->
-    <!-- 	Ontology term data. -->
-    <!--   </a> -->
-    <!-- </td> -->
+    <!-- dd_browse -->
+    [% landing_item_header = "Browse the ontology" %]
+    [% landing_item_classes = four_row_classes %]
+    [% landing_item_image = image_dir _ "/dd-browse.50.png" %]
+    [% landing_item_body = "Use the drill-down browser to get a basic view of the ontology structure, as well as annotation counts." %]
+    [% landing_item_link = interlink_dd_browse %]
+    [% INCLUDE "common/landing_item.tmpl" %]
     
     <!-- goose -->
     [% landing_item_header = "GOOSE" %]
-    [% landing_item_classes = three_row_classes %]
+    [% landing_item_classes = four_row_classes %]
     [% landing_item_image = image_dir _ "/goose-1.50.png" %]
     [% landing_item_body = "Use GOOSE to query a legacy GO database with <strong>SQL</strong> or edit one of the templates." %]
     [% landing_item_link = interlink_goose %]
