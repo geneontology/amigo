@@ -202,7 +202,9 @@ sub mode_gannet {
 
   ## Try and come to terms with Galaxy.
   my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy('gannet');
-  $self->galaxy_settings($in_galaxy, $galaxy_external_p);
+  ## NOTE: disabling Galaxy.
+  #$self->galaxy_settings($in_galaxy, $galaxy_external_p);
+  $self->galaxy_settings(undef, 0);
 
   ## Get various examples from the wiki.
   $self->set_template_parameter('golr_examples_list',
