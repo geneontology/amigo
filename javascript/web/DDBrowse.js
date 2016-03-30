@@ -478,7 +478,7 @@ function ResetTreeWithRootInfo(root_docs, annotation_counts, filter_manager){
 		var lstate = ann_man.get_filter_query_string();
 		var lurl = linker.url(lstate, 'search', 'annotation');
 
-		add_ons.push(['Annotations', '<a href="' + lurl + '" target="_blank"><b>go to this annotation search</b></a>']);
+		add_ons.push(['Annotations', '<a href="' + lurl + '" target="_blank"><b>retrieve annotations for this set</b></a>']);
 
 		// 
 		widgets.display.term_shield(doc, confc, linker, {}, add_ons);
