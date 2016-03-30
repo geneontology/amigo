@@ -662,7 +662,8 @@ var live_filters = function(interface_id, manager, golr_conf_obj,
     	    // A helper function for when no filters are
     	    // displayed.
     	    function _nothing_to_see_here(in_field){
-    		var section_id =filter_accordion_widget.get_section_id(in_field);
+    		var section_id =
+			filter_accordion_widget.get_section_id(in_field);
     		jQuery('#' + section_id).empty();
     		jQuery('#' + section_id).append('Nothing to filter.');
     	    }
