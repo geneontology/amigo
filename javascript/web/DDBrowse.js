@@ -125,7 +125,7 @@ function CreateFilterManager(){
     var filter_manager = new golr_manager(gserv, gconf, engine, 'async');
     
     // Manager settings.
-    var personality = 'annotation';
+    var personality = 'annotation_for_browser';
     var confc = gconf.get_class(personality);
     filter_manager.set_personality(personality);
     filter_manager.add_query_filter('document_category',
