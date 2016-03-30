@@ -692,7 +692,7 @@ var live_filters = function(interface_id, manager, golr_conf_obj,
     		    // Create ul lists of the facet contents.
     		    var tbl_id = mangle + 'filter-list-' + in_field;
     		    var facet_list_tbl_attrs = {
-			'class': 'table table-hover table-striped table-condensed',
+			'class': 'table table-hover table-striped table-condensed bbop-widget-set-live-filters-table',
     			'id': tbl_id
     		    };
 

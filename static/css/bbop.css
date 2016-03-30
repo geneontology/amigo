@@ -319,3 +319,13 @@
     /* margin-top: 0px; */
     /* margin-bottom: 0px; */
 }
+
+/* Try and get the BS3 filter tables behaving a little better. */
+.bbop-widget-set-live-filters-table tbody tr td:nth-child(1) {
+    width: 32px;
+    max-width: 32px;
+}
+.bbop-widget-set-live-filters-table tbody tr td:nth-child(2) {
+    width: 32px;
+    max-width: 32px;
+}
