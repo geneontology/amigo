@@ -17,7 +17,7 @@ Feature: AmiGO basic pages okay
     | /amigo/search/ontology   | AmiGO 2: Search                              |
     | /amigo/search/bioentity  | AmiGO 2: Search                              |
     | /amigo/software_list     | AmiGO 2: Tools and Resources                 |
-    | /dd_browse               | AmiGO 2: Drill-down Browser
+    | /amigo/dd_browse         | AmiGO 2: Drill-down Browser                  |
     | /grebe                   | AmiGO 2: Search Templates                    |
     | /goose                   | AmiGO 2: GO Online SQL/Solr Environment (GOOSE) |
     | /gannet                  | AmiGO 2: GO-flavored Solr exploration        |
