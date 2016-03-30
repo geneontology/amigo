@@ -150,6 +150,7 @@ GOLR_METADATA_LIST:
     - '~/local/src/git/amigo/metadata/ont-config.yaml'
     - '~/local/src/git/amigo/metadata/bio-config.yaml'
     - '~/local/src/git/amigo/metadata/ann-config.yaml'
+    - '~/local/src/git/amigo/metadata/ann-config.browse.yaml'
     - '~/local/src/git/amigo/metadata/general-config.yaml'
     - '~/local/src/git/amigo/metadata/model-ann-config.yaml'
     - '~/local/src/git/amigo/metadata/noctua-model-meta-config.yaml'
