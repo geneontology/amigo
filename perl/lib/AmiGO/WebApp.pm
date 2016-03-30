@@ -796,9 +796,9 @@ sub _resolve_page_settings {
     $page_content_title = 'Browse';
     $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Browse';
   }elsif( $page_name eq 'dd_browse' ){
-    $page_title = 'AmiGO 2: Drill-down Browse';
-    $page_content_title = 'Drill-down Browse';
-    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Drill-down_Browse';
+    $page_title = 'AmiGO 2: Drill-down Browser';
+    $page_content_title = 'Drill-down Browser';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Drill-down_Browser';
   }elsif( $page_name eq 'free_browse' ){
     $page_title = 'AmiGO 2: Free Browse';
     $page_content_title = 'Free Browse';
@@ -812,8 +812,8 @@ sub _resolve_page_settings {
     $page_content_title = 'GO Online SQL/Solr Environment (GOOSE)';
     $page_help_link = $wiki_base . 'AmiGO_2_Manual:_GOOSE';
   }elsif( $page_name eq 'gannet' ){
-    $page_title = 'AmiGO 2';
-    $page_content_title = 'Gannet';
+    $page_title = 'AmiGO 2: GO-flavored Solr exploration';
+    $page_content_title = 'GO-flavored Solr exploration';
     $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Gannet';
   }elsif( $page_name eq 'grebe' ){
     $page_title = 'AmiGO 2: Search Templates';
