@@ -71,9 +71,12 @@ function MatrixUIInit(){
     ll('MatrixUIInit start...');
 
     //
+    var personality = 'bioentity_for_browser';
+    var confc = gconf.get_class(personality);
     filter_manager = _new_manager();
-    filter_manager.set_personality('bioentity');
-    filter_manager.add_query_filter('document_category', 'bioentity', ['*']);
+    filter_manager.set_personality(personality);
+    filter_manager.add_query_filter('document_category',
+				    confc.document_category(), ['*']);
     filter_manager.set_results_count(0); // don't need any actual rows returned
 
     // Add the filter widget and hook to manager.

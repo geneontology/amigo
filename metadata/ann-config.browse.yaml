@@ -6,7 +6,7 @@ schema_generating: false
 description: Special schema for certain ontology browser widget\'s filters.
 display_name: Annotations (BROWSER)
 document_category: annotation
-weight: -100
+weight: -120
 boost_weights: taxon_label^9.0 evidence_type_closure^8.0
 result_weights: taxon_label^9.0 evidence_type_closure^8.0
 filter_weights: taxon_label^9.0 evidence_type_closure^8.0
