@@ -306,7 +306,8 @@ var live_pager = function(interface_id, manager, in_argument_hash){
 	    ///
 
 	    var holder_attrs = {
-		'id': external_button_location_id
+		'id': external_button_location_id,
+		'class': 'bbop-widget-set-live-pager-argument-button-set'
 	    };
 	    var holder = new html.tag('span', holder_attrs);
 	    jQuery('#' + bdiv_id).append('&nbsp;' + holder.to_string());

@@ -329,3 +329,8 @@
     width: 32px;
     max-width: 32px;
 }
+
+/* Better button set. */
+.bbop-widget-set-live-pager-argument-button-set button {
+    margin: 1px;
+}
