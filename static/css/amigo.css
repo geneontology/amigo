@@ -167,7 +167,13 @@ a:hover .hilite, a:active .hilite {
     /* padding-top: 32px; */
     padding-bottom: 5px;
     padding-top: 5px;
+    margin-bottom: 20px;
 }
 .amigo-jumbotron-override .lead {
     font-size: 16px;
+    margin-bottom: 10px;
+}
+.amigo-jumbotron-override h2 {
+    margin-top: 5px;
+    margin-bottom: 10px;
 }
