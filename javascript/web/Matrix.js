@@ -95,12 +95,20 @@ function MatrixUIInit(){
 	filters.spin_down();
     });
 
+    // Reset the UI; pull in and fix the GO term data.
     filter_manager.register('search', function(resp, manager){
 	console.log('filter_manager search callback');
 
-	// Pull in and fix the GO term data.
+	// Empty matrix results.
+	jQuery('#matrix_results').empty();
+	jQuery('#progress-text').empty();
+	jQuery('#progress-bar').empty();
+	jQuery("#order-selector").hide();
+
+	// Reset click.
+	jQuery('#button').off();
 	jQuery('#button').click(function(e){
-	    
+
 	    // Trim.
 	    //alert(jQuery('#input-terms').val());
 	    var raw_text = jQuery('#input-terms').val();
@@ -111,10 +119,22 @@ function MatrixUIInit(){
 	    // Unique-ify, take first in order.
 	    term_accs = us.uniq(term_accs);
 	    
-	    // Pass on.
-	    ll('Running: ' + bbop.dump(term_accs));
-	    jQuery('#matrix_results').empty();
-	    TermInfoStage(term_accs);
+	    if( term_accs &&
+	        term_accs.length > 0 &&
+	        ! us.contains(term_accs, '') ){
+
+		// Pass on.
+		ll('Running: ' + bbop.dump(term_accs));
+		jQuery('#matrix_results').empty();
+		jQuery('#progress-text').empty();
+		jQuery('#progress-bar').empty();
+		jQuery("#order-selector").hide();
+		
+		TermInfoStage(term_accs);
+
+	    }else{
+		alert('Your input seems off: "' + term_accs + '"');
+	    }
 	});
     });
 
@@ -725,6 +745,43 @@ function RenderStage(data, max_count){
 	//d3.selectAll("text").classed("active", false);
     }
 
+    function clickcell(p) {
+
+	// Grab the shared bioentity count value.
+    	var sac = matrix[p.x][p.y].z;
+
+	// Map order to node object.
+	var xn = nodes[p.x];
+	var yn = nodes[p.y];
+
+	// Add a link to the bioentity search.
+	var bio_man = _new_manager();
+
+	// Stack on the filters from the filter box.
+	var filter_strs = _get_filters(filter_manager);
+	us.each(filter_strs, function(fas){
+	    bio_man.add_query_filter_as_string(fas, []);
+	});
+
+	// Add the current cell's ids.
+	var ids = us.uniq([xn.id, yn.id]);
+	us.each(ids, function(v){
+	    bio_man.add_query_filter('isa_partof_closure', v);
+	});
+
+	// Produce final URL.
+	var lstate = bio_man.get_filter_query_string();
+	var lurl = linker.url(lstate, 'search', 'bioentity');
+
+	var kick = [
+	    '<h4>Cell operations</h4>',
+	    '<p>Pair-wise bioentity search <a class="btn btn-primary" href="' + lurl + '" target="_blank"><b>Open</b></a></p>'];
+
+	//alert(kick);
+	widgets.display.dialog(kick.join(' '), {width: 400});
+
+    }
+    
     // Working:    
     //  function row_fun(in_row) {
     // 	var cell = d3.select(this).selectAll(".cell")
@@ -843,7 +900,8 @@ function RenderStage(data, max_count){
 	    })
     	    .style("fill-opacity", "0.50")
 	    .on("mouseover", mouseover)
-	    .on("mouseout", mouseout);
+	    .on("mouseout", mouseout)
+	    .on("click", clickcell);
 
     }
     
