@@ -16,8 +16,8 @@ var amigo = new (require('amigo2-instance-data'))(); // no overload
 var golr_conf = require('golr-conf');
 var gconf = new golr_conf.conf(amigo.data.golr);
 var sd = amigo.data.server;
-var gserv = amigo.data.server.golr_base;
-var gserv_download = amigo.data.server.golr_download_base;
+//var gserv = amigo.data.server.golr_base;
+var gserv_bulk = amigo.data.server.golr_bulk_base;
 var defs = amigo.data.definitions;
 // Linker.
 var linker = amigo.linker;
@@ -28,8 +28,17 @@ var jquery_engine = require('bbop-rest-manager').jquery;
 var golr_manager = require('bbop-manager-golr');
 var golr_response = require('bbop-response-golr');
 
+// Create fresh manager.
+function _new_manager(){
+    var engine = new jquery_engine(golr_response);
+    engine.method('GET');
+    engine.use_jsonp(true);
+    var manager = new golr_manager(gserv_bulk, gconf, engine, 'async');
+    return manager;
+}
+
 // TODO: Interact with the user, launch stage 01.
-function MatrixInit(){
+function MatrixUIInit(){
 
     // First things first, let's hide the nasty flying divs...
     jQuery("#info").hide();
@@ -45,14 +54,21 @@ function MatrixInit(){
 
     // Pull in and fix the GO term data.
     jQuery('#button').click(function(e){
+
+	// Trim.
 	//alert(jQuery('#input-terms').val());
 	var raw_text = jQuery('#input-terms').val();
 	raw_text = raw_text.replace(/^\s+/,'');
 	raw_text = raw_text.replace(/\s+$/,'');
 	var term_accs = raw_text.split(/\s+/); // split on any ws
+
+	// Unique-ify, take first in order.
+	term_accs = us.uniq(term_accs);
+
+	// Pass on.
 	ll('Running: ' + bbop.dump(term_accs));
 	jQuery('#matrix_results').empty();
-	stage_01(term_accs);
+	TermInfoStage(term_accs);
     });
 
     // Let's start with this test.
@@ -68,17 +84,8 @@ function MatrixInit(){
     ll('Completed init!');    
 }
 
-// Create fresh manager.
-function _new_manager(){
-    var engine = new jquery_engine(golr_response);
-    engine.method('GET');
-    engine.use_jsonp(true);
-    var manager = new golr_manager(gserv, gconf, engine, 'async');
-    return manager;
-}
-
 // Get the information for the incoming terms, launch stage 02.
-function stage_01(term_accs){
+function TermInfoStage(term_accs){
 
     // Ready logging.
     var logger = new bbop.logger();
@@ -96,7 +103,7 @@ function stage_01(term_accs){
     jQuery("#order-selector").hide();
 
     // Now, cycle though all of the terms to collect info on.
-    ll('Gathering batch URLs for term data...');
+    ll('Gathering batch functions for term info...');
     var run_funs = [];
     var term_user_order = {};
     us.each(term_accs, function(r, r_i){
@@ -106,12 +113,12 @@ function stage_01(term_accs){
 
 	// Create runner function.
 	run_funs.push(function(){
+
 	    // Manager settings.
 	    var go = _new_manager();
-	    go.set_personality('bbop_ont');
+	    go.set_personality('ontology');
 	    
-    	    // Set the next query.
-    	    go.reset_query_filters(); // reset from the last iteration
+    	    // Set the next query and go.
     	    go.set_id(r);
     	    return go.search();
 	});
@@ -120,11 +127,12 @@ function stage_01(term_accs){
     var term_info = {};
     // Fetch the data and grab the number we want.
     var accumulator_fun = function(resp){
+
 	// Who was this?
 	var qval = resp.parameter('q');
 	var two_part = bbop.first_split(':', qval);
 	var acc = bbop.dequote(two_part[1]);
-	ll('Looking at info for: ' + acc);
+	ll(' Looking at info for: ' + acc);
 	term_info[acc] = {
 	    id : acc,
 	    name: acc,
@@ -137,17 +145,16 @@ function stage_01(term_accs){
 	if( doc ){
 	    term_info[acc]['name'] = doc['annotation_class_label'];
 	    term_info[acc]['source'] = doc['source'];
-	}	
+	}
 
     };
 
     // The final function is the data renderer.
     var final_fun = function(){
-	ll('Starting final in stage 01...');
-
-	ll('term_info: ' + bbop.dump(term_info));
-	stage_02(term_info, term_accs);
-	ll('Completed stage 01!');
+	ll('Starting final in TermInfoStage...');
+	ll(' term_info: ' + bbop.dump(term_info));
+	TermDataStage(term_info, term_accs);
+	ll('Completed TermInfoStage!');
     };
 
     // Create and run coordinating manager.
@@ -163,17 +170,14 @@ function stage_01(term_accs){
 
 // Get the term data, get it into the specified format, and launch
 // stage 03.
-function stage_02(term_info, term_accs){
+function TermDataStage(term_info, term_accs){
 
     // Ready logging.
     var logger = new bbop.logger();
     logger.DEBUG = true;
     function ll(str){ logger.kvetch('JSM02: ' + str); }
     ll('');
-    ll('Stage 02 start...');
-
-    // Get the data that we want.
-    // A variation on BBOP JS's shared_annotation_count.js.
+    ll('TermDataStage start...');
 
     // Before we start, decide our taxon.
     var taxon_filter = null; // default to no filter
@@ -183,6 +187,7 @@ function stage_02(term_info, term_accs){
         // "taxon_label":"Schizosaccharomyces pombe",
 	 taxon_filter = "NCBITaxon:4896";
     }
+    ll(' Will run with taxon filter: ' + taxon_filter);
 
     // The number of requests that we will make.
     var request_count = 0;
@@ -190,60 +195,71 @@ function stage_02(term_info, term_accs){
 
     // Now, cycle though all of the posible pairs of terms while setting
     // and unsetting the query filter on the manager.
-    ll('Gathering batch URLs and simple term data...');
+    ll(' Gathering batch functions for term data...');
     // Different.
+    var mixed_pairs = [];
     for(var v_i = 0; v_i < term_accs.length; v_i++){
 	for(var h_i = 0; h_i < v_i; h_i++){
 
 	    var v = term_accs[v_i];
 	    var h = term_accs[h_i];
 	    
-	    // Code here will be ignored by JSHint, as we are defining
-	    // functions in a loop, which apparently is usually
-	    // naughty.
-	    /* jshint ignore:start */
-	    run_funs.push(function(){
-		// Manager settings.
-		var go = _new_manager();
-		go.set_personality('bbop_ann');
-		go.add_query_filter('document_category', 'bioentity', ['*']);
-		if( taxon_filter ){
-		    go.add_query_filter('taxon', taxon_filter, ['*']);
-		}
-		go.set_personality('bbop_ann');
-		go.set('rows', 1); // we don't need any actual rows returned
-		go.set_facet_limit(0); // don't need any actual facets returned
-		//go.debug(false);
-
-		// Set the next query.
-		go.add_query_filter('isa_partof_closure', v);
-		go.add_query_filter('isa_partof_closure', h);
-
-		return go.search();
-	    });
-	    /* jshint ignore:end */
-
-	    request_count++;
+	    mixed_pairs.push([v, h]);
 	}
     }
-    // Reflexive.
-    for(var r_i = 0; r_i < term_accs.length; r_i++){
 
-    	var r = term_accs[r_i];
+    us.each(mixed_pairs, function(pair){
+
+	var v = pair[0];
+	var h = pair[1];
+	ll(' Setup search for: ' + v + ' and ' + h);
+
+	// Code here will be ignored by JSHint, as we are defining
+	// functions in a loop, which apparently is usually
+	// naughty.
+	/* jshint ignore:start */
+	run_funs.push(function(){
+	    
+	    // Manager settings.
+	    var go = _new_manager();
+	    go.set_personality('bioentity');
+	    go.add_query_filter('document_category', 'bioentity');
+	    if( taxon_filter ){
+		go.add_query_filter('taxon', taxon_filter);
+	    }
+	    go.set_results_count(0); // we don't need any actual rows returned
+	    go.set_facet_limit(0); // don't need any actual facets returned
+	    //go.debug(false);
+	    
+	    // Set the next query.
+	    go.add_query_filter('isa_partof_closure', v);
+	    go.add_query_filter('isa_partof_closure', h);
+	    
+	    return go.search();
+	});
+	/* jshint ignore:end */
 	
+	request_count++;
+    });
+
+    // Reflexive.
+    us.each(term_accs, function(r){
+
+	ll(' Setup reflexive search for: ' + r);
+
 	// Code here will be ignored by JSHint, as we are defining
 	// functions in a loop, which apparently is usually naughty.
 	/* jshint ignore:start */
 	run_funs.push(function(){
+
 	    // Manager settings.
 	    var go = _new_manager();
-	    go.set_personality('bbop_ann');
-	    go.add_query_filter('document_category', 'bioentity', ['*']);
+	    go.set_personality('bioentity');
+	    go.add_query_filter('document_category', 'bioentity');
 	    if( taxon_filter ){
-		go.add_query_filter('taxon', taxon_filter, ['*']);
+		go.add_query_filter('taxon', taxon_filter);
 	    }
-	    go.set_personality('bbop_ann');
-	    go.set('rows', 1); // we don't need any actual rows returned
+	    go.set_results_count(0); // we don't need any actual rows returned
 	    go.set_facet_limit(0); // don't need any actual facets returned
 	    //go.debug(false);
 	    
@@ -255,7 +271,7 @@ function stage_02(term_info, term_accs){
 	/* jshint ignore:end */
 	
 	request_count++;
-    }
+    });
 
     // Now that we know how many requests we will make, initialize the
     // progress bar.
@@ -288,6 +304,7 @@ function stage_02(term_info, term_accs){
 	// Now let's try and fiqure out which terms we were looking
 	// at...
 	var fqs = resp.query_filters();
+	console.log(resp);
 	var fprops = fqs['isa_partof_closure'];
 
 	var axes = [];
@@ -296,6 +313,8 @@ function stage_02(term_info, term_accs){
 	});	
 	var axis1 = axes[0];
 	var axis2 = axes[1] || axis1; // the reflexive case
+
+	ll(' Data from: (' + axis1 + ', ' + axis2 + '); ' + count);
 
 	// Structure for the links we've seen, level 1.
 	if( typeof(seen_links[axis1]) === 'undefined' ){
@@ -311,7 +330,7 @@ function stage_02(term_info, term_accs){
 
     // The final function is the data renderer.
     var final_fun = function(){
-	ll('Starting final in stage 02...');
+	ll('Starting final in TermDataStage...');
 
 	// We're done, so hide the progress bar again and show the
 	// order selector.
@@ -364,14 +383,14 @@ function stage_02(term_info, term_accs){
 	    });
 	});
 
-	ll('Seen links: ' + bbop.dump(seen_links));
-	ll('Data: ' + bbop.dump(data));
-	ll('Max count: ' + max_count);
+	ll(' Seen links: ' + bbop.dump(seen_links));
+	ll(' Data: ' + bbop.dump(data));
+	ll(' Max count: ' + max_count);
 	// //ll(h + ', ' + v + ': ' + count);
 	// ll('accumulate: ' + axis1 + ', ' + axis2 + ': ' + count);
 
-	ll('Completed stage 02!');
-	stage_03(data, max_count);
+	ll('Completed TermDataStage!');
+	RenderStage(data, max_count);
     };
 
     // Create and run coordinating manager.
@@ -387,14 +406,13 @@ function stage_02(term_info, term_accs){
 
 // Final stage: do the graphics and layout.
 // Initial D3 code from: http://bost.ocks.org/mike/miserables/
-function stage_03 (data, max_count){
+function RenderStage(data, max_count){
 
     // Ready logging.
     var logger = new bbop.logger();
     logger.DEBUG = true;
     function ll(str){ logger.kvetch('JSM03: ' + str); }
-    ll('');
-    ll('Stage 03 start...');
+    ll('Start RenderStage...');
 
     ///
     /// Setup the canvas and margin/header area.
@@ -612,7 +630,7 @@ function stage_03 (data, max_count){
     
     function mouseover(p) {
 
-	// Grab the shared annotation value.
+	// Grab the shared bioentity count value.
     	var sac = matrix[p.x][p.y].z;
 
 	// Map order to node object.
@@ -625,7 +643,7 @@ function stage_03 (data, max_count){
 	jQuery("#info").append("<br />");
 	jQuery("#info").append("<b>" + xn.name + "</b> (" + xn.id + ")");
 	jQuery("#info").append("<br />");
-	jQuery("#info").append("SAC: <b>" + sac + "</b>");
+	jQuery("#info").append("SBC: <b>" + sac + "</b>");
 	jQuery("#info").show();
 
 	var thing = d3.select(this);
@@ -821,7 +839,7 @@ function stage_03 (data, max_count){
     ///
     /// End the section from the example.
     ///	
-    ll('Completed stage 03!');
+    ll('Completed RenderStage!');
     ll('Done!');
 }
 
@@ -831,5 +849,7 @@ function stage_03 (data, max_count){
 
 // Embed the jQuery setup runner.
 (function (){
-    jQuery(document).ready(function(){ MatrixInit(); });
+    jQuery(document).ready(function(){
+	MatrixUIInit();
+    });
 })();
