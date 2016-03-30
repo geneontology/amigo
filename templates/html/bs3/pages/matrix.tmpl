@@ -22,70 +22,84 @@
 <div id="input">
   <div class="panel panel-default">
     <div class="panel-body">
-
-      <div class="form-group">
-	<label for="query">Input GO IDS</label>
-	<textarea id="input-terms"
-		  class="form-control"
-		  name="input-terms"
-		  placeholder="GO:0043473 GO:0009987 GO:0022008"
-		  rows="5"
-		  cols="80"></textarea>
-      </div>
-
-      <h5>Taxon</h5>
-      <div class="radio">
-	<label>
-	  <input type="radio"
-		 name="taxon"
-		 value="none"
-		 checked="yes">All</input>
-	</label>
-	<br />
-	<label>
-	  <input type="radio"
-		 name="taxon"
-		 value="pombe">pombe</input>
-	</label>
-      </div>
-
-      <h5>Coloration</h5>
-      <div class="radio">
-	<label>
-	  <input type="radio"
-		 name="color"
-		 value="dark" 
-		 checked="yes">dark shades</input>
-	</label>
-	<br />
-	<label>
-	  <input type="radio"
-		 name="color"
-		 value="step">step colors</input>
-	</label>
-      </div>
-
-      <button id="button"
-	      type="button"
-	      class="btn btn-primary">Process</button>
       
+      <div class="row">
+	
+	<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+	  <div>
+	    <h4>Filter shared bioentities</h4>
+	    <div id="accordion" class="bbop-widget-set-live-filters">
+	      Loading...
+	    </div>
+	  </div>	  
+	</div>
+	
+	<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+	  
+	  <div class="form-group">
+	    <label for="query">Input GO IDS</label>
+	    <textarea id="input-terms"
+		      class="form-control"
+		      name="input-terms"
+		      placeholder="GO:0043473 GO:0009987 GO:0022008"
+		      rows="5"
+		      cols="80"></textarea>
+	  </div>
+	  
+	  <!-- <h5>Taxon</h5> -->
+	  <!-- <div class="radio"> -->
+	  <!-- 	<label> -->
+	  <!-- 	  <input type="radio" -->
+	  <!-- 		 name="taxon" -->
+	  <!-- 		 value="none" -->
+	  <!-- 		 checked="yes">All</input> -->
+	  <!-- 	</label> -->
+	  <!-- 	<br /> -->
+	  <!-- 	<label> -->
+	  <!-- 	  <input type="radio" -->
+	  <!-- 		 name="taxon" -->
+	  <!-- 		 value="pombe">pombe</input> -->
+	  <!-- 	</label> -->
+	  <!-- </div> -->
+	  
+	  <h5>Coloration</h5>
+	  <div class="radio">
+	    <label>
+	      <input type="radio"
+		     name="color"
+		     value="dark" 
+		     checked="yes">dark shades</input>
+	    </label>
+	    <br />
+	    <label>
+	      <input type="radio"
+		     name="color"
+		     value="step">step colors</input>
+	    </label>
+	  </div>
+	  
+	  <button id="button"
+		  type="button"
+		  class="btn btn-primary">Process</button>
+	  
+	</div>
+      </div>
     </div>
   </div>
 </div>
-    
+
 <div id="order-selector">
   <div class="panel panel-default">
     <div class="panel-body">
 
       <h5>Order</h5>
-	<select id="order" class="form-control">
-	  <option value="name">by term name</option>
-	  <option value="source">by ontology</option>
-	  <option value="id">by term id</option>
-	  <option value="count">by co-annotation count</option>
-	  <option value="index" selected="selected">by input index</option>
-	</select>
-      </p>
+      <select id="order" class="form-control">
+	<option value="name">by term name</option>
+	<option value="source">by ontology</option>
+	<option value="id">by term id</option>
+	<option value="count">by co-annotation count</option>
+	<option value="index" selected="selected">by input index</option>
+      </select>
 
     </div>
   </div>

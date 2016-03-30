@@ -37,6 +37,24 @@ function _new_manager(){
     return manager;
 }
 
+var filter_manager = null;
+
+// Extract the filters being used in the filter manager.
+function _get_filters(filter_manager){
+
+    var lstate = filter_manager.get_filter_query_string();
+    var lparams = bbop.url_parameters(decodeURIComponent(lstate));
+    var filters_as_strings = [];
+    us.each(lparams, function(lparam){
+	if( lparam[0] === 'fq' && lparam[1] ){
+	    filters_as_strings.push(lparam[1]);
+	}
+    });
+    //console.log('pass filter state: ', filters_as_strings);
+
+    return filters_as_strings;
+}
+
 // TODO: Interact with the user, launch stage 01.
 function MatrixUIInit(){
 
@@ -50,26 +68,57 @@ function MatrixUIInit(){
     logger.DEBUG = true;
     function ll(str){ logger.kvetch('JSM: ' + str); }
     ll('');
-    ll('MatrixInit start...');
+    ll('MatrixUIInit start...');
 
-    // Pull in and fix the GO term data.
-    jQuery('#button').click(function(e){
+    //
+    filter_manager = _new_manager();
+    filter_manager.set_personality('bioentity');
+    filter_manager.add_query_filter('document_category', 'bioentity', ['*']);
+    filter_manager.set_results_count(0); // don't need any actual rows returned
 
-	// Trim.
-	//alert(jQuery('#input-terms').val());
-	var raw_text = jQuery('#input-terms').val();
-	raw_text = raw_text.replace(/^\s+/,'');
-	raw_text = raw_text.replace(/\s+$/,'');
-	var term_accs = raw_text.split(/\s+/); // split on any ws
+    // Add the filter widget and hook to manager.
+    var hargs = {
+	meta_label: 'Total bioentities:&nbsp;',
+	// free_text_placeholder:
+	// 'Input text to filter against all remaining documents',
+	'display_free_text_p': false
+    };
+    var filters = new widgets.live_filters('accordion',
+					   filter_manager, gconf, hargs);
+    filters.establish_display();
 
-	// Unique-ify, take first in order.
-	term_accs = us.uniq(term_accs);
-
-	// Pass on.
-	ll('Running: ' + bbop.dump(term_accs));
-	jQuery('#matrix_results').empty();
-	TermInfoStage(term_accs);
+    // Add pre and post run spinner (borrow filter's for now).
+    filter_manager.register('prerun', function(){
+	filters.spin_up();
     });
+    filter_manager.register('postrun', function(){
+	filters.spin_down();
+    });
+
+    filter_manager.register('search', function(resp, manager){
+	console.log('filter_manager search callback');
+
+	// Pull in and fix the GO term data.
+	jQuery('#button').click(function(e){
+	    
+	    // Trim.
+	    //alert(jQuery('#input-terms').val());
+	    var raw_text = jQuery('#input-terms').val();
+	    raw_text = raw_text.replace(/^\s+/,'');
+	    raw_text = raw_text.replace(/\s+$/,'');
+	    var term_accs = raw_text.split(/\s+/); // split on any ws
+	    
+	    // Unique-ify, take first in order.
+	    term_accs = us.uniq(term_accs);
+	    
+	    // Pass on.
+	    ll('Running: ' + bbop.dump(term_accs));
+	    jQuery('#matrix_results').empty();
+	    TermInfoStage(term_accs);
+	});
+    });
+
+    filter_manager.search();
 
     // Let's start with this test.
     //GO:0043473 GO:0009987 GO:0022008
@@ -179,16 +228,6 @@ function TermDataStage(term_info, term_accs){
     ll('');
     ll('TermDataStage start...');
 
-    // Before we start, decide our taxon.
-    var taxon_filter = null; // default to no filter
-    var curr_taxon_selection = jQuery("input:radio[name=taxon]:checked").val();
-    if( curr_taxon_selection === 'pombe' ){
-        // "taxon":"NCBITaxon:4896",
-        // "taxon_label":"Schizosaccharomyces pombe",
-	 taxon_filter = "NCBITaxon:4896";
-    }
-    ll(' Will run with taxon filter: ' + taxon_filter);
-
     // The number of requests that we will make.
     var request_count = 0;
     var run_funs = [];
@@ -208,6 +247,9 @@ function TermDataStage(term_info, term_accs){
 	}
     }
 
+    var filter_strs = _get_filters(filter_manager);
+    console.log('pass filter state: ', filter_strs);
+
     us.each(mixed_pairs, function(pair){
 
 	var v = pair[0];
@@ -224,13 +266,15 @@ function TermDataStage(term_info, term_accs){
 	    var go = _new_manager();
 	    go.set_personality('bioentity');
 	    go.add_query_filter('document_category', 'bioentity');
-	    if( taxon_filter ){
-		go.add_query_filter('taxon', taxon_filter);
-	    }
 	    go.set_results_count(0); // we don't need any actual rows returned
 	    go.set_facet_limit(0); // don't need any actual facets returned
 	    //go.debug(false);
 	    
+	    // Stack on the filters from the filter box.
+	    us.each(filter_strs, function(fas){
+		go.add_query_filter_as_string(fas, []);
+	    });
+
 	    // Set the next query.
 	    go.add_query_filter('isa_partof_closure', v);
 	    go.add_query_filter('isa_partof_closure', h);
@@ -256,13 +300,15 @@ function TermDataStage(term_info, term_accs){
 	    var go = _new_manager();
 	    go.set_personality('bioentity');
 	    go.add_query_filter('document_category', 'bioentity');
-	    if( taxon_filter ){
-		go.add_query_filter('taxon', taxon_filter);
-	    }
 	    go.set_results_count(0); // we don't need any actual rows returned
 	    go.set_facet_limit(0); // don't need any actual facets returned
 	    //go.debug(false);
 	    
+	    // Stack on the filters from the filter box.
+	    us.each(filter_strs, function(fas){
+		go.add_query_filter_as_string(fas, []);
+	    });
+
     	    // Set the next query.
     	    go.add_query_filter('isa_partof_closure', r);
 	    
