@@ -89,8 +89,8 @@ sub new {
 				   $found_doc->{regulates_transitivity_graph_json}),
 	 chewable_neighborhood_graph =>
 	 AmiGO::ChewableGraph->new($found_doc->{id},
-				   $found_doc->{neighborhood_graph_json},
-				   $found_doc->{neighborhood_graph_json}),
+				   $found_doc->{neighborhood_graph_json} || {},
+				   $found_doc->{neighborhood_graph_json} || {}),
 	};
     }
     $self->{AWGT_INFO}{$arg} = $intermediate;
