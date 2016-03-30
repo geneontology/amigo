@@ -79,7 +79,7 @@ var _create_count_promise = function(term_id, filter_manager){
 	manager.set_personality(personality);
 	manager.add_query_filter('document_category',
 				 confc.document_category());
-	manager.set('rows', 0); // care not about rows
+	manager.set_results_count(0); // we don't need any actual rows returned
         manager.set_facet_limit(0); // care not about facets
 
 	// Add the passed filters from the filter_manager.
@@ -130,7 +130,7 @@ function CreateFilterManager(){
     filter_manager.set_personality(personality);
     filter_manager.add_query_filter('document_category',
 				    confc.document_category(), ['*']);
-    filter_manager.set('rows', 0); // care not about rows, only facets
+    filter_manager.set_results_count(0); // don't need any actual rows returned
     
     // Add the filter widget and hook to manager.
     var hargs = {
@@ -518,7 +518,7 @@ function AnnotationCountBadges(filter_manager){
 	    manager.set_personality(personality);
 	    manager.add_query_filter('document_category',
 				     confc.document_category());
-	    manager.set('rows', 0); // care not about rows
+	    manager.set_results_count(0); // don't need any actual rows returned
             manager.set_facet_limit(0); // care not about facets
 	    
 	    manager.add_query_filter('regulates_closure', term_id);
