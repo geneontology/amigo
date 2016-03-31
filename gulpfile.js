@@ -187,7 +187,7 @@ var all_owltools_ops_flags_list = [
     '--remove-subset-entities upperlevel',
     (otu_rm_dis_p ? '--remove-disjoints' : ''),
     '--silence-elk --reasoner elk',
-    '--solr-taxon-subset-name amigo_group_subset'
+    '--solr-taxon-subset-name amigo_grouping_subset'
 ];
 var owltools_ops_flags =
 	all_owltools_ops_flags_list.join(' ').replace(/ +/g, ' ');
