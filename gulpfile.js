@@ -186,7 +186,8 @@ var all_owltools_ops_flags_list = [
     (otu_mrg_imp_p ? '--merge-import http://purl.obolibrary.org/obo/go/extensions/go-plus.owl' : '' ),
     '--remove-subset-entities upperlevel',
     (otu_rm_dis_p ? '--remove-disjoints' : ''),
-    '--silence-elk --reasoner elk'
+    '--silence-elk --reasoner elk',
+    '--solr-taxon-subset-name amigo_group_subset'
 ];
 var owltools_ops_flags =
 	all_owltools_ops_flags_list.join(' ').replace(/ +/g, ' ');
@@ -258,7 +259,8 @@ gulp.task('install', ['compile', 'build']);
 // javascript/web. For now, we'll just have this so we can work our
 // way through the garage fixing things at our leisure.
 var web_compilables = [
-    // 'DDBrowse.js' // current working set
+    // 'DDBrowse.js', // current working set
+    // 'Matrix.js'    // current working set
     'AmiGOBioView.js',
     'AmiGOCytoView.js',
     'BaseStatistics.js',
