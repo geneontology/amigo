@@ -7,9 +7,9 @@ description: Special schema for certain ontology browser widget\'s filters.
 display_name: Annotations (BROWSER)
 document_category: annotation
 weight: -120
-boost_weights: taxon_label^9.0 evidence_type_closure^8.0
-result_weights: taxon_label^9.0 evidence_type_closure^8.0
-filter_weights: taxon_label^9.0 evidence_type_closure^8.0
+boost_weights: taxon_subset_closure_label^1.0 evidence_type_closure^1.0
+result_weights: taxon_subset_closure_label^9.0 evidence_type_closure^8.0
+filter_weights: taxon_subset_closure_label^9.0 evidence_type_closure^8.0
 fields:
   - id: taxon
     description: "Taxonomic group."
@@ -37,13 +37,13 @@ fields:
     searchable: true
   - id: taxon_subset_closure
     description: "Taxonomic group (direct) and ancestral groups that are within the specified subset (e.g mammalia, eukaryota)."
-    display_name: Taxon subset
+    display_name: Organism
     type: string
     cardinality: multi
     property: []
   - id: taxon_subset_closure_label
     description: "Labels for taxonomic group (direct) and ancestral groups that are within the specified subset."
-    display_name: Taxon subset
+    display_name: Organism
     type: string
     cardinality: multi
     property: []
