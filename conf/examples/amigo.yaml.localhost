@@ -144,8 +144,9 @@ GOLR_ONTOLOGY_LIST:
   comment: The list of ontologies to load.
   type: list
   value:
+    - http://purl.obolibrary.org/obo/go/extensions/go-gaf.owl
+    - http://purl.obolibrary.org/obo/eco.owl
     - http://purl.obolibrary.org/obo/go/extensions/go-taxon-subsets.owl
-    - http://purl.obolibrary.org/obo/go/extensions/go-plus.owl
 GOLR_PANTHER_FILE_PATH:
   comment: The location of the cleaned PANTHER file for the proper loading into GOlr.
   type: directory
@@ -153,9 +154,9 @@ GOLR_PANTHER_FILE_PATH:
 OWLTOOLS_MAX_MEMORY:
   comment: The maximum amount of memory to give OWLTools processes.
   type: string
-  value: 3G
+  value: 4G
 OWLTOOLS_USE_MERGE_IMPORT:
-  comment: Whether or not to include --merge-import http://purl.obolibrary.org/obo/go/extensions/go-plus.owl.
+  comment: Whether or not to include --merge-import http://purl.obolibrary.org/obo/go/extensions/go-gaf.owl.
   type: boolean
   value: 1
 OWLTOOLS_USE_REMOVE_DISJOINTS:

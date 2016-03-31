@@ -55,7 +55,7 @@ AMIGO_PUBLIC_GOLR_BULK_URL:
   type: url
   value: http://localhost:8080/solr/
 AMIGO_PUBLIC_GOLR_URL:
-  comment: 'The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.'
+  comment: The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.
   type: url
   value: http://localhost:8080/solr/
 AMIGO_PUBLIC_NOCTUA_URL:
@@ -134,9 +134,9 @@ GOLR_PANTHER_FILE_PATH:
 OWLTOOLS_MAX_MEMORY:
   comment: The maximum amount of memory to give OWLTools processes.
   type: string
-  value: 3G
+  value: 4G
 OWLTOOLS_USE_MERGE_IMPORT:
-  comment: Whether or not to include --merge-import http://purl.obolibrary.org/obo/go/extensions/go-plus.owl.
+  comment: Whether or not to include --merge-import http://purl.obolibrary.org/obo/go/extensions/go-gaf.owl.
   type: boolean
   value: 1
 OWLTOOLS_USE_REMOVE_DISJOINTS:

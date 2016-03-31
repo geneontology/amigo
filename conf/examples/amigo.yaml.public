@@ -79,7 +79,7 @@ AMIGO_ROOT_TERMS:
 AMIGO_SERVER_NAME:
   comment: 'The name by which your AmiGO instance wishes to known--think load balancer or cache situations. If you would rather this information not be reported, leave blank.'
   type: string
-  value: nakama
+  value: geneontology
 AMIGO_STATIC_PATH:
   comment: The full path to a usable static document directory where static and staging are located.
   type: directory
@@ -164,7 +164,7 @@ GOLR_ONTOLOGY_LIST:
   comment: The list of ontologies to load.
   type: list
   value:
-    - http://purl.obolibrary.org/obo/go/extensions/go-plus.owl
+    - http://purl.obolibrary.org/obo/go/extensions/go-gaf.owl
     - http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl
     - http://purl.obolibrary.org/obo/cl/cl-basic.owl
     - http://purl.obolibrary.org/obo/eco.owl
@@ -186,7 +186,7 @@ OWLTOOLS_MAX_MEMORY:
   type: string
   value: 192G
 OWLTOOLS_USE_MERGE_IMPORT:
-  comment: Whether or not to include --merge-import http://purl.obolibrary.org/obo/go/extensions/go-plus.owl.
+  comment: Whether or not to include --merge-import http://purl.obolibrary.org/obo/go/extensions/go-gaf.owl.
   type: boolean
   value: 1
 OWLTOOLS_USE_REMOVE_DISJOINTS:
