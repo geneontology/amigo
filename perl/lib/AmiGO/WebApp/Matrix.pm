@@ -70,7 +70,8 @@ sub mode_matrix {
       'org.d3',
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui'
+      'com.jquery-ui',
+      'ly.plot'
      ],
      javascript =>
      [
