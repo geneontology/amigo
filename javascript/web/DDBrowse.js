@@ -8,7 +8,7 @@ var bbop = require('bbop-core');
 var widgets = require('bbop-widget-set');
 var html = widgets.html;
 
-// Config.
+// Configuration.
 var amigo = new (require('amigo2-instance-data'))(); // no overload
 var golr_conf = require('golr-conf');
 var gconf = new golr_conf.conf(amigo.data.golr);
@@ -64,8 +64,8 @@ var _create_count_promise = function(term_id, filter_manager){
     var filter_strs = _get_filters(filter_manager);
     console.log('pass filter state: ', filter_strs);
 
-    // Return the funtion that will give us the annotation cound for
-    // this particular filter set.
+    // Return the funtion that will give us the count for this
+    // particular filter set.
     return function(){
 	// Create manager.
 	var engine = new jquery_engine(golr_response);
@@ -74,7 +74,7 @@ var _create_count_promise = function(term_id, filter_manager){
 	var manager = new golr_manager(gserv, gconf, engine, 'async');
 	
 	// Manager settings.
-	var personality = 'annotation';
+	var personality = 'bioentity';
 	var confc = gconf.get_class(personality);
 	manager.set_personality(personality);
 	manager.add_query_filter('document_category',
@@ -125,7 +125,7 @@ function CreateFilterManager(){
     var filter_manager = new golr_manager(gserv, gconf, engine, 'async');
     
     // Manager settings.
-    var personality = 'annotation_for_browser';
+    var personality = 'bioentity_for_browser';
     var confc = gconf.get_class(personality);
     filter_manager.set_personality(personality);
     filter_manager.add_query_filter('document_category',
@@ -134,7 +134,7 @@ function CreateFilterManager(){
     
     // Add the filter widget and hook to manager.
     var hargs = {
-	meta_label: 'Total annotations:&nbsp;',
+	meta_label: 'Total gene products:&nbsp;',
 	// free_text_placeholder:
 	// 'Input text to filter against all remaining documents',
 	'display_free_text_p': false
@@ -183,9 +183,9 @@ function GetInitialRootInformation(filter_manager){
 	// Verify and extract initial response.
 	if( resp && resp.documents() && resp.documents().length ){	    
 	    global_root_docs = resp.documents();
-	    console.log('Starting root annotation search with (' +
+	    console.log('Starting root gene product search with (' +
 			global_root_docs.length + ') documents.');
-	    GetRootAnnotationInformation(global_root_docs, filter_manager);
+	    GetRootCountInformation(global_root_docs, filter_manager);
 	}else{
 	    alert('failure to find root information');
 	}
@@ -198,7 +198,7 @@ function GetInitialRootInformation(filter_manager){
 ///
 ///
 
-function GetRootAnnotationInformation(root_docs, filter_manager){
+function GetRootCountInformation(root_docs, filter_manager){
 
     // Collect the root ids from the docs.
     var root_ids = [];
@@ -244,7 +244,7 @@ function GetRootAnnotationInformation(root_docs, filter_manager){
 	
     // The final function is the data renderer.
     var final_fun = function(){
-	console.log('root annotation info collected: ', id_to_count);
+	console.log('root count info collected: ', id_to_count);
 	ResetTreeWithRootInfo(root_docs, id_to_count, filter_manager);
     };
 	
@@ -267,7 +267,7 @@ function GetRootAnnotationInformation(root_docs, filter_manager){
 ///
 ///
 
-function ResetTreeWithRootInfo(root_docs, annotation_counts, filter_manager){
+function ResetTreeWithRootInfo(root_docs, entity_counts, filter_manager){
 
     // Nuke current tree and put in "spinner" placeholder.
     try {
@@ -287,7 +287,7 @@ function ResetTreeWithRootInfo(root_docs, annotation_counts, filter_manager){
 	console.log("_roots2json: " +
 		    doc + ', ' +
 		    root_id + ', ' +
-		    annotation_counts[root_id]);
+		    entity_counts[root_id]);
 
 	// Extract the intersting graphs.
 	var topo_graph_field = 'topology_graph_json';
@@ -311,9 +311,9 @@ function ResetTreeWithRootInfo(root_docs, annotation_counts, filter_manager){
 	}
 
 	// Using the badge template, get the spans for the IDs.
-	var ac_badges = new AnnotationCountBadges(filter_manager);
+	var ac_badges = new CountBadges(filter_manager);
 	var id_to_badge_text =
-		ac_badges.make_badge(root_id, annotation_counts[root_id]);
+		ac_badges.make_badge(root_id, entity_counts[root_id]);
 	var lbl_txt = doc['annotation_class_label'] || root_id;
 	    
 	var tmpl = {
@@ -356,8 +356,8 @@ function ResetTreeWithRootInfo(root_docs, annotation_counts, filter_manager){
 	    child_ids.push(kid.id());
 	});
 
-	// Using the annotation, get the spans for the IDs.
-	var ac_badges = new AnnotationCountBadges(filter_manager);
+	// Using the badger, get the spans for the IDs.
+	var ac_badges = new CountBadges(filter_manager);
 	var ids_to_badge_text = ac_badges.get_future_badges(child_ids);
 
 	//
@@ -464,9 +464,10 @@ function ResetTreeWithRootInfo(root_docs, annotation_counts, filter_manager){
 		// Add-ons.
 		var add_ons = [];
 
-		// Add a link to the annotation search.
-		var ann_man = _create_manager('annotation');
+		// Add a link to the entity search.
+		var ann_man = _create_manager('bioentity');
 		ann_man.add_query_filter('regulates_closure', tid);
+		//ann_man.add_query_filter('isa_partof_closure', tid);
 
 		// Stack on the filters from the filter box.
 		var filter_strs = _get_filters(filter_manager);
@@ -476,9 +477,9 @@ function ResetTreeWithRootInfo(root_docs, annotation_counts, filter_manager){
 
 		// Produce final URL.
 		var lstate = ann_man.get_filter_query_string();
-		var lurl = linker.url(lstate, 'search', 'annotation');
+		var lurl = linker.url(lstate, 'search', 'bioentity');
 
-		add_ons.push(['Annotations', '<a href="' + lurl + '" target="_blank"><b>retrieve annotations for this set</b></a>']);
+		add_ons.push(['Gene products', '<a href="' + lurl + '" target="_blank"><b>retrieve gene products annotated to this term fir this filter set</b></a>']);
 
 		// 
 		widgets.display.term_shield(doc, confc, linker, {}, add_ons);
@@ -494,7 +495,7 @@ function ResetTreeWithRootInfo(root_docs, annotation_counts, filter_manager){
 ///
 
 //
-function AnnotationCountBadges(filter_manager){
+function CountBadges(filter_manager){
     
     var anchor = this;
     
@@ -513,7 +514,7 @@ function AnnotationCountBadges(filter_manager){
 	    var manager = new golr_manager(gserv, gconf, engine, 'async');
 	    
 	    // Manager settings.
-	    var personality = 'annotation';
+	    var personality = 'bioentity';
 	    var confc = gconf.get_class(personality);
 	    manager.set_personality(personality);
 	    manager.add_query_filter('document_category',
@@ -522,6 +523,7 @@ function AnnotationCountBadges(filter_manager){
             manager.set_facet_limit(0); // care not about facets
 	    
 	    manager.add_query_filter('regulates_closure', term_id);
+	    //manager.add_query_filter('isa_partof_closure', term_id);
 	    
 	    return manager.search();
 	};
@@ -608,7 +610,7 @@ function AnnotationCountBadges(filter_manager){
 	    // Assuming we know...
 	    if( acc ){
 
-		// Get the annotation count...
+		// Get the count...
                 var total = resp.total_documents();
 
 		// ...update the internal structures...
