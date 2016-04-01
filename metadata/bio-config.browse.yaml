@@ -7,9 +7,9 @@ description: Special schema for certain ontology browser widget\'s filters.
 display_name: Genes and gene products (BROWSER)
 document_category: bioentity
 weight: -130
-boost_weights: source^1.0 taxon_subset_closure_label^1.0 type^1.0
-result_weights: source^9.0 taxon_subset_closure_label^8.0 type^6.0
-filter_weights: source^9.0 taxon_subset_closure_label^8.0 type^6.0
+boost_weights: taxon_subset_closure_label^1.0 type^1.0
+result_weights: taxon_subset_closure_label^8.0 type^6.0
+filter_weights: taxon_subset_closure_label^8.0 type^6.0
 fields:
   - id: type
     description: "Type class."
