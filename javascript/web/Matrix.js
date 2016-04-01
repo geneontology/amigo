@@ -5,6 +5,7 @@
 // Let jshint pass over over our external globals (browserify takes
 // care of it all).
 /* global d3 */
+/* global Plotly */
 
 var us = require('underscore');
 var bbop = require('bbop-core');
@@ -460,6 +461,7 @@ function TermDataStage(term_info, term_accs){
 
 	ll('Completed TermDataStage!');
 	RenderStage(data, max_count);
+	//PlotStage(data, max_count);
     };
 
     // Create and run coordinating manager.
@@ -700,7 +702,7 @@ function RenderStage(data, max_count){
     function mouseover(p) {
 
 	// Grab the shared bioentity count value.
-    	var sac = matrix[p.x][p.y].z;
+    	var sbc = matrix[p.x][p.y].z;
 
 	// Map order to node object.
 	var xn = nodes[p.x];
@@ -708,11 +710,11 @@ function RenderStage(data, max_count){
 
 	// Update the hovering info box.
 	jQuery("#info").empty();
-	jQuery("#info").append("<b>" + yn.name + "</b> (" + yn.id + ")");
+	jQuery("#info").append("x: <b>" + xn.name + "</b> (" + xn.id + ")");
 	jQuery("#info").append("<br />");
-	jQuery("#info").append("<b>" + xn.name + "</b> (" + xn.id + ")");
+	jQuery("#info").append("y: <b>" + yn.name + "</b> (" + yn.id + ")");
 	jQuery("#info").append("<br />");
-	jQuery("#info").append("SBC: <b>" + sac + "</b>");
+	jQuery("#info").append("SBC: <b>" + sbc + "</b>");
 	jQuery("#info").show();
 
 	var thing = d3.select(this);
@@ -751,7 +753,7 @@ function RenderStage(data, max_count){
     function clickcell(p) {
 
 	// Grab the shared bioentity count value.
-    	var sac = matrix[p.x][p.y].z;
+    	var sbc = matrix[p.x][p.y].z;
 
 	// Map order to node object.
 	var xn = nodes[p.x];
@@ -777,11 +779,23 @@ function RenderStage(data, max_count){
 	var lurl = linker.url(lstate, 'search', 'bioentity');
 
 	var kick = [
-	    '<h4>Cell operations</h4>',
-	    '<p>Pair-wise bioentity search <a class="btn btn-primary" href="' + lurl + '" target="_blank"><b>Open</b></a></p>'];
-
+	    '<ul class="list-unstyled">',
+	    '<li>',
+	    'x: <b>' + xn.name + '</b> (' + xn.id + ')',
+	    '</li>',
+	    '<li>',
+	    'y: <b>' + yn.name + '</b> (' + yn.id + ')',
+	    '</li>',
+	    '<li>',
+	    'SBC: <b>' + sbc + '</b>',
+	    '</li>',
+	    '<li>',
+	    'Pair-wise bioentity search <a class="btn btn-primary" href="' + lurl + '" target="_blank"><b>Open</b></a>',
+	    '</li>',
+	'</ul>'];
 	//alert(kick);
-	widgets.display.dialog(kick.join(' '), {width: 400});
+	widgets.display.dialog(kick.join(' '), {title: 'Cell information',
+						width: 500});
 
     }
     
@@ -947,6 +961,82 @@ function RenderStage(data, max_count){
     /// End the section from the example.
     ///	
     ll('Completed RenderStage!');
+    ll('Done!');
+}
+
+
+function PlotStage(data, max_count){
+
+    // Ready logging.
+    var logger = new bbop.logger();
+    logger.DEBUG = true;
+    function ll(str){ logger.kvetch('JSMX: ' + str); }
+    ll('PlotStage start...');
+
+    // axes.
+    var x_axis_id = [];
+    var x_axis_lbl = [];
+    var y_axis_id = [];
+    var y_axis_lbl = [];
+    us.each(data.nodes, function(node){
+	x_axis_id.push(node.id);
+	x_axis_lbl.push(node.name);
+	y_axis_id.unshift(node.id);
+	y_axis_lbl.unshift(node.name);
+    });
+    
+    var rows = [];
+    var text_rows = [];
+    us.each(x_axis_id, function(idx){
+	var frame = [];
+	var text_frame = [];
+	us.each(y_axis_id, function(idy){
+	    frame.unshift(data.graph[idx][idy]);
+	    text_frame.unshift('(' + idx + ',' + idy + ')');
+	});
+	rows.unshift(frame);
+	text_rows.unshift(text_frame);
+    });
+
+    var d = [{
+	z: rows,
+	text: text_rows,
+	x: x_axis_lbl,
+	y: y_axis_lbl,
+	type: 'heatmap'
+    }];
+
+    console.log(data);
+
+    // Capture for events.
+    var plot_obj = document.getElementById('matrix_plot');
+    var hover_info = document.getElementById('plot_hover');
+
+    Plotly.newPlot('matrix_plot', d, {
+	
+    });
+
+    plot_obj.on('plotly_click', function(data){
+	// console.log('vvv');
+	// console.log(data);
+	// console.log('^^^');
+	var infotext = data.points.map(function(d){
+	    return ('x= '+d.x+', y= '+d.y);
+	});
+	alert(infotext);
+    })
+	.on('plotly_hover', function(data){
+	    var infotext = data.points.map(function(d){
+		return ('x= '+d.x+', y= '+d.y);
+	    });
+	
+	    hover_info.innerHTML = infotext.join('');
+	})
+	.on('plotly_unhover', function(data){
+	    hover_info.innerHTML = '';
+	});
+
+    ll('Completed PlotStage!');
     ll('Done!');
 }
 
