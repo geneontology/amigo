@@ -164,8 +164,7 @@ function TermInfoStage(term_accs){
     var logger = new bbop.logger();
     logger.DEBUG = true;
     function ll(str){ logger.kvetch('JSM01: ' + str); }
-    ll('');
-    ll('Stage 01 start...');
+    ll('TermInfoStage start...');
 
     // Prep the progress bar and hide the order selector until we're
     // done.
@@ -374,7 +373,7 @@ function TermDataStage(term_info, term_accs){
 	// Now let's try and fiqure out which terms we were looking
 	// at...
 	var fqs = resp.query_filters();
-	console.log(resp);
+	//console.log(resp);
 	var fprops = fqs['isa_partof_closure'];
 
 	var axes = [];
@@ -460,8 +459,7 @@ function TermDataStage(term_info, term_accs){
 	// ll('accumulate: ' + axis1 + ', ' + axis2 + ': ' + count);
 
 	ll('Completed TermDataStage!');
-	RenderStage(data, max_count);
-	//PlotStage(data, max_count);
+	PlotStage(data, max_count);
     };
 
     // Create and run coordinating manager.
@@ -475,289 +473,194 @@ function TermDataStage(term_info, term_accs){
 	});
 }
 
-// Final stage: do the graphics and layout.
-// Initial D3 code from: http://bost.ocks.org/mike/miserables/
-function RenderStage(data, max_count){
+
+function PlotStage(collected_info, max_count){
 
     // Ready logging.
     var logger = new bbop.logger();
     logger.DEBUG = true;
-    function ll(str){ logger.kvetch('JSM03: ' + str); }
-    ll('Start RenderStage...');
+    function ll(str){ logger.kvetch('JSMX: ' + str); }
+    ll('PlotStage start...');
 
     ///
-    /// Setup the canvas and margin/header area.
+    /// Variables.
     ///
 
-    /// First the canvas sizing and layout.
-    // Margins for writing the column/row header text.
-    var margin = { top: 300, right: 0, bottom: 0, left: 300 };
-    // Total width.
-    var width = 800;
-    var height = 800;
-    
-    var x = d3.scale.ordinal().rangeBands([0, width]);
-    // var z = d3.scale.linear().domain([0, 4]).clamp(true);
-    //var c = d3.scale.category10().domain(d3.range(10));
-    //var c = d3.scale.category10().domain(d3.range(max_count));
-
-    // A value from our values domain in to a color in our range.
-    // 0 always maps to a white-ish color.
-    var c = d3.scale.linear().domain([0,max_count]).rangeRound([127,255]);
-    function value_to_color_dark(val){
-	//var retval = '#efefef';
-	var retval = '#fafafa';
-	if( val !== 0 ){
-	    var cval = c(val);
-	    var cinv = 255 - cval;
-	    var chex = cinv.toString(16);
-	    if( cval ){
-		if( chex.length === 1 ){ chex = '0' + chex; }
-		retval = '#' + chex + chex + chex + '';
+    // Invariant layout data.
+    var layout = {
+	title: 'Pair-wise co-annotation comparison',
+	hightlight: true,
+	xaxis: {
+	    tickfont: {
+		// 12, 10 too big; 9 okay right now
+		size: 10
 	    }
-	}
-	return retval;
-    }
-    function value_to_color_step(val){
-	//var retval = '#efefef';
-	var retval = '#fafafa';
-	if( val !== 0 ){
-	    // 1-3 = pale green
-	    // 4-10 = yellow
-	    // 11-100 = orange
-	    // 101+ = red 
-	    if( val <= 3 ){
-		retval = '#79f853'; // green
-	    }else if( val <= 10 ){
-		//retval = '#f5ff2b'; // yellow
-		retval = '#e8f129'; // yellow
-	    }else if( val <= 100 ){
-		retval = '#fd953b'; // orange		
-	    }else{
-		retval = '#ff4e53';
+	},
+	yaxis: {
+	    tickangle: 45,
+	    tickfont: {
+		// 12, 10 too big; 9 okay right now
+		size: 10
 	    }
+	},
+	margin: {
+	    //pad:0,
+	    //autoexpand:true,
+	    //t:100,
+	    l:150,
+	    //r:80,
+	    b:100
 	}
-	return retval;
-    }
-    
-    // Decide our coloration live at this point.
-    var value_to_color = value_to_color_dark; // default
-    var curr_color_selection = jQuery("input:radio[name=color]:checked").val();
-    if( curr_color_selection === 'dark' ){
-	 value_to_color = value_to_color_dark;
-    }else if( curr_color_selection === 'step' ){
-	 value_to_color = value_to_color_step;
-    }
+    };
 
-    var svg = d3.select("#matrix_results").append("svg")
-	.attr("width", width + margin.left + margin.right)
-	.attr("height", height + margin.top + margin.bottom)
-	.style("margin-left", -margin.left + "px")
-	.append("g")
-	.attr("transform", "translate("+ margin.left +","+ margin.top +")");
-    
-    ///
-    /// Final data calculations. 
-    /// 
-
-    // 
-    var matrix = [];
-    var nodes = data.nodes;
-    var n = nodes.length;
-    
-    // Compute index per node.
-    nodes.forEach(function(node, i) {
-	//node.index = i;
-	node.count = 0;
-	matrix[i] = d3.range(n).map(
-	    function(j) {
-		return {x: j, y: i, z: 0};
-	    });
+    // Collect a map of node names to node ids.
+    var name_to_id = {};
+    us.each(collected_info.nodes, function(node){
+	name_to_id[node.name] = node.id;
     });
-    
-    // TODO: Is this bit necessary?
-    // Convert links to matrix; count character occurrences.
-    data.links.forEach(function(link) {
-	var s_index = link.source;
-	var t_index = link.target;
-	var sid = nodes[s_index]['id'];
-	var tid = nodes[t_index]['id'];
-	// Matrix fill.
-    	matrix[link.source][link.target].z = data.graph[sid][tid] || 0;
-    	matrix[link.target][link.source].z = data.graph[tid][sid] || 0;
-    	matrix[link.source][link.source].z = data.graph[sid][sid] || 0;
-    	matrix[link.target][link.target].z = data.graph[tid][tid] || 0;
-	// Tally the per-node count.
-    	nodes[link.source].count += link.value || 0;
-    	nodes[link.target].count += link.value || 0;
-    });
-    
-    ll('Nodes: ' + bbop.dump(nodes));
-    ll('Matrix: ' + bbop.dump(matrix));
 
     ///
-    /// The ordering profiles.
+    /// Calculate possible orderings that we'll use.
     ///
-    
-    // Precompute the orders.
-    var orders = {
-	name: d3.range(n).sort(function(a, b) {
+
+    // Precompute the possible orderings.
+    var graph = collected_info.graph;
+    var nodes = collected_info.nodes;
+    var node_count = collected_info.nodes.length;
+    var all_orders = {
+	name: d3.range(node_count).sort(function(a, b) {
 	    return d3.ascending(nodes[a].name, nodes[b].name);
 	}),
-	source: d3.range(n).sort(function(a, b) {
+	source: d3.range(node_count).sort(function(a, b) {
 	    return d3.ascending(nodes[a].source, nodes[b].source);
 	}),
-	id: d3.range(n).sort(function(a, b) {
-	    return d3.descending(nodes[a].id, nodes[b].id);
+	// id: d3.range(node_count).sort(function(a, b) {
+	//     return d3.descending(nodes[a].id, nodes[b].id);
+	// }),
+	count: d3.range(node_count).sort(function(a, b) {
+	    var aid = nodes[a].id;
+	    var bid = nodes[b].id;
+	    return graph[bid][bid] - graph[aid][aid];
 	}),
-	count: d3.range(n).sort(function(a, b) {
-	    return nodes[b].count - nodes[a].count;
-	}),
-	index: d3.range(n).sort(function(a, b) {
+	index: d3.range(node_count).sort(function(a, b) {
 	    //return nodes[b].index - nodes[a].index;
 	    return nodes[a].index - nodes[b].index;
 	})
     };
-    
-    // The default sort order.
-    x.domain(orders.index);
-    
-    // Attach the off-color background.
-    svg.append("rect")
-	//.attr("class", "background")
-	//.attr("style", "fill: #eeeeee;")
-	.attr("style", "fill: #ffffff;")
-	.attr("width", width)
-	.attr("height", height);
-    
-    // For each of the row headers, translate them by a certain
-    // amount, color, etc.
-    var row = svg.selectAll(".row")
-	.data(matrix)
-	.enter().append("g")
-	//.attr("style", "fill: #ff0000;")
-	.attr("class", "row") // mark with class for later reference
-	.attr("transform", function(d, i) {
-	    return "translate(0," + x(i) + ")";
-	})
-	.each(row_fun);
-    
-    // ???: Unfamiliar properties.
-    row.append("line")
-	.attr("x2", width);
-    
-    // Add row header text.
-    row.append("text")
-	.attr("x", -6)
-	.attr("y", x.rangeBand() / 2)
-	.attr("dy", ".30em")
-	.attr("text-anchor", "end")
-	.text(function(d, i) {
-	    return nodes[i].name + ' (' + nodes[i].id + ')';
-	});
-    
-    // For each of the column headers, translate them by a certain
-    // amount, color, etc.
-    var column = svg.selectAll(".column")
-	.data(matrix)
-	.enter().append("g")
-	//.attr("style", "fill: #00ff00;")
-	.attr("class", "column") // mark with class for later reference
-	.attr("transform", function(d, i) {
-	    return "translate(" + x(i) + ")rotate(-90)";
-	});
-    
-    // ???: Unfamiliar properties.
-    column.append("line")
-    	.attr("x1", -width);
-    
-    // Add column header text.
-    column.append("text")
-	.attr("x", 6)
-	.attr("y", x.rangeBand() / 2)
-	.attr("dy", ".30em")
-	.attr("text-anchor", "start")
-	.text(function(d, i) {
-	    return nodes[i].name + ' (' + nodes[i].id + ')';
+
+    ///
+    /// Main function to create the appropriate traces and other
+    /// information given an ordering (a list of default positions).
+    ///
+
+    // ...
+    function _generate_traces_with_order(new_order){
+
+	// Axes vars.
+	var x_axis_id = [];
+	var x_axis_lbl = [];
+	var y_axis_id = [];
+	var y_axis_lbl = [];
+	// Traces and additional embedded hover text vars.
+	var rows = [];
+	var text_rows = [];
+
+	// Iterate over the mapped index, using the node order in data
+	// as the reference.	
+	// Axis mapping.
+	us.each(new_order, function(mapped_index, true_index){
+
+	    var mapped_node = collected_info.nodes[mapped_index];
+
+	    console.log('mapped_index', mapped_index);
+	    console.log('mapped_node', mapped_node);
+
+	    x_axis_id.push(mapped_node.id);
+	    x_axis_lbl.push(mapped_node.name);
+	    y_axis_id.unshift(mapped_node.id);
+	    y_axis_lbl.unshift(mapped_node.name);
+
 	});
 
-    // Make sure the tha info dialog follows the mouse.
-    // Using jQuery so we get a continuous event stream (necessary for
-    // proper hover following).
-    jQuery(document).mousemove(function(event) {
-	
-	if( jQuery("#info").is(":visible") ){
-	    
-	    var pre_x = event.pageX;
-	    var pre_y = event.pageY;
-	    
-	    var xpos = pre_x + 10;
-	    var ypos = pre_y + 10;
-	    
-	    jQuery("#info").css('left', xpos);
-	    jQuery("#info").css('top', ypos);
-	}
+	// going over mapped index, gather traces and additional
+	// embedded hover text.
+	us.each(x_axis_id, function(idx){
+	    var frame = [];
+	    var text_frame = [];
+	    us.each(y_axis_id, function(idy){
+		frame.unshift(collected_info.graph[idx][idy]);
+		text_frame.unshift('(' + idx + ',' + idy + ')');
+	    });
+	    rows.unshift(frame);
+	    text_rows.unshift(text_frame);
+	});
+
+	return {
+	    z: rows,
+	    text: text_rows,
+	    x: x_axis_lbl,
+	    y: y_axis_lbl,
+	    type: 'heatmap'
+	};
+    }
+
+    ///
+    /// Initial runner.
+    ///
+
+    // Get the default order.
+    var order = all_orders.index;
+
+    console.log('all_orders', all_orders);
+    console.log('order', order);
+    //console.log(collected_info);
+
+    jQuery("#initial_placeholder").hide();
+
+    // Initial call.
+    var data_to_render = [_generate_traces_with_order(order)];
+    Plotly.newPlot('matrix_plot', data_to_render, layout);
+
+    ///
+    /// Additional events.
+    ///
+
+    // Capture for use in various events.
+    var plot_obj = document.getElementById('matrix_plot');
+
+    // Re-draw on change.
+    d3.select("#plot_order").on("change", function() {
+
+	var new_order = all_orders[this.value];
+	console.log('selected order value', '"' + this.value + '"');
+	console.log('new_order', new_order);
+
+	// Make mods.
+	var data_to_re_render = [_generate_traces_with_order(new_order)];
+	plot_obj.data = data_to_re_render;
+
+	// Redraw.
+	Plotly.redraw(plot_obj);
+	//Plotly.plot(plot_obj);
+
     });
-    
-    function mouseover(p) {
+
+    // On click, display pop-up with all sorts of goodies.
+    plot_obj.on('plotly_click', function(click_data){
+
+	// console.log('vvv');
+	// console.log(data);
+	// console.log('^^^');
+	// var infotext = data.points.map(function(d){
+	//     return ('x= '+d.x+', y= '+d.y);
+	// });
+	// alert(infotext);
+	var d = click_data.points[0];
+	var xid = name_to_id[d.x];
+	var yid = name_to_id[d.y];
 
 	// Grab the shared bioentity count value.
-    	var sbc = matrix[p.x][p.y].z;
-
-	// Map order to node object.
-	var xn = nodes[p.x];
-	var yn = nodes[p.y];
-
-	// Update the hovering info box.
-	jQuery("#info").empty();
-	jQuery("#info").append("x: <b>" + xn.name + "</b> (" + xn.id + ")");
-	jQuery("#info").append("<br />");
-	jQuery("#info").append("y: <b>" + yn.name + "</b> (" + yn.id + ")");
-	jQuery("#info").append("<br />");
-	jQuery("#info").append("SBC: <b>" + sbc + "</b>");
-	jQuery("#info").show();
-
-	var thing = d3.select(this);
-	thing.style('fill', "red");
-
-	//ll("mouse over: (" + p.x + ', ' + p.y + '): ' + thing);
-
-	// Old class-based code.
-	// //d3.selectAll(".row text").classed("active",
-	// d3.selectAll(".row text").classed("light-cell",
-	// 				  function(d, i) {
-	// 				      return i == p.y;
-	// 				  });
-	// d3.selectAll(".column text").classed("active",
-	// 				     function(d, i) {
-	// 					 return i == p.x;
-	// 				     });
-    }
-    
-    function mouseout(p) {
-
-	// First, get rid of the old info box.
-	jQuery("#info").hide();
-
-	// Now take the color back to where is should be by
-	// recalculating it.
-	var mval = matrix[p.x][p.y].z;
-	var clr = value_to_color(mval);
-	var thing = d3.select(this);
-	thing.style('fill', clr);
-
-	// Old class-based code.
-	//d3.selectAll("text").classed("active", false);
-    }
-
-    function clickcell(p) {
-
-	// Grab the shared bioentity count value.
-    	var sbc = matrix[p.x][p.y].z;
-
-	// Map order to node object.
-	var xn = nodes[p.x];
-	var yn = nodes[p.y];
+    	var sbc = collected_info.graph[xid][yid];
 
 	// Add a link to the bioentity search.
 	var bio_man = _new_manager();
@@ -769,7 +672,7 @@ function RenderStage(data, max_count){
 	});
 
 	// Add the current cell's ids.
-	var ids = us.uniq([xn.id, yn.id]);
+	var ids = us.uniq([xid, yid]);
 	us.each(ids, function(v){
 	    bio_man.add_query_filter('isa_partof_closure', v);
 	});
@@ -781,10 +684,10 @@ function RenderStage(data, max_count){
 	var kick = [
 	    '<ul class="list-unstyled">',
 	    '<li>',
-	    'x: <b>' + xn.name + '</b> (' + xn.id + ')',
+	    'x: <b>' + d.x + '</b> (' + xid + ')',
 	    '</li>',
 	    '<li>',
-	    'y: <b>' + yn.name + '</b> (' + yn.id + ')',
+	    'y: <b>' + d.y + '</b> (' + yid + ')',
 	    '</li>',
 	    '<li>',
 	    'SBC: <b>' + sbc + '</b>',
@@ -793,248 +696,20 @@ function RenderStage(data, max_count){
 	    'Pair-wise bioentity search <a class="btn btn-primary" href="' + lurl + '" target="_blank"><b>Open</b></a>',
 	    '</li>',
 	'</ul>'];
-	//alert(kick);
-	widgets.display.dialog(kick.join(' '), {title: 'Cell information',
-						width: 500});
+	widgets.display.dialog(kick.join(' '),
+			       {title: 'Cell information', width: 500});
 
-    }
-    
-    // Working:    
-    //  function row_fun(in_row) {
-    // 	var cell = d3.select(this).selectAll(".cell")
-    // 	    // .data(in_row.filter(
-    // 	    // 	      function(d) {
-    // 	    // 		  return d.z;
-    // 	    // 	      }))
-    // 	    .data(in_row)
-    // 	    .enter().append("rect")
-    // 	    //.attr("style", "fill: #ff00ff")
-    // 	    .attr("class", "cell") // tag as cell with class for later ref
-    // 	    .attr("x",
-    // 		  function(d) {
-    // 		      return x(d.x);
-    // 		  })
-    // 	    .attr("width", x.rangeBand())
-    // 	    .attr("height", x.rangeBand())
-    // 	    // .style("fill-opacity",
-    // 	    // 	   function(d) {
-    // 	    // 	       return z(d.z);
-    // 	    // 	   })
-    // 	    .style("fill",
-    // 		   function(d) {
-    // 		       var mval = matrix[d.x][d.y].z;
-    // 		       var retcolor = value_to_color(mval);
-    // 		       return retcolor;
-    // 		   })
-    // 	    // .append("text")
-    // 	    // .attr("x",
-    // 	    // 	  function(d) {
-    // 	    // 	      return x(d.x);
-    // 	    // 	  })
-    // 	    // .attr("y", x.rangeBand() / 2)
-    // 	    // .attr("dy", ".30em")
-    // 	    // .attr("text-anchor", "end")
-    // 	    // .text(function(d, i) {
-    // 	    // 	      return '(' + matrix[d.x][d.y].z + ')';
-    // 	    // 	  })
-    // 	    .on("mouseover", mouseover)
-    // 	    .on("mouseout", mouseout);
-    // }
-    
-    function row_fun(in_row) {
-
-	// Create container cells.
-	var rows = d3.select(this).selectAll(".cell")
-	    .data(in_row).enter()
-	    .append("g")
-	    .attr("class", "cell"); // tag as cell with class for later ref
-	    // .attr("x",
-	    // 	  function(d) {
-	    // 	      return x(d.x);
-	    // 	  });
-
-	// WARNING: This next bit is so not thread safe it's funny.
-	// Get the width of a cell in this case.
-	var cw = x.rangeBand(); // essentially a constant
-	// Add text.
-	d3.select(this).selectAll(".cell")
-	    .append("text")
-	    .text(function(d, i) {
-
-		      var final_str = '';
-		      var val_holder = matrix[d.x][d.y].z;
-		      if( val_holder !== 0 ){
-			  // Make the string we'll use.
-			  final_str = '' + val_holder + '';
-		      }
-
-		      // Now also calculate some text scaling.
-		      // WARNING: Guessing at 1em =~ 10px.
-		      var text_scale = '14';
-		      var fs_len = final_str.length;
-		      //ll('out: ' + fs_len + ', ' + cw);
-		      if( fs_len > 1 && (cw / 10.0) < fs_len ){
-			  var tmp_size = (cw / 10.0) / (fs_len * 1.0);
-			  text_scale = 
-			      Math.floor(text_scale * tmp_size);
-			  matrix[d.x][d.y].font_size = text_scale;
-		      }
-
-		      ll('fs: ' + final_str +
-			 ' (' + text_scale + ' over ' + cw + ')');
-	    	      return final_str;
-		  })
-	    .attr("class", "cell") // tag as cell with class for later ref
-	    .attr("x", function(d) {
-	    	return x(d.x);
-	    })
-	    // .attr("y",
-	    // 	  function(d) {
-	    // 	      return x(d.x);
-	    // 	  })
-	    .attr("dy", "1em")
-	    .attr("font-size", function(d) {
-		// WARNING: This works, but saving the value in
-		// a higher scope did not--I can't imagine what
-		// this all folds out to...
-	    	return matrix[d.x][d.y].font_size;
-	    })
-	    .attr("text-anchor", "beginning"); // middle, end
-
-	// Add colored squares.
-	d3.select(this).selectAll(".cell")
-	    .append("rect")
-	    .attr("class", "cell") // tag as cell with class for later ref
-	    .attr("x", function(d) {
-	    	return x(d.x);
-	    })
-	    .attr("width", cw)
-	    .attr("height", cw)
-	    .style("fill", function(d) {
-		var mval = matrix[d.x][d.y].z;
-		var retcolor = value_to_color(mval);
-		return retcolor;
-	    })
-    	    .style("fill-opacity", "0.50")
-	    .on("mouseover", mouseover)
-	    .on("mouseout", mouseout)
-	    .on("click", clickcell);
-
-    }
-    
-    function order(value) {
-
-	ll('Reordering: ' + value);
-
-	x.domain(orders[value]);
-	
-	var t = svg.transition().duration(2500);
-	
-	t.selectAll(".row")
-	    .delay(function(d, i) { return x(i) * 4; })
-	    .attr("transform", function(d, i) {
-		return "translate(0," + x(i) + ")";
-	    })
-	    .selectAll(".cell")
-	    .delay(function(d) { return x(d.x) * 4; })
-	    .attr("x", function(d) { return x(d.x); });
-	
-	t.selectAll(".column")
-	    .delay(function(d, i) { return x(i) * 4; })
-	    .attr("transform", function(d, i) {
-		return "translate(" + x(i) + ")rotate(-90)";
-	    });
-    }
-    
-    d3.select("#order").on("change", function() {
-	//clearTimeout(timeout);
-	order(this.value);
     });
-    
-    // var timeout = setTimeout(
-    //     function() {
-    // 	order("source");
-    // 	d3.select("#order").property("selectedIndex", 2).node().focus();
-    //     }, 5000);
-    
-    ///
-    /// End the section from the example.
-    ///	
-    ll('Completed RenderStage!');
-    ll('Done!');
-}
-
-
-function PlotStage(data, max_count){
-
-    // Ready logging.
-    var logger = new bbop.logger();
-    logger.DEBUG = true;
-    function ll(str){ logger.kvetch('JSMX: ' + str); }
-    ll('PlotStage start...');
-
-    // axes.
-    var x_axis_id = [];
-    var x_axis_lbl = [];
-    var y_axis_id = [];
-    var y_axis_lbl = [];
-    us.each(data.nodes, function(node){
-	x_axis_id.push(node.id);
-	x_axis_lbl.push(node.name);
-	y_axis_id.unshift(node.id);
-	y_axis_lbl.unshift(node.name);
-    });
-    
-    var rows = [];
-    var text_rows = [];
-    us.each(x_axis_id, function(idx){
-	var frame = [];
-	var text_frame = [];
-	us.each(y_axis_id, function(idy){
-	    frame.unshift(data.graph[idx][idy]);
-	    text_frame.unshift('(' + idx + ',' + idy + ')');
-	});
-	rows.unshift(frame);
-	text_rows.unshift(text_frame);
-    });
-
-    var d = [{
-	z: rows,
-	text: text_rows,
-	x: x_axis_lbl,
-	y: y_axis_lbl,
-	type: 'heatmap'
-    }];
-
-    console.log(data);
-
-    // Capture for events.
-    var plot_obj = document.getElementById('matrix_plot');
-    var hover_info = document.getElementById('plot_hover');
-
-    Plotly.newPlot('matrix_plot', d, {
+	// .on('plotly_hover', function(data){
+	//     var infotext = data.points.map(function(d){
+	// 	return ('x= '+d.x+', y= '+d.y);
+	//     });
 	
-    });
-
-    plot_obj.on('plotly_click', function(data){
-	// console.log('vvv');
-	// console.log(data);
-	// console.log('^^^');
-	var infotext = data.points.map(function(d){
-	    return ('x= '+d.x+', y= '+d.y);
-	});
-	alert(infotext);
-    })
-	.on('plotly_hover', function(data){
-	    var infotext = data.points.map(function(d){
-		return ('x= '+d.x+', y= '+d.y);
-	    });
-	
-	    hover_info.innerHTML = infotext.join('');
-	})
-	.on('plotly_unhover', function(data){
-	    hover_info.innerHTML = '';
-	});
+	//     hover_info.innerHTML = infotext.join('');
+	// })
+	// .on('plotly_unhover', function(data){
+	//     hover_info.innerHTML = '';
+	// });
 
     ll('Completed PlotStage!');
     ll('Done!');
