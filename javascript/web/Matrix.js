@@ -486,6 +486,39 @@ function PlotStage(collected_info, max_count){
     /// Variables.
     ///
 
+    // Collect a map of node names to node ids.
+    var name_to_id = {};
+    var id_to_name = {};
+    us.each(collected_info.nodes, function(node){
+	name_to_id[node.name] = node.id;
+	id_to_name[node.id] = node.name;
+    });
+
+    // Generate annotations for all non-zero counts.
+    var anns = [];
+    us.each(collected_info.graph, function(val1, key1){
+	us.each(val1, function(val2, key2){
+
+	    var name1 = id_to_name[key1];
+	    var name2 = id_to_name[key2];
+	    var val = val2;
+	    
+	    if( val !== 0 ){
+		anns.push({
+		    x: name1,
+		    y: name2,
+		    xref: 'x',
+		    yref: 'y',
+		    text: val,
+		    showarrow: false,
+		    // arrowhead: 7,
+		    ax: 0,
+		    ay: 0
+		});
+	    }
+	});
+    });
+    
     // Invariant layout data.
     var layout = {
 	title: 'Pair-wise co-annotation comparison',
@@ -503,6 +536,7 @@ function PlotStage(collected_info, max_count){
 		size: 10
 	    }
 	},
+	annotations: anns,
 	margin: {
 	    //pad:0,
 	    //autoexpand:true,
@@ -512,12 +546,6 @@ function PlotStage(collected_info, max_count){
 	    b:100
 	}
     };
-
-    // Collect a map of node names to node ids.
-    var name_to_id = {};
-    us.each(collected_info.nodes, function(node){
-	name_to_id[node.name] = node.id;
-    });
 
     ///
     /// Calculate possible orderings that we'll use.
@@ -672,6 +700,7 @@ function PlotStage(collected_info, max_count){
 
 	return {
 	    z: rows,
+	    // mode: 'lines+markers+text',
 	    text: text_rows,
 	    x: x_axis_lbl,
 	    y: y_axis_lbl,
