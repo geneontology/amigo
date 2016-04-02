@@ -552,45 +552,95 @@ function PlotStage(collected_info, max_count){
     /// Colors
     ///
 
-    // A value from our values domain in to a color in our range.
-    // 0 always maps to a white-ish color.
-    var c = d3.scale.linear().domain([0,max_count]).rangeRound([127,255]);
-    function value_to_color_dark(val){
-	//var retval = '#efefef';
-	var retval = '#fafafa';
-	if( val !== 0 ){
-	    var cval = c(val);
-	    var cinv = 255 - cval;
-	    var chex = cinv.toString(16);
-	    if( cval ){
-		if( chex.length === 1 ){ chex = '0' + chex; }
-		retval = '#' + chex + chex + chex + '';
-	    }
-	}
-	return retval;
-    }
+    // Collect all extant color points.
+    var values = [];    
+    us.each(collected_info.links, function(link){
+	values.push(link.value);
+    });
+    values.sort();
+    values = us.uniq(values, true); // true = already sorted
+
+    // Create stepped color space, starting at 0.
+    var step_colorscale = [
+	//	[0, 'rgb(255,255,255)']
+    ];
+    // 
+    var c = d3.scale.linear().domain([0,max_count]).range([0,1]);
+    // Generate absolute colorscale.
     function value_to_color_step(val){
-	//var retval = '#efefef';
-	var retval = '#fafafa';
+	//var retval = '#fafafa';
+	var retval = 'rgb(250,250,250)';
 	if( val !== 0 ){
 	    // 1-3 = pale green
 	    // 4-10 = yellow
 	    // 11-100 = orange
 	    // 101+ = red 
 	    if( val <= 3 ){
-		retval = '#79f853'; // green
+		//retval = '#79f853'; // green
+		retval = 'rgb(121,248,83)';
 	    }else if( val <= 10 ){
-		//retval = '#f5ff2b'; // yellow
-		retval = '#e8f129'; // yellow
+		//retval = '#e8f129'; // yellow
+		retval = 'rgb(232,241,41)';
 	    }else if( val <= 100 ){
-		retval = '#fd953b'; // orange		
+		//retval = '#fd953b'; // orange		
+		retval = 'rgb(253,149,59)';
 	    }else{
-		retval = '#ff4e53';
+		//retval = '#ff4e53';
+		retval = 'rgb(255,78,83)';
 	    }
 	}
 	return retval;
-    }
+    }    
+    us.each(values, function(cval, index){
+	step_colorscale.push([
+	    c(cval),
+	    value_to_color_step(cval)
+	]);
+    });
+
+    // // A value from our values domain in to a color in our range.
+    // // 0 always maps to a white-ish color.
+    // function value_to_color_dark(val){
+    // 	//var retval = '#efefef';
+    // 	var retval = '#fafafa';
+    // 	if( val !== 0 ){
+    // 	    var cval = c(val);
+    // 	    var cinv = 255 - cval;
+    // 	    var chex = cinv.toString(16);
+    // 	    if( cval ){
+    // 		if( chex.length === 1 ){ chex = '0' + chex; }
+    // 		retval = '#' + chex + chex + chex + '';
+    // 	    }
+    // 	}
+    // 	return retval;
+    // }
+
+    // Default to a white 0 and slide from red to blue.
+    var default_colorscale = [
+	[0, 'rgb(255,255,255)'],
+	[0.00000000001, 'rgb(0,0,255)'], // from non-0
+	// [0.2, 'rgb(254,224,210)'],
+	// [0.4, 'rgb(252,187,161)'],
+	// [0.5, 'rgb(252,146,114)'],
+	// [0.6, 'rgb(251,106,74)'],
+	// [0.7, 'rgb(239,59,44)'],
+	// [0.8, 'rgb(203,24,29)'],
+	// [0.9, 'rgb(165,15,21)'],
+	// [1, 'rgb(0,0,0)']
+	[1, 'rgb(255,0,0)']
+    ];
     
+    // Decide our coloration live at this point.
+    var colorscale_to_use = default_colorscale;
+    var curr_color_selection = jQuery("input:radio[name=color]:checked").val();
+    if( curr_color_selection === 'heatmap' ){
+	// Pass, it is default.
+    }else if( curr_color_selection === 'step' ){
+	colorscale_to_use = step_colorscale;
+    }
+
+    console.log('colorscale', colorscale_to_use);
+
     ///
     /// Main function to create the appropriate traces and other
     /// information given an ordering (a list of default positions).
@@ -643,19 +693,7 @@ function PlotStage(collected_info, max_count){
 	    text: text_rows,
 	    x: x_axis_lbl,
 	    y: y_axis_lbl,
-	colorscale: [
-	    [0, 'rgb(255,255,255)'],
-	    [0.00000000001, 'rgb(0,0,255)'],
-	    // [0.2, 'rgb(254,224,210)'],
-	    // [0.4, 'rgb(252,187,161)'],
-	    // [0.5, 'rgb(252,146,114)'],
-	    // [0.6, 'rgb(251,106,74)'],
-	    // [0.7, 'rgb(239,59,44)'],
-	    // [0.8, 'rgb(203,24,29)'],
-	    // [0.9, 'rgb(165,15,21)'],
-	    // [1, 'rgb(0,0,0)']
-	    [1, 'rgb(255,0,0)']
-	],
+	    colorscale: colorscale_to_use,
 	    type: 'heatmap',
 	};
     }
