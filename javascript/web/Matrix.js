@@ -505,8 +505,8 @@ function PlotStage(collected_info, max_count){
 	    
 	    if( val !== 0 ){
 		anns.push({
-		    x: name1,
-		    y: name2,
+		    x: name2,
+		    y: name1,
 		    xref: 'x',
 		    yref: 'y',
 		    text: val,
