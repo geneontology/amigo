@@ -621,7 +621,7 @@ function PlotStage(collected_info, max_count){
 
     // Default to a white 0 and slide from red to blue.
     var default_colorscale = [
-	[0, 'rgb(255,255,255)'],
+	[0, 'rgb(250,250,250)'],
 	[0.00000000001, 'rgb(0,0,255)'], // from non-0
 	// [0.2, 'rgb(254,224,210)'],
 	// [0.4, 'rgb(252,187,161)'],
