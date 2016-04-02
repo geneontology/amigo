@@ -557,16 +557,12 @@ function PlotStage(collected_info, max_count){
     us.each(collected_info.links, function(link){
 	values.push(link.value);
     });
-    values.sort();
-    values = us.uniq(values, true); // true = already sorted
+    values = us.uniq(values);
+    values = values.sort();
     console.log('color values', values);
 
     // Create stepped color space, starting at 0.
-    var step_colorscale = [
-	//	[0, 'rgb(255,255,255)']
-    ];
-    // 
-    //var c = d3.scale.linear().domain([0,max_count]).range([0,1]);
+    var step_colorscale = [];
     var value_to_fold = function(val){
 	var ret = 0;
 	if( val !== 0 ){
@@ -608,35 +604,11 @@ function PlotStage(collected_info, max_count){
 	]);
     });
 
-    // // A value from our values domain in to a color in our range.
-    // // 0 always maps to a white-ish color.
-    // function value_to_color_dark(val){
-    // 	//var retval = '#efefef';
-    // 	var retval = '#fafafa';
-    // 	if( val !== 0 ){
-    // 	    var cval = c(val);
-    // 	    var cinv = 255 - cval;
-    // 	    var chex = cinv.toString(16);
-    // 	    if( cval ){
-    // 		if( chex.length === 1 ){ chex = '0' + chex; }
-    // 		retval = '#' + chex + chex + chex + '';
-    // 	    }
-    // 	}
-    // 	return retval;
-    // }
-
     // Default to a white 0 and slide from red to blue.
     var default_colorscale = [
 	[0, 'rgb(250,250,250)'],
 	[0.00000000001, 'rgb(0,0,255)'], // from non-0
 	// [0.2, 'rgb(254,224,210)'],
-	// [0.4, 'rgb(252,187,161)'],
-	// [0.5, 'rgb(252,146,114)'],
-	// [0.6, 'rgb(251,106,74)'],
-	// [0.7, 'rgb(239,59,44)'],
-	// [0.8, 'rgb(203,24,29)'],
-	// [0.9, 'rgb(165,15,21)'],
-	// [1, 'rgb(0,0,0)']
 	[1, 'rgb(255,0,0)']
     ];
     
