@@ -559,6 +559,7 @@ function PlotStage(collected_info, max_count){
     });
     values.sort();
     values = us.uniq(values, true); // true = already sorted
+    console.log('color values', values);
 
     // Create stepped color space, starting at 0.
     var step_colorscale = [
@@ -567,8 +568,12 @@ function PlotStage(collected_info, max_count){
     // 
     //var c = d3.scale.linear().domain([0,max_count]).range([0,1]);
     var value_to_fold = function(val){
-	if( val === 0 ){ return 0; }
-	return val/max_count;
+	var ret = 0;
+	if( val !== 0 ){
+	    ret = val/max_count;
+	}
+	console.log('v2f: ', val + '->' + ret);
+	return ret;
     };
     // Generate absolute colorscale.
     function value_to_color_step(val){
@@ -593,6 +598,7 @@ function PlotStage(collected_info, max_count){
 		retval = 'rgb(255,78,83)';
 	    }
 	}
+	console.log('v2c: ', val + '->' + retval);
 	return retval;
     }    
     us.each(values, function(cval, index){
