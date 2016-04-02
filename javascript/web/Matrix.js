@@ -558,7 +558,7 @@ function PlotStage(collected_info, max_count){
 	values.push(link.value);
     });
     values = us.uniq(values);
-    values = values.sort();
+    values = values.sort(function(a,b){ return a-b; });
     console.log('color values', values);
 
     // Create stepped color space, starting at 0.
