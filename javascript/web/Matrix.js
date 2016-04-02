@@ -565,7 +565,11 @@ function PlotStage(collected_info, max_count){
 	//	[0, 'rgb(255,255,255)']
     ];
     // 
-    var c = d3.scale.linear().domain([0,max_count]).range([0,1]);
+    //var c = d3.scale.linear().domain([0,max_count]).range([0,1]);
+    var value_to_fold = function(val){
+	if( val === 0 ){ return 0; }
+	return val/max_count;
+    };
     // Generate absolute colorscale.
     function value_to_color_step(val){
 	//var retval = '#fafafa';
@@ -593,7 +597,7 @@ function PlotStage(collected_info, max_count){
     }    
     us.each(values, function(cval, index){
 	step_colorscale.push([
-	    c(cval),
+	    value_to_fold(cval),
 	    value_to_color_step(cval)
 	]);
     });
