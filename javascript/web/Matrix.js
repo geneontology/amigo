@@ -536,7 +536,7 @@ function PlotStage(collected_info, max_count){
 		size: 10
 	    }
 	},
-	annotations: anns,
+	// annotations: anns,
 	margin: {
 	    //pad:0,
 	    //autoexpand:true,
