@@ -175,6 +175,7 @@ GOLR_ONTOLOGY_LIST:
     - http://purl.obolibrary.org/obo/uberon/basic.owl
     - http://purl.obolibrary.org/obo/wbbt.owl
     - http://purl.obolibrary.org/obo/go/extensions/go-modules-annotations.owl
+    - http://purl.obolibrary.org/obo/go/extensions/go-taxon-subsets.owl
 GOLR_PANTHER_FILE_PATH:
   comment: The location of the cleaned PANTHER file for the proper loading into GOlr.
   type: directory
