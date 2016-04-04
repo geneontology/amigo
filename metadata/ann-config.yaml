@@ -286,12 +286,12 @@ fields:
 #     cardinality: multi
 #     property: []
   - id: evidence_type
-    description: "Evidence type."
+    description: "Evidence type. (legacy)"
     display_name: Evidence
     type: string
     property: []
   - id: evidence_type_closure
-    description: "All evidence (evidence closure) for this annotation"
+    description: "All evidence (evidence closure) for this annotation. (legacy)"
     display_name: Evidence type
     type: string
     cardinality: multi
@@ -303,6 +303,43 @@ fields:
     searchable: true
     cardinality: multi
     property: []
+  - id: evidence
+    description: "Evidence."
+    display_name: Evidence
+    type: string
+    property: []
+  - id: evidence_label
+    description: "Evidence."
+    display_name: Evidence
+    type: string
+    property: []
+    searchable: true
+  - id: evidence_closure
+    description: "All evidence for this annotation."
+    display_name: Evidence
+    type: string
+    cardinality: multi
+    property: []
+  - id: evidence_closure_label
+    description: "All evidence for this annotation."
+    display_name: Evidence
+    type: string
+    cardinality: multi
+    property: []
+    searchable: true
+  - id: evidence_subset_closure
+    description: "All evidence for this annotation reduced to a usable subset."
+    display_name: Evidence
+    type: string
+    cardinality: multi
+    property: []
+  - id: evidence_subset_closure_label
+    description: "All evidence for this annotation reduced to a usable subset."
+    display_name: Evidence
+    type: string
+    cardinality: multi
+    property: []
+    searchable: true
   - id: reference
     description: "Database reference."
     display_name: Reference

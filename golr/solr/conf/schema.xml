@@ -46,6 +46,7 @@
     <copyField source="description" dest="description_searchable"></copyField>
     <!-- ontology: Term namespace. -->
     <!-- bioentity: Database source. -->
+    <!-- bioentity_for_browser: Database source. -->
     <!-- annotation: Database source. -->
     <field name="source" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- ontology: Term ID space. -->
@@ -182,15 +183,20 @@
     <!-- annotation: The bioentity ID used at the database of origin. -->
     <field name="bioentity_internal_id" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bioentity: Type class. -->
+    <!-- bioentity_for_browser: Type class. -->
     <!-- annotation: Type class. -->
     <field name="type" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- bioentity: Taxonomic group -->
+    <!-- bioentity_for_browser: Taxonomic group -->
     <!-- annotation: Taxonomic group. -->
+    <!-- annotation_for_browser: Taxonomic group. -->
     <!-- model_annotation: GAF column 13 (taxon). -->
     <!-- bbop_ann_ev_agg: Column 13: taxon. -->
     <field name="taxon" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- bioentity: Taxonomic group -->
+    <!-- bioentity_for_browser: Taxonomic group -->
     <!-- annotation: Taxonomic group and ancestral groups. -->
+    <!-- annotation_for_browser: Taxonomic group and ancestral groups. -->
     <!-- model_annotation: Taxon derived from GAF column 13 and ncbi_taxonomy.obo. -->
     <!-- bbop_ann_ev_agg: Derived from C13 + ncbi_taxonomy.obo. -->
     <field name="taxon_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
@@ -198,12 +204,16 @@
     <field name="taxon_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
     <copyField source="taxon_label" dest="taxon_label_searchable"></copyField>
     <!-- bioentity: Taxonomic group and ancestral groups. -->
+    <!-- bioentity_for_browser: Taxonomic group and ancestral groups. -->
     <!-- annotation: Taxonomic group and ancestral groups. -->
+    <!-- annotation_for_browser: Taxonomic group and ancestral groups. -->
     <!-- model_annotation: Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo. -->
     <!-- bbop_ann_ev_agg: IDs derived from C13 + ncbi_taxonomy.obo. -->
     <field name="taxon_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- bioentity: Taxonomic group and ancestral groups. -->
+    <!-- bioentity_for_browser: Taxonomic group and ancestral groups. -->
     <!-- annotation: Taxonomic group and ancestral groups. -->
+    <!-- annotation_for_browser: Taxonomic group and ancestral groups. -->
     <!-- model_annotation: Taxon label closure derived from GAF column 13 and ncbi_taxonomy.obo. -->
     <!-- bbop_ann_ev_agg: Labels derived from C13 + ncbi_taxonomy.obo. -->
     <field name="taxon_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
@@ -215,10 +225,14 @@
     <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
     <field name="taxon_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- bioentity: Taxonomic group (direct) and ancestral groups that are within the specified subset (e.g mammalia, eukaryota). -->
+    <!-- bioentity_for_browser: Taxonomic group (direct) and ancestral groups that are within the specified subset (e.g mammalia, eukaryota). -->
     <!-- annotation: Taxonomic group (direct) and ancestral groups that are within the specified subset (e.g mammalia, eukaryota). -->
+    <!-- annotation_for_browser: Taxonomic group (direct) and ancestral groups that are within the specified subset (e.g mammalia, eukaryota). -->
     <field name="taxon_subset_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!-- bioentity: Labels for taxonomic group (direct) and ancestral groups that are within the specified subset. -->
-    <!-- annotation: Labels for taxonomic group (direct) and ancestral groups that are within the specified subset. -->
+    <!-- bioentity_for_browser: Labels for taxonomic group (direct) and ancestral groups that are within the specified subset. -->
+    <!-- annotation: Taxonomic group (direct) and ancestral groups that are within the specified subset (e.g mammalia, eukaryota). -->
+    <!-- annotation_for_browser: Labels for taxonomic group (direct) and ancestral groups that are within the specified subset. -->
     <field name="taxon_subset_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!--An easily searchable (TextField tokenized) version of taxon_subset_closure_label.-->
     <field name="taxon_subset_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
@@ -297,10 +311,12 @@
     <field name="aspect" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
     <!-- annotation: Biological isoform. -->
     <field name="bioentity_isoform" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- annotation: Evidence type. -->
+    <!-- annotation: Evidence type. (legacy) -->
+    <!-- annotation_for_browser: Evidence type. -->
     <!-- model_annotation: Evidence type. -->
     <field name="evidence_type" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
-    <!-- annotation: All evidence (evidence closure) for this annotation -->
+    <!-- annotation: All evidence (evidence closure) for this annotation. (legacy) -->
+    <!-- annotation_for_browser: All evidence (evidence closure) for this annotation -->
     <!-- model_annotation: All evidence (evidence closure) for this annotation -->
     <!-- bbop_ann_ev_agg: All evidence for this term/gene product pair -->
     <field name="evidence_type_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
@@ -311,6 +327,35 @@
     <!--An easily searchable (TextField tokenized) version of evidence_with.-->
     <field name="evidence_with_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
     <copyField source="evidence_with" dest="evidence_with_searchable"></copyField>
+    <!-- annotation: Evidence. -->
+    <field name="evidence" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- annotation: Evidence. -->
+    <field name="evidence_label" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of evidence_label.-->
+    <field name="evidence_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <copyField source="evidence_label" dest="evidence_label_searchable"></copyField>
+    <!-- annotation: All evidence for this annotation. -->
+    <field name="evidence_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- annotation: All evidence for this annotation. -->
+    <field name="evidence_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of evidence_closure_label.-->
+    <field name="evidence_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="evidence_closure_label" dest="evidence_closure_label_searchable"></copyField>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between evidence_(list|closure) and evidence_closure_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="evidence_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
+    <!-- annotation: All evidence for this annotation reduced to a usable subset. -->
+    <field name="evidence_subset_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!-- annotation: All evidence for this annotation reduced to a usable subset. -->
+    <field name="evidence_subset_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--An easily searchable (TextField tokenized) version of evidence_subset_closure_label.-->
+    <field name="evidence_subset_closure_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="evidence_subset_closure_label" dest="evidence_subset_closure_label_searchable"></copyField>
+    <!-- Automatically created to capture mapping information -->
+    <!-- between evidence_subset_(list|closure) and evidence_subset_closure_label.-->
+    <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
+    <field name="evidence_subset_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"></field>
     <!-- annotation: Database reference. -->
     <!-- model_annotation: Database reference. -->
     <field name="reference" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
