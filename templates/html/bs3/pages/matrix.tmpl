@@ -62,8 +62,8 @@
 		    <label>
 		      <input type="radio"
 			     name="color"
-			     value="heatmap"
-			     checked="yes">relative heatmap</input>
+			     value="dark"
+			     checked="yes">shade heatmap</input>
 		    </label>
 		    <br />
 		    <label>
@@ -78,7 +78,7 @@
 		  <button id="button"
 			  type="button"
 			  class="btn btn-primary">Process</button>
-		</div>	  
+		</div>
 		
 	      </div>
 	      
@@ -96,7 +96,8 @@
 
 		<div id="order-selector">
 		  <h5>Order</h5>
-		  <select id="plot_order" class="form-control">
+		  <!-- <select id="plot_order" class="form-control"> -->
+		  <select id="order" class="form-control">
 		    <option value="name">by term name</option>
 		    <option value="source">by ontology</option>
 		    <!-- <option value="id">by term id</option> -->
@@ -117,5 +118,14 @@
     </div>
   </div>
 </div>
+
+<hr />
+
+<div id="info" style="position:absolute; background-color:#aabbbb; border-style:solid; border-width:1px; border-color:black; text-align:left; padding: 1.5em;" ></div>
+
+<!-- <div id="matrix_results" style="text-align: center; width: 800px; height:800px;" /> -->
+<div id="matrix_results" style="margin-left: 300px;"></div>
+
+<div class="clearboth"></div>
 
 <!-- End: matrix.tmpl -->
