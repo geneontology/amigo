@@ -138,6 +138,8 @@ sub get_css {
     push @mbuf, $self->get_interlink({mode=>'style',
 				      optional=>{full=>1},
 				      arg=>{}})
+  }elsif( $sig =~ /^http(s)?\:\/\// ){ # maybe just an external link?
+    push @mbuf, $sig;
   }else{
     push @mbuf, $self->amigo_env('AMIGO_CSS_URL') . '/';
     $sig =~ s/\./\//gs;

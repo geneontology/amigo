@@ -237,6 +237,8 @@ sub get_lib {
     push @mbuf, $self->amigo_env('AMIGO_JS_URL') . '/';
     $path = $sig2path->{$sig};
     push @mbuf, $path;
+  }elsif( $sig =~ /^http(s)?\:\/\// ){ # maybe just an external link?
+    push @mbuf, $sig;
   }else{
     ## An "unknown"/default staging path--our locally developed stuff.
     ## Since not in the registry, transform and hope for the best...
