@@ -46,6 +46,11 @@
 	  <div>
 	    <h4>Filter results</h4>
 	    
+	    [% IF use_geospatial %]
+	    <div id="map">Loading...</div>
+	    <br />
+	    [% END %]
+
 	    <div id="accordion" class="bbop-widget-set-live-filters">
 	      Loading...
 	    </div>

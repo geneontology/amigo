@@ -1239,6 +1239,21 @@ sub mode_search {
       'pages/live_search_golr.tmpl'
      ]
     };
+
+  ## Secret geospatial demo mode.
+  if( 0 ){
+    ## Libs.
+    unshift @{$prep->{css_library}},
+      'http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css';
+    unshift @{$prep->{javascript_library}},
+      'http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js';
+    ## JS var.
+    unshift @{$prep->{javascript}},
+      $self->{JS}->make_var('global_use_geospatial', 1);
+    ## Template.
+    $self->set_template_parameter('use_geospatial', 1);
+  }
+
   $self->add_template_bulk($prep);
   return $self->generate_template_page_with();
 }

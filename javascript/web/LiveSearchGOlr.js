@@ -6,6 +6,7 @@
 // Let jshint pass over over our external globals (browserify takes
 // care of it all).
 /* global jQuery */
+/* global global_use_geospatial */
 /* global global_live_search_pins */
 /* global global_live_search_query */
 /* global global_live_search_personality */
@@ -333,6 +334,13 @@ function LiveSearchGOlrInit(){
 	///
 	/// Setup widgets around manager.
 	///
+
+	// Conditionally attach geospatial filter.
+	if( typeof(global_use_geospatial) !== 'undefined' ){
+	    var gargs = {};
+	    var geospat =
+		    new widgets.live_geospatial('map', manager, gconf, hargs);
+	}
 
 	// Attach filters to manager.
 	var hargs = {

@@ -49,6 +49,7 @@ try {
     // actual final widgets
     module.exports.autocomplete_simple = require('./autocomplete_simple');
     module.exports.live_filters = require('./live_filters');
+    module.exports.live_geospatial = require('./live_geospatial');
     module.exports.live_pager = require('./live_pager');
     module.exports.live_results = require('./live_results');
 }catch (e){
