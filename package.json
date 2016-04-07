@@ -51,8 +51,10 @@
     "plotly.js": "1.7.0",
     "pup-tent": "0.9.10",
     "request": "2.65.0",
+    "solr-client": "0.6.0",
     "time": "0.11.4",
     "underscore": "1.8.3",
+    "underscore.string": "3.2.2",
     "yamljs": "0.2.3"
   },
   "devDependencies": {

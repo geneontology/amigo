@@ -262,6 +262,7 @@ gulp.task('install', ['compile', 'build']);
 var web_compilables = [
     // 'DDBrowse.js', // current working set
     // 'Matrix.js'    // current working set
+    // 'LiveSearchGOlr.js'    // current working set
     'AmiGOBioView.js',
     'AmiGOCytoView.js',
     'BaseStatistics.js',

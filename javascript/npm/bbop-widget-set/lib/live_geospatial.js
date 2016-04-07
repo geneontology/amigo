@@ -121,12 +121,23 @@ var live_geospatial = function(interface_id, manager, in_argument_hash){
 
 	// Now add markers for all new results in table.
 	// Until we have long lat loaded...
-	var _rand_lat = function(){ return Math.random() * (-90 - 90) + 90;};
-	var _rand_long = function(){ return Math.random() * (-180 - 180) + 180;};
+	// var _rand_lat = function(){ return Math.random() * (-90 - 90) + 90;};
+	// var _rand_long = function(){ return Math.random() * (-180 - 180) + 180;};
 	each(resp.documents(), function(doc){
 
+	    console.log(doc);
+
+	    // Extract the lat/long data and convert out of integer
+	    // space.
+	    var int_long = parseInt(doc['geospatial_x']);
+	    var int_lat = parseInt(doc['geospatial_y']);
+	    var float_long = int_long / 1000000.0;
+	    var float_lat = int_lat / 1000000.0;
+
+	    console.log(float_long, float_lat);
+
 	    // Add to display.
-	    var marker = L.marker([_rand_lat(), _rand_long()]).addTo(ags)
+	    var marker = L.marker([float_lat, float_long]).addTo(ags)
 		    .bindPopup(doc['annotation_class_label'] +
 			       ', ' +
 			       doc['bioentity_label']);
@@ -149,14 +160,27 @@ var live_geospatial = function(interface_id, manager, in_argument_hash){
 	if( e && e.target && e.target.getBounds ){
 	    var bounds = e.target.getBounds();
 	    if( bounds ){
-		var north = bounds.getNorth();
-		var south = bounds.getSouth();
-		var west = bounds.getWest();
-		var east = bounds.getEast();
-		console.log("Bounds set: ", bounds.toBBoxString());
-
-		// TODO: Set manager with these bounds filters.
-		//
+		var north = Math.round(bounds.getNorth() * 1000000);
+		var south = Math.round(bounds.getSouth() * 1000000);
+		var west = Math.round(bounds.getWest() * 1000000);
+		var east = Math.round(bounds.getEast() * 1000000);
+		
+		//console.log("Bounds set: ", bounds.toBBoxString());
+		console.log("Tween x _ long _ n/s: ", south, north);
+		console.log("Tween y _ lat _ w/e: ", west, east);
+		
+		// Set manager with these bounds filters.
+		// manager.remove_query_filter('geospatial_x');
+		// manager.remove_query_filter('geospatial_y');
+		// manager.add_query_filter('geospatial_x',
+    		// 			 '['+ west + ' TO ' + east +']');
+		// manager.add_query_filter('geospatial_y',
+    		// 			 '['+ south + ' TO ' + north +']');
+		// TODO/BUG: Manager does not do unquoted stuff, which
+		// is what we need here. Manually add and reset the extra bits.
+		manager.set_extra(
+		    '&fq=geospatial_x:['+ west + ' TO ' + east +']' +
+			'&fq=geospatial_y:['+ south + ' TO ' + north +']');
 
 		// Trigger search with new filters.
 		manager.search();

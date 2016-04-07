@@ -257,8 +257,7 @@ function LiveSearchGOlrInit(){
 	if( personality === 'annotation' ){
 	    
 	    label_to_use = 'annotation(s)';
-    	    manager.add_query_filter('document_category',
-    				     'annotation', ['*']);
+    	    manager.add_query_filter('document_category', 'annotation', ['*']);
 	    
 	    // Only add matrix button for labs for now.
 	    if( sd.beta && sd.beta === '1' ){
@@ -337,6 +336,12 @@ function LiveSearchGOlrInit(){
 
 	// Conditionally attach geospatial filter.
 	if( typeof(global_use_geospatial) !== 'undefined' ){
+
+	    // As we're still playing around, we need to make sure we
+	    // get our fields in the return.
+	    manager.set('fl', manager.get('fl') + ',geospatial_x,geospatial_y');
+
+	    // Add the widget.
 	    var gargs = {};
 	    var geospat =
 		    new widgets.live_geospatial('map', manager, gconf, hargs);
