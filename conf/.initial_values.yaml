@@ -144,7 +144,9 @@ GOLR_METADATA_LIST:
   value:
     - '~/local/src/git/amigo/metadata/ont-config.yaml'
     - '~/local/src/git/amigo/metadata/bio-config.yaml'
+    - '~/local/src/git/amigo/metadata/bio-config.browse.yaml'
     - '~/local/src/git/amigo/metadata/ann-config.yaml'
+    - '~/local/src/git/amigo/metadata/ann-config.browse.yaml'
     - '~/local/src/git/amigo/metadata/general-config.yaml'
     - '~/local/src/git/amigo/metadata/model-ann-config.yaml'
     - '~/local/src/git/amigo/metadata/noctua-model-meta-config.yaml'
@@ -162,10 +164,10 @@ GOLR_ONTOLOGY_LIST:
   comment: The list of ontologies to load.
   type: list
   value:
-    - http://purl.obolibrary.org/obo/go/extensions/go-plus.owl
+    - http://purl.obolibrary.org/obo/go/extensions/go-gaf.owl
+    - http://purl.obolibrary.org/obo/eco.owl
     - http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl
     - http://purl.obolibrary.org/obo/cl/cl-basic.owl
-    - http://purl.obolibrary.org/obo/eco.owl
     - http://purl.obolibrary.org/obo/go/extensions/gorel.owl
     - http://purl.obolibrary.org/obo/ma.owl
     - http://purl.obolibrary.org/obo/pato.owl
@@ -175,6 +177,7 @@ GOLR_ONTOLOGY_LIST:
     - http://purl.obolibrary.org/obo/uberon/basic.owl
     - http://purl.obolibrary.org/obo/wbbt.owl
     - http://purl.obolibrary.org/obo/go/extensions/go-modules-annotations.owl
+    - http://purl.obolibrary.org/obo/go/extensions/go-taxon-subsets.owl
 GOLR_PANTHER_FILE_PATH:
   comment: The location of the cleaned PANTHER file for the proper loading into GOlr.
   type: directory
@@ -182,7 +185,7 @@ GOLR_PANTHER_FILE_PATH:
 OWLTOOLS_MAX_MEMORY:
   comment: The maximum amount of memory to give OWLTools processes.
   type: string
-  value: 3G
+  value: 4G
 OWLTOOLS_USE_MERGE_IMPORT:
   comment: Whether or not to include --merge-import http://purl.obolibrary.org/obo/go/extensions/go-plus.owl.
   type: boolean
@@ -190,4 +193,4 @@ OWLTOOLS_USE_MERGE_IMPORT:
 OWLTOOLS_USE_REMOVE_DISJOINTS:
   comment: Whether or not to include --remove-disjoints.
   type: boolean
-  value: 1
+  value: 0
