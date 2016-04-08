@@ -263,9 +263,11 @@ var web_compilables = [
     // 'DDBrowse.js', // current working set
     // 'Matrix.js'    // current working set
     // 'LiveSearchGOlr.js'    // current working set
+    // 'Browse.js'    // current working set
     'AmiGOBioView.js',
     'AmiGOCytoView.js',
     'BaseStatistics.js',
+    'Browse.js',
     'BulkSearch.js',
     'DDBrowse.js',
     'FacetMatrix.js',

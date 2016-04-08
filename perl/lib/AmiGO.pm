@@ -2302,13 +2302,15 @@ sub dynamic_dispatch_table_amigo {
      'schema_details'      => { app => $aapp, rm => 'schema_details' },
      'load_details'        => { app => $aapp, rm => 'load_details' },
      'owltools_details'    => { app => $aapp, rm => 'owltools_details' },
-     'browse'              => { app => $aapp, rm => 'browse' },
      'dd_browse'           => { app => $aapp, rm => 'dd_browse' },
      'base_statistics'     => { app => $aapp, rm => 'base_statistics' },
      'free_browse'         => { app => $aapp, rm => 'free_browse' },
      ##
      ## Soft applications (may take some parameters, browser-only).
      ##
+     'browse/:term?'       => { app => $aapp, rm => 'specific_browse',
+				'term' => 'term' },
+     'browse'              => { app => $aapp, rm => 'browse'},
      'medial_search'       => { app => $aapp, rm => 'medial_search' },
      'simple_search'       => { app => $aapp, rm => 'simple_search' },
      'bulk_search/:personality' => { app => $aapp, rm => 'bulk_search',

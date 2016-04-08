@@ -42,6 +42,8 @@ module.exports.set = set;
 module.exports.html = require('./html');
 // generators subsection is safe.
 module.exports.generators = require('./generators');
+// graph tools are safe
+module.exports.graph_tools = require('./graph_tools');
 
 try {
     // not so safe subsets
@@ -52,6 +54,7 @@ try {
     module.exports.live_geospatial = require('./live_geospatial');
     module.exports.live_pager = require('./live_pager');
     module.exports.live_results = require('./live_results');
+    module.exports.browse = require('./browse');
 }catch (e){
     //console.error(e);
     console.error('vvvvv');

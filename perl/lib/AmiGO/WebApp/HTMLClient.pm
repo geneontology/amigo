@@ -67,6 +67,7 @@ sub setup {
 		   'specific_search'     => 'mode_search',
 		   'bulk_search'         => 'mode_bulk_search',
 		   'browse'              => 'mode_browse',
+		   'specific_browse'     => 'mode_browse',
 		   'dd_browse'           => 'mode_dd_browse',
 		   'base_statistics'     => 'mode_base_statistics',
 		   'free_browse'         => 'mode_free_browse',
@@ -229,16 +230,25 @@ sub mode_browse {
 
   my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile();
+  ## Deal with the different types of dispatch we might be facing.
+  $params->{term} = $self->param('term')
+    if ! $params->{term} && $self->param('term');
 
   ## Page settings.
   my $page_name = 'browse';
-  my($page_title, 
+  my($page_title,
      $page_content_title,
-     $page_help_link) = $self->_resolve_page_settings($page_name);  
+     $page_help_link) = $self->_resolve_page_settings($page_name);
   $self->set_template_parameter('page_name', $page_name);
   $self->set_template_parameter('page_title', $page_title);
   $self->set_template_parameter('page_content_title', $page_content_title);
   $self->set_template_parameter('page_help_link', $page_help_link);
+
+  ## See if we are looking at a specific term, or just browsing.
+  my $in_term = $params->{term};
+  if( $in_term ){
+    $self->set_template_parameter('in_term', $in_term);
+  }
 
   ## Get the layout info to describe which buttons should be
   ## generated.
@@ -263,18 +273,13 @@ sub mode_browse {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo2'
+      'com.jquery-ui'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-      $self->{JS}->get_lib('Browse.js')
-     ],
-     javascript_init =>
-     [
-      'BrowseInit();'
+      $self->{JS}->get_lib('Browse.js'),
+      $self->{JS}->make_var('global_in_term', $in_term)
      ],
      content =>
      [
