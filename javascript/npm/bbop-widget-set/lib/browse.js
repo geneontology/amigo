@@ -14,6 +14,7 @@ var bbop = require('bbop-core');
 
 var html = require('./html');
 var display = require('./display');
+var generators = require('./generators');
 
 // Graphs.
 var model = require('bbop-graph');
@@ -35,7 +36,7 @@ var graph_tools = require('./graph_tools');
  * 
  *  topology_graph_field -  the field for the topology graph
  *  transitivity_graph_field - the field for the transitivity graph
- *  info_button_callback - functio to call when info clicked, gets doc
+ *  info_button_callback - function to call when info clicked, gets term id
  *  base_icon_url - the url base that the fragments will be added to
  *  image_type - 'gif', 'png', etc.
  *  current_icon - the icon fragment for the current term
@@ -176,7 +177,7 @@ var browse = function(manager, interface_id, in_argument_hash){
 		    };
 		    nav_b = new html.span(nid, inact_attrs);
 		}else{
-		    var tbs = display.text_button_sim;
+		    var tbs = generators.text_button_sim;
 		    var bttn_title =
 			    'Reorient neighborhood onto this node ('+ nid +').';
 		    nav_b = new tbs(nid, bttn_title);
@@ -272,8 +273,7 @@ var browse = function(manager, interface_id, in_argument_hash){
 	    jQuery('#' + button_id).click(function(){
 		var tid = jQuery(this).attr('id');
 		var call_time_node_id = info_button_hash[tid];
-		var call_time_doc = resp.get_doc(call_time_node_id);
-		anchor._info_button_callback(call_time_node_id, call_time_doc);
+		anchor._info_button_callback(call_time_node_id);
 	    });
 	});
     }

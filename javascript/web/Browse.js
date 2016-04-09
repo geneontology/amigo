@@ -71,10 +71,6 @@ function BrowseInit(){
     /// The info shield.
     ///
 
-    // var shield = new widgets.term_shield(gserv, gconf,
-    // 					 {'linker_function': linker });
-    // shield.set_personality('ontology');
-
     ///
     /// Setup the browsers for all of our roots.
     ///
@@ -83,10 +79,13 @@ function BrowseInit(){
     if( global_in_term ){
 	terms = [global_in_term];
     }else{
-	terms = sd.root_terms;
+	terms = us.map(sd.root_terms,function(root_termlet){
+	    return root_termlet.id;
+	});
     }
+    console.log('terms', terms);
 
-    us.each(terms, function(root_term){
+    us.each(terms, function(term){
 
 	///
 	/// The tree browsers.
@@ -110,14 +109,21 @@ function BrowseInit(){
 		'current_icon': 'current_term',
 		'image_type': 'gif',
 		'info_button_callback':
-		function(term_acc, term_doc){
-		    // // Local form.
-		    // shield.draw(term_doc);
-		    // Remote form (works).
-		    //shield.draw(term_acc);
+		function(term_acc){
+
+		    console.log('term_acc', term_acc);
+
+		    var term_manager = _create_manager('ontology');
+		    var confc = gconf.get_class('ontology');
+		    term_manager.set_id(term_acc);
+		    term_manager.register('search', function(resp, tman){
+			widgets.display.term_shield(resp.get_doc(0), confc,
+						    linker, {}, {});
+		    });
+		    term_manager.search();
 		}
 	    });
-	b.draw_browser(root_term);
+	b.draw_browser(term);
 
     });
 }
