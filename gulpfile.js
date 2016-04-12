@@ -519,13 +519,14 @@ gulp.task('release', ['install', // compile and roll out files and js templates
 		      'patch-bump', // bump the main amigo
 		      'sync-package-version']); // bump the subordinates
 
+// TODO
 gulp.task('publish-npm', function(cb) {
-  var npm = require("npm");
-  npm.load(function(er, npm) {
-    // NPM
-    npm.commands.publish();
-  });
-  cb(null);
+    var npm = require("npm");
+    npm.load(function(er, npm) {
+	// NPM
+	//    npm.commands.publish();
+    });
+    cb(null);
 });
 
 gulp.task('patch-bump', function(cb) {
