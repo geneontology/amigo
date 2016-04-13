@@ -163,7 +163,7 @@ function enrich_identifiers(docs){
                     _die('Could not commit updates to GOlr server: ' + err);
                 }else{
                     ll('All docs added; completed enrichment.');
-                    console.log(docs);
+                    //console.log(docs);
                 }
             });
         }
