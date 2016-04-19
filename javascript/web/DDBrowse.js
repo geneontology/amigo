@@ -479,7 +479,7 @@ function ResetTreeWithRootInfo(root_docs, entity_counts, filter_manager){
 		var lstate = ann_man.get_filter_query_string();
 		var lurl = linker.url(lstate, 'search', 'bioentity');
 
-		add_ons.push(['Gene products', '<a href="' + lurl + '" target="_blank"><b>retrieve gene products annotated to this term fir this filter set</b></a>']);
+		add_ons.push(['Gene products', '<a href="' + lurl + '" target="_blank"><b>retrieve gene products annotated to this term for this filter set</b></a>']);
 
 		// 
 		widgets.display.term_shield(doc, confc, linker, {}, add_ons);
