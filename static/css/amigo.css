@@ -178,11 +178,12 @@ a:hover .hilite, a:active .hilite {
     margin-bottom: 10px;
 }
 
-/* /\* Override JSTree icons. *\/ */
-/* .jstree-icon { */
-/*     /\* background-image: url(images/jstree-icons.png); *\/ */
-/*     background-image: url('/static/images/tools.png'); */
-/* } */
-/* .jstree-default .jstree-node, .jstree-default .jstree-icon { */
-/*     background-image: url('/static/images/tools.png'); */
-/* } */
+/* Make the BS3 warning pop a little bit more. */
+.alert-warning {
+    color: #514023;
+    background-color: #ffdea3;
+    border-color: #fe9898;
+}
+.alert-warning .alert-link {
+    color: #3b2e18;
+}

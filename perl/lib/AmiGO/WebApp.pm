@@ -1270,7 +1270,7 @@ sub generate_template_page_with {
   ## Before we start, make sure that the beta is announced.
   my $is_beta = $self->_atoi($self->{CORE}->amigo_env('AMIGO_BETA'));
   if( defined $is_beta && $is_beta ){
-    $self->add_mq('notice', 'You are using an'.
+    $self->add_mq('warning', 'You are using an'.
 		  ' <a title="Go to AmiGO Labs explanation page"'.
 		  ' href="http://wiki.geneontology.org/index.php/AmiGO_Labs"'.
 		  ' class="alert-link">'.
