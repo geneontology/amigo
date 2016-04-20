@@ -1603,8 +1603,8 @@ sub mode_term_details {
 	'QUICKGO_TERM_LINK',
 	$qg_term->get_term_link($input_term_id));
     $self->set_template_parameter(
-	'QUICKGO_ENGINE_P',
-	$self->{CORE}->amigo_env('AMIGO_GO_ONLY_GRAPHICS'));
+	'AMIGO_FOR_GO_P',
+	$self->{CORE}->amigo_env('AMIGO_FOR_GO'));
   }
 
   ###
