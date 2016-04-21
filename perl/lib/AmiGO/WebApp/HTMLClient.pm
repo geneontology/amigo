@@ -420,9 +420,9 @@ sub mode_free_browse {
 
   ## Page settings.
   my $page_name = 'free_browse';
-  my($page_title, 
+  my($page_title,
      $page_content_title,
-     $page_help_link) = $self->_resolve_page_settings($page_name);  
+     $page_help_link) = $self->_resolve_page_settings($page_name);
   $self->set_template_parameter('page_name', $page_name);
   $self->set_template_parameter('page_title', $page_title);
   $self->set_template_parameter('page_content_title', $page_content_title);
@@ -453,18 +453,12 @@ sub mode_free_browse {
       'com.bootstrap',
       'com.jquery-ui',
       'org.cytoscape',
-      'bbop',
-      'amigo2'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-      $self->{JS}->get_lib('CytoDraw.js'),
+      #$self->{JS}->get_lib('CytoDraw.js'),
       $self->{JS}->get_lib('FreeBrowse.js')
-     ],
-     javascript_init =>
-     [
-      'FreeBrowseInit();'
      ],
      content =>
      [
