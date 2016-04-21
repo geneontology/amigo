@@ -51,6 +51,19 @@ var amigo = function(more_dispatch){
     var meta_data = this.data.server.meta_data;
     var tre_str = meta_data.term_regexp;
     var tre = new RegExp(tre_str); // compile upfront
+
+    // Construct a one-time map of aliases to canonical IDs.
+    var alias_map = {};
+    if( anchor.data && anchor.data.context ){
+	us.each(anchor.data.context, function(context_data, context_id){
+	    
+	    if( context_data.aliases ){
+		us.each(context_data.aliases, function(alias){
+		    alias_map[alias] = context_id;
+		});
+	    }
+	});
+    }
     
     /*
      * Function: term_id_p
@@ -148,6 +161,29 @@ var amigo = function(more_dispatch){
     //    this.ui = {};
 
     /*
+     * Function: dealias
+     * 
+     * Attempt to convert an incoming ID into the canonical ID used
+     * for the context.
+     * 
+     * Parameters:
+     *  map_id - the string id of the entity
+     * 
+     * Returns:
+     *  string (true id) or null
+     */
+    this.dealias = function(map_id){
+	
+	var retval = null;
+
+	if( alias_map[map_id] ){
+	    retval = alias_map[map_id];
+	}
+
+	return retval;
+    };
+
+    /*
      * Function: readable
      * 
      * Get readable label for the entity, if it can be found in the
@@ -161,6 +197,9 @@ var amigo = function(more_dispatch){
      */
     this.readable = function(id){
 	
+	if( this.dealias(id) ){
+	    id = this.dealias(id);
+	}
 	var retval = id;
 
 	if( anchor.data && anchor.data.context && anchor.data.context[id] ){
@@ -186,6 +225,9 @@ var amigo = function(more_dispatch){
      */
     this.color = function(id){
 	
+	if( this.dealias(id) ){
+	    id = this.dealias(id);
+	}
 	var retval = '#888888';
 
 	if( anchor.data && anchor.data.context && anchor.data.context[id] ){
