@@ -603,7 +603,7 @@ sub mode_advanced {
   my $gv = $self->_get_format_appropriate_renderer($format);
 
   ## Assemble the found nodes (including the term hash style/label
-  ## info) and edges into the GraphVix graph.
+  ## info) and edges into the GraphViz graph.
   $self->_add_gv_edges($gv, $all_edges);
   $self->_add_gv_nodes($gv, $all_nodes, $term_hash);
 
