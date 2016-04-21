@@ -7,6 +7,8 @@
 package AmiGO::Aid;
 
 use base 'AmiGO';
+use YAML::Loader;
+use Data::Dumper;
 
 ## TODO: This should be refactored into a YAML config for better sharing.
 ## We're getting a lot of colors and aliases coming from different
@@ -109,6 +111,7 @@ my $super_data =
     color => 'darkslateblue',
    },
   };
+
 my $super_alias =
   {
    ## GO.
@@ -138,76 +141,12 @@ my $super_alias =
    'http://purl.obolibrary.org/obo/directly_inhibits' => 'directly_inhibits',
   };
 
-# my $READABLE =
-#   {
-#    'is_a' => 'is a',
-#    'part_of' => 'part of',
-#    'positively_regulates' => 'positively regulates',
-#    'negatively_regulates' => 'negatively regulates',
-#    'regulates' => 'regulates',
-#    'develops_from' => 'develops from',
-#    ## Some more modern stuff:
-#    'BFO_0000050' => 'part of',
-#    'http://purl.obolibrary.org/obo/BFO_0000050' => 'part of',
-#    'http://purl.obolibrary.org/obo/part_of' => 'part of',
-#    'BFO_0000051' => 'has part',
-#    'http://purl.obolibrary.org/obo/BFO_0000051' => 'has part',
-#    'directly_activates' => 'directly activates',
-#    'http://purl.obolibrary.org/obo/directly_activates' => 'directly activates',
-#    'RO_0002211' => 'regulates',
-#    'http://purl.obolibrary.org/obo/RO_0002211' => 'regulates',
-#    'RO_0002212' => 'negatively regulates',
-#    'http://purl.obolibrary.org/obo/RO_0002212' => 'negatively regulates',
-#    'RO_0002213' => 'positively regulates',
-#    'http://purl.obolibrary.org/obo/RO_0002213' => 'positively regulates',
-#   };
-
-# ## TODO: These should maybe be switched with hex colors.
-# my %REL_COLOR_MAPPING =
+# my %ONT_COLOR_MAPPING =
 #   (
-#    'is_a' =>                 'blue',
-#    'part_of' =>              'lightblue',
-#    'develops_from' =>        'brown',
-#    'regulates' =>            'black',
-#    'negatively_regulates' => 'red',
-#    'positively_regulates' => 'green',
-#    ## Some more modern stuff:
-#    'BFO_0000050' => 'lightblue',
-#    'http://purl.obolibrary.org/obo/BFO_0000050' => 'lightblue',
-#    'http://purl.obolibrary.org/obo/part_of' => 'lightblue',
-#    ## Regulates.
-#    'RO_0002211' => 'black',
-#    'http://purl.obolibrary.org/obo/RO_0002211' => 'black',
-#    'RO_0002212' => 'red',
-#    'http://purl.obolibrary.org/obo/RO_0002212' => 'red',
-#    'RO_0002213' => 'green',
-#    'http://purl.obolibrary.org/obo/RO_0002213' => 'green',
-#    ## Activates.
-#    ## ???
-#    'enabled_by' => 'lightpink',
-#    'RO_0002333' => 'lightpink',
-#    'http://purl.obolibrary.org/obo/RO_0002333' => 'lightpink',
-#    'regulates_levels_of' => 'lightpink',
-#    'RO_0002332' => 'lightpink',
-#    'http://purl.obolibrary.org/obo/RO_0002332' => 'lightpink',
-#    'genomically_related_to' => 'lightpink',
-#    'RO_0002330' => 'lightpink',
-#    'http://purl.obolibrary.org/obo/RO_0002330' => 'lightpink',
-#    ## ???
-#    'http://purl.obolibrary.org/obo/BFO_0000051' => 'lightpink',
-#    'directly_activates' => 'coral4',
-#    'http://purl.obolibrary.org/obo/directly_activates' => 'coral4',
-#    'http://purl.obolibrary.org/obo/upstream_of' => 'lightpink',
-#    'http://purl.obolibrary.org/obo/directly_inhibits' => 'lightpink',
-#    'http://purl.obolibrary.org/obo/indirectly_disables_action_of' => 'lightpink',
+#    'C' => '#a020f0',
+#    'P' => '#00ee76',
+#    'F' => '#ffd700',
 #   );
-
-my %ONT_COLOR_MAPPING =
-  (
-   'C' => '#a020f0',
-   'P' => '#00ee76',
-   'F' => '#ffd700',
-  );
 
 
 =item new
@@ -221,6 +160,42 @@ sub new {
   my $class = shift;
   my $self  = $class->SUPER::new();
 
+  ## Pull in the shared context file.
+  my $yaml_fname = $self->amigo_env('AMIGO_ROOT') . '/conf/context.yaml';
+  $self->kvetch('context file: ' . $yaml_fname);
+
+  ## Slurp in YAML context one time.
+  my $yml = '';
+  open(YAMLFILE, '<', $yaml_fname) or die "Cannot open context: $yaml_fname: $!";
+  while( <YAMLFILE> ){
+    $yml .= $_;
+  }
+  close YAMLFILE;
+  #$self->kvetch("context (yaml raw): \n" . $yml);
+
+  my $yloader = YAML::Loader->new();
+  my $context_data = $yloader->load($yml);
+  #$self->kvetch('context: ' . Dumper($context_data));
+
+  ## Setup what we need to get at the context data.
+  $self->{AAID} = {};
+  $self->{AAID}{CONTEXT} = $context_data;
+  $self->{AAID}{DEALIAS} = {};
+
+  ## Create a way to get at aliases.
+  foreach my $entry_key (keys %$context_data){
+    #$self->kvetch('entry_key: ' . $entry_key);
+
+    my $entry = $context_data->{$entry_key};
+
+    if( $entry && $entry->{aliases} ){
+      foreach my $alias ( @{$entry->{aliases}} ){
+	$self->{AAID}{DEALIAS}{$alias} = $entry_key;
+      }
+    }
+  }
+  #$self->kvetch('aliases: ' . Dumper($self->{AAID}{DEALIAS}));
+
   bless $self, $class;
   return $self;
 }
@@ -230,21 +205,32 @@ sub _dealias_data {
   my $self = shift;
   my $id = shift || undef;
 
-  $self->kvetch('dealias id: ' . $id);
+  #$self->kvetch('dealias id: ' . $id);
 
   my $ret = undef;
   if( defined $id ){
-    $self->kvetch('dealias defined');
-    if( defined $super_data->{$id} ){ # directly pull
-      $self->kvetch('dealias direct pull');
+    #$self->kvetch('dealias defined');
+
+    ## First, try and dealias via the new data, otherwise fallback.
+    if( $self->{AAID}{CONTEXT}{$id} ){
+      $ret = $self->{AAID}{CONTEXT}{$id};
+    }elsif( $self->{AAID}{DEALIAS}{$id} &&
+	$self->{AAID}{CONTEXT}{$self->{AAID}{DEALIAS}{$id}} ){
+      $ret = $self->{AAID}{CONTEXT}{$self->{AAID}{DEALIAS}{$id}};
+
+    }elsif( defined $super_data->{$id} ){ # directly pull
+      #$self->kvetch('dealias direct pull');
       $ret = $super_data->{$id};
     }elsif( defined $super_alias->{$id} ){ # dealias
       my $unalias = $super_alias->{$id};
-      $self->kvetch('dealias unalias: ' . $unalias);
+      #$self->kvetch('dealias unalias: ' . $unalias);
       if( defined $super_data->{$unalias} ){ # indirect pull
-	$self->kvetch('dealias indirect pull');
+	#$self->kvetch('dealias indirect pull');
 	$ret = $super_data->{$unalias};
       }
+
+    }else{
+      ## no-op
     }
   }
 
@@ -693,22 +679,22 @@ sub pvals_to_json {
 }
 
 
-=item ontology_to_color
+# =item ontology_to_color
 
-converts an gene ontology code ('C', 'P', 'F') to a color.
+# converts an gene ontology code ('C', 'P', 'F') to a color.
 
-=cut
-sub ontology_to_color {
+# =cut
+# sub ontology_to_color {
 
-  my $self = shift;
-  my $code = shift || '';
-  my $color = '#ffffff';
+#   my $self = shift;
+#   my $code = shift || '';
+#   my $color = '#ffffff';
 
-  $color = $ONT_COLOR_MAPPING{$code}
-    if defined($ONT_COLOR_MAPPING{$code});
+#   $color = $ONT_COLOR_MAPPING{$code}
+#     if defined($ONT_COLOR_MAPPING{$code});
 
-  return $color;
-}
+#   return $color;
+# }
 
 
 # =item get_color_spread

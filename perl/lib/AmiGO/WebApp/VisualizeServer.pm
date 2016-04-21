@@ -607,6 +607,8 @@ sub mode_advanced {
   $self->_add_gv_edges($gv, $all_edges);
   $self->_add_gv_nodes($gv, $all_nodes, $term_hash);
 
+  #$gv->add_legend();
+
   ## Get the headers correct.
   $self->_add_fiddly_header($format, $inline_p);
 
@@ -668,6 +670,8 @@ sub _freeform_core {
   ## info) and edges into the GraphVix graph.
   $self->_add_gv_edges($gv, $all_edges) if $edges_p;
   $self->_add_gv_nodes($gv, $all_nodes, $term_hash) if $nodes_p;
+
+  #$gv->add_legend();
 
   return $gv;
 }
