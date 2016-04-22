@@ -5,7 +5,7 @@
 //var bbop_legacy = require('bbop').bbop;
 // Correct environment, ready testing.
 var bbop = require('bbop-core');
-var amigo = require('amigo2');
+var amigo = new (require('../javascript/npm/amigo2-instance-data'))();
 
 var golr_conf = require('golr-conf');
 var golr_manager = require('bbop-manager-golr');
