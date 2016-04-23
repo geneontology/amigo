@@ -64,6 +64,9 @@ var linker = function (xrefs, server){
 	'gene_product': true,
 	'bioentity': true
     };
+    this.ref_category = {
+	'reference': true
+    };
     this.model_category = {
         'model': true
     };
@@ -76,6 +79,7 @@ var linker = function (xrefs, server){
 	'gene_product': '/bioentity',
 	'bioentity': '/bioentity',
 	'ontology': '/ontology',
+	'reference': '/reference',
 	'annotation': '/annotation',
 	'model': '/model',
 	'family': '/family',
@@ -130,6 +134,13 @@ linker.prototype.url = function (id, xid, modifier){
             }else if( this.bio_category[xid] ){
 		retval = this.app_base + '/amigo/gene_product/' + id;
 		//retval = _add_restmark_modifier(retval, modifier);
+            }else if( this.ref_category[xid] ){
+		// Only operate if it's a PubMed ID.
+		var db = bbop.first_split(':', id)[0];
+		if( db && db === 'PMID' ){
+		    retval = this.app_base + '/amigo/reference/' + id;
+		    //retval = _add_restmark_modifier(retval, modifier);
+		}
             }else if( this.model_category[xid] ){
 		retval = this.app_base + '/amigo/model/'+ id;
             }else if( this.search_category[xid] ){

@@ -285,103 +285,118 @@ function ReferenceDetailsInit(){
 		    console.log(jx);
 
 		    // Our operating object.
-		    var op = jx.PubmedArticleSet.PubmedArticle.MedlineCitation.Article;
+		    if( ! jx.PubmedArticleSet.PubmedArticle ){
+			UnableToMakeContact('<b>No such PubMed ID</b>.');
+		    }else if( ! jx.PubmedArticleSet.PubmedArticle.MedlineCitation.Article ){
+			UnableToMakeContact('<b>No such Article</b>.');
+		    }else{
+			var op = jx.PubmedArticleSet.PubmedArticle.MedlineCitation.Article;
 
-		    // Title.
-		    var title = 'n/a';
-		    title = op.ArticleTitle;
-
-		    // Date.
-		    var date = 'n/a';
-		    var year = op.ArticleDate.Year;
-		    var month = op.ArticleDate.Month;
-		    var day = op.ArticleDate.Day;
-		    date = [year, month, day].join('-');
-
-		    // Authors.
-		    var authors = 'n/a';
-		    var acache = [];
-		    us.each(op.AuthorList.Author, function(auth){
-			var name = '';
-			if( auth.ForeName ){ name += auth.ForeName; }
-			//if( auth.Initials ){ name += ' ' + auth.Initials + '.'; }
-			if( auth.LastName ){ name += ' ' + auth.LastName; }
-			acache.push(name);
-		    });
-		    if( ! us.isEmpty(acache) ){
-			authors = acache.join(', ');
-		    }
-
-		    // Abstract.
-		    var abstract = 'n/a';
-		    var abscache = [];
-		    us.each(op.Abstract.AbstractText, function(abs){
-			if( abs._ ){ abscache.push(abs._); }
-		    });
-		    if( ! us.isEmpty(abscache) ){
-			//abstract = '<p>' + abscache.join('</p><p>') + '</p>';
-			abstract = abscache.join('<br />');
-		    }
-
-		    // Render.
-		    jQuery('#info-area').empty();
-		    var info = [
-			'<dl class="dl-horizontal amigo-detail-info">',
 			// Title.
-			'<dt>Title</dt>',
-			'<dd>',
-			title,
-			'</dd>',
+			var title = 'n/a';
+			if( op.ArticleTitle ){
+			    title = op.ArticleTitle;
+			}
+
 			// Date.
-			'<dt>Date</dt>',
-			'<dd>',
-			date,
-			'</dd>',
-			// Author.
-			'<dt>Author(s)</dt>',
-			'<dd>',
-			authors,
-			'</dd>',
+			var date = 'n/a';
+			if( op.ArticleDate ){
+			    var year = op.ArticleDate.Year || '???';
+			    var month = op.ArticleDate.Month || '???';
+			    var day = op.ArticleDate.Day || '???';
+			    date = [year, month, day].join('-');
+			}
+
+			// Authors.
+			var authors = 'n/a';
+			if( op.AuthorList &&  op.AuthorList.Author ){
+			    
+			    var acache = [];
+			    us.each(op.AuthorList.Author, function(auth){
+				var name = '';
+				if( auth.ForeName ){ name += auth.ForeName; }
+				//if( auth.Initials ){ name+=' '+auth.Initials+'.'; }
+				if( auth.LastName ){ name +=' '+auth.LastName; }
+				acache.push(name);
+			    });
+			    if( ! us.isEmpty(acache) ){
+				authors = acache.join(', ');
+			    }
+			}
+			
 			// Abstract.
-			'<dt>Abstract</dt>',
-			'<dd id="abstract">',
-			abstract,
-			'</dd>',
-	// 		// Related.
-	// 		'<dt id="prob_related" class="hidden">Related</dt>',
-	// 		'<dd id="prob_ann" class="hidden">',
-	// 		'<a id="prob_ann_href" href="#" class="btn btn-primary btn-xs">Link</a> to all direct and indirect <strong>annotations</strong> to ' + global_acc + '.',
-	// 		'</dd>',
-	// 		'<dd id="prob_ann_dl" class="hidden">',
-	// '<a id="prob_ann_dl_href" href="#" class="btn btn-primary btn-xs">Link</a> to all direct and indirect <strong>annotations download</strong> (limited to first 10,000) for ' + global_acc + '.',
-	// 		'</dd>',
-			// Pubmed.
-			'<dt>PubMed</dt>',
-			'<dd>',
-			'<a href="https://www.ncbi.nlm.nih.gov/pubmed/22835028">' + global_acc + '</a>',
-			'</dd>',
-			// Feedback.
-			'<dt>Feedback</dt>',
-			'<dd>',
-			'Contact the <a href="http://geneontology.org/form/contact-go" title="GO Helpdesk.">GO Helpdesk</a> if you find mistakes or have concerns about the data you find here.',
-			'</dd>',
-			'</dl>'
-		    ];
-		    jQuery('#info-area').append(info.join(' '));
+			var abstract = 'n/a';
+			if( op.Abstract && op.Abstract.AbstractText ){
+			    
+			    var abscache = [];
+			    us.each(op.Abstract.AbstractText, function(abs){
+				if( abs._ ){ abscache.push(abs._); }
+			    });
+			    if( ! us.isEmpty(abscache) ){
+				abstract = abscache.join('<br />');
+			    }
+			}
+			
+			// Render.
+			jQuery('#info-area').empty();
+			var info = [
+			    '<dl class="dl-horizontal amigo-detail-info">',
+			    // Title.
+			    '<dt>Title</dt>',
+			    '<dd>',
+			    title,
+			    '</dd>',
+			    // Date.
+			    '<dt>Date</dt>',
+			    '<dd>',
+			    date,
+			    '</dd>',
+			    // Author.
+			    '<dt>Author(s)</dt>',
+			    '<dd>',
+			    authors,
+			    '</dd>',
+			    // Abstract.
+			    '<dt>Abstract</dt>',
+			    '<dd id="abstract">',
+			    abstract,
+			    '</dd>',
+			    // 		// Related.
+			    // 		'<dt id="prob_related" class="hidden">Related</dt>',
+			    // 		'<dd id="prob_ann" class="hidden">',
+			    // 		'<a id="prob_ann_href" href="#" class="btn btn-primary btn-xs">Link</a> to all direct and indirect <strong>annotations</strong> to ' + global_acc + '.',
+			    // 		'</dd>',
+			    // 		'<dd id="prob_ann_dl" class="hidden">',
+			    // '<a id="prob_ann_dl_href" href="#" class="btn btn-primary btn-xs">Link</a> to all direct and indirect <strong>annotations download</strong> (limited to first 10,000) for ' + global_acc + '.',
+			    // 		'</dd>',
+			    // Pubmed.
+			    '<dt>PubMed</dt>',
+			    '<dd>',
+			    '<a href="https://www.ncbi.nlm.nih.gov/pubmed/' + bbop.first_split(':', global_acc)[1] + '">' + global_acc + '</a>',
+			    '</dd>',
+			    // Feedback.
+			    '<dt>Feedback</dt>',
+			    '<dd>',
+			    'Contact the <a href="http://geneontology.org/form/contact-go" title="GO Helpdesk.">GO Helpdesk</a> if you find mistakes or have concerns about the data you find here.',
+			    '</dd>',
+			    '</dl>'
+			];
+			jQuery('#info-area').append(info.join(' '));
+			
+			jQuery('#info-area').append([
+			    '<p>',
+			    'Powered by NCBI\'s <a href=http://eutils.ncbi.nlm.nih.gov"">E-utilities</a>.',
+			    '<br />',
+			    'Please read NCBI\'s <a href="http://www.ncbi.nlm.nih.gov/About/disclaimer.html">Disclaimer and Copyright notice.',
+			    '</p>',
+			].join(' '));
+			
+			_shrink_wrap('abstract');
+			
+			// Start the normal GOlr services.
+			ReferenceDetailsInit();
+		    }		    
 
-		    jQuery('#info-area').append([
-			'<p>',
-			'Powered by NCBI\'s <a href=http://eutils.ncbi.nlm.nih.gov"">E-utilities</a>.',
-			'<br />',
-			'Please read NCBI\'s <a href="http://www.ncbi.nlm.nih.gov/About/disclaimer.html">Disclaimer and Copyright notice.',
-			'</p>',
-		    ].join(' '));
-
-		    _shrink_wrap('abstract');
-
-		    // Start the normal GOlr services.
-		    ReferenceDetailsInit();
-		    
 		});
 		
 		// Trigger.	    
