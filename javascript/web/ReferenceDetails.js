@@ -389,7 +389,7 @@ function ReferenceDetailsInit(){
 		var path = '/entrez/eutils/efetch.fcgi';
 		var pay = {
 		    'tool': 'amigo_client_2.4.x',
-		    'email': 'sjcarbon@lbl.gov',
+		    'email': ['sjc', 'arb', 'on@', 'lbl', '.go', 'v'].join(''),
 		    'retmode': 'XML',
 		    'db': 'pubmed',
 		    'id': id_part
