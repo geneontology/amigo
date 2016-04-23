@@ -924,6 +924,16 @@ sub get_interlink {
        $ilink = 'amigo/gene_product/' . $gp;
      },
 
+     'reference_details' =>
+     sub {
+	 die "interlink mode 'reference_details' requires args"
+	     if ! defined $args;
+	 die "interlink mode 'reference_details' requires ref arg"
+	     if ! defined $args->{'ref'};
+	 my $rid = $args->{'ref'} || '';
+	 $ilink = 'amigo/reference/' . $rid;
+     },
+
      'model_details' =>
      sub {
        die "interlink mode 'model_details' requires args" if ! defined $args;
@@ -2325,10 +2335,12 @@ sub dynamic_dispatch_table_amigo {
      ##
      ## RESTy (can be consumed as service).
      ##
-     'term/:cls/:format?'       => { app => $aapp, rm => 'term',
-				     'cls' => 'cls', 'format' => 'format' },
-     'gene_product/:gp/:format?' => { app => $aapp, rm => 'gene_product',
-				      'gp' => 'gp', 'format' => 'format' },
+     'term/:cls/:format?'         => { app => $aapp, rm => 'term',
+				       'cls' => 'cls', 'format' => 'format' },
+     'gene_product/:gp/:format?'  => { app => $aapp, rm => 'gene_product',
+				       'gp' => 'gp', 'format' => 'format' },
+     'reference/:ref_id/:format?' => { app => $aapp, rm => 'reference',
+				       'ref_id'=>'ref_id', 'format'=>'format' },
      ## Alpha.
      'model/:model'  => { app => $aapp, rm => 'model', model => 'model' },
      'biology'  => { app => $aapp, rm => 'biology' },

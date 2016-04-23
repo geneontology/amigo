@@ -73,6 +73,7 @@ sub setup {
 		   'free_browse'         => 'mode_free_browse',
 		   'term'                => 'mode_term_details',
 		   'gene_product'        => 'mode_gene_product_details',
+		   'reference'           => 'mode_reference_details',
 		   'model'               => 'mode_model_details',
 		   'biology'             => 'mode_model_biology',
 		   'software_list'       => 'mode_software_list',
@@ -1834,6 +1835,148 @@ sub mode_gene_product_details {
      content =>
      [
       'pages/gene_product_details.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page_with();
+}
+
+
+## 
+sub mode_reference_details {
+
+  my $self = shift;
+
+  ##
+  my $i = AmiGO::Input->new($self->query());
+  my $params = $i->input_profile('reference');
+  ## Deal with the different types of dispatch we might be facing.
+  $params->{ref_id} = $self->param('ref_id')
+    if ! $params->{ref_id} && $self->param('ref_id');
+  $params->{format} = $self->param('format')
+    if ! $params->{format} && $self->param('format');
+  $self->{CORE}->kvetch(Dumper($params));
+
+  ## Standard inputs for page control.
+  my $input_ref_id = $params->{ref_id};
+  my $input_format = $params->{format} || 'html';
+
+  ## Optional RESTmark input for embedded search_pane.
+  my $query = $params->{q} || '';
+  my $filters = $params->{fq} || [];
+  my $pins = $params->{sfq} || [];
+  ## Ensure listref input on multi-inputs.
+  $pins = [$pins] if ref($pins) ne 'ARRAY';
+  $filters = [$filters] if ref($filters) ne 'ARRAY';
+
+  ## Now add the filters that come in from the YAML-defined simple
+  ## public bookmarking API.
+  $filters = $self->_add_search_bookmark_api_to_filters($params, $filters);
+
+  ## Input sanity check.
+  if( ! $input_ref_id ){
+    return $self->mode_fatal("No input reference identifier argument.");
+  }
+  if( $input_format ne 'html' && $input_format ne 'json' ){
+    return $self->mode_fatal('Bad output format: "' . $input_format . ':');
+  }
+
+  ###
+  ### Get full gp info.
+  ###
+
+  # ## Get the data from the store.
+  # my $gp_worker = AmiGO::Worker::GOlr::GeneProduct->new($input_gp_id);
+  # my $gp_info_hash = $gp_worker->get_info();
+
+  # ## First make sure that things are defined.
+  # if( ! defined($gp_info_hash) ||
+  #     $self->{CORE}->empty_hash_p($gp_info_hash) ||
+  #     ! defined($gp_info_hash->{$input_gp_id}) ){
+  #   return $self->mode_not_found($input_gp_id, 'gene product');
+  # }
+
+  # # $self->{CORE}->kvetch('solr docs: ' . Dumper($gp_info_hash));
+  # $self->set_template_parameter('GP_INFO', $gp_info_hash->{$input_gp_id});
+
+  $self->set_template_parameter('REF_ID', $input_ref_id);
+
+  ## TODO/BUG: Should this be a separate client?
+  if( $input_format eq 'json' ){
+    $self->header_add( -type => 'application/json' );
+    my $json_resp = AmiGO::JSON->new('reference');
+    # $json_resp->set_results($gp_info_hash->{$input_ref_id});
+    my $jdump = $json_resp->render();
+    return $jdump;
+  }
+
+  # ## PANTHER info if there.
+  # my $pgraph = $gp_info_hash->{$input_gp_id}{'phylo_graph'};
+  # if( $pgraph ){
+  #   $self->set_template_parameter(
+  # 	'PHYLO_TREE_LINK',
+  # 	$self->{CORE}->get_interlink({'mode' => 'phylo_graph',
+  # 				      'arg' => {'gp' => $input_gp_id}}));
+  # }
+
+  ###
+  ### TODO: pull in additional annotation, etc. info.
+  ###
+
+  ###
+  ### Standard setup.
+  ###
+
+  ## Again, a little different.
+  ## Start by figuring out the best title we can.
+  my $best_title = $input_ref_id; # start with the worst as a default
+  # if ( $gp_info_hash->{$input_gp_id}{'name'} ){
+  #   $best_title = $gp_info_hash->{$input_gp_id}{'name'};
+  # }elsif( $gp_info_hash->{$input_gp_id}{'label'} ){
+  #   $best_title = $gp_info_hash->{$input_gp_id}{'label'};
+  # }
+  ## Page settings.
+  $self->set_template_parameter('page_name', 'reference');
+  $self->set_template_parameter('page_title',
+				'AmiGO 2: Reference Details for ' .
+				$input_ref_id);
+  $self->set_template_parameter('content_title', $best_title);
+  $self->set_template_parameter('page_content_title', $best_title);
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings('reference');
+  $self->set_template_parameter('page_help_link', $page_help_link);
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('ReferenceDetails.js'),
+      $self->{JS}->make_var('global_live_search_query', $query),
+      $self->{JS}->make_var('global_live_search_filters', $filters),
+      $self->{JS}->make_var('global_live_search_pins', $pins),
+      $self->{JS}->make_var('global_acc', $input_ref_id)
+     ],
+     content =>
+     [
+      'pages/reference_details.tmpl'
      ]
     };
   $self->add_template_bulk($prep);

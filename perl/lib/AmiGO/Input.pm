@@ -97,6 +97,15 @@ sub input_profile {
     ## Public-facing bookmark API.
     $self->_link_search_bookmark_api();
 
+  }elsif( $profile_name eq 'reference' ){
+
+    ## REST API style bookmark for internal use and temporary
+    ## bookmarks.
+    $self->_search_bookmark_api();
+
+    ## Public-facing bookmark API.
+    $self->_link_search_bookmark_api();
+
   }elsif( $profile_name eq 'model' ){
     $self->_add_simple_argument('model', '');
   }elsif( $profile_name eq 'family' ){
