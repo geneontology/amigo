@@ -1142,6 +1142,19 @@ sub get_interlink {
        # }
      },
 
+     'reference_search' =>
+     sub {
+       my $query = $args->{ref_id} || '';
+       if( $query ){
+	 $ilink = 'amigo/reference?q='. $query;
+       }else{
+	 $ilink = 'amigo/reference';
+       }
+       # }else{
+       # 	 die "The medial_search system requires a query argument.";
+       # }
+     },
+
      'live_search' =>
      sub {
        if( ! $self->empty_hash_p($args) ){
@@ -2341,6 +2354,7 @@ sub dynamic_dispatch_table_amigo {
 				       'gp' => 'gp', 'format' => 'format' },
      'reference/:ref_id/:format?' => { app => $aapp, rm => 'reference',
 				       'ref_id'=>'ref_id', 'format'=>'format' },
+     'reference' => { app => $aapp, rm => 'reference'},
      ## Alpha.
      'model/:model'  => { app => $aapp, rm => 'model', model => 'model' },
      'biology'  => { app => $aapp, rm => 'biology' },

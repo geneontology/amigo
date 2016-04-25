@@ -928,6 +928,8 @@ sub _common_params_settings {
     $self->{CORE}->get_interlink({mode=>'base_statistics'});
   $params->{interlink_free_browse} =
     $self->{CORE}->get_interlink({mode=>'free_browse'});
+  $params->{interlink_reference_search} =
+    $self->{CORE}->get_interlink({mode=>'reference_search'});
   $params->{interlink_medial_search} =
     $self->{CORE}->get_interlink({mode=>'medial_search'});
   $params->{interlink_simple_search} =
@@ -1433,17 +1435,11 @@ sub mode_status {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo'
+      'com.jquery-ui'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();'
      ],
      content =>
      [
@@ -1515,17 +1511,11 @@ sub mode_fatal {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo'
+      'com.jquery-ui'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();'
      ],
      content =>
      [
@@ -1583,17 +1573,11 @@ sub mode_not_found {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo'
+      'com.jquery-ui'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();'
      ],
      content =>
      [
@@ -1655,17 +1639,11 @@ sub mode_generic_message {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo'
+      'com.jquery-ui'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();'
      ],
      content =>
      [

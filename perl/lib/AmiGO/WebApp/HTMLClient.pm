@@ -1875,30 +1875,43 @@ sub mode_reference_details {
   $filters = $self->_add_search_bookmark_api_to_filters($params, $filters);
 
   ## Input sanity check.
+  if( $input_ref_id =~ /^pmid\:[0-9]{1,100}/ ){
+    return $self->mode_fatal("Please use a PubMed ID of the form: <b>PMID:123456</b>.");
+  }elsif( $input_ref_id !~ /^PMID\:[0-9]{1,100}/ ){
+
+    ## Warning: this is essientially, except for the action, copied
+    ## out of reference_details.tmpl. Make sure they stay in sync.
+    my $form =
+      [
+       '<form action="/amigo/reference"',
+       'id="reference-query-form"',
+       'class="form-inline"',
+       'role="search"',
+       'method="GET">',
+       '<div class="form-group">',
+       '<input',
+       'type="text"',
+       'title="Input any PubMed ID (e.g. PMID:123456)."',
+       'class="form-control"',
+       'name="ref_id"',
+       'placeholder="E.g. PMID:123456"',
+       'value=""',
+       'id="reference-search-query">',
+       '</div>',
+       '<button type="submit"',
+       'title="Search for groups of documents with the inputted text."',
+       'class="btn btn-default">Search</button>',
+       '</form>'
+      ];
+
+    return $self->mode_fatal("Your input is not a PubMed ID. Please try again:<br /><br />" . join(' ', @$form));
+  }
   if( ! $input_ref_id ){
     return $self->mode_fatal("No input reference identifier argument.");
   }
   if( $input_format ne 'html' && $input_format ne 'json' ){
-    return $self->mode_fatal('Bad output format: "' . $input_format . ':');
+    return $self->mode_fatal('Bad output format: needs to be "html" or "json".');
   }
-
-  ###
-  ### Get full gp info.
-  ###
-
-  # ## Get the data from the store.
-  # my $gp_worker = AmiGO::Worker::GOlr::GeneProduct->new($input_gp_id);
-  # my $gp_info_hash = $gp_worker->get_info();
-
-  # ## First make sure that things are defined.
-  # if( ! defined($gp_info_hash) ||
-  #     $self->{CORE}->empty_hash_p($gp_info_hash) ||
-  #     ! defined($gp_info_hash->{$input_gp_id}) ){
-  #   return $self->mode_not_found($input_gp_id, 'gene product');
-  # }
-
-  # # $self->{CORE}->kvetch('solr docs: ' . Dumper($gp_info_hash));
-  # $self->set_template_parameter('GP_INFO', $gp_info_hash->{$input_gp_id});
 
   $self->set_template_parameter('REF_ID', $input_ref_id);
 
@@ -1910,19 +1923,6 @@ sub mode_reference_details {
     my $jdump = $json_resp->render();
     return $jdump;
   }
-
-  # ## PANTHER info if there.
-  # my $pgraph = $gp_info_hash->{$input_gp_id}{'phylo_graph'};
-  # if( $pgraph ){
-  #   $self->set_template_parameter(
-  # 	'PHYLO_TREE_LINK',
-  # 	$self->{CORE}->get_interlink({'mode' => 'phylo_graph',
-  # 				      'arg' => {'gp' => $input_gp_id}}));
-  # }
-
-  ###
-  ### TODO: pull in additional annotation, etc. info.
-  ###
 
   ###
   ### Standard setup.

@@ -99,6 +99,9 @@ sub input_profile {
 
   }elsif( $profile_name eq 'reference' ){
 
+    ## Optional kick-in.
+    $self->_add_simple_argument('ref_id', '');
+
     ## REST API style bookmark for internal use and temporary
     ## bookmarks.
     $self->_search_bookmark_api();

@@ -267,7 +267,7 @@ function ReferenceDetailsInit(){
 		ncbi_engine.register('error', function(resp, man){
 		    //console.log(resp.message());
 		    //console.log(resp);
-		    UnableToMakeContact('BBOP response error.');
+		    UnableToMakeContact('Response error--it\'s <b>possible</b> that you\'re experiencing <b>network issues</b>. <b>Please try again</b>.');
 		});
 		
 		// Run.
@@ -382,7 +382,9 @@ function ReferenceDetailsInit(){
 			    '</dl>'
 			];
 			jQuery('#info-area').append(info.join(' '));
-			
+			_shrink_wrap('abstract');
+
+			// Powered by NCBI.
 			jQuery('#info-area').append([
 			    '<p>',
 			    'Powered by NCBI\'s <a href=http://eutils.ncbi.nlm.nih.gov"">E-utilities</a>.',
@@ -391,7 +393,14 @@ function ReferenceDetailsInit(){
 			    '</p>',
 			].join(' '));
 			
-			_shrink_wrap('abstract');
+			// Get feedback from viewers.
+			jQuery('#info-area').append([
+			    '<p>',
+			    '<b>Are you the author</b> (or have a deep understanding) of this paper? If so, <b>do these annotations look okay to you</b>? <a href="http://geneontology.org/form/contact-go">Let us know</a>!',
+			    '</p>'
+			].join(' '));
+			
+			
 			
 			// Start the normal GOlr services.
 			ReferenceDetailsInit();
