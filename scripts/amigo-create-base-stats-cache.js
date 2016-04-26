@@ -1,5 +1,8 @@
 ////
-//// 
+////
+//// Essentially run as:
+////  node ./scripts/amigo-create-base-stats-cache.js
+////  node ./scripts/amigo-create-base-stats-cache.js --from-date 20150401 --to-date 20160331
 ////
 
 var us = require('underscore');
@@ -17,6 +20,29 @@ var gserv = amigo.data.server.golr_base;
 var node_engine = require('bbop-rest-manager').node;
 var golr_manager = require('bbop-manager-golr');
 var golr_response = require('bbop-response-golr');
+
+///
+/// Helpers and aliases.
+///
+
+var each = us.each;
+
+function _die(message){
+    console.error('amigo-create-base-stats-cache.js: ' + message);
+    process.exit(-1);
+}
+
+///
+/// CLI handling, environment setup, and initialization of clients.
+///
+
+// CLI handling.
+var argv = require('minimist')(process.argv.slice(2));
+//console.dir(argv);
+
+// What directory will we monitor/operate on.
+var from_date = argv['f'] || argv['from-date'] || null;
+var to_date = argv['t'] || argv['to-date'] || null;
 
 ///
 /// Ranges and variables.
@@ -89,6 +115,12 @@ function _new_manager_by_personality(personality){
     manager.set_personality(personality);
     manager.add_query_filter('document_category', personality);
 
+    if( from_date && to_date ){
+	if( personality === 'annotation' ){
+	    manager.set_extra('&fq=date:['+ from_date + ' TO ' + to_date +']');
+	}
+    }
+
     return manager;
 }
 
@@ -155,7 +187,7 @@ function second_pass(){
     var glob_funs = [];
 
     // Looking by assigners.
-    us.each(our_assigners_of_interest, function(src){
+    each(our_assigners_of_interest, function(src){
 
 	// Experimental.
 	glob_funs.push(function(){
@@ -194,7 +226,7 @@ function second_pass(){
 	});
 	
 	// // Experimental ann by aspect.
-	// us.each(['P', 'F', 'C'], function(aspect){
+	// each(['P', 'F', 'C'], function(aspect){
 	    
 	//     glob_funs.push(function(){
 
@@ -238,7 +270,7 @@ function second_pass(){
 		var ref_facet = resp.facet_field('reference') || [];
 		//console.log('raw_data', raw_data);
 		var ref_count = 0;
-		us.each(ref_facet, function(datum){
+		each(ref_facet, function(datum){
 		    var count = datum[1];
 		    ref_count += count;
 		});
@@ -252,7 +284,7 @@ function second_pass(){
 	
 	// // Publications by aspect.
 	// // publications.assigners_by_aspect : {},
-	// us.each(['P', 'F', 'C'], function(aspect){
+	// each(['P', 'F', 'C'], function(aspect){
 
 	//     glob_funs.push(function(){
 		
@@ -267,7 +299,7 @@ function second_pass(){
 	// 	    var ref_facet = resp.facet_field('reference') || [];
 	// 	    //console.log('raw_data', raw_data);
 	// 	    var ref_count = 0;
-	// 	    us.each(ref_facet, function(datum){
+	// 	    each(ref_facet, function(datum){
 	// 		var count = datum[1];
 	// 		ref_count += count;
 	// 	    });
@@ -283,7 +315,7 @@ function second_pass(){
     });
 
     // Looking by species.
-    us.each(our_species_of_interest, function(species){
+    each(our_species_of_interest, function(species){
 
 	var lbl = species[0];
 	var sid = species[1];
@@ -327,9 +359,9 @@ function second_pass(){
 	// Okay, a little deeper here. We're going to grab aspect as
 	// well.
 	// glob['annotation']['species_by_aspect_by_evidence'] : {},
-	us.each(our_evidence_of_interest, function(ev){
+	each(our_evidence_of_interest, function(ev){
 
-	    us.each(['P', 'F', 'C'], function(aspect){
+	    each(['P', 'F', 'C'], function(aspect){
 		
 		glob_funs.push(function(){
 
@@ -365,7 +397,7 @@ function second_pass(){
     });
 
     // Looking by evidence.
-    us.each(our_evidence_of_interest, function(ev){
+    each(our_evidence_of_interest, function(ev){
 
 	// ...
 	glob_funs.push(function(){
