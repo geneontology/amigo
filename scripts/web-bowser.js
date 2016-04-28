@@ -4,7 +4,7 @@
 ////
 //// Run with:
 ////  node ./scripts/web-bowser.js --golr http://amigo-dev-golr.berkeleybop.org/ --ui 3
-////  node ./scripts/web-bowser.js --golr http://foo.com --download 0 --lines 1000
+////  node ./scripts/web-bowser.js --golr http://amigo-dev-golr.berkeleybop.org/ --ui 3 --download 1 --lines 100000
 ////
 
 var us = require('underscore');
@@ -30,17 +30,6 @@ var each = us.each;
 
 function _ll(arg1){
     console.log('web-bowser.js [' + (new Date()).toJSON() + ']: ', arg1); 
-}
-
-var last = (new Date()).getTime();
-function _report(agent_type, agent_number){
-
-    var curr = (new Date()).getTime();
-    var num = curr - last;
-
-    console.log([agent_type, agent_number, curr, num].join("\t")); 
-
-    last = curr;
 }
 
 function _die(message){
@@ -118,6 +107,15 @@ lines = parseInt(lines);
 for( var ui = 0; ui < ui_count; ui++ ){
 
     (function(){
+
+	// Seal per-agent counter.
+	var last = (new Date()).getTime();
+	function _report(agent_type, agent_number){
+	    var curr = (new Date()).getTime();
+	    var num = curr - last;
+	    console.log([agent_type, agent_number, curr, num].join("\t"));    
+	    last = curr;
+	}
 
 	var agent_number = ui +1;
 	
@@ -200,7 +198,16 @@ for( var di = 0; di < download_count; di++ ){
 
     (function(){
 
-	var agent_number = di +1;
+	// Seal per-agent counter.
+	var last = (new Date()).getTime();
+	function _report(agent_type, agent_number){
+	    var curr = (new Date()).getTime();
+	    var num = curr - last;
+	    console.log([agent_type, agent_number, curr, num].join("\t"));    
+	    last = curr;
+	}
+
+	var agent_number = ui_count + di +1; // continue count
 	
 	var engine = new impl_engine(dumb_response);
 	//engine.method('GET');
