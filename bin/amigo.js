@@ -239,31 +239,85 @@ function _response_json_fail(res, envl, message){
     return res.json(envl.structure());
 }
 
-//
-function _param(req, arg_name, pdefault){
+// Extract singular arguments; will take first if multiple.
+function _param(req, param, pdefault){
 
-    var ret = pdefault;
+    var ret = null;
 
-    if( req && req.params && typeof(req.params[arg_name]) !== 'undefined' ){
-	    ret = req.params[arg_name];
+    // Try the route parameter space.
+    if( req && req.params && typeof(req.params[param]) !== 'undefined' ){
+	ret = req.params[param];
+    }
+
+    // Try the get space.
+    if( ! ret ){
+
+	if( req && req.query && req.query[param] && typeof(req.query[param]) !== 'undefined' ){
+	    ret = req.query[param];
+	}    
+    }
+
+    // Otherwise, try the body space.
+    if( ! ret ){
+
+	var decoded_body = req.body || {};
+	if( decoded_body && ! us.isEmpty(decoded_body) && decoded_body[param] ){
+	    ret = decoded_body[param];
 	}
+    }
+
+    // Reduce to first if array.
+    if( us.isArray(ret) ){
+	if( ret.length === 0 ){
+	    ret = pdefault;
+	}else{
+	    ret = ret[0];
+	}
+    }
+
+    // Finally, default.
+    if( ! ret ){
+	ret = pdefault;
+    }
+
     return ret;
 }
 
-// 
+// Extract list arguments.
 function _extract(req, param){
 
     var ret = [];
 
-    if( req.query && req.query[param] && req.query[param].length !== 0 ){
+    // Note: no route parameter possible with lists(?).
+
+    // Try the get space.
+    if( req && req.query && typeof(req.query[param]) !== 'undefined' ){
+	//console.log('as query');
 	
 	// Input as list, remove dupes.
-	var accs = req.query[param];
-	if( ! us.isArray(accs) ){
-	    accs = [accs];
+	var paccs = req.query[param];
+	if( paccs && ! us.isArray(paccs) ){
+	    paccs = [paccs];
 	}
-	ret = us.uniq(accs);
+	ret = us.uniq(paccs);
+    }
+
+    // Otherwise, try the body space.
+    if( us.isEmpty(ret) ){
 	
+	var decoded_body = req.body || {};
+	if( decoded_body && ! us.isEmpty(decoded_body) && decoded_body[param] ){
+	    //console.log('as body');
+	    
+	    // Input as list, remove dupes.
+	    var baccs = decoded_body[param];
+	    //console.log('decoded_body', decoded_body);
+	    //console.log('baccs', baccs);
+	    if( baccs && ! us.isArray(baccs) ){
+		baccs = [baccs];
+	    }
+	    ret = us.uniq(baccs);
+	}
     }
 
     return ret;
@@ -300,17 +354,19 @@ if( ! port ){
 // Initial server setup.	
 var express = require('express');
 var cors = require('cors');
-//var bodyParser = require('body-parser');
+var body_parser = require('body-parser');
 var app = express();
 app.use(cors());
-//app.use(bodyParser.urlencoded({'extended': true}));
+// Add POST via JSON.
+app.use(body_parser.json());
+app.use(body_parser.urlencoded({'extended': true}));
 
 ///
 /// User pages.
 ///
 
 // Homepage!
-app.get('/', function (req, res){
+app.all('/', function (req, res){
 
     // Grab markdown renderable file.
     var landing_raw = fs.readFileSync('./bin/README.md').toString();
@@ -319,11 +375,87 @@ app.get('/', function (req, res){
 });
 
 ///
+/// Debugging.
+///
+
+// A parameter echo endpoint for debugging.
+// BUG/TODO: Get this out into unit tests.
+// Using httpie:
+//  http http://localhost:6455/api/echo
+//  http http://localhost:6455/api/echo/foo
+//  http http://localhost:6455/api/echo?foo=bar
+//  http http://localhost:6455/api/echo/blah?foo=bar&foo=bib
+//  ## Query over body:
+//  http http "http://localhost:6455/api/echo/blah?foo=bar&foo=bob" foo=fail
+//  ## With body; application/x-www-form-urlencoded
+//  http --form "http://localhost:6455/api/echo/blah?foo=bar&foo=bob" sail=fail sail=rail
+//  ## With body; application/json
+//  http --json "http://localhost:6455/api/echo/blah?foo=bar&foo=bob" sail:='["fail", "rail"]'
+//  ## Real:
+//  http --form "http://localhost:6455/api/statistics/term-to-gene" term=GO:0008150 term=GO:0009987 term=GO:0022414 term=GO:0044699
+app.all('/api/echo/:echo?', function (req, res){
+
+    // Theoretical good result envelope to start.
+    var envl = new envelope('/api/echo');
+
+    // Good response.
+    //envl.comments('type: ' + req.method);
+
+    // Deal with probing route params.
+    var single_route = {};
+    us.each(req.params, function(val, key){
+	if( key ){
+	    single_route[key] = _param(req, key, null);
+	}
+    });
+
+    // Deal with probing get.
+    var single_query = {};
+    var list_query = {};
+    us.each(req.query, function(val, key){
+	if( key ){
+	    //console.log('rp:', key);
+	    single_query[key] = _param(req, key, null);
+	    list_query[key] = _extract(req, key);
+	}
+    });
+
+    // Deal with probing body.
+    var decoded_body = req.body || {};
+    var single_body = {};
+    var list_body = {};
+    us.each(decoded_body, function(val, key){
+	if( key ){
+	    single_body[key] = _param(req, key, null);
+	    list_body[key] = _extract(req, key);
+	}
+    });
+
+    // Echo report.
+    envl.data({
+	'method': req.method,
+	'route_parameter': {
+	    single: single_route,
+	},
+	'query': {
+	    'single': single_query,
+	    'list': list_query
+	},
+	'body': {
+	    'single': single_body,
+	    'list': list_body
+	}
+    });
+    
+    res.json(envl.structure());
+});
+
+///
 /// Info API.
 ///
 
 // Return all term information.
-app.get('/api/entity/term/:term_id', function (req, res){
+app.all('/api/entity/term/:term_id', function (req, res){
 
     // Get request parameters.
     var term_id = _param(req, 'term_id', null);
@@ -376,7 +508,7 @@ app.get('/api/entity/term/:term_id', function (req, res){
 });
 
 // Return all bioentity information.
-app.get('/api/entity/bioentity/:bioentity_id', function (req, res){
+app.all('/api/entity/bioentity/:bioentity_id', function (req, res){
 
     // Get request parameters.
     var bioentity_id = _param(req, 'bioentity_id', null);
@@ -515,7 +647,7 @@ function abstract_search(req, res, personality, queries, filters, lite_p){
 }
 
 // Heavy/full search.
-app.get('/api/search/:personality', function (req, res){
+app.all('/api/search/:personality', function (req, res){
 
     // Get request parameters.
     var personality = _param(req, 'personality', null);
@@ -523,12 +655,16 @@ app.get('/api/search/:personality', function (req, res){
     var queries = _extract(req, 'q');
     var filters = _extract(req, 'fq');
 
+    //console.log('personality', personality);
+    //console.log('queries', queries);
+    //console.log('filters', filters);
+
     // Feed into the search abstraction.
     abstract_search(req, res, personality, queries, filters, false);
 });
 
 // Lite/autocomplete search.
-app.get('/api/autocomplete/:personality', function (req, res){
+app.all('/api/autocomplete/:personality', function (req, res){
 
     // Get request parameters.
     var personality = _param(req, 'personality', null);
@@ -545,7 +681,7 @@ app.get('/api/autocomplete/:personality', function (req, res){
 ///
 
 // 
-app.get('/api/statistics/gene-to-term', function (req, res){
+app.all('/api/statistics/gene-to-term', function (req, res){
 
     // Theoretical good result envelope to start.
     var envl = new envelope('/api/statistics/gene-to-term');
@@ -658,7 +794,7 @@ app.get('/api/statistics/gene-to-term', function (req, res){
 });
 
 // 
-app.get('/api/statistics/term-to-gene', function (req, res){
+app.all('/api/statistics/term-to-gene', function (req, res){
 
     // Theoretical good result envelope to start.
     var envl = new envelope('/api/statistics/gene-to-term');
@@ -746,7 +882,7 @@ app.get('/api/statistics/term-to-gene', function (req, res){
     }
 });
 
-app.get('/api/statistics/overview', function (req, res){
+app.all('/api/statistics/overview', function (req, res){
  
     // Theoretical good result envelope to start.
     var envl = new envelope('/api/statistics/overview');
