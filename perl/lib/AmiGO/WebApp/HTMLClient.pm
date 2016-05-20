@@ -114,7 +114,7 @@ sub _add_search_bookmark_api_to_filters {
 
 	    foreach my $item (@$items){
 		my $map_to = $bmapi->{$entry};
-		
+
 		## Check to see if it is a negative call or not.
 		my $created_filter = undef;
 		my $possible_neg = substr($item, 0, 1);

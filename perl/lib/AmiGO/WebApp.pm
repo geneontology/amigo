@@ -992,6 +992,8 @@ sub _common_params_settings {
   $params->{version} = $self->{CORE}->amigo_env('AMIGO_VERSION');
   my $sid = $params->{session_id} || '';
   $params->{session_id_for_url} = 'session_id=' . $sid;
+  $params->{download_limit} =
+    $self->{CORE}->amigo_env('AMIGO_DOWNLOAD_LIMIT') || 100000;
   $params->{server_name} =
     $self->{CORE}->amigo_env('AMIGO_SERVER_NAME') || '';
   ## Filters and the like.
