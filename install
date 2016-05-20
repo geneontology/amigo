@@ -185,26 +185,22 @@ $env_conf{AMIGO_JS_DEV_URL} =
   $env_conf{AMIGO_STATIC_URL} . '/staging';
 
 ## A place for caching databases.
-$env_conf{AMIGO_CACHE_DIR} =
-  $env_conf{AMIGO_WORKING_PATH} . '/cache';
+$env_conf{AMIGO_CACHE_DIR} = $env_conf{AMIGO_WORKING_PATH} . '/cache';
 safe_make_dir( $env_conf{AMIGO_CACHE_DIR} );
 make_permissive( $env_conf{AMIGO_CACHE_DIR} );
 
 ## A place for log files.
-$env_conf{AMIGO_LOG_DIR} =
-  $env_conf{AMIGO_WORKING_PATH} . '/log';
+$env_conf{AMIGO_LOG_DIR} = $env_conf{AMIGO_WORKING_PATH} . '/log';
 safe_make_dir( $env_conf{AMIGO_LOG_DIR} );
 make_permissive( $env_conf{AMIGO_LOG_DIR} );
 
 ## Session top-level location.
-$env_conf{AMIGO_SESSIONS_ROOT_DIR} =
-  $env_conf{AMIGO_WORKING_PATH} .'/sessions';
+$env_conf{AMIGO_SESSIONS_ROOT_DIR} = $env_conf{AMIGO_WORKING_PATH} .'/sessions';
 safe_make_dir( $env_conf{AMIGO_SESSIONS_ROOT_DIR});
 make_permissive( $env_conf{AMIGO_SESSIONS_ROOT_DIR});
 
 ## A place for scratch files.
-$env_conf{AMIGO_SCRATCH_DIR} =
-  $env_conf{AMIGO_WORKING_PATH} . '/sessions/scratch';
+$env_conf{AMIGO_SCRATCH_DIR} = $env_conf{AMIGO_WORKING_PATH}.'/sessions/scratch';
 safe_make_dir( $env_conf{AMIGO_SCRATCH_DIR} );
 make_permissive( $env_conf{AMIGO_SCRATCH_DIR} );
 
@@ -276,18 +272,6 @@ golr_config_to_meta_js($golr_data_fname, \@yaml_confs);
 ll("Created GOlr JavaScript data file: \"$golr_data_fname\".");
 
 ###
-### Dump the YAML handler config into a representation that we can use
-### (amigo.data.dispatch).
-###
-
-# ## Slurp all *config.yaml files at this location.
-# my $handlers_yaml_path = $env_conf{AMIGO_ROOT} . '/conf/handlers.yaml';
-# my $dispatch_data_fname = 'javascript/npm/amigo2-instance-data/lib/data/dispatch.js';
-# handlers_yaml_to_dispatch_js($dispatch_data_fname, $handlers_yaml_path);
-# ll("Created handlers data file: \"$dispatch_data_fname\".");
-# #die "HERE!";
-
-###
 ### Dump the synthetic environment (a la config.pl), plus some extras,
 ### into a representation that we can use (amigo.data.server).
 ###
@@ -311,12 +295,13 @@ my $xrefs_url = 'https://raw.githubusercontent.com/geneontology/go-site/master/m
 xref_abbs_to_meta_js($xrefs_js_data_fname, $xrefs_url, 'js');
 ll("Created GO XRefs JavaScript data file: \"$xrefs_js_data_fname\".");
 
-# ## Dump out the discoverable stats, but only generate the statistics
-# ## package if there is already amigo2.js files in the javascript
-# ## staging area.
-# my $amigo_stats_fname = 'javascript/npm/amigo2-instance-data/lib/data/statistics.js';
-# golr_stats_to_js($amigo_stats_fname);
-# ll("Created AmiGO JavaScript meta file: \"$amigo_stats_fname\".");
+###
+### Generate the definitions file from the amigo.yaml configurations.
+###
+
+my $amigo_defs_fname = 'javascript/npm/amigo2-instance-data/lib/data/definitions.js';
+amigo_defs_to_js($amigo_defs_fname);
+ll("Created AmiGO JavaScript definition file: \"$amigo_defs_fname\".");
 
 ###
 ### Copy over the rest of the templates into the live JS directory.
@@ -324,7 +309,7 @@ ll("Created GO XRefs JavaScript data file: \"$xrefs_js_data_fname\".");
 
 ## We know that these remaining templates are just blanks (no data
 ## input from the outside work right now), so just copy them over.
-my $remaining_js_templates = ['context.js', 'definitions.js', 'dispatch.js'];
+my $remaining_js_templates = ['context.js', 'dispatch.js'];
 my $tmpl_src = 'javascript/npm/amigo2-instance-data/generation-templates/';
 my $tmpl_dst = 'javascript/npm/amigo2-instance-data/lib/data/';
 foreach my $template (@$remaining_js_templates){
@@ -751,7 +736,6 @@ sub amigo_env_to_js {
 
   ## Bring in necessaries.
   use AmiGO::JavaScript;
-
   my $core = AmiGO::JavaScript->new();
 
   ## If the file is already there, blow it away.
@@ -886,54 +870,37 @@ sub amigo_env_to_js {
   make_readable($file_str);
 }
 
-# ## TODO: This might be better served in the make file.
-# ## file: <local_js_tree>/lib/amigo/data/statistics.js
-# sub golr_stats_to_js {
+## file: <local_js_tree>/lib/amigo/data/statistics.js
+sub amigo_defs_to_js {
 
-#   my $file_str = shift || die 'need target file';
+  my $file_str = shift || die 'need target file';
 
-#   ## Get the static data. If it's not looking right or not there, use
-#   ## some empty default values.
-#   my $ann_src_str = `cat ./staging/ann-source.dat` || '[]';
-#   my $ann_ev_str = `cat ./staging/ann-evidence.dat` || '[]';
-#   my $ann_overview_str = `cat ./staging/ann-overview.dat` || '[[]]';
-#   chomp($ann_src_str);
-#   chomp($ann_ev_str);
-#   chomp($ann_overview_str);
-#   $ann_src_str = '[]' if ! $ann_src_str;
-#   $ann_ev_str = '[]' if ! $ann_ev_str;
-#   $ann_overview_str = '[[]]' if ! $ann_overview_str;
+  ## Bring in necessaries.
+  use AmiGO::JavaScript;
+  my $core = AmiGO::JavaScript->new();
 
-#   # ## Make sure we can get our own libs.
-#   # use lib getcwd() . '/perl/lib';
-#   # ## Bring in necessaries.
-#   # use AmiGO::JavaScript;
-#   # my $core = AmiGO::JavaScript->new();
+  ## If the file is already there, blow it away.
+  unlink $file_str if -f $file_str;
+  open(FILE, ">$file_str") or die "cannot open $file_str: $!";
 
-#   ## If the file is already there, blow it away.
-#   unlink $file_str if -f $file_str;
-#   open(FILE, ">$file_str") or die "cannot open $file_str: $!";
+  # $core->kvetch('file_str: ' . $file_str);
+  # $core->kvetch('core: ' . $core);
 
-#   # $core->kvetch('file_str: ' . $file_str);
-#   # $core->kvetch('core: ' . $core);
+  ## Template to string output.
+  my $output = '';
+  my $tt = Template->new();
+  $tt->process('javascript/npm/amigo2-instance-data/generation-templates/definitions.js.tmpl',
+	       {
+		download_limit => $core->amigo_env('AMIGO_DOWNLOAD_LIMIT'),
+	       },
+	       \$output)
+    || die $tt->error;
+  print FILE $output;
 
-#   ## Template to string output.
-#   my $output = '';
-#   my $tt = Template->new();
-#   $tt->process('javascript/npm/amigo2-instance-data/generation-templates/statistics.js.tmpl',
-# 	       {
-# 		ann_src => $ann_src_str,
-# 		ann_ev => $ann_ev_str,
-# 		ann_overview => $ann_overview_str,
-# 	       },
-# 	       \$output)
-#     || die $tt->error;
-#   print FILE $output;
-
-#   ## Close file.
-#   close(FILE);
-#   make_readable($file_str);
-# }
+  ## Close file.
+  close(FILE);
+  make_readable($file_str);
+}
 
 
 ##

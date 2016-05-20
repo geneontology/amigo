@@ -51,8 +51,14 @@ describe('explore the structure of definitions', function(){
     var a = new amigo();
 
     it('data.definitions', function(){
-	assert.equal(a.data.definitions.download_limit, 10000,
-		     '10k');
+	// Well...
+	assert.isNumber(a.data.definitions.download_limit, 
+			'is a number: ' + a.data.definitions.download_limit);
+	// Sanity range.
+	assert.isAbove(a.data.definitions.download_limit, 100,
+		       'is a > number ');
+	assert.isBelow(a.data.definitions.download_limit, 1000000,
+		       'is a < number');
     });
 });
 
