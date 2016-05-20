@@ -19,6 +19,10 @@ AMIGO_BROWSE_FILTER_IDSPACE:
   comment: An optional field to filter restrict to globally restrict to a certain ontology during some browsing.
   type: string
   value: GO
+AMIGO_DOWNLOAD_LIMIT:
+  comment: The download size that AmiGO will default to for the UI.
+  type: number
+  value: 100000
 AMIGO_DYNAMIC_PATH:
   comment: The full path to the location of the perl binaries.
   type: directory

@@ -11,6 +11,10 @@ AMIGO_BETA:
   comment: "Mark the AmiGO site as BETA (triggers some changes in variables and installed features)."
   type: boolean
   value: 1
+AMIGO_DOWNLOAD_LIMIT:
+  comment: The download size that AmiGO will default to for the UI.
+  type: number
+  value: 100000
 AMIGO_DYNAMIC_PATH:
   comment: "The full path to the location of the perl binaries."
   type: directory
