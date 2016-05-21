@@ -76,6 +76,7 @@ sub setup {
 		   'reference'           => 'mode_reference_details',
 		   'model'               => 'mode_model_details',
 		   'biology'             => 'mode_model_biology',
+		   'ontologies'          => 'mode_ontologies',
 		   'software_list'       => 'mode_software_list',
 		   'schema_details'      => 'mode_schema_details',
 		   'load_details'        => 'mode_load_details',
@@ -2186,6 +2187,60 @@ sub mode_model_biology {
      content =>
      [
       'pages/model_biology.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page_with();
+}
+
+
+## /All/ ontologies visualized.
+sub mode_ontologies {
+
+  my $self = shift;
+
+  ## Warn people away for now.
+  $self->add_mq('warning',
+		'This page is considered <strong>ALPHA</strong> software.');
+
+  ###
+  ### Standard setup.
+  ###
+
+  ## Page settings.
+  ## Again, a little special.
+  $self->set_template_parameter('page_name', 'ontologies');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Ontologies');
+  my($page_title, $page_content_title, $page_help_link) =
+      $self->_resolve_page_settings('ontologies');
+  $self->set_template_parameter('page_help_link', $page_help_link);
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui',
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('AmiGOOntView.js')
+     ],
+     content =>
+     [
+      'pages/view_ontologies.tmpl'
      ]
     };
   $self->add_template_bulk($prep);
