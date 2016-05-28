@@ -797,7 +797,7 @@ app.all('/api/statistics/gene-to-term', function (req, res){
 app.all('/api/statistics/term-to-gene', function (req, res){
 
     // Theoretical good result envelope to start.
-    var envl = new envelope('/api/statistics/gene-to-term');
+    var envl = new envelope('/api/statistics/term-to-gene');
 
     // Get parameters as lists.
     var term_accs = _extract(req, 'term');
