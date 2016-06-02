@@ -59,7 +59,7 @@
    : sudo apt-get -u install python-virtualenv
    : virtualenv `pwd`
    : source bin/activate
-   : pip install behave selenium jsonpath-rw
+   : pip install --upgrade --force-reinstall selenium behave jsonpath-rw
 
    All of the created files for this are in .gitignore, for both linux
    and windows systems. After this, you can leave the virtual
