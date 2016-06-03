@@ -28,5 +28,11 @@ Feature: AmiGO basic pages okay
     | /amigo/load_details      | AmiGO 2: Load Details                        |
     | /amigo/owltools_details  | AmiGO 2: OWLTools/Loader Details             |
     | /xrefs                   | AmiGO 2: Cross References                    |
+    | /amigo/base_statistics   | AmiGO 2: Base Statistics                     |
+    | /amigo/dd_browse         | AmiGO 2: Drill-down Browser                  |
+    | /amigo/medial_search?q=neurogenesis | AmiGO 2: Search Directory         |
+    | /amigo/reference?ref_id=PMID:123456 | AmiGO 2: Reference Details for PMID:123456 |
+    | /matrix                  | AmiGO 2: Matrix                                        |
+    | /amigo/simple_search           | AmiGO 2: Simple Search                  |
 ## Ignore this next bit unless you're an Emacs org-mode user.
 #    | /amigo/visualize         | AmiGO 2: Visualize                           |
