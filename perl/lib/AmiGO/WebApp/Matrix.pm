@@ -52,7 +52,7 @@ sub mode_matrix {
   my $params = $i->input_profile();
 
   ## Page settings.
-  $self->set_template_parameter('page_title', 'Matrix');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Matrix');
   $self->set_template_parameter('content_title', 'Matrix');
   ##
   my $prep =
