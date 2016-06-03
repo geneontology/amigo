@@ -875,6 +875,10 @@ sub _resolve_page_settings {
     $page_title = 'AmiGO 2: Cross References';
     $page_content_title = 'Current Cross Reference Abbreviations';
     $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Cross_References';
+  }elsif( $page_name eq 'base_statistics' ){
+    $page_title = 'AmiGO 2: Base Statistics';
+    $page_content_title = 'Base Statistics';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Base_Statistics';
   }
 
   return ($page_title,
