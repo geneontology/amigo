@@ -1708,7 +1708,12 @@ button_templates.send_fields_to_galaxy = function(label, count, fields, galaxy,
 		    
 		    // Finally, bang out what we've constructed in
 		    // a form.
-		    new dialog('Export to Galaxy: ' + form.to_string());
+		    var diargs = {
+			modal: true,
+			title: 'Trigger kick back to Galaxy',
+			width: 700
+		    };
+		    new dialog('Export to Galaxy: ' + form.to_string(), diargs);
 		}
 	    };
 	}

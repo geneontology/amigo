@@ -267,6 +267,7 @@ var web_compilables = [
     // 'FreeBrowse.js'    // current working set
     // 'ReferenceDetails.js'    // current working set
     // 'AmiGOOntView.js'    // current working set
+    ///
     'AmiGOBioView.js',
     'AmiGOCytoView.js',
     'AmiGOOntView.js',

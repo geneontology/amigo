@@ -1137,10 +1137,6 @@ sub mode_search {
   ## public bookmarking API.
   $filters = $self->_add_search_bookmark_api_to_filters($params, $filters);
 
-  ## Try and come to terms with Galaxy.
-  my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
-  $self->galaxy_settings($in_galaxy, $galaxy_external_p);
-
   ## Heavy-duty manager-level bookmark system: if it is defined, try
   ## to decode it into something useful that we can pass in as
   ## javascript.
@@ -1152,7 +1148,7 @@ sub mode_search {
 
   ## Page settings.
   my $page_name = 'live_search';
-  my($page_title, 
+  my($page_title,
      $page_content_title,
      $page_help_link) = $self->_resolve_page_settings($page_name);
   $self->set_template_parameter('page_name', $page_name);
@@ -1197,6 +1193,13 @@ sub mode_search {
     ## No incoming personality.
     return $self->mode_not_found('undefined', 'search personality');
   }
+
+  ## Try and come to terms with Galaxy. Comprehend will pass the
+  ## needed info back to the client.
+  my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
+  $self->galaxy_settings($in_galaxy, $galaxy_external_p);
+  $self->{CORE}->kvetch('galaxy instance: ' . $in_galaxy);
+  $self->{CORE}->kvetch('galaxy external p: ' . $galaxy_external_p);
 
   ## Set personality for template, and later JS var.
   $self->set_template_parameter('personality', $personality);
