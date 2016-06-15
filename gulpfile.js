@@ -148,7 +148,7 @@ var amigo_url = a['AMIGO_DYNAMIC_URL'].value;
 var golr_private_url = a['AMIGO_PRIVATE_GOLR_URL'].value;
 var golr_public_url = a['AMIGO_PUBLIC_GOLR_URL'].value;
 var owltools_max_memory = a['OWLTOOLS_MAX_MEMORY'].value || '4G';
-var owltools_runner = 'java -Xms2048M -DentityExpansionLimit=4086000 -Djava.awt.headless=true -Xmx' + owltools_max_memory + ' -jar ./java/lib/owltools-runner-all.jar';
+var owltools_runner = 'java -Xms1024M -DentityExpansionLimit=4086000 -Djava.awt.headless=true -Xmx' + owltools_max_memory + ' -jar ./java/lib/owltools-runner-all.jar';
 var metadata_list = _tilde_expand_list(a['GOLR_METADATA_LIST'].value);
 var metadata_string = metadata_list.join(' ');
 var ontology_metadata = tilde(a['GOLR_METADATA_ONTOLOGY_LOCATION'].value);
