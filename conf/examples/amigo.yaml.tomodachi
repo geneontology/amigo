@@ -130,12 +130,22 @@ GOLR_GAF_LIST:
     - http://www.geneontology.org/gene-associations/gene_association.dictyBase.gz
     - http://www.geneontology.org/gene-associations/gene_association.ecocyc.gz
     - http://www.geneontology.org/gene-associations/gene_association.fb.gz
-    - http://www.geneontology.org/gene-associations/gene_association.goa_chicken.gz
-    - http://www.geneontology.org/gene-associations/gene_association.goa_cow.gz
-    - http://www.geneontology.org/gene-associations/gene_association.goa_dog.gz
-    - http://www.geneontology.org/gene-associations/gene_association.goa_human.gz
-    - http://www.geneontology.org/gene-associations/gene_association.goa_pig.gz
-    - http://www.geneontology.org/gene-associations/gene_association.goa_uniprot_noiea.gz
+    - http://www.geneontology.org/gene-associations/goa_chicken.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_chicken_complex.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_chicken_rna.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_cow.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_cow_complex.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_cow_rna.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_dog.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_dog_complex.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_dog_rna.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_human.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_human_complex.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_human_rna.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_pig.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_pig_complex.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_pig_rna.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_uniprot_all_noiea.gaf.gz
     - http://www.geneontology.org/gene-associations/gene_association.gramene_oryza.gz
     - http://www.geneontology.org/gene-associations/gene_association.jcvi.gz
     - http://www.geneontology.org/gene-associations/gene_association.mgi.gz

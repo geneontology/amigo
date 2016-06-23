@@ -117,11 +117,11 @@ GOLR_GAF_LIST:
   comment: The list of GAFs to load.
   type: list
   value:
+    - http://www.geneontology.org/gene-associations/goa_human.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_human_complex.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_human_rna.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_uniprot_all_noiea.gaf.gz
     - http://www.geneontology.org/gene-associations/gene_association.mgi.gz
-    - http://www.geneontology.org/gene-associations/gene_association.goa_human.gz
-    - http://www.geneontology.org/gene-associations/gene_association.goa_ref_human.gz
-    - http://www.geneontology.org/gene-associations/gene_association.goa_uniprot_noiea.gz
-    - http://www.geneontology.org/gene-associations/gene_association.reactome.gz
 GOLR_METADATA_LIST:
   comment: 'The full path to the YAML config files directory. In that directory, all files like *config.yaml will be scanned for use.'
   type: list
