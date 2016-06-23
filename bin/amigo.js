@@ -359,7 +359,7 @@ var app = express();
 app.use(cors());
 // Add POST via JSON.
 app.use(body_parser.json());
-app.use(body_parser.urlencoded({'extended': true}));
+app.use(body_parser.urlencoded({'extended': true, parameterLimit: 100000, limit: '50mb' }));
 
 ///
 /// User pages.
