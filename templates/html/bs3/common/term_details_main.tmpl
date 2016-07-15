@@ -9,13 +9,30 @@
   </div>
   <div class="panel-body">
     
+    <!-- <div style="padding-bottom: 3px;"> -->
+    <div style="float:right;">
+      [% IF GONUTS_SUCCESS %]
+      <a class="bbop-js-tooltip" title="[% IF GONUTS_TOTAL_COUNT > 0 %]View or edit[% ELSE %]Add[% END %] usage comments for this term on the GONUTS (GO Normal Usage Tracking System) wiki." href="[% GONUTS_PAGE_URL %]">
+      	<span class="label label-primary">Term usage&nbsp;<span class="glyphicon glyphicon-pencil"></span>
+      	</span>
+      </a>
+      &nbsp;
+      [% END %]
+      <a class="bbop-js-tooltip" title="Let us know if there are any additions, concerns, or other issues that you'd like to share about this data." href="http://geneontology.org/form/contact-go">
+	<span class="label label-primary">Data health&nbsp;<span class="glyphicon glyphicon-heart"></span>
+	</span>
+      </a>
+    </div>
+
     <dl class="dl-horizontal amigo-detail-info">
       
       <!-- Acc, name, and ont. -->
       <dt>Accession</dt>
       <dd>[% TERM_INFO.acc %]</dd>
+
       <dt>Name</dt>
       <dd>[% TERM_INFO.name %]</dd>
+
       <dt>Ontology</dt>
       <dd>[% TERM_INFO.ontology_readable %]</dd>
       <!-- <dt>ID Space</dt> -->
@@ -66,7 +83,7 @@
 	[%      END %]
 	[%      IF  txref_link.dbname == 'PMID' || txref_link.dbname == 'DOI' %]<cite>[% ELSE %]<cite>[% END %][% IF href %]<a title="Go to [% vis %]" href="[% href %]">[% vis %]</a>[% ELSE %][% txref_link.id %][% END %]</cite>[% IF txref_counter < txref_count; txref_counter = txref_counter + 1 %],[% END %]
 																															 [%   END %]
-																															[% ELSE %]
+																															 [% ELSE %]
 																															 [source: unknown]
 																															 [% END %]
 																															 </dd>
@@ -109,25 +126,25 @@
       <dt>Subset</dt>
       [% IF TERM_INFO.subsets.size != 0 %]
       <!-- <dd> -->
-	<!-- <ul> -->
-	  [% FOREACH sub = TERM_INFO.subsets %]
-	  [% #   TODO/BUG: need more info through for links %]	 
-	  [% #   IF sub.search('goslim') %]
-	  <!-- <li><a href="[% sub.link %]" title="View details of the [% sub.name %] GO slim">[% sub.name %]</a></li> -->
-	  [% #   ELSE %]
-	  <!-- <li>Unavailable</li> -->
-	  <!-- <li>[% sub %]</li> -->
-	  <dd>[% sub %]</dd>
-	  [% #   END %]
-	  [% END %]
-	<!-- </ul> -->
+      <!-- <ul> -->
+      [% FOREACH sub = TERM_INFO.subsets %]
+      [% #   TODO/BUG: need more info through for links %]	 
+      [% #   IF sub.search('goslim') %]
+      <!-- <li><a href="[% sub.link %]" title="View details of the [% sub.name %] GO slim">[% sub.name %]</a></li> -->
+      [% #   ELSE %]
+      <!-- <li>Unavailable</li> -->
+      <!-- <li>[% sub %]</li> -->
+      <dd>[% sub %]</dd>
+      [% #   END %]
+      [% END %]
+      <!-- </ul> -->
       <!-- </dd> -->
       [% ELSE %]
       <dd>None</dd>
       [% END %]
       
-      [% # Note that wikipedia is in here too. %]
-      [% INCLUDE common/term_details_community.tmpl %]
+      [% # # Note that wikipedia is in here too. %]
+      [% # INCLUDE common/term_details_community.tmpl %]
 
       <!-- JS dynamic links created by manager. -->
       <dt id="prob_related" class="hidden">Related</dt>
@@ -146,17 +163,17 @@
 	for [% TERM_INFO.name %].
       </dd>
       
-      <!-- -->
-      <dt>Feedback</dt>
-      <dd>
-	Contact the
-	<a href="http://geneontology.org/form/contact-go" title="GO Helpdesk.">GO Helpdesk</a>
-	if you find mistakes or have concerns
-	about the data you find here.
-      </dd>
+      <!-- <\!-- -\-> -->
+      <!-- <dt>Feedback</dt> -->
+      <!-- <dd> -->
+      <!-- 	Contact the -->
+      <!-- 	<a href="http://geneontology.org/form/contact-go" title="GO Helpdesk.">GO Helpdesk</a> -->
+      <!-- 	if you find mistakes or have concerns -->
+      <!-- 	about the data you find here. -->
+      <!-- </dd> -->
 
     </dl>
-
+    
   </div>
 </div>
 <!-- END template: term_details_main.tmpl -->

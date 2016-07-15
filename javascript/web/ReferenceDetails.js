@@ -374,11 +374,11 @@ function ReferenceDetailsInit(){
 			    '<dd>',
 			    '<a href="https://www.ncbi.nlm.nih.gov/pubmed/' + bbop.first_split(':', global_acc)[1] + '">' + global_acc + '</a>',
 			    '</dd>',
-			    // Feedback.
-			    '<dt>Feedback</dt>',
-			    '<dd>',
-			    'Contact the <a href="http://geneontology.org/form/contact-go" title="GO Helpdesk.">GO Helpdesk</a> if you find mistakes or have concerns about the data you find here.',
-			    '</dd>',
+			    // // Feedback.
+			    // '<dt>Feedback</dt>',
+			    // '<dd>',
+			    // 'Contact the <a href="http://geneontology.org/form/contact-go" title="GO Helpdesk.">GO Helpdesk</a> if you find mistakes or have concerns about the data you find here.',
+			    // '</dd>',
 			    '</dl>'
 			];
 			jQuery('#info-area').append(info.join(' '));
@@ -396,7 +396,7 @@ function ReferenceDetailsInit(){
 			// Get feedback from viewers.
 			jQuery('#info-area').append([
 			    '<p>',
-			    '<b>Are you the author</b> (or have a deep understanding) of this paper? If so, <b>do these annotations look okay to you</b>? <a href="http://geneontology.org/form/contact-go">Let us know</a>!',
+			    '<span class="glyphicon glyphicon-pencil"></span><b>Are you the author</b> (or have a deep understanding) of this paper? If so, <b>do these annotations look okay to you</b>? <a href="http://geneontology.org/form/contact-go">Let us know</a>!',
 			    '</p>'
 			].join(' '));
 			
