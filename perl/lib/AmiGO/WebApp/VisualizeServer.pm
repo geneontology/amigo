@@ -143,17 +143,11 @@ sub mode_client_freeform {
        [
 	'com.jquery',
 	'com.bootstrap',
-	'com.jquery-ui',
-	'bbop',
-	'amigo2'
+	'com.jquery-ui'
        ],
        javascript =>
        [
-	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
-       ],
-       javascript_init =>
-       [
-	'GeneralSearchForwardingInit();'
+	$self->{JS}->get_lib('GeneralSearchForwarding.js')
        ],
        content =>
        [
@@ -251,18 +245,12 @@ sub mode_client_amigo {
        [
 	'com.jquery',
 	'com.bootstrap',
-	'com.jquery-ui',
-	'bbop',
-	'amigo2'
+	'com.jquery-ui'
        ],
        javascript =>
        [
 	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
-       ],
-       javascript_init =>
-       [
-	'GeneralSearchForwardingInit();'
-       ],
+       ]
        content =>
        [
 	'pages/visualize_amigo.tmpl']
