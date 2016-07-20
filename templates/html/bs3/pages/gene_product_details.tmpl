@@ -6,7 +6,10 @@
   <div class="panel-heading">
     <h3 class="panel-title">
       Gene Product Information
+      [% page_content_title_tmp = page_content_title %]
+      [% page_content_title = "using this page" %]
       [% INCLUDE "common/abstract_help_link.tmpl" %]
+      [% page_content_title = page_content_title_tmp %]
     </h3>
 
   </div>

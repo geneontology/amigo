@@ -4,20 +4,16 @@
   <div class="panel-heading">
     <h3 class="panel-title">
       [% IF TERM_INFO.is_obsolete == "true" OR TERM_INFO.is_obsolete == 1 %]<strong>Obsolete</strong> [% END %]Term Information
+      [% page_content_title_tmp = page_content_title %]
+      [% page_content_title = "using this page" %]
       [% INCLUDE "common/abstract_help_link.tmpl" %]
+      [% page_content_title = page_content_title_tmp %]
     </h3>
   </div>
   <div class="panel-body">
     
     <!-- <div style="padding-bottom: 3px;"> -->
     <div style="float:right;">
-      [% IF GONUTS_SUCCESS %]
-      <a class="bbop-js-tooltip" title="[% IF GONUTS_TOTAL_COUNT > 0 %]View or edit[% ELSE %]Add[% END %] usage comments for this term on the GONUTS (GO Normal Usage Tracking System) wiki." href="[% GONUTS_PAGE_URL %]">
-      	<span class="label label-primary">Term usage&nbsp;<span class="glyphicon glyphicon-pencil"></span>
-      	</span>
-      </a>
-      &nbsp;
-      [% END %]
       <a class="bbop-js-tooltip" title="Let us know if there are any additions, concerns, or other issues that you'd like to share about this data." href="http://geneontology.org/form/contact-go">
 	<span class="label label-primary">Data health&nbsp;<span class="glyphicon glyphicon-heart"></span>
 	</span>
