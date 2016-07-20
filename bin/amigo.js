@@ -359,7 +359,7 @@ var app = express();
 app.use(cors());
 // Add POST via JSON.
 app.use(body_parser.json());
-app.use(body_parser.urlencoded({'extended': true}));
+app.use(body_parser.urlencoded({'extended': true, parameterLimit: 100000, limit: '50mb' }));
 
 ///
 /// User pages.
@@ -797,7 +797,7 @@ app.all('/api/statistics/gene-to-term', function (req, res){
 app.all('/api/statistics/term-to-gene', function (req, res){
 
     // Theoretical good result envelope to start.
-    var envl = new envelope('/api/statistics/gene-to-term');
+    var envl = new envelope('/api/statistics/term-to-gene');
 
     // Get parameters as lists.
     var term_accs = _extract(req, 'term');

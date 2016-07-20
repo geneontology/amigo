@@ -199,6 +199,10 @@ sub input_profile {
     ## Public-facing bookmark API.
     $self->_link_search_bookmark_api();
 
+    ## Additional optional input for Galaxy experiments.
+    ## Optional kick-in.
+    $self->_add_simple_argument('GALAXY_URL', '');
+
   }elsif( $profile_name eq 'workspace' ){
     $self->_add_workspace_set();
   }else{
@@ -213,7 +217,7 @@ sub input_profile {
 
   ## TODO: Throw errors, tantrum, to message...something.
   if( $results->has_missing() ){
-    $self->kvetch("Missing:");
+    $self->kvetch("Missing parameters:");
     foreach my $item (keys %{$results->{missing}}){
       $self->kvetch("$item => " . $results->{missing}->{$item});
     }
@@ -221,7 +225,7 @@ sub input_profile {
 
   ## TODO: Throw errors, tantrum, to message...something.
   if( $results->has_invalid() ){
-    $self->kvetch("Invalid:");
+    $self->kvetch("Invalid parameters:");
     foreach my $item (keys %{$results->{invalid}}){
       $self->kvetch("$item => " . $results->{invalid}->{$item});
     }
@@ -230,7 +234,7 @@ sub input_profile {
   ## For the time being, these can just rot, but I'm sure we'll want
   ## them for something later.
   if( $results->{unknown} && scalar(keys %{$results->{unknown}}) ){
-    $self->kvetch("Unknown:");
+    $self->kvetch("Unknown parameters:");
     foreach my $item (keys %{$results->{unknown}}){
       $self->kvetch("$item => " . $results->{unknown}->{$item});
     }
@@ -347,7 +351,7 @@ sub comprehend_galaxy {
   if( ! $in_galaxy ){
     ## Get the Galaxy return URL if we can.
     $in_galaxy = $self->get_interlink({mode => 'galaxy_by_tool',
-					       arg => {tool_id => $flavor}});
+				       arg => {tool_id => $flavor}});
     if( $in_galaxy ){ # use whatever is defined first in the template
       $in_galaxy_external_p = 0;
     }

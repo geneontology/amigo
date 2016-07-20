@@ -13,6 +13,8 @@
 /* global global_live_search_filters */
 /* global global_live_search_bookmark */
 /* global global_live_search_filter_idspace */
+/* global global_galaxy_url */
+/* global global_galaxy_external_p */
 
 var us = require('underscore');
 var bbop = require('bbop-core');
@@ -120,6 +122,10 @@ function LiveSearchGOlrInit(){
 		gserv_download);
     //var bookmark_button = btmpl.bookmark(linker);
     var bookmark_button = btmpl.restmark(linker);
+    var gaf_galaxy_button =
+	    btmpl.send_fields_to_galaxy('Upload to Galaxy', dlimit,
+					defs.gaf_from_golr_fields,
+					global_galaxy_url);
     var facet_matrix_button = btmpl.open_facet_matrix(gconf, sd);
 
     ///
@@ -265,8 +271,18 @@ function LiveSearchGOlrInit(){
 	    }
 	    buttons_to_use.push(gaf_download_button);
 	    buttons_to_use.push(ann_flex_download_button);
-	    //buttons_to_use.push(gaf_galaxy_button);
 	    buttons_to_use.push(bookmark_button);
+
+	    // If there is a galaxy environment available, and we are
+	    // looking at annotations, give the user an option to kick
+	    // back a GAF.
+	    if( typeof(global_galaxy_url) !== 'undefined' && global_galaxy_url ){
+		if( typeof(global_galaxy_external_p) !== 'undefined' ){
+		    if( global_galaxy_external_p === 1 ){
+			buttons_to_use.push(gaf_galaxy_button);
+		    }
+		}
+	    }
 
 	}else if( personality === 'ontology' ){
 

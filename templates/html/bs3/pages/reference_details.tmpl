@@ -6,15 +6,27 @@
   <div class="panel-heading">
     <h3 class="panel-title">
       Reference Information
+      [% page_content_title_tmp = page_content_title %]
+      [% page_content_title = "using this page" %]
       [% INCLUDE "common/abstract_help_link.tmpl" %]
+      [% page_content_title = page_content_title_tmp %]
     </h3>
   </div>
-  <div id="info-area" class="panel-body">
+  <div class="panel-body">
 
-    <p class="well">
-      Attempting to find reference information from <a href="http://eutils.ncbi.nlm.nih.gov/entrez/eutils/">NCBI Entrez Programming Utilities</a>...
-    </p>
-
+    <div class="pull-right">
+      <a class="bbop-js-tooltip" title="Let us know if there are any additions, concerns, or other issues that you'd like to share about this data." href="http://geneontology.org/form/contact-go">
+	<span class="label label-primary">Data health&nbsp;<span class="glyphicon glyphicon-heart"></span>
+	</span>
+      </a>
+    </div>
+    
+    <div id="info-area">
+      <p class="well">
+	Attempting to find reference information from <a href="http://eutils.ncbi.nlm.nih.gov/entrez/eutils/">NCBI Entrez Programming Utilities</a>...
+      </p>
+    </div>
+    
   </div>
 </div>
 
@@ -26,25 +38,25 @@
 
     <div id="results-area" class="row">
 
-	<div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-	  <div>
-	    <h4>Filter results</h4>
-	    
-	    <div id="accordion" class="bbop-widget-set-live-filters">
-	      Loading...
-	    </div>
-
-	  </div>	  
-	</div>
-
-	<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+	<div>
+	  <h4>Filter results</h4>
 	  
-	  <div id="pager" class="bbop-widget-set-live-pager">
+	  <div id="accordion" class="bbop-widget-set-live-filters">
+	    Loading...
 	  </div>
-	  <div id="results" class="bbop-widget-set-live-results">
-	    Pending...
-	  </div>
+
+	</div>	  
+      </div>
+
+      <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+	
+	<div id="pager" class="bbop-widget-set-live-pager">
 	</div>
+	<div id="results" class="bbop-widget-set-live-results">
+	  Pending...
+	</div>
+      </div>
 
     </div>
 
