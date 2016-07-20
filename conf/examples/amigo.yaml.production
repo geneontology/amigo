@@ -62,7 +62,7 @@ AMIGO_PUBLIC_GALAXY_URL:
 AMIGO_PUBLIC_GOLR_BULK_URL:
   comment: The public URL of the GOlr bulk download server (including slash); possibly the same as AMIGO_PUBLIC_GOLR_URL.
   type: url
-  value: http://localhost:8080/solr/
+  value: http://golr-test.stanford.edu/
 AMIGO_PUBLIC_GOLR_URL:
   comment: 'The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.'
   type: url
