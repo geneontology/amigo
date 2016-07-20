@@ -151,7 +151,8 @@ sub mode_client_freeform {
        ],
        content =>
        [
-	'pages/visualize_freeform.tmpl']
+	'pages/visualize_freeform.tmpl'
+       ]
       };
     $self->add_template_bulk($prep);
     $output = $self->generate_template_page_with();
@@ -249,11 +250,12 @@ sub mode_client_amigo {
        ],
        javascript =>
        [
-	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
-       ]
+	$self->{JS}->get_lib('GeneralSearchForwarding.js')
+       ],
        content =>
        [
-	'pages/visualize_amigo.tmpl']
+	'pages/visualize_amigo.tmpl'
+       ]
       };
     $self->add_template_bulk($prep);
     $output = $self->generate_template_page_with();
