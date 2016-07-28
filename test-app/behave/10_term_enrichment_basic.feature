@@ -8,6 +8,8 @@ Feature: Term enrichment engines basically respond
     Given I go to page "/rte"
      and I input the following text into the RTE input box
       """
+      UBE2K ,UBE2N
+      SUGCT 
       P31946   ,P62258
       Q04917,P61981
       P31947  baxter
