@@ -46,11 +46,6 @@ AMIGO_LAYOUT_SEARCH:
     - annotation
     - ontology
     - bioentity
-    - model_annotation
-    - noctua_model_meta
-    - family
-    - general
-    - bbop_term_ac
 AMIGO_PRIVATE_GOLR_URL:
   comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading. Can be the same as the public URL if you have no proxy or firewall to deal with.
   type: url
