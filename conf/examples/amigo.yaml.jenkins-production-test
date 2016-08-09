@@ -69,7 +69,7 @@ AMIGO_PUBLIC_NOCTUA_URL:
 AMIGO_ROOT:
   comment: 'Unless you are doing something strange, the parent directory of this file.'
   type: directory
-  value: /home/swdev/local/src/git/amigo
+  value: /home/swdev/jenkins/workspace/amigo2-test-production
 AMIGO_ROOT_TERMS:
   comment: 'For some widgets, we need to know what root terms you are going to be considering in your ontology. Requires both "id" and "label" to be defined.'
   type: json
