@@ -235,6 +235,11 @@ gulp.task('test-js', function () {
 	])));
 });
 
+// Due to https://bugs.launchpad.net/ubuntu/+source/phantomjs/+bug/1586134 .
+gulp.task('test-app-xvfb', shell.task(_run_cmd_list(
+    ['bash -c "source ./test-app/behave/bin/activate && TARGET=' + amigo_url + ' BROWSER=phantomjs xvfb-run behave ./test-app/behave/"']
+)));
+
 //
 gulp.task('test-app', shell.task(_run_cmd_list(
     ['bash -c "source ./test-app/behave/bin/activate && TARGET=' + amigo_url + ' BROWSER=phantomjs behave ./test-app/behave/"']
