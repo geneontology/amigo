@@ -212,7 +212,7 @@ _ping_count();
 gulp.task('tests', ['test-meta',
 		    'test-perl',
 		    'test-js',
-		    'test-app']);
+		    'test-app-xvfb']);
 
 gulp.task('test-meta', function () {
     return gulp.src(metadata_list, {read: false})
