@@ -212,7 +212,7 @@ _ping_count();
 gulp.task('tests', ['test-meta',
 		    'test-perl',
 		    'test-js',
-		    'test-app-xvfb']);
+		    'test-app']);
 
 gulp.task('test-meta', function () {
     return gulp.src(metadata_list, {read: false})
@@ -235,12 +235,9 @@ gulp.task('test-js', function () {
 	])));
 });
 
-// Due to https://bugs.launchpad.net/ubuntu/+source/phantomjs/+bug/1586134 .
-gulp.task('test-app-xvfb', shell.task(_run_cmd_list(
-    ['bash -c "source ./test-app/behave/bin/activate && TARGET=' + amigo_url + ' BROWSER=phantomjs xvfb-run behave ./test-app/behave/"']
-)));
-
-//
+// See: https://bugs.launchpad.net/ubuntu/+source/phantomjs/+bug/1586134 .
+// See: https://stackoverflow.com/questions/36770303/phantomjs-with-selenium-unable-to-load-atom-find-element
+// See: https://github.com/ariya/phantomjs/issues/14376
 gulp.task('test-app', shell.task(_run_cmd_list(
     ['bash -c "source ./test-app/behave/bin/activate && TARGET=' + amigo_url + ' BROWSER=phantomjs behave ./test-app/behave/"']
     //['bash -c "source ./test-app/behave/bin/activate && TARGET=' + amigo_url + ' BROWSER=firefox behave ./test-app/behave/*.feature"']
