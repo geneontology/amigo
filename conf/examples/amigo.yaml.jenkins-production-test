@@ -156,16 +156,16 @@ GOLR_METADATA_LIST:
   comment: 'The full path to the YAML config files directory. In that directory, all files like *config.yaml will be scanned for use.'
   type: list
   value:
-    - '~/local/src/git/amigo/metadata/ont-config.yaml'
-    - '~/local/src/git/amigo/metadata/bio-config.yaml'
-    - '~/local/src/git/amigo/metadata/bio-config.browse.yaml'
-    - '~/local/src/git/amigo/metadata/ann-config.yaml'
-    - '~/local/src/git/amigo/metadata/ann-config.browse.yaml'
-    - '~/local/src/git/amigo/metadata/general-config.yaml'
-    - '~/local/src/git/amigo/metadata/model-ann-config.yaml'
-    - '~/local/src/git/amigo/metadata/noctua-model-meta-config.yaml'
-    - '~/local/src/git/amigo/metadata/protein-family-config.yaml'
-    - '~/local/src/git/amigo/metadata/ann_ev_agg-config.yaml'
+    - '/home/swdev/jenkins/workspace/amigo2-test-production/metadata/ont-config.yaml'
+    - '/home/swdev/jenkins/workspace/amigo2-test-production/metadata/bio-config.yaml'
+    - '/home/swdev/jenkins/workspace/amigo2-test-production/metadata/bio-config.browse.yaml'
+    - '/home/swdev/jenkins/workspace/amigo2-test-production/metadata/ann-config.yaml'
+    - '/home/swdev/jenkins/workspace/amigo2-test-production/metadata/ann-config.browse.yaml'
+    - '/home/swdev/jenkins/workspace/amigo2-test-production/metadata/general-config.yaml'
+    - '/home/swdev/jenkins/workspace/amigo2-test-production/metadata/model-ann-config.yaml'
+    - '/home/swdev/jenkins/workspace/amigo2-test-production/metadata/noctua-model-meta-config.yaml'
+    - '/home/swdev/jenkins/workspace/amigo2-test-production/metadata/protein-family-config.yaml'
+    - '/home/swdev/jenkins/workspace/amigo2-test-production/metadata/ann_ev_agg-config.yaml'
 GOLR_METADATA_ONTOLOGY_LOCATION:
   comment: The full path to the ontology YAML config file. This is core for any ontology-related load.
   type: file
