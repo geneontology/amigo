@@ -24,8 +24,8 @@ def before_all(context):
     else:
         context.browser = webdriver.PhantomJS()
 
-    ## Set a decent timeout: 30s.
-    context.browser.set_page_load_timeout(30)
+    ## Set a decent timeout: 90s.
+    context.browser.set_page_load_timeout(90)
         
 ## Do this after completing everything.
 def after_all(context):
