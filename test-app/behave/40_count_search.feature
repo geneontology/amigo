@@ -8,7 +8,7 @@ Feature: AmiGO search pages show counts consistent with data loads
    Examples: search pages
     | searchpage               | count                    |
 #   |--------------------------+--------------------------|
-    | /amigo/search/annotation | 10465855                 |
-    | /amigo/search/ontology   | 43110                    |
-    | /amigo/search/bioentity  | 992106                   |
+    | /amigo/search/annotation | 5113213                  |
+    | /amigo/search/ontology   | 43197                    |
+    | /amigo/search/bioentity  | 850918                   |
 ##
