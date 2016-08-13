@@ -403,6 +403,8 @@ gulp.task('load-ontology', shell.task(_run_cmd(
      '--solr-load-ontology-general']
 )));
 
+// Try and load a single ontology safely, with no timming gaps.
+// Use case NEO.
 gulp.task('load-ontology-purge-safe', shell.task(_run_cmd(
     [owltools_runner,
      ontology_string,
