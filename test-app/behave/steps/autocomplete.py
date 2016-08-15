@@ -22,7 +22,7 @@ def step_impl(context):
 
 # @given('I wait "{seconds}" seconds')
 # def step_impl(context, seconds):        
-#         context.browser.implicitly_wait(int(seconds))
+#     context.browser.implicitly_wait(int(seconds))
 
 ## TODO/BUG: Make use of the explicit waits instead of the (rather
 ## lame) implicit waits:
@@ -52,14 +52,14 @@ def step_impl(context, item):
     webelt = context.browser.find_element_by_link_text(item)
     webelt.click()
 
-@given('I type "{text}" into the input with id {elid}')
-def step_impl(context, text):
+@given('I type "{text}" into the input with id "{elid}"')
+def step_impl(context, text, elid):
     #print(context.browser.title)
     webelt = context.browser.find_element_by_id(elid)
     webelt.send_keys(text)
 
 @given('I click the form button with id "{elid}"')
-def step_impl(context, item):
+def step_impl(context, elid):
     #print(context.browser.title)
-    webelt = context.browser.find_element_by_link_text(elid)
+    webelt = context.browser.find_element_by_id(elid)
     webelt.click()
