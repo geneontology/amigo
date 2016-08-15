@@ -7,8 +7,21 @@ from behave import *
 ## The basic and critical "go to page".
 @given('I go to page "{page}"')
 def step_impl(context, page):
+    ## Save the starting state for later possible use.
+    context._starting_windows = context.browser.window_handles
+    
     #print(context.browser.title)
     context.browser.get(context.target + page)
+    
+## A similar quirky action, trying to go to a newly opened "window".
+## Think what happens during an open "_blank".
+@given('I go to the new window')
+def step_impl(context, page):
+    #print(context.browser.title)
+    ## Try and calculate the newest open window.
+    all_windows = context.browser.window_handles
+    new_window = list(set(new_windows) - set(context._starting_windows))[0]
+    context.browser.switch_to_window(new_window)
     
 @then('the title should be "{title}"')
 def step_impl(context, title):

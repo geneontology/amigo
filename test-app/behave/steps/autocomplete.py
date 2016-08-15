@@ -45,9 +45,21 @@ def step_impl(context, item):
     #         context.browser.find_element_by_class_name('ui-autocomplete'), item
     #     )
     # )
-    
+
 @given('I click the general search item "{item}"')
 def step_impl(context, item):
     #print(context.browser.title)
     webelt = context.browser.find_element_by_link_text(item)
+    webelt.click()
+
+@given('I type "{text}" into the input with id {elid}')
+def step_impl(context, text):
+    #print(context.browser.title)
+    webelt = context.browser.find_element_by_id(elid)
+    webelt.send_keys(text)
+
+@given('I click the form button with id "{elid}"')
+def step_impl(context, item):
+    #print(context.browser.title)
+    webelt = context.browser.find_element_by_link_text(elid)
     webelt.click()
