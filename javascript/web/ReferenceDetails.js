@@ -387,9 +387,9 @@ function ReferenceDetailsInit(){
 			// Powered by NCBI.
 			jQuery('#info-area').append([
 			    '<p>',
-			    'Powered by NCBI\'s <a href=http://eutils.ncbi.nlm.nih.gov"">E-utilities</a>.',
+			    'Powered by NCBI\'s <a href="https://eutils.ncbi.nlm.nih.gov">E-utilities</a>.',
 			    '<br />',
-			    'Please read NCBI\'s <a href="http://www.ncbi.nlm.nih.gov/About/disclaimer.html">Disclaimer and Copyright notice.',
+			    'Please read NCBI\'s <a href="https://www.ncbi.nlm.nih.gov/home/about/policies.shtml">Disclaimer and Copyright notice.',
 			    '</p>',
 			].join(' '));
 			
@@ -409,7 +409,7 @@ function ReferenceDetailsInit(){
 		});
 		
 		// Trigger.	    
-		var url = 'http://eutils.ncbi.nlm.nih.gov';
+		var url = 'https://eutils.ncbi.nlm.nih.gov';
 		var path = '/entrez/eutils/efetch.fcgi';
 		var pay = {
 		    'tool': 'amigo_client_2.4.x',
