@@ -155,7 +155,7 @@ sub mode_grebe {
 	$question_id . '">' .
 	  $question_info->{'question'} . ' &nbsp;&nbsp;' .
 	    # '<img class="amigo-grebe-action-icon" title="Jump to AmiGO 2 Search" alt="[search]" src="' . $self->{CORE}->amigo_env('AMIGO_IMAGE_URL') . '/info-jump.png" />' .
-	    '<button type="button" class="amigo-grebe-action btn btn-primary" title="Jump to AmiGO 2 Search" alt="[search]">Go &raquo;</button>' .
+	    '<button id="' . $question_id . '-action" type="button" class="amigo-grebe-action btn btn-primary" title="Jump to AmiGO 2 Search" alt="[search]">Go &raquo;</button>' .
 	      '</span>';
     }
   }
