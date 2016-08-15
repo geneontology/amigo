@@ -7,8 +7,23 @@ from behave import *
 ## The basic and critical "go to page".
 @given('I go to page "{page}"')
 def step_impl(context, page):
+    ## Save the starting state for later possible use.
+    context._starting_windows = context.browser.window_handles
+    
     #print(context.browser.title)
     context.browser.get(context.target + page)
+    
+## A similar quirky action, trying to go to a newly opened "window".
+## Think what happens during an open "_blank".
+@given('I go to the new window')
+def step_impl(context):
+    #print(context.browser.title)
+    ## Try and calculate the newest open window.
+    all_windows = context.browser.window_handles
+    #print(all_windows)
+    new_window = list(set(all_windows) - set(context._starting_windows))[0]
+    #print(all_windows)
+    context.browser.switch_to_window(new_window)
     
 @then('the title should be "{title}"')
 def step_impl(context, title):
@@ -38,6 +53,20 @@ def step_impl(context, text):
     # webelt = context.browser.find_element_by_tag_name('body')
     # print(webelt.get_attribute('innerHTML'))
     # assert webelt.get_attribute('innerHTML').rfind(text) != -1
+
+## TODO/BUG: Make use of the explicit waits instead of the (rather
+## lame) implicit waits:
+## http://selenium-python.readthedocs.org/en/latest/waits.html
+## See above autocomplete.py.
+@given('I wait until the document contains "{text}"')
+def step_impl(context, text):
+
+    ## Implicity poll for items to appear for 10 seconds.
+    context.browser.implicitly_wait(10)
+    print(context.browser.title)
+    webelt = context.browser.find_element_by_tag_name('html')
+    print(webelt.text)
+    assert webelt.text.rfind(text) != -1
 
 ## The document body should not contain a hyperlink with text.
 @then('the document should not contain link with "{text}"')

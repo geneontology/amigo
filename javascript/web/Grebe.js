@@ -245,23 +245,26 @@ function GrebeInit(){
 	    us.each(fts, function(ft){
 		//var fid = ft['field_id'];
 		var ffield = ft['field_filter'];
-		var mgr = ft['manager'];
+		var stored_mgr = ft['manager']; // TODO: why have this anymore?
 		var wdg = ft['widget'];
 		ll('ffield: ' + ffield);
-		ll('manager: ' + mgr);
+		ll('manager: ' + stored_mgr);
 		ll('iid: ' + wdg._interface_id);
 		
 		var fc = wdg.content();
 		ll('content: ' + fc);
 		
+		// Remember: we're connecting filters to the "outer"
+		// manager, not the one we stored earlier.
 		mgr.add_query_filter(ffield, fc);
 	    });
 	    
-	    //alert('clicked: ' + qid);
-	    //alert('clicked: ' + mgr.get_query_url());
 	    
 	    // Jump to that search in AmiGO 2.
 	    var state = mgr.get_state_url();
+	    // ll('clicked: ' + qid);
+	    // ll('clicked: ' + state);
+	    // alert(state);
 	    var pop = linker.url(encodeURIComponent(state), 'search', prs);
 	    window.open(pop, '_blank');
 	});
