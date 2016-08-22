@@ -17,19 +17,19 @@ fields:
     type: string
     property: []
   - id: bioentity
-    description: "Gene or gene product ID."
-    display_name: Acc
+    description: "Gene or gene product identifiers."
+    display_name: Gene/product
     type: string
     property: []
   - id: bioentity_label
-    description: "Symbol or name."
-    display_name: Label
+    description: "Gene or gene product identifiers."
+    display_name: Gene/product
     type: string
     property: []
     searchable: true
   - id: bioentity_name
-    description: "The full name of the gene product."
-    display_name: Name
+    description: "The full name of the gene or gene product."
+    display_name: Gene/product name
     type: string
     property: []
     searchable: true
