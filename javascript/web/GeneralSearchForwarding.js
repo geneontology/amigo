@@ -78,7 +78,7 @@ function GeneralSearchForwardingInit(){
     var general_args = {
 	'fill_p': false,
 	'label_template':
-	'{{entity_label}} ({{entity}})',
+	'{{{entity_label}}} ({{entity}})',
 	'value_template': '{{entity}}',
 	'list_select_callback': forward
     };
