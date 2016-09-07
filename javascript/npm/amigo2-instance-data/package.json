@@ -1,6 +1,6 @@
 {
     "name": "amigo2-instance-data",
-    "version": "2.5.1",
+    "version": "2.5.2",
     "license": "BSD-3-Clause",
     "description": "The AmiGO production data package, for use with BBOP tools.",
     "keywords": [
