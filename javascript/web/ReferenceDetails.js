@@ -324,19 +324,23 @@ function ReferenceDetailsInit(){
 			    }
 			}
 			
-			// Abstract.
+			// Abstract; list or string.
 			var abstract = 'n/a';
 			if( op.Abstract && op.Abstract.AbstractText ){
+			    if( us.isArray(op.Abstract.AbstractText) ){
 			    
-			    var abscache = [];
-			    us.each(op.Abstract.AbstractText, function(abs){
-				if( abs._ ){ abscache.push(abs._); }
-			    });
-			    if( ! us.isEmpty(abscache) ){
-				abstract = abscache.join('<br />');
+				var abscache = [];
+				us.each(op.Abstract.AbstractText, function(abs){
+				    if( abs._ ){ abscache.push(abs._); }
+				});
+				if( ! us.isEmpty(abscache) ){
+				    abstract = abscache.join('<br />');
+				}
+			    }else if( us.isString(op.Abstract.AbstractText) ){
+				abstract = op.Abstract.AbstractText;
 			    }
 			}
-			
+				
 			// Render.
 			jQuery('#info-area').empty();
 			var info = [
