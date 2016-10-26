@@ -19,7 +19,7 @@ Found in examples/
 * *amigo.yaml.production*
 <br> The closest possible amigo.yaml to what is run on the production site; used by developers to communicate desired changes to the production configuration.
 * *amigo.yaml.public*
-<br> ??? Likely an unnecessary addition that was initially added to capture the same information in amigo.yaml.production.
+<br> This is the development file that is used to create the NPM amigo2-instance-data configuration for upload; it is similar to amigo.yaml.production, but tweaked to ensure it points at the main public services and can build easily locally
 * *amigo.yaml.tomodachi*
 <br>Used for deployment and testing of BBOP's "master" instance of AmiGO.
 
