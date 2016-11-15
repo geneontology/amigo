@@ -25,7 +25,10 @@ var us = require('underscore');
 // for a day, and do a check to flush every hour.
 var NodeCache = require("node-cache");
 var discache = new NodeCache({
-    "stdTTL": 86400, // (* 60 60 24) === seconds per day
+    // If use clones, the cache becomes incredibly unusably slow.
+    "useClones": false,
+    // With these two values, I can guarentee a purge at least at 24hrs.
+    "stdTTL": 82800, // (* 60 60 23) === seconds per 23hrs
     "checkperiod": 3600 // (* 60 60) === seconds per hour
 });
 
@@ -1038,7 +1041,7 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 	// For example:
 	// TODO
 	// 
-	ll('Disambiguation/bioentity try cache...');
+	//ll('Disambiguation/bioentity try cache...');
 	var cache = discache.get(spc);
 
 	// First, let us discuss what will happen when we have a
@@ -1135,13 +1138,9 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 	    ll('Disambiguation/bioentity cache direct hit for: ' + spc);
 
 	    var collected_results = collect_results(cache);
-
-	    ll('Disambiguation/bioentity create data envelope.');
-
+	    //ll('Disambiguation/bioentity create data envelope.');
 	    envl.data(collected_results);
-
-	    ll('Disambiguation/bioentity send direct hit results.');
-	    
+	    //ll('Disambiguation/bioentity send direct hit results.');
 	    res.json(envl.structure());
 
 	}else{
@@ -1226,12 +1225,12 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 		    
 		});
 		
-		ll('Disambiguation/bioentity species cache created');
+		//ll('Disambiguation/bioentity species cache created');
 		//console.log("species_cache: ", species_cache);
 
 		// Simply add to the cache.
-		//discache.set(spc, species_cache);
-		ll('Disambiguation/bioentity cache set');
+		discache.set(spc, species_cache);
+		//ll('Disambiguation/bioentity cache set');
 
 		// Well, we have the species cache, so use it.
 		var collected_results = collect_results(species_cache);
