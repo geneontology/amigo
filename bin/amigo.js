@@ -1163,7 +1163,7 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 	    });
 	    go.set_facet_limit(0); // care not about facets
 	    go.lite(true);
-	    //go.set('rows', 100000000); // hopefully 100,000,000 is enough for now
+	    // Hopefully 100,000,000 is enough for now.
 	    go.set_results_count(100000000);
 	    
 	    // Process promise.
