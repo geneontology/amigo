@@ -40,6 +40,12 @@ fields:
     type: string
     property: []
     searchable: true
+  - id: annotation_group_url
+    description: ???.
+    display_name: Annotation group URL
+    type: string
+    property: []
+    searchable: false
 ## Enabled by/bioentity
   - id: enabled_by
     description: ???

@@ -76,13 +76,16 @@ my $sig2path =
    #'com/jquery-ui-1.8.23.custom.min.js',
    #'com/jquery-ui-1.8.13.custom.min.js',
 
+   'org.cytoscape' =>
+   'org/cytoscape.js',
+
    ## And plugin for trees.
    'com.jsplumb' =>
    'com/jquery.jsPlumb-1.5.5.js', # default route to jQuery version
 
    ## And plugin for trees.
-   'com.jquery.jstree' =>
-   'com/jquery.jstree.js',
+   'com.jstree' =>
+   'com/jstree/jstree.min.js',
 
    ## More plugins.
    'com.jquery.treeview'          => 'com/jquery.treeview.js',
@@ -181,6 +184,9 @@ my $sig2path =
 
    'org.d3' =>
    'org/d3.v3.min.js',
+
+   'ly.plot' =>
+   'ly/plotly.min.js',
   };
 
 
@@ -231,6 +237,8 @@ sub get_lib {
     push @mbuf, $self->amigo_env('AMIGO_JS_URL') . '/';
     $path = $sig2path->{$sig};
     push @mbuf, $path;
+  }elsif( $sig =~ /^http(s)?\:\/\// ){ # maybe just an external link?
+    push @mbuf, $sig;
   }else{
     ## An "unknown"/default staging path--our locally developed stuff.
     ## Since not in the registry, transform and hope for the best...

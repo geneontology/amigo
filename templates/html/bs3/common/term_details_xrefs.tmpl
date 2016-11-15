@@ -44,6 +44,20 @@ END %]
 </dl>
 
 [% ELSE %]
+
+[%    IF GONUTS_SUCCESS || wikipedia_label %]
+[%       IF GONUTS_SUCCESS %]
+<dd>
+  <!-- <img height="16px" src="[% image_dir %]/gonuts.link.jpg" alt="GONUTS" /> --><small><strong>GONUTS</strong></small> <a href="[% GONUTS_PAGE_URL %]" title="Community note for [% GONUTS_PAGE_TITLE %]">[% IF GONUTS_TOTAL_COUNT > 0 %]View or edit[% ELSE %]Add[% END %]</a> usage comments for this term on the <abbr title="GO Normal Usage Tracking System" class="initialism">GONUTS</abbr> wiki.
+</dd>
+[%       END %]
+[%       IF wikipedia_label %]
+<dd>
+  <!-- <img height="18px" src="[% image_dir %]/wikipedia.link.png" alt="Wikipedia" /> --><small><strong>Wikipedia</strong></small> <a href="[% wikipedia_link %]" title="Wikipedia page for [% wikipedia_label %]">View and edit</a> information about this term on Wikipedia.
+</dd>
+[%       END %]
+[%    ELSE %]
 <h5>None.</h5>
+[%    END %]
 [% END %]
 <!-- END template: term_details_xrefs.tmpl -->

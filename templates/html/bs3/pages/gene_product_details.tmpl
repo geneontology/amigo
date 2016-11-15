@@ -4,9 +4,23 @@
 
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title">Gene Product Information</h3>
+    <h3 class="panel-title">
+      Gene Product Information
+      [% page_content_title_tmp = page_content_title %]
+      [% page_content_title = "using this page" %]
+      [% INCLUDE "common/abstract_help_link.tmpl" %]
+      [% page_content_title = page_content_title_tmp %]
+    </h3>
+
   </div>
   <div class="panel-body">
+
+    <div class="pull-right">
+      <a class="bbop-js-tooltip" title="Let us know if there are any additions, concerns, or other issues that you'd like to share about this data." href="http://geneontology.org/form/contact-go">
+	<span class="label label-primary">Data health&nbsp;<span class="glyphicon glyphicon-heart"></span>
+	</span>
+      </a>
+    </div>
 
     <dl class="dl-horizontal amigo-detail-info">
       
@@ -35,13 +49,13 @@
       <!-- Synonyms -->
       <dt>Synonyms</dt>
       [% sl = GP_INFO.synonyms %]
-      [% IF sl.size == 0 %]
+      [% IF NOT sl OR sl.size == 0 %]
       <dd>None</dd>
       [% ELSE %]
       [%    FOREACH synh IN sl %]
       <!-- <dd class="syn">[% IF synh.scope %]<span class="type">[% synh.scope %]</span>: [% END %][% synh.acc %]</dd> -->
       [%       ## Something broken in the GAF or pipeline? %]
-      [%       IF synh == "" %]
+      [%       IF NOT synh OR synh == "" %]
       <dd>(n/a)</dd>
       [%       ELSE %]
       <dd>[% synh %]</dd>
@@ -70,14 +84,23 @@
       <!-- </dd> -->
       <dd id="prob_ann" class="hidden">
 	<a id="prob_ann_href" href="#" class="btn btn-primary btn-xs">Link</a>
-	to all direct and indirect <strong>annotations</strong>
+	to <strong>annotations page</strong>
 	to [% GP_INFO.label %].
       </dd>
       <dd id="prob_ann_dl" class="hidden">
 	<a id="prob_ann_dl_href" href="#" class="btn btn-primary btn-xs">Link</a>
-	to all direct and indirect <strong>annotations download</strong> (limited to first 10,000)
+	to annotations <strong>download</strong>
 	for [% GP_INFO.label %].
       </dd>
+
+      <!-- -->
+      <!-- <dt>Feedback</dt> -->
+      <!-- <dd> -->
+      <!-- 	Contact the -->
+      <!-- 	<a href="http://geneontology.org/form/contact-go" title="GO Helpdesk.">GO Helpdesk</a> -->
+      <!-- 	if you find mistakes or have concerns -->
+      <!-- 	about the data you find here. -->
+      <!-- </dd> -->
 
     </dl>
 
@@ -89,9 +112,31 @@
     <h3 class="panel-title">Gene Product Associations</h3>
   </div>
   <div class="panel-body">
-    <div id="display-associations">
-      Contacting server...
+
+    <div id="results-area" class="row">
+
+	<div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+	  <div>
+	    <h4>Filter results</h4>
+	    
+	    <div id="accordion" class="bbop-widget-set-live-filters">
+	      Loading...
+	    </div>
+
+	  </div>	  
+	</div>
+
+	<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+	  
+	  <div id="pager" class="bbop-widget-set-live-pager">
+	  </div>
+	  <div id="results" class="bbop-widget-set-live-results">
+	    pending...
+	  </div>
+	</div>
+
     </div>
+
   </div>
 </div>
 

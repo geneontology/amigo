@@ -2,34 +2,57 @@
 
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title">[% IF TERM_INFO.is_obsolete == "true" OR TERM_INFO.is_obsolete == 1 %]<strong>Obsolete</strong> [% END %]Term Information</h3>
+    <h3 class="panel-title">
+      [% IF TERM_INFO.is_obsolete == "true" OR TERM_INFO.is_obsolete == 1 %]<strong>Obsolete</strong> [% END %]Term Information
+      [% page_content_title_tmp = page_content_title %]
+      [% page_content_title = "using this page" %]
+      [% INCLUDE "common/abstract_help_link.tmpl" %]
+      [% page_content_title = page_content_title_tmp %]
+    </h3>
   </div>
   <div class="panel-body">
     
+    <!-- <div style="padding-bottom: 3px;"> -->
+    <div style="float:right;">
+      <a class="bbop-js-tooltip" title="Let us know if there are any additions, concerns, or other issues that you'd like to share about this data." href="http://geneontology.org/form/contact-go">
+	<span class="label label-primary">Data health&nbsp;<span class="glyphicon glyphicon-heart"></span>
+	</span>
+      </a>
+    </div>
+
     <dl class="dl-horizontal amigo-detail-info">
       
       <!-- Acc, name, and ont. -->
       <dt>Accession</dt>
       <dd>[% TERM_INFO.acc %]</dd>
+
       <dt>Name</dt>
       <dd>[% TERM_INFO.name %]</dd>
+
       <dt>Ontology</dt>
       <dd>[% TERM_INFO.ontology_readable %]</dd>
+      <!-- <dt>ID Space</dt> -->
+      <!-- <dd>[% TERM_INFO.idspace %]</dd> -->
       
       <!-- Synonyms -->
       <dt>Synonyms</dt>
-      [% al = TERM_INFO.alternate_ids %]
       [% sl = TERM_INFO.synonyms %]
-      [% IF sl.size == 0 AND al.size == 0 %]
+      [% IF sl.size == 0 %]
       <dd>None</dd>
       [% ELSE %]
-      [%    FOREACH alth IN al %]
-      <dd><strong>alt. id</strong>: [% alth %]</dd>
+      [%    IF sl.size != 0 %]
+      <dd id="syn-collapse-syn" class="syn-collapsible">[% sl.join(", ") %]</dd>
       [%    END %]
-      [%    FOREACH synh IN sl %]
-      <!-- BUG/TODO: Like this when we have scope available. -->
-      <!-- <dd>[% IF synh.scope %]<span>[% synh.scope %]</span>: [% END %][% synh.acc %]</dd> -->
-      <dd>[% synh %]</dd>
+      [% END %]
+
+      <!-- Alternate IDs -->
+      <dt>Alternate IDs</dt>
+      [% al = TERM_INFO.alternate_ids %]
+      [% IF al.size == 0 %]
+      <dd>None</dd>
+      [% ELSE %]
+      [%    IF al.size != 0 %]
+      <dd id="syn-collaspe-alt" class="syn-collapsible">[% al.join(", ") %]</dd>
       [%    END %]
       [% END %]
 
@@ -56,7 +79,7 @@
 	[%      END %]
 	[%      IF  txref_link.dbname == 'PMID' || txref_link.dbname == 'DOI' %]<cite>[% ELSE %]<cite>[% END %][% IF href %]<a title="Go to [% vis %]" href="[% href %]">[% vis %]</a>[% ELSE %][% txref_link.id %][% END %]</cite>[% IF txref_counter < txref_count; txref_counter = txref_counter + 1 %],[% END %]
 																															 [%   END %]
-																															[% ELSE %]
+																															 [% ELSE %]
 																															 [source: unknown]
 																															 [% END %]
 																															 </dd>
@@ -67,7 +90,9 @@
       <!-- Comment. -->
       <dt>Comment</dt>
       [% IF TERM_INFO.comment %]
-      <dd>[% TERM_INFO.comment %]</dd>
+      [%  FOREACH tic IN TERM_INFO.comment %]
+      <dd>[% tic %]</dd>
+      [%  END %]
       [% ELSE %]
       <dd>None</dd>
       [% END %]
@@ -97,31 +122,31 @@
       <dt>Subset</dt>
       [% IF TERM_INFO.subsets.size != 0 %]
       <!-- <dd> -->
-	<!-- <ul> -->
-	  [% FOREACH sub = TERM_INFO.subsets %]
-	  [% #   TODO/BUG: need more info through for links %]	 
-	  [% #   IF sub.search('goslim') %]
-	  <!-- <li><a href="[% sub.link %]" title="View details of the [% sub.name %] GO slim">[% sub.name %]</a></li> -->
-	  [% #   ELSE %]
-	  <!-- <li>Unavailable</li> -->
-	  <!-- <li>[% sub %]</li> -->
-	  <dd>[% sub %]</dd>
-	  [% #   END %]
-	  [% END %]
-	<!-- </ul> -->
+      <!-- <ul> -->
+      [% FOREACH sub = TERM_INFO.subsets %]
+      [% #   TODO/BUG: need more info through for links %]	 
+      [% #   IF sub.search('goslim') %]
+      <!-- <li><a href="[% sub.link %]" title="View details of the [% sub.name %] GO slim">[% sub.name %]</a></li> -->
+      [% #   ELSE %]
+      <!-- <li>Unavailable</li> -->
+      <!-- <li>[% sub %]</li> -->
+      <dd>[% sub %]</dd>
+      [% #   END %]
+      [% END %]
+      <!-- </ul> -->
       <!-- </dd> -->
       [% ELSE %]
       <dd>None</dd>
       [% END %]
       
-      [% # Note that wikipedia is in here too. %]
-      [% INCLUDE common/term_details_community.tmpl %]
+      [% # # Note that wikipedia is in here too. %]
+      [% # INCLUDE common/term_details_community.tmpl %]
 
       <!-- JS dynamic links created by manager. -->
       <dt id="prob_related" class="hidden">Related</dt>
       <dd id="prob_bio" class="hidden">
 	<a id="prob_bio_href" href="#" class="btn btn-primary btn-xs">Link</a>
-	to all <strong>genes and gene products</strong> associated to [% TERM_INFO.name %].
+	to all <strong>genes and gene products</strong> annotated to [% TERM_INFO.name %].
       </dd>
       <dd id="prob_ann" class="hidden">
 	<a id="prob_ann_href" href="#" class="btn btn-primary btn-xs">Link</a>
@@ -134,8 +159,17 @@
 	for [% TERM_INFO.name %].
       </dd>
       
-    </dl>
+      <!-- <\!-- -\-> -->
+      <!-- <dt>Feedback</dt> -->
+      <!-- <dd> -->
+      <!-- 	Contact the -->
+      <!-- 	<a href="http://geneontology.org/form/contact-go" title="GO Helpdesk.">GO Helpdesk</a> -->
+      <!-- 	if you find mistakes or have concerns -->
+      <!-- 	about the data you find here. -->
+      <!-- </dd> -->
 
+    </dl>
+    
   </div>
 </div>
 <!-- END template: term_details_main.tmpl -->

@@ -7,18 +7,18 @@
 [% rollup_id = "info_header" %]
 [% rollup_anchor = "Information about Gannet" %]
 [% INCLUDE "common/info_rollup_start.tmpl" %]
-<h5>GO Solr (GOlr)</h5>
+<h4>GO Solr (GOlr)</h4>
 <p>
   See some GOlr <a href="http://wiki.geneontology.org/index.php/Example_Solr_Queries">examples</a> or <a href="[% base %]/amigo/schema_details" title="Instance schema details">schema details</a> for this instance.
   Raw schema information for the most current GOlr can be found in the
   source
   <a href="http://geneontology.svn.sourceforge.net/viewvc/geneontology/java/gold/solr/conf/schema.xml?content-type=text%2Fplain">repository</a>.
 </p>
-<h5>Mirrors</h5>
-<p>
-  Select a mirror that will fit your needs. The default is this
-  installation.
-</p>
+<!-- <h4>Mirrors</h4> -->
+<!-- <p> -->
+<!--   Select a mirror that will fit your needs. The default is this -->
+<!--   installation. -->
+<!-- </p> -->
 [% INCLUDE "common/info_rollup_end.tmpl" %]
 
 <div class="panel panel-default">
@@ -89,6 +89,47 @@
 	
   </div>
 </div>
+
+[% IF facet_results_p %]    
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      Facet Results
+    </div>
+  </div>
+  <div class="panel-body">
+      
+    [% FOREACH facet = facet_results_facets %]
+    <table
+       summary="Query facet results over [% facet %]"
+       class="table table-striped table-hover">
+      <thead>
+	<tr>	  
+	  <th>
+	    [% facet %]
+	  </th>
+	  <th>
+	    count
+	  </th>
+	</tr>
+      </thead>
+      <tbody>	
+	[% FOREACH pair = facet_results.$facet %]
+	<tr>
+	  [% FOREACH item = pair %]
+	  <td>
+	    [% item %]
+	  </td>
+	  [% END %]
+	</tr>
+	[% END %]
+      </tbody>
+    </table>
+    [% END %]
+    
+  </div>
+</div>
+[% END %]
 
 [% IF NOT results_count AND results_count == 0 %]
   
@@ -196,9 +237,9 @@
 	[% END %]
       </tbody>
     </table>
-  
+
   </div>
 </div>
-
 [% END %]
+
 <!-- END: gannet.tmpl -->

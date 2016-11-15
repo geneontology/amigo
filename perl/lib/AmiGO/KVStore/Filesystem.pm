@@ -29,6 +29,7 @@ package AmiGO::KVStore::Filesystem;
 use base 'AmiGO';
 #use File::Path;
 use File::Slurp;
+use File::Path qw(make_path);
 use Digest::SHA;
 #use bignum qw/hex/;
 #use bignum;
@@ -64,14 +65,23 @@ sub new {
 
   $self->{AFSS_WRAP} = $wrap;
 
-  ## Create if not already on the filesystem...
+  ## Check, and attempt to create if not already on the filesystem...
   $self->kvetch('checking store: ' . $self->{AFSS_LOCATION});
-  if( -d $self->{AFSS_LOCATION} && ! -W $self->{AFSS_LOCATION} ){
-    die "some permission issues here...";
+  if( -d $self->{AFSS_LOCATION} && -W $self->{AFSS_LOCATION} ){
+    $self->kvetch('store permissions good enough');
+  }elsif( -d $self->{AFSS_LOCATION} && ! -W $self->{AFSS_LOCATION} ){
+      $self->kvetch('cannot write to store, attempting to change perms');
+      chmod 0777, $self->{AFSS_LOCATION} || die "unable to chmod directory...";
+  }elsif( ! -d $self->{AFSS_LOCATION} ){
+      $self->kvetch('store not extant at all');
+      make_path($self->{AFSS_LOCATION}, {mode=>0777}) ||
+	  die "unable to create directory...";
+  }
+  ## Double check.
+  if( -d $self->{AFSS_LOCATION} && -W $self->{AFSS_LOCATION} ){
+    $self->kvetch('(second) store permissions good enough');
   }else{
-    $self->kvetch('making store: ' . $self->{AFSS_LOCATION});
-    mkdir $self->{AFSS_LOCATION} || die "unable to create directory...";
-    chmod 0777, $self->{AFSS_LOCATION} || die "unable to chmod directory...";
+      die "some directory and/or permission issues here...";
   }
 
   bless $self, $class;
@@ -100,8 +110,10 @@ sub _make_file_key {
   my $sub_dir =  $self->{AFSS_LOCATION} . '/' . $sub_int;
   if( ! -d $sub_dir ){
     $self->kvetch('making sub-store: ' . $sub_dir);
-    mkdir $sub_dir || die "unable to create sub-directory...";
-    chmod 0777, $sub_dir || die "unable to make permissive sub-directory...";
+    # mkdir $sub_dir || die "unable to create sub-directory...";
+    # chmod 0777, $sub_dir || die "unable to make permissive sub-directory...";
+    make_path($sub_dir, {mode=>0777}) ||
+      die "unable to create directory...";
   }
 
   ## Return fully qualified

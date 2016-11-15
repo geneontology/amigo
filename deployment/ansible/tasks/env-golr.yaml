@@ -1,0 +1,24 @@
+####
+#### Get the environment setup.
+####
+---
+###
+### Get gitting--pull the necessary repos.
+###
+- name: git clone amigo master
+  git: repo=https://github.com/geneontology/amigo.git
+       dest=/home/{{ remote_user }}/local/src/git/amigo
+       version=master
+       update=yes
+- name: git clone noctua-models master
+  git: repo=https://github.com/geneontology/noctua-models.git
+       dest=/home/{{ remote_user }}/local/src/git/noctua-models
+       version=master
+       update=yes
+# - name: git clone go-site master
+#   git: repo=https://github.com/geneontology/go-site.git
+#        dest=/home/{{ remote_user }}/local/src/git/go-site
+#        version=master
+#        update=yes
+- name: geneontology.org (limited) svn checkout 
+  subversion: repo=svn://ext.geneontology.org/trunk/ontology dest=/home/{{ remote_user }}/local/src/svn/geneontology.org/trunk/ontology

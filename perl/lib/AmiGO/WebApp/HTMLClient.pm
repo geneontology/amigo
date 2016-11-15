@@ -26,8 +26,7 @@ use CGI::Application::Plugin::Redirect;
 ## Real external workers.
 use AmiGO::Worker::GOlr::Term;
 use AmiGO::Worker::GOlr::GeneProduct;
-#use AmiGO::Worker::GOlr::ComplexAnnotationUnit;
-use AmiGO::Worker::GOlr::ComplexAnnotationGroup;
+use AmiGO::Worker::GOlr::ModelAnnotation;
 use AmiGO::External::QuickGO::Term;
 use AmiGO::External::XML::GONUTS;
 #use AmiGO::External::Raw;
@@ -59,6 +58,8 @@ sub setup {
   $self->start_mode('landing');
   $self->error_mode('mode_fatal');
   $self->run_modes(
+		   ## Special cases.
+		   'special'             => 'mode_special',
 		   ## Standard.
 		   'landing'             => 'mode_landing',
 		   #'search'              => 'mode_live_search',
@@ -66,15 +67,20 @@ sub setup {
 		   'specific_search'     => 'mode_search',
 		   'bulk_search'         => 'mode_bulk_search',
 		   'browse'              => 'mode_browse',
+		   'specific_browse'     => 'mode_browse',
+		   'dd_browse'           => 'mode_dd_browse',
+		   'base_statistics'     => 'mode_base_statistics',
 		   'free_browse'         => 'mode_free_browse',
 		   'term'                => 'mode_term_details',
 		   'gene_product'        => 'mode_gene_product_details',
-		   'complex_annotation'  => 'mode_complex_annotation_details',
-		   'visualize'           => 'mode_visualize',
-		   'visualize_freeform'  => 'mode_visualize_freeform',
+		   'reference'           => 'mode_reference_details',
+		   'model'               => 'mode_model_details',
+		   'biology'             => 'mode_model_biology',
+		   'ontologies'          => 'mode_ontologies',
 		   'software_list'       => 'mode_software_list',
 		   'schema_details'      => 'mode_schema_details',
 		   'load_details'        => 'mode_load_details',
+		   'owltools_details'    => 'mode_owltools_details',
 		   'medial_search'       => 'mode_medial_search',
 		   ## ???
 		   'phylo_graph'         => 'mode_phylo_graph',
@@ -83,6 +89,87 @@ sub setup {
 		   'AUTOLOAD'            => 'mode_exception'
 		  );
 }
+
+
+###
+### Helper functions.
+###
+
+
+## Now add the filters that come in from the YAML-defined simple
+## public bookmarking API.
+sub _add_search_bookmark_api_to_filters {
+    my $self = shift;
+    my $params = shift || {};
+    my $filters = shift || {};
+
+    ## Going through all of the configured argument to GOlr maps,
+    ## check them and add them to the standard 'fq' filters.
+    my $bmapi = $self->{CORE}->bookmark_api_configuration();
+    foreach my $entry ( keys(%$bmapi) ){
+	if( $params->{$entry} ){
+
+	    ## Pull the current filter and ensure an array.
+	    my $items = $params->{$entry} || [];
+	    $items = [$items] if ref($items) ne 'ARRAY';
+
+	    foreach my $item (@$items){
+		my $map_to = $bmapi->{$entry};
+
+		## Check to see if it is a negative call or not.
+		my $created_filter = undef;
+		my $possible_neg = substr($item, 0, 1);
+		if( $possible_neg ne '-' ){
+		    $created_filter = $map_to . ':"' . $item . '"';
+		}else{
+		    ## Extract the rest of the string and add a
+		    ## negative filter.
+		    my $stripped_item = substr($item, 1, length($item));
+		    $created_filter = '-'. $map_to .':"'. $stripped_item .'"';
+		}
+		push @$filters, $created_filter;
+		$self->{CORE}->kvetch('BMAPI: ' . $created_filter);
+	    }
+	}
+    }
+    return $filters;
+}
+
+
+###
+### Run modes.
+###
+
+
+## Special runmode for special cases. Current use occurs with serving
+## static content from root in embedded mode. Right now, specifically
+## robots.txt. See AmiGO::dynamic_dispatch_table_amigo for more
+## discussion.
+sub mode_special {
+
+  my $self = shift;
+
+  my $path = $self->{CORE}->amigo_env('AMIGO_STATIC_PATH') . '/robots.txt';
+
+  my $ctype = 'text/plain';
+  my $cont = '';
+
+  if( ! -r $path ){
+    $self->{CORE}->kvetch('no readable path: ' . $path);
+  }else{
+    $self->{CORE}->kvetch('will read path: ' . $path);
+    $ctype = $self->decide_content_type_by_filename($path);
+    $cont = $self->get_content_by_filename($path);
+
+    $self->{CORE}->kvetch('birf: ' . $ctype);
+    $self->{CORE}->kvetch('barf: ' . $cont);
+  }
+
+  ## Finalize.
+  $self->header_add('-type' => $ctype);
+  return $cont;
+}
+
 
 ##
 sub mode_landing {
@@ -93,9 +180,14 @@ sub mode_landing {
   my $params = $i->input_profile();
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'landing');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Welcome');
-  #$self->set_template_parameter('content_title', 'AmiGO 2');
+  my $page_name = 'landing';
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Our AmiGO services CSS.
   my $prep =
@@ -113,18 +205,13 @@ sub mode_landing {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      'bbop',
-      'amigo2'
+      #'bbop',
+      #'amigo2'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('LandingGraphs.js')
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      'LandingGraphsInit();'
      ],
      content =>
      [
@@ -145,11 +232,25 @@ sub mode_browse {
 
   my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile();
+  ## Deal with the different types of dispatch we might be facing.
+  $params->{term} = $self->param('term')
+    if ! $params->{term} && $self->param('term');
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'browse');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Browse');
-  $self->set_template_parameter('content_title', 'Browse');
+  my $page_name = 'browse';
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
+
+  ## See if we are looking at a specific term, or just browsing.
+  my $in_term = $params->{term};
+  if( $in_term ){
+    $self->set_template_parameter('in_term', $in_term);
+  }
 
   ## Get the layout info to describe which buttons should be
   ## generated.
@@ -174,23 +275,135 @@ sub mode_browse {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo2'
+      'com.jquery-ui'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-      $self->{JS}->get_lib('Browse.js')
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      'BrowseInit();'
+      $self->{JS}->get_lib('Browse.js'),
+      $self->{JS}->make_var('global_in_term', $in_term)
      ],
      content =>
      [
       'pages/browse.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page_with();
+}
+
+
+##
+sub mode_dd_browse {
+
+  my $self = shift;
+
+  my $i = AmiGO::Input->new($self->query());
+  my $params = $i->input_profile();
+
+  ## Page settings.
+  my $page_name = 'dd_browse';
+  my($page_title, 
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);  
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      'com.jstree',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui',
+      'com.jstree'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('DDBrowse.js')
+     ],
+     content =>
+     [
+      'pages/dd_browse.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page_with();
+}
+
+
+##
+sub mode_base_statistics {
+
+  my $self = shift;
+
+  my $i = AmiGO::Input->new($self->query());
+  my $params = $i->input_profile();
+
+  ## Page settings.
+  my $page_name = 'base_statistics';
+  my($page_title, 
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
+
+  ## Get cached statistics, if possible.
+  my $cache = $self->{CORE}->amigo_statistics_cache();
+  ## Pass existance info to the app.
+  if( %$cache ){
+    $self->set_template_parameter('have_cache_p', 1);
+  }else{
+    $self->set_template_parameter('have_cache_p', 0);
+  }
+
+  $self->set_template_parameter('page_help_link', $page_help_link);
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      'com.jstree',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui',
+      'ly.plot'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('BaseStatistics.js'),
+      $self->{JS}->make_var('global_statistics_cache', $cache)
+     ],
+     content =>
+     [
+      'pages/base_statistics.tmpl'
      ]
     };
   $self->add_template_bulk($prep);
@@ -208,9 +421,14 @@ sub mode_free_browse {
   my $params = $i->input_profile();
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'free_browse');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Free Browse');
-  $self->set_template_parameter('content_title', 'Free Browse');
+  my $page_name = 'free_browse';
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Get the layout info to describe which buttons should be
   ## generated.
@@ -237,19 +455,12 @@ sub mode_free_browse {
       'com.bootstrap',
       'com.jquery-ui',
       'org.cytoscape',
-      'bbop',
-      'amigo2'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-      $self->{JS}->get_lib('CytoDraw.js'),
+      #$self->{JS}->get_lib('CytoDraw.js'),
       $self->{JS}->get_lib('FreeBrowse.js')
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      'FreeBrowseInit();'
      ],
      content =>
      [
@@ -428,9 +639,14 @@ sub mode_simple_search {
   }
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'simple_search');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Simple Search');
-  $self->set_template_parameter('content_title', 'Simple Search');
+  my $page_name = 'simple_search';
+  my($page_title, 
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);  
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Grab the config info for the simple search form construction.
   my $ss_info = $self->{CORE}->golr_class_info_list_by_weight(25);
@@ -452,16 +668,10 @@ sub mode_simple_search {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      'bbop',
-      'amigo2'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js')
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();'
      ],
      content =>
      [
@@ -587,10 +797,14 @@ sub mode_medial_search {
   #$self->{CORE}->kvetch('results_order: ' . Dumper(\@results_order));
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'medial_search');
-  $self->set_template_parameter('page_title',
-				'AmiGO 2: Search Directory');
-  $self->set_template_parameter('content_title', 'Search Directory');
+  my $page_name = 'medial_search';
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## The rest of our environment.
   my $prep =
@@ -607,20 +821,13 @@ sub mode_medial_search {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo2'
+      'com.jquery-ui'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('Medial.js'),
       $self->{JS}->make_var('global_acc', $probable_term)
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      'MedialInit();'
      ],
      content =>
      [
@@ -642,9 +849,14 @@ sub mode_software_list {
   my $params = $i->input_profile();
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'software_list');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Tools and Resources');
-  $self->set_template_parameter('content_title', 'Tools and Resources');
+  my $page_name = 'software_list';
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   # ## Where would the ancient demos page hide...?
   # my $foo = $self->{CORE}->amigo_env('AMIGO_CGI_PARTIAL_URL');
@@ -677,18 +889,11 @@ sub mode_software_list {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      #'com.jquery.tablesorter',
-      'bbop',
-      'amigo2'
+      'com.jquery-ui'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js')
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();'
      ],
      content =>
      [
@@ -710,9 +915,14 @@ sub mode_schema_details {
   my $params = $i->input_profile();
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'schema_details');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Schema Details');
-  $self->set_template_parameter('content_title', 'Instance Schema Details');
+  my $page_name = 'schema_details';
+  my($page_title, 
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);  
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Get Galaxy, and add a variable for it in the page.
   $self->set_template_parameter('GO_GALAXY',
@@ -735,19 +945,12 @@ sub mode_schema_details {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      'com.jquery.tablesorter',
-      'bbop',
-      'amigo2'
+      'com.jquery.tablesorter'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('Schema.js')
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      'SchemaInit();'
      ],
      content =>
      [
@@ -769,7 +972,9 @@ sub mode_load_details {
   my $params = $i->input_profile();
 
   ## Load in the GOlr timestamp details.
-  my $glog = $self->{CORE}->amigo_env('GOLR_TIMESTAMP_LOCATION');
+  #my $glog = $self->{CORE}->amigo_env('GOLR_TIMESTAMP_LOCATION');
+  my $glog =
+      $self->{CORE}->amigo_env('AMIGO_WORKING_PATH') . '/golr_timestamp.log';
   my $ts_details = $self->{CORE}->golr_timestamp_log($glog);
   if( $ts_details && scalar(@$ts_details) ){
     $self->set_template_parameter('TS_DETAILS_P', 1);
@@ -797,11 +1002,14 @@ sub mode_load_details {
   }
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'load_details');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Load Details');
-  #$self->set_template_parameter('content_title', 'Load Details');
-  $self->set_template_parameter('content_title',
-				'Current instance load information');
+  my $page_name = 'load_details';
+  my($page_title, 
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);  
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Get Galaxy, and add a variable for it in the page.
   $self->set_template_parameter('GO_GALAXY',
@@ -824,19 +1032,12 @@ sub mode_load_details {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      'com.jquery.tablesorter',
-      'bbop',
-      'amigo2'
+      'com.jquery.tablesorter'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('LoadDetails.js')
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      'LoadDetailsInit();'
      ],
      content =>
      [
@@ -848,203 +1049,67 @@ sub mode_load_details {
   return $self->generate_template_page_with();
 }
 
-## This is just a very thin pass-through client.
-## TODO/BUG: not accepting "inline" parameter yet...
-sub mode_visualize {
+##
+sub mode_owltools_details {
 
   my $self = shift;
-  my $output = '';
 
-  ##
   my $i = AmiGO::Input->new($self->query());
-  my $params = $i->input_profile('visualize');
-  my $format = $params->{format};
-  my $input_term_data_type = $params->{term_data_type};
-  my $input_term_data = $params->{term_data};
+  my $params = $i->input_profile();
 
-  ## Cleanse input data of newlines.
-  $input_term_data =~ s/\n/ /gso;
-
-  ## If there is no incoming data, display the "client" page.
-  ## Otherwise, forward to render app.
-  if( ! defined $input_term_data ){
-
-    ##
-    $self->set_template_parameter('page_name', 'visualize');
-    $self->set_template_parameter('amigo_mode', 'visualize');
-    $self->set_template_parameter('page_title', 'AmiGO 2: Visualize');
-    $self->set_template_parameter('content_title',
-				  'Visualize an Arbitrary GO Graph');
-    my $prep =
-      {
-       css_library =>
-       [
-	#'standard',
-	'com.bootstrap',
-	'com.jquery.jqamigo.custom',
-	'amigo',
-	'bbop'
-       ],
-       javascript_library =>
-       [
-	'com.jquery',
-	'com.bootstrap',
-	'com.jquery-ui',
-	'bbop',
-	'amigo2'
-       ],
-       javascript =>
-       [
-	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
-       ],
-       javascript_init =>
-       [
-	'GeneralSearchForwardingInit();'
-       ],
-       content =>
-       [
-	'pages/visualize.tmpl']
-      };
-    $self->add_template_bulk($prep);
-    $output = $self->generate_template_page_with();
-
-  }else{
-
-    ## Check to see if this JSON is even parsable...that's really all
-    ## that we're doing here.
-    if( $input_term_data_type eq 'json' ){
-      if( ! $self->json_parsable_p($input_term_data) ){
-	my $str = 'Your JSON was not formatted correctly, please go back and retry. Look at the <a href="http://wiki.geneontology.org/index.php/AmiGO_Manual:_Visualize">advanced format</a> documentation for more details.';
-	return $self->mode_fatal($str);
-      }
-    }
-
-    ## TODO: Until I can think of something better...
-    if( $format eq 'navi' ){
-
-      ## BETA: Just try and squeeze out whatever I can.
-      my $in_terms = $self->{CORE}->clean_term_list($input_term_data);
-      my $jump = $self->{CORE}->get_interlink({mode=>'layers_graph',
-				       arg => {
-					       terms => $in_terms,
-					      }});
-      return $self->redirect($jump, '302 Found');
-    }else{
-      my $jump = $self->{CORE}->get_interlink({mode=>'visualize',
-				       #optional => {url_safe=>1, html_safe=>0},
-				       #optional => {html_safe=>0},
-				       arg => {
-					       format => $format,
-					       data_type =>
-					       $input_term_data_type,
-					       data => $input_term_data,
-					      }});
-      #$self->{CORE}->kvetch("Jumping to: " . $jump);
-      ##
-      #$output = $jump;
-      return $self->redirect($jump, '302 Found');
-    }
+  ## Load in the OWLTools info.
+  my $owltools =
+    'java -Xms2048M -DentityExpansionLimit=4086000 -Djava.awt.headless=true -jar ' . $self->{CORE}->amigo_env('AMIGO_ROOT') . '/java/lib/owltools-runner-all.jar --version';
+  my $ot_raw = `$owltools`;
+  my @ot_lines = split(/\n+/, $ot_raw);
+  my $ot = [];
+  foreach my $ot_line (@ot_lines){
+    my @bits = split(/\t+/, $ot_line);
+    push @$ot, \@bits;
   }
+  $self->set_template_parameter('OT_DETAILS', $ot);
 
-  return $output;
+  ## Page settings.
+  my $page_name = 'owltools_details';
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      #'com.jquery.tablesorter',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui',
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js')
+     ],
+     content =>
+     [
+      'pages/owltools_details.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page_with();
 }
-
-## This is just a very thin pass-through client.
-## TODO/BUG: not accepting "inline" parameter yet...
-sub mode_visualize_freeform {
-
-  my $self = shift;
-  my $output = '';
-
-  ##
-  my $i = AmiGO::Input->new($self->query());
-  my $params = $i->input_profile('visualize_freeform');
-  my $format = $params->{format};
-  my $input_term_data = $params->{term_data};
-  my $input_graph_data = $params->{graph_data};
-
-  ## Cleanse input data of newlines.
-  $input_term_data =~ s/\n/ /gso;
-  $input_graph_data =~ s/\n/ /gso;
-
-  ## If there is no incoming graph data, display the "client" page.
-  ## Otherwise, forward to render app.
-  if( ! defined $input_graph_data ){
-
-    ##
-    $self->set_template_parameter('page_name', 'visualize_freeform');
-    $self->set_template_parameter('amigo_mode', 'visualize_freeform');
-    $self->set_template_parameter('page_title', 'AmiGO 2: Visualize Freeform');
-    $self->set_template_parameter('content_title',
-				  'Visualize an Arbitrary Graph');
-    my $prep =
-      {
-       css_library =>
-       [
-	#'standard',
-	'com.bootstrap',
-	'com.jquery.jqamigo.custom',
-	'amigo',
-	'bbop'
-       ],
-       javascript_library =>
-       [
-	'com.jquery',
-	'com.bootstrap',
-	'com.jquery-ui',
-	'bbop',
-	'amigo2'
-       ],
-       javascript =>
-       [
-	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
-       ],
-       javascript_init =>
-       [
-	'GeneralSearchForwardingInit();'
-       ],
-       content =>
-       [
-	'pages/visualize_freeform.tmpl']
-      };
-    $self->add_template_bulk($prep);
-    $output = $self->generate_template_page_with();
-
-  }else{
-
-    ## Check to see if the graph JSON is even parsable.
-    if( $input_graph_data ){
-      if( ! $self->json_parsable_p($input_graph_data) ){
-	my $str = 'Your graph JSON was not formatted correctly...';
-	return $self->mode_fatal($str);
-      }
-    }
-
-    ## The same for the term data.
-    if( $input_term_data ){
-      if( ! $self->json_parsable_p($input_term_data) ){
-	my $str = 'Your term JSON was not formatted correctly...';
-	return $self->mode_fatal($str);
-      }
-    }
-
-    my $jump = $self->{CORE}->get_interlink({mode=>'visualize_freeform',
-				       #optional => {url_safe=>1, html_safe=>0},
-				       #optional => {html_safe=>0},
-					     arg => {
-						     format => $format,
-						     term_data => $input_term_data,
-						     graph_data => $input_graph_data,
-						    }});
-    #$self->{CORE}->kvetch("Jumping to: " . $jump);
-    ##
-    #$output = $jump;
-    return $self->redirect($jump, '302 Found');
-  }
-
-  return $output;
-}
-
 
 ## A committed client based on the jQuery libraries and GOlr. The
 ## future.
@@ -1068,18 +1133,13 @@ sub mode_search {
   $pins = [$pins] if ref($pins) ne 'ARRAY';
   $filters = [$filters] if ref($filters) ne 'ARRAY';
 
-  ## Looks like bug is fixed--remove later when better tested.
-  # ## BUG/TODO: Let people know about the bug.
-  # if( $query && $query ne '' ){
-  #   $self->add_mq('warning', 'Please be aware the this page is affected by <strong><a href="https://github.com/kltm/amigo/issues/44">bug #44</a></strong>.');
-  # }
+  ## Now add the filters that come in from the YAML-defined simple
+  ## public bookmarking API.
+  $filters = $self->_add_search_bookmark_api_to_filters($params, $filters);
 
-  ## Try and come to terms with Galaxy.
-  my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
-  $self->galaxy_settings($in_galaxy, $galaxy_external_p);
-
-  ## Bookmark system one: if it is defined, try to decode it into
-  ## something useful that we can pass in as javascript.
+  ## Heavy-duty manager-level bookmark system: if it is defined, try
+  ## to decode it into something useful that we can pass in as
+  ## javascript.
   if( $bookmark ){
     # $bookmark = $self->{CORE}->render_json($bookmark);
     $bookmark =~ s/\"/\\\"/g;
@@ -1087,10 +1147,18 @@ sub mode_search {
   $self->{CORE}->kvetch('bookmark: ' . $bookmark || '???');
 
   ## Page settings.
-  #$self->set_template_parameter('STANDARD_CSS', 'no');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Search');
-  $self->set_template_parameter('page_name', 'live_search');
-  $self->set_template_parameter('content_title', 'Search');
+  my $page_name = 'live_search';
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
+
+  ## See if there is a desired browsing filter.
+  my $browse_filter_idspace =
+    $self->{WEBAPP_TEMPLATE_PARAMS}{browse_filter_idspace} || undef;
 
   ## Make sure the personality is in our known set if it's even
   ## defined.
@@ -1126,9 +1194,16 @@ sub mode_search {
     return $self->mode_not_found('undefined', 'search personality');
   }
 
+  ## Try and come to terms with Galaxy. Comprehend will pass the
+  ## needed info back to the client.
+  my($in_galaxy, $galaxy_external_p) = $i->comprehend_galaxy();
+  $self->galaxy_settings($in_galaxy, $galaxy_external_p);
+  $self->{CORE}->kvetch('galaxy instance: ' . $in_galaxy);
+  $self->{CORE}->kvetch('galaxy external p: ' . $galaxy_external_p);
+
   ## Set personality for template, and later JS var.
   $self->set_template_parameter('personality', $personality);
-  $self->set_template_parameter('content_subtitle', $personality_name);
+  $self->set_template_parameter('page_content_subtitle', $personality_name);
   $self->set_template_parameter('personality_name', $personality_name);
   $self->set_template_parameter('personality_description', $personality_desc);
 
@@ -1149,9 +1224,7 @@ sub mode_search {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo2'
+      'com.jquery-ui'
      ],
      javascript =>
      [
@@ -1159,26 +1232,38 @@ sub mode_search {
       $self->{JS}->make_var('global_live_search_bookmark', $bookmark),
       $self->{JS}->make_var('global_live_search_query', $query),
       $self->{JS}->make_var('global_live_search_filters', $filters),
+      $self->{JS}->make_var('global_live_search_filter_idspace',
+			    $browse_filter_idspace),
       $self->{JS}->make_var('global_live_search_pins', $pins),
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('LiveSearchGOlr.js')
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      'LiveSearchGOlrInit();'
      ],
      content =>
      [
       'pages/live_search_golr.tmpl'
      ]
     };
+
+  ## Secret geospatial demo mode.
+  if( 0 ){
+    ## Libs.
+    unshift @{$prep->{css_library}},
+      'http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css';
+    unshift @{$prep->{javascript_library}},
+      'http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js';
+    ## JS var.
+    unshift @{$prep->{javascript}},
+      $self->{JS}->make_var('global_use_geospatial', 1);
+    ## Template.
+    $self->set_template_parameter('use_geospatial', 1);
+  }
+
   $self->add_template_bulk($prep);
   return $self->generate_template_page_with();
 }
 
 
-## Largely the same as mode_search. Simpiler in some cases, like no
+## Largely the same as mode_search. Simpler in some cases, like no
 ## bookmarking, not particularly dynamic, etc.
 sub mode_bulk_search {
 
@@ -1192,9 +1277,14 @@ sub mode_bulk_search {
     if ! $params->{personality} && $self->param('personality');
 
   ## Page settings.
-  $self->set_template_parameter('page_title', 'AmiGO 2: Bulk Search');
-  $self->set_template_parameter('page_name', 'bulk_search');
-  $self->set_template_parameter('content_title', 'Bulk Search');
+  my $page_name = 'bulk_search';
+  my($page_title, 
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Make sure the personality is in our known set if it's even
   ## defined.
@@ -1238,7 +1328,7 @@ sub mode_bulk_search {
 
   ## Set personality for template, and later JS var.
   $self->set_template_parameter('personality', $personality);
-  $self->set_template_parameter('content_subtitle', $personality_name);
+  $self->set_template_parameter('page_content_subtitle', $personality_name);
   $self->set_template_parameter('personality_name', $personality_name);
   $self->set_template_parameter('personality_description', $personality_desc);
 
@@ -1260,8 +1350,8 @@ sub mode_bulk_search {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      'bbop',
-      'amigo2'
+      #'bbop',
+      #'amigo2'
      ],
      javascript =>
      [
@@ -1272,11 +1362,11 @@ sub mode_bulk_search {
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('BulkSearch.js')
      ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      'BulkSearchInit();'
-     ],
+     # javascript_init =>
+     # [
+     #  'GeneralSearchForwardingInit();',
+     #  'BulkSearchInit();'
+     # ],
      content =>
      [
       'pages/bulk_search.tmpl'
@@ -1297,23 +1387,28 @@ sub mode_term_details {
   my $i = AmiGO::Input->new($self->query());
   my $params = $i->input_profile('term');
   ## Deal with the different types of dispatch we might be facing.
-  $params->{term} = $self->param('term')
-    if ! $params->{term} && $self->param('term');
+  $params->{cls} = $self->param('cls')
+    if ! $params->{cls} && $self->param('cls');
   $params->{format} = $self->param('format')
     if ! $params->{format} && $self->param('format');
   $self->{CORE}->kvetch(Dumper($params));
 
   ## Standard inputs for page control.
-  my $input_term_id = $params->{term};
+  my $input_term_id = $params->{cls};
   my $input_format = $params->{format} || 'html';
 
-  ## Optional RESTmark input for embedded search_pane.
+  ## Optional RESTmark input for embedded search_pane--external
+  ## version.
   my $query = $params->{q} || '';
   my $filters = $params->{fq} || [];
   my $pins = $params->{sfq} || [];
   ## Ensure listref input on multi-inputs.
   $pins = [$pins] if ref($pins) ne 'ARRAY';
   $filters = [$filters] if ref($filters) ne 'ARRAY';
+
+  ## Now add the filters that come in from the YAML-defined simple
+  ## public bookmarking API.
+  $filters = $self->_add_search_bookmark_api_to_filters($params, $filters);
 
   ## Input sanity check.
   if( ! $input_term_id ){
@@ -1326,7 +1421,7 @@ sub mode_term_details {
   ## Experimental bookmark capture.
   my $pin = $params->{pin} || '';
   if( $pin ){ $pin =~ s/\"/\\\"/g; }
-  $self->{CORE}->kvetch('incoming pin: ' . $pin || '<none>');
+  $self->{CORE}->kvetch('incoming pin: ' . ($pin || '<none>'));
 
   ###
   ### Get full term info.
@@ -1453,7 +1548,18 @@ sub mode_term_details {
   				$anc_info->{parent_chunks_by_depth});
   push @$acc_list_for_gpc_info, @{$anc_info->{seen_acc_list}};
 
-  ## Bridge variables from old system.
+  ###
+  ### Get term ultra-local neighborhood information.
+  ###
+
+  my $nay_info = $term_worker->get_neighborhood_info($input_term_id);
+  #$self->set_template_parameter('NEIGHBORHOOD_INFO', Dumper($nay_info));
+  $self->set_template_parameter('NEIGHBORHOOD_INFO', $nay_info);
+
+  ###
+  ### Bridge variables from old system.
+  ###
+
   #$self->set_template_parameter('cgi', 'term-details');
   $self->set_template_parameter('cgi', 'browse');
   $self->set_template_parameter('vbridge', 'term=' . $input_term_id);
@@ -1462,53 +1568,42 @@ sub mode_term_details {
   ### External links.
   ###
 
-  $self->set_template_parameter('VIZ_STATIC_LINK',
-				$self->{CORE}->get_interlink({mode =>
-							      'visualize',
-							      arg =>
-							      {data =>
-							       $input_term_id,
-							       format =>
-							       'png'}}));
-  $self->set_template_parameter('VIZ_DYNAMIC_LINK',
-				$self->{CORE}->get_interlink({mode =>
-							      'visualize',
-							      arg =>
-							      {data =>
-							       $input_term_id,
-							       format =>
-							       'svg'}}));
-  $self->set_template_parameter('NAVIGATION_LINK',
-				$self->{CORE}->get_interlink({mode =>
-							      'layers_graph',
-							      arg =>
-							      {terms =>
-							       $input_term_id}}));
+  $self->set_template_parameter(
+      'VIZ_STATIC_LINK',
+      $self->{CORE}->get_interlink({'mode' => 'visualize_service_amigo',
+				    'arg' => {'data' => $input_term_id,
+					      'format' => 'png'}}));
+  $self->set_template_parameter(
+      'VIZ_DYNAMIC_LINK',
+      $self->{CORE}->get_interlink({'mode' => 'visualize_service_amigo',
+				    'arg' => {'data' => $input_term_id,
+					      'format' => 'svg'}}));
+  $self->set_template_parameter(
+      'NAVIGATION_LINK',
+      $self->{CORE}->get_interlink({'mode'=>'layers_graph',
+				    'arg' => {'terms' => $input_term_id}}));
 
-  $self->set_template_parameter('OLSVIS_GO_LINK',
-				$self->{CORE}->get_interlink({mode=>'olsvis_go',
-							      arg =>
-							      {term =>
-							       $input_term_id},
-							      optional =>
-							      {'full' => 0}}));
+  $self->set_template_parameter(
+      'OLSVIS_GO_LINK',
+      $self->{CORE}->get_interlink({'mode' => 'olsvis_go',
+				    'arg' => {'term' => $input_term_id},
+				    'optional' => {'full' => 0}}));
 
-
-  $self->set_template_parameter('VIZ_QUICKGO_LINK',
-				$self->{CORE}->get_interlink({mode=>'visualize_simple',
-							      arg =>
-							      {engine=>'quickgo',
-							       term =>
-							       $input_term_id}}));
+  $self->set_template_parameter(
+      'VIZ_QUICKGO_LINK',
+      $self->{CORE}->get_interlink({'mode' => 'visualize_service_simple',
+				    'arg' => {'engine'=>'quickgo',
+					      'term'=>$input_term_id}}));
 
   ## Only need QuickGO for internal terms.
   if( ! $exotic_p ){
     my $qg_term = AmiGO::External::QuickGO::Term->new();
-    $self->set_template_parameter('QUICKGO_TERM_LINK',
-				  $qg_term->get_term_link($input_term_id));
-
-    $self->set_template_parameter('QUICKGO_ENGINE_P',
-				  $self->{CORE}->amigo_env('AMIGO_GO_ONLY_GRAPHICS'));
+    $self->set_template_parameter(
+	'QUICKGO_TERM_LINK',
+	$qg_term->get_term_link($input_term_id));
+    $self->set_template_parameter(
+	'AMIGO_FOR_GO_P',
+	$self->{CORE}->amigo_env('AMIGO_FOR_GO'));
   }
 
   ###
@@ -1550,6 +1645,7 @@ sub mode_term_details {
   ###
 
   ## Page settings.
+  ## Don't use usual mechanism--a little special.
   $self->set_template_parameter('page_name', 'term');
   $self->set_template_parameter('page_title',
 				'AmiGO 2: Term Details for "' .
@@ -1557,6 +1653,11 @@ sub mode_term_details {
 				'" (' .	$input_term_id . ')');
   $self->set_template_parameter('content_title',
 				$term_info_hash->{$input_term_id}{'name'});
+  $self->set_template_parameter('page_content_title',
+				$term_info_hash->{$input_term_id}{'name'});
+  my($page_title, $page_content_title, $page_help_link) =
+      $self->_resolve_page_settings('term');
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Our AmiGO services CSS.
   my $prep =
@@ -1566,7 +1667,7 @@ sub mode_term_details {
       #'standard',
       'com.bootstrap',
       'com.jquery.jqamigo.custom',
-      'com.jquery.tablesorter',
+      #'com.jquery.tablesorter',
       'amigo',
       'bbop'
      ],
@@ -1575,9 +1676,7 @@ sub mode_term_details {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      'com.jquery.tablesorter',
-      'bbop',
-      'amigo2'
+      'com.jquery.tablesorter'
      ],
      javascript =>
      [
@@ -1592,11 +1691,6 @@ sub mode_term_details {
       $self->{JS}->make_var('global_label',
 			    $term_info_hash->{$input_term_id}{'name'}),
       $self->{JS}->make_var('global_acc', $input_term_id)
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      'TermDetailsInit();'
      ],
      content =>
      [
@@ -1637,6 +1731,10 @@ sub mode_gene_product_details {
   $pins = [$pins] if ref($pins) ne 'ARRAY';
   $filters = [$filters] if ref($filters) ne 'ARRAY';
 
+  ## Now add the filters that come in from the YAML-defined simple
+  ## public bookmarking API.
+  $filters = $self->_add_search_bookmark_api_to_filters($params, $filters);
+
   ## Input sanity check.
   if( ! $input_gp_id ){
     return $self->mode_fatal("No input gene product acc argument.");
@@ -1675,12 +1773,10 @@ sub mode_gene_product_details {
   ## PANTHER info if there.
   my $pgraph = $gp_info_hash->{$input_gp_id}{'phylo_graph'};
   if( $pgraph ){
-    $self->set_template_parameter('PHYLO_TREE_LINK',
-				  $self->{CORE}->get_interlink({mode=>
-								'phylo_graph',
-								'arg'=>
-								{'gp'=>
-								 $input_gp_id}}));
+    $self->set_template_parameter(
+	'PHYLO_TREE_LINK',
+	$self->{CORE}->get_interlink({'mode' => 'phylo_graph',
+				      'arg' => {'gp' => $input_gp_id}}));
   }
 
   ###
@@ -1691,19 +1787,25 @@ sub mode_gene_product_details {
   ### Standard setup.
   ###
 
-  ## Page settings.
-  $self->set_template_parameter('page_name', 'gene_product');
-  $self->set_template_parameter('page_title',
-				'AmiGO 2: Gene Product Details for ' .
-				$input_gp_id);
-  ## Figure out the best title we can.
+  ## Again, a little different.
+  ## Start by figuring out the best title we can.
   my $best_title = $input_gp_id; # start with the worst as a default
   if ( $gp_info_hash->{$input_gp_id}{'name'} ){
     $best_title = $gp_info_hash->{$input_gp_id}{'name'};
   }elsif( $gp_info_hash->{$input_gp_id}{'label'} ){
     $best_title = $gp_info_hash->{$input_gp_id}{'label'};
   }
+  ## Page settings.
+  $self->set_template_parameter('page_name', 'gene_product');
+  $self->set_template_parameter('page_title',
+				'AmiGO 2: Gene Product Details for ' .
+				$input_gp_id);
   $self->set_template_parameter('content_title', $best_title);
+  $self->set_template_parameter('page_content_title', $best_title);
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings('gene_product');
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Our AmiGO services CSS.
   my $prep =
@@ -1720,9 +1822,7 @@ sub mode_gene_product_details {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo2'
+      'com.jquery-ui'
      ],
      javascript =>
      [
@@ -1736,11 +1836,6 @@ sub mode_gene_product_details {
       $self->{JS}->make_var('global_live_search_pins', $pins),
       $self->{JS}->make_var('global_acc', $input_gp_id)
      ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      'GPDetailsInit();'
-     ],
      content =>
      [
       'pages/gene_product_details.tmpl'
@@ -1752,25 +1847,164 @@ sub mode_gene_product_details {
 }
 
 
-## Complex annotation/annotation group/annotation unit information.
-sub mode_complex_annotation_details {
+## 
+sub mode_reference_details {
 
   my $self = shift;
 
   ##
   my $i = AmiGO::Input->new($self->query());
-  my $params = $i->input_profile('complex_annotation');
+  my $params = $i->input_profile('reference');
   ## Deal with the different types of dispatch we might be facing.
-  # $params->{annotation_group} = $self->param('annotation_group')
-  #   if ! $params->{annotation_group} && $self->param('annotation_group');
-  # my $input_annotation_group_id = $params->{annotation_group};
-  $params->{complex_annotation} = $self->param('complex_annotation')
-    if ! $params->{complex_annotation} && $self->param('complex_annotation');
-  my $input_id = $params->{complex_annotation};
+  $params->{ref_id} = $self->param('ref_id')
+    if ! $params->{ref_id} && $self->param('ref_id');
+  $params->{format} = $self->param('format')
+    if ! $params->{format} && $self->param('format');
+  $self->{CORE}->kvetch(Dumper($params));
+
+  ## Standard inputs for page control.
+  my $input_ref_id = $params->{ref_id};
+  my $input_format = $params->{format} || 'html';
+
+  ## Optional RESTmark input for embedded search_pane.
+  my $query = $params->{q} || '';
+  my $filters = $params->{fq} || [];
+  my $pins = $params->{sfq} || [];
+  ## Ensure listref input on multi-inputs.
+  $pins = [$pins] if ref($pins) ne 'ARRAY';
+  $filters = [$filters] if ref($filters) ne 'ARRAY';
+
+  ## Now add the filters that come in from the YAML-defined simple
+  ## public bookmarking API.
+  $filters = $self->_add_search_bookmark_api_to_filters($params, $filters);
 
   ## Input sanity check.
-  if( ! $input_id ){
-    return $self->mode_fatal("No input complex annotation argument.");
+  if( $input_ref_id =~ /^pmid\:[0-9]{1,100}/ ){
+    return $self->mode_fatal("Please use a PubMed ID of the form: <b>PMID:123456</b>.");
+  }elsif( $input_ref_id !~ /^PMID\:[0-9]{1,100}/ ){
+
+    ## Warning: this is essientially, except for the action, copied
+    ## out of reference_details.tmpl. Make sure they stay in sync.
+    my $form =
+      [
+       '<form action="/amigo/reference"',
+       'id="reference-query-form"',
+       'class="form-inline"',
+       'role="search"',
+       'method="GET">',
+       '<div class="form-group">',
+       '<input',
+       'type="text"',
+       'title="Input any PubMed ID (e.g. PMID:123456)."',
+       'class="form-control"',
+       'name="ref_id"',
+       'placeholder="E.g. PMID:123456"',
+       'value=""',
+       'id="reference-search-query">',
+       '</div>',
+       '<button type="submit"',
+       'title="Search for groups of documents with the inputted text."',
+       'class="btn btn-default">Search</button>',
+       '</form>'
+      ];
+
+    return $self->mode_fatal("Your input is not a PubMed ID. Please try again:<br /><br />" . join(' ', @$form));
+  }
+  if( ! $input_ref_id ){
+    return $self->mode_fatal("No input reference identifier argument.");
+  }
+  if( $input_format ne 'html' && $input_format ne 'json' ){
+    return $self->mode_fatal('Bad output format: needs to be "html" or "json".');
+  }
+
+  $self->set_template_parameter('REF_ID', $input_ref_id);
+
+  ## TODO/BUG: Should this be a separate client?
+  if( $input_format eq 'json' ){
+    $self->header_add( -type => 'application/json' );
+    my $json_resp = AmiGO::JSON->new('reference');
+    # $json_resp->set_results($gp_info_hash->{$input_ref_id});
+    my $jdump = $json_resp->render();
+    return $jdump;
+  }
+
+  ###
+  ### Standard setup.
+  ###
+
+  ## Again, a little different.
+  ## Start by figuring out the best title we can.
+  my $best_title = $input_ref_id; # start with the worst as a default
+  # if ( $gp_info_hash->{$input_gp_id}{'name'} ){
+  #   $best_title = $gp_info_hash->{$input_gp_id}{'name'};
+  # }elsif( $gp_info_hash->{$input_gp_id}{'label'} ){
+  #   $best_title = $gp_info_hash->{$input_gp_id}{'label'};
+  # }
+  ## Page settings.
+  $self->set_template_parameter('page_name', 'reference');
+  $self->set_template_parameter('page_title',
+				'AmiGO 2: Reference Details for ' .
+				$input_ref_id);
+  $self->set_template_parameter('content_title', $best_title);
+  $self->set_template_parameter('page_content_title', $best_title);
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings('reference');
+  $self->set_template_parameter('page_help_link', $page_help_link);
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('ReferenceDetails.js'),
+      $self->{JS}->make_var('global_live_search_query', $query),
+      $self->{JS}->make_var('global_live_search_filters', $filters),
+      $self->{JS}->make_var('global_live_search_pins', $pins),
+      $self->{JS}->make_var('global_acc', $input_ref_id)
+     ],
+     content =>
+     [
+      'pages/reference_details.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page_with();
+}
+
+
+## Model annotation information.
+sub mode_model_details {
+
+  my $self = shift;
+
+  ##
+  my $i = AmiGO::Input->new($self->query());
+  my $params = $i->input_profile('model');
+  ## Deal with the different types of dispatch we might be facing.
+  $params->{model} = $self->param('model')
+    if ! $params->{model} && $self->param('model');
+  my $input_id = $params->{model};
+
+  ## Input sanity check.
+  if ( ! $input_id ) {
+    return $self->mode_fatal("No input model annotation argument.");
   }
 
   ## Warn people away for now.
@@ -1782,50 +2016,143 @@ sub mode_complex_annotation_details {
   ###
 
   ## Get the data from the store.
-  #AmiGO::Worker::GOlr::ComplexAnnotationUnit->new($input_id);
-  my $ca_worker =
-    AmiGO::Worker::GOlr::ComplexAnnotationGroup->new($input_id);
-  my $ca_info_hash = $ca_worker->get_info();
+  my $ma_worker = AmiGO::Worker::GOlr::ModelAnnotation->new($input_id);
+  my $ma_info_hash = $ma_worker->get_info();
 
   ## First make sure that things are defined.
-  if( ! defined($ca_info_hash) ||
-      $self->{CORE}->empty_hash_p($ca_info_hash) ||
-      ! defined($ca_info_hash->{$input_id}) ){
-    return $self->mode_not_found($input_id,
-				 'complex annotation');
+  if ( ! defined($ma_info_hash) ||
+       $self->{CORE}->empty_hash_p($ma_info_hash) ||
+       ! defined($ma_info_hash->{$input_id}) ) {
+    return $self->mode_not_found($input_id, 'model');
   }
 
-  $self->{CORE}->kvetch('solr docs: ' . Dumper($ca_info_hash));
-  $self->set_template_parameter('CA_INFO',
-				$ca_info_hash->{$input_id});
-
-  ## Will only need to link through the visualizer,
-  my $vlink =
-    $self->{CORE}->get_interlink({mode => 'visualize_complex_annotation',
-				  arg => {complex_annotation =>
-					  $input_id}});
-  $self->set_template_parameter('VIZ_STATIC_LINK', $vlink);
+  $self->{CORE}->kvetch('solr docs: ' . Dumper($ma_info_hash));
+  $self->set_template_parameter('MA_INFO', $ma_info_hash->{$input_id});
 
   ###
   ### Standard setup.
   ###
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'complex_annotation');
+  ## Again, a little special.
+  $self->set_template_parameter('page_name', 'model');
   $self->set_template_parameter('page_title',
-				'AmiGO 2: Complex Annotation Details for ' .
+				'AmiGO 2: Model Details for ' .
 				$input_id);
+  my($page_title, $page_content_title, $page_help_link) =
+    $self->_resolve_page_settings('model');
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Figure out the best title we can.
-  my $best_title = $input_id; # start with the worst
-  if ( $ca_info_hash->{$input_id}{'annotation_group_label'} ){
-    $best_title =
-      $ca_info_hash->{$input_id}{'annotation_group_label'};
-  }elsif( $ca_info_hash->{$input_id}{'annotation_group'} ){
-    $best_title =
-      $ca_info_hash->{$input_id}{'annotation_group'};
+  my $best_title = $input_id;	# start with the worst
+  if ( $ma_info_hash->{$input_id}{'model_label'} ) {
+    $best_title = $ma_info_hash->{$input_id}{'model_label'};
   }
-  $self->set_template_parameter('content_title', $best_title);
+  $self->set_template_parameter('page_content_title', $best_title);
+
+  ## Extract the string representation of the model.
+  my $model_json = undef;
+  if ( $ma_info_hash->{$input_id}{'model_graph'} ) {
+    my $model_annotation_string = $ma_info_hash->{$input_id}{'model_graph'};
+    $model_json = $self->{CORE}->_read_json_string($model_annotation_string);
+  }
+  ## Because of the round-tripping, it's possible to have information,
+  ## but no model.
+  if ( $model_json ) {
+    $self->set_template_parameter('has_model_content_p', 1);
+  } else {
+    $self->set_template_parameter('has_model_content_p', 0);
+  }
+
+  ## BUG/TODO: Some silliness to get the variables right; will need to
+  ## revisit later on.
+  my $github_base =
+    'https://github.com/geneontology/noctua-models/blob/master/models/';
+  my $noctua_base = $self->{WEBAPP_TEMPLATE_PARAMS}{noctua_base};
+  my $editor_base = $noctua_base . 'editor/graph/';
+  my $viewer_base = $noctua_base . 'workbench/cytoview/';
+  ## We need to translate some of the document information.
+  ## TODO/BUG: This is temporary as we work out what we'll actually have.
+  my @s = split(':', $input_id);
+  my $fid = $s[scalar(@s) -1];
+  ## 
+  my $repo_file_url = $github_base . $fid;
+  my $edit_file_url = $editor_base . $input_id;
+  my $view_file_url = $viewer_base . $input_id;
+  $self->set_template_parameter('repo_file_url', $repo_file_url);
+  $self->set_template_parameter('edit_file_url', $edit_file_url);
+  $self->set_template_parameter('view_file_url', $view_file_url);
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui'
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      #$self->{JS}->get_lib('ModelDetails.js'),
+      $self->{JS}->get_lib('AmiGOCytoView.js'),
+      ## Things to make AmiGOCytoView.js work. HACKY! TODO/BUG
+      $self->{JS}->make_var('global_id', $input_id),
+      ## TODO: get load to have same as wire protocol.
+      $self->{JS}->make_var('global_model', $model_json),
+      # $self->{JS}->make_var('global_model',
+      # 			    $ma_info_hash->{$input_id}{'model_graph'}),
+      $self->{JS}->make_var('global_barista_token',  undef),
+      $self->{JS}->make_var('global_minerva_definition_name',
+			    "minerva_public"),
+      $self->{JS}->make_var('global_barista_location',
+			    "http://barista.berkeleybop.org"),
+      $self->{JS}->make_var('global_collapsible_relations',
+			    ["RO:0002333",
+			     "BFO:0000066",
+			     "RO:0002233",
+			     "RO:0002488"])
+     ],
+     content =>
+     [
+      'pages/model_details.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page_with();
+}
+
+
+## Model /all/ noctua annotation information.
+sub mode_model_biology {
+
+  my $self = shift;
+
+  ## Warn people away for now.
+  $self->add_mq('warning',
+		'This page is considered <strong>ALPHA</strong> software.');
+
+  ###
+  ### Standard setup.
+  ###
+
+  ## Page settings.
+  ## Again, a little special.
+  $self->set_template_parameter('page_name', 'biology');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Biology');
+  my($page_title, $page_content_title, $page_help_link) =
+      $self->_resolve_page_settings('biology');
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Our AmiGO services CSS.
   my $prep =
@@ -1843,26 +2170,80 @@ sub mode_complex_annotation_details {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      'bbop',
-      'amigo2'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-      #$self->{JS}->get_lib('GPDetails.js'),
-      # $self->{JS}->make_var('global_count_data', $gpc_info),
-      # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
-      # $self->{JS}->make_var('global_acc_to_rand', $acc_to_rand),
-      $self->{JS}->make_var('global_acc', $input_id)
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      #'GPDetailsInit();'
+      $self->{JS}->get_lib('AmiGOBioView.js'),
+      $self->{JS}->make_var('global_model', undef),
+      $self->{JS}->make_var('global_barista_token',  undef),
+      $self->{JS}->make_var('global_minerva_definition_name',
+			    "minerva_public"),
+      $self->{JS}->make_var('global_barista_location',
+			    "http://barista.berkeleybop.org"),
+      $self->{JS}->make_var('global_collapsible_relations',
+			    ["RO:0002333",
+			     "BFO:0000066",
+			     "RO:0002233",
+			     "RO:0002488"])
      ],
      content =>
      [
-      'pages/complex_annotation_details.tmpl'
+      'pages/model_biology.tmpl'
+     ]
+    };
+  $self->add_template_bulk($prep);
+
+  return $self->generate_template_page_with();
+}
+
+
+## /All/ ontologies visualized.
+sub mode_ontologies {
+
+  my $self = shift;
+
+  ## Warn people away for now.
+  $self->add_mq('warning',
+		'This page is considered <strong>ALPHA</strong> software.');
+
+  ###
+  ### Standard setup.
+  ###
+
+  ## Page settings.
+  ## Again, a little special.
+  $self->set_template_parameter('page_name', 'ontologies');
+  $self->set_template_parameter('page_title', 'AmiGO 2: Ontologies');
+  my($page_title, $page_content_title, $page_help_link) =
+      $self->_resolve_page_settings('ontologies');
+  $self->set_template_parameter('page_help_link', $page_help_link);
+
+  ## Our AmiGO services CSS.
+  my $prep =
+    {
+     css_library =>
+     [
+      #'standard',
+      'com.bootstrap',
+      'com.jquery.jqamigo.custom',
+      'amigo',
+      'bbop'
+     ],
+     javascript_library =>
+     [
+      'com.jquery',
+      'com.bootstrap',
+      'com.jquery-ui',
+     ],
+     javascript =>
+     [
+      $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('AmiGOOntView.js')
+     ],
+     content =>
+     [
+      'pages/view_ontologies.tmpl'
      ]
     };
   $self->add_template_bulk($prep);
@@ -1889,7 +2270,6 @@ sub mode_phylo_graph {
   if( ! $input_family_id ){
     $self->add_mq('warning', "Family ID argument not found. " .
 		  "Will use <strong>demo mode</strong> instead.");
-  #}else{
   }
 
   ###
@@ -1902,12 +2282,12 @@ sub mode_phylo_graph {
     $self->set_template_parameter('page_title',
 				  'AmiGO 2:  Family tree for ' .
 				  $input_family_id);
-    $self->set_template_parameter('content_title', $input_family_id);
+    $self->set_template_parameter('page_content_title', $input_family_id);
     $self->set_template_parameter('demo_mode', 'false');
     $global_family = $input_family_id;
   }else{
     $self->set_template_parameter('page_title', 'AmiGO 2:  Family tree demo');
-    $self->set_template_parameter('content_title', 'Family tree demo');
+    $self->set_template_parameter('page_content_title', 'Family tree demo');
     $self->set_template_parameter('demo_mode', 'true');
     $global_family = undef;
   }
@@ -1932,9 +2312,6 @@ sub mode_phylo_graph {
       #'com.raphael.graffle',
       'bbop',
       'amigo2'
-      #'bbop.model',
-      #'bbop.model.tree',
-      #'bbop.graph.render.phylo',
      ],
      javascript =>
      [
@@ -1944,7 +2321,6 @@ sub mode_phylo_graph {
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();',
       'PhyloGraphInit();'
      ],
      content =>

@@ -67,35 +67,8 @@ sub mode_deliver {
       $self->{CORE}->kvetch('will read path: ' . $path);
 
       ## First, take a guess at the content type.
-      my($fname, $fpath, $fsuffix) = fileparse($path, qr/\.[^.]*/);
-      $self->{CORE}->kvetch('suffix: ' . $fsuffix);
-      if( $fsuffix eq '.css' ){
-	$ctype = 'text/css';
-      }elsif( $fsuffix eq '.html' ){
-	$ctype = 'text/html';
-      }elsif( $fsuffix eq '.js' ){
-	$ctype = 'test/javascript';
-      }elsif( $fsuffix eq '.gif' ){
-	$ctype = 'image/gif';
-      }elsif( $fsuffix eq '.png' ){
-	$ctype = 'image/png';
-      }elsif( $fsuffix eq '.jpg' ){
-	$ctype = 'image/jpeg';
-      }elsif( $fsuffix eq '.jpeg' ){
-	$ctype = 'image/jpeg';
-      }elsif( $fsuffix eq '.ico' ){
-	$ctype = 'image/x-icon';
-      }
-
-      ## Next, get the content according to type.
-      if( $fsuffix eq '.css' ||
-	  $fsuffix eq '.html' ||
-	  $fsuffix eq '.js' ){
-	$cont = read_file($path);
-      }else{
-	## All else as binary.
-	$cont = read_file($path, { binmode => ':raw' });
-      }
+      $ctype = $self->decide_content_type_by_filename($path);
+      $cont =  $self->get_content_by_filename($path);
     }
   }
 

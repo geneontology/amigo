@@ -3,6 +3,23 @@
 //// will probably leave DEBUG in.
 ////
 
+var bbop = require('bbop-core');
+
+// // Config.
+// var amigo = new (require('amigo2-instance-data'))(); // no overload
+// var golr_conf = require('golr-conf');
+// var gconf = new golr_conf.conf(amigo.data.golr);
+// var sd = amigo.data.server;
+// var gserv = amigo.data.server.golr_base;
+// var defs = amigo.data.definitions;
+// // Linker.
+// var linker = amigo.linker;
+// // Handler.
+// var handler = amigo.handler;
+// // Management.
+// var jquery_engine = require('bbop-rest-manager').jquery;
+// var golr_manager = require('bbop-manager-golr');
+// var golr_response = require('bbop-response-golr');
 
 //
 function GannetInit(){
@@ -12,15 +29,9 @@ function GannetInit(){
     logger.DEBUG = true;
     function ll(str){ logger.kvetch(str); }
 
-    // External meta-data.
-    var sd = new amigo.data.server();
-    var solr_server = sd.golr_base();
-    var gconf = new bbop.golr.conf(amigo.data.golr);
-
     // Aliases.
-    var each = bbop.core.each;
-    var hashify = bbop.core.hashify;
-    var get_keys = bbop.core.get_keys;
+    var hashify = bbop.hashify;
+    var get_keys = bbop.get_keys;
 
     // Helper: dedupe a list.
     function dedupe(list){
@@ -56,3 +67,8 @@ function GannetInit(){
 
     ll('GannetInit done.');
 }
+
+// Embed the jQuery setup runner.
+(function (){
+    jQuery(document).ready(function(){ GannetInit(); });
+})();

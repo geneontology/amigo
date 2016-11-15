@@ -2,8 +2,62 @@
 //// Experiment in D3 JS; no cart like in NMatrix.
 ////
 
+// Let jshint pass over over our external globals (browserify takes
+// care of it all).
+/* global d3 */
+/* global Plotly */
+
+var us = require('underscore');
+var bbop = require('bbop-core');
+var widgets = require('bbop-widget-set');
+var html = widgets.html;
+
+// Config.
+var amigo = new (require('amigo2-instance-data'))(); // no overload
+var golr_conf = require('golr-conf');
+var gconf = new golr_conf.conf(amigo.data.golr);
+var sd = amigo.data.server;
+//var gserv = amigo.data.server.golr_base;
+var gserv_bulk = amigo.data.server.golr_bulk_base;
+var defs = amigo.data.definitions;
+// Linker.
+var linker = amigo.linker;
+// Handler.
+var handler = amigo.handler;
+// Management.
+var jquery_engine = require('bbop-rest-manager').jquery;
+var golr_manager = require('bbop-manager-golr');
+var golr_response = require('bbop-response-golr');
+
+// Create fresh manager.
+function _new_manager(){
+    var engine = new jquery_engine(golr_response);
+    engine.method('GET');
+    engine.use_jsonp(true);
+    var manager = new golr_manager(gserv_bulk, gconf, engine, 'async');
+    return manager;
+}
+
+var filter_manager = null;
+
+// Extract the filters being used in the filter manager.
+function _get_filters(filter_manager){
+
+    var lstate = filter_manager.get_filter_query_string();
+    var lparams = bbop.url_parameters(decodeURIComponent(lstate));
+    var filters_as_strings = [];
+    us.each(lparams, function(lparam){
+	if( lparam[0] === 'fq' && lparam[1] ){
+	    filters_as_strings.push(lparam[1]);
+	}
+    });
+    //console.log('pass filter state: ', filters_as_strings);
+
+    return filters_as_strings;
+}
+
 // TODO: Interact with the user, launch stage 01.
-function MatrixInit(){
+function MatrixUIInit(){
 
     // First things first, let's hide the nasty flying divs...
     jQuery("#info").hide();
@@ -15,20 +69,80 @@ function MatrixInit(){
     logger.DEBUG = true;
     function ll(str){ logger.kvetch('JSM: ' + str); }
     ll('');
-    ll('MatrixInit start...');
+    ll('MatrixUIInit start...');
 
-    // Pull in and fix the GO term data.
-    jQuery('#button').click(
-	function(e){
+    //
+    var personality = 'bioentity_for_browser';
+    var confc = gconf.get_class(personality);
+    filter_manager = _new_manager();
+    filter_manager.set_personality(personality);
+    filter_manager.add_query_filter('document_category',
+				    confc.document_category(), ['*']);
+    filter_manager.set_results_count(0); // don't need any actual rows returned
+
+    // Add the filter widget and hook to manager.
+    var hargs = {
+	meta_label: 'Total bioentities:&nbsp;',
+	// free_text_placeholder:
+	// 'Input text to filter against all remaining documents',
+	'display_free_text_p': false
+    };
+    var filters = new widgets.live_filters('accordion',
+					   filter_manager, gconf, hargs);
+    filters.establish_display();
+
+    // Add pre and post run spinner (borrow filter's for now).
+    filter_manager.register('prerun', function(){
+	filters.spin_up();
+    });
+    filter_manager.register('postrun', function(){
+	filters.spin_down();
+    });
+
+    // Reset the UI; pull in and fix the GO term data.
+    filter_manager.register('search', function(resp, manager){
+	console.log('filter_manager search callback');
+
+	// Empty matrix results.
+	jQuery('#matrix_results').empty();
+	jQuery('#progress-text').empty();
+	jQuery('#progress-bar').empty();
+	jQuery("#order-selector").hide();
+
+	// Reset click.
+	jQuery('#button').off();
+	jQuery('#button').click(function(e){
+
+	    // Trim.
 	    //alert(jQuery('#input-terms').val());
 	    var raw_text = jQuery('#input-terms').val();
 	    raw_text = raw_text.replace(/^\s+/,'');
 	    raw_text = raw_text.replace(/\s+$/,'');
 	    var term_accs = raw_text.split(/\s+/); // split on any ws
-	    ll('Running: ' + bbop.core.dump(term_accs));
-	    jQuery('#matrix_results').empty();
-	    stage_01(term_accs);
+	    
+	    // Unique-ify, take first in order.
+	    term_accs = us.uniq(term_accs);
+	    
+	    if( term_accs &&
+	        term_accs.length > 0 &&
+	        ! us.contains(term_accs, '') ){
+
+		// Pass on.
+		ll('Running: ' + bbop.dump(term_accs));
+		jQuery('#matrix_results').empty();
+		jQuery('#progress-text').empty();
+		jQuery('#progress-bar').empty();
+		jQuery("#order-selector").hide();
+		
+		TermInfoStage(term_accs);
+
+	    }else{
+		alert('Your input seems off: "' + term_accs + '"');
+	    }
 	});
+    });
+
+    filter_manager.search();
 
     // Let's start with this test.
     //GO:0043473 GO:0009987 GO:0022008
@@ -44,18 +158,13 @@ function MatrixInit(){
 }
 
 // Get the information for the incoming terms, launch stage 02.
-function stage_01(term_accs){
+function TermInfoStage(term_accs){
 
     // Ready logging.
     var logger = new bbop.logger();
     logger.DEBUG = true;
     function ll(str){ logger.kvetch('JSM01: ' + str); }
-    ll('');
-    ll('Stage 01 start...');
-
-    // Helpers.
-    var each = bbop.core.each;
-    var dump = bbop.core.dump;
+    ll('TermInfoStage start...');
 
     // Prep the progress bar and hide the order selector until we're
     // done.
@@ -65,35 +174,37 @@ function stage_01(term_accs){
     jQuery("#progress-widget").show();
     jQuery("#order-selector").hide();
 
-    // Next, setup the manager environment.
-    ll('Setting up manager.');
-    var server_meta = new amigo.data.server();
-    var gloc = server_meta.golr_base();
-    var gconf = new bbop.golr.conf(amigo.data.golr);
-    var go = new bbop.golr.manager.jquery(gloc, gconf);
-    go.set_personality('bbop_ont');
-    //go.debug(false);
-
     // Now, cycle though all of the terms to collect info on.
-    ll('Gathering batch URLs for term data...');
+    ll('Gathering batch functions for term info...');
+    var run_funs = [];
     var term_user_order = {};
-    for(var r_i = 0; r_i < term_accs.length; r_i++){
-    	var r = term_accs[r_i];	
-    	// Set the next query.
-    	go.reset_query_filters(); // reset from the last iteration
-    	go.set_id(r);
-    	go.add_to_batch();
+    us.each(term_accs, function(r, r_i){
+
+	// Remember the incoming order.
 	term_user_order[r] = r_i;
-    }
+
+	// Create runner function.
+	run_funs.push(function(){
+
+	    // Manager settings.
+	    var go = _new_manager();
+	    go.set_personality('ontology');
+	    
+    	    // Set the next query and go.
+    	    go.set_id(r);
+    	    return go.search();
+	});
+    });
 
     var term_info = {};
     // Fetch the data and grab the number we want.
-    var accumulator_fun = function(resp){	
+    var accumulator_fun = function(resp){
+
 	// Who was this?
 	var qval = resp.parameter('q');
-	var two_part = bbop.core.first_split(':', qval);
-	var acc = bbop.core.dequote(two_part[1]);
-	ll('Looking at info for: ' + acc);
+	var two_part = bbop.first_split(':', qval);
+	var acc = bbop.dequote(two_part[1]);
+	ll(' Looking at info for: ' + acc);
 	term_info[acc] = {
 	    id : acc,
 	    name: acc,
@@ -106,103 +217,136 @@ function stage_01(term_accs){
 	if( doc ){
 	    term_info[acc]['name'] = doc['annotation_class_label'];
 	    term_info[acc]['source'] = doc['source'];
-	}	
+	}
 
     };
 
     // The final function is the data renderer.
     var final_fun = function(){
-	ll('Starting final in stage 01...');
-
-	ll('term_info: ' + dump(term_info));
-	stage_02(term_info, term_accs);
-
-	ll('Completed stage 01!');
+	ll('Starting final in TermInfoStage...');
+	ll(' term_info: ' + bbop.dump(term_info));
+	TermDataStage(term_info, term_accs);
+	ll('Completed TermInfoStage!');
     };
-    go.run_batch(accumulator_fun, final_fun);
 
+    // Create and run coordinating manager.
+    var manager = _new_manager();
+    manager.run_promise_functions(
+	run_funs,
+	accumulator_fun,
+	final_fun,
+	function(err){
+	    alert(err.toString());
+	});
 }
 
-// Get the joint data, get it into the specified format, and launch
+// Get the term data, get it into the specified format, and launch
 // stage 03.
-function stage_02(term_info, term_accs){
+function TermDataStage(term_info, term_accs){
 
     // Ready logging.
     var logger = new bbop.logger();
     logger.DEBUG = true;
     function ll(str){ logger.kvetch('JSM02: ' + str); }
     ll('');
-    ll('Stage 02 start...');
-
-    // Helpers.
-    var each = bbop.core.each;
-    var dump = bbop.core.dump;
-
-    // Get the data that we want.
-    // A variation on BBOP JS's shared_annotation_count.js.
-
-    // Before we start, decide our taxon.
-    var taxon_filter = null; // default to no filter
-    var curr_taxon_selection = jQuery("input:radio[name=taxon]:checked").val();
-    if( curr_taxon_selection == 'pombe' ){
-        // "taxon":"NCBITaxon:4896",
-        // "taxon_label":"Schizosaccharomyces pombe",
-	 taxon_filter = "NCBITaxon:4896";
-    }
-
-    // Next, setup the manager environment.
-    ll('Setting up manager.');
-    var server_meta = new amigo.data.server();
-    var gloc = server_meta.golr_base();
-    var gconf = new bbop.golr.conf(amigo.data.golr);
-    var go = new bbop.golr.manager.jquery(gloc, gconf);
-    //go.add_query_filter('document_category', 'annotation', ['*']);
-    go.add_query_filter('document_category', 'bioentity', ['*']);
-    if( taxon_filter ){	go.add_query_filter('taxon', taxon_filter, ['*']); }
-    go.set_personality('bbop_ann');
-    go.set('rows', 1); // we don't need any actual rows returned
-    go.set_facet_limit(0); // we don't need any actual facets returned
-    //go.debug(false);
+    ll('TermDataStage start...');
 
     // The number of requests that we will make.
     var request_count = 0;
+    var run_funs = [];
 
     // Now, cycle though all of the posible pairs of terms while setting
     // and unsetting the query filter on the manager.
-    ll('Gathering batch URLs and simple term data...');
+    ll(' Gathering batch functions for term data...');
     // Different.
+    var mixed_pairs = [];
     for(var v_i = 0; v_i < term_accs.length; v_i++){
 	for(var h_i = 0; h_i < v_i; h_i++){
 
 	    var v = term_accs[v_i];
 	    var h = term_accs[h_i];
 	    
-	    // Set the next query.
-	    go.reset_query_filters(); // reset from the last iteration
-	    go.add_query_filter('isa_partof_closure', v);
-	    go.add_query_filter('isa_partof_closure', h);
-	    go.add_to_batch();
-
-	    request_count++;
+	    mixed_pairs.push([v, h]);
 	}
     }
-    // Reflexive.
-    for(var r_i = 0; r_i < term_accs.length; r_i++){
-    	var r = term_accs[r_i];
-	
-    	// Set the next query.
-    	go.reset_query_filters(); // reset from the last iteration
-    	go.add_query_filter('isa_partof_closure', r);
-    	go.add_to_batch();
 
+    var filter_strs = _get_filters(filter_manager);
+    console.log('pass filter state: ', filter_strs);
+
+    us.each(mixed_pairs, function(pair){
+
+	var v = pair[0];
+	var h = pair[1];
+	ll(' Setup search for: ' + v + ' and ' + h);
+
+	// Code here will be ignored by JSHint, as we are defining
+	// functions in a loop, which apparently is usually
+	// naughty.
+	/* jshint ignore:start */
+	run_funs.push(function(){
+	    
+	    // Manager settings.
+	    var go = _new_manager();
+	    go.set_personality('bioentity');
+	    go.add_query_filter('document_category', 'bioentity');
+	    go.set_results_count(0); // we don't need any actual rows returned
+	    go.set_facet_limit(0); // don't need any actual facets returned
+	    //go.debug(false);
+	    
+	    // Stack on the filters from the filter box.
+	    us.each(filter_strs, function(fas){
+		go.add_query_filter_as_string(fas, []);
+	    });
+
+	    // Set the next query.
+	    go.add_query_filter('isa_partof_closure', v);
+	    go.add_query_filter('isa_partof_closure', h);
+	    
+	    return go.search();
+	});
+	/* jshint ignore:end */
+	
 	request_count++;
-    }
+    });
+
+    // Reflexive.
+    us.each(term_accs, function(r){
+
+	ll(' Setup reflexive search for: ' + r);
+
+	// Code here will be ignored by JSHint, as we are defining
+	// functions in a loop, which apparently is usually naughty.
+	/* jshint ignore:start */
+	run_funs.push(function(){
+
+	    // Manager settings.
+	    var go = _new_manager();
+	    go.set_personality('bioentity');
+	    go.add_query_filter('document_category', 'bioentity');
+	    go.set_results_count(0); // we don't need any actual rows returned
+	    go.set_facet_limit(0); // don't need any actual facets returned
+	    //go.debug(false);
+	    
+	    // Stack on the filters from the filter box.
+	    us.each(filter_strs, function(fas){
+		go.add_query_filter_as_string(fas, []);
+	    });
+
+    	    // Set the next query.
+    	    go.add_query_filter('isa_partof_closure', r);
+	    
+	    return go.search();
+	});
+	/* jshint ignore:end */
+	
+	request_count++;
+    });
 
     // Now that we know how many requests we will make, initialize the
     // progress bar.
     jQuery("#progress-text").empty();
-    jQuery("#progress-text").append('<b><span id="progress-count">0</span> of '
-				    + request_count + '</b>');
+    jQuery("#progress-text").append('<b><span id="progress-count">0</span> of '+
+				    request_count + '</b>');
     //jQuery("#progress-bar").empty();
     jQuery("#progress-bar").progressbar({ max: request_count });
     jQuery("#progress-widget").show();
@@ -213,6 +357,7 @@ function stage_02(term_info, term_accs){
     var requests_done = 0;
     // Fetch the data and grab the number we want.
     var accumulator_fun = function(resp){	
+
 	// Update the bar.
 	requests_done++;
 	jQuery('#progress-bar').progressbar({ value: requests_done });
@@ -228,31 +373,33 @@ function stage_02(term_info, term_accs){
 	// Now let's try and fiqure out which terms we were looking
 	// at...
 	var fqs = resp.query_filters();
+	//console.log(resp);
 	var fprops = fqs['isa_partof_closure'];
 
 	var axes = [];
-	each(fprops,
-	     function(fkey, fval){
-		 axes.push(fkey);
-	     });	
+	us.each(fprops, function(fval, fkey){
+	    axes.push(fkey);
+	});	
 	var axis1 = axes[0];
 	var axis2 = axes[1] || axis1; // the reflexive case
 
+	ll(' Data from: (' + axis1 + ', ' + axis2 + '); ' + count);
+
 	// Structure for the links we've seen, level 1.
-	if( ! bbop.core.is_defined(seen_links[axis1]) ){
+	if( typeof(seen_links[axis1]) === 'undefined' ){
 	    seen_links[axis1] = {}; }
-	if( ! bbop.core.is_defined(seen_links[axis2]) ){
+	if( typeof(seen_links[axis2]) === 'undefined' ){
 	    seen_links[axis2] = {}; }
 	// Mark the links we've seen, level 2.
-	if( ! bbop.core.is_defined(seen_links[axis2][axis1]) ){
+	if( typeof(seen_links[axis2][axis1]) === 'undefined' ){
 	    seen_links[axis2][axis1] = count; }
-	if( ! bbop.core.is_defined(seen_links[axis1][axis2]) ){
+	if( typeof(seen_links[axis1][axis2]) === 'undefined' ){
 	    seen_links[axis1][axis2] = count; }
     };
 
     // The final function is the data renderer.
     var final_fun = function(){
-	ll('Starting final in stage 02...');
+	ll('Starting final in TermDataStage...');
 
 	// We're done, so hide the progress bar again and show the
 	// order selector.
@@ -268,73 +415,425 @@ function stage_02(term_info, term_accs){
 
 	// Now we map out term information into the same format as the
 	// example.
-	each(term_accs,
-	     function(acc){
-		 var node = {
-		     'id': acc,
-		     'name': term_info[acc]['name'],
-		     'source': term_info[acc]['source'],
-		     'index': term_info[acc]['index']
-		 };
-		 data.nodes.push(node);
-	     });
+	us.each(term_accs, function(acc){
+	    var node = {
+		'id': acc,
+		'name': term_info[acc]['name'],
+		'source': term_info[acc]['source'],
+		'index': term_info[acc]['index']
+	    };
+	    data.nodes.push(node);
+	});
 
 	// Next, we put our link information into the same format as
 	// the example.
 	var already_done_links = {};
-	each(seen_links,
-	     function(sub, sub_data){
-		 each(sub_data,
-		      function(obj, link_count){
+	us.each(seen_links, function(sub_data, sub){
+	    us.each(sub_data, function(link_count, obj){
 
-			  // Only add links that we haven't yet.
-			  var li1 = sub + '_' + obj;
-			  var li2 = obj + '_' + sub;
-			  if( ! bbop.core.is_defined(already_done_links[li1]) ){
+		// Only add links that we haven't yet.
+		var li1 = sub + '_' + obj;
+		var li2 = obj + '_' + sub;
+		if( typeof(already_done_links[li1]) === 'undefined' ){
+		    
+		    // Add it to our done list. Either way
+		    // we'll catch it.
+		    already_done_links[li1] = true;
+		    already_done_links[li2] = true;
+		    
+		    // Push the new link data.
+		    var link = {
+			'source': term_info[sub]['index'],
+			'target': term_info[obj]['index'],
+			'value': link_count
+		    };
+		    data.links.push(link);
+		}
+	    });
+	});
 
-			      // Add it to our done list. Either way
-			      // we'll catch it.
-			      already_done_links[li1] = true;
-			      already_done_links[li2] = true;
-			      
-			      // Push the new link data.
-			      var link = {
-				  'source': term_info[sub]['index'],
-				  'target': term_info[obj]['index'],
-				  'value': link_count
-			      };
-			      data.links.push(link);
-			  }
-		      });
-	     });
-
-	ll('Seen links: ' + dump(seen_links));
-	ll('Data: ' + dump(data));
-	ll('Max count: ' + max_count);
+	ll(' Seen links: ' + bbop.dump(seen_links));
+	ll(' Data: ' + bbop.dump(data));
+	ll(' Max count: ' + max_count);
 	// //ll(h + ', ' + v + ': ' + count);
 	// ll('accumulate: ' + axis1 + ', ' + axis2 + ': ' + count);
 
-	ll('Completed stage 02!');
-	stage_03(data, max_count);
+	ll('Completed TermDataStage!');
+	RenderStage(data, max_count);
+	//PlotStage(data, max_count);
     };
-    go.run_batch(accumulator_fun, final_fun);
 
+    // Create and run coordinating manager.
+    var manager = _new_manager();
+    manager.run_promise_functions(
+	run_funs,
+	accumulator_fun,
+	final_fun,
+	function(err){
+	    alert(err.toString());
+	});
 }
+
+
+// function PlotStage(collected_info, max_count){
+
+//     // Ready logging.
+//     var logger = new bbop.logger();
+//     logger.DEBUG = true;
+//     function ll(str){ logger.kvetch('JSMX: ' + str); }
+//     ll('PlotStage start...');
+
+//     ///
+//     /// Variables.
+//     ///
+
+//     // Collect a map of node names to node ids.
+//     var name_to_id = {};
+//     var id_to_name = {};
+//     us.each(collected_info.nodes, function(node){
+// 	name_to_id[node.name] = node.id;
+// 	id_to_name[node.id] = node.name;
+//     });
+
+//     // Generate annotations for all non-zero counts.
+//     var anns = [];
+//     us.each(collected_info.graph, function(val1, key1){
+// 	us.each(val1, function(val2, key2){
+
+// 	    var name1 = id_to_name[key1];
+// 	    var name2 = id_to_name[key2];
+// 	    var val = val2;
+	    
+// 	    if( val !== 0 ){
+// 		anns.push({
+// 		    x: name2,
+// 		    y: name1,
+// 		    xref: 'x',
+// 		    yref: 'y',
+// 		    text: val,
+// 		    showarrow: false,
+// 		    // arrowhead: 7,
+// 		    ax: 0,
+// 		    ay: 0
+// 		});
+// 	    }
+// 	});
+//     });
+    
+//     // Invariant layout data.
+//     var layout = {
+// 	title: 'Pair-wise co-annotation comparison',
+// 	hightlight: true,
+// 	xaxis: {
+// 	    tickfont: {
+// 		// 12, 10 too big; 9 okay right now
+// 		size: 10
+// 	    }
+// 	},
+//         yaxis: {
+// 	    tickangle: 45,
+// 	    tickfont: {
+// 		// 12, 10 too big; 9 okay right now
+// 		size: 10
+// 	    }
+// 	},
+// 	// annotations: anns,
+// 	margin: {
+// 	    //pad:0,
+// 	    //autoexpand:true,
+// 	    //t:100,
+// 	    l:150,
+// 	    //r:80,
+// 	    b:100
+// 	}
+//     };
+
+//     ///
+//     /// Calculate possible orderings that we'll use.
+//     ///
+
+//     // Precompute the possible orderings.
+//     var graph = collected_info.graph;
+//     var nodes = collected_info.nodes;
+//     var node_count = collected_info.nodes.length;
+//     var all_orders = {
+// 	name: d3.range(node_count).sort(function(a, b) {
+// 	    return d3.ascending(nodes[a].name, nodes[b].name);
+// 	}),
+// 	source: d3.range(node_count).sort(function(a, b) {
+// 	    return d3.ascending(nodes[a].source, nodes[b].source);
+// 	}),
+// 	// id: d3.range(node_count).sort(function(a, b) {
+// 	//     return d3.descending(nodes[a].id, nodes[b].id);
+// 	// }),
+// 	count: d3.range(node_count).sort(function(a, b) {
+// 	    var aid = nodes[a].id;
+// 	    var bid = nodes[b].id;
+// 	    return graph[bid][bid] - graph[aid][aid];
+// 	}),
+// 	index: d3.range(node_count).sort(function(a, b) {
+// 	    //return nodes[b].index - nodes[a].index;
+// 	    return nodes[a].index - nodes[b].index;
+// 	})
+//     };
+
+//     ///
+//     /// Colors
+//     ///
+
+//     // Collect all extant color points.
+//     var values = [];    
+//     us.each(collected_info.links, function(link){
+// 	values.push(link.value);
+//     });
+//     values = us.uniq(values);
+//     values = values.sort(function(a,b){ return a-b; });
+//     console.log('color values', values);
+
+//     // Create stepped color space, starting at 0.
+//     var step_colorscale = [];
+//     var value_to_fold = function(val){
+// 	var ret = 0;
+// 	if( val !== 0 ){
+// 	    ret = val/max_count;
+// 	}
+// 	console.log('v2f: ', val + '->' + ret);
+// 	return ret;
+//     };
+//     // Generate absolute colorscale.
+//     function value_to_color_step(val){
+// 	//var retval = '#fafafa';
+// 	var retval = 'rgb(250,250,250)';
+// 	if( val !== 0 ){
+// 	    // 1-3 = pale green
+// 	    // 4-10 = yellow
+// 	    // 11-100 = orange
+// 	    // 101+ = red 
+// 	    if( val <= 3 ){
+// 		//retval = '#79f853'; // green
+// 		retval = 'rgb(121,248,83)';
+// 	    }else if( val <= 10 ){
+// 		//retval = '#e8f129'; // yellow
+// 		retval = 'rgb(232,241,41)';
+// 	    }else if( val <= 100 ){
+// 		//retval = '#fd953b'; // orange		
+// 		retval = 'rgb(253,149,59)';
+// 	    }else{
+// 		//retval = '#ff4e53';
+// 		retval = 'rgb(255,78,83)';
+// 	    }
+// 	}
+// 	console.log('v2c: ', val + '->' + retval);
+// 	return retval;
+//     }    
+//     us.each(values, function(cval, index){
+// 	step_colorscale.push([
+// 	    value_to_fold(cval),
+// 	    value_to_color_step(cval)
+// 	]);
+//     });
+
+//     // Default to a white 0 and slide from red to blue.
+//     var default_colorscale = [
+// 	[0, 'rgb(250,250,250)'],
+// 	[0.00000000001, 'rgb(0,0,255)'], // from non-0
+// 	// [0.2, 'rgb(254,224,210)'],
+// 	[1, 'rgb(255,0,0)']
+//     ];
+    
+//     // Decide our coloration live at this point.
+//     var colorscale_to_use = default_colorscale;
+//     var curr_color_selection = jQuery("input:radio[name=color]:checked").val();
+//     if( curr_color_selection === 'heatmap' ){
+// 	// Pass, it is default.
+//     }else if( curr_color_selection === 'step' ){
+// 	colorscale_to_use = step_colorscale;
+//     }
+
+//     console.log('colorscale', colorscale_to_use);
+
+//     ///
+//     /// Main function to create the appropriate traces and other
+//     /// information given an ordering (a list of default positions).
+//     ///
+
+//     // ...
+//     function _generate_traces_with_order(new_order){
+
+// 	// Axes vars.
+// 	var x_axis_id = [];
+// 	var x_axis_lbl = [];
+// 	var y_axis_id = [];
+// 	var y_axis_lbl = [];
+// 	// Traces and additional embedded hover text vars.
+// 	var rows = [];
+// 	var text_rows = [];
+
+// 	// Iterate over the mapped index, using the node order in data
+// 	// as the reference.	
+// 	// Axis mapping.
+// 	us.each(new_order, function(mapped_index, true_index){
+
+// 	    var mapped_node = collected_info.nodes[mapped_index];
+
+// 	    console.log('mapped_index', mapped_index);
+// 	    console.log('mapped_node', mapped_node);
+
+// 	    x_axis_id.push(mapped_node.id);
+// 	    x_axis_lbl.push(mapped_node.name);
+// 	    y_axis_id.unshift(mapped_node.id);
+// 	    y_axis_lbl.unshift(mapped_node.name);
+
+// 	});
+
+// 	// going over mapped index, gather traces and additional
+// 	// embedded hover text.
+// 	us.each(x_axis_id, function(idx){
+// 	    var frame = [];
+// 	    var text_frame = [];
+// 	    us.each(y_axis_id, function(idy){
+// 		frame.unshift(collected_info.graph[idx][idy]);
+// 		text_frame.unshift('(' + idx + ',' + idy + ')');
+// 	    });
+// 	    rows.unshift(frame);
+// 	    text_rows.unshift(text_frame);
+// 	});
+
+// 	return {
+// 	    z: rows,
+// 	    // mode: 'lines+markers+text',
+// 	    text: text_rows,
+// 	    x: x_axis_lbl,
+// 	    y: y_axis_lbl,
+// 	    colorscale: colorscale_to_use,
+// 	    type: 'heatmap',
+// 	};
+//     }
+
+//     ///
+//     /// Initial runner.
+//     ///
+
+//     // Get the default order.
+//     var order = all_orders.index;
+
+//     console.log('all_orders', all_orders);
+//     console.log('order', order);
+//     //console.log(collected_info);
+
+//     jQuery("#initial_placeholder").hide();
+
+//     // Initial call.
+//     var data_to_render = [_generate_traces_with_order(order)];
+//     Plotly.newPlot('matrix_plot', data_to_render, layout);
+
+//     ///
+//     /// Additional events.
+//     ///
+
+//     // Capture for use in various events.
+//     var plot_obj = document.getElementById('matrix_plot');
+
+//     // Re-draw on change.
+//     d3.select("#plot_order").on("change", function() {
+
+// 	var new_order = all_orders[this.value];
+// 	console.log('selected order value', '"' + this.value + '"');
+// 	console.log('new_order', new_order);
+
+// 	// Make mods.
+// 	var data_to_re_render = [_generate_traces_with_order(new_order)];
+// 	plot_obj.data = data_to_re_render;
+
+// 	// Redraw.
+// 	Plotly.redraw(plot_obj);
+// 	//Plotly.plot(plot_obj);
+
+//     });
+
+//     // On click, display pop-up with all sorts of goodies.
+//     plot_obj.on('plotly_click', function(click_data){
+
+// 	// console.log('vvv');
+// 	// console.log(data);
+// 	// console.log('^^^');
+// 	// var infotext = data.points.map(function(d){
+// 	//     return ('x= '+d.x+', y= '+d.y);
+// 	// });
+// 	// alert(infotext);
+// 	var d = click_data.points[0];
+// 	var xid = name_to_id[d.x];
+// 	var yid = name_to_id[d.y];
+
+// 	// Grab the shared bioentity count value.
+//     	var sbc = collected_info.graph[xid][yid];
+
+// 	// Add a link to the bioentity search.
+// 	var bio_man = _new_manager();
+
+// 	// Stack on the filters from the filter box.
+// 	var filter_strs = _get_filters(filter_manager);
+// 	us.each(filter_strs, function(fas){
+// 	    bio_man.add_query_filter_as_string(fas, []);
+// 	});
+
+// 	// Add the current cell's ids.
+// 	var ids = us.uniq([xid, yid]);
+// 	us.each(ids, function(v){
+// 	    bio_man.add_query_filter('isa_partof_closure', v);
+// 	});
+
+// 	// Produce final URL.
+// 	var lstate = bio_man.get_filter_query_string();
+// 	var lurl = linker.url(lstate, 'search', 'bioentity');
+
+// 	var kick = [
+// 	    '<ul class="list-unstyled">',
+// 	    '<li>',
+// 	    'x: <b>' + d.x + '</b> (' + xid + ')',
+// 	    '</li>',
+// 	    '<li>',
+// 	    'y: <b>' + d.y + '</b> (' + yid + ')',
+// 	    '</li>',
+// 	    '<li>',
+// 	    'SBC: <b>' + sbc + '</b>',
+// 	    '</li>',
+// 	    '<li>',
+// 	    'Pair-wise bioentity search <a class="btn btn-primary" href="' + lurl + '" target="_blank"><b>Open</b></a>',
+// 	    '</li>',
+// 	'</ul>'];
+// 	widgets.display.dialog(kick.join(' '),
+// 			       {title: 'Cell information', width: 500});
+
+//     });
+// 	// .on('plotly_hover', function(data){
+// 	//     var infotext = data.points.map(function(d){
+// 	// 	return ('x= '+d.x+', y= '+d.y);
+// 	//     });
+	
+// 	//     hover_info.innerHTML = infotext.join('');
+// 	// })
+// 	// .on('plotly_unhover', function(data){
+// 	//     hover_info.innerHTML = '';
+// 	// });
+
+//     ll('Completed PlotStage!');
+//     ll('Done!');
+// }
+
+///
+///
+///
 
 // Final stage: do the graphics and layout.
 // Initial D3 code from: http://bost.ocks.org/mike/miserables/
-function stage_03 (data, max_count){
+function RenderStage(data, max_count){
 
     // Ready logging.
     var logger = new bbop.logger();
     logger.DEBUG = true;
     function ll(str){ logger.kvetch('JSM03: ' + str); }
-    ll('');
-    ll('Stage 03 start...');
-
-    // Helpers.
-    var each = bbop.core.each;
-    var dump = bbop.core.dump;
+    ll('Start RenderStage...');
 
     ///
     /// Setup the canvas and margin/header area.
@@ -358,12 +857,12 @@ function stage_03 (data, max_count){
     function value_to_color_dark(val){
 	//var retval = '#efefef';
 	var retval = '#fafafa';
-	if( val != 0 ){
+	if( val !== 0 ){
 	    var cval = c(val);
 	    var cinv = 255 - cval;
 	    var chex = cinv.toString(16);
 	    if( cval ){
-		if( chex.length == 1 ){ chex = '0' + chex; }
+		if( chex.length === 1 ){ chex = '0' + chex; }
 		retval = '#' + chex + chex + chex + '';
 	    }
 	}
@@ -372,7 +871,7 @@ function stage_03 (data, max_count){
     function value_to_color_step(val){
 	//var retval = '#efefef';
 	var retval = '#fafafa';
-	if( val != 0 ){
+	if( val !== 0 ){
 	    // 1-3 = pale green
 	    // 4-10 = yellow
 	    // 11-100 = orange
@@ -394,9 +893,9 @@ function stage_03 (data, max_count){
     // Decide our coloration live at this point.
     var value_to_color = value_to_color_dark; // default
     var curr_color_selection = jQuery("input:radio[name=color]:checked").val();
-    if( curr_color_selection == 'dark' ){
+    if( curr_color_selection === 'dark' ){
 	 value_to_color = value_to_color_dark;
-    }else if( curr_color_selection == 'step' ){
+    }else if( curr_color_selection === 'step' ){
 	 value_to_color = value_to_color_step;
     }
 
@@ -417,36 +916,34 @@ function stage_03 (data, max_count){
     var n = nodes.length;
     
     // Compute index per node.
-    nodes.forEach(
-	function(node, i) {
-	    //node.index = i;
-	    node.count = 0;
-	    matrix[i] = d3.range(n).map(
-		function(j) {
-		    return {x: j, y: i, z: 0};
-		});
-	});
+    nodes.forEach(function(node, i) {
+	//node.index = i;
+	node.count = 0;
+	matrix[i] = d3.range(n).map(
+	    function(j) {
+		return {x: j, y: i, z: 0};
+	    });
+    });
     
     // TODO: Is this bit necessary?
     // Convert links to matrix; count character occurrences.
-    data.links.forEach(
-    	function(link) {
-	    var s_index = link.source;
-	    var t_index = link.target;
-	    var sid = nodes[s_index]['id'];
-	    var tid = nodes[t_index]['id'];
-	    // Matrix fill.
-    	    matrix[link.source][link.target].z = data.graph[sid][tid] || 0;
-    	    matrix[link.target][link.source].z = data.graph[tid][sid] || 0;
-    	    matrix[link.source][link.source].z = data.graph[sid][sid] || 0;
-    	    matrix[link.target][link.target].z = data.graph[tid][tid] || 0;
-	    // Tally the per-node count.
-    	    nodes[link.source].count += link.value || 0;
-    	    nodes[link.target].count += link.value || 0;
-    	});
+    data.links.forEach(function(link) {
+	var s_index = link.source;
+	var t_index = link.target;
+	var sid = nodes[s_index]['id'];
+	var tid = nodes[t_index]['id'];
+	// Matrix fill.
+    	matrix[link.source][link.target].z = data.graph[sid][tid] || 0;
+    	matrix[link.target][link.source].z = data.graph[tid][sid] || 0;
+    	matrix[link.source][link.source].z = data.graph[sid][sid] || 0;
+    	matrix[link.target][link.target].z = data.graph[tid][tid] || 0;
+	// Tally the per-node count.
+    	nodes[link.source].count += link.value || 0;
+    	nodes[link.target].count += link.value || 0;
+    });
     
-    ll('Nodes: ' + dump(nodes));
-    ll('Matrix: ' + dump(matrix));
+    ll('Nodes: ' + bbop.dump(nodes));
+    ll('Matrix: ' + bbop.dump(matrix));
 
     ///
     /// The ordering profiles.
@@ -454,27 +951,22 @@ function stage_03 (data, max_count){
     
     // Precompute the orders.
     var orders = {
-	name: d3.range(n).sort(
-	    function(a, b) {
-		return d3.ascending(nodes[a].name, nodes[b].name);
-	    }),
-	source: d3.range(n).sort(
-	    function(a, b) {
-		return d3.ascending(nodes[a].source, nodes[b].source);
-	    }),
-	id: d3.range(n).sort(
-	    function(a, b) {
-		return d3.descending(nodes[a].id, nodes[b].id);
-	    }),
-	count: d3.range(n).sort(
-	    function(a, b) {
-		return nodes[b].count - nodes[a].count;
-	    }),
-	index: d3.range(n).sort(
-	    function(a, b) {
-		//return nodes[b].index - nodes[a].index;
-		return nodes[a].index - nodes[b].index;
-	    })
+	name: d3.range(n).sort(function(a, b) {
+	    return d3.ascending(nodes[a].name, nodes[b].name);
+	}),
+	source: d3.range(n).sort(function(a, b) {
+	    return d3.ascending(nodes[a].source, nodes[b].source);
+	}),
+	id: d3.range(n).sort(function(a, b) {
+	    return d3.descending(nodes[a].id, nodes[b].id);
+	}),
+	count: d3.range(n).sort(function(a, b) {
+	    return nodes[b].count - nodes[a].count;
+	}),
+	index: d3.range(n).sort(function(a, b) {
+	    //return nodes[b].index - nodes[a].index;
+	    return nodes[a].index - nodes[b].index;
+	})
     };
     
     // The default sort order.
@@ -495,10 +987,9 @@ function stage_03 (data, max_count){
 	.enter().append("g")
 	//.attr("style", "fill: #ff0000;")
 	.attr("class", "row") // mark with class for later reference
-	.attr("transform",
-	      function(d, i) {
-		  return "translate(0," + x(i) + ")";
-	      })
+	.attr("transform", function(d, i) {
+	    return "translate(0," + x(i) + ")";
+	})
 	.each(row_fun);
     
     // ???: Unfamiliar properties.
@@ -512,8 +1003,8 @@ function stage_03 (data, max_count){
 	.attr("dy", ".30em")
 	.attr("text-anchor", "end")
 	.text(function(d, i) {
-		  return nodes[i].name + ' (' + nodes[i].id + ')';
-	      });
+	    return nodes[i].name + ' (' + nodes[i].id + ')';
+	});
     
     // For each of the column headers, translate them by a certain
     // amount, color, etc.
@@ -522,10 +1013,9 @@ function stage_03 (data, max_count){
 	.enter().append("g")
 	//.attr("style", "fill: #00ff00;")
 	.attr("class", "column") // mark with class for later reference
-	.attr("transform",
-	      function(d, i) {
-		  return "translate(" + x(i) + ")rotate(-90)";
-	      });
+	.attr("transform", function(d, i) {
+	    return "translate(" + x(i) + ")rotate(-90)";
+	});
     
     // ???: Unfamiliar properties.
     column.append("line")
@@ -538,32 +1028,31 @@ function stage_03 (data, max_count){
 	.attr("dy", ".30em")
 	.attr("text-anchor", "start")
 	.text(function(d, i) {
-		  return nodes[i].name + ' (' + nodes[i].id + ')';
-	      });
+	    return nodes[i].name + ' (' + nodes[i].id + ')';
+	});
 
     // Make sure the tha info dialog follows the mouse.
     // Using jQuery so we get a continuous event stream (necessary for
     // proper hover following).
-    jQuery(document).mousemove(
-	function(event) {
+    jQuery(document).mousemove(function(event) {
+	
+	if( jQuery("#info").is(":visible") ){
 	    
-	    if( jQuery("#info").is(":visible") ){
-		
-		var pre_x = event.pageX;
-		var pre_y = event.pageY;
-		
-		var xpos = pre_x + 10;
-		var ypos = pre_y + 10;
-		
-		jQuery("#info").css('left', xpos);
-		jQuery("#info").css('top', ypos);
-	    }
-	});
-
+	    var pre_x = event.pageX;
+	    var pre_y = event.pageY;
+	    
+	    var xpos = pre_x + 10;
+	    var ypos = pre_y + 10;
+	    
+	    jQuery("#info").css('left', xpos);
+	    jQuery("#info").css('top', ypos);
+	}
+    });
+    
     function mouseover(p) {
 
-	// Grab the shared annotation value.
-    	var sac = matrix[p.x][p.y].z;
+	// Grab the shared bioentity count value.
+    	var sbc = matrix[p.x][p.y].z;
 
 	// Map order to node object.
 	var xn = nodes[p.x];
@@ -571,11 +1060,11 @@ function stage_03 (data, max_count){
 
 	// Update the hovering info box.
 	jQuery("#info").empty();
-	jQuery("#info").append("<b>" + yn.name + "</b> (" + yn.id + ")");
+	jQuery("#info").append("x: <b>" + xn.name + "</b> (" + xn.id + ")");
 	jQuery("#info").append("<br />");
-	jQuery("#info").append("<b>" + xn.name + "</b> (" + xn.id + ")");
+	jQuery("#info").append("y: <b>" + yn.name + "</b> (" + yn.id + ")");
 	jQuery("#info").append("<br />");
-	jQuery("#info").append("SAC: <b>" + sac + "</b>");
+	jQuery("#info").append("SBC: <b>" + sbc + "</b>");
 	jQuery("#info").show();
 
 	var thing = d3.select(this);
@@ -611,6 +1100,54 @@ function stage_03 (data, max_count){
 	//d3.selectAll("text").classed("active", false);
     }
 
+    function clickcell(p) {
+
+	// Grab the shared bioentity count value.
+    	var sbc = matrix[p.x][p.y].z;
+
+	// Map order to node object.
+	var xn = nodes[p.x];
+	var yn = nodes[p.y];
+
+	// Add a link to the bioentity search.
+	var bio_man = _new_manager();
+
+	// Stack on the filters from the filter box.
+	var filter_strs = _get_filters(filter_manager);
+	us.each(filter_strs, function(fas){
+	    bio_man.add_query_filter_as_string(fas, []);
+	});
+
+	// Add the current cell's ids.
+	var ids = us.uniq([xn.id, yn.id]);
+	us.each(ids, function(v){
+	    bio_man.add_query_filter('isa_partof_closure', v);
+	});
+
+	// Produce final URL.
+	var lstate = bio_man.get_filter_query_string();
+	var lurl = linker.url(lstate, 'search', 'bioentity');
+
+	var kick = [
+	    '<ul class="list-unstyled">',
+	    '<li>',
+	    'x: <b>' + xn.name + '</b> (' + xn.id + ')',
+	    '</li>',
+	    '<li>',
+	    'y: <b>' + yn.name + '</b> (' + yn.id + ')',
+	    '</li>',
+	    '<li>',
+	    'SBC: <b>' + sbc + '</b>',
+	    '</li>',
+	    '<li>',
+	    'Pair-wise bioentity search <a class="btn btn-primary" href="' + lurl + '" target="_blank"><b>Open</b></a>',
+	    '</li>',
+	'</ul>'];
+	//alert(kick);
+	widgets.display.dialog(kick.join(' '), {title: 'Cell information',
+						width: 500});
+    }
+    
     // Working:    
     //  function row_fun(in_row) {
     // 	var cell = d3.select(this).selectAll(".cell")
@@ -675,7 +1212,7 @@ function stage_03 (data, max_count){
 
 		      var final_str = '';
 		      var val_holder = matrix[d.x][d.y].z;
-		      if( val_holder != 0 ){
+		      if( val_holder !== 0 ){
 			  // Make the string we'll use.
 			  final_str = '' + val_holder + '';
 		      }
@@ -697,43 +1234,40 @@ function stage_03 (data, max_count){
 	    	      return final_str;
 		  })
 	    .attr("class", "cell") // tag as cell with class for later ref
-	    .attr("x",
-	    	  function(d) {
-	    	      return x(d.x);
-	    	  })
+	    .attr("x", function(d) {
+	    	return x(d.x);
+	    })
 	    // .attr("y",
 	    // 	  function(d) {
 	    // 	      return x(d.x);
 	    // 	  })
 	    .attr("dy", "1em")
-	    .attr("font-size",
-	    	  function(d) {
-		      // WARNING: This works, but saving the value in
-		      // a higher scope did not--I can't imagine what
-		      // this all folds out to...
-	    	      return matrix[d.x][d.y].font_size;
-	    	  })
+	    .attr("font-size", function(d) {
+		// WARNING: This works, but saving the value in
+		// a higher scope did not--I can't imagine what
+		// this all folds out to...
+	    	return matrix[d.x][d.y].font_size;
+	    })
 	    .attr("text-anchor", "beginning"); // middle, end
 
 	// Add colored squares.
 	d3.select(this).selectAll(".cell")
 	    .append("rect")
-	.attr("class", "cell") // tag as cell with class for later ref
-	    .attr("x",
-	    	  function(d) {
-	    	      return x(d.x);
-	    	  })
+	    .attr("class", "cell") // tag as cell with class for later ref
+	    .attr("x", function(d) {
+	    	return x(d.x);
+	    })
 	    .attr("width", cw)
 	    .attr("height", cw)
-	    .style("fill",
-		   function(d) {
-		       var mval = matrix[d.x][d.y].z;
-		       var retcolor = value_to_color(mval);
-		       return retcolor;
-		   })
+	    .style("fill", function(d) {
+		var mval = matrix[d.x][d.y].z;
+		var retcolor = value_to_color(mval);
+		return retcolor;
+	    })
     	    .style("fill-opacity", "0.50")
 	    .on("mouseover", mouseover)
-	    .on("mouseout", mouseout);
+	    .on("mouseout", mouseout)
+	    .on("click", clickcell);
 
     }
     
@@ -747,37 +1281,51 @@ function stage_03 (data, max_count){
 	
 	t.selectAll(".row")
 	    .delay(function(d, i) { return x(i) * 4; })
-	    .attr("transform",
-		  function(d, i) {
-		      return "translate(0," + x(i) + ")";
-		  })
+	    .attr("transform", function(d, i) {
+		return "translate(0," + x(i) + ")";
+	    })
 	    .selectAll(".cell")
 	    .delay(function(d) { return x(d.x) * 4; })
 	    .attr("x", function(d) { return x(d.x); });
 	
 	t.selectAll(".column")
 	    .delay(function(d, i) { return x(i) * 4; })
-	    .attr("transform",
-		  function(d, i) {
-		      return "translate(" + x(i) + ")rotate(-90)";
-		  });
+	    .attr("transform", function(d, i) {
+		return "translate(" + x(i) + ")rotate(-90)";
+	    });
     }
     
-    d3.select("#order").on("change",
-			   function() {
-			       //clearTimeout(timeout);
-			       order(this.value);
-			   });
+    d3.select("#order").on("change", function() {
+	//clearTimeout(timeout);
+	order(this.value);
+    });
     
     // var timeout = setTimeout(
     //     function() {
     // 	order("source");
     // 	d3.select("#order").property("selectedIndex", 2).node().focus();
     //     }, 5000);
-    
+
+    // Hide the placeholder, may as well be here.
+    jQuery("#initial_placeholder").hide();
+
+    //
+    window.location = "#order";
+
     ///
     /// End the section from the example.
     ///	
-    ll('Completed stage 03!');
+    ll('Completed RenderStage!');
     ll('Done!');
 }
+
+///
+///
+///
+
+// Embed the jQuery setup runner.
+(function (){
+    jQuery(document).ready(function(){
+	MatrixUIInit();
+    });
+})();

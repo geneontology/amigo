@@ -1,0 +1,57 @@
+<!-- Start: tebase.tmpl -->
+
+[% INCLUDE common/noscript_js_limited.tmpl %]
+
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Information about Term Enrichment Base" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<h5></h5>
+<p>
+  Enter a list of <strong>GENE PRODUCT IDS</strong>, let's see what
+  happens.
+</p>
+<p>
+  UniProtKB:F1M4Q5 TAIR:locus:2064796
+</p>
+<p>
+  [example set 2]
+</p>
+
+[% INCLUDE "common/info_rollup_end.tmpl" %]
+
+<div id="input">
+  <div class="panel panel-default">
+    <div class="panel-body">
+
+      <div class="form-group">
+	<label for="query">Input Gene Product IDs</label>
+	<textarea id="input-ids"
+		  class="form-control"
+		  name="input-ids"
+		  placeholder="UniProtKB:F1M4Q5 TAIR:locus:2064796"
+		  rows="5"
+		  cols="80"></textarea>
+      </div>
+
+      <button id="button"
+	      type="button"
+	      class="btn btn-primary">Process</button>
+      
+    </div>
+  </div>
+</div>
+    
+<div id="progress-widget">
+  <div id="progress-text"></div>
+  <div id="progress-bar"></div>
+</div>
+<!-- <div style="position:relative; top:100px; left:100px; background-color:#eeeeee; border-style:solid; border-width:1px; border-color:black; text-align:left; padding: 1.5em;">foo</div> -->
+
+<div id="info" style="position:absolute; background-color:#aabbbb; border-style:solid; border-width:1px; border-color:black; text-align:left; padding: 1.5em;" ></div>
+
+<!-- <div id="matrix_results" style="text-align: center; width: 800px; height:800px;" /> -->
+<div id="tebase_results" style="margin-left: 300px;" />
+
+<div class="clearboth"></div>
+
+<!-- End: tebase.tmpl -->

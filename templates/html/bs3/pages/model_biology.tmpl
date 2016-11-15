@@ -1,0 +1,60 @@
+<!-- START template: model_biology.tmpl -->
+
+[% INCLUDE common/noscript_js_limited.tmpl %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Biology</h3>
+  </div>
+  <div class="panel-body">
+
+    <!-- Cytoscape graph view controls. -->
+    <div class="form-inline">
+      <div class="form-group">
+	<label for="layout_selection">Layout</label>
+	<select id="layout_selection" class="form-control col-sm-6">
+	  <option value="breadthfirst" selected="selected">
+	    breadthfirst
+	  </option>
+	  <option value="cose">
+	    cose
+	  </option>
+	  <option value="dagre">
+	    dagre
+	  </option>
+	  <option value="circle">
+	    circle
+	  </option>
+	  <option value="random">
+	    random
+	  </option>
+	</select>
+      </div>
+      <div class="form-group">
+	<label for="fold_selection">Fold</label>
+	<select id="fold_selection" class="form-control col-sm-6">
+	  <option value="editor" selected="selected">
+	    editor fold
+	  </option>
+	  <option value="evidence">
+	    evidence fold
+	  </option>
+	  <option value="exploded">
+	    exploded
+	  </option>
+	</select>
+      </div>
+    </div>
+
+    <div id="display-associations">
+      <div id="cytoview"
+	   width="100%" height="750px"
+	   style="border: 1px black solid; width:100%; height:750px; margin-top:5px;">
+	Loading...
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- END template: model_biology.tmpl -->

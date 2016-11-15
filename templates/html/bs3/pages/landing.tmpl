@@ -22,21 +22,22 @@
 
 <!-- <div class="col-xs-12 col-sm-9"> -->
 
-[% three_row_classes = "col-xs-12 col-sm-6 col-md-4 col-lg-4" %]
+[% four_row_classes = "col-xs-12 col-sm-6 col-md-3 col-lg-3" %]
+[% three_row_classes = "col-xs-12 col-sm-12 col-md-4 col-lg-4" %]
 [% two_row_classes = "col-xs-12 col-sm-6 col-md-6 col-lg-6" %]
 <div class="container-fluid">
   <div class="row">
 
     <!-- grebe -->
-    [% landing_item_header = "Get Started with Grebe" %]
-    [% landing_item_classes = three_row_classes %]
-    [% landing_item_image = image_dir _ "/grebe.50.png" %]
-    [% landing_item_body = "Use the Grebe Search Wizard to <strong>get started</strong> in exploring the Gene Ontology data." %]
+    [% landing_item_header = "Search Templates" %]
+    [% landing_item_classes = four_row_classes %]
+    [% landing_item_image = image_dir _ "/formula.50.png" %]
+    [% landing_item_body = "Use predefined <b>templates</b> to explore Gene Ontology data." %]
     [% landing_item_link = interlink_grebe %]
     [% INCLUDE "common/landing_item.tmpl" %]
     
     <!-- search -->
-    <div class="[% three_row_classes %]">
+    <div class="[% four_row_classes %]">
       <div class="panel panel-default">
 	<div class="panel-heading">
 	  <h3 class="panel-title">Advanced Search</h3>
@@ -73,20 +74,19 @@
       </div>
     </div>
     
-    <!--   <a href="[% interlink_browse %]"> -->
-    <!-- 	<img src="[% image_dir %]/browse-icon.50.png" -->
-    <!-- 	     title="Browse page." -->
-    <!-- 	     alt="[Browse]" /> -->
-    <!-- 	Interactively <strong>browse the graph</strong> of the Gene -->
-    <!-- 	Ontology term data. -->
-    <!--   </a> -->
-    <!-- </td> -->
+    <!-- dd_browse -->
+    [% landing_item_header = "Browse the Ontology" %]
+    [% landing_item_classes = four_row_classes %]
+    [% landing_item_image = image_dir _ "/dd-browse.50.png" %]
+    [% landing_item_body = "Use the drill-down <b>browser</b> to view the ontology structure with annotation counts." %]
+    [% landing_item_link = interlink_dd_browse %]
+    [% INCLUDE "common/landing_item.tmpl" %]
     
     <!-- goose -->
     [% landing_item_header = "GOOSE" %]
-    [% landing_item_classes = three_row_classes %]
+    [% landing_item_classes = four_row_classes %]
     [% landing_item_image = image_dir _ "/goose-1.50.png" %]
-    [% landing_item_body = "Use GOOSE to query a legacy GO database with <strong>SQL</strong> or edit one of the templates." %]
+    [% landing_item_body = "Use GOOSE to query the legacy GO database with <strong>SQL</strong>.<!-- or edit one of the templates.-->" %]
     [% landing_item_link = interlink_goose %]
     [% INCLUDE "common/landing_item.tmpl" %]
     
@@ -108,15 +108,19 @@
 	  <!-- Find significant shared GO terms and term ancestors to help -->
 	  <!-- discover what input genes may have in common. -->
 
-	  <!-- Mostly a copy from beta.geneontology.org, with a few changes to
+	  <!-- Mostly a copy from geneontology.org, with a few changes to
 	       make it less tall and more integrated with the A2 environment.  -->
 	  <p>
 	    <form action="[% interlink_rte %]"
-		  class="form-inline" role="form" method="POST">
+		  class="" role="form" method="POST">
 	      <input type="hidden" name="correction" value="bonferroni" />
-	      <input type="hidden" name="format" value="xml" />
+	      <!-- <input type="hidden" name="format" value="xml" /> -->
+	      <input type="hidden" name="format" value="html" />
 	      <input type="hidden" name="resource" value="PANTHER" />
-	      <textarea id="landing_gene_input" class="form-control" rows="2" name="input" placeholder="Your genes here..." ></textarea>
+
+	      <div class="form-group">
+		<textarea id="landing_gene_input" class="form-control" rows="2" name="input" placeholder="Your genes here..." ></textarea>
+	      </div>
 	      
 	      <div class="form-group">
 		<!--	<label for="rte_ontology">Ontology</label> -->
@@ -127,9 +131,9 @@
 		  <option value="biological_process">biological process</option>
 		  <option value="molecular_function">molecular function</option>
 		  <option value="cellular_component">cellular component</option>
-		  <option value="biological_process_exp">biological process (experimental only)</option>
-		  <option value="molecular_function_exp">molecular function (experimental only)</option>
-		  <option value="cellular_component_exp">cellular component (experimental only)</option>
+		  <!-- <option value="biological_process_exp">biological process (experimental only)</option> -->
+		  <!-- <option value="molecular_function_exp">molecular function (experimental only)</option> -->
+		  <!-- <option value="cellular_component_exp">cellular component (experimental only)</option> -->
 		</select>
 	      </div>
 	      
@@ -139,20 +143,124 @@
 		   id="rte_species"
 		   class="form-control"
 		   name="species">
-		  <option value="HUMAN">H. sapiens</option>
-		  <option value="MOUSE">M. musculus</option>
-		  <option value="RAT">R. norvegicus</option>
-		  <option value="CHICK">G. gallus</option>
-		  <option value="DANRE">D. rerio</option>
-		  <option value="DROME">D. melanogaster</option>
-		  <option value="CAEEL">C. elegans</option>
-		  <option value="DICDI">D. discoideum</option>
-		  <option value="SCHPO">S. pombe</option>
-		  <option value="YEAST">S. cerevisiae</option>
-		  <option value="ARATH">A. thaliana</option>
-		  <option value="ECOLI">E. coli</option>
-		  <!-- <option value="5062">A. oryzae</option> -->
-		  <option value="CANAL">C. albicans</option>
+		  <!-- <option value="HUMAN">H. sapiens</option> -->
+		  <!-- <option value="MOUSE">M. musculus</option> -->
+		  <!-- <option value="RAT">R. norvegicus</option> -->
+		  <!-- <option value="CHICK">G. gallus</option> -->
+		  <!-- <option value="DANRE">D. rerio</option> -->
+		  <!-- <option value="DROME">D. melanogaster</option> -->
+		  <!-- <option value="CAEEL">C. elegans</option> -->
+		  <!-- <option value="DICDI">D. discoideum</option> -->
+		  <!-- <option value="SCHPO">S. pombe</option> -->
+		  <!-- <option value="YEAST">S. cerevisiae</option> -->
+		  <!-- <option value="ARATH">A. thaliana</option> -->
+		  <!-- <option value="ECOLI">E. coli</option> -->
+		  <!-- <option value="CANAL">C. albicans</option> -->
+		  <!-- <option value="ORYSJ">O. sativa</option> -->
+		  <option value="HUMAN">Homo sapiens</option>
+		  <option value="MOUSE">Mus musculus</option>
+		  <option value="RAT">Rattus norvegicus</option>
+		  <option value="CHICK">Gallus gallus</option>
+		  <option value="DANRE">Danio rerio</option>
+		  <option value="DROME">Drosophila melanogaster</option>
+		  <option value="CAEEL">Caenorhabditis elegans</option>
+		  <option value="YEAST">Saccharomyces cerevisiae</option>
+		  <option value="SCHPO">Schizosaccharomyces pombe</option>
+		  <option value="DICDI">Dictyostelium discoideum</option>
+		  <option value="ARATH">Arabidopsis thaliana</option>
+		  <option value="ECOLI">Escherichia coli</option>
+		  <option value="EMENI">Emericella nidulans</option>
+		  <option value="ANOCA">Anolis carolinensis</option>
+		  <option value="ANOGA">Anopheles gambiae</option>
+		  <option value="AQUAE">Aquifex aeolicus</option>
+		  <option value="ASHGO">Ashbya gossypii</option>
+		  <option value="BACCR">Bacillus cereus</option>
+		  <option value="BACSU">Bacillus subtilis</option>
+		  <option value="BACTN">Bacteroides thetaiotaomicron</option>
+		  <option value="BATDJ">Batrachochytrium dendrobatidis</option>
+		  <option value="BOVIN">Bos taurus</option>
+		  <option value="BRADI">Brachypodium distachyon</option>
+		  <option value="BRAJA">Bradyrhizobium japonicum</option>
+		  <option value="BRAFL">Branchiostoma floridae</option>
+		  <option value="CAEBR">Caenorhabditis briggsae</option>
+		  <option value="CANAL">Candida albicans</option>
+		  <option value="CANFA">Canis familiaris</option>
+		  <option value="CHLTR">Chlamydia trachomatis</option>
+		  <option value="CHLRE">Chlamydomonas reinhardtii</option>
+		  <option value="CHLAA">Chloroflexus aurantiacus</option>
+		  <option value="CIOIN">Ciona intestinalis</option>
+		  <option value="CLOBH">Clostridium botulinum</option>
+		  <option value="COXBU">Coxiella burnetii</option>
+		  <option value="CRYNJ">Cryptococcus neoformans</option>
+		  <option value="DAPPU">Daphnia pulex</option>
+		  <option value="DEIRA">Deinococcus radiodurans</option>
+		  <option value="DICTD">Dictyoglomus turgidum</option>
+		  <option value="DICPU">Dictyostelium purpureum</option>
+		  <option value="ENTHI">Entamoeba histolytica</option>
+		  <option value="HORSE">Equus caballus</option>
+		  <option value="FELCA">Felis catus</option>
+		  <option value="FUSNN">Fusobacterium nucleatum</option>
+		  <option value="GEOSL">Geobacter sulfurreducens</option>
+		  <option value="GIAIC">Giardia intestinalis</option>
+		  <option value="GLOVI">Gloeobacter violaceus</option>
+		  <option value="SOYBN">Glycine max</option>
+		  <option value="HAEIN">Haemophilus influenzae</option>
+		  <option value="HALSA">Halobacterium salinarum</option>
+		  <option value="IXOSC">Ixodes scapularis</option>
+		  <option value="KORCO">Korarchaeum cryptofilum</option>
+		  <option value="LEIMA">Leishmania major</option>
+		  <option value="LEPIN">Leptospira interrogans</option>
+		  <option value="LISMO">Listeria monocytogenes</option>
+		  <option value="MACMU">Macaca mulatta</option>
+		  <option value="METJA">Methanocaldococcus jannaschii</option>
+		  <option value="METAC">Methanosarcina acetivorans</option>
+		  <option value="MONDO">Monodelphis domestica</option>
+		  <option value="MONBE">Monosiga brevicollis</option>
+		  <option value="MYCTU">Mycobacterium tuberculosis</option>
+		  <option value="NEMVE">Nematostella vectensis</option>
+		  <option value="NEUCR">Neurospora crassa</option>
+		  <option value="ORNAN">Ornithorhynchus anatinus</option>
+		  <option value="ORYSJ">Oryza sativa</option>
+		  <option value="PANTR">Pan troglodytes</option>
+		  <option value="PHANO">Phaeosphaeria nodorum</option>
+		  <option value="PHYPA">Physcomitrella patens</option>
+		  <option value="PHYIT">Phytophthora infestans</option>
+		  <option value="PLAF7">Plasmodium falciparum</option>
+		  <option value="POPTR">Populus trichocarpa</option>
+		  <option value="PRIPA">Pristionchus pacificus</option>
+		  <option value="PSEAE">Pseudomonas aeruginosa</option>
+		  <option value="PUCGT">Puccinia graminis</option>
+		  <option value="PYRAE">Pyrobaculum aerophilum</option>
+		  <option value="PYRKO">Pyrococcus kodakaraensis</option>
+		  <option value="RHOBA">Rhodopirellula baltica</option>
+		  <option value="SALTY">Salmonella typhimurium</option>
+		  <option value="SCHMA">Schistosoma mansoni</option>
+		  <option value="SCLS1">Sclerotinia sclerotiorum</option>
+		  <option value="SHEON">Shewanella oneidensis</option>
+		  <option value="SOLLC">Solanum lycopersicum</option>
+		  <option value="SORBI">Sorghum bicolor</option>
+		  <option value="STAA8">Staphylococcus aureus</option>
+		  <option value="STRR6">Streptococcus pneumoniae</option>
+		  <option value="STRCO">Streptomyces coelicolor</option>
+		  <option value="STRPU">Strongylocentrotus purpuratus</option>
+		  <option value="SULSO">Sulfolobus solfataricus</option>
+		  <option value="PIG">Sus scrofa</option>
+		  <option value="SYNY3">Synechocystis</option>
+		  <option value="TAKRU">Takifugu rubripes</option>
+		  <option value="TETTS">Tetrahymena thermophila</option>
+		  <option value="THAPS">Thalassiosira pseudonana</option>
+		  <option value="THEYD">Thermodesulfovibrio yellowstonii</option>
+		  <option value="THEMA">Thermotoga maritima</option>
+		  <option value="TRIVA">Trichomonas vaginalis</option>
+		  <option value="TRIAD">Trichoplax adhaerens</option>
+		  <option value="brucei">TRYB2 Trypanosoma brucei</option>
+		  <option value="USTMA">Ustilago maydis</option>
+		  <option value="VIBCH">Vibrio cholerae</option>
+		  <option value="VITVI">Vitis vinifera</option>
+		  <option value="XANCP">Xanthomonas campestris</option>
+		  <option value="XENTR">Xenopus tropicalis</option>
+		  <option value="YARLI">Yarrowia lipolytica</option>
+		  <option value="YERPE">Yersinia pestis</option>
 		</select>
 	      </div>
 	      
@@ -162,9 +270,10 @@
 	  <p>
 	    <!-- <small><a href="[% interlink_rte %]">Advanced options</a></small> -->
 	    <!-- <br /> -->
-	    <small>Powered by <a href="http://go.pantherdb.org">PANTHER</a></small>
+	    <small>Powered by <a href="http://pantherdb.org">PANTHER</a></small>
 	  </p>
-	  <!-- -->
+
+	  <!-- Allow user to make other choices in RTE. -->
 	  <p class="">
 	    <a class="btn btn-primary" href="[% interlink_rte %]">Advanced &raquo;</a>
 	  </p>
@@ -177,8 +286,8 @@
     [% landing_item_header = "Statistics" %]
     [% landing_item_classes = three_row_classes %]
     [% landing_item_image = image_dir _ "/stats-generic.50.png" %]
-    [% landing_item_body = "View the most recent <strong>statistics</strong> about the Gene Ontology data on the main site." %]
-    [% landing_item_link = "http://beta.geneontology.org/page/current-go-statistics" %]
+    [% landing_item_body = "View the most recent <strong>statistics</strong> about the Gene Ontology data in AmiGO." %]
+    [% landing_item_link = interlink_base_statistics %]
     [% INCLUDE "common/landing_item.tmpl" %]
     
     <!-- stat -->

@@ -26,6 +26,8 @@ use AmiGO::JavaScript;
 use AmiGO::CSS;
 use DBI;
 use Data::Dumper;
+use File::Slurp;
+use File::Basename;
 
 
 ## NOTE: This will run on app init (once even in a mod_perl env).
@@ -43,6 +45,10 @@ sub cgiapp_init {
   # ## Say goonight, Gracie.
   # $self->{CORE}->kvetch('running: '. $self->get_current_runmode() || '???');
 
+  ## Make the encoding something usable--a Windows encoding seems to
+  ## be default.
+  $self->header_add(-type => "text/html; charset=UTF-8");
+
   ## What the default prefix looks like.
   $self->{SESSION_STRING} = 'cgisess_';
 
@@ -54,14 +60,17 @@ sub cgiapp_init {
   if( defined $self->{AW_SEARCH_LIST} ){
     $self->{CORE}->kvetch('already have assembled layouts');
   }else{
+    $self->{CORE}->kvetch('create assembled layouts variable');
 
     ## Pulling: AMIGO_LAYOUT_SEARCH
     my $search_list_to_try =
-      $self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_SEARCH');
+	$self->{CORE}->get_amigo_layout('AMIGO_LAYOUT_SEARCH');
     my $golr_conf = $self->{CORE}->golr_configuration();
     my $search_list = [];
     foreach my $search_entry (@$search_list_to_try){
       my $search_entry_id = $search_entry->{'id'};
+
+      $self->{CORE}->kvetch('   entry: ' . $search_entry_id);
       if( defined $golr_conf->{$search_entry_id} ){
 	## Add in the search link.
 	my $item_conf = $golr_conf->{$search_entry_id};
@@ -69,14 +78,14 @@ sub cgiapp_init {
 	$item_conf->{'amigo_live_search_interlink'} =
 	  $self->{CORE}->get_interlink({mode=>'live_search',
 					arg=>{type=>$search_entry_id}});
-	$self->{CORE}->kvetch('live search layout a2i: '.
-			      $item_conf->{amigo_live_search_interlink});
+	# $self->{CORE}->kvetch('live search layout a2i: '.
+	# 		      $item_conf->{amigo_live_search_interlink});
 	## Add bulk search link.
 	$item_conf->{'amigo_bulk_search_interlink'} =
 	  $self->{CORE}->get_interlink({mode=>'bulk_search',
 					arg=>{type=>$search_entry_id}});
-	$self->{CORE}->kvetch('bulk search layout a2i: '.
-			      $item_conf->{amigo_bulk_search_interlink});
+	# $self->{CORE}->kvetch('bulk search layout a2i: '.
+	# 		      $item_conf->{amigo_bulk_search_interlink});
 	## Add to generic list.
 	push @$search_list, $item_conf;
       }else{
@@ -100,6 +109,9 @@ sub cgiapp_prerun {
 
   my $self = shift;
 
+  ## DEBUG
+  $self->{CORE}->kvetch("_in prerun for mode: " . $self->get_current_runmode());
+
   ## Structures needed for internal template handling.
   $self->{CORE}->kvetch("_in prerun...defining template structures");
   $self->{WEBAPP_CSS} = [];
@@ -108,8 +120,9 @@ sub cgiapp_prerun {
   $self->{WEBAPP_TEMPLATE_PARAMS} = {};
 
   ## Make sure we have the right path for our internal system.
-  #$self->template_set('legacy');
-  $self->template_set('bs3');
+  ## Default to the current sane base.
+  my $tmpl_local_set = $self->{CORE}->amigo_env('AMIGO_TEMPLATE_SET') || 'bs3';
+  $self->template_set($tmpl_local_set);
 
   ## Setup template environment.
   $self->tt_include_path($self->{CORE}->amigo_env('AMIGO_ROOT') .
@@ -124,7 +137,7 @@ sub cgiapp_prerun {
      'success' => [],
     };
 
-  ## 
+  ## Basic variable definitions.
   $self->{CORE}->kvetch("_in prerun...defining variables");
   $self->_common_params_settings();
 
@@ -259,8 +272,9 @@ sub cgiapp_prerun {
   if( defined($reportable_error) ){
     ## The journey ends here.
     #$self->{CORE}->kvetch("done with status $code and message ($message)");
-    #$self->query->status(503);
-    $self->_status_message_exit(503, $reportable_error);
+    #$self->_status_message_exit(503, $reportable_error);
+    my $final_err = $self->mode_fatal($reportable_error);
+    $self->_status_message_exit(503, $final_err);
     exit;
   }
 }
@@ -354,6 +368,74 @@ sub get_mq {
 }
 
 
+=item decide_content_type_by_filename
+
+Args: filename
+Returns: content type as string
+
+=cut
+sub decide_content_type_by_filename {
+  my $self = shift;
+  my $path = shift || '';
+
+  my $ctype = 'text/plain';
+
+  ## First, take a guess at the content type.
+  my($fname, $fpath, $fsuffix) = fileparse($path, qr/\.[^.]*/);
+  #$self->{CORE}->kvetch('content type identified suffix: ' . $fsuffix);
+  if( $fsuffix eq '.css' ){
+      $ctype = 'text/css';
+  }elsif( $fsuffix eq '.html' ){
+      $ctype = 'text/html';
+  }elsif( $fsuffix eq '.js' ){
+      $ctype = 'text/javascript';
+  }elsif( $fsuffix eq '.gif' ){
+      $ctype = 'image/gif';
+  }elsif( $fsuffix eq '.png' ){
+      $ctype = 'image/png';
+  }elsif( $fsuffix eq '.jpg' ){
+      $ctype = 'image/jpeg';
+  }elsif( $fsuffix eq '.jpeg' ){
+      $ctype = 'image/jpeg';
+  }elsif( $fsuffix eq '.ico' ){
+      $ctype = 'image/x-icon';
+  }elsif( $fsuffix eq '.txt' ){
+      $ctype = 'text/plain';
+  }elsif( $fsuffix eq '.text' ){
+      $ctype = 'text/plain';
+  }
+  
+  return $ctype;
+}
+
+
+=item get_content_by_filename
+
+Args: filename
+Returns: content as string, raw or text depending
+
+=cut
+sub get_content_by_filename {
+  my $self = shift;
+  my $path = shift || '';
+
+  my $cont = '';
+  my $ctype = $self->decide_content_type_by_filename($path);
+
+  ## Next, get the content according to type.
+  if( $ctype eq 'text/css' ||
+      $ctype eq 'text/html' ||
+      $ctype eq 'text/javascript' ){
+      $cont = read_file($path);
+  }else{
+      ## All else as binary.
+      $cont = read_file($path, { binmode => ':raw' });
+  }
+  
+  return $cont;
+}
+
+
 =item galaxy_settings
 
 Args: GALAXY_URL (invalid okay) and 1 on it being an external setting
@@ -377,12 +459,17 @@ sub galaxy_settings {
     $self->set_template_parameter('galaxy_url', $in_galaxy);
     $self->set_template_parameter('galaxy_url_external_p', $galaxy_external_p);
     if( $galaxy_external_p ){
-      $self->add_mq('notice', 'Welcome Galaxy visitor!');
+      $self->add_mq('notice', "Welcome Galaxy visitor from <a href=\"$in_galaxy\">$in_galaxy</a>!");
     }
 
     ## Add a global galaxy URL if we're good.
     my $gjs = $self->{JS}->make_var('global_galaxy_url', $in_galaxy);
     $self->add_template_javascript($gjs);
+    if( $galaxy_external_p ){
+      my $gext = $self->{JS}->make_var('global_galaxy_external_p',
+				       $galaxy_external_p);
+      $self->add_template_javascript($gext);
+    }
   }
 
   return $retval;
@@ -698,6 +785,112 @@ sub _atoi {
   return $thing || 0;
 }
 
+## Turn a page name into info for links to external help.
+sub _resolve_page_settings {
+  my $self = shift;
+  my $page_name = shift || 'amigo';
+
+  ## Sensible defaults.
+  my $page_title = 'AmiGO 2';
+  my $page_content_title = 'AmiGO Help';
+  my $wiki_base = 'http://wiki.geneontology.org/index.php/';
+  my $page_help_link = $wiki_base . 'AmiGO_2_Manual';
+
+  if( $page_name eq 'browse' ){
+    $page_title = 'AmiGO 2: Browse';
+    $page_content_title = 'Browse';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Browse';
+  }elsif( $page_name eq 'dd_browse' ){
+    $page_title = 'AmiGO 2: Drill-down Browser';
+    $page_content_title = 'Drill-down Browser';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Drill-down_Browser';
+  }elsif( $page_name eq 'free_browse' ){
+    $page_title = 'AmiGO 2: Free Browse';
+    $page_content_title = 'Free Browse';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Free_Browse';
+  }elsif( $page_name eq 'landing' ){
+    $page_title = 'AmiGO 2: Welcome';
+    $page_content_title = 'Home';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Home';
+  }elsif( $page_name eq 'goose' ){
+    $page_title = 'AmiGO 2: GO Online SQL/Solr Environment (GOOSE)';
+    $page_content_title = 'GO Online SQL/Solr Environment (GOOSE)';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_GOOSE';
+  }elsif( $page_name eq 'gannet' ){
+    $page_title = 'AmiGO 2: GO-flavored Solr exploration';
+    $page_content_title = 'GO-flavored Solr exploration';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Gannet';
+  }elsif( $page_name eq 'grebe' ){
+    $page_title = 'AmiGO 2: Search Templates';
+    $page_content_title = 'Search Templates';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Search_Templates';
+  }elsif( $page_name eq 'visualize' ){
+    $page_title = 'AmiGO 2: Visualize';
+    $page_content_title = 'Visualize an Arbitrary GO Graph';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Visualize';
+  }elsif( $page_name eq 'visualize_freeform' ){
+    $page_title = 'AmiGO 2: Visualize Freeform';
+    $page_content_title = 'Visualize an Arbitrary Graph';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Visualize_Freeform';
+  }elsif( $page_name eq 'live_search' ){
+    $page_title = 'AmiGO 2: Search';
+    $page_content_title = 'Search';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Search';
+  }elsif( $page_name eq 'simple_search' ){
+    $page_title = 'AmiGO 2: Simple Search';
+    $page_content_title = 'Simple Search';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Simple_Search';
+  }elsif( $page_name eq 'medial_search' ){
+    $page_title = 'AmiGO 2: Search Directory';
+    $page_content_title = 'Search Directory';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Search_Directory';
+  }elsif( $page_name eq 'bulk_search' ){
+    $page_title = 'AmiGO 2: Bulk Search';
+    $page_content_title = 'Bulk Search';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Bulk_Search';
+  }elsif( $page_name eq 'software_list' ){
+    $page_title = 'AmiGO 2: Tools and Resources';
+    $page_content_title = 'Tools and Resources';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Tools_and_Resources';
+  }elsif( $page_name eq 'term' ){ # typically won't use
+    $page_title = 'AmiGO 2';
+    $page_content_title = 'Term Page';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Term_Page';
+  }elsif( $page_name eq 'gene_product' ){ # typically won't use
+    $page_title = 'AmiGO 2';
+    $page_content_title = 'Gene Product Page';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Gene_Product_Page';
+  }elsif( $page_name eq 'model' ){ # typically won't use
+    $page_title = 'AmiGO 2';
+    $page_content_title = 'Model Page';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Model_Page';
+  }elsif( $page_name eq 'schema_details' ){
+    $page_title = 'AmiGO 2: Schema Details';
+    $page_content_title = 'Instance Schema Details';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Schema_Details';
+  }elsif( $page_name eq 'load_details' ){
+    $page_title = 'AmiGO 2: Load Details';
+    $page_content_title = 'Current instance load information';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Load_Details';
+  }elsif( $page_name eq 'owltools_details' ){
+    $page_title = 'AmiGO 2: OWLTools/Loader Details';
+    $page_content_title = 'Current OWLTools and loader information';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_OWLTools_Details';
+  }elsif( $page_name eq 'xrefs' ){
+    $page_title = 'AmiGO 2: Cross References';
+    $page_content_title = 'Current Cross Reference Abbreviations';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Cross_References';
+  }elsif( $page_name eq 'base_statistics' ){
+    $page_title = 'AmiGO 2: Base Statistics';
+    $page_content_title = 'Base Statistics';
+    $page_help_link = $wiki_base . 'AmiGO_2_Manual:_Base_Statistics';
+  }
+
+  return ($page_title,
+	  $page_content_title,
+	  $page_help_link);
+}
+
 ## The the params variable to the most common settings that we use.
 ## Will either modify a current params or make a new one.
 sub _common_params_settings {
@@ -720,20 +913,32 @@ sub _common_params_settings {
   ## No longer anything simple about search.
   $params->{interlink_grebe} =
     $self->{CORE}->get_interlink({mode=>'grebe'});
-  $params->{interlink_visualize} =
-    $self->{CORE}->get_interlink({mode=>'visualize_client'});
-  $params->{interlink_visualize_freeform} =
-    $self->{CORE}->get_interlink({mode=>'visualize_freeform_client'});
+  $params->{interlink_visualize_client_amigo} =
+    $self->{CORE}->get_interlink({mode=>'visualize_client_amigo'});
+  $params->{interlink_visualize_client_freeform} =
+    $self->{CORE}->get_interlink({mode=>'visualize_client_freeform'});
+  $params->{interlink_visualize_service_freeform} =
+    $self->{CORE}->get_interlink({mode=>'visualize_service_freeform'});
+  $params->{interlink_visualize_service_amigo} =
+    $self->{CORE}->get_interlink({mode=>'visualize_service_amigo'});
   $params->{interlink_goose} =
     $self->{CORE}->get_interlink({mode=>'goose'});
   $params->{interlink_schema_details} =
     $self->{CORE}->get_interlink({mode=>'schema_details'});
   $params->{interlink_load_details} =
     $self->{CORE}->get_interlink({mode=>'load_details'});
+  $params->{interlink_owltools_details} =
+    $self->{CORE}->get_interlink({mode=>'owltools_details'});
   $params->{interlink_browse} =
     $self->{CORE}->get_interlink({mode=>'browse'});
+  $params->{interlink_dd_browse} =
+    $self->{CORE}->get_interlink({mode=>'dd_browse'});
+  $params->{interlink_base_statistics} =
+    $self->{CORE}->get_interlink({mode=>'base_statistics'});
   $params->{interlink_free_browse} =
     $self->{CORE}->get_interlink({mode=>'free_browse'});
+  $params->{interlink_reference_search} =
+    $self->{CORE}->get_interlink({mode=>'reference_search'});
   $params->{interlink_medial_search} =
     $self->{CORE}->get_interlink({mode=>'medial_search'});
   $params->{interlink_simple_search} =
@@ -745,12 +950,14 @@ sub _common_params_settings {
   $params->{interlink_xrefs} =
     $self->{CORE}->get_interlink({mode=>'xrefs'});
   $params->{interlink_rte} =
-    $self->{CORE}->get_interlink({mode=>'rte'});
+    #$self->{CORE}->get_interlink({mode=>'rte'});
+    ## Temporary fix for: https://github.com/geneontology/amigo/issues/198
+    'http://pantherdb.org/webservices/go/overrep.jsp';
   ## Since there is no default search page, arrange for one.
-  my $def_search = $self->{CORE}->get_amigo_search_default();
-  $params->{interlink_search_default} =
-    $self->{CORE}->get_interlink({mode=>'live_search',
-				  arg=>{type=>$def_search}});
+  # my $def_search = $self->{CORE}->get_amigo_search_default();
+  # $params->{interlink_search_default} =
+  #   $self->{CORE}->get_interlink({mode=>'live_search',
+  # 				  arg=>{type=>$def_search}});
   $params->{interlink_term_details_base} =
     $self->{CORE}->get_interlink({mode=>'term_details_base'});
   ## Phylo experiments.
@@ -766,12 +973,16 @@ sub _common_params_settings {
   $params->{public_1x_base} =
     $self->{CORE}->amigo_env('AMIGO_1X_PUBLIC_CGI_BASE_URL') ||
       $params->{public_base};
+  $params->{noctua_base} = $self->{CORE}->amigo_env('AMIGO_PUBLIC_NOCTUA_URL');
   $params->{BETA} =
     $self->_atoi($self->{CORE}->amigo_env('AMIGO_BETA'));
+  $params->{IS_GO_P} =
+    $self->_atoi($self->{CORE}->amigo_env('AMIGO_FOR_GO'));
   $params->{VERBOSE} =
     $self->_atoi($self->{CORE}->amigo_env('AMIGO_VERBOSE'));
   $params->{last_load_date} =
     $self->{CORE}->amigo_env('GOLR_TIMESTAMP_LAST');
+  $params->{root_terms} = $self->{CORE}->get_root_terms();
   #$params->{release_name} = $self->{CORE}->release_name();
   #$params->{release_type} = $self->{CORE}->release_type();
   $params->{release_date} = $params->{release_name};
@@ -790,8 +1001,13 @@ sub _common_params_settings {
   $params->{version} = $self->{CORE}->amigo_env('AMIGO_VERSION');
   my $sid = $params->{session_id} || '';
   $params->{session_id_for_url} = 'session_id=' . $sid;
+  $params->{download_limit} =
+    $self->{CORE}->amigo_env('AMIGO_DOWNLOAD_LIMIT') || 100000;
   $params->{server_name} =
     $self->{CORE}->amigo_env('AMIGO_SERVER_NAME') || '';
+  ## Filters and the like.
+  $params->{browse_filter_idspace} =
+      $self->{CORE}->amigo_env('AMIGO_BROWSE_FILTER_IDSPACE') || undef;
 
   ## Titles seems to be the odds ones out for some reason.
   $params->{page_title} = 'AmiGO';
@@ -1067,7 +1283,7 @@ sub generate_template_page_with {
   ## Before we start, make sure that the beta is announced.
   my $is_beta = $self->_atoi($self->{CORE}->amigo_env('AMIGO_BETA'));
   if( defined $is_beta && $is_beta ){
-    $self->add_mq('notice', 'You are using an'.
+    $self->add_mq('warning', 'You are using an'.
 		  ' <a title="Go to AmiGO Labs explanation page"'.
 		  ' href="http://wiki.geneontology.org/index.php/AmiGO_Labs"'.
 		  ' class="alert-link">'.
@@ -1230,17 +1446,11 @@ sub mode_status {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo'
+      'com.jquery-ui'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();'
      ],
      content =>
      [
@@ -1312,17 +1522,11 @@ sub mode_fatal {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo'
+      'com.jquery-ui'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();'
      ],
      content =>
      [
@@ -1380,17 +1584,11 @@ sub mode_not_found {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo'
+      'com.jquery-ui'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();'
      ],
      content =>
      [
@@ -1452,17 +1650,11 @@ sub mode_generic_message {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo'
+      'com.jquery-ui'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();'
      ],
      content =>
      [

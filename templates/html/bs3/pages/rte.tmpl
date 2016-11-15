@@ -8,7 +8,7 @@
 <p>
   Current documentation and discussion of term enrichment with the GO
   can be found
-  <a href="http://beta.geneontology.org/page/go-enrichment-analysis">here</a>.
+  <a href="http://geneontology.org/page/go-enrichment-analysis">here</a>.
 </p>
 <p>
   The Remote Term Enrichment tool is a basic querying and viewing
@@ -28,7 +28,7 @@
 
     <div class="row">
 
-      <form role="form" method="GET" action="[% interlink_rte %]">
+      <form role="form" method="POST" action="[% interlink_rte %]">
 
 	<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
 
@@ -67,6 +67,7 @@
 	      <option value="ECOLI">E. coli</option>
 	      <!-- <option value="5062">A. oryzae</option> -->
 	      <option value="CANAL">C. albicans</option>
+	      <option value="ORYSJ">O. sativa</option>
 	    </select>
 	  </div>
 	  
@@ -96,10 +97,18 @@
 		<input
 		   type="radio"
 		   name="correction"
-		   id="rte_correction"
+		   id="rte_correction_bonf"
 		   value="bonferroni"
 		   checked="checked" />
 		Use Bonferroni correction</label>
+	      <br />
+	      <label for="rte_correction">
+		<input
+		   type="radio"
+		   name="correction"
+		   id="rte_correction_none"
+		   value="none" />
+		Use no correction</label>
 	    </div>
 	  </div>
 	  
@@ -119,9 +128,11 @@
 	       id="rte_format"
 	       class="form-control"
 	       name="format">
-	      <option value="xml" checked="checked">AmiGO</option>
+	      <!-- Remove some options until RTE sorted out. -->
+	      <!-- <option value="xml" checked="checked">AmiGO</option> -->
 	      <!-- <option value="tab" checked="checked">tab-delimited</option> -->
-	      <option value="html">Originating resource</option>
+	      <!-- <option value="html">Originating resource</option> -->
+	      <option value="html" checked="checked">PANTHER</option>
 	    </select>
 	  </div>
 	  

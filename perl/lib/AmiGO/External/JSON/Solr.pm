@@ -345,9 +345,33 @@ sub last_page {
 }
 
 
+=item facet_fields
+
+Return: list of the available facets as a listref, empty listref if nothing found
+
+=cut
+sub facet_fields {
+
+  my $self = shift;
+  my $retval = [];
+
+  ## Make sure we got something.
+  if( $self->{AEJS_RESPONSE}{facet_counts} &&
+      $self->{AEJS_RESPONSE}{facet_counts}{facet_fields} ){
+      
+      my $fields = $self->{AEJS_RESPONSE}{facet_counts}{facet_fields};
+      foreach my $f_key (keys %$fields){
+	  push @$retval, $f_key;
+      }
+  }
+
+  return $retval;
+}
+
+
 =item facet_field
 
-Return: the available facets as a listref, empty listref if nothing found
+Return: the facet counts as a listref, empty listref if nothing found
 
 The facets found during last query according to an arguments string.
 

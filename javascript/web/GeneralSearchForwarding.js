@@ -3,6 +3,29 @@
 //// going.
 ////
 
+// Code here will be ignored by JSHint, as we are technically
+// "redefining" jQuery (although we are not).
+/* jshint ignore:start */
+var jQuery = require('jquery');
+//require('jquery-ui');
+/* jshint ignore:end */
+
+var bbop = require('bbop-core');
+var bbop_widget_set = require("bbop-widget-set");
+
+// Config.
+var amigo = new (require('amigo2-instance-data'))(); // no overload
+var golr_conf = require('golr-conf');
+var gconf = new golr_conf.conf(amigo.data.golr);
+var gserv = amigo.data.server.golr_base;
+// Linker.
+var linker = amigo.linker;
+// Management.
+var jquery_engine = require('bbop-rest-manager').jquery;
+var golr_manager = require('bbop-manager-golr');
+var golr_response = require('bbop-response-golr');
+
+
 function GeneralSearchForwardingInit(){
     
     // For debugging.
@@ -20,36 +43,6 @@ function GeneralSearchForwardingInit(){
 	'tooltipClass': 'amigo-searchbar-tooltip-style'
     };
     jQuery('.bbop-js-tooltip').tooltip(tt_args);
-
-    // // Activate hint/tooltop via Bootstrap.
-    // // var jquitt = jQuery.fn.tooltip.noConflict();
-    // jQuery("#gsf-query").tooltip({'container': 'body',
-    // 				  'placement': 'left',
-    // 				  'title': 'foo'});
-    // //jQuery("#foofoo").tooltip();
-    // // jQuery.fn.tooltip = jquitt;
-
-    // // Make unnecessary things roll up, need custom code since the
-    // // header search is a strange space.
-    // var eltid = 'gsf01';
-    // //var einfo = '#' + eltid + ' > div';
-    // var einfo = '#' + eltid + '-info';
-    // var earea = '#' + eltid + ' > span > a';
-    // if( jQuery(einfo) && jQuery(einfo).length && jQuery(einfo).length > 0 ){
-    // 	jQuery(einfo).hide();
-    // 	var click_elt =
-    // 	    jQuery(earea).click(function(){
-    // 				    jQuery(einfo).toggle("blind",{},250);
-    // 				    return false;
-    // 				});
-    // }
-    
-    // Setup the annotation profile and make the annotation document
-    // category and the current acc sticky in the filters.
-    var sd = new amigo.data.server(); // resource locations
-    var gconf = new bbop.golr.conf(amigo.data.golr);
-    var a_widget = bbop.widget.search_box; // nick
-    var linker = new amigo.linker();
 
     ///
     /// This next section is dedicated getting the autocomplete (and
@@ -72,12 +65,11 @@ function GeneralSearchForwardingInit(){
 					  doc['entity'] + '...');
 
 	    // Forward to the new doc.
-	    if( doc['category'] == 'ontology_class' ){
+	    if( doc['category'] === 'ontology_class' ){
 		window.location.href =
 		    linker.url(doc['entity'], 'term');
-	    }else if( doc['category'] == 'bioentity' ){
-		window.location.href =
-		    linker.url(doc['entity'], 'gp');
+	    }else if( doc['category'] === 'bioentity' ){
+		window.location.href = linker.url(doc['entity'], 'gp');
 	    }
 	}
     }
@@ -86,12 +78,28 @@ function GeneralSearchForwardingInit(){
     var general_args = {
 	'fill_p': false,
 	'label_template':
-	'{{entity_label}} ({{entity}})',
+	'{{{entity_label}}} ({{entity}})',
 	'value_template': '{{entity}}',
 	'list_select_callback': forward
     };
-    var auto = new a_widget(sd.golr_base(), gconf, wired_name, general_args);
-    auto.set_personality('general'); // profile in gconf
-    auto.add_query_filter('document_category', 'general');
-    auto.add_query_filter('category', 'family', ['-']);
+
+    // Manager setup.
+    var engine = new jquery_engine(golr_response);
+    engine.method('GET');
+    engine.use_jsonp(true);
+    var manager = new golr_manager(gserv, gconf, engine, 'async');
+    manager.set_personality('general'); // profile in gconf
+    manager.add_query_filter('document_category', 'general');
+    manager.add_query_filter('category', 'family', ['-']);
+
+    // Actually initialize the widget.
+    var auto = new bbop_widget_set.autocomplete_simple(manager, gserv, gconf,
+						       wired_name, general_args);
+
 }
+
+// Embed the jQuery setup runner.
+(function (){
+    jQuery(document).ready(function(){ GeneralSearchForwardingInit(); });
+})();
+

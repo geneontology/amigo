@@ -80,32 +80,37 @@ sub input_profile {
   if( $profile_name eq '' ){
     ## Default nothingness.
   }elsif( $profile_name eq 'term' ){
-    ## Due to dispatch, done through app.
 
-    ##
-    #$self->_add_loose_term();
-    #$self->_add_simple_argument('format', 'html');
-    #$self->_add_data_format('html');
-    #$self->_add_galaxy();
+    ## REST API style bookmark for internal use and temporary
+    ## bookmarks.
+    $self->_search_bookmark_api();
 
-    ## Experimental consumption of a REST API style bookmark.
-    $self->_add_simple_optional_argument('q', '');
-    $self->_add_simple_optional_argument('fq', '');
-    $self->_add_simple_optional_argument('sfq', '');
+    ## Public-facing bookmark API.
+    $self->_link_search_bookmark_api();
 
   }elsif( $profile_name eq 'gp' ){
-    ## Due to dispatch, done through app.
-    #$self->_add_gps_string();
 
-    ## Experimental consumption of a REST API style bookmark.
-    $self->_add_simple_optional_argument('q', '');
-    $self->_add_simple_optional_argument('fq', '');
-    $self->_add_simple_optional_argument('sfq', '');
+    ## REST API style bookmark for internal use and temporary
+    ## bookmarks.
+    $self->_search_bookmark_api();
 
-  }elsif( $profile_name eq 'complex_annotation' ){
-    #$self->_add_simple_argument('annotation_group', '');
-    #$self->_add_simple_argument('annotation_unit', '');
-    $self->_add_simple_argument('complex_annotation', '');
+    ## Public-facing bookmark API.
+    $self->_link_search_bookmark_api();
+
+  }elsif( $profile_name eq 'reference' ){
+
+    ## Optional kick-in.
+    $self->_add_simple_argument('ref_id', '');
+
+    ## REST API style bookmark for internal use and temporary
+    ## bookmarks.
+    $self->_search_bookmark_api();
+
+    ## Public-facing bookmark API.
+    $self->_link_search_bookmark_api();
+
+  }elsif( $profile_name eq 'model' ){
+    $self->_add_simple_argument('model', '');
   }elsif( $profile_name eq 'family' ){
     ## Optional string at this point since we have optional behavior.
     $self->_add_simple_argument('family', '');
@@ -127,10 +132,13 @@ sub input_profile {
   # }elsif( $profile_name eq 'external_resource' ){
   #   $self->_add_url();
   }elsif( $profile_name eq 'visualize_client' ){
+    ## Must take a superset of the servers as it might pass to them.
+    $self->_add_inline_p();
     $self->_add_visual_format();
+    $self->_add_graph_data();
     $self->_add_term_data();
     $self->_add_term_data_type();
-  }elsif( $profile_name eq 'visualize' ){
+  }elsif( $profile_name eq 'visualize_amigo' ){
     $self->_add_inline_p();
     $self->_add_visual_format();
     $self->_add_term_data();
@@ -138,12 +146,8 @@ sub input_profile {
   }elsif( $profile_name eq 'visualize_freeform' ){
     $self->_add_inline_p();
     $self->_add_visual_format();
-    $self->_add_term_data();
     $self->_add_graph_data();
-  }elsif( $profile_name eq 'visualize_complex_annotation' ){
-    $self->_add_inline_p();
-    $self->_add_visual_format();
-    $self->_add_simple_argument('complex_annotation', '');
+    $self->_add_term_data();
   }elsif( $profile_name eq 'visualize_single' ){
     $self->_add_inline_p();
     $self->_add_loose_term();
@@ -183,25 +187,21 @@ sub input_profile {
     $self->_add_simple_argument('golr_class', '');
     $self->_add_simple_argument('page', '1');
     $self->_add_simple_search_set();
-  }elsif( $profile_name eq 'live_search' ){
+  }elsif( $profile_name eq 'live_search' ){ # std search method now
 
     ## "Complicated" bookmarking system.
     $self->_add_simple_argument('bookmark', '');
-    #$self->_add_simple_argument('query', '');
 
-    ## Experimental consumption of a REST API style bookmark.
-    $self->_add_simple_optional_argument('q', '');
-    $self->_add_simple_optional_argument('fq', '');
-    $self->_add_simple_optional_argument('sfq', '');
+    ## REST API style bookmark for internal use and temporary
+    ## bookmarks.
+    $self->_search_bookmark_api();
 
-  # }elsif( $profile_name eq 'static' ){
+    ## Public-facing bookmark API.
+    $self->_link_search_bookmark_api();
 
-  #     $self->_add_simple_optional_argument('arg1', '');
-    # $self->_add_simple_optional_argument('arg1', '');
-    # $self->_add_simple_optional_argument('arg2', '');
-    # $self->_add_simple_optional_argument('arg3', '');
-    # $self->_add_simple_optional_argument('arg4', '');
-    # $self->_add_simple_optional_argument('arg5', '');
+    ## Additional optional input for Galaxy experiments.
+    ## Optional kick-in.
+    $self->_add_simple_argument('GALAXY_URL', '');
 
   }elsif( $profile_name eq 'workspace' ){
     $self->_add_workspace_set();
@@ -217,7 +217,7 @@ sub input_profile {
 
   ## TODO: Throw errors, tantrum, to message...something.
   if( $results->has_missing() ){
-    $self->kvetch("Missing:");
+    $self->kvetch("Missing parameters:");
     foreach my $item (keys %{$results->{missing}}){
       $self->kvetch("$item => " . $results->{missing}->{$item});
     }
@@ -225,7 +225,7 @@ sub input_profile {
 
   ## TODO: Throw errors, tantrum, to message...something.
   if( $results->has_invalid() ){
-    $self->kvetch("Invalid:");
+    $self->kvetch("Invalid parameters:");
     foreach my $item (keys %{$results->{invalid}}){
       $self->kvetch("$item => " . $results->{invalid}->{$item});
     }
@@ -234,7 +234,7 @@ sub input_profile {
   ## For the time being, these can just rot, but I'm sure we'll want
   ## them for something later.
   if( $results->{unknown} && scalar(keys %{$results->{unknown}}) ){
-    $self->kvetch("Unknown:");
+    $self->kvetch("Unknown parameters:");
     foreach my $item (keys %{$results->{unknown}}){
       $self->kvetch("$item => " . $results->{unknown}->{$item});
     }
@@ -252,6 +252,67 @@ sub input_profile {
   return $results->{valid};
 }
 
+
+=item _search_bookmark_api
+
+REST API style bookmark for internal use and temporary bookmarks.
+
+A helper function to the common parameters used for one of the
+bookmark APIs.
+
+Side effects: affects the parameter list.
+
+=cut
+sub _search_bookmark_api {
+
+  my $self = shift;
+
+  ## Experimental consumption of a REST API style bookmark.
+  $self->_add_simple_optional_argument('q', '');
+  $self->_add_simple_optional_argument('fq', '');
+  $self->_add_simple_optional_argument('sfq', '');
+
+  return 1;
+}
+
+=item link_search_bookmark_api_entries
+
+The items that are searched for in the incoming search bookmark links.
+
+=cut
+sub link_search_bookmark_api_entries {
+
+  my $self = shift;
+
+  my $bmapi = $self->bookmark_api_configuration() || {};
+  my $entries = keys( %$bmapi );
+
+  return @$entries;
+}
+
+
+=item _link_search_bookmark_api
+
+REST API style bookmark for public use.
+
+A helper function to the common parameters used for one of the
+bookmark APIs.
+
+Side effects: affects the parameter list.
+
+=cut
+sub _link_search_bookmark_api {
+
+  my $self = shift;
+
+  ## Collect fq filters to add.
+  my $bmapi = $self->bookmark_api_configuration();
+  foreach my $entry ( keys(%$bmapi) ){
+    $self->_add_simple_optional_argument($entry, '');
+  }
+
+  return 1;
+}
 
 =item comprehend_galaxy
 
@@ -290,7 +351,7 @@ sub comprehend_galaxy {
   if( ! $in_galaxy ){
     ## Get the Galaxy return URL if we can.
     $in_galaxy = $self->get_interlink({mode => 'galaxy_by_tool',
-					       arg => {tool_id => $flavor}});
+				       arg => {tool_id => $flavor}});
     if( $in_galaxy ){ # use whatever is defined first in the template
       $in_galaxy_external_p = 0;
     }

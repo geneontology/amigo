@@ -99,8 +99,8 @@ var our_ev_of_interest = [
 ///
 
 // Load the base files.
-load('../../_data/bbop.js');
-load('../staging/amigo2.js');
+load('../../node_modules/bbop/bbop.js');
+load('../../node_modules/amigo2/amigo2.js');
 
 // For debugging.
 var logger = new bbop.logger('statistics');
@@ -116,7 +116,7 @@ var each = bbop.core.each;
 // Get our own manager.
 //var gserv = new amigo.data.server();
 var gconf = new bbop.golr.conf(amigo.data.golr);
-var gm_ann = new bbop.golr.manager.rhino('http://golr.berkeleybop.org/', gconf);
+var gm_ann = new bbop.golr.manager.rhino('http://golr.geneontology.org/solr/', gconf);
 gm_ann.debug(false);
 // Set ourselves to annotations.
 if( ! gm_ann.set_personality('annotation') ){ // profile in gconf

@@ -1,0 +1,107 @@
+<!-- Begin: base_statistics.tmpl -->
+
+[% INCLUDE common/noscript_js_necessary.tmpl %]
+
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Base Statistics in GO" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<p>
+   Annotation counts and statistics that provide an overview of the GO
+  data available in AmiGO.
+</p>
+[% INCLUDE "common/info_rollup_end.tmpl" %]
+
+[% IF NOT have_cache_p %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      <h4>Cannot display statistics</h4>
+    </div>
+  </div>
+  <div class="panel-body">
+
+    <p>
+      No statistics cache was found at this time. Please check back
+      later once the data has refreshed.
+    </p>
+    
+  </div>
+</div>
+
+[% ELSE %]
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      <h4>Available graphs</h4>
+    </div>
+  </div>
+  <div class="panel-body">
+
+    <ul>
+      <li>
+	<a href="#experimental-annotations-by-species">
+	  Experimental annotations by species
+	</a>
+      </li>
+      <li>
+	<a href="#experimental-annotations-by-assigner">
+	  Experimental annotations by assigner
+	</a>
+      </li>
+      <li>
+	<a href="#annotations-by-evidence">
+	  Annotations by evidence
+	</a>
+      </li>
+      <li>
+	<a href="#annotations-by-aspect-species-by-evidence">
+	  Annotations by aspect/species by evidence
+	</a>
+      </li>
+      <li>
+	<a href="#experimental-annotation-publications-by-assigner">
+	  Experimental annotation publications by assigner
+	</a>
+      </li>
+    </ul>
+    
+  </div>
+</div>
+
+<div id="experimental-annotations-by-species" class="panel panel-default">
+  <div class="panel-body">
+
+    <div id="graph01" style="width: 800px; height: 600px;"></div>
+    
+  </div>
+</div>
+
+<div id="experimental-annotations-by-assigner" class="panel panel-default">
+  <div class="panel-body">
+    <div id="graph02" style="width: 800px; height: 600px;"></div>
+  </div>
+</div>
+
+<div id="annotations-by-evidence" class="panel panel-default">
+  <div class="panel-body">
+    <div id="graph03" style="width: 800px; height: 600px;"></div>
+  </div>
+</div>
+
+<div id="annotations-by-aspect-species-by-evidence" class="panel panel-default">
+  <div class="panel-body">
+    <div id="graph04" style="width: 800px; height: 600px;"></div>
+  </div>
+</div>
+
+<div id="experimental-annotation-publications-by-assigner" class="panel panel-default">
+  <div class="panel-body">
+    <div id="graph05" style="width: 800px; height: 600px;"></div>
+  </div>
+</div>
+
+[% END %]
+
+<!-- End: base_statistics.tmpl -->

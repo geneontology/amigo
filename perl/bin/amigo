@@ -20,7 +20,7 @@ use CGI::Application::Dispatch;
 ## Remember: even though we use "mode" as our runmode, it still must
 ## be declared here as "rm".
 my $app = 'AmiGO::WebApp::HTMLClient';
-my $dispatch_table = AmiGO::dynamic_dispatch_table();
+my $dispatch_table = AmiGO::dynamic_dispatch_table_amigo();
 CGI::Application::Dispatch->dispatch(
 				     #debug => 1,
 				     debug => 0,

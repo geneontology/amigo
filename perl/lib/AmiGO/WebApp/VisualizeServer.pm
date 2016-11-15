@@ -9,6 +9,8 @@ package AmiGO::WebApp::VisualizeServer;
 use base 'AmiGO::WebApp';
 
 use CGI::Application::Plugin::TT;
+use CGI::Application::Plugin::Redirect;
+
 use Data::Dumper;
 use AmiGO::GraphViz;
 use AmiGO::SVGRewrite;
@@ -17,8 +19,6 @@ use AmiGO::Input;
 #use AmiGO::Worker::Subset;
 use AmiGO::Worker::Visualize;
 use AmiGO::Worker::GOlr::Term;
-#use AmiGO::Worker::GOlr::ComplexAnnotationUnit;
-use AmiGO::Worker::GOlr::ComplexAnnotationGroup;
 
 ##
 sub setup {
@@ -28,15 +28,21 @@ sub setup {
   $self->{STATELESS} = 1;
 
   $self->mode_param('mode');
+  #$self->start_mode('client_amigo');
   $self->start_mode('status');
   $self->error_mode('mode_fatal');
   $self->run_modes(
-		   'quickgo'            => 'mode_quickgo',
-		   'amigo'              => 'mode_advanced',
-		   'freeform'           => 'mode_freeform',
-		   'complex_annotation' => 'mode_complex_annotation',
-		   'status'             => 'mode_local_status',
-		   'AUTOLOAD'           => 'mode_exception'
+      ## GUI aspects.
+      'status'             => 'mode_local_status',
+      'client'             => 'mode_local_status', # placeholder for explanation
+      'client_amigo'       => 'mode_client_amigo',
+      'client_freeform'    => 'mode_client_freeform',
+      ## Image production aspects.
+      'quickgo'            => 'mode_quickgo',
+      'amigo'              => 'mode_advanced',
+      'freeform'           => 'mode_freeform',
+      ## OTher handling.
+      'AUTOLOAD'           => 'mode_exception'
 #		   'subset'       => 'mode_subset',
 #		   'single'       => 'mode_single', #TODO:'mode_single',
 #		   'multi'              => 'mode_advanced', #TODO: 'mode_multi',
@@ -44,6 +50,9 @@ sub setup {
 		  );
 }
 
+###
+### Helpers.
+###
 
 ## If a header is needed, set correct header type for format.
 sub _add_fiddly_header {
@@ -79,11 +88,224 @@ sub _add_fiddly_header {
 ## Example:
 sub mode_local_status {
    my $self = shift;
-   return $self->mode_status('visualize server');
+   return $self->mode_status('visualize');
+}
+
+## This is just a very thin pass-through client.
+## TODO/BUG: not accepting "inline" parameter yet...
+sub mode_client_freeform {
+
+  my $self = shift;
+  my $output = '';
+
+  $self->{CORE}->kvetch('$self->query(): ' . Dumper($self->query()));
+
+  ##
+  my $i = AmiGO::Input->new($self->query());
+  #my $params = $i->input_profile('visualize_freeform');
+  my $params = $i->input_profile('visualize_client' );
+  my $format = $params->{format};
+  my $input_graph_data = $params->{graph_data};
+  my $input_term_data = $params->{term_data};
+
+  ## Cleanse input data of newlines.
+  $input_graph_data =~ s/\n/ /gso;
+  $input_term_data =~ s/\n/ /gso;
+
+  $self->{CORE}->kvetch('graph_data: ' . $input_graph_data);
+
+  ## If there is no incoming graph data, display the "client" page.
+  ## Otherwise, forward to render app.
+  if( ! defined $input_graph_data ){
+
+    my $page_name = 'visualize_freeform';
+    my($page_title,
+       $page_content_title,
+       $page_help_link) = $self->_resolve_page_settings($page_name);
+    $self->set_template_parameter('page_name', $page_name);
+    $self->set_template_parameter('page_title', $page_title);
+    $self->set_template_parameter('page_content_title', $page_content_title);
+    $self->set_template_parameter('page_help_link', $page_help_link);
+    ## Additional.
+    $self->set_template_parameter('amigo_mode', $page_name);
+
+    my $prep =
+      {
+       css_library =>
+       [
+	#'standard',
+	'com.bootstrap',
+	'com.jquery.jqamigo.custom',
+	'amigo',
+	'bbop'
+       ],
+       javascript_library =>
+       [
+	'com.jquery',
+	'com.bootstrap',
+	'com.jquery-ui'
+       ],
+       javascript =>
+       [
+	$self->{JS}->get_lib('GeneralSearchForwarding.js')
+       ],
+       content =>
+       [
+	'pages/visualize_freeform.tmpl'
+       ]
+      };
+    $self->add_template_bulk($prep);
+    $output = $self->generate_template_page_with();
+
+  }else{
+
+    ## Safely, check to see if the graph JSON is even parsable.
+    if( $input_graph_data ){
+      if( ! $self->json_parsable_p($input_graph_data) ){
+	my $str = 'Your graph JSON was not formatted correctly...';
+	return $self->mode_fatal($str);
+      }
+    }
+
+    ## The same for the term data.
+    if( $input_term_data ){
+      if( ! $self->json_parsable_p($input_term_data) ){
+	my $str = 'Your term JSON was not formatted correctly...';
+	return $self->mode_fatal($str);
+      }
+    }
+
+    ## Decode the incoming graph data--easy!
+    my $graph_hash = {};
+    if( $input_graph_data ){
+      $graph_hash = $self->{JS}->parse_json_data($input_graph_data);
+    }
+
+    ## Decode the incoming term data--easy!
+    my $term_hash = {};
+    if( $input_term_data ){
+      $term_hash = $self->{JS}->parse_json_viz_data($input_term_data);
+    }
+
+    ## Produce the (possibly empty) image in SVG or PNG.
+    my $gv = $self->_freeform_core($format, $graph_hash, $term_hash);
+    $output = $self->_produce_appropriate_output($gv, $format);
+
+    ## Get the headers correct.
+    $self->_add_fiddly_header($format, 'false');
+  }
+
+  return $output;
+}
+
+## This is just a very thin pass-through client.
+## TODO/BUG: not accepting "inline" parameter yet...
+sub mode_client_amigo {
+
+  my $self = shift;
+  my $output = '';
+
+  ##
+  my $i = AmiGO::Input->new($self->query());
+  #my $params = $i->input_profile('visualize_amigo');
+  my $params = $i->input_profile('visualize_client');
+  my $format = $params->{format};
+  my $input_term_data_type = $params->{term_data_type};
+  my $input_term_data = $params->{term_data};
+
+  ## Cleanse input data of newlines.
+  $input_term_data =~ s/\n/ /gso;
+
+  ## If there is no incoming data, display the "client" page.
+  ## Otherwise, forward to render app.
+  if( ! defined $input_term_data ){
+
+    ##
+    my $page_name = 'visualize';
+    my($page_title,
+       $page_content_title,
+       $page_help_link) = $self->_resolve_page_settings($page_name);
+    $self->set_template_parameter('page_name', $page_name);
+    $self->set_template_parameter('page_title', $page_title);
+    $self->set_template_parameter('page_content_title', $page_content_title);
+    $self->set_template_parameter('page_help_link', $page_help_link);
+    ## Additional.
+    $self->set_template_parameter('amigo_mode', $page_name);
+
+    my $prep =
+      {
+       css_library =>
+       [
+	#'standard',
+	'com.bootstrap',
+	'com.jquery.jqamigo.custom',
+	'amigo',
+	'bbop'
+       ],
+       javascript_library =>
+       [
+	'com.jquery',
+	'com.bootstrap',
+	'com.jquery-ui'
+       ],
+       javascript =>
+       [
+	$self->{JS}->get_lib('GeneralSearchForwarding.js')
+       ],
+       content =>
+       [
+	'pages/visualize_amigo.tmpl'
+       ]
+      };
+    $self->add_template_bulk($prep);
+    $output = $self->generate_template_page_with();
+
+  }else{
+
+    ## Check to see if this JSON is even parsable...that's really all
+    ## that we're doing here.
+    if( $input_term_data_type eq 'json' ){
+      if( ! $self->json_parsable_p($input_term_data) ){
+	my $str = 'Your JSON was not formatted correctly, please go back and retry. Look at the <a href="http://wiki.geneontology.org/index.php/AmiGO_Manual:_Visualize">advanced format</a> documentation for more details.';
+	return $self->mode_fatal($str);
+      }
+    }
+
+    ## TODO: Until I can think of something better...
+    if( $format eq 'navi' ){
+
+      ## BETA: Just try and squeeze out whatever I can.
+      my $in_terms = $self->{CORE}->clean_term_list($input_term_data);
+      my $jump = $self->{CORE}->get_interlink({mode=>'layers_graph',
+					       'arg' => {'terms' => $in_terms}});
+      return $self->redirect($jump, '302 Found');
+
+    }else{
+
+      ##    # ## BUG: This redirect mechanism seem to be broken for large
+      ## input. See: geneontology/amigo#184. Would like to just switch
+      ## run modes.
+      my $jump = $self->{CORE}->get_interlink({mode=>'visualize_service_amigo',
+				       #optional => {url_safe=>1, html_safe=>0},
+				       #optional => {html_safe=>0},
+				       arg => {
+					       format => $format,
+					       data_type =>
+					       $input_term_data_type,
+					       data => $input_term_data,
+					      }});
+      #$self->{CORE}->kvetch("Jumping to: " . $jump);
+      ##
+      #$output = $jump;
+      return $self->redirect($jump, '302 Found');
+    }
+  }
+
+  return $output;
 }
 
 ## Example:
-## http://localhost/cgi-bin/amigo/visualize?mode=quickgo&term=GO:0048856
+## http://localhost:9999/visualize?mode=quickgo&term=GO:0022008
 sub mode_quickgo {
 
   my $self = shift;
@@ -127,12 +349,12 @@ sub _add_gv_nodes {
   my $gv = shift || die 'need gv object';
   my $all_nodes = shift || die 'need all nodes object';
   my $term_hash = shift || {}; # fonts, colors, etc.
-  
+
   ## Add nodes to the visual graph.
   foreach my $nacc (keys %$all_nodes){
     my $acc = $all_nodes->{$nacc}{acc};
     my $label = $all_nodes->{$nacc}{label};
-    
+
     my $title = $acc;
     my $body = $label;
     my $border = '';
@@ -241,7 +463,7 @@ sub mode_advanced {
 
   ##
   my $i = AmiGO::Input->new($self->query());
-  my $params = $i->input_profile('visualize');
+  my $params = $i->input_profile('visualize_amigo');
   my $inline_p = $params->{inline};
   my $format = $params->{format};
   my $input_term_data_type = $params->{term_data_type};
@@ -277,6 +499,7 @@ sub mode_advanced {
   ## DEBUG.
   #$self->{CORE}->kvetch(Dumper($term_list));
   #$self->{CORE}->kvetch(Dumper($term_hash));
+  $self->{CORE}->kvetch('term_hash: ' . Dumper($term_hash));
 
   ###
   ### Build graph.
@@ -314,6 +537,8 @@ sub mode_advanced {
 	die "The term ID that you're using could not be satisfactorily resolved";
       }else{
 
+	$self->{CORE}->kvetch('process term: ' . $acc);
+
 	my $topo_graph_raw = $tinfo_item->{topology_graph_json};
 	my $topo_graph = $self->{CORE}->_read_json_string($topo_graph_raw);
 
@@ -322,8 +547,7 @@ sub mode_advanced {
 	my $cgraph = $tinfo_item->{chewable_graph};
 	my $children_list = $cgraph->get_children($acc);
 	my %children_hash = map { $_ => 1 } @$children_list;
-	$self->{CORE}->kvetch(Dumper(\%children_hash));
-	$self->{CORE}->kvetch(Dumper($term_hash));
+	$self->{CORE}->kvetch('children_hash: ' . Dumper(\%children_hash));
 
 	## Simply process the edges.
 	foreach my $edge (@{$topo_graph->{'edges'}}){
@@ -331,16 +555,19 @@ sub mode_advanced {
 	  my $oid = $edge->{'obj'};
 	  my $pid = $edge->{'pred'} || '.';
 	  ## Filter child rels out.
-	  if( ! $children_hash->{$sid} && ! $term_hash->{$oid} ){
-	    my $vid = $sid . $pid . $oid;
-	    $all_edges->{$vid} =
-	      {
-	       'sub' => $sid,
-	       'obj' => $oid,
-	       'pred' => $pid,
-	      };
-	    $self->{CORE}->kvetch("edge: $sid $pid $oid");
-	  }
+	  if( $children_hash{$sid} ){
+	      $self->{CORE}->kvetch("dropped edge: $sid $pid $oid");
+	   }else{
+	       $self->{CORE}->kvetch("add edge: $sid $pid $oid");
+
+	       my $vid = $sid . $pid . $oid;
+	       $all_edges->{$vid} =
+	       {
+		   'sub' => $sid,
+		   'obj' => $oid,
+		   'pred' => $pid,
+	       };
+	   }
 	}
 
 	## A more complicates processing of the nodes.
@@ -366,9 +593,11 @@ sub mode_advanced {
   my $gv = $self->_get_format_appropriate_renderer($format);
 
   ## Assemble the found nodes (including the term hash style/label
-  ## info) and edges into the GraphVix graph.
+  ## info) and edges into the GraphViz graph.
   $self->_add_gv_edges($gv, $all_edges);
   $self->_add_gv_nodes($gv, $all_nodes, $term_hash);
+
+  #$gv->add_legend();
 
   ## Get the headers correct.
   $self->_add_fiddly_header($format, $inline_p);
@@ -432,6 +661,8 @@ sub _freeform_core {
   $self->_add_gv_edges($gv, $all_edges) if $edges_p;
   $self->_add_gv_nodes($gv, $all_nodes, $term_hash) if $nodes_p;
 
+  #$gv->add_legend();
+
   return $gv;
 }
 
@@ -450,12 +681,14 @@ sub mode_freeform {
   ## Decode the incoming graph data--easy!
   my $graph_hash = {};
   if( $input_graph_data ){
+    $self->{CORE}->kvetch('got graph data');
     $graph_hash = $self->{JS}->parse_json_data($input_graph_data);
   }
 
   ## Decode the incoming term data--easy!
   my $term_hash = {};
   if( $input_term_data ){
+    $self->{CORE}->kvetch('got term data');
     $term_hash = $self->{JS}->parse_json_viz_data($input_term_data);
   }
 
@@ -464,166 +697,6 @@ sub mode_freeform {
   my $output = $self->_produce_appropriate_output($gv, $format);
 
   ## Get the headers correct.
-  $self->_add_fiddly_header($format, $inline_p);
-
-  return $output;
-}
-
-## Example:
-sub mode_complex_annotation {
-  my $self = shift;
-
-  ##
-  my $i = AmiGO::Input->new($self->query());
-  my $params = $i->input_profile('visualize_complex_annotation');
-  my $inline_p = $params->{inline};
-  my $format = $params->{format};
-  ## Harder argument.
-  $params->{complex_annotation} = $self->param('complex_annotation')
-    if ! $params->{complex_annotation} && $self->param('complex_annotation');
-  my $input_id = $params->{complex_annotation};
-
-  ## Input sanity check.
-  if( ! $input_id ){
-    return $self->mode_fatal("No input complex annotation id argument.");
-  }
-
-  ###
-  ### Get full info.
-  ###
-
-  ## Get the data from the store.
-  #my $ca_worker = AmiGO::Worker::GOlr::ComplexAnnotationUnit->new($input_id);
-  my $ca_worker = AmiGO::Worker::GOlr::ComplexAnnotationGroup->new($input_id);
-  my $ca_info_hash = $ca_worker->get_info();
-
-  ## First make sure that things are defined.
-  if( ! defined($ca_info_hash) ||
-      $self->{CORE}->empty_hash_p($ca_info_hash) ||
-      ! defined($ca_info_hash->{$input_id}) ){
-    return $self->mode_not_found($input_id,
-				 'complex annotation');
-  }
-
-  ###
-  ### Sort out the graph jimmied out of the GOlr/Worker.
-  ###
-
-  ## Unit we get topo and style separated, reduce the graph ourselves.
-  my $multi_json_str = $ca_info_hash->{$input_id}{topology_graph_json};
-  my $multi_json = $self->{CORE}->_read_json_string($multi_json_str);
-
-  ## Unwind out given graph into a simpler form.
-  my $graph_hash = {'nodes'=>[], 'edges'=>[]};
-  #my $term_hash = {};
-  my $stacked_node_hash = {};
-  my $nodes = $multi_json->{nodes};
-  foreach my $node (@$nodes){
-
-    my $nid = $node->{id};
-    my $nlbl = $node->{lbl} || '???';
-
-    my $enby = '';
-    my $unk = [];
-    my $actv = '';
-    my $proc = '';
-    my $loc = [];
-    if( $node->{meta} ){
-      $enby = $node->{meta}{enabled_by} if $node->{meta}{enabled_by};
-      $unk = $node->{meta}{unknown} if $node->{meta}{unknown};
-      $actv = $node->{meta}{activity} if $node->{meta}{activity};
-      $proc = $node->{meta}{process} if $node->{meta}{process};
-      $loc = $node->{meta}{location} if $node->{meta}{location};
-    }
-
-    push @{$graph_hash->{nodes}},
-      {
-       'id' => $nid,
-       #'lbl' => $nlbl,
-      };
-
-    # $term_hash->{$nid} =
-    #   {
-    #    #'title' => $nlbl,
-    #    'title' => $enby,
-    #    #'body' => '<HTML>' . join('<BR>', @{[$enby, $actv]}) . '</HTML>'
-    #    'body' => join(" ", @{['e:'.$enby, 'a:'.$actv, 'p:'.$proc,
-    # 			      'l'.join(":", @$loc)]})
-    #    #'body' => $actv
-    #   };
-
-    my $stack = [];
-    push @$stack, {
-		  'color' => 'white',
-		  'field' => 'enabled by',
-		  'label' => $enby
-		 } if $enby;
-    push @$stack, {
-		  'color' => 'lightblue',
-		  'field' => 'activity',
-		  'label' => $actv
-		 } if $actv;
-    foreach my $u (@$unk){
-      push @$stack, {
-		     'color' => 'lavenderblush',
-		     'field' => 'unknown',
-		     'label' => $u
-		    };
-    }
-    push @$stack, {
-		  'color' => 'coral2',
-		  'field' => 'process',
-		  'label' => $proc
-		 } if $proc;
-    foreach my $l (@$loc){
-      push @$stack, {
-		     'color' => 'yellow',
-		     'field' => 'location',
-		     'label' => $l
-		    };
-    }
-
-    $stacked_node_hash->{$nid} =
-      {
-       'id' => $nid,
-       'stack' => $stack
-      };
-  }
-  $self->{CORE}->kvetch('nodes added: ' . scalar(@$nodes));
-
-  my $edges = $multi_json->{edges};
-  foreach my $edge (@$edges){
-    my $sub = $edge->{sub};
-    my $obj = $edge->{obj};
-    my $pred = $edge->{pred} || '';
-    push @{$graph_hash->{edges}},
-      {
-       # BUG
-       #'sub'=> $sub,
-       #'obj'=> $obj,
-       'obj'=> $sub,
-       'sub'=> $obj,
-       'pred'=> $pred,
-      };
-  }
-
-  ## Produce the edges part of the image using the freeform core.
-  #my $gv = $self->_freeform_core($format, $graph_hash, $term_hash, {nodes=>0});
-  my $gv = $self->_freeform_core($format, $graph_hash, {}, {nodes=>0});
-
-  ## Do our own stacked nodes for the nodes.
-  foreach my $snid (keys %$stacked_node_hash){
-    my $stacked_node = $stacked_node_hash->{$snid};
-    my $id = $stacked_node->{id};
-    my $stack = $stacked_node->{stack};
-    $gv->add_complex_node($id, $stack);
-  }
-
-  ## TODO: Add legend.
-  $gv->add_legend();
-
-  ## Produce output and get the headers correct.
-  my $output = $self->_produce_appropriate_output($gv, $format);
   $self->_add_fiddly_header($format, $inline_p);
 
   return $output;

@@ -7,14 +7,19 @@
 [% INCLUDE "common/info_rollup_start.tmpl" %]
 <h5></h5>
 <p>
-  Enter a list of GO terms to see the co-annotations. Keep in mind
-  that the more you enter the longer the initial startup will be.
-</p>	
-<p>
-  GO:0043473 GO:0009987 GO:0022008
+  Enter a list of GO ID's to see the co-annotations--the count of
+  shared gene products annotated to pairs of terms. Use the taxon
+  filter to limit species.
 </p>
 <p>
-  GO:0006310 GO:0006281 GO:0006260 GO:0030437 GO:0005975 GO:0007155 GO:0006520 GO:0070882 GO:0016568 GO:0051276 GO:0007059 GO:0051186 GO:0000747 GO:0000910 GO:0002181 GO:0007010 GO:0007163 GO:0006091 GO:0006629 GO:0016071 GO:0007126 GO:0007005 GO:0071941 GO:0055086 GO:0006913 GO:0007031 GO:0030163 GO:0006461 GO:0006457 GO:0006486 GO:0051604 GO:0070647 GO:0006605 GO:0007346 GO:0042254 GO:0023052 GO:0006399 GO:0006351 GO:0055085 GO:0007033 GO:0016192 GO:0006766
+  For example to see numbers of gene products co-annotated to slim cellular process terms, you'd use the list:
+
+  <div class="well">
+    GO:0006457 GO:0071852 GO:0006629 GO:0006399 GO:0006259 GO:0000003
+    GO:0044281 GO:0051276 GO:0000278 GO:0002181 GO:0006810 GO:0007010
+    GO:0016071 GO:0007005 GO:0006351 GO:0042254 GO:0023052 GO:0006464
+    GO:0006091 GO:0044262
+  </div>
 </p>
 
 [% INCLUDE "common/info_rollup_end.tmpl" %]
@@ -22,86 +27,104 @@
 <div id="input">
   <div class="panel panel-default">
     <div class="panel-body">
-
-      <div class="form-group">
-	<label for="query">Input GO IDS</label>
-	<textarea id="input-terms"
-		  class="form-control"
-		  name="input-terms"
-		  placeholder="GO:0043473 GO:0009987 GO:0022008"
-		  rows="5"
-		  cols="80"></textarea>
-      </div>
-
-      <h5>Taxon</h5>
-      <div class="radio">
-	<label>
-	  <input type="radio"
-		 name="taxon"
-		 value="none"
-		 checked="yes">All</input>
-	</label>
-	<br />
-	<label>
-	  <input type="radio"
-		 name="taxon"
-		 value="pombe">pombe</input>
-	</label>
-      </div>
-
-      <h5>Coloration</h5>
-      <div class="radio">
-	<label>
-	  <input type="radio"
-		 name="color"
-		 value="dark" 
-		 checked="yes">dark shades</input>
-	</label>
-	<br />
-	<label>
-	  <input type="radio"
-		 name="color"
-		 value="step">step colors</input>
-	</label>
-      </div>
-
-      <button id="button"
-	      type="button"
-	      class="btn btn-primary">Process</button>
       
+      <div class="row">
+	
+	<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+	  <div>
+	    <h4>Filter shared bioentities</h4>
+	    <div id="accordion" class="bbop-widget-set-live-filters">
+	      Loading...
+	    </div>
+	  </div>	  
+	</div>
+	
+	<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+	  
+	  <div>
+	    
+	    <div class="panel panel-default">
+	      <div class="panel-body">
+		
+		<div class="form-group">
+		  <label for="query">Input GO IDS</label>
+		  <textarea id="input-terms"
+			    class="form-control"
+			    name="input-terms"
+			    placeholder="GO:0043473 GO:0009987 GO:0022008"
+			    rows="5"
+			    cols="80"></textarea>
+		</div>
+		
+		<h5>Coloration</h5>
+		<div class="form-group">
+		  <div class="radio">
+		    <label>
+		      <input type="radio"
+			     name="color"
+			     value="dark"
+			     checked="yes">shade heatmap</input>
+		    </label>
+		    <br />
+		    <label>
+		      <input type="radio"
+			     name="color"
+			     value="step">absolute step colors</input>
+		    </label>
+		  </div>
+		</div>
+		
+		<div class="form-group">
+		  <button id="button"
+			  type="button"
+			  class="btn btn-primary">Process</button>
+		</div>
+		
+	      </div>
+	      
+	    </div>
+	    
+	    <div class="panel panel-default">
+	      <div class="panel-body">
+		
+		<div id="initial_placeholder">No results yet.</div>
+
+		<div id="progress-widget">
+		  <div id="progress-text"></div>
+		  <div id="progress-bar"></div>
+		</div>
+
+		<div id="order-selector">
+		  <h5>Order</h5>
+		  <!-- <select id="plot_order" class="form-control"> -->
+		  <select id="order" class="form-control">
+		    <option value="name">by term name</option>
+		    <option value="source">by ontology</option>
+		    <!-- <option value="id">by term id</option> -->
+		    <option value="count">by co-annotation count</option>
+		    <option value="index" selected="selected">by initial order</option>
+		  </select>
+		</div>
+		
+		<div id="matrix_plot"></div>
+
+	      </div>
+	    </div>  
+	    
+	  </div>
+	  
+	</div>
+      </div>
     </div>
   </div>
 </div>
-    
-<div id="order-selector">
-  <div class="panel panel-default">
-    <div class="panel-body">
 
-      <h5>Order</h5>
-	<select id="order" class="form-control">
-	  <option value="name">by term name</option>
-	  <option value="source">by ontology</option>
-	  <option value="id">by term id</option>
-	  <option value="count">by co-annotation count</option>
-	  <option value="index" selected="selected">by input index</option>
-	</select>
-      </p>
-
-    </div>
-  </div>
-</div>
-
-
-<div id="progress-widget">
-  <div id="progress-text"></div>
-  <div id="progress-bar"></div>
-</div>
-<!-- <div style="position:relative; top:100px; left:100px; background-color:#eeeeee; border-style:solid; border-width:1px; border-color:black; text-align:left; padding: 1.5em;">foo</div> -->
+<hr />
 
 <div id="info" style="position:absolute; background-color:#aabbbb; border-style:solid; border-width:1px; border-color:black; text-align:left; padding: 1.5em;" ></div>
 
 <!-- <div id="matrix_results" style="text-align: center; width: 800px; height:800px;" /> -->
-<div id="matrix_results" style="margin-left: 300px;" />
+<div id="matrix_results" style="margin-left: 300px;"></div>
 
 <div class="clearboth"></div>
 

@@ -414,6 +414,8 @@ sub add_edge {
   my $rcolor = $self->{PRETTY}->relationship_color($pred_id);
   my $rlbl = $self->{PRETTY}->readable($pred_id);
 
+  # $self->kvetch("$rcolor _ $rlbl _ $pred_id");
+
   ## Store possible legend information.
   $self->{AGV_LEGEND}{$rlbl} = $rcolor;
 
@@ -427,7 +429,7 @@ sub add_edge {
 			style => 'bold'
 		       );
 
-  #print STDERR "_edge_ " . $sub_id . ' ' . $pred_id  .  ' ' .  $obj_id . "\n";
+  # $self->kvetch("_edge_ " . $sub_id . ' ' . $pred_id  .  ' ' .  $obj_id");
 }
 
 

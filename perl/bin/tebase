@@ -1,0 +1,11 @@
+#!/usr/bin/perl -w
+####
+#### A bootstrap for a term enrichment base experiment.
+####
+
+BEGIN { require "config.pl"; }
+use lib $ENV{AMIGO_ROOT} . '/perl/lib';
+
+use AmiGO::WebApp::TEBase;
+my $tebase = AmiGO::WebApp::TEBase->new(PARAMS => {});
+$tebase->run();

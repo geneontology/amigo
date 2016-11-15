@@ -6,14 +6,14 @@
 BEGIN {
   ## Try and find our env config file if we can't get it out of the
   ## environment.
-  if( -f "./config.pl" ){
-    require "./config.pl";
-  }elsif( -f "./conf/config.pl" ){
-    require "./conf/config.pl";
-  }elsif( -f "./perl/bin/config.pl" ){
+  if( -f "./perl/bin/config.pl" ){
     require "./perl/bin/config.pl";
   }elsif( -f "../perl/bin/config.pl" ){
     require "../perl/bin/config.pl";
+  }elsif( -f "./conf/config.pl" ){
+    require "./conf/config.pl";
+  }elsif( -f "./config.pl" ){
+    require "./config.pl";
   }else{
     die "unable to find config.pl";
   }

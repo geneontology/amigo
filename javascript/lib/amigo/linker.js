@@ -10,8 +10,12 @@
  * package. However, the future should be here.
  */
 
-// Module and namespace checking.
-if( typeof amigo == "undefined" ){ var amigo = {}; }
+var us = require('underscore');
+var bbop = require('bbop-core');
+
+// Need acces to the server data.
+var amigo_data_server = new (require('./data/server'))();
+var amigo_data_xrefs = new (require('./data/xrefs'))();
 
 /*
  * Constructor: linker
@@ -27,16 +31,11 @@ if( typeof amigo == "undefined" ){ var amigo = {}; }
  * Returns:
  *  self
  */
-amigo.linker = function (){
+var linker = function (){
     this._is_a = 'amigo.linker';
 
-    // With the new dispatcher, relative URLs no longer work, so we
-    // have to bring in server data--first let's ensure it.
-    if( ! amigo.data.server ){
-	throw new Error('we are missing access to amigo.data.server!');
-    }
     // Easy app base.
-    var sd = new amigo.data.server();
+    var sd = amigo_data_server;
     this.app_base = sd.app_base();
     // Internal term matcher.
     this.term_regexp = null;
@@ -51,17 +50,22 @@ amigo.linker = function (){
 	'ontology_class': true,
 	'annotation_class': true,
 	'annotation_class_closure': true,
-	'annotation_class_list': true
+	'annotation_class_list': true,
+	// Noctua model stuff.
+	'function_class': true,
+	'function_class_closure': true,
+	'process_class': true,
+	'process_class_closure': true,
+	'location_list': true,
+	'location_list_closure': true
     };
     this.bio_category = {
         'gp': true,
 	'gene_product': true,
 	'bioentity': true
     };
-    this.complex_annotation_category = {
-        //'complex_annotation': true,
-        'annotation_group': true
-        //'annotation_unit': true
+    this.model_category = {
+        'model': true
     };
     this.search_category = { // not including the trivial medial_search below
         'search': true,
@@ -73,7 +77,7 @@ amigo.linker = function (){
 	'bioentity': '/bioentity',
 	'ontology': '/ontology',
 	'annotation': '/annotation',
-	'complex_annotation': '/complex_annotation',
+	'model': '/model',
 	'family': '/family',
 	'lego_unit': '/lego_unit',
 	'general': '/general'
@@ -105,9 +109,11 @@ amigo.linker = function (){
  * Returns:
  *  string (url); null if it couldn't create anything
  */
-amigo.linker.prototype.url = function (id, xid, modifier){
+linker.prototype.url = function (id, xid, modifier){
     
     var retval = null;
+
+    return 'foo';
 
     ///
     /// AmiGO hard-coded internal link types.
@@ -115,19 +121,19 @@ amigo.linker.prototype.url = function (id, xid, modifier){
 
     // For us, having an xid means that we will be doing some more
     // complicated routing.
-    if( xid && xid != '' ){
+    if( xid && xid !== '' ){
 
 	// First let's do the ones that need an associated id to
 	// function--either data urls or searches.
-	if( id && id != '' ){
+	if( id && id !== '' ){
 	    if( this.ont_category[xid] ){
 		retval = this.app_base + '/amigo/term/' + id;
 		//retval = _add_restmark_modifier(retval, modifier);
             }else if( this.bio_category[xid] ){
 		retval = this.app_base + '/amigo/gene_product/' + id;
 		//retval = _add_restmark_modifier(retval, modifier);
-            }else if( this.complex_annotation_category[xid] ){
-		retval = this.app_base + '/amigo/complex_annotation/'+ id;
+            }else if( this.model_category[xid] ){
+		retval = this.app_base + '/amigo/model/'+ id;
             }else if( this.search_category[xid] ){
 
 		// First, try and get the proper path out. Will
@@ -163,10 +169,10 @@ amigo.linker.prototype.url = function (id, xid, modifier){
 
 		// Well, for medial search really, but it might be
 		// general?
-		if( xid == 'medial_search' ){
+		if( xid === 'medial_search' ){
 		    // The possibility of just tossing back an empty
 		    // search for somebody downstream to fill in.
-		    if( bbop.core.is_defined(id) && id != null ){
+		    if( typeof(id) !== 'undefined' && id !== null ){
 			retval = retval + '?q=' + id;
 		    }
 		}
@@ -181,23 +187,21 @@ amigo.linker.prototype.url = function (id, xid, modifier){
     
     // Since we couldn't find anything with our explicit local
     // transformation set, drop into the great abyss of the xref data.
-    if( ! retval && id && id != '' ){ // not internal, but still has an id
-	if( ! amigo.data.xrefs ){
-	    throw new Error('amigo.data.xrefs is missing!');
-	}
+    if( ! retval && id && id !== '' ){ // not internal, but still has an id
 	
 	// First, extract the probable source and break it into parts.
-	var full_id_parts = bbop.core.first_split(':', id);
+	var full_id_parts = bbop.first_split(':', id);
 	if( full_id_parts && full_id_parts[0] && full_id_parts[1] ){
 	    var src = full_id_parts[0];
 	    var sid = full_id_parts[1];
 	    
 	    // Now, check to see if it is indeed in our store.
 	    var lc_src = src.toLowerCase();
-	    var xref = amigo.data.xrefs[lc_src];
+	    var xref = amigo_data_xrefs[lc_src];
 	    if( xref && xref['url_syntax'] ){
-		retval =
-		    xref['url_syntax'].replace('[example_id]', sid, 'g');
+		console.log('url_syntax', xref['url_syntax']);
+		throw new Error();
+		retval = xref['url_syntax'].replace('[example_id]', sid, 'g');
 	    }
 	}
     }
@@ -219,7 +223,7 @@ amigo.linker.prototype.url = function (id, xid, modifier){
  * Returns:
  *  string (link); null if it couldn't create anything
  */
-amigo.linker.prototype.anchor = function(args, xid, modifier){
+linker.prototype.anchor = function(args, xid, modifier){
     
     var anchor = this;
     var retval = null;
@@ -234,7 +238,7 @@ amigo.linker.prototype.anchor = function(args, xid, modifier){
 	    // Infer label from id if not present.
 	    var label = args['label'];
 	    if( ! label ){ label = id; }
-	
+	    
 	    // Infer hilite from label if not present.
 	    var hilite = args['hilite'];
 	    if( ! hilite ){ hilite = label; }
@@ -291,3 +295,9 @@ amigo.linker.prototype.anchor = function(args, xid, modifier){
 
     return retval;
 };
+
+///
+/// Exportable body.
+///
+
+module.exports = linker;

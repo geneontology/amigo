@@ -16,3 +16,8 @@ function LoadDetailsInit(){
     
     //ll('LoadDetailsInit done.');
 }
+
+// Embed the jQuery setup runner.
+(function (){
+    jQuery(document).ready(function(){ LoadDetailsInit(); });
+})();

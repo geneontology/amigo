@@ -54,11 +54,14 @@ sub mode_xrefs {
   $self->_common_params_settings($params);
 
   ## Page settings.
-  $self->set_template_parameter('page_title',
-				'Cross References');
-  $self->set_template_parameter('content_title',
-				#'Facet Matrix: Compare Facet Counts');
-				'Current Cross Reference Abbreviations');
+  my $page_name = 'xrefs';
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ## Assemble something that can be nicely rendered in order.
   my $all = $self->{CORE}->database_bulk();
@@ -67,7 +70,7 @@ sub mode_xrefs {
     my $entry = $all->{$db};
     push @unsorted_all, $entry;
   }
-  my @sorted_all = sort {$a->{id} cmp $b->{id}} @unsorted_all;
+  my @sorted_all = sort {lc($a->{id}) cmp lc($b->{id})} @unsorted_all;
 
   $self->set_template_parameter('xref_data', \@sorted_all);
 
@@ -86,10 +89,8 @@ sub mode_xrefs {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
+      'com.jquery-ui'
       #'com.jquery.tablesorter',
-      'bbop',
-      'amigo2'
      ],
      javascript =>
      [
@@ -98,11 +99,6 @@ sub mode_xrefs {
       #$self->{JS}->make_var('global_manager', $manager),
       $self->{JS}->get_lib('GeneralSearchForwarding.js')#,
       #$self->{JS}->get_lib('Xrefs.js')
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();'#,
-	#'XrefsInit();'
      ],
      content =>
      [

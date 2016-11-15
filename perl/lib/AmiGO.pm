@@ -38,6 +38,7 @@ use URI::Escape;
 #use JSON;
 #use JSON::PP;
 use JSON::XS;
+use File::Slurp;
 use Data::UUID;
 use List::Util 'shuffle';
 
@@ -587,71 +588,6 @@ sub kvetch {
 }
 
 
-# ###
-# ### Pre-rendering.
-# ###
-
-
-# =item url_pre_render
-
-# Args: string of filename
-# Decides whether or not a file a page has been pre-rendered.
-# Returns undef or url.
-
-# =cut
-# sub url_pre_render {
-
-#   my $self = shift;
-#   my $fname = shift;
-#   my $ret_url = undef;
-
-#   my $file_back_half = '/' . $fname;
-#   my $complete_file_pr_url =
-#     $self->amigo_env('AMIGO_PRE_RENDER_URL') . $file_back_half;
-#   my $complete_file_pr_file =
-#     $self->amigo_env('AMIGO_PRE_RENDER_DIR') . $file_back_half;
-
-#   if( -f $complete_file_pr_file ){
-#     $ret_url = $complete_file_pr_url;
-#   }
-
-#   return $ret_url;
-# }
-
-
-# =item file_pre_render
-
-# Args: string of filename
-# Decides whether or not a file a page has been pre-rendered.
-# Returns undef or page contents.
-
-# =cut
-# sub file_pre_render {
-
-#   my $self = shift;
-#   my $fname = shift;
-#   my $ret_file = undef;
-
-#   my $file_back_half = '/' . $fname;
-#   my $complete_file_pr_file =
-#     $self->amigo_env('AMIGO_PRE_RENDER_DIR') . $file_back_half;
-
-#   if( -f $complete_file_pr_file ){
-
-#     open(FILE, $complete_file_pr_file)
-#       or die "Cannot open $complete_file_pr_file: $!";
-
-#     my @buf = ();
-#     while (<FILE>) {
-#       push @buf, $_;
-#     }
-#     $ret_file = join '', @buf;
-#   }
-
-#   return $ret_file;
-# }
-
-
 ###
 ### HTTP
 ###
@@ -666,239 +602,9 @@ sub unknown_header{ print "content-type:unknown\n\n"; }
 
 
 ###
-### Instance data.
+### Cross-references.
 ###
 
-
-# =item release_name
-
-# return a release name string
-
-# =cut
-# sub release_name {
-
-#   my $self = shift;
-#   if( ! defined($self->{MISC_KEYS}) ){
-#     ($self->{MISC_KEYS}) = _read_frozen_file($self, '/misc_keys.pl');
-#   }
-#   return $self->{MISC_KEYS}{instance_data}{release_name};
-# }
-
-
-# =item release_type
-
-# return a release type string
-
-# =cut
-# sub release_type {
-
-#   my $self = shift;
-#   if( ! defined($self->{MISC_KEYS}) ){
-#     ($self->{MISC_KEYS}) = _read_frozen_file($self, '/misc_keys.pl');
-#   }
-#   return $self->{MISC_KEYS}{instance_data}{release_type};
-# }
-
-
-###
-### Evidence codes.
-###
-
-
-# =item evidence_codes
-
-# return an array ref of the evidence codes
-
-# =cut
-# sub evidence_codes {
-
-#   my $self = shift;
-#   if( ! defined($self->{MISC_KEYS}) ){
-#     ($self->{MISC_KEYS}) = _read_frozen_file($self, '/misc_keys.pl');
-#   }
-#   return $self->{MISC_KEYS}{evcode};
-# }
-
-
-# =item evidence_codes_sans
-
-# Arg: an array ref of evcode strings
-# Return: an array ref of the evidence codes without the ones listed in the arg
-
-# =cut
-# sub evidence_codes_sans {
-
-#   my $self = shift;
-#   my $sans_codes = shift || [];
-
-#   my $new_list = [];
-#   my %skip_cache = ();
-
-#   foreach my $ev (@$sans_codes){
-#     $skip_cache{$ev} = 1;
-#   }
-
-#   foreach my $ev ( @{$self->evidence_codes()} ){
-#     push @$new_list, $ev if ! defined( $skip_cache{$ev} );
-#   }
-
-#   return $new_list;
-# }
-
-
-# =item experimental_evidence_codes
-
-# The list of experimental evidence codes.
-
-# =cut
-# sub experimental_evidence_codes {
-
-#   my $self = shift;
-#   return $EXP_EVCODES;
-# }
-
-
-# =item iss_evidence_codes
-
-# The list of ISS evidence codes.
-
-# =cut
-# sub iss_evidence_codes {
-
-#   my $self = shift;
-#   return $ISS_EVCODES;
-# }
-
-
-# =item experimental_evidence_hash
-
-# The hash of experimental evidence codes.
-
-# =cut
-# sub experimental_evidence_hash {
-
-#   my $self = shift;
-#   my %experimental_evcodes = ();
-#   foreach ( @{$EXP_EVCODES} ){
-#     $experimental_evcodes{$_} = 1;
-#   }
-
-#   return \%experimental_evcodes;
-# }
-
-
-# =item iss_evidence_hash
-
-# The hash of iss evidence codes.
-
-# =cut
-# sub iss_evidence_hash {
-
-#   my $self = shift;
-#   my %iss_evcodes = ();
-#   foreach ( @{$ISS_EVCODES} ){
-#     $iss_evcodes{$_} = 1;
-#   }
-
-#   return \%iss_evcodes;
-# }
-
-###
-### Species, source, gptype, ontology.
-###
-
-# =item species
-
-# Return href of species_strings => species_id
-
-# =cut
-# sub species {
-
-#   my $self = shift;
-
-#   if( ! defined($self->{SPECIES}) ){
-
-#     my ($ret_hash) = _read_frozen_file($self, '/spec_keys.pl');
-
-#     ## Full names versus contractions (lift from Amelia's original).
-#     #if ($self->get_saved_param('use_full_spp_names') eq 'no'){
-#     if ( 1 == 1 ){
-#       # truncate the genus to a single letter
-#       foreach my $h (values %$ret_hash){
-# 	if ($h->[1]){
-# 	  $h = substr($h->[0], 0, 1).". ".$h->[1];
-# 	}else{
-# 	  $h = $h->[0];
-# 	}
-#       }
-#     }else{
-#       $_ = join(" ", @$_) foreach values %$ret_hash;
-#     }
-
-#     $self->{SPECIES} = $ret_hash;
-#   }
-
-#   ## BUG?: check caching, does ecoli not make the cut?
-#   if( ! defined $self->{SPECIES}{83333} ){
-#     $self->{SPECIES}{83333} = 'E. coli';
-#   }
-
-#   return $self->{SPECIES};
-# }
-
-
-# =item source
-
-# # TODO:
-
-# =cut
-# sub source {
-
-#   my $self = shift;
-
-#   if( ! defined($self->{SOURCE}) ){
-
-#     my($ret_hash) = _read_frozen_file($self, '/misc_keys.pl');
-
-#     ## Populate our hash.
-#     $self->{SOURCE} = {};
-#     if( defined $ret_hash->{speciesdb} ){
-#       my $sdb = $ret_hash->{speciesdb};
-#       foreach my $n (@$sdb){
-# 	$self->{SOURCE}{$n} = $n;
-# 	#$self->kvetch('source: ' . $n);
-#       }
-#     }
-#   }
-#   return $self->{SOURCE};
-# }
-
-
-# =item gptype
-
-# # TODO:
-
-# =cut
-# sub gptype {
-
-#   my $self = shift;
-
-#   if( ! defined($self->{GPTYPE}) ){
-
-#     my($ret_hash) = _read_frozen_file($self, '/misc_keys.pl');
-
-#     ## Populate our hash.
-#     $self->{GPTYPE} = {};
-#     if( defined $ret_hash->{gptype} ){
-#       my $gpt = $ret_hash->{gptype};
-#       foreach my $n (@$gpt){
-# 	$self->{GPTYPE}{$n} = $n;
-# 	#$self->kvetch('gptype: ' . $n);
-#       }
-#     }
-#   }
-#   return $self->{GPTYPE};
-# }
 
 ## Make sure that our info is read and cached.
 sub _ensure_xref_data {
@@ -933,8 +639,8 @@ sub database_link {
   my $db = shift || '';
   my $id = shift || '';
 
-  #print STDERR "_db_" . $db . "\n";
-  #print STDERR "_id_" . $id . "\n";
+  #$self->kvetch("_db_" . $db);
+  #$self->kvetch("_id_" . $id);
 
   # ## WARNING
   # ## TODO: Temporary Reactome special case. This should be removeable
@@ -1037,6 +743,10 @@ sub database_link_set {
 
     my($db, $id) = $self->split_gene_product_acc($dbid);
 
+    #$self->kvetch('FOO dbid: ' . $dbid);
+    #$self->kvetch('FOO db: ' . $db);
+    #$self->kvetch('FOO id: ' . $id);
+
     push @$retlist,
       {
        id => $dbid,
@@ -1048,78 +758,6 @@ sub database_link_set {
 
   return $retlist;
 }
-
-# =item ontology
-
-# # TODO:
-
-# =cut
-# sub ontology {
-
-#   my $self = shift;
-
-#   if( ! defined($self->{ONTOLOGY}) ){
-
-#     my($ret_hash) = _read_frozen_file($self, '/misc_keys.pl');
-
-#     ## Populate our hash.
-#     $self->{ONTOLOGY} = {};
-#     if( defined $ret_hash->{ontology} ){
-#       my $ont = $ret_hash->{ontology};
-#       foreach my $o (@$ont){
-# 	$self->{ONTOLOGY}{$o} = $o;
-# 	#$self->kvetch('ontology: ' . $o);
-#       }
-#     }
-#   }
-#   return $self->{ONTOLOGY};
-# }
-
-
-# =item subset
-
-# # TODO:
-
-# =cut
-# sub subset {
-
-#   my $self = shift;
-
-#   if( ! defined($self->{SUBSET}) ){
-
-#     my($ret_hash) = _read_frozen_file($self, '/misc_keys.pl');
-
-#     ## Populate our hash.
-#     $self->{SUBSET} = {};
-#     if( defined $ret_hash->{subset} ){
-#       my $subs = $ret_hash->{subset};
-#       foreach my $s (@$subs){
-# 	$self->{SUBSET}{$s} = $s;
-# 	#$self->kvetch('subset: ' . $s);
-#       }
-#     }
-#   }
-#   return $self->{SUBSET};
-# }
-
-
-# =item species_to_ncbi_map
-
-# Return href of species.id => species.ncbi_taxa_id
-# WARNING: This is experimental and may be removed/replaced.
-
-# =cut
-# sub species_to_ncbi_map {
-
-#   my $self = shift;
-
-#   if( ! defined($self->{SPECIES_TO_NCBI_MAP}) ){
-#     my ($ret_hash) = _read_frozen_file($self, '/spec_ncbi_map.pl');
-#     $self->{SPECIES_TO_NCBI_MAP} = $ret_hash;
-#   }
-
-#   return $self->{SPECIES_TO_NCBI_MAP};
-# }
 
 
 ###
@@ -1261,7 +899,10 @@ sub get_interlink {
      'tools' => sub { $ilink = 'amigo/software_list'; },
      'schema_details' => sub { $ilink = 'amigo/schema_details'; },
      'load_details' => sub { $ilink = 'amigo/load_details'; },
+     'owltools_details' => sub { $ilink = 'amigo/owltools_details'; },
      'browse' => sub { $ilink = 'amigo/browse'; },
+     'dd_browse' => sub { $ilink = 'amigo/dd_browse'; },
+     'base_statistics' => sub { $ilink = 'amigo/base_statistics'; },
      'free_browse' => sub { $ilink = 'amigo/free_browse'; },
      'goose' => sub { $ilink = 'goose'; },
      'grebe' => sub { $ilink = 'grebe'; },
@@ -1281,6 +922,24 @@ sub get_interlink {
        }
        #$ilink = 'amigo?mode=gene_product&gp=' . $gp;
        $ilink = 'amigo/gene_product/' . $gp;
+     },
+
+     'reference_details' =>
+     sub {
+	 die "interlink mode 'reference_details' requires args"
+	     if ! defined $args;
+	 die "interlink mode 'reference_details' requires ref arg"
+	     if ! defined $args->{'ref'};
+	 my $rid = $args->{'ref'} || '';
+	 $ilink = 'amigo/reference/' . $rid;
+     },
+
+     'model_details' =>
+     sub {
+       die "interlink mode 'model_details' requires args" if ! defined $args;
+       my $acc = $args->{acc} || undef;
+       #$ilink = 'amigo?mode=gene_product&gp=' . $gp;
+       $ilink = 'amigo/model/' . $acc;
      },
 
      # 'term_subset' =>
@@ -1327,29 +986,18 @@ sub get_interlink {
      # ## Slightly different than the others.
      # 'gaffer' =>
      # sub {
-     #   my $gmode = $args->{mode} || die 'need mode';
-     #   my $gurl = $args->{url} || die 'need url';
-     #   $ilink = 'gaffer?mode=' . $gmode . '&data_url=' . $self->uri_safe($gurl);
+     #  my $gmode = $args->{mode} || die 'need mode';
+     #  my $gurl = $args->{url} || die 'need url';
+     #  $ilink = 'gaffer?mode=' . $gmode . '&data_url=' . $self->uri_safe($gurl);
      # },
 
-     'visualize_complex_annotation' =>
-     sub {
-       my $au = $args->{complex_annotation} || '';
-       my $format = $args->{format} || 'png';
-       $ihash = {
-		 action => 'visualize',
-		 arguments =>
-		 {
-		  mode => 'complex_annotation',
-		  inline => 'false',
-		  format => $format,
-		  complex_annotation => $au,
-		 },
-		};
-       $ilink = $self->_fuse_hash($ihash);
-     },
-    'visualize_freeform_client' => sub { $ilink = 'amigo/visualize_freeform';},
-      'visualize_freeform' =>
+     ## The various visualize clients, now part of VisualizeServer
+     ## instead of AmiGO proper (prevent horrible redirect problems).
+     'visualize_client_freeform' => sub { $ilink = 'visualize?mode=client_freeform';},
+     'visualize_client_amigo' => sub { $ilink = 'visualize?mode=client_amigo'; },
+
+     ## The actual visualize services.
+     'visualize_service_freeform' =>
      sub {
        #print STDERR Dumper($arg_hash);
        my $term_data = $args->{term_data} || '';
@@ -1377,11 +1025,8 @@ sub get_interlink {
        # $ilink = 'amigo/visualize/' .
        # 	 $self->_fuse_arguments($ihash->{arguments});
      },
-
      ## The actual "visualize" is more a call to the data server.
-     ## "visual_client" is for the user page.
-     'visualize_client' => sub { $ilink = 'amigo/visualize'; },
-     'visualize' =>
+     'visualize_service_amigo' =>
      sub {
        #print STDERR Dumper($arg_hash);
        my $data = $args->{data} || '';
@@ -1411,7 +1056,7 @@ sub get_interlink {
      },
 
      ## Takes an array ref of term ids.
-     'visualize_term_list' =>
+     'visualize_service_term_list' =>
      sub {
        my $in_terms = $args->{terms} || [];
 
@@ -1431,7 +1076,7 @@ sub get_interlink {
        $ilink = $self->_fuse_hash($ihash);
      },
 
-     'visualize_simple' =>
+     'visualize_service_simple' =>
      sub {
        my $engine = $args->{engine} || '';
        my $term = $args->{term} || '';
@@ -1491,6 +1136,19 @@ sub get_interlink {
 	 $ilink = 'amigo/medial_search?q='. $query;
        }else{
 	 $ilink = 'amigo/medial_search';
+       }
+       # }else{
+       # 	 die "The medial_search system requires a query argument.";
+       # }
+     },
+
+     'reference_search' =>
+     sub {
+       my $query = $args->{ref_id} || '';
+       if( $query ){
+	 $ilink = 'amigo/reference?q='. $query;
+       }else{
+	 $ilink = 'amigo/reference';
        }
        # }else{
        # 	 die "The medial_search system requires a query argument.";
@@ -1773,6 +1431,8 @@ sub _read_json_string {
   my $json_str = shift || die 'yes, but what string do you want read?';
 
   #$self->kvetch("JSON contents: " . $json_str);
+  #$| = 1;
+  #print STDOUT "JSON contents|||" . $json_str . '|||';
 
   ## Read in data.
   # $self->kvetch("json: " . $self->{JSON});
@@ -1781,7 +1441,13 @@ sub _read_json_string {
 
   my $rethash = undef;
   # eval {
-  $rethash = $self->{JSON}->decode($json_str);
+  if( $self ){
+      $rethash = $self->{JSON}->decode($json_str);
+  }else{
+      #my $local_json = JSON::XS->new();
+      #$rethash = $local_json->decode($json_str);
+      $rethash = JSON::XS->new->utf8->decode($json_str);
+  }
   # };
   # if( $@ ){
   # die "nope: $@: $!";
@@ -1800,17 +1466,27 @@ sub _read_json_file {
 
   ## Try and get it.
   die "No hash file found ($file): $!" if ! -f $file;
-  open(FILE, '<', $file) or die "Cannot open $file: $!";
-  my $json_str = <FILE>;
-  close FILE;
+  # open(FILE, '<', $file) or die "Cannot open $file: $!";
+  # my $json_str = <FILE>;
+  # close FILE;
+  my $json_str = read_file($file);
 
   ## Punt to string reader.
-  return $self->_read_json_string($json_str);
+  my $retval = undef;
+  if( $self ){
+      $retval = $self->_read_json_string($json_str);
+  }else{
+      $retval = _read_json_string(undef, $json_str);
+  }
+
+  return $retval;
 }
 
+
 ###
+### GOlr configurations.
 ###
-###
+
 
 =item golr_timestamp_log
 
@@ -1871,7 +1547,7 @@ sub golr_configuration {
 
   my $self = shift;
   my $json_file = $self->amigo_env('AMIGO_ROOT') .
-    '/javascript/lib/amigo/data/golr.js';
+    '/javascript/npm/amigo2-instance-data/lib/data/golr.js';
 
   ## Try and get the string out.
   ## Crop to just the parts that are interesting.
@@ -1880,7 +1556,7 @@ sub golr_configuration {
   my $read_buffer = [];
   my $read_p = 0;
   while( <FILE> ){
-    if( /amigo.data.golr\ \=\ \{/ ){
+    if( /var golr\ \=\ \{/ ){
       $read_p = 1;
       push @$read_buffer, '{';
     }elsif( /^\}\;/ ){
@@ -2087,6 +1763,96 @@ sub golr_class_weights {
   return $rethash;
 }
 
+###
+###
+###
+
+=item amigo_statistics_cache
+
+Return href of the statistics cache, if found.
+Empty otherwise.
+
+=cut
+sub amigo_statistics_cache {
+
+  my $self = shift;
+  my $ret = {};
+
+  my $json_file = $self->amigo_env('AMIGO_ROOT') .
+    '/perl/bin/amigo-base-statistics-cache.json';
+
+  ## Try and get the string out.
+  ## Crop to just the parts that are interesting.
+  if( -f $json_file ){
+    $ret = $self->_read_json_file($json_file);
+  }
+
+  return $ret;
+}
+
+###
+### Public bookmark API.
+###
+
+
+=item bookmark_api_configuration
+
+Return href of the public-facing configuration from the installation.
+
+TODO/BUG: this could be made faster by caching the values instead of
+parsing them each time...
+
+=cut
+sub bookmark_api_configuration {
+
+  my $self = shift;
+
+  ## TODO/BUG: Use YAML configuration that was created at install
+  ## time.
+  my $mapping = {
+      'term' => 'annotation_class',
+      'taxon' => 'taxon',
+      'bioentity' => 'bioentity',
+      'aspect' => 'aspect',
+      'evidence' => 'evidence_type'
+  };
+
+  return $mapping;
+}
+
+
+###
+### Misc.
+###
+
+=item get_root_terms
+
+Arguments: n/a
+
+Return: an ordered aref of id/value and label/value hashref pairs.
+
+=cut
+sub get_root_terms {
+
+  my $self = shift;
+
+  my $retlist = [];
+
+  ## 
+  my $str_raw = $self->amigo_env('AMIGO_ROOT_TERMS') || '';
+  if( $str_raw ){
+      my $root_set = $self->_read_json_string($str_raw);
+      foreach my $try_root (@$root_set){
+	  if( $try_root->{'id'} && $try_root->{'label'} ){
+	      push @$retlist, $try_root;
+	  }
+      }
+  }
+
+  return $retlist;
+}
+
+
 =item get_amigo_layout
 
 Arguments: the AMIGO_LAYOUT_* variable that contains a list of GOlr classes
@@ -2106,6 +1872,7 @@ sub get_amigo_layout {
   my $clist = $self->clean_list($str_raw);
   foreach my $citem (@$clist){
     my $try_class = $self->golr_class_info($citem);
+    #$self->kvetch('layout entry: ' . $citem . ', ' . $try_class);
     if( $try_class ){
       push @$retlist, $try_class;
     }
@@ -2113,45 +1880,6 @@ sub get_amigo_layout {
 
   return $retlist;
 }
-
-=item get_amigo_search_default
-
-Arguments: n/a
-
-Return: ID of the default search personality to use (as defined in conf)
-
-=cut
-sub get_amigo_search_default {
-
-  my $self = shift;
-
-  ## Extract the landing page search order from the ID.
-  my $str_raw = $self->amigo_env('AMIGO_SEARCH_DEFAULT') ||
-    die "could find no AMIGO_SEARCH_DEFAULT";
-
-  return $str_raw;
-}
-
-# ## Read misc_keys.pl (unless otherwise specified) and return the
-# ## thawed hash. BUG/TODO: we should be moving away from perl-specific
-# ## things (i.e. freeze/thaw) to more generic things (JSON & sqlite3).
-# sub _read_frozen_file {
-
-#   my $self = shift;
-#   my $frozen_file = shift || '/misc_keys.pl';
-
-#   ## Try and get it from the spec_keys.pl file.
-#   my $file = $self->amigo_env('cgi_root_dir') . $frozen_file;
-#   die "No hash file ($frozen_file) found ($file): $!" if ! -f $file;
-#   open(FILE, $file) or die "Cannot open $file: $!";
-
-#   ## Read in hash and thaw.
-#   my $misc_hash = '';
-#   while (<FILE>) {
-#     $misc_hash .= $_;
-#   }
-#   return thaw $misc_hash;
-# }
 
 
 =item query_string_to_hash
@@ -2569,7 +2297,7 @@ sub set_error_message {
 }
 
 
-=item dynamic_dispatch_table
+=item dynamic_dispatch_table_amigo
 
 Return a list for the dispatch table used by bin/amigo and
 AmiGO::WebApp::HTMLClient::Dispatch.pm.
@@ -2579,47 +2307,58 @@ Note: Can use as a static method.
 Returns list ref.
 
 =cut
-sub dynamic_dispatch_table {
+sub dynamic_dispatch_table_amigo {
   my $self = shift || undef; # can use as static method
 
-  my $app = 'AmiGO::WebApp::HTMLClient';
+  my $aapp = 'AmiGO::WebApp::HTMLClient';
   my $dispatch_table =
     [
-     ''                    => { app => $app }, # defaults to landing
-     '/'                   => { app => $app }, # defaults to landing
-     'landing'             => { app => $app, rm => 'landing' },
-     'software_list'       => { app => $app, rm => 'software_list' },
-     'schema_details'      => { app => $app, rm => 'schema_details' },
-     'load_details'        => { app => $app, rm => 'load_details' },
-     'browse'              => { app => $app, rm => 'browse' },
-     'free_browse'              => { app => $app, rm => 'free_browse' },
+     ''                    => { app => $aapp }, # defaults to landing
+     '/'                   => { app => $aapp }, # defaults to landing
+     ## This rm should only come into play when using amigo-runner
+     ## in "embedded" mode (as in that case, the dynamic dispatch
+     ## is handling the fall-through case; otherwise it would be handled
+     ## by the apache config or whatever).
+     'robots.txt'          => { app => $aapp, rm => 'special' },
+     'landing'             => { app => $aapp, rm => 'landing' },
+     'software_list'       => { app => $aapp, rm => 'software_list' },
+     'schema_details'      => { app => $aapp, rm => 'schema_details' },
+     'load_details'        => { app => $aapp, rm => 'load_details' },
+     'owltools_details'    => { app => $aapp, rm => 'owltools_details' },
+     'dd_browse'           => { app => $aapp, rm => 'dd_browse' },
+     'base_statistics'     => { app => $aapp, rm => 'base_statistics' },
+     'free_browse'         => { app => $aapp, rm => 'free_browse' },
      ##
      ## Soft applications (may take some parameters, browser-only).
      ##
-     'medial_search'       => { app => $app, rm => 'medial_search' },
-     'simple_search'       => { app => $app, rm => 'simple_search' },
-     'bulk_search/:personality' => { app => $app, rm => 'bulk_search',
+     'browse/:term?'       => { app => $aapp, rm => 'specific_browse',
+				'term' => 'term' },
+     'browse'              => { app => $aapp, rm => 'browse'},
+     'medial_search'       => { app => $aapp, rm => 'medial_search' },
+     'simple_search'       => { app => $aapp, rm => 'simple_search' },
+     'bulk_search/:personality' => { app => $aapp, rm => 'bulk_search',
 				     personality => 'personality' },
-     'bulk_search' => { app => $app, rm => 'bulk_search'},
-     'search/:personality' => { app => $app, rm => 'specific_search',
+     'bulk_search' => { app => $aapp, rm => 'bulk_search'},
+     'search/:personality' => { app => $aapp, rm => 'specific_search',
 				personality => 'personality' },
-     'search'              => { app => $app, rm => 'search' },
+     'search'              => { app => $aapp, rm => 'search' },
      'phylo_graph/:family' =>
-     { app => $app, rm => 'phylo_graph', family => 'family' },
-     'phylo_graph'         => { app => $app, rm => 'phylo_graph' },
+     { app => $aapp, rm => 'phylo_graph', family => 'family' },
+     'phylo_graph'         => { app => $aapp, rm => 'phylo_graph' },
      ##
      ## RESTy (can be consumed as service).
      ##
-     'term/:term/:format?'       => { app => $app, rm => 'term',
-				      'term' => 'term', 'format' => 'format' },
-     'gene_product/:gp/:format?' => { app => $app, rm => 'gene_product',
-				      'gp' => 'gp', 'format' => 'format' },
-     'visualize'                 => { app => $app, rm => 'visualize' },
-     ## Beta.
-     'complex_annotation/:complex_annotation'  =>
-     { app => $app, rm => 'complex_annotation',
-       complex_annotation => 'complex_annotation' },
-     'visualize_freeform'  => { app => $app, rm => 'visualize_freeform' },
+     'term/:cls/:format?'         => { app => $aapp, rm => 'term',
+				       'cls' => 'cls', 'format' => 'format' },
+     'gene_product/:gp/:format?'  => { app => $aapp, rm => 'gene_product',
+				       'gp' => 'gp', 'format' => 'format' },
+     'reference/:ref_id/:format?' => { app => $aapp, rm => 'reference',
+				       'ref_id'=>'ref_id', 'format'=>'format' },
+     'reference' => { app => $aapp, rm => 'reference'},
+     ## Alpha.
+     'model/:model'  => { app => $aapp, rm => 'model', model => 'model' },
+     'biology'  => { app => $aapp, rm => 'biology' },
+     'ontologies'  => { app => $aapp, rm => 'ontologies' },
     ];
 
   return $dispatch_table;
@@ -2638,10 +2377,10 @@ Returns list ref.
 sub static_dispatch_table {
   my $self = shift || undef; # can use as static method
 
-  my $app = 'AmiGO::WebApp::Static';
+  my $sapp = 'AmiGO::WebApp::Static';
   my $load =
     {
-     app => $app, rm => 'deliver',
+     app => $sapp, rm => 'deliver',
      # 'arg1' => 'arg1',
      # 'arg2' => 'arg2',
      # 'arg3' => 'arg3',

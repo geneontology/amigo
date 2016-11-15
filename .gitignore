@@ -1,3 +1,35 @@
+## Make docs less bad.
+perl/docs/*
+javascript/docs/*
+
+## Don't generally want Selenium log files.
+selenium/*/*.log
+ghostdriver.log
+screenshots*
+
+## Ignore the npm stuff that we now have.
+node_modules
+
+## Ignore generated data in sub-modules.
+javascript/npm/amigo2-instance-data/lib/data
+javascript/npm/amigo2-instance-data/doc
+javascript/npm/bbop-widget-set/doc
+
+## Ignore generated data.
+perl/bin/amigo-base-statistics-cache.json
+
+## Don't want the virtualenv stuff for python leaking in.
+test-app/behave/'pwd'
+test-app/behave/screenshots*
+test-app/behave/pymote_env
+test-app/behave/Scripts
+test-app/behave/virtualenv.exe
+
+test-app/behave/bin
+test-app/behave/include
+test-app/behave/lib
+test-app/behave/local
+
 ## Do not want to commit staging files.
 staging/*.js
 javascript/staging/*.js
@@ -17,6 +49,10 @@ javascript/docs/.naturaldocs_project/Data
 ## Local conf files should be ignored.
 conf/amigo.yaml*
 conf/config.pl
+
+## Files as part of the data conversion rollout to be ignored.
+perl/bin/config.pl
+perl/bin/xrefs.json
 
 ## Emacs things (from 
 ## https://github.com/github/gitignore/blob/master/Global/Emacs.gitignore).

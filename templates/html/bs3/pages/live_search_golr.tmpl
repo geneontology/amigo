@@ -22,18 +22,53 @@
   can be used in the search string, or an explanation for how to get
   the results you want, please view the AmiGO 2
   <a title="Go to Search AmiGO 2 live search documentation"
-     href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Search">search</a>
+     href="[% page_help_link %]">search</a>
   documentation.
 </p>
 [% INCLUDE "common/info_rollup_end.tmpl" %]
   
+<!-- <div class="panel panel-default"> -->
+<!--   <div class="panel-body"> -->
+    
+<!--     <div id="display-general-search"> -->
+<!--       Pending... -->
+<!--     </div> -->
+  
+<!--   </div> -->
+<!-- </div> -->
+
 <div class="panel panel-default">
   <div class="panel-body">
-    
-    <div id="display-general-search">
-      Pending...
+
+    <div id="results-area" class="row">
+
+	<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+	  <div>
+	    <h4>Filter results</h4>
+	    
+	    [% IF use_geospatial %]
+	    <div id="map">Loading...</div>
+	    <br />
+	    [% END %]
+
+	    <div id="accordion" class="bbop-widget-set-live-filters">
+	      Loading...
+	    </div>
+
+	  </div>	  
+	</div>
+
+	<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+	  
+	  <div id="pager" class="bbop-widget-set-live-pager">
+	  </div>
+	  <div id="results" class="bbop-widget-set-live-results">
+	    pending...
+	  </div>
+	</div>
+
     </div>
-  
+
   </div>
 </div>
 <!-- END: live_search_golr.tmpl -->

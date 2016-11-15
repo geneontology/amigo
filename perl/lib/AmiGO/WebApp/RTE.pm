@@ -93,7 +93,7 @@ sub mode_rte {
   my $input = $params->{input};
   my $species = $params->{species};
   my $correction = $params->{correction};
-  my $format = $params->{format}; # forward or process locally
+  my $format = $params->{format}; # forward (html) or process locally (others)
   my $resource = $params->{resource};
   $self->_common_params_settings($params);
 
@@ -130,7 +130,7 @@ sub mode_rte {
     ## First, clean out commas--somebody may stick them in there.
     $input =~ s/\,/ /g;
     my $inplist = $self->{CORE}->clean_list($input);
-    $input = join("\n", @$inplist);
+    $input = join("\n", @$inplist); # BUG/TODO: req for PANTHER
 
     ## URL useful for forwarding and examination.
     my $srv = $rsrc->{webservice};
@@ -144,7 +144,20 @@ sub mode_rte {
     ## Forward on HTML argument.
     if( $format eq 'html' ){
 
+      ## TODO/BUG: This is some mechanism required by PANTHER to make
+      ## this all work. Their format requires newlines, but since the
+      ## 30x forwarding becomes a GET inmost clients, I cannot pack it
+      ## as-is, so I need to convert the usual input newlines into
+      ## HTTP encoded for the $play_url.
+      $play_url = $srv . '?' .
+	'ontology=' . $ontology . '&' .
+	  'input=' . join("%0A", @$inplist) . '&' .
+	  'species=' . $species . '&' .
+	    'correction=' . $correction . '&' .
+	      'format=' . $format;
+      $self->{CORE}->kvetch('Try 303 forward (redo): ' . $play_url);
       return $self->redirect($play_url, '303 See Other');
+      #return $self->redirect($srv, '303 See Other');
       #return $self->mode_fatal("forwarding not yet implemented");
 
     }else{
@@ -184,8 +197,8 @@ sub mode_rte {
 	  ## Collect values.
 	  my $bp_str = $b->{p_value};
 	  my $ap_str = $a->{p_value};
-	  my $be_str = $b->{p_expected};
-	  my $ae_str = $a->{p_expected};
+	  my $be_str = $b->{expected};
+	  my $ae_str = $a->{expected};
 
 	  ## Reduce value precision.
 	  # Math::BigFloat->precision(-3);

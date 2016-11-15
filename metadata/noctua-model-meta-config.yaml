@@ -1,0 +1,69 @@
+####
+#### 
+####
+id: noctua_model_meta
+schema_generating: true
+description: A generic capture of light Noctua metadata in realtime.
+display_name: Noctua meta
+document_category: noctua_model_meta
+weight: 0
+boost_weights: annotation_unit_label^3.0 contributor^2.0 model_date^1.0 comment^1.0
+result_weights: annotation_unit^3.0 contributor^2.0 model_state^1.0 model_date^1.0 comment^1.0
+filter_weights: contributor^3.0 model_state^2.0 model_date^1.0
+fields:
+  - id: id
+    description: The mangled internal ID for this entity.
+    display_name: Internal ID
+    type: string
+    property: []
+  - id: annotation_unit
+    description: The title(s) associated with the model.
+    display_name: Model identifier
+    #searchable: true # bring into line with model_annotation
+    type: string
+    property: []
+  - id: annotation_unit_label
+    description: The title(s) associated with the model.
+    display_name: Model identifier
+    searchable: true
+    type: string
+    property: []
+  - id: contributor
+    description: Contributor identity.
+    display_name: Contributor
+    cardinality: multi
+    searchable: true
+    type: string
+    property: []
+  - id: model_date
+    description: Model last modification dates.
+    display_name: Last modified
+    searchable: true
+    type: string
+    property: []
+  - id: model_state
+    description: The editorial state of the model.
+    display_name: State
+    #searchable: true # bring into line with model_annotation
+    type: string
+    property: []
+  - id: comment
+    description: The comments associated with a model.
+    display_name: Comment
+    ## See ticket: https://github.com/geneontology/noctua/issues/182
+    #cardinality: multi
+    searchable: true
+    type: string
+    property: []
+  - id: owl_blob_json
+    description: ???
+    display_name: ???
+    type: string
+    property: []
+    indexed: false
+  # - id: general_blob
+  #   description: A hidden searchable blob document to access this item. It should contain all the goodies that we want to search for, like species(?), synonyms, etc.
+  #   display_name: Generic blob
+  #   type: string
+  #   property: []
+  #   searchable: true

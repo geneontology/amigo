@@ -96,9 +96,7 @@ sub mode_facet_matrix {
 	'com.jquery',
 	'com.bootstrap',
 	'com.jquery-ui',
-	'com.jquery.tablesorter',
-	'bbop',
-	'amigo2'
+	'com.jquery.tablesorter'
        ],
        javascript =>
        [
@@ -107,11 +105,6 @@ sub mode_facet_matrix {
 	$self->{JS}->make_var('global_manager', $manager),
 	$self->{JS}->get_lib('GeneralSearchForwarding.js'),
 	$self->{JS}->get_lib('FacetMatrix.js')
-       ],
-       javascript_init =>
-       [
-	'GeneralSearchForwardingInit();',
-	'FacetMatrixInit();'
        ],
        content =>
        [

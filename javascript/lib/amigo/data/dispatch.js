@@ -34,5 +34,15 @@ amigo.data.dispatch = {
       "context" : {
          "bbop.widgets.search_pane" : "amigo.handlers.owl_class_expression"
       }
+   },
+   "qualifier" : {
+      "context" : {
+         "bbop.widgets.search_pane" : "amigo.handlers.qualifiers"
+      }
+   },
+   "alternate_id" : {
+      "context" : {
+         "bbop.widgets.search_pane" : "amigo.handlers.alternate_id"
+      }
    }
 };

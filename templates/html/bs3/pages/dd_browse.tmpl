@@ -1,0 +1,53 @@
+<!-- Begin: dd_browse.tmpl -->
+
+[% INCLUDE common/noscript_js_necessary.tmpl %]
+
+[% rollup_id = "info_header" %]
+[% rollup_anchor = "Drill-down Browsing of Ontologies" %]
+[% INCLUDE "common/info_rollup_start.tmpl" %]
+<p>
+  The  drill-down browser</a> can be used to explore the ontologies
+  and annotation from the top levels by opening direct descendant
+  terms individually to create a custom view.
+</p>
+<p>
+  This browser performs no lookahead, so you will not know if a term
+  has children until you attempt to open it.
+</p>
+<p>
+  <b>Tip:</b> Set your required filters before exploration, resetting
+  filters will also reset the tree.
+</p>
+[% INCLUDE "common/info_rollup_end.tmpl" %]
+
+<div class="panel panel-default">
+  <!-- <div class="panel-heading"> -->
+    <!-- <div class="panel-title"> -->
+    <!-- </div> -->
+  <!-- </div> -->
+  <div class="panel-body">
+
+    <!-- <h4>Root terms</h4> -->
+
+    <div id="results-area" class="row">
+
+      <!-- Filter section. -->
+      <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+	<div>
+	  <h4>Filter tree gene products</h4>
+	  <div id="accordion" class="bbop-widget-set-live-filters">
+	    Loading...
+	  </div>
+	</div>	  
+      </div>
+
+      <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+	<div id="dd_browser_id"><h4>Loading tree...</h4></div>
+      </div>
+
+    </div>    
+
+  </div>
+  
+</div>
+<!-- End: dd_browse.tmpl -->

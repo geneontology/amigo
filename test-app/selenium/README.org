@@ -1,0 +1,9 @@
+* Application Tests for AmiGO 2
+
+** behave
+
+   These are human-readable/writable tests written using the Behave
+   BDD framework for python. They are intended to run as unit tests in
+   Jenkins and during development.
+   
+   More information can be found in [[behave/README.org][behave/README.org]].

@@ -130,6 +130,7 @@ sub mode_grebe {
       my $translations = $question_info->{'field_translations'} || [];
       foreach my $trans (@$translations){
 
+	## Go ahead and add the rest.
 	my $field_id = $trans->{'field_id'};
 	my $field_placeholder = $trans->{'placeholder_text'} || '';
 
@@ -141,7 +142,7 @@ sub mode_grebe {
 		' title="Hint: add a space after completing a word to' .
 		  ' narrow the search."' .
 		    ' style="width: 10em;"' .
-		    '>';
+		      '>';
 	my $ind = index($question, $from);
 	substr($question, $ind, length($from)) = $to;
 	#$question =~ s/$from/$to/;
@@ -154,7 +155,7 @@ sub mode_grebe {
 	$question_id . '">' .
 	  $question_info->{'question'} . ' &nbsp;&nbsp;' .
 	    # '<img class="amigo-grebe-action-icon" title="Jump to AmiGO 2 Search" alt="[search]" src="' . $self->{CORE}->amigo_env('AMIGO_IMAGE_URL') . '/info-jump.png" />' .
-	    '<button type="button" class="amigo-grebe-action btn btn-primary" title="Jump to AmiGO 2 Search" alt="[search]">Go &raquo;</button>' .
+	    '<button id="' . $question_id . '-action" type="button" class="amigo-grebe-action btn btn-primary" title="Jump to AmiGO 2 Search" alt="[search]">Go &raquo;</button>' .
 	      '</span>';
     }
   }
@@ -162,10 +163,14 @@ sub mode_grebe {
   $self->set_template_parameter('questions', $questions_info);
 
   ## Page settings.
-  $self->set_template_parameter('page_name', 'grebe');
-  $self->set_template_parameter('page_title', 'AmiGO 2: Grebe');
-  $self->set_template_parameter('content_title',
-				'Grebe Search Wizard');
+  my $page_name = 'grebe';
+  my($page_title,
+     $page_content_title,
+     $page_help_link) = $self->_resolve_page_settings($page_name);
+  $self->set_template_parameter('page_name', $page_name);
+  $self->set_template_parameter('page_title', $page_title);
+  $self->set_template_parameter('page_content_title', $page_content_title);
+  $self->set_template_parameter('page_help_link', $page_help_link);
 
   ##
   my $prep =
@@ -182,20 +187,13 @@ sub mode_grebe {
      [
       'com.jquery',
       'com.bootstrap',
-      'com.jquery-ui',
-      'bbop',
-      'amigo2'
+      'com.jquery-ui'
      ],
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('Grebe.js'),
       $self->{JS}->make_var('global_grebe_questions', $questions_info),
-     ],
-     javascript_init =>
-     [
-      'GeneralSearchForwardingInit();',
-      'GrebeInit();'
      ],
      content =>
      [

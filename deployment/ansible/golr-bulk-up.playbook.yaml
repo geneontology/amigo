@@ -1,0 +1,23 @@
+---
+- hosts: remote-deployments
+  remote_user: ubuntu
+  sudo: yes
+  vars:
+    remote_user: ubuntu
+  ## Bring system into something usable.
+  tasks:
+    ## Initial setup.
+    ## Get all of the standard packages we want into play for pretty
+    ## much any system.
+    - include: tasks/packages-std.yaml
+    ## System maintenance (now that we at least have our standard packages).
+    - include: tasks/system-admin-std.yaml
+    ## Get all of the GOlr specific packages.
+    - include: tasks/packages-golr.yaml
+    ## Setup the git repos and the GOlr environment.
+    - include: tasks/env-golr.yaml
+    # ## Run the services 
+    # - include: tasks/spin-up.yaml
+  # handlers:
+  #   - name: restart jetty8
+  #     service: name=jetty8 state=restarted
