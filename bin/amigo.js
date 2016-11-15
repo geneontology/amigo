@@ -1038,6 +1038,7 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 	// For example:
 	// TODO
 	// 
+	ll('Disambiguation/bioentity try cache...');
 	var cache = discache.get(spc);
 
 	// First, let us discuss what will happen when we have a
@@ -1131,14 +1132,21 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 	// Well, if we have the cache, great! Nice and easy.
 	if ( cache ){
 
-	    ll('disambiguation/bioentity cache hit for: ' + spc);
+	    ll('Disambiguation/bioentity cache direct hit for: ' + spc);
 
-	    envl.data(collect_results(cache));
+	    var collected_results = collect_results(cache);
+
+	    ll('Disambiguation/bioentity create data envelope.');
+
+	    envl.data(collected_results);
+
+	    ll('Disambiguation/bioentity send direct hit results.');
+	    
 	    res.json(envl.structure());
 
 	}else{
 
-	    ll('disambiguation/bioentity cache miss for: ' + spc);
+	    ll('Disambiguation/bioentity cache miss for: ' + spc);
 	    
 	    // If we have a cache miss, populate the cache for our
 	    // species and then immediately use it. Need to start by
@@ -1154,17 +1162,18 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 	    each(species, function(sp){
 		go.add_query_filter('taxon_closure', sp);
 	    });
-	    go.set('rows', 100000000); // hopefully 100,000,000 is enough for now
 	    go.set_facet_limit(0); // care not about facets
 	    go.lite(true);
-
+	    //go.set('rows', 100000000); // hopefully 100,000,000 is enough for now
+	    go.set_results_count(100000000);
+	    
 	    // Process promise.
 	    var prom = go.search();
 	    prom.then(function(resp){
 
 		//console.log("resp: ", resp);
-		ll('disambiguation/bioentity populating cache for: ' + spc);
-
+		ll('Disambiguation/bioentity populating cache for: ' + spc);
+		
 		// Okay, we have the results, now we need to use them
 		// to populate the cache.
 		// Cycle through and get the cache together. We essentially
@@ -1175,6 +1184,7 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 		    "references": {}
 		};
 		var docs = resp.documents();
+		ll('Disambiguation/bioentity have item count: ' + docs.length);
 		us.each(docs, function(doc){
 
 		    //console.log("doc: ", doc);
@@ -1216,11 +1226,13 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 		    
 		});
 		
+		ll('Disambiguation/bioentity species cache created');
 		//console.log("species_cache: ", species_cache);
 
 		// Simply add to the cache.
 		//discache.set(spc, species_cache);
-		
+		ll('Disambiguation/bioentity cache set');
+
 		// Well, we have the species cache, so use it.
 		var collected_results = collect_results(species_cache);
 		//console.log("collected_results: ", collected_results);
@@ -1237,7 +1249,7 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 	
 	}
 
-	ll('End of disambiguation/bioentity starter.');
+	ll('Disambiguation/bioentity end of starter.');
     }
 });
 
