@@ -321,7 +321,36 @@ Empty return on an unknown species.
 [/api/disambiguation/bioentity?species=NCBITaxon:99999&entity=pacA&entity=UniProtKB:Q76L33](/api/disambiguation/bioentity?species=NCBITaxon:99999&entity=pacA&entity=UniProtKB:Q76L33)
 
 ```json
-TODO
+{
+  "date": "2016-11-15T13:11:18",
+  "time": 0,
+  "data": {
+    "ugly": [],
+    "bad": [
+      {
+        "results": [],
+        "input": "pacA"
+      },
+      {
+        "results": [],
+        "input": "UniProtKB:Q76L33"
+      }
+    ],
+    "good": []
+  },
+  "comments": [],
+  "arguments": {
+    "species": [
+      "NCBITaxon:99999"
+    ],
+    "entity": [
+      "pacA",
+      "UniProtKB:Q76L33"
+    ]
+  },
+  "status": "success",
+  "service": "/api/disambiguation/bioentity"
+}
 ```
 
 #### Example 3
@@ -331,5 +360,44 @@ Resolve a synbol and an id for "Euglena longa".
 [/api/disambiguation/bioentity?species=NCBITaxon:3037&entity=pacA&entity=UniProtKB:Q76L33](/api/disambiguation/bioentity?species=NCBITaxon:3037&entity=pacA&entity=UniProtKB:Q76L33)
 
 ```json
-TODO
+{
+  "date": "2016-11-15T13:11:07",
+  "time": 0,
+  "data": {
+    "ugly": [],
+    "bad": [],
+    "good": [
+      {
+        "results": [
+          {
+            "matched": "bioentity_label",
+            "id": "UniProtKB:Q76L34"
+          }
+        ],
+        "input": "pacA"
+      },
+      {
+        "results": [
+          {
+            "matched": "bioentity",
+            "id": "UniProtKB:Q76L33"
+          }
+        ],
+        "input": "UniProtKB:Q76L33"
+      }
+    ]
+  },
+  "comments": [],
+  "arguments": {
+    "species": [
+      "NCBITaxon:3037"
+    ],
+    "entity": [
+      "pacA",
+      "UniProtKB:Q76L33"
+    ]
+  },
+  "status": "success",
+  "service": "/api/disambiguation/bioentity"
+}
 ```
