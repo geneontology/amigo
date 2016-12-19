@@ -325,7 +325,7 @@ function second_pass(){
 
 	    //  Minimal, only want count.
 	    var manager = _new_totals_manager_by_personality('annotation');
-	    manager.add_query_filter('taxon', 'NCBITaxon:' + sid);
+	    manager.add_query_filter('taxon_closure', 'NCBITaxon:' + sid);
 	    manager.add_query_filter('evidence_type_closure',
 				     'experimental evidence');
 
@@ -343,7 +343,7 @@ function second_pass(){
 
 	    //  Minimal, only want count.
 	    var manager = _new_totals_manager_by_personality('annotation');
-	    manager.add_query_filter('taxon', 'NCBITaxon:' + sid);
+	    manager.add_query_filter('taxon_closure', 'NCBITaxon:' + sid);
 	    manager.add_query_filter('evidence_type_closure',
 				     'experimental evidence', ['-']);
 
@@ -368,7 +368,7 @@ function second_pass(){
 		    //  Minimal, only want count.
 		    var manager =
 			    _new_totals_manager_by_personality('annotation');
-		    manager.add_query_filter('taxon', 'NCBITaxon:' + sid);
+		    manager.add_query_filter('taxon_closure', 'NCBITaxon:' + sid);
 		    manager.add_query_filter('aspect', aspect);
 		    manager.add_query_filter('evidence_type_closure', ev);
 		    
