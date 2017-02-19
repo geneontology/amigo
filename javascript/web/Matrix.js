@@ -29,6 +29,10 @@ var jquery_engine = require('bbop-rest-manager').jquery;
 var golr_manager = require('bbop-manager-golr');
 var golr_response = require('bbop-response-golr');
 
+// We need to handle different classes of closures for Val.
+// https://github.com/geneontology/amigo/issues/423
+var closure_type = "isa_partof_closure"; // default.
+
 // Create fresh manager.
 function _new_manager(){
     var engine = new jquery_engine(golr_response);
@@ -299,8 +303,8 @@ function TermDataStage(term_info, term_accs){
 	    });
 
 	    // Set the next query.
-	    go.add_query_filter('isa_partof_closure', v);
-	    go.add_query_filter('isa_partof_closure', h);
+	    go.add_query_filter(closure_type, v);
+	    go.add_query_filter(closure_type, h);
 	    
 	    return go.search();
 	});
@@ -333,7 +337,7 @@ function TermDataStage(term_info, term_accs){
 	    });
 
     	    // Set the next query.
-    	    go.add_query_filter('isa_partof_closure', r);
+    	    go.add_query_filter(closure_type, r);
 	    
 	    return go.search();
 	});
@@ -374,7 +378,7 @@ function TermDataStage(term_info, term_accs){
 	// at...
 	var fqs = resp.query_filters();
 	//console.log(resp);
-	var fprops = fqs['isa_partof_closure'];
+	var fprops = fqs[closure_type];
 
 	var axes = [];
 	us.each(fprops, function(fval, fkey){
@@ -780,7 +784,7 @@ function TermDataStage(term_info, term_accs){
 // 	// Add the current cell's ids.
 // 	var ids = us.uniq([xid, yid]);
 // 	us.each(ids, function(v){
-// 	    bio_man.add_query_filter('isa_partof_closure', v);
+// 	    bio_man.add_query_filter(closure_type, v);
 // 	});
 
 // 	// Produce final URL.
@@ -1121,7 +1125,7 @@ function RenderStage(data, max_count){
 	// Add the current cell's ids.
 	var ids = us.uniq([xn.id, yn.id]);
 	us.each(ids, function(v){
-	    bio_man.add_query_filter('isa_partof_closure', v);
+	    bio_man.add_query_filter(closure_type, v);
 	});
 
 	// Produce final URL.
@@ -1327,5 +1331,16 @@ function RenderStage(data, max_count){
 (function (){
     jQuery(document).ready(function(){
 	MatrixUIInit();
+
+	// Also, setup the whole thing to reset with a new closure
+	// type on click.
+	jQuery("#closure_change_isa_partof").click(function(){
+	    closure_type = "isa_partof_closure";
+	    MatrixUIInit();
+	});
+	jQuery("#closure_change_regulates").click(function(){
+	    closure_type = "regulates_closure";
+	    MatrixUIInit();
+	});
     });
 })();
