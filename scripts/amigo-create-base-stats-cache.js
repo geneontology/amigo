@@ -3,6 +3,7 @@
 //// Essentially run as:
 ////  node ./scripts/amigo-create-base-stats-cache.js
 ////  node ./scripts/amigo-create-base-stats-cache.js --from-date 20150401 --to-date 20160331
+////  node ./scripts/amigo-create-base-stats-cache.js --server http://golr.geneontology.org/
 ////
 
 var us = require('underscore');
@@ -40,9 +41,15 @@ function _die(message){
 var argv = require('minimist')(process.argv.slice(2));
 //console.dir(argv);
 
-// What directory will we monitor/operate on.
+// What date range do we want?
 var from_date = argv['f'] || argv['from-date'] || null;
 var to_date = argv['t'] || argv['to-date'] || null;
+
+// Allow the possibility of a different server.
+var in_golr_server = argv['s'] || argv['server'] || null;
+if( in_golr_server && us.isString(in_golr_server) ){
+    gserv = in_golr_server;
+}
 
 ///
 /// Ranges and variables.
