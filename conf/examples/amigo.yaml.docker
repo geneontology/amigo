@@ -26,7 +26,7 @@ AMIGO_DOWNLOAD_LIMIT:
 AMIGO_DYNAMIC_PATH:
   comment: The full path to the location of the perl binaries.
   type: directory
-  value: /home/swdev/jenkins/workspace/amigo2-test-production/perl/bin
+  value: /srv/amigo/perl/bin
 AMIGO_DYNAMIC_URL:
   comment: The URL that AMIGO_DYNAMIC_PATH maps to.
   type: url
