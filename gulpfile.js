@@ -14,7 +14,6 @@ var del = require('del');
 var gulp = require('gulp');
 var bump = require('gulp-bump');
 var flatten = require('gulp-flatten');
-var jsdoc = require("gulp-jsdoc");
 var mocha = require('gulp-mocha');
 var shell = require('gulp-shell');
 var uglify = require('gulp-uglify');
