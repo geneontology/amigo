@@ -58,7 +58,7 @@ Given a list of term IDs, find all information.
 
 #### Example
 
-[/api/entity/terms?entity=GO:0022008&GO:0008150](/api/entity/terms?entity=GO:0022008&entity=GO:0008150)
+[/api/entity/terms?entity=GO:0022008&entity=GO:0008150](/api/entity/terms?entity=GO:0022008&entity=GO:0008150)
 
 ```
 TOO LARGE
