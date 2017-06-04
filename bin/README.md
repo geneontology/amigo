@@ -52,6 +52,18 @@ Given a term ID, find all information.
 TOO LARGE
 ```
 
+### /api/terms
+
+Given a list of term IDs, find all information.
+
+#### Example
+
+[/api/entity/terms?entity=GO:0022008&GO:0008150](/api/entity/terms?entity=GO:0022008&entity=GO:0008150)
+
+```
+TOO LARGE
+```
+
 ### /api/entity/bioentity/<BIOENTITY_ID>
 
 Given a bioentity ID, find all information.

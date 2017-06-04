@@ -526,9 +526,70 @@ app.all('/api/entity/term/:term_id', function (req, res){
 
 	res.json(envl.structure());
     });
+
     // Trigger async try.
     manager.search();
+});
 
+// Return all information on terms.
+app.all('/api/entity/terms', function (req, res){
+    
+    // Get parameters as lists.
+    var entities = _extract(req, 'entity');
+    console.log('entities', entities);
+
+    if( us.isEmpty(entities) ){
+	return _response_json_fail(res, envl, 'Death by lack of entities.');
+    }else{
+
+	// Theoretical good result envelope to start.
+	var envl = new envelope('/api/entity/terms');
+	envl.arguments({'entity': entities});
+
+	// Setup manager and basic.
+	ll('Setting up manager to search for ' + entities.length + ' terms.');
+	var gconf = new golr_conf.conf(amigo.data.golr);
+	var engine = new node_engine(golr_response);
+	var manager = new golr_manager(golr_url, gconf, engine, 'async');
+	manager.set_personality('ontology');
+	manager.set_facet_limit(0); // care not about facets
+	manager.add_query_filter('document_category', 'ontology_class');
+	
+	// Let's get information by target.
+	var max_result_count = 100000;
+	manager.set_results_count(max_result_count);
+	manager.set_targets(entities, ['ontology_class']);
+	
+	// Failure callbacks.
+	manager.register('error', function(resp, man){
+	    envl.status('failure');
+	    envl.comments('Unable to process ' + entities.length + ' terms');
+	    res.json(envl.structure());
+	});
+	
+	// Success callback.
+	manager.register('search', function(resp, man){
+	    
+	    // See what we got.
+	    if( resp.documents().length === 0 ){
+		envl.status('failure');
+		envl.comments('All IDs unknown: ' + entities.length);
+	    }else if( resp.documents().length > entities.length ){
+		envl.status('failure');
+		envl.comments('Some IDs not found: ' + entities.length);
+	    }else{ 
+		// Good response.
+		envl.comments('Found information for all ' +
+			      entities.length + ' terms.');
+		envl.data(resp.documents());
+	    }
+	    
+	    res.json(envl.structure());
+	});
+	
+	// Trigger async try.
+	manager.search();
+    }	
 });
 
 // Return all bioentity information.
