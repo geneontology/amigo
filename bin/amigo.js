@@ -558,7 +558,7 @@ app.all('/api/entity/terms', function (req, res){
 	// Let's get information by target.
 	var max_result_count = 100000;
 	manager.set_results_count(max_result_count);
-	manager.set_targets(entities, ['ontology_class']);
+	manager.set_targets(entities, ['annotation_class']);
 	
 	// Failure callbacks.
 	manager.register('error', function(resp, man){
