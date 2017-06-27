@@ -19,11 +19,11 @@
   For example, for a few of the things we've done in AmiGO so far,
   compare the behave version of the test to the node/mocha version:
  
-  - https://github.com/geneontology/amigo/blob/master/selenium/webdriver/05_autocomplete_tests.js
+  - https://github.com/geneontology/amigo/blob/2.2.x/selenium/webdriver/05_autocomplete_tests.js
   - https://github.com/geneontology/amigo/blob/master/test-app/behave/05_autocomplete_basic.feature
 
   the latter being obviously waaay easier for a curator or scientist
-  to produce. Here is also data some testing:
+  to produce. Here is also some data testing:
 
   - https://github.com/geneontology/amigo/blob/master/test-app/behave/20_data_basic.feature
 
@@ -36,15 +36,16 @@
   (Obviously we could also just query GOlr directly for the tests, but
   this way makes it easier for non-expert users.)
   
-  Another nice thing is that gherkin (the language the tests are
-  written in) has several runners, so the tests are somewhat portable
-  if behave bellies up or is otherwise unsuitable.
+  Another nice thing is that gherkin
+  (https://github.com/cucumber/cucumber/wiki/Gherkin, the language the
+  tests are written in) has several runners, so the tests are somewhat
+  portable if behave bellies up or is otherwise unsuitable.
   
   The major downside I see is that we have to bring in another
   language for this (python 2.7), and it is a little harder to get
-  started than with the node/mocha stuff. That said, since this is
-  just local testing, virtualenv
-  (https://virtualenv.pypa.io/en/latest/) papers over a lot of the
+  started than with the node/mocha stuff, which is "native" to this
+  project. That said, virtualenv (and pyenv, etc.)
+  (https://virtualenv.pypa.io/en/latest/) papers over pretty much all
   issues and is version compatible enough that it will be easy to add
   to our Jenkins machines.
 
