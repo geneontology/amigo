@@ -550,6 +550,9 @@ app.all('/api/entity/terms', function (req, res){
 	ll('Setting up manager to search for ' + entities.length + ' terms.');
 	var gconf = new golr_conf.conf(amigo.data.golr);
 	var engine = new node_engine(golr_response);
+	// Use post as can be a /lot/ in practice.
+	// Waiting on a finx in: https://github.com/berkeleybop/bbop-manager-golr/issues/6
+	// engine.method('POST');
 	var manager = new golr_manager(golr_url, gconf, engine, 'async');
 	manager.set_personality('ontology');
 	manager.set_facet_limit(0); // care not about facets
@@ -564,6 +567,7 @@ app.all('/api/entity/terms', function (req, res){
 	manager.register('error', function(resp, man){
 	    envl.status('failure');
 	    envl.comments('Unable to process ' + entities.length + ' terms');
+	    //console.log(resp);
 	    res.json(envl.structure());
 	});
 	
@@ -588,6 +592,7 @@ app.all('/api/entity/terms', function (req, res){
 	});
 	
 	// Trigger async try.
+	//console.log(manager.get_query_url());
 	manager.search();
     }	
 });
