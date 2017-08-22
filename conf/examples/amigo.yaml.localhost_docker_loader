@@ -1,0 +1,169 @@
+---
+AMIGO_1X_PUBLIC_CGI_BASE_URL:
+  comment: The public URL of an available AmiGO 1.x instance for link references.
+  type: url
+  value: http://amigo1.geneontology.org/cgi-bin/amigo
+AMIGO_API_PORT:
+  comment: OPTIONAL. The port on which to make available the experimental AmiGO JSON API. Defaults to 6455.
+  type: number
+  value: 6455
+AMIGO_BALANCER:
+  comment: 'Mark this AmiGO 2 installation as behind a load balanacer or similar system. The practical effect of this flag is that if AmiGO detects *.error files (usually created by the global-message.pl script), it will return a 503 page signalling any upstream system that the instance is not currently ready.'
+  type: boolean
+  value: 0
+AMIGO_BETA:
+  comment: Mark the AmiGO site as BETA (triggers some changes in variables and installed features).
+  type: boolean
+  value: 1
+AMIGO_BROWSE_FILTER_IDSPACE:
+  comment: An optional field to filter restrict to globally restrict to a certain ontology during some browsing.
+  type: string
+  value: GO
+AMIGO_DOWNLOAD_LIMIT:
+  comment: The download size that AmiGO will default to for the UI.
+  type: number
+  value: 100000
+AMIGO_DYNAMIC_PATH:
+  comment: The full path to the location of the perl binaries.
+  type: directory
+  value: /home/sjcarbon/local/src/git/amigo/perl/bin
+AMIGO_DYNAMIC_URL:
+  comment: The URL that AMIGO_DYNAMIC_PATH maps to.
+  type: url
+  value: http://localhost:9999
+AMIGO_FOR_GO:
+  comment: This flag indicates whether or not your AmiGO instance is for the GO, or a more generic instance. If you are trying to run AmiGO locally, probably "1"; if you are trying to have your own AmiGO with different ontologies, data, etc., probably 0.
+  type: boolean
+  value: 1
+AMIGO_GOOGLE_ANALYTICS_ID:
+  comment: Google analytics ID. Optional.
+  type: string
+  value: ''
+AMIGO_LAYOUT_SEARCH:
+  comment: A whitespace separated list of class IDs to use for live search tabs on the search page.
+  type: list
+  value:
+    - annotation
+    - ontology
+    - bioentity
+    - model_annotation
+    - noctua_model_meta
+    - family
+    - general
+    - bbop_term_ac
+AMIGO_PRIVATE_GOLR_URL:
+  comment: The (optional) private URL of the GOlr server (including slash); this is the one used for loading. Can be the same as the public URL if you have no proxy or firewall to deal with.
+  type: url
+  value: http://localhost:8080/solr/
+AMIGO_PUBLIC_GALAXY_URL:
+  comment: Please enter the public URL of the Galaxy server.
+  type: url
+  value: http://galaxy.berkeleybop.org/
+AMIGO_PUBLIC_GOLR_BULK_URL:
+  comment: The public URL of the GOlr bulk download server (including slash); possibly the same as AMIGO_PUBLIC_GOLR_URL.
+  type: url
+  value: http://localhost:8080/solr/
+AMIGO_PUBLIC_GOLR_URL:
+  comment: The public URL of the GOlr server (including slash); this is the one called by AmiGO resource, JS, etc.
+  type: url
+  value: http://localhost:8080/solr/
+AMIGO_PUBLIC_NOCTUA_URL:
+  comment: The public URL of the Noctua system (including slash).
+  type: url
+  value: http://noctua.berkeleybop.org/
+AMIGO_ROOT:
+  comment: 'Unless you are doing something strange, the parent directory of this file.'
+  type: directory
+  value: /home/sjcarbon/local/src/git/amigo
+AMIGO_ROOT_TERMS:
+  comment: 'For some widgets, we need to know what root terms you are going to be considering in your ontology. Requires both "id" and "label" to be defined.'
+  type: json
+  value:
+    - id: GO:0008150
+      label: biological process
+    - id: GO:0005575
+      label: cellular component
+    - id: GO:0003674
+      label: molecular function
+AMIGO_SERVER_NAME:
+  comment: 'The name by which your AmiGO instance wishes to known--think load balancer or cache situations. If you would rather this information not be reported, leave blank.'
+  type: string
+  value: localhost
+AMIGO_STATIC_PATH:
+  comment: The full path to a usable static document directory where static and staging are located.
+  type: directory
+  value: /home/sjcarbon/local/src/git/amigo/static
+AMIGO_STATIC_URL:
+  comment: The URL for the static content. Can be local or remote.
+  type: url
+  value: http://localhost:9999/static
+AMIGO_TERM_REGEXP:
+  comment: The regular expressions to identify internal ontology ids.
+  type: string
+  value: 'all|GO:[0-9]{7}'
+AMIGO_VERBOSE:
+  comment: Log verbose AmiGO debugging messages.
+  type: boolean
+  value: 1
+AMIGO_WORKING_PATH:
+  comment: 'Please enter the full path to readable/writable directory that will be used for things like temporary files, logs (if enabled), and the golr_timestamp.log file.'
+  type: directory
+  value: /tmp
+GOLR_CATALOG_LOCATION:
+  comment: The location of the GO catalog file for various work.
+  type: file
+  value: '~/local/src/svn/geneontology.org/trunk/ontology/extensions/catalog-v001.xml'
+GOLR_GAF_LIST:
+  comment: The list of GAFs to load.
+  type: list
+  value:
+    - http://www.geneontology.org/gene-associations/goa_human.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_human_complex.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_human_rna.gaf.gz
+    - http://www.geneontology.org/gene-associations/goa_uniprot_all_noiea.gaf.gz
+    - http://www.geneontology.org/gene-associations/gene_association.mgi.gz
+GOLR_METADATA_LIST:
+  comment: 'The full path to the YAML config files directory. In that directory, all files like *config.yaml will be scanned for use.'
+  type: list
+  value:
+    - '/srv/amigo/metadata/ont-config.yaml'
+    - '/srv/amigo/metadata/bio-config.yaml'
+    - '/srv/amigo/metadata/bio-config.browse.yaml'
+    - '/srv/amigo/metadata/ann-config.yaml'
+    - '/srv/amigo/metadata/ann-config.browse.yaml'
+    - '/srv/amigo/metadata/general-config.yaml'
+    - '/srv/amigo/metadata/model-ann-config.yaml'
+    - '/srv/amigo/metadata/noctua-model-meta-config.yaml'
+    - '/srv/amigo/metadata/protein-family-config.yaml'
+    - '/srv/amigo/metadata/ann_ev_agg-config.yaml'
+GOLR_METADATA_ONTOLOGY_LOCATION:
+  comment: The full path to the ontology YAML config file. This is core for any ontology-related load.
+  type: file
+  value: '/srv/amigo/metadata/ont-config.yaml'
+GOLR_NOCTUA_ENRICHED_MODEL_PATH:
+  comment: The list of ontologies to load.
+  type: directory
+  value: '~/local/src/git/noctua-models/models/'
+GOLR_ONTOLOGY_LIST:
+  comment: The list of ontologies to load.
+  type: list
+  value:
+    - http://purl.obolibrary.org/obo/go/extensions/go-gaf.owl
+    - http://purl.obolibrary.org/obo/eco.owl
+    - http://purl.obolibrary.org/obo/go/extensions/go-taxon-subsets.owl
+GOLR_PANTHER_FILE_PATH:
+  comment: The location of the cleaned PANTHER file for the proper loading into GOlr.
+  type: directory
+  value: '~/local/src/svn/geneontology.org/trunk/experimental/trees/panther_data/'
+OWLTOOLS_MAX_MEMORY:
+  comment: The maximum amount of memory to give OWLTools processes.
+  type: string
+  value: 4G
+OWLTOOLS_USE_MERGE_IMPORT:
+  comment: Whether or not to include --merge-import http://purl.obolibrary.org/obo/go/extensions/go-gaf.owl.
+  type: boolean
+  value: 1
+OWLTOOLS_USE_REMOVE_DISJOINTS:
+  comment: Whether or not to include --remove-disjoints.
+  type: boolean
+  value: 0
