@@ -85,12 +85,24 @@ var data_context = {
   },
   "RO:0002212": {
     "readable": "negatively regulates",
-    "priority": 17,
+    "priority": 16,
     "aliases": [
       "http://purl.obolibrary.org/obo/RO_0002212",
       "negatively:regulates",
       "negatively regulates",
       "negatively_regulates"
+    ],
+    "glyph": "bar",
+    "color": "#FF0000"
+  },
+  "RO:0002630": {
+    "readable": "directly negatively regulates",
+    "priority": 15,
+    "aliases": [
+      "http://purl.obolibrary.org/obo/RO_0002630",
+      "directly:negatively:regulates",
+      "directly negatively regulates",
+      "directly_negatively_regulates"
     ],
     "glyph": "bar",
     "color": "#FF0000"
@@ -103,6 +115,18 @@ var data_context = {
       "positively:regulates",
       "positively regulates",
       "positively_regulates"
+    ],
+    "glyph": "arrow",
+    "color": "#008000"
+  },
+  "RO:0002629": {
+    "readable": "directly positively regulates",
+    "priority": 17,
+    "aliases": [
+      "http://purl.obolibrary.org/obo/RO_0002629",
+      "directly:positively:regulates",
+      "directly positively regulates",
+      "directly_positively_regulates"
     ],
     "glyph": "arrow",
     "color": "#008000"
@@ -214,7 +238,7 @@ var data_context = {
   },
   "RO:0002406": {
     "readable": "directly activates",
-    "priority": 20,
+    "priority": 2,
     "aliases": [
       "http://purl.obolibrary.org/obo/directly_activates",
       "directly:activates",
@@ -222,7 +246,19 @@ var data_context = {
       "directly_activates"
     ],
     "glyph": "arrow",
-    "color": "#2F4F4F"
+    "color": "#008000"
+  },
+  "RO:0002407": {
+    "readable": "indirectly activates",
+    "priority": 1,
+    "aliases": [
+      "http://purl.obolibrary.org/obo/indirectly_activates",
+      "indirectly:activates",
+      "indirectly activates",
+      "indirectly_activates"
+    ],
+    "glyph": "arrow",
+    "color": "#008000"
   },
   "upstream_of": {
     "readable": "upstream of",
@@ -237,7 +273,7 @@ var data_context = {
   },
   "RO:0002408": {
     "readable": "directly inhibits",
-    "priority": 19,
+    "priority": 2,
     "aliases": [
       "http://purl.obolibrary.org/obo/directly_inhibits",
       "directly:inhibits",
@@ -245,7 +281,19 @@ var data_context = {
       "directly_inhibits"
     ],
     "glyph": "bar",
-    "color": "#7FFF00"
+    "color": "#FF0000"
+  },
+  "RO:0002409": {
+    "readable": "indirectly inhibits",
+    "priority": 1,
+    "aliases": [
+      "http://purl.obolibrary.org/obo/indirectly_inhibits",
+      "indirectly:inhibits",
+      "indirectly inhibits",
+      "indirectly_inhibits"
+    ],
+    "glyph": "bar",
+    "color": "#FF0000"
   },
   "RO:0002411": {
     "readable": "causally upstream of",

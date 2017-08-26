@@ -1,5 +1,8 @@
 ####
 #### Colors are X11: http://cng.seas.rochester.edu/CNG/docs/x11color.html
+#### For now, "manually" export into context.js.tmpl using:
+####  [C-u M-!]
+####  /home/sjcarbon/local/src/git/amigo/node_modules/.bin/yaml2json /home/sjcarbon/local/src/git/amigo/conf/context.yaml --p
 ####
 'instance_of':
   readable: 'instance of'
