@@ -98,7 +98,7 @@ function _run_cmd_list(commands){
 	final_list.push('echo \'' + cmd + '\'');
 	final_list.push(cmd);
     });
-    
+
     return final_list;
 }
 
@@ -110,7 +110,7 @@ var paths = {
     // WARNING: Cannot use glob for clients--I use the explicit listing
     // to generate a dynamic browserify set.
     clients: [
-	
+
     ],
     scripts: [
 	'scripts/*'
@@ -452,6 +452,7 @@ gulp.task('load-models-all', shell.task(_run_cmd(
     [owltools_runner,
      ontology_string,
      owltools_ops_flags,
+     '--remove-equivalent-to-nothing-axioms', // roll out more generally?
      '--solr-url', golr_private_url,
      '--solr-log', solr_load_log,
      '--read-lego-catalogs', catalog_file,
@@ -535,7 +536,7 @@ gulp.task('w3c-validate', shell.task(_run_cmd_list(
 
 // Release tools for patch release.
 gulp.task('release', ['install', // compile and roll out files and js templates
-		      'publish-npm', // put to 
+		      'publish-npm', // put to
 		      'patch-bump', // bump the main amigo
 		      'sync-package-version']); // bump the subordinates
 
@@ -581,7 +582,7 @@ gulp.task('sync-package-version', function(cb) {
 /// DEBUG.
 ///
 
-// Use as: gulp buffer-check > /tmp/foo.txt 
+// Use as: gulp buffer-check > /tmp/foo.txt
 gulp.task('buffer-check', shell.task(_run_cmd_list(
     //['perl -e "for (0..1600000){ print STDOUT \\"0123456789\\n\\";}"'] // fail
     ['perl -e "for (0..1500000){ print STDOUT \\"0123456789\\n\\";}"'] // okay
@@ -656,7 +657,7 @@ gulp.task('default', ['install', 'tests', 'docs']);
 // ###
 
 // .PHONY: pass
-// pass: 
+// pass:
 // 	node ./node_modules/.bin/gulp test | grep -i fail; test $$? -ne 0
 
 // ###
