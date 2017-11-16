@@ -182,7 +182,9 @@ var otu_mrg_imp_p = _to_boolean(a['OWLTOOLS_USE_MERGE_IMPORT'].value);
 var otu_rm_dis_p = _to_boolean(a['OWLTOOLS_USE_REMOVE_DISJOINTS'].value);
 var all_owltools_ops_flags_list = [
     '--merge-support-ontologies',
-    (otu_mrg_imp_p ? '--merge-import http://purl.obolibrary.org/obo/go/extensions/go-plus.owl' : '' ),
+    // Make load less sensitive and more collapsed.
+    //(otu_mrg_imp_p ? '--merge-import http://purl.obolibrary.org/obo/go/extensions/go-plus.owl' : '' ),
+    (otu_mrg_imp_p ? '--merge-imports-closure' : '' ),
     '--remove-subset-entities upperlevel',
     (otu_rm_dis_p ? '--remove-disjoints' : ''),
     '--silence-elk --reasoner elk',
