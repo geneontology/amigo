@@ -41,7 +41,7 @@ fields:
     property: [getDef]
     searchable: true
   - id: source
-    description: "Term namespace."
+    description: "Term namespace. In GO, this is one of: biological_process, molecular_function, cellular_component. In other ontologies it is not guaranteed to be populated. Consider using idspace instead for general queries."
     display_name: Ontology source
     type: string
     property: [getNamespace]
