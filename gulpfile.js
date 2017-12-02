@@ -457,7 +457,7 @@ gulp.task('load-models-all', shell.task(_run_cmd(
      '--remove-equivalent-to-nothing-axioms', // roll out more generally?
      '--solr-url', golr_private_url,
      '--solr-log', solr_load_log,
-     '--read-lego-catalogs', catalog_file,
+     //'--read-lego-catalogs', catalog_file,
      '--read-model-folder', noctua_file_path,
      '--read-model-url-prefix', noctua_model_prefix,
      '--solr-load-models']
