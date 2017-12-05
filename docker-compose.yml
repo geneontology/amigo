@@ -1,0 +1,31 @@
+version: "3"
+services:
+    loader:
+        image: amigo:loader
+        deploy:
+            mode: global
+            resources:
+                limits:
+                    memory: 8G
+            restart_policy:
+                condition: none
+
+        # command: ["curl", "http://golr_loader_solr.1.j6vswt0py63yp74wmbjaiivog:8080"]
+        depends_on:
+            - solr
+        networks:
+            - loadingnet
+
+    solr:
+        image: amigo
+        deploy:
+            replicas: 1
+            restart_policy:
+                condition: on-failure
+        ports:
+            - "8080:8080"
+        networks:
+            - loadingnet
+
+networks:
+    loadingnet:
