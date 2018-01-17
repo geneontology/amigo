@@ -181,6 +181,7 @@ if( a['AMIGO_API_PORT'] && a['AMIGO_API_PORT'].value ){
 var otu_mrg_imp_p = _to_boolean(a['OWLTOOLS_USE_MERGE_IMPORT'].value);
 var otu_rm_dis_p = _to_boolean(a['OWLTOOLS_USE_REMOVE_DISJOINTS'].value);
 var all_owltools_ops_flags_list = [
+    '--log-info',
     '--merge-support-ontologies',
     // Make load less sensitive and more collapsed.
     //(otu_mrg_imp_p ? '--merge-import http://purl.obolibrary.org/obo/go/extensions/go-plus.owl' : '' ),
