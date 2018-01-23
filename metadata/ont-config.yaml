@@ -123,14 +123,14 @@ fields:
       - "BFO:0000050"
     searchable: true
   - id: isa_closure
-    description: "Superclasses (is_a)."
+    description: "Ancestral terms (is_a)."
     display_name: Is-a
     type: string
     cardinality: multi
     property:
       - "getRelationIDClosure"
   - id: isa_closure_label
-    description: "Superclasses (is_a) labels."
+    description: "Ancestral terms (is_a) labels."
     display_name: Is-a
     type: string
     cardinality: multi
