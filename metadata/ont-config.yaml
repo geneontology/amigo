@@ -122,6 +122,21 @@ fields:
       - "getRelationLabelClosure"
       - "BFO:0000050"
     searchable: true
+  - id: isa_closure
+    description: "Superclasses (is_a)."
+    display_name: Is-a
+    type: string
+    cardinality: multi
+    property:
+      - "getRelationIDClosure"
+  - id: isa_closure_label
+    description: "Superclasses (is_a) labels."
+    display_name: Is-a
+    type: string
+    cardinality: multi
+    property:
+      - "getRelationLabelClosure"
+    searchable: true
   - id: regulates_closure
     description: "Ancestral terms (regulates, occurs in, capable_of)."
     display_name: Ancestor
