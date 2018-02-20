@@ -146,13 +146,13 @@ fields:
     property: []
     searchable: true
   - id: regulates_strict_closure
-    description: "Annotations for this term or its children (over regulates but not part-of)."
+    description: "Annotations for this term or its children (over regulates, but not part-of)."
     display_name: GO class
     type: string
     cardinality: multi
     property: []
   - id: regulates_strict_closure_label
-    description: "Annotations for this term or its children (over regulates not not part-of)."
+    description: "Annotations for this term or its children (over regulates, but not part-of)."
     display_name: GO class
     type: string
     cardinality: multi
