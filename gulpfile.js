@@ -461,13 +461,34 @@ gulp.task('load-models-all', shell.task(_run_cmd(
      //'--read-lego-catalogs', catalog_file,
      '--read-model-folder', noctua_file_path,
      '--read-model-url-prefix', noctua_model_prefix,
-     '--solr-load-models']
+     '--solr-load-models'
+    ]
 )));
 
 gulp.task('load-optimize', shell.task(_run_cmd(
     [owltools_runner,
      '--solr-url', golr_private_url,
      '--solr-optimize']
+)));
+
+// A minimal working set with some of the more exotic stuff hanging
+// on (no opt).
+gulp.task('load-most', shell.task(_run_cmd(
+    [owltools_runner,
+     ontology_string,
+     owltools_ops_flags,
+     // General config.
+     '--solr-url', golr_private_url,
+     '--solr-log', solr_load_log,
+     // Ontology.
+     '--solr-config', ontology_metadata,
+     '--solr-load-ontology',
+     '--solr-load-ontology-general',
+     // PANTHER (reading--annotations need them too)
+     '--read-panther', panther_file_path,
+     // GAFs
+     '--solr-load-gafs', gaf_string
+    ]
 )));
 
 // TODO: Still need to add models.
