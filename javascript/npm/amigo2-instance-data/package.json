@@ -1,6 +1,6 @@
 {
     "name": "amigo2-instance-data",
-    "version": "2.5.7",
+    "version": "2.5.9",
     "license": "BSD-3-Clause",
     "description": "The AmiGO production data package, for use with BBOP tools.",
     "keywords": [
@@ -44,7 +44,7 @@
         "gulp-shell": "^0.4.2",
         "gulp-uglify": "^1.2.0",
         "jsdoc": "^3.3.0",
-        "jsdoc-baseline": "git://github.com/hegemonic/jsdoc-baseline.git#74d1dc8075"
+        "jsdoc-baseline": "https://github.com/hegemonic/jsdoc-baseline.git#74d1dc8075"
     },
     "bundleDependencies": [],
     "private": false,
