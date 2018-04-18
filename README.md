@@ -72,3 +72,12 @@ DISPLAY=:1.5 ./node_modules/.bin/gulp tests
 ## Pop out of our wonderland.
 deactivate
 ```
+
+# Releases
+
+The SOP for releases is:
+
+* `npm install`
+* `gulp release`
+* `cd javascript/npm/amigo2-instance-data/ && gulp release && cd ../bbop-widget-set && gulp release && ../../..`
+* git update?
