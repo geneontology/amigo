@@ -1,6 +1,6 @@
 {
     "name": "amigo2-instance-data",
-    "version": "2.5.11",
+    "version": "2.5.10",
     "license": "BSD-3-Clause",
     "description": "The AmiGO production data package, for use with BBOP tools.",
     "keywords": [
@@ -29,7 +29,6 @@
     },
     "dependencies": {
         "bbop-core": "0.0.5",
-        "npm-check-updates": "^2.14.1",
         "underscore": "1.8.3"
     },
     "devDependencies": {
@@ -44,7 +43,8 @@
         "gulp-rename": "^1.2.2",
         "gulp-shell": "^0.6.5",
         "gulp-uglify": "^3.0.0",
-        "jsdoc": "^3.3.0"
+        "jsdoc": "^3.3.0",
+        "npm-check-updates": "^2.14.1"
     },
     "bundleDependencies": [],
     "private": false,
