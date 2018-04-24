@@ -81,3 +81,4 @@ The SOP for releases is:
 * `gulp release`
 * `cd javascript/npm/amigo2-instance-data/ && gulp release && cd ../bbop-widget-set && gulp release && cd ../../..`
 * `git commit -a -m "SOP update for metadata"`
+* `git push`
