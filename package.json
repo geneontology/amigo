@@ -18,8 +18,8 @@
     "url": "git+https://github.com/geneontology/amigo.git"
   },
   "engines": {
-    "node": ">= 8.0.0",
-    "npm": ">= 3.0.0"
+    "node": ">= 8.11.1",
+    "npm": ">= 5.6.0"
   },
   "dependencies": {
     "bbop": "2.4.3",
