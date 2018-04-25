@@ -39,18 +39,6 @@ mr_t.is_same_atom(l.url('XXXX:S000006169'),
 		  null,
 		  'linker: null');
 
-
-mr_t.is_same_atom(l.url('WB:WBGene00003001'),
-		  'http://www.wormbase.org/get?name=WBGene00003001&class=Gene',
-		  'linker: wb gene');
-mr_t.is_same_atom(l.url('WB:WBVar00249887'),
-		  'http://www.wormbase.org/get?name=WBVar00249887&class=Variation',
-		  'linker: wb variation');
-mr_t.is_same_atom(l.url('WP:CE01843'),
-		  'http://www.wormbase.org/get?name=WP:CE01843&class=Protein',
-		  'linker: wb protein');
-
-
 // Okay, now check that synonyms work like we think they should.
 // Try it on the every annoying NCBITaxon.
 mr_t.is_same_atom(l.url('taxon:7227'),
