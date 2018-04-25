@@ -70,3 +70,4 @@ tramp
 
 ## Would rather not have the minimal java stuff pollute.
 *.class
+.idea
