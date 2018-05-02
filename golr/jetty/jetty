@@ -14,8 +14,8 @@ VERBOSE=yes
 # Listen to connections from this network host
 # Use 0.0.0.0 as host to accept all connections.
 # Uncomment to restrict access to localhost
+## NOTE: See JAVA_OPTIONS, as this didn't seem to work in jetty9. -SJC
 #JETTY_HOST=$(uname -n)
-JETTY_HOST=localhost
 
 # The network port used by Jetty
 #JETTY_PORT=8080
@@ -30,7 +30,7 @@ JETTY_HOST=localhost
 #JAVA_OPTIONS="-Xmx256m -Djava.awt.headless=true"
 #JAVA_OPTIONS="-Xmx256m -Djava.awt.headless=true -Dsolr.solr.home=/srv/solr"
 #JAVA_OPTIONS="-Xmx32g -Djava.awt.headless=true -Dsolr.solr.home=/srv/solr"
-JAVA_OPTIONS="-Xmx3g -Djava.awt.headless=true -Dsolr.solr.home=/srv/solr"
+JAVA_OPTIONS="-Xmx3g -Djava.awt.headless=true -Djetty.host=localhost -Dsolr.solr.home=/srv/solr"
 #JAVA_OPTIONS="-Xmx128g -Djava.awt.headless=true -Dsolr.solr.home=/srv/solr"
 
 # Home of Java installation.
