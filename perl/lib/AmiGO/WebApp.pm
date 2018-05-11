@@ -28,7 +28,7 @@ use DBI;
 use Data::Dumper;
 use File::Slurp;
 use File::Basename;
-
+use URI::Encode;
 
 ## NOTE: This will run on app init (once even in a mod_perl env).
 ## Perform some project-specific init behavior
@@ -41,6 +41,7 @@ sub cgiapp_init {
   $self->{CORE} = AmiGO->new();
   $self->{JS} = AmiGO::JavaScript->new();
   $self->{CSS} = AmiGO::CSS->new();
+  $self->{OUTPUT_SANITIZER} = URI::Encode->new({ encode_reserved => 0 });
 
   # ## Say goonight, Gracie.
   # $self->{CORE}->kvetch('running: '. $self->get_current_runmode() || '???');
@@ -404,7 +405,7 @@ sub decide_content_type_by_filename {
   }elsif( $fsuffix eq '.text' ){
       $ctype = 'text/plain';
   }
-  
+
   return $ctype;
 }
 
@@ -431,7 +432,7 @@ sub get_content_by_filename {
       ## All else as binary.
       $cont = read_file($path, { binmode => ':raw' });
   }
-  
+
   return $cont;
 }
 
@@ -1742,7 +1743,7 @@ sub json_parsable_p {
       $self->{CORE}->kvetch("with JSON: " . $json_str);
       $retval = 0;
     }
-  
+
   return $retval;
 }
 

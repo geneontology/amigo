@@ -304,9 +304,9 @@ sub mode_dd_browse {
 
   ## Page settings.
   my $page_name = 'dd_browse';
-  my($page_title, 
+  my($page_title,
      $page_content_title,
-     $page_help_link) = $self->_resolve_page_settings($page_name);  
+     $page_help_link) = $self->_resolve_page_settings($page_name);
   $self->set_template_parameter('page_name', $page_name);
   $self->set_template_parameter('page_title', $page_title);
   $self->set_template_parameter('page_content_title', $page_content_title);
@@ -357,7 +357,7 @@ sub mode_base_statistics {
 
   ## Page settings.
   my $page_name = 'base_statistics';
-  my($page_title, 
+  my($page_title,
      $page_content_title,
      $page_help_link) = $self->_resolve_page_settings($page_name);
   $self->set_template_parameter('page_name', $page_name);
@@ -640,9 +640,9 @@ sub mode_simple_search {
 
   ## Page settings.
   my $page_name = 'simple_search';
-  my($page_title, 
+  my($page_title,
      $page_content_title,
-     $page_help_link) = $self->_resolve_page_settings($page_name);  
+     $page_help_link) = $self->_resolve_page_settings($page_name);
   $self->set_template_parameter('page_name', $page_name);
   $self->set_template_parameter('page_title', $page_title);
   $self->set_template_parameter('page_content_title', $page_content_title);
@@ -916,9 +916,9 @@ sub mode_schema_details {
 
   ## Page settings.
   my $page_name = 'schema_details';
-  my($page_title, 
+  my($page_title,
      $page_content_title,
-     $page_help_link) = $self->_resolve_page_settings($page_name);  
+     $page_help_link) = $self->_resolve_page_settings($page_name);
   $self->set_template_parameter('page_name', $page_name);
   $self->set_template_parameter('page_title', $page_title);
   $self->set_template_parameter('page_content_title', $page_content_title);
@@ -1003,9 +1003,9 @@ sub mode_load_details {
 
   ## Page settings.
   my $page_name = 'load_details';
-  my($page_title, 
+  my($page_title,
      $page_content_title,
-     $page_help_link) = $self->_resolve_page_settings($page_name);  
+     $page_help_link) = $self->_resolve_page_settings($page_name);
   $self->set_template_parameter('page_name', $page_name);
   $self->set_template_parameter('page_title', $page_title);
   $self->set_template_parameter('page_content_title', $page_content_title);
@@ -1126,7 +1126,7 @@ sub mode_search {
 
   ## Normal incoming args.
   my $bookmark = $params->{bookmark} || '';
-  my $query = $params->{q} || '';
+  my $query = $self->{OUTPUT_SANITIZER}->encode($params->{q}) || '';
   my $filters = $params->{fq} || [];
   my $pins = $params->{sfq} || [];
   ## Ensure listref input on multi-inputs.
@@ -1278,7 +1278,7 @@ sub mode_bulk_search {
 
   ## Page settings.
   my $page_name = 'bulk_search';
-  my($page_title, 
+  my($page_title,
      $page_content_title,
      $page_help_link) = $self->_resolve_page_settings($page_name);
   $self->set_template_parameter('page_name', $page_name);
@@ -1520,7 +1520,7 @@ sub mode_term_details {
   my $sorted_child_chunks =
     $term_worker->get_child_info_for($input_term_id);
   #$self->{CORE}->kvetch('scc: ' . Dumper($sorted_child_chunks));
-  foreach my $cinfo (@$sorted_child_chunks){ 
+  foreach my $cinfo (@$sorted_child_chunks){
     push @$acc_list_for_gpc_info, $cinfo->{acc};
   }
   $self->set_template_parameter('CHILD_CHUNKS', $sorted_child_chunks);
@@ -1847,7 +1847,7 @@ sub mode_gene_product_details {
 }
 
 
-## 
+##
 sub mode_reference_details {
 
   my $self = shift;
@@ -2075,7 +2075,7 @@ sub mode_model_details {
   ## TODO/BUG: This is temporary as we work out what we'll actually have.
   my @s = split(':', $input_id);
   my $fid = $s[scalar(@s) -1];
-  ## 
+  ##
   my $repo_file_url = $github_base . $fid;
   my $edit_file_url = $editor_base . $input_id;
   my $view_file_url = $viewer_base . $input_id;
