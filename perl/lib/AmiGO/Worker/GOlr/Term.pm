@@ -253,7 +253,7 @@ sub get_ancestor_info {
     #$self->kvetch("looking at1: " . $acc);
     if( ! $in_arg_list{$acc} || $is_reflexive_p ){
 
-      ## 
+      ##
       my $depth = $lnode_depth->{$acc};
       # $self->kvetch("looking at: " . $acc . ', depth: ' . $depth);
       if( ! defined $nodes_by_depth->{$depth} ){
