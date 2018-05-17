@@ -143,7 +143,7 @@ sub _relation_weight {
       defined $order->{$rel} ){
     $ret = $order->{$rel};
   }
-  #print STDERR ";;; $rel $ret\n";
+  #_ll(";;; $rel $ret");
 
   return $ret;
 }
@@ -177,7 +177,7 @@ sub new {
   ## need them--see the helper function: _ensure_max_distance_info
   $self->{ACG_MAX_NODE_DISTANCE_FROM_ROOT} = undef;
 
-  _ll('passed 1');
+  # _ll('passed 1');
 
   ## Produce the topology graph and cache for easy operations.
   my $topology_graph_hash = $self->_read_json_string($jstr_topology_graph);
@@ -186,8 +186,8 @@ sub new {
 
   # _ll('0: ' . $jstr_topology_graph);
   # _ll('1: ' . $topology_graph_hash);
-  # print('1.5: ' .  $self->{ACG_TOPOLOGY_GRAPH} . "\n");
-  # print('1.75: ' .  defined($self->{ACG_TOPOLOGY_GRAPH}) . "\n");
+  # _ll('1.5: ' .  $self->{ACG_TOPOLOGY_GRAPH});
+  # _ll('1.75: ' .  defined($self->{ACG_TOPOLOGY_GRAPH}));
   # _ll('2: ' . $self->{ACG_TOPOLOGY_GRAPH});
   # _ll('3: ' . $self->{ACG_TOPOLOGY});
 
@@ -205,9 +205,9 @@ sub new {
 			    $self->{ACG_LINEAGE});
 
   # ## A little extra lite calculation on what we got out of the graph.
-  # # $self->kvetch('sinks: ' . join(', ',
+  # # _ll('sinks: ' . join(', ',
   # #     $self->{ACG_TOPOLOGY_GRAPH}->sink_vertices()));
-  # # $self->kvetch('sources: ' .
+  # # _ll('sources: ' .
   # # 		join(', ', $self->{ACG_TOPOLOGY_GRAPH}->source_vertices()));
   # $self->{ACG_TOPOLOGY_ROOTS} = {};
   # $self->{ACG_TOPOLOGY_LEAVES} = {};
@@ -272,13 +272,12 @@ sub is_root_p {
 
   ##
   my $retval = 0;
-  #$self->kvetch('_root_p_acc_: ' . $acc);
-  #print('IN: ' . $acc . "\n");
+  #_ll('_root_p_acc_: ' . $acc);
   my $roots = $self->get_roots();
   if( defined $roots->{$acc} ){
     $retval = 1;
   }
-  #$self->kvetch('_root_p_ret_: ' . $retval);
+  #_ll('_root_p_ret_: ' . $retval);
   return $retval;
 }
 
@@ -294,13 +293,12 @@ sub is_leaf_p {
 
   ##
   my $retval = 0;
-  #$self->kvetch('_leaf_p_acc_: ' . $acc);
-  #print('IN: ' . $acc . "\n");
+  #_ll('_leaf_p_acc_: ' . $acc);
   my $leaves = $self->get_leaves();
   if( defined $leaves->{$acc} ){
     $retval = 1;
   }
-  #$self->kvetch('_leaf_p_ret_: ' . $retval);
+  #_ll('_leaf_p_ret_: ' . $retval);
   return $retval;
 }
 
@@ -626,13 +624,6 @@ sub _ensure_max_distance_info {
 #   my $max_hist = shift || {};
 #   my $encounter_hist = shift || {};
 
-#   ## DEBUG.
-#   sub _ll {}
-#   # sub _ll {
-#   #   my $str = shift || '';
-#   #   print STDERR 'MIC: ' . $str . "\n";
-#   # }
-
 #   ## Only recur if our encounter history sez that either this node
 #   ## is new or if we have a higher distance count (in which case we add
 #   ## it and continue on our merry way).
@@ -648,7 +639,7 @@ sub _ensure_max_distance_info {
 #     ## Increment our distance.
 #     $curr_distance++;
 
-#     ## 
+#     ##
 #     foreach my $p (@{$self->get_parents($curr)}){
 #       _ll('   look upwards: ' . $p);
 
@@ -689,32 +680,33 @@ sub _max_info_climber {
   my $max_hist = shift || {};
   my $encounter_hist = shift || {};
 
+  ## Update the metadata for this item.
   my $update_info_for = sub {
     my $update_item = shift;
     my $update_distance = shift;
+    #$self->kvetch(' updating info: ' . $update_item .', @:'. $update_distance);
     if( ! defined $encounter_hist->{$update_item} ){
-      _ll('first time encountering: ' . $update_item .', @:'. $update_distance);
+      #$self->kvetch('  first time encountering');
       ## Note that we have encountered this node before.
       $encounter_hist->{$update_item} = 1;
       ## Our first distance is the current one!
       $max_hist->{$update_item} = $update_distance;
     }else{
-      _ll('have seen before: ' . $update_item . '...' .
-	  $max_hist->{$update_item} .'/'. $update_distance );
+      #$self->kvetch('  have seen before: ' . $update_item . '...' . $max_hist->{$update_item} .'/'. $update_distance );
       ## If we're seeing this node again, but with a separate history,
       ## we'll add the length or our history to the current, but will
       ## not recur in any case (we've been here before).
       if( $max_hist->{$update_item} < $update_distance ){
-	_ll('   new high at current: ' . $update_distance);
+	#$self->kvetch('   new high at current: ' . $update_distance);
 	$max_hist->{$update_item} = $update_distance;
       }else{
-	_ll('   keeping current: ' . $max_hist->{$update_item});
+	#$self->kvetch('   keeping current: ' . $max_hist->{$update_item});
       }
     }
   };
 
   ##
-  _ll('new set @' . $curr_distance . ' looks like: ' . Dumper($curr_list));
+  #$self->kvetch('>>>>> new set @' . $curr_distance . ' looks like: ' . Dumper($curr_list));
 
   ## Only work if we have things in our list.
   if( scalar(@$curr_list) > 0 ){
@@ -724,11 +716,18 @@ sub _max_info_climber {
       &$update_info_for($item, $curr_distance);
     }
 
-    ## Collect the parents of everything in the list.
+    ## Collect the parents of everything in the list that has not been
+    ## seen before.
     my $next_round = {};
     foreach my $item (@$curr_list){
       foreach my $p (@{$self->get_parents($item)}){
-	$next_round->{$p} = 1;
+	if( ! defined $encounter_hist->{$p} ){
+	  #$self->kvetch(' not seen before; adding: ' . $p);
+	  $next_round->{$p} = 1;
+	}else{
+	  #$self->kvetch(' seen before; incrementing and skipping: ' . $p);
+	  &$update_info_for($p, $curr_distance +1);
+	}
       }
     }
     my @next_list = keys(%$next_round);
@@ -737,7 +736,7 @@ sub _max_info_climber {
     $curr_distance++;
 
     ##
-    _ll('future @' . $curr_distance . ' looks like: ' . Dumper(\@next_list));
+    # _ll('future @' . $curr_distance . ' looks like: ' . Dumper(\@next_list));
 
     ## Recur on new parent list.
     $self->_max_info_climber(\@next_list, $curr_distance,
@@ -837,14 +836,17 @@ sub lineage_info {
   my $node_distance = {};
   my $max_distance = 0;
 
-  # ## DEBUG
-  # my $debug_counter = 0;
-  # my $debug_href = {};
-  # $self->kvetch('for: ' . $sub_acc);
+  ## DEBUG
+  my $debug_counter = 0;
+  my $debug_href = {};
+  # _ll('for: ' . $sub_acc);
 
   ## 1) Process $nodes.
   ## Copy them out.
   foreach my $obj_acc (keys %{$self->{ACG_TOPOLOGY}{NODES}}){
+
+    # ## DEBUG
+    # _ll("T1");
 
     ## Let's skip talking about ourselves and our children.
     my $ignorables = {};
@@ -853,6 +855,10 @@ sub lineage_info {
     foreach my $ks (@$iks){
       $ignorables->{$ks} = 1;
     }
+
+    # ## DEBUG
+    # _ll("T2");
+
     if( ! defined $ignorables->{$obj_acc} ){
 
       ## 1) Process $nodes.
@@ -863,8 +869,14 @@ sub lineage_info {
 	 #link => 'http://localhost#TODO',
 	};
 
+      # ## DEBUG
+      # _ll("T3");
+
       ## 2) Process $node_rel.
       $node_rel->{$obj_acc} = $self->get_transitive_relationship($obj_acc);
+
+      # ## DEBUG
+      # _ll("T4");
 
       ## 3) Process $node_rel_inf_p.
       $node_rel_inf_p->{$obj_acc} = 1;
@@ -874,18 +886,24 @@ sub lineage_info {
 	$node_rel_inf_p->{$obj_acc} = 0;
       }
 
+      # ## DEBUG
+      # _ll("T5");
+
       ## 4) Process $node_distance.
       $node_distance->{$obj_acc} = $self->max_distance($obj_acc);
 
       # ## DEBUG
-      # $self->kvetch("inner: $obj_acc");
+      # _ll("T6");
+
+      # ## DEBUG
+      # _ll("inner: $obj_acc");
     }
 
     # ## DEBUG
     # $debug_counter++;
     # my $debug_val = $debug_href->{$obj_acc} || 0;
     # $debug_href->{$obj_acc} = 1;
-    # $self->kvetch("outer ($debug_counter/$debug_val): $obj_acc");
+    # _ll("outer ($debug_counter/$debug_val): $obj_acc");
   }
 
   ## 5) Process $max_distance.
@@ -952,7 +970,7 @@ sub lineage_info {
 #       my $len = $tc_graph->path_length($sub, $root);
 #       if( defined $len ){
 # 	$tc_distance{$sub} = $len;
-# 	# $self->kvetch('distance of ' . $sub . ' is ' . $len);
+# 	# _ll('distance of ' . $sub . ' is ' . $len);
 #       }
 #     }
 #   }
