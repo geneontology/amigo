@@ -26,7 +26,7 @@ var golr_conf = require('golr-conf');
 var gconf = new golr_conf.conf(amigo.data.golr);
 var sd = amigo.data.server;
 var gserv = amigo.data.server.golr_base;
-var gserv_download = amigo.data.server.golr_download_base;
+var gserv_download = amigo.data.server.golr_bulk_base;
 var defs = amigo.data.definitions;
 // Linker.
 var linker = amigo.linker;
