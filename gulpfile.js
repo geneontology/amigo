@@ -289,6 +289,7 @@ var web_compilables = [
     'LiveSearchGOlr.js',
     'LoadDetails.js',
     'ReferenceDetails.js',
+    'REPL.js',
     'Schema.js',
     'TermDetails.js'
 ];

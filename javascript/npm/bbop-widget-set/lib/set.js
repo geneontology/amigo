@@ -1,4 +1,4 @@
-/* 
+/*
  * The framework to hang the rest of the ol' BBOP widgets on.
  *
  * @module: bbop-widget-set
@@ -9,11 +9,11 @@ var bbop = require('bbop-core');
 
 /**
  * "Constructor" for bbop-widget-set.
- * 
+ *
  * Parameters:
  *  n/a
  *
- * @constructor 
+ * @constructor
  * @returns {Object} bbop-widget-set object
  */
 var set = function(more_dispatch){
@@ -55,6 +55,7 @@ try {
     module.exports.live_pager = require('./live_pager');
     module.exports.live_results = require('./live_results');
     module.exports.browse = require('./browse');
+    module.exports.repl = require('./repl');
 }catch (e){
     //console.error(e);
     console.error('vvvvv');

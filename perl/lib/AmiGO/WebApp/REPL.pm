@@ -118,9 +118,7 @@ sub mode_bbop_js {
       'com.jquery',
       'com.bootstrap',
       'com.jquery-ui',
-      #'com.jquery.tablesorter',
-      'bbop',
-      'amigo2'
+      #'com.jquery.tablesorter'
      ],
      javascript =>
      [
@@ -129,8 +127,9 @@ sub mode_bbop_js {
      ],
      javascript_init =>
      [
-      'GeneralSearchForwardingInit();',
-      'REPLInit();'
+      #'GeneralSearchForwardingInit();',
+      #'REPLInit();'
+      '(function(){})();'
      ],
      content =>
      [
@@ -139,9 +138,7 @@ sub mode_bbop_js {
     };
   $self->add_template_bulk($prep);
 
-  $output = $self->generate_template_page_with();
-
-  return $output;
+  return $self->generate_template_page_with();
 }
 
 
