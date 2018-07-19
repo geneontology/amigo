@@ -2,6 +2,23 @@
 
 [% INCLUDE common/noscript_js_limited.tmpl %]
 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js"></script>
+
+<script type="text/babel">
+class RibbonComponent extends React.Component {
+    render() {
+        return (<p>Ribbon Component imported</p>);
+    }
+}
+ReactDOM.render(
+    <RibbonComponent />,
+    document.getElementById('go_ribbon')
+);
+</script>
+
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">
@@ -104,6 +121,11 @@
 
     </dl>
 
+<div id="go_ribbon">
+Gene Features Here
+
+</div>
+
   </div>
 </div>
 
@@ -139,5 +161,10 @@
 
   </div>
 </div>
+<script>
+// var React = require('react');
+// var ReactDOM = require('react-dom');
+
+</script>
 
 <!-- END template: gene_product_details.tmpl -->
