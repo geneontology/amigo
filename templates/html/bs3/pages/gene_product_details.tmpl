@@ -7,17 +7,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js"></script>
 
-<script type="text/babel">
-class RibbonComponent extends React.Component {
-    render() {
-        return (<p>Ribbon Component imported</p>);
-    }
-}
-ReactDOM.render(
-    <RibbonComponent />,
-    document.getElementById('go_ribbon')
-);
-</script>
 
 <div class="panel panel-default">
   <div class="panel-heading">
@@ -161,10 +150,16 @@ Gene Features Here
 
   </div>
 </div>
-<script>
-// var React = require('react');
-// var ReactDOM = require('react-dom');
-
+<script type="text/babel">
+class RibbonComponent extends React.Component {
+    render() {
+        return (<p>Ribbon Component imported</p>);
+    }
+}
+ReactDOM.render(
+    <RibbonComponent />,
+    document.getElementById('go_ribbon')
+);
 </script>
 
 <!-- END template: gene_product_details.tmpl -->
