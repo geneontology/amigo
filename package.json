@@ -22,6 +22,7 @@
     "npm": ">= 5.6.0"
   },
   "dependencies": {
+    "@geneontology/ribbon": "^1.4.8",
     "bbop": "2.4.3",
     "bbop-core": "0.0.5",
     "bbop-graph": "0.0.19",
