@@ -176,6 +176,7 @@ fields:
     type: string
     cardinality: multi
     property: []
+    searchable: true
 #   - id: alternate_id
 #     description: Any alternaitve id.
 #     display_name: Alt id
