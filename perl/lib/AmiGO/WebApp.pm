@@ -983,6 +983,8 @@ sub _common_params_settings {
     $self->_atoi($self->{CORE}->amigo_env('AMIGO_VERBOSE'));
   $params->{last_load_date} =
     $self->{CORE}->amigo_env('GOLR_TIMESTAMP_LAST');
+  $params->{data_doi} = $self->{CORE}->amigo_env('DATA_DOI_IN_USE');
+  $params->{zenodo_concept} = $self->{CORE}->amigo_env('ZENODO_CONCEPT_IN_USE');
   $params->{root_terms} = $self->{CORE}->get_root_terms();
   #$params->{release_name} = $self->{CORE}->release_name();
   #$params->{release_type} = $self->{CORE}->release_type();

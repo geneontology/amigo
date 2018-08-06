@@ -1488,6 +1488,37 @@ sub _read_json_file {
 ###
 
 
+=item read_doi
+
+Extract a DOI from the given file.
+
+Regexp from: https://www.regextester.com/102246
+(10\.[0-9a-zA-Z]+\/(?:(?!["&\'])\S)+)\b
+
+Returns a string or undef.
+
+=cut
+sub read_doi {
+
+  my $self = shift;
+  my $doif = shift || die "need a full file argument: $!";
+  my $ret_str = undef;
+
+  if( $doif && -f $doif ){
+    eval {
+      my $doi_file_as_str = read_file($doif);
+      if( $doi_file_as_str =~ /(10\.[0-9a-zA-Z]+\/(?:(?!["&\'])\S)+)\b/ ){
+	$ret_str = $1;
+      }
+    };
+  }else{
+    die "ARGH!: $doif";
+  }
+
+  return $ret_str;
+}
+
+
 =item golr_timestamp_log
 
 Takes the full path of a GOlr timestamp log file. Why not just read
@@ -1838,7 +1869,7 @@ sub get_root_terms {
 
   my $retlist = [];
 
-  ## 
+  ##
   my $str_raw = $self->amigo_env('AMIGO_ROOT_TERMS') || '';
   if( $str_raw ){
       my $root_set = $self->_read_json_string($str_raw);
@@ -2135,7 +2166,7 @@ sub empty_hash_p {
 
 #   if( defined $input ){
 #     if( ref($input) eq 'ARRAY' ){
-      
+
 #     }
 #   }
 

@@ -28,6 +28,14 @@
 
     <!-- Right. -->
     <div class="col-md-4" style="text-align: right;">
+      [% IF data_doi %]
+      <a href="https://zenodo.org/record/[% zenodo_concept %]">
+	<img src="https://zenodo.org/badge/DOI/[% data_doi %].svg" alt="DOI">
+      </a>
+      <br />
+      [% ELSE %]
+      <!-- No DOI available. -->
+      [% END %]
       [% # Remove confusing database date. %]
       [% IF is_goose_p %]
       <!-- GO database release [% release_name %] ([% release_type %]) -->

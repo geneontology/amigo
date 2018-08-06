@@ -207,6 +207,38 @@ make_permissive( $env_conf{AMIGO_SCRATCH_DIR} );
 ## Override any lies found in the YAML/env config.
 $env_conf{AMIGO_VERSION} = $version;
 
+## Try and see if we can bring in DOI information.
+$env_conf{DATA_DOI_IN_USE} = '???';
+$env_conf{ZENODO_CONCEPT_IN_USE} = '???';
+my $doi = $env_conf{AMIGO_WORKING_PATH} . '/release-archive-doi.json';
+if( $doi && -f $doi ){
+
+  ## We don't wildly care if we can get this optional information or
+  ## not, so wrap it away.
+  eval {
+
+    ## Unfortunately, since we can't use full AmiGO directly yet,
+    ## we'll steal a bit of non-environment functionality all nasty
+    ## like.
+    my $doi_details = AmiGO::read_doi(undef, $doi);
+    if( $doi_details ){
+
+      ## If found, make that the new timestamp for the configurations
+      ## files.
+      if( $doi_details ){
+	$env_conf{DATA_DOI_IN_USE} = $doi_details;
+	ll("Found and using DOI details: " . $doi_details);
+	if( $doi_details =~ /zenodo.(\d+)/ ){
+	  $env_conf{ZENODO_CONCEPT_IN_USE} = $1;
+	  ll("Found and using Zenodo concept: " . $1);
+	}
+      }
+    }
+  };
+}else{
+  #die "ARGH!: $doi";
+}
+
 ## Finally, check to see if we can find the GOlr timestamp file and
 ## see if we can get a little early info from it--the latest file
 ## mentioned.
@@ -241,6 +273,7 @@ if( $glog && -f $glog ){
       ## configurations files.
       if( $latest ){
 	$env_conf{GOLR_TIMESTAMP_LAST} = $latest;
+	ll("Found and using timestamps.");
       }
     }
   };
@@ -352,7 +385,7 @@ foreach my $template (@$remaining_js_templates){
 # ### Create the JS bundle that we'll use in our staging area.
 # ###
 
-# ## 
+# ##
 # my $release_args_compressed =
 #   [
 #    './scripts/release-js.pl', '-v',
@@ -499,7 +532,7 @@ sub xref_abbs_to_meta_js {
   my $xrefs_url = shift || die "need a url for the db-xrefs.yaml file";
   my $type = shift || die "need 'js' or 'json'";
 
-  ## 
+  ##
   use lib getcwd() . '/perl/lib';
 
   ## Bring in necessaries.
@@ -636,7 +669,7 @@ sub golr_config_to_meta_js {
   my $yaml_confs = shift || die "need a bunch of yaml confs";
   my $rethash = {};
 
-  ## 
+  ##
   use lib getcwd() . '/perl/lib';
 
   ## Bring in necessaries.
@@ -728,7 +761,7 @@ sub amigo_env_to_js {
 
   my $file_str = shift || die 'need target file';
 
-  ## 
+  ##
   use lib getcwd() . '/perl/lib';
   ## WARNING: See the synth conf generation above.
   require $synth_conf_fname;
