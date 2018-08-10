@@ -1,0 +1,7 @@
+    ## Required set of rewrite rules                                            
+    RewriteEngine on
+    RewriteMap    hosts-deny  txt:/etc/apache2/banned-hosts.txt
+    RewriteCond   ${hosts-deny:%{REMOTE_ADDR}|NOT-FOUND} !=NOT-FOUND [OR]
+    RewriteCond   ${hosts-deny:%{REMOTE_HOST}|NOT-FOUND} !=NOT-FOUND
+    RewriteRule   "^"  "https://s3.amazonaws.com/bbop/http-messages/blocked.htm\
+l" [R=302]

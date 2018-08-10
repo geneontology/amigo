@@ -1,0 +1,4 @@
+## /etc/apache2/banned-hosts.txt (maintain the format--its not just a
+## plain text file)
+
+123.456.789.0 -

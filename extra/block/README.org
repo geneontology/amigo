@@ -1,0 +1,6 @@
+Currently, this is manually deployed on the server--injecting the
+apache stanza into the running server, adding the banned list, and
+restarting. Note that my apache seems to pick up the updated list
+automatically. 
+
+Also see: go-site/static/pages/blocked.html
