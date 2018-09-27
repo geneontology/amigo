@@ -178,6 +178,13 @@ a:hover .hilite, a:active .hilite {
     margin-bottom: 10px;
 }
 
+/* Essentially, a workaround for div overflow (geneontology/amigo#398) */
+/* by removing the bounding boxes. */
+.amigo-live-search-results-unbounder {
+    border: 0px;
+    box-shadow: unset;
+}
+
 /* Make the BS3 warning pop a little bit more. */
 .alert-warning {
     color: #514023;
