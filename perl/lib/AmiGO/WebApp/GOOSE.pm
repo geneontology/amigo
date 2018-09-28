@@ -210,6 +210,16 @@ sub mode_goose {
   $self->set_template_parameter('lead_examples_list',
 				$self->_goose_get_wiki_lead_examples());
 
+  ##
+  ## WARNING: GOOSE is deprecated.
+  ## https://github.com/geneontology/amigo/issues/537
+  ##
+
+  $self->add_mq('error',
+		'<b>GOOSE is now deprecated</b><br>' .
+		'After many years of service, the GOOSE interface and the MySQL data backing it are <a href="https://github.com/geneontology/helpdesk/issues/4">now deprecated</a>. While we work on the replacement, we would recommend that users looking for general query functionality make use of our public RDF endpoint at <a href="http://rdf.geneontology.org">http://rdf.geneontology.org</a>. To help understand the contents of the graph store, we have some example <a href="https://github.com/geneontology/sparqlr/tree/master/templates">queries</a> and initial <a href="https://github.com/geneontology/go-site/blob/master/graphstore/triplestore_info.md">documentation</a>.<br />'.
+		'GOOSE is still available for use, but the data is likely out of date. Please use the query "SELECT max(assocdate) FROM association;" to get the latest annotation date. The "lite" database should give more recent results.');
+
   ###
   ### The idea is to make GOOSE more responsive by not checking all of
   ### the mirrors, but using either a random main mirror or trying to
@@ -269,12 +279,12 @@ sub mode_goose {
       }else{
 	$self->{CORE}->kvetch('selection not contactable: ' . $in_mirror);
 	$self->add_mq('warning', "GOOSE couldn't contact your selection; " .
-		      "GOOSE will try and use another mirror...")
+		      "GOOSE will try and use another mirror...");
       }
     }else{
       $self->{CORE}->kvetch('undefined $in_mirror');
       $self->add_mq('warning', "The mirror you selected wasn't defined; " .
-		    "GOOSE will try and use another mirror...")
+		    "GOOSE will try and use another mirror...");
     }
   }
 
@@ -340,7 +350,7 @@ sub mode_goose {
       $in_mirror_type ne $mirror_conf_info->{$my_mirror}{type} ){
     $self->{CORE}->kvetch("mirror type mismatch!");
     $mirror_type_mismatch_p = 1;
-    $self->add_mq('error', "A mirror of the same type could not be found; " . 
+    $self->add_mq('error', "A mirror of the same type could not be found; " .
 		 'please select another method for your query.');
   }
 
@@ -524,7 +534,7 @@ sub mode_goose {
     $self->set_template_parameter('page_content_title', $page_content_title);
     $self->set_template_parameter('page_help_link', $page_help_link);
 
-    ## 
+    ##
     $self->{CORE}->kvetch("pre-template limit: " . $in_limit);
     $self->set_template_parameter('limit', $in_limit);
     # #$self->set_template_parameter('ARGH', $in_limit);
