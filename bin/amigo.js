@@ -33,7 +33,7 @@ var discache = new NodeCache({
 });
 
 // TODO: Parameterize the search fields that we want to work
-// with. The *first* is considered to be the primary unique 
+// with. The *first* is considered to be the primary unique
 // proxy identifier, which will also be used to lookup docs later.
 var bioentity_search_fields = [
     "bioentity",
@@ -43,7 +43,7 @@ var bioentity_search_fields = [
     "synonym"
 ];
 var bioentity_proxy_id_field = bioentity_search_fields[0];
-	
+
 
 // Templating.
 //var md = require('markdown');
@@ -98,7 +98,7 @@ function envelope(service_name){
 	data: {}
     };
 
-    // 
+    //
     if( service_name && typeof(service_name) === 'string' ){
 	anchor._envelope['service'] = service_name;
     }
@@ -111,7 +111,7 @@ envelope.prototype.service = function(arg){
     if( arg && typeof(arg) === 'string' ){
 	anchor._envelope['service'] = arg;
     }
-    
+
     // Required get.
     return anchor._envelope['service'];
 };
@@ -123,7 +123,7 @@ envelope.prototype.arguments = function(arg){
     if( arg && typeof(arg) === 'object' ){
 	anchor._envelope['arguments'] = arg;
     }
-    
+
     // Required get.
     return anchor._envelope['arguments'];
 };
@@ -135,7 +135,7 @@ envelope.prototype.status = function(arg){
     if( arg === 'success' || arg === 'failure' ){
 	anchor._envelope['status'] = arg;
     }
-    
+
     // Required get.
     return anchor._envelope['status'];
 };
@@ -189,7 +189,7 @@ envelope.prototype.structure = function(){
 
     // Stamp with finalizing date.
     this._envelope['date'] = timestamp();
-    
+
     // Final.
     return this._envelope;
 };
@@ -201,7 +201,7 @@ envelope.prototype.structure = function(){
 // Coordinate an arbitary number of promises serially.
 // TODO: With testing, this may be best folded back into the manager
 // code proper, where we could also get the benefits of callbacks.
-function run_promises(promise_runner_stack, 
+function run_promises(promise_runner_stack,
 		      accumulator_function, final_function, error_function){
     if( ! us.isEmpty(promise_runner_stack) ){
 	var promise_runner = promise_runner_stack.shift();
@@ -222,7 +222,7 @@ function run_promises(promise_runner_stack,
 // This was a previous attempt at the above code. The necessary
 // coordination and accumulation functions were caught in the closure;
 // unnecessary if the lexical closing works as expected in the above.
-// // 
+// //
 // var recwalk = function(promise_runner_stack, final_function){
 //     if( ! us.isEmpty(promise_runner_stack) ){
 // 	var promise_runner = promise_runner_stack.shift();
@@ -248,7 +248,7 @@ function run_promises(promise_runner_stack,
 var each = us.each;
 
 function ll(arg1){
-    console.log('amigo [' + (new Date()).toJSON() + ']: ', arg1); 
+    console.log('amigo [' + (new Date()).toJSON() + ']: ', arg1);
 }
 
 function _die(message){
@@ -278,7 +278,7 @@ function _param(req, param, pdefault){
 
 	if( req && req.query && req.query[param] && typeof(req.query[param]) !== 'undefined' ){
 	    ret = req.query[param];
-	}    
+	}
     }
 
     // Otherwise, try the body space.
@@ -317,7 +317,7 @@ function _extract(req, param){
     // Try the get space.
     if( req && req.query && typeof(req.query[param]) !== 'undefined' ){
 	//console.log('as query');
-	
+
 	// Input as list, remove dupes.
 	var paccs = req.query[param];
 	if( paccs && ! us.isArray(paccs) ){
@@ -328,11 +328,11 @@ function _extract(req, param){
 
     // Otherwise, try the body space.
     if( us.isEmpty(ret) ){
-	
+
 	var decoded_body = req.body || {};
 	if( decoded_body && ! us.isEmpty(decoded_body) && decoded_body[param] ){
 	    //console.log('as body');
-	    
+
 	    // Input as list, remove dupes.
 	    var baccs = decoded_body[param];
 	    //console.log('decoded_body', decoded_body);
@@ -375,7 +375,7 @@ if( ! port ){
 /// Environment startup.
 ///
 
-// Initial server setup.	
+// Initial server setup.
 var express = require('express');
 var cors = require('cors');
 var body_parser = require('body-parser');
@@ -470,7 +470,7 @@ app.all('/api/echo/:echo?', function (req, res){
 	    'list': list_body
 	}
     });
-    
+
     res.json(envl.structure());
 });
 
@@ -483,7 +483,7 @@ app.all('/api/entity/term/:term_id', function (req, res){
 
     // Get request parameters.
     var term_id = _param(req, 'term_id', null);
-	
+
     // Theoretical good result envelope to start.
     var envl = new envelope('/api/entity/term/' + term_id);
 
@@ -510,7 +510,7 @@ app.all('/api/entity/term/:term_id', function (req, res){
 
     // Success callback.
     manager.register('search', function(resp, man){
-	
+
 	// See what we got.
 	if( resp.documents().length === 0 ){
 	    envl.status('failure');
@@ -518,7 +518,7 @@ app.all('/api/entity/term/:term_id', function (req, res){
 	}else if( resp.documents().length > 1 ){
 	    envl.status('failure');
 	    envl.comments('Ambiguous ID: ' + term_id);
-	}else{ 
+	}else{
 	    // Good response.
 	    envl.comments('Found information for: ' + term_id);
 	    envl.data(resp.get_doc(0));
@@ -533,7 +533,7 @@ app.all('/api/entity/term/:term_id', function (req, res){
 
 // Return all information on terms.
 app.all('/api/entity/terms', function (req, res){
-    
+
     // Get parameters as lists.
     var entities = _extract(req, 'entity');
     console.log('entities', entities);
@@ -557,12 +557,12 @@ app.all('/api/entity/terms', function (req, res){
 	manager.set_personality('ontology');
 	manager.set_facet_limit(0); // care not about facets
 	manager.add_query_filter('document_category', 'ontology_class');
-	
+
 	// Let's get information by target.
 	var max_result_count = 100000;
 	manager.set_results_count(max_result_count);
 	manager.set_targets(entities, ['annotation_class']);
-	
+
 	// Failure callbacks.
 	manager.register('error', function(resp, man){
 	    envl.status('failure');
@@ -570,10 +570,10 @@ app.all('/api/entity/terms', function (req, res){
 	    //console.log(resp);
 	    res.json(envl.structure());
 	});
-	
+
 	// Success callback.
 	manager.register('search', function(resp, man){
-	    
+
 	    // See what we got.
 	    if( resp.documents().length === 0 ){
 		envl.status('failure');
@@ -581,20 +581,20 @@ app.all('/api/entity/terms', function (req, res){
 	    }else if( resp.documents().length > entities.length ){
 		envl.status('failure');
 		envl.comments('Some IDs not found: ' + entities.length);
-	    }else{ 
+	    }else{
 		// Good response.
 		envl.comments('Found information for all ' +
 			      entities.length + ' terms.');
 		envl.data(resp.documents());
 	    }
-	    
+
 	    res.json(envl.structure());
 	});
-	
+
 	// Trigger async try.
 	//console.log(manager.get_query_url());
 	manager.search();
-    }	
+    }
 });
 
 // Return all bioentity information.
@@ -602,7 +602,7 @@ app.all('/api/entity/bioentity/:bioentity_id', function (req, res){
 
     // Get request parameters.
     var bioentity_id = _param(req, 'bioentity_id', null);
-	
+
     // Theoretical good result envelope to start.
     var envl = new envelope('/api/entity/bioentity/' + bioentity_id);
 
@@ -629,7 +629,7 @@ app.all('/api/entity/bioentity/:bioentity_id', function (req, res){
 
     // Success callback.
     manager.register('search', function(resp, man){
-	
+
 	// See what we got.
 	if( resp.documents().length === 0 ){
 	    envl.status('failure');
@@ -637,7 +637,7 @@ app.all('/api/entity/bioentity/:bioentity_id', function (req, res){
 	}else if( resp.documents().length > 1 ){
 	    envl.status('failure');
 	    envl.comments('Ambiguous ID: ' + bioentity_id);
-	}else{ 
+	}else{
 	    // Good response.
 	    envl.comments('Found information for: ' + bioentity_id);
 	    envl.data(resp.get_doc(0));
@@ -661,7 +661,7 @@ function abstract_search(req, res, personality, queries, filters, lite_p){
 
     // Theoretical good result envelope to start.
     var envl = null;
-    if( lite_p ){ 
+    if( lite_p ){
 	envl = new envelope('/api/autocomplete/' + personality);
     }else{
 	envl = new envelope('/api/search/' + personality);
@@ -674,7 +674,7 @@ function abstract_search(req, res, personality, queries, filters, lite_p){
     envl.arguments(args);
 
     // Setup manager and basic.
-    var srch_report = personality + '; queries: ' + queries.join(', ') + 
+    var srch_report = personality + '; queries: ' + queries.join(', ') +
 	    '; filters: ' +  filters.join(', ');
     ll('Setting up manager to search for: ' + srch_report);
     var gconf = new golr_conf.conf(amigo.data.golr);
@@ -719,16 +719,16 @@ function abstract_search(req, res, personality, queries, filters, lite_p){
 
 	// Success callback.
 	manager.register('search', function(resp, man){
-	    
+
 	    // See what we got.
 	    // Good response.
 	    if( resp.documents().length === 0 ){
 		envl.comments('Nothing found for: ' + srch_report);
-	    }else{ 
+	    }else{
 		envl.comments('Results found for: ' + srch_report);
 	    }
 	    envl.data(resp.documents());
-	    
+
 	    res.json(envl.structure());
 	});
 	// Trigger async try.
@@ -770,7 +770,7 @@ app.all('/api/autocomplete/:personality', function (req, res){
 /// Numbers API.
 ///
 
-// 
+//
 app.all('/api/statistics/gene-to-term', function (req, res){
 
     // Theoretical good result envelope to start.
@@ -800,7 +800,7 @@ app.all('/api/statistics/gene-to-term', function (req, res){
 		    var go = new golr_manager(golr_url, gconf, engine, 'async');
 		    go.set_personality('annotation');
 
-		    // 
+		    //
 		    go.add_query_filter('document_category', 'annotation');
 		    go.add_query_filter('bioentity', gp_acc);
 		    // Pin species if possible.
@@ -817,12 +817,12 @@ app.all('/api/statistics/gene-to-term', function (req, res){
 		}
 	    );
 	});
-	
+
 	// Fetch the data and grab the numbers we want.
 	var gp_info = {};
 	var term_info = {};
-	var accumulator_fun = function(resp){	
-	    
+	var accumulator_fun = function(resp){
+
 	    // Who was this?
 	    var acc = null;
 	    var fqs = resp.parameter('fq');
@@ -833,32 +833,32 @@ app.all('/api/statistics/gene-to-term', function (req, res){
 		    //ll('Looking at info for: ' + acc);
 		}
 	    });
-	    
+
 	    if( acc ){
-		
+
 		var ffs = resp.facet_field('regulates_closure');
 		each(ffs, function(pair){
-		    
+
 		    //console.log(pair);
-		    
+
 		    var tid = pair[0];
 		    var acnt = pair[1];
 
 		    // Ensure existance.
-		    if( ! gp_info[acc] ){ 
+		    if( ! gp_info[acc] ){
 			gp_info[acc] = {};
 		    }
-		    if( ! term_info[tid] ){ 
+		    if( ! term_info[tid] ){
 			term_info[tid] = 0;
 		    }
-		    
+
 		    // Add gp info
 		    gp_info[acc][tid] = acnt;
 
 		    // Add term info
 		    term_info[tid] = term_info[tid] +1;
 		});
-	    }	    
+	    }
 	};
 
 	// When all done, assemble and send.
@@ -883,7 +883,7 @@ app.all('/api/statistics/gene-to-term', function (req, res){
     }
 });
 
-// 
+//
 app.all('/api/statistics/term-to-gene', function (req, res){
 
     // Theoretical good result envelope to start.
@@ -898,7 +898,7 @@ app.all('/api/statistics/term-to-gene', function (req, res){
     if( us.isEmpty(term_accs) ){
 	return _response_json_fail(res, envl, 'Death by lack of term accs.');
     }else{
-	
+
 	// Setup promises to accumulate--dynamically create the set of
 	// functions that we want to run serially.
 	var promise_runners = [];
@@ -914,7 +914,7 @@ app.all('/api/statistics/term-to-gene', function (req, res){
 		    var go = new golr_manager(golr_url, gconf, engine, 'async');
 		    go.set_personality('bioentity');
 
-		    // 
+		    //
 		    go.add_query_filter('document_category', 'bioentity');
 		    go.add_query_filter('regulates_closure', term_acc);
 		    each(species, function(spc){
@@ -932,8 +932,8 @@ app.all('/api/statistics/term-to-gene', function (req, res){
 
 	// Fetch the data and grab the number we want.
 	var term_info = {};
-	var accumulator_fun = function(resp){	
-	    
+	var accumulator_fun = function(resp){
+
 	    // Who was this?
 	    var acc = null;
 	    var fqs = resp.parameter('fq');
@@ -943,12 +943,12 @@ app.all('/api/statistics/term-to-gene', function (req, res){
 		    acc = bbop.dequote(acc);
 		}
 	    });
-	    
+
 	    if( acc ){
 		var total = resp.total_documents();
 		term_info[acc] = total;
 	    }
-	    
+
 	};
 
 	// The final function is the data renderer.
@@ -973,7 +973,7 @@ app.all('/api/statistics/term-to-gene', function (req, res){
 });
 
 app.all('/api/statistics/overview', function (req, res){
- 
+
     // Theoretical good result envelope to start.
     var envl = new envelope('/api/statistics/overview');
 
@@ -982,12 +982,12 @@ app.all('/api/statistics/overview', function (req, res){
     //ll('Species filter: ' + species);
     envl.arguments({'species': species});
 
-    // 
+    //
     var total_terms = null;
     var total_gps = null;
     var total_anns = null;
     (function(){
-	
+
 	// Setup the manager environment.
 	var srch_report = 's: '+species.join(', ');
 	ll('Setting up manager (gps): ' + srch_report);
@@ -995,15 +995,15 @@ app.all('/api/statistics/overview', function (req, res){
 	var engine = new node_engine(golr_response);
 	var go = new golr_manager(golr_url, gconf, engine, 'async');
 	go.set_personality('bioentity');
-	
-	// 
+
+	//
 	go.add_query_filter('document_category', 'bioentity');
 	each(species, function(spc){
 	    go.add_query_filter('taxon_closure', spc);
 	});
 	go.set('rows', 0); // care not about rows
 	go.set_facet_limit(0); // care not about facets
-	
+
 	// Return promise.
 	var prom = go.search();
 	return prom;
@@ -1032,7 +1032,7 @@ app.all('/api/statistics/overview', function (req, res){
 
 	// Collect the previous results...
 	total_terms = resp.total_documents();
-	
+
 	// ...and move on to the next number.
 	var srch_report = 's: '+species.join(', ');
 	ll('Setting up manager (anns): ' + srch_report);
@@ -1055,7 +1055,7 @@ app.all('/api/statistics/overview', function (req, res){
 
 	// Collect the previous results...
 	var total_anns = resp.total_documents();
-	
+
 	// ...and finally deliver the reponse.
 	envl.data({
 	    'term-count': total_terms,
@@ -1067,7 +1067,7 @@ app.all('/api/statistics/overview', function (req, res){
     });
 });
 
-// 
+//
 app.all('/api/disambiguation/bioentity', function (req, res){
 
     // Theoretical good result envelope to start.
@@ -1103,10 +1103,10 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 	//     ],
 	//   ...
 	// }
-	// 
+	//
 	// For example:
 	// TODO
-	// 
+	//
 	//ll('Disambiguation/bioentity try cache...');
 	var cache = discache.get(spc);
 
@@ -1125,7 +1125,7 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 	    // Break out the two parts of the species cache.
 	    var doc_lookup = cache['documents'];
 	    var str_refs = cache['references'];
-	    
+
 	    // Comb through the cache, carefully, and get the results
 	    // that we can. First, for each of the entities try and
 	    // pull out the right fields.
@@ -1152,7 +1152,7 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 			    us.each(bioentity_search_fields, function(search_field){
 
 				//console.log("search_field: ", search_field);
-				
+
 				var vals = doc[search_field];
 				// Array-ify the field if not already.
 				if( vals && ! us.isArray(vals) ){
@@ -1167,7 +1167,7 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 					    "id": match_proxy_id,
 					    "matched": search_field
 					});
-				    }				    
+				    }
 				});
 			    });
 			}
@@ -1186,7 +1186,7 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 		}
 
 		//console.log("results: ", results);
-		
+
 		// Push the found results into the right section.
 		results[rtype].push({
 		    "input": entity,
@@ -1197,7 +1197,7 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 
 	    return results;
 	};
-	
+
 	// Well, if we have the cache, great! Nice and easy.
 	if ( cache ){
 
@@ -1212,17 +1212,17 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 	}else{
 
 	    ll('Disambiguation/bioentity cache miss for: ' + spc);
-	    
+
 	    // If we have a cache miss, populate the cache for our
 	    // species and then immediately use it. Need to start by
 	    // getting all bioentities for our species and storing it
-	    // locally.	    
+	    // locally.
 	    var gconf = new golr_conf.conf(amigo.data.golr);
 	    var engine = new node_engine(golr_response);
 	    var go = new golr_manager(golr_url, gconf, engine, 'async');
 	    go.set_personality('bioentity');
 
-	    // 
+	    //
 	    go.add_query_filter('document_category', 'bioentity');
 	    each(species, function(sp){
 		go.add_query_filter('taxon_closure', sp);
@@ -1231,14 +1231,14 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 	    go.lite(true);
 	    // Hopefully 100,000,000 is enough for now.
 	    go.set_results_count(100000000);
-	    
+
 	    // Process promise.
 	    var prom = go.search();
 	    prom.then(function(resp){
 
 		//console.log("resp: ", resp);
 		ll('Disambiguation/bioentity populating cache for: ' + spc);
-		
+
 		// Okay, we have the results, now we need to use them
 		// to populate the cache.
 		// Cycle through and get the cache together. We essentially
@@ -1265,7 +1265,7 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 
 		    // Index this doc for later use by the proxy id.
 		    species_cache["documents"][proxy_id] = doc;
-		    
+
 		    // Now cycle through the doc and melf it down to its
 		    // indexed components.
 		    us.each(bioentity_search_fields, function(search_field){
@@ -1276,7 +1276,7 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 			    vals = [vals];
 			}
 			us.each(vals, function(val){
-			    
+
 			    // We've gotten here, so prepare the cache
 			    // at this location. Each value is
 			    // essentially a top-level string.
@@ -1286,11 +1286,11 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 
 			    species_cache["references"][val].push(proxy_id);
 			});
-			
+
 		    });
-		    
+
 		});
-		
+
 		//ll('Disambiguation/bioentity species cache created');
 		//console.log("species_cache: ", species_cache);
 
@@ -1304,14 +1304,14 @@ app.all('/api/disambiguation/bioentity', function (req, res){
 		envl.data(collected_results);
 
 		res.json(envl.structure());
-		
+
 	    }).fail(function(err){ // a little fail mode
  		if(err){
  	    	    return _response_json_fail(res, envl,
 					       'Error processing set');
  		}
  	    }).done();
-	
+
 	}
 
 	ll('Disambiguation/bioentity end of starter.');
@@ -1328,4 +1328,3 @@ if( process && process.send ){
     process.send('Server started.'); // For gulp-develop-server, if listening
 }
 ll('Server started.');
-
