@@ -3,7 +3,7 @@
 ####
 id: model_annotation
 schema_generating: true
-description: An individual unit within LEGO. This is <strong>ALPHA</strong> software.
+description: An individual unit within a GO-CAM. This is <strong>ALPHA</strong> software.
 display_name: GO models (ALPHA)
 document_category: model_annotation
 weight: 40
@@ -12,41 +12,41 @@ result_weights: function_class^9.0 enabled_by^8.0 location_list^7.0 process_clas
 filter_weights:  model_label^5.0 enabled_by_label^4.5 reference^4.3 location_list_closure_label^4.0 process_class_closure_label^3.0 function_class_closure_label^2.0 contributor^1.0 evidence_type^0.5
 fields:
   - id: id
-    description: A unique (and internal) thing.
+    description: CURIE form of annoton (molecular function individual)
     display_name: ID
     type: string
     property: []
 ## Annotation unit
   - id: annotation_unit
-    description: ???.
+    description: Same as id
     display_name: Annotation unit
     type: string
     property: []
   - id: annotation_unit_label
-    description: ???.
+    description: Generally not display but for debug purpose can be concatenation of gene product label, function, process etc
     display_name: Annotation unit
     type: string
     property: []
     searchable: true
 ## model
   - id: model
-    description: ???.
+    description: The CURIE of the model to which the annoton belongs
     display_name: Model title
     type: string
     property: []
   - id: model_label
-    description: ???.
+    description: "The dc:title of the model to which the annoton belongs"
     display_name: Model title
     type: string
     property: []
     searchable: true
   - id: model_url
-    description: ???.
+    description: The URI of the model to which the annoton belongs
     display_name: Model URL
     type: string
     property: []
   - id: model_state
-    description: ???.
+    description: Curation status
     display_name: State
     type: string
     property: []
@@ -57,14 +57,14 @@ fields:
     cardinality: multi
     property: []
   - id: contributor
-    description: ???.
+    description: "Value of dc:contributor fields for the annoton"
     display_name: Contributor
     searchable: true
     type: string
     cardinality: multi
     property: []
   - id: model_date
-    description: Last modified
+    description: "Value of dc:date field for the annoton"
     display_name: Modified
     type: string
     searchable: true
@@ -79,7 +79,7 @@ fields:
     property: []
 ## Enabled by/bioentity
   - id: enabled_by
-    description: ???
+    description: "The CURIE for the ro:enabled_by.rdf:type value of the annoton/MF individual"
     display_name: Enabled by
     searchable: true
     type: string
@@ -92,7 +92,7 @@ fields:
     property: []
 ## PANTHER
   - id: panther_family
-    description: PANTHER family IDs that are associated with this entity.
+    description: PANTHER family IDs that are associated with this entity, not yet populated.
     display_name: PANTHER family
     type: string
     searchable: true
@@ -105,24 +105,24 @@ fields:
     property: []
 ## Taxon
   - id: taxon
-    description: "GAF column 13 (taxon)."
+    description: "taxon of the entity in enabled_by"
     display_name: Taxon
     type: string
     property: []
   - id: taxon_label
-    description: "Taxon derived from GAF column 13 and ncbi_taxonomy.obo."
+    description: "label for taxon"
     display_name: Taxon
     type: string
     property: []
     searchable: true
   - id: taxon_closure
-    description: "Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo."
+    description: "is_a closure of taxon"
     display_name: Taxon (IDs)
     type: string
     cardinality: multi
     property: []
   - id: taxon_closure_label
-    description: "Taxon label closure derived from GAF column 13 and ncbi_taxonomy.obo."
+    description: "labels of is_a closure."
     display_name: Taxon
     type: string
     cardinality: multi
@@ -130,7 +130,7 @@ fields:
     searchable: true
 ## Function
   - id: function_class
-    description: Function acc/ID.
+    description: "This is the value of rdf:type for the annoton/MF instance"
     display_name: Function
     type: string
     property: []
