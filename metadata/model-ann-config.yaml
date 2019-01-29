@@ -85,8 +85,44 @@ fields:
     type: string
     property: []
   - id: enabled_by_label
-    description: ???
+    description: "Searchable label version of the gene product"
     display_name: Enabled by
+    searchable: true
+    type: string
+    property: []
+  - id: enabled_by_complex
+    description: "The CURIE for the ro:enabled_by.rdf:type value of the annoton/MF individual"
+    display_name: Enabled by complex
+    searchable: true
+    type: []
+    property: []
+  - id: enabled_by_complex_label
+    description: "Searchable label version of the complex"
+    display_name: Enabled by complex
+    searchable: true
+    type: string
+    property: []
+  - id: has_input
+    description: "The CURIE for the ro:has_input.rdf:type value of the annoton/MF individual"
+    display_name: Has input
+    searchable: true
+    type: string
+    property: []
+  - id: has_input_label
+    description: "Searchable label version of input entities"
+    display_name: Has input
+    searchable: true
+    type: string
+    property: []
+  - id: has_output
+    description: "The CURIE for the ro:has_output.rdf:type value of the annoton/MF individual"
+    display_name: Has output
+    searchable: true
+    type: string
+    property: []
+  - id: has_output_label
+    description: "Searchable label version of output entities"
+    display_name: Has output
     searchable: true
     type: string
     property: []
@@ -204,8 +240,8 @@ fields:
     cardinality: multi
     property: []
   - id: owl_blob_json
-    description: ???
-    display_name: ???
+    description: "???"
+    display_name: "???"
     type: string
     property: []
     indexed: false
@@ -250,6 +286,28 @@ fields:
   - id: reference
     description: "Database reference."
     display_name: Reference
+    type: string
+    searchable: true
+    cardinality: multi
+    property: []
+## Relationships Stats
+  - id: relationship
+    description: "List the distinct relationship types"
+    display_name: "Relationship"
+    type: string
+    searchable: true
+    cardinality: multi
+    property: []
+  - id: relationship_label
+    description: ""
+    display_name: "Searchable label version of relationships"
+    type: string
+    searchable: true
+    cardinality: multi
+    property: []
+  - id: relationship_count
+    description: "List the count for each relationship type"
+    display_name: "Relationship count"
     type: string
     searchable: true
     cardinality: multi
