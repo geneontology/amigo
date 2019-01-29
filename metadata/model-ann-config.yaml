@@ -86,7 +86,7 @@ fields:
     property: []
   - id: enabled_by_label
     description: "Searchable label version of the gene product"
-    display_name: Enabled by
+    display_name: Enabled by label
     searchable: true
     type: string
     property: []
@@ -98,19 +98,31 @@ fields:
     property: []
   - id: enabled_by_complex_label
     description: "Searchable label version of the complex"
-    display_name: Enabled by complex
+    display_name: Enabled by complex label
     searchable: true
     type: string
     property: []
-  - id: has_input
-    description: "The CURIE for the ro:has_input.rdf:type value of the annoton/MF individual"
-    display_name: Has input
+  - id: has_participant
+    description: "The CURIE for the ro:has_participant.rdf:type value of the annoton/MF individual"
+    display_name: Has participant
     searchable: true
     type: string
     property: []
-  - id: has_input_label
-    description: "Searchable label version of input entities"
-    display_name: Has input
+  - id: has_participant_label
+    description: "Searchable label version of participant entities"
+    display_name: Has participant label
+    searchable: true
+    type: string
+    property: []
+  - id: has_complex_participant
+    description: "The CURIE for the ro:has_participant.rdf:type value of the annoton/MF individual"
+    display_name: Has complex participant
+    searchable: true
+    type: string
+    property: []
+  - id: has_complex participant_label
+    description: "Searchable label version of participant entities"
+    display_name: Has complex participant label
     searchable: true
     type: string
     property: []
@@ -122,7 +134,19 @@ fields:
     property: []
   - id: has_output_label
     description: "Searchable label version of output entities"
-    display_name: Has output
+    display_name: Has output label
+    searchable: true
+    type: string
+    property: []
+  - id: has_complex_output
+    description: "The CURIE for the ro:has_output.rdf:type value of the annoton/MF individual"
+    display_name: Has complex output
+    searchable: true
+    type: string
+    property: []
+  - id: has_complex output_label
+    description: "Searchable label version of output entities"
+    display_name: Has complex output label
     searchable: true
     type: string
     property: []
