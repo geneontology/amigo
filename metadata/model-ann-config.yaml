@@ -7,7 +7,7 @@ description: An individual unit within a GO-CAM. This is <strong>ALPHA</strong> 
 display_name: GO models (ALPHA)
 document_category: model_annotation
 weight: 40
-boost_weights: model_label^1.0 annotation_unit_label^1.0 enabled_by^1.0 enabled_by_label^1.0 location_list_closure^1.0 location_list_closure_label^1.0 process_class_closure_label^1.0 function_class_closure_label^1.0 comment^0.5 
+boost_weights: model_label^1.0 annotation_unit_label^1.0 enabled_by^1.0 enabled_by_label^1.0 location_list_closure^1.0 location_list_closure_label^1.0 process_class_closure_label^1.0 function_class_closure_label^1.0 comment^0.5
 result_weights: function_class^9.0 enabled_by^8.0 location_list^7.0 process_class^6.0 model^5.0 taxon^4.5 contributor^4.0 model_date^3.0 reference^2.0
 filter_weights:  model_label^5.0 enabled_by_label^4.5 reference^4.3 location_list_closure_label^4.0 process_class_closure_label^3.0 function_class_closure_label^2.0 contributor^1.0 evidence_type^0.5
 fields:
@@ -85,8 +85,68 @@ fields:
     type: string
     property: []
   - id: enabled_by_label
-    description: ???
-    display_name: Enabled by
+    description: "Searchable label version of the gene product"
+    display_name: Enabled by label
+    searchable: true
+    type: string
+    property: []
+  - id: enabled_by_complex
+    description: "The CURIE for the ro:enabled_by.rdf:type value of the annoton/MF individual"
+    display_name: Enabled by complex
+    searchable: true
+    type: []
+    property: []
+  - id: enabled_by_complex_label
+    description: "Searchable label version of the complex"
+    display_name: Enabled by complex label
+    searchable: true
+    type: string
+    property: []
+  - id: has_participant
+    description: "The CURIE for the ro:has_participant.rdf:type value of the annoton/MF individual"
+    display_name: Has participant
+    searchable: true
+    type: string
+    property: []
+  - id: has_participant_label
+    description: "Searchable label version of participant entities"
+    display_name: Has participant label
+    searchable: true
+    type: string
+    property: []
+  - id: has_complex_participant
+    description: "The CURIE for the ro:has_participant.rdf:type value of the annoton/MF individual"
+    display_name: Has complex participant
+    searchable: true
+    type: string
+    property: []
+  - id: has_complex_participant_label
+    description: "Searchable label version of participant entities"
+    display_name: Has complex participant label
+    searchable: true
+    type: string
+    property: []
+  - id: has_output
+    description: "The CURIE for the ro:has_output.rdf:type value of the annoton/MF individual"
+    display_name: Has output
+    searchable: true
+    type: string
+    property: []
+  - id: has_output_label
+    description: "Searchable label version of output entities"
+    display_name: Has output label
+    searchable: true
+    type: string
+    property: []
+  - id: has_complex_output
+    description: "The CURIE for the ro:has_output.rdf:type value of the annoton/MF individual"
+    display_name: Has complex output
+    searchable: true
+    type: string
+    property: []
+  - id: has_complex_output_label
+    description: "Searchable label version of output entities"
+    display_name: Has complex output label
     searchable: true
     type: string
     property: []
@@ -204,8 +264,8 @@ fields:
     cardinality: multi
     property: []
   - id: owl_blob_json
-    description: ???
-    display_name: ???
+    description: "???"
+    display_name: "???"
     type: string
     property: []
     indexed: false
@@ -250,6 +310,21 @@ fields:
   - id: reference
     description: "Database reference."
     display_name: Reference
+    type: string
+    searchable: true
+    cardinality: multi
+    property: []
+## Relationships Stats
+  - id: relationship
+    description: "List the distinct relationship types"
+    display_name: "Relationship"
+    type: string
+    searchable: true
+    cardinality: multi
+    property: []
+  - id: relationship_label
+    description: ""
+    display_name: "Searchable label version of relationships"
     type: string
     searchable: true
     cardinality: multi
