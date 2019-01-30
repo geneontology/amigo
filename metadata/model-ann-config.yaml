@@ -329,10 +329,3 @@ fields:
     searchable: true
     cardinality: multi
     property: []
-  - id: relationship_count
-    description: "List the count for each relationship type"
-    display_name: "Relationship count"
-    type: string
-    searchable: true
-    cardinality: multi
-    property: []
