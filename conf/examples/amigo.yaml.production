@@ -179,7 +179,7 @@ GOLR_ONTOLOGY_LIST:
   type: list
   value:
     - http://purl.obolibrary.org/obo/go/extensions/go-gaf.owl
-    - http://purl.obolibrary.org/obo/eco.owl
+    - http://purl.obolibrary.org/obo/eco/eco-basic.obo
     - http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl
     - http://purl.obolibrary.org/obo/cl/cl-basic.owl
     - http://purl.obolibrary.org/obo/go/extensions/gorel.owl
