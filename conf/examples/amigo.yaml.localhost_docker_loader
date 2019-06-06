@@ -26,7 +26,7 @@ AMIGO_DOWNLOAD_LIMIT:
 AMIGO_DYNAMIC_PATH:
   comment: The full path to the location of the perl binaries.
   type: directory
-  value: /home/sjcarbon/local/src/git/amigo/perl/bin
+  value: /srv/amigo/perl/bin
 AMIGO_DYNAMIC_URL:
   comment: The URL that AMIGO_DYNAMIC_PATH maps to.
   type: url
@@ -74,7 +74,7 @@ AMIGO_PUBLIC_NOCTUA_URL:
 AMIGO_ROOT:
   comment: 'Unless you are doing something strange, the parent directory of this file.'
   type: directory
-  value: /home/sjcarbon/local/src/git/amigo
+  value: /srv/amigo
 AMIGO_ROOT_TERMS:
   comment: 'For some widgets, we need to know what root terms you are going to be considering in your ontology. Requires both "id" and "label" to be defined.'
   type: json
@@ -92,7 +92,7 @@ AMIGO_SERVER_NAME:
 AMIGO_STATIC_PATH:
   comment: The full path to a usable static document directory where static and staging are located.
   type: directory
-  value: /home/sjcarbon/local/src/git/amigo/static
+  value: /srv/amigo/static
 AMIGO_STATIC_URL:
   comment: The URL for the static content. Can be local or remote.
   type: url
@@ -143,7 +143,7 @@ GOLR_METADATA_ONTOLOGY_LOCATION:
 GOLR_NOCTUA_ENRICHED_MODEL_PATH:
   comment: The list of ontologies to load.
   type: directory
-  value: '~/local/src/git/noctua-models/models/'
+  value: '/srv/noctua-models/models/'
 GOLR_ONTOLOGY_LIST:
   comment: The list of ontologies to load.
   type: list
@@ -154,7 +154,7 @@ GOLR_ONTOLOGY_LIST:
 GOLR_PANTHER_FILE_PATH:
   comment: The location of the cleaned PANTHER file for the proper loading into GOlr.
   type: directory
-  value: '~/local/src/svn/geneontology.org/trunk/experimental/trees/panther_data/'
+  value: '/srv/experimental/trees/panther_data/'
 OWLTOOLS_MAX_MEMORY:
   comment: The maximum amount of memory to give OWLTools processes.
   type: string
