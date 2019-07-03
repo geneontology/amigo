@@ -41,7 +41,7 @@
 	    [% END %]
           </ul>
         </li>
-	
+
 	<!-- Browse. -->
         <li[% IF page_name == 'dd_browse' %] class="active"[% END %]><a href="[% interlink_dd_browse %]" title="Browse GO terms and view annotation counts.">Browse</a></li>
 
@@ -53,25 +53,17 @@
 
 	<!-- Feedback. -->
 	[% # IF BETA == 1 %]
-	<li><a href="http://wiki.geneontology.org/index.php/AmiGO_2:_Feedback" title="Give feedback on AmiGO 2">Feedback</a></li>    
+	<li><a href="http://wiki.geneontology.org/index.php/AmiGO_2:_Feedback" title="Give feedback on AmiGO 2">Feedback</a></li>
 	[% # END %]
 
 	<!-- About. -->
 	<li><a href="http://wiki.geneontology.org/index.php/AmiGO_2" title="About AmiGO 2">About</a></li>
 
-	<!-- NOTE: Temporary; old AmiGO backlink. -->
-	<li>
-	  <!-- <span class="label label-default"> -->
-	    <a href="[% public_1x_base %]/go.cgi"
-	       title="Use legacy AmiGO 1.8">AmiGO 1.8</a>
-	  <!-- </span> -->
-	</li>
-
       </ul>
 
       [% IF add_search_box_to_header %]
       [%    INCLUDE "common/header_search.tmpl" %]
-      [% END %] 
+      [% END %]
 
       <!-- <p class="navbar-text navbar-right"> -->
       <!-- 	<a href="http://geneontology.org"><img class="logo-img" style="height: 50px;" src="[% image_dir %]/go-logo-icon.small.png" alt="GO logo" title="Gene Ontology front page"></a> -->
