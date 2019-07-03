@@ -150,7 +150,6 @@ my @pvars = qw(
 		AMIGO_DYNAMIC_PATH
 		AMIGO_DYNAMIC_URL
 		AMIGO_WORKING_PATH
-		AMIGO_1X_PUBLIC_CGI_BASE_URL
 	     );
 foreach my $pvar (@pvars){
   $env_conf{$pvar} =

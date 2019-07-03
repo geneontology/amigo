@@ -8,7 +8,7 @@
     <a href="[% interlink_landing %]">Home</a> allows simple quick
     searches using autocomplete and the new GOlr backend.
   </li>
-  
+
   <li class="list-group-item">
     <p>
     <strong>Interactively search</strong> and filter the GO data as
@@ -31,7 +31,7 @@
       [% END %]
     </ul>
   </li>
-  
+
   <li class="list-group-item">
     <a href="[% interlink_grebe %]" title="Search Templates">Search
       templates</a> (a search "wizard") can be used to quickly answer
@@ -45,19 +45,19 @@
     changes. Please see the documentation for
     more <a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Visualize">details</a>.
   </li>
-    
+
   <li class="list-group-item">
     <a href="[% interlink_dd_browse %]">
        Drill-down browser</a> can be used to explore the ontologies
       and annotation from the top levels by opening direct descendant
       terms individually to create a custom view.
   </li>
-  
+
   <li class="list-group-item">
     <a href="[% interlink_base_statistics %]">Base statistics</a> can give a
     high-level view of what kind of data is available in AmiGO.
   </li>
-  
+
   <li class="list-group-item">
     <strong>PubMed ID search</strong> takes you to a page with summary information and all GO annotations using the inputted ID.
     <form action="[% interlink_reference_search %]"
@@ -80,7 +80,7 @@
 	      class="btn btn-default">Search</button>
     </form>
   </li>
-    
+
   <li class="list-group-item">
     <strong>Medial search</strong> returns match counts for the
     different search personalities and allows users to select which
@@ -105,19 +105,19 @@
 	      class="btn btn-default">Search</button>
     </form>
   </li>
-    
+
   <!-- <p> -->
   <!--   <a href="[% base %]/amigo?mode=term&term=GO:0022008">Term Details</a> -->
   <!--   (trying to make the page work off of the Solr backend). -->
   <!-- </p> -->
-  
+
   <!-- <p> -->
   <!--   <a href="[% base %]/amigo?mode=gene_product&gp=dictyBase:DDB_G0291524">Gene Product Details</a> -->
   <!--   (trying to make the page work off of the Solr backend). -->
   <!-- </p> -->
-  
+
 </ul>
-    
+
 <h2>Analysis of GO data</h2>
 
 <ul class="list-group">
@@ -128,43 +128,14 @@
     terms or parents of those GO terms to help discover what input
     genes may have in common.
   </li>
-  
-  <li class="list-group-item">
-    <a href="[% public_1x_base %]/term_enrichment"
-       title="">Term enrichment</a>
-    <span class="label label-default">AmiGO 1.8</span>
-    finds significant shared GO terms
-    or parents of those GO terms, used to describe the genes in the
-    query/input set to help discover what those genes may have in
-    common.
-  </li>
-   
-  <li class="list-group-item">
-    <a href="[% public_1x_base %]/slimmer"
-       title="">GO slimmer</a>
-    <span class="label label-default">AmiGO 1.8</span>
-    allows you to map the granular
-    annotations of the query set of genes to one or more
-    high-level, broader parent terms referred to as GO Slim terms.
-  </li>
-
-  <li class="list-group-item">
-    <a href="[% public_1x_base %]/blast.cgi"
-       title="">BLAST</a>
-    <span class="label label-default">AmiGO 1.8</span>
-    search for gene
-    products. The sequence search is performed using either BLASTP or
-    BLASTX (from the WU-BLAST package), depending on the type of the
-    input sequence.
-  </li>
 
   <li class="list-group-item">
     <a href="[% base %]/matrix">Term matrix</a> for exploring gene product (bioentity) co-annotation information.
   </li>
-  
+
 </ul>
 
-<h2>Directly query GO data</h2>      
+<h2>Directly query GO data</h2>
 
 <ul class="list-group">
 
@@ -176,7 +147,7 @@
     a GO SQL database directly using SQL, or edit one of the already
     made templates.
   </li>
-  
+
   <!-- http://gannet.berkeleybop.org -->
   <li class="list-group-item">
     <a href="[% interlink_gannet %]" title="Gannet: query the SOlr index directly">Gannet</a> is the Solr analog to GOOSE.
@@ -184,37 +155,37 @@
     <!-- interact with the <a title="GO Galaxy" href="[% GO_GALAXY %]">GO -->
     <!--   Galaxy</a> instance. Also see the <a href="[% interlink_schema_details %]" title="Instance schema details">schema details</a>. -->
   </li>
-  
+
 </ul>
 
 <h2>Instance information</h2>
-  
+
 <ul class="list-group">
 
   <li class="list-group-item">
     <a href="[% interlink_schema_details %]" title="Instance schema details">Schema details</a> what fields are recognized by
     AmiGO 2 on the Solr server.
   </li>
-  
+
   <li class="list-group-item">
     <a href="[% interlink_load_details %]" title="Data load details">Load details</a> about which files are being used in
     this instance of AmiGO 2 and when they were loaded.
   </li>
-  
+
   <li class="list-group-item">
     <a href="[% interlink_owltools_details %]" title="OWLTools details">OWLTools information</a> for the bundled version with this instance of AmiGO.
   </li>
-  
+
   <li class="list-group-item">
     <a href="[% interlink_xrefs %]">Xrefs</a> lists the
     cross-references currently understood by AmiGO.
   </li>
-  
+
 </ul>
 
 <h2>Pages for non-JavaScript users and spiders</h2>
 <ul class="list-group">
-  
+
   <li class="list-group-item">
     <p>
       For users unable to use JavaScript and spiders, the root GO
@@ -238,7 +209,7 @@
     limited non-JavaScript search client for primitive access to
     GOlr data.
   </li>
-  
+
 </ul>
 
 [% IF BETA == 1 %]
@@ -248,7 +219,7 @@
 <!-- <h3>Beta features being tested and functional demos:</h3> -->
 
 <ul class="list-group">
-  
+
   <li class="list-group-item">
     <p>
       <strong>Bulk search</strong> the GO data for groups of identifiers.
@@ -267,99 +238,99 @@
       [% END %]
     </ul>
   </li>
-  
+
   <li class="list-group-item">
     <a href="[% interlink_browse %]">Browse</a> the Gene Ontology
     term data in an interactive hierarchical form. Either from the
     <a href="[% interlink_browse %]">roots</a> or from a
     <a href="[% interlink_browse %]/GO:0022008">specific term</a>.
   </li>
-  
+
   <li class="list-group-item">
     <a href="[% interlink_repl %]">REPL</a> is an interactive JavaScript
     environment for working with BBOP JS against the GO data.
   </li>
-  
+
   <li class="list-group-item">
     <a href="[% interlink_visualize_client_freeform %]">Freeform</a>
     creator for graphs, including label and color
     changes. Please see the documentation for
     more <a href="http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Visualize_Freeform">information</a>.
   </li>
-    
+
   <li class="list-group-item">
     <a href="[% base %]/amigo/biology">All models</a> in the fold.
   </li>
-  
+
   <li class="list-group-item">
     <a href="[% base %]/amigo/ontologies">All ontology terms</a> in the fold.
   </li>
-  
+
 </ul>
-  
+
 <h2>AmiGO 2 Software in the Garage</h2>
 <ul class="list-group">
 
   <li class="list-group-item">
     <a href="[% interlink_free_browse %]">Experimental graph browser</a> using cytoscape.js.
   </li>
-  
+
   <li class="list-group-item">
     <strike><a href="[% interlink_phylo_graph %]">Experimental tree viewer</a> test (Mitch's widget).</strike>
   </li>
-  
+
   <li class="list-group-item">
     <strike><a href="[% base %]/pgraph">Phylotree/Graph</a> test using
     new generic graph system (single static data set).</strike>
   </li>
-  
+
   <li class="list-group-item">
     <strike><a href="[% base %]/pgraph?mode=pthr10170">Phylotree/Graph
     of PTHR10170</a> test using new generic graph system (hand-coded
     test of PTHR10170).</strike>
   </li>
-  
+
   <!-- <p> -->
   <!--   <a href="[% base %]/phylotree">Phylotree</a> data using PANTHER and old Newick system. -->
   <!-- </p> -->
-  
+
   <!-- <p> -->
   <!--   <a href="[% base %]/amigo_exp?mode=front_page">Front Page</a> (including mock-up of the with the autocompleter).</p> -->
-  
+
   <!-- <p> -->
   <!--   <a href="[% base %]/amigo_exp?mode=workspace_client">Workspace</a> is a workspace and session system interface. -->
   <!-- </p> -->
-  
+
   <!-- <p> -->
   <!--   <a href="[% base %]/amigo_exp?mode=exhibit">Ajax-Solr -->
   <!--   Search</a> is a secondary attempt to create a fast search backed -->
   <!--   by Solr, using the Ajax-Solr MVC(ish) library as the jumping-off -->
   <!--   point. -->
   <!-- </p> -->
-  
+
   <!-- <p> -->
   <!--   <a href="[% base %]/amigo_exp?mode=ntree">Phylogenic Tree</a> browser in JavaScript. -->
   <!-- </p> -->
-  
+
   <!-- <li class="list-group-item"> -->
   <!--   <strike><a href="[% base %]/amigo_exp?mode=drill">Drill Down</a> -->
   <!--   experimental tree browser using a jQuery plugin. Not too smart, -->
   <!--   but lightweight.</strike> -->
   <!-- </li> -->
-  
+
   <li class="list-group-item">
     <strike><a href="[% base %]/amigo_exp?mode=visic">Visual IC</a>
     lets you enter terms and see them in the graph along with their
     information content in a static image.</strike>
   </li>
-  
+
   <li class="list-group-item">
     <strike><a href="[% base %]/amigo_exp?mode=scratch">Scratch</a>
       space for test pieces not part of something else--a rotating
       guest list.</strike>
   </li>
 
-</ul>  
+</ul>
 
 [% END %]
 <!-- End: software_list.tmpl -->
