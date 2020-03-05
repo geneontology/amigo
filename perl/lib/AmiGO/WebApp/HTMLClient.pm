@@ -1126,6 +1126,8 @@ sub mode_search {
 
   ## Normal incoming args.
   my $bookmark = $params->{bookmark} || '';
+  ## Add line to replace spaces with "+" to not break search
+  $params->{q} =~ tr/ /+/;
   my $query = $self->{OUTPUT_SANITIZER}->encode($params->{q}) || '';
   my $filters = $params->{fq} || [];
   my $pins = $params->{sfq} || [];
