@@ -1126,7 +1126,8 @@ sub mode_search {
 
   ## Normal incoming args.
   my $bookmark = $params->{bookmark} || '';
-  ## Add line to replace spaces with "+" to not break search
+  ## Add line to replace spaces with "+" to not break search.
+  ## NOTE: This is a local fix for bookmarking in https://github.com/geneontology/amigo/issues/585 .
   $params->{q} =~ tr/ /+/;
   my $query = $self->{OUTPUT_SANITIZER}->encode($params->{q}) || '';
   my $filters = $params->{fq} || [];
