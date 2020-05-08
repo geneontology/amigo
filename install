@@ -561,7 +561,7 @@ sub xref_abbs_to_meta_js {
   my $fh = File::Temp->new();
   my $fname = $fh->filename();
   #ll("NAME: " . $fname);
-  #ll("NAME: " . $abbs);
+  ll("NAME: " . $abbs);
   #print $fh $abbs. "\n";
   print $fh $abbs;
   #my $conf_list = [];
@@ -640,6 +640,9 @@ sub xref_abbs_to_meta_js {
 		 \$output)
       || die $tt->error;
     print FILE $output;
+
+    ll("HERE: " . $js_str);
+    ll("HERE: " . $file_str);
 
     ## Close file.
     close(FILE);

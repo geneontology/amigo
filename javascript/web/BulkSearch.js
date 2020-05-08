@@ -1,7 +1,7 @@
 ////
 //// Attempt to assemble a workable bulk search/download using new BS3
 //// widgets.
-//// 
+////
 
 // Let jshint pass over over our external globals (browserify takes
 // care of it all).
@@ -79,7 +79,7 @@ function BulkSearchInit(){
     ///  1) We /need/ to have a personality defined. If not, it is an error--
     ///     we no longer do the (confusing) tabbed-switch approach.
     ///
- 
+
     // Check for incoming personality.
     // A little handling if we came in on a personality dispatch.
     if( ! global_bulk_search_personality ||
@@ -127,7 +127,7 @@ function BulkSearchInit(){
 	var pager_opts = {
 	};
 	var pager = new widgets.live_pager('pager', search, pager_opts);
-    
+
 	// Attach the results pane and download buttons to manager.
 	var btmpl = widgets.display.button_templates;
 	var default_fields = confc.field_order_by_weight('result');
@@ -147,7 +147,7 @@ function BulkSearchInit(){
 	var results = new widgets.live_results('results', search, confc,
 					       handler, linker,
 					       results_opts);
-	
+
 	// // Test of the entry override.
 	// bbop.widget.display.results_table_by_class_conf_b3.prototype.process_entry = function(){
 	//     return 'foo';
@@ -173,7 +173,7 @@ function BulkSearchInit(){
 	us.each(cfields, function(cfield){
 	    var f = confc.get_field(cfield);
 	    var fdesc = f.description();
-	    
+
 	    // Assemble.
 	    var chkinp_opts = {
 		'type': 'checkbox',
@@ -183,7 +183,7 @@ function BulkSearchInit(){
 		'value': f.id()
 	    };
 	    var chkinp = new html.input(chkinp_opts);
-	    
+
 	    // Assemble.
 	    var flbl_opts = {
 		'alt': fdesc,
@@ -191,16 +191,16 @@ function BulkSearchInit(){
 	    };
 	    var flbl = new html.tag('label', flbl_opts,
 				    [chkinp, f.display_name()+' ('+f.id()+')']);
-	    
+
 	    var fcont_opts = {
 		'class': 'checkbox'
 	    };
 	    var fcont = new html.tag('div', fcont_opts, flbl);
-	    
+
 	    // Add to DOM.
 	    jQuery(input_fields_elt).append(fcont.to_string());
 	});
-	
+
 	// Now that we're setup, activate the display button, and make
 	// it so that it will only work on "good" input.
 	var _trigger_bulk_search = function(identifiers, search_fields){
@@ -208,7 +208,7 @@ function BulkSearchInit(){
 	    ll('run search');
 	    search.set_targets(identifiers, search_fields);
 
-	    // 
+	    //
 	    search.search();
 
 	    // Scroll to results.
@@ -254,7 +254,7 @@ function BulkSearchInit(){
 	// If we're all done, trigger initial hit.
 	search.search();
     }
- 
+
     // Done message.
     ll('BulkSearchInit done.');
 }
