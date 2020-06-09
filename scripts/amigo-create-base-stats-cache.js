@@ -56,12 +56,12 @@ if( in_golr_server && us.isString(in_golr_server) ){
 ///
 
 var our_evidence_of_interest = [
-    'similarity evidence', // okay
+    'similarity evidence used in manual assertion', // replaces "similarity evidence"
     'experimental evidence', // okay
-    'curator inference', // okay
-    'author statement',
-    'combinatorial evidence',
-    'genomic context evidence'
+    'curator inference used in manual assertion', // replaces "curator inference"
+    'author statement supported by traceable reference used in manual assertion', // replaces "author statement"
+    'automatically integrated combinatorial evidence used in manual assertion', // replaces "combinatorial evidence"
+    'genomic context evidence used in manual assertion' // replaces "genomic context evidence"
     //'biological system reconstruction',
     //'imported information'
 ];
