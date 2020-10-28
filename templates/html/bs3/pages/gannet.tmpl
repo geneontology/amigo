@@ -3,7 +3,7 @@
 [% INCLUDE common/noscript_js_limited.tmpl %]
 
 <!-- <h2>Directly query GO data</h2> -->
-      
+
 [% rollup_id = "info_header" %]
 [% rollup_anchor = "Information about Gannet" %]
 [% INCLUDE "common/info_rollup_start.tmpl" %]
@@ -28,18 +28,18 @@
 	  method="GET"
 	  name="gannet_form"
 	  id="gannet_form">
-    
+
       [% IF galaxy_url && galaxy_url_external_p %]
       <input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
       [% END %]
-      
+
       <div class="form-group">
 	<label for="query">Directly query GO data using a Solr URL</label>
 	<textarea id="query"
-		  class="form-control" 
+		  class="form-control"
 		  name="query"
 		  placeholder="Enter your query here"
-		  rows="5">[% gannet_query %]</textarea>
+		  rows="5">[% FILTER html %][% gannet_query %][% END %]</textarea>
       </div>
 
       <h5>Use an example query:</h5>
@@ -53,7 +53,7 @@
 	[%    FOREACH ex = golr_examples_list %]
 	[%       value = ex.solr %]
 	[%       title = ex.title %]
-	<option title='[% value %]' 
+	<option title='[% value %]'
 		value='[% value %]'>[% title %]</option>
 	[%    END %]
       </select>
@@ -64,14 +64,14 @@
 	are not available.)
       </p>
       [% END %]
-  
+
       <h5>Available mirrors:</h5>
       [% FOREACH mirror = all_mirrors %]
       <div class="radio">
 	<label>
-	  <input type="radio" 
-		 name="mirror" 
-		 value="[% mirror %]" 
+	  <input type="radio"
+		 name="mirror"
+		 value="[% mirror %]"
 		 [% IF my_mirror == mirror %]checked[% END %]
 		 class="cbox">
 	  <b>
@@ -81,16 +81,16 @@
 	  Use the Solr [% IF mirror_info.$mirror.class.search('main') %]main mirror[% ELSIF mirror_info.$mirror.class.search('aux') %]auxiliary mirror[% ELSIF mirror_info.$mirror.class.search('local') %]local installation[% ELSIF mirror_info.$mirror.class.search('exp') %]experimental mirror[% END %] [% mirror_info.$mirror.location %].
 	</label>
       </div>
-      [% END %]	  
+      [% END %]
 
       <button type="submit" class="btn btn-primary">Query</button>
 
-    </form>		
-	
+    </form>
+
   </div>
 </div>
 
-[% IF facet_results_p %]    
+[% IF facet_results_p %]
 <div class="panel panel-default">
   <div class="panel-heading">
     <div class="panel-title">
@@ -98,13 +98,13 @@
     </div>
   </div>
   <div class="panel-body">
-      
+
     [% FOREACH facet = facet_results_facets %]
     <table
        summary="Query facet results over [% facet %]"
        class="table table-striped table-hover">
       <thead>
-	<tr>	  
+	<tr>
 	  <th>
 	    [% facet %]
 	  </th>
@@ -113,7 +113,7 @@
 	  </th>
 	</tr>
       </thead>
-      <tbody>	
+      <tbody>
 	[% FOREACH pair = facet_results.$facet %]
 	<tr>
 	  [% FOREACH item = pair %]
@@ -126,13 +126,13 @@
       </tbody>
     </table>
     [% END %]
-    
+
   </div>
 </div>
 [% END %]
 
 [% IF NOT results_count AND results_count == 0 %]
-  
+
 <div class="panel panel-default">
   <div class="panel-heading">
     <div class="panel-title">
@@ -154,29 +154,29 @@
   </div>
   <div class="panel-body">
     <p id="results_generated">
-      
-      Your query generated      
+
+      Your query generated
       [% IF limit AND results_count > limit  %]
       <b>[% limit %]</b>
       (limited from <b>[% results_count %]</b>)
       [% ELSE %]
       <b>[% results_count %]</b>
       [% END %]
-      
+
       result(s).<br />
-      
+
       [% IF direct_solr_url %]
       Raw Solr <a href="[% direct_solr_url %]"
 		  title="Link to full Solr results.">results</a>
       from GOlr server.
       <br />
       [%    IF galaxy_url AND direct_id_url_safe AND direct_all_url_safe %]
-      
+
       Direct download: <a href="[% direct_id_url_safe %]"
 			  title="Downloadable ID results.">ID list</a>
       or <a href="[% direct_all_url_safe %]"
 	    title="Download results with all fields.">all fields</a>.
-      
+
     </p>
     <p>
       <form id="galaxyform"
@@ -195,7 +195,7 @@
     <p>
       <form id="galaxyform"
 	    role="form"
-	    action="[% galaxy_url %]" 
+	    action="[% galaxy_url %]"
 	    name="galaxyform"
 	    method="POST"
 	    target="_blank">
@@ -212,20 +212,20 @@
       No direct URL possible...
     </p>
     [% END %]
-    
+
     <table
        summary="Query results"
        class="table table-striped table-hover">
       <thead>
-	<tr>	  
+	<tr>
 	  [% FOREACH header = results_headers %]
 	  <th>
 	    [% header %]
 	  </th>
-	  [% END%]	  
+	  [% END%]
 	</tr>
       </thead>
-      <tbody>	
+      <tbody>
 	[% FOREACH row = results %]
 	<tr>
 	  [%  FOREACH col = row %]
