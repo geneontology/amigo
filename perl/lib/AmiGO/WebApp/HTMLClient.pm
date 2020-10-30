@@ -1136,6 +1136,13 @@ sub mode_search {
   $pins = [$pins] if ref($pins) ne 'ARRAY';
   $filters = [$filters] if ref($filters) ne 'ARRAY';
 
+  ## Sanitize the array inputs a little to prevent HTML injection in
+  ## this one case. Also see html_safe in AmiGO.pm.
+  my @clean_filters = map { s{<}{&lt;}gso; s{>}{&gt;}gso; } @{$filters};
+  $filters = \@clean_filters;
+  my @clean_pins = map { s{<}{&lt;}gso; s{>}{&gt;}gso; } @{$pins};
+  $pins = \@clean_pins;
+
   ## Now add the filters that come in from the YAML-defined simple
   ## public bookmarking API.
   $filters = $self->_add_search_bookmark_api_to_filters($params, $filters);
