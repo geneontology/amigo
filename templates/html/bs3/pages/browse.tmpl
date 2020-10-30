@@ -25,7 +25,7 @@
   <div class="panel-body">
 
     [% IF in_term %]
-    <h4>Transitive term neighborhood for: [% in_term %]</h4>
+    <h4>Transitive term neighborhood for: [% FILTER html %][% in_term %][% END %]</h4>
     [% ELSE %]
     <h4>Transitive term neighborhood from roots</h4>
     [% END %]
