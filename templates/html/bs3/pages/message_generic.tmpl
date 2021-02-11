@@ -1,6 +1,6 @@
 <!-- Begin: message_generic.tmpl -->
 [% IF title AND title != '' %]
-<div class="page-header">  
+<div class="page-header">
   <h1>[% title %]</h1>
 </div>
 [% END %]
@@ -11,7 +11,7 @@
   </div>
   <div class="panel-body">
     <div class="well">
-      [% message %]
+      [% FILTER html %][% message %][% END %]
     </div>
     <p>
       If you feel that you have reached this message in error, please contact
