@@ -1889,36 +1889,37 @@ sub mode_reference_details {
   $filters = $self->_add_search_bookmark_api_to_filters($params, $filters);
 
   ## Input sanity check.
-  if( $input_ref_id =~ /^pmid\:[0-9]{1,100}/ ){
+  if( $input_ref_id =~ /^pmid\:[0-9]{1,100}$/ ){
     return $self->mode_fatal("Please use a PubMed ID of the form: <b>PMID:123456</b>.");
-  }elsif( $input_ref_id !~ /^PMID\:[0-9]{1,100}/ ){
-
-    ## Warning: this is essientially, except for the action, copied
-    ## out of reference_details.tmpl. Make sure they stay in sync.
-    my $form =
-      [
-       '<form action="/amigo/reference"',
-       'id="reference-query-form"',
-       'class="form-inline"',
-       'role="search"',
-       'method="GET">',
-       '<div class="form-group">',
-       '<input',
-       'type="text"',
-       'title="Input any PubMed ID (e.g. PMID:123456)."',
-       'class="form-control"',
-       'name="ref_id"',
-       'placeholder="E.g. PMID:123456"',
-       'value=""',
-       'id="reference-search-query">',
-       '</div>',
-       '<button type="submit"',
-       'title="Search for groups of documents with the inputted text."',
-       'class="btn btn-default">Search</button>',
-       '</form>'
-      ];
-
-    return $self->mode_fatal("Your input is not a PubMed ID. Please try again:<br /><br />" . join(' ', @$form));
+  }elsif( $input_ref_id !~ /^PMID\:[0-9]{1,100}$/ ){
+    return $self->mode_fatal("Please use a PubMed ID of the form: <b>PMID:123456</b>.");
+    ## I don't know if this was the original spec, but it has been functionally
+    ## inactive for some time with the safe HTML in error.html.
+    # ## Warning: this is essientially, except for the action, copied
+    # ## out of reference_details.tmpl. Make sure they stay in sync.
+    # my $form =
+    #   [
+    #    '<form action="/amigo/reference"',
+    #    'id="reference-query-form"',
+    #    'class="form-inline"',
+    #    'role="search"',
+    #    'method="GET">',
+    #    '<div class="form-group">',
+    #    '<input',
+    #    'type="text"',
+    #    'title="Input any PubMed ID (e.g. PMID:123456)."',
+    #    'class="form-control"',
+    #    'name="ref_id"',
+    #    'placeholder="E.g. PMID:123456"',
+    #    'value=""',
+    #    'id="reference-search-query">',
+    #    '</div>',
+    #    '<button type="submit"',
+    #    'title="Search for groups of documents with the inputted text."',
+    #    'class="btn btn-default">Search</button>',
+    #    '</form>'
+    #   ];
+    # return $self->mode_fatal("Your input is not a PubMed ID. Please try again:<br /><br />" . join(' ', @$form));
   }
   if( ! $input_ref_id ){
     return $self->mode_fatal("No input reference identifier argument.");
