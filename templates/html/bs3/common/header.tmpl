@@ -49,7 +49,7 @@
         <li[% IF page_name == 'software_list' %] class="active"[% END %]><a href="[% interlink_tools %]" title="More tools to explore the Gene Ontology">Tools&nbsp;&amp;&nbsp;Resources</a></li>
 
 	<!-- Help. -->
-        <li><a href="[% page_help_link %]" title="Help for '[% page_content_title %]'">Help</a></li>
+        <li><a href="[% page_help_link %]" title="Help for '[% FILTER html %][% page_content_title %][% END %]'">Help</a></li>
 
 	<!-- Feedback. -->
 	[% # IF BETA == 1 %]
