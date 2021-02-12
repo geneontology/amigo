@@ -1890,9 +1890,9 @@ sub mode_reference_details {
 
   ## Input sanity check.
   if( $input_ref_id =~ /^pmid\:[0-9]{1,100}$/ ){
-    return $self->mode_fatal("Please use a PubMed ID of the form: <b>PMID:123456</b>.");
+    return $self->mode_fatal("Please use a PubMed ID of the form: PMID:123456.");
   }elsif( $input_ref_id !~ /^PMID\:[0-9]{1,100}$/ ){
-    return $self->mode_fatal("Please use a PubMed ID of the form: <b>PMID:123456</b>.");
+    return $self->mode_fatal("Please use a PubMed ID of the form: PMID:123456.");
     ## I don't know if this was the original spec, but it has been functionally
     ## inactive for some time with the safe HTML in error.html.
     # ## Warning: this is essientially, except for the action, copied
