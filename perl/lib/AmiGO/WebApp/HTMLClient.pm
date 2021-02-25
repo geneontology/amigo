@@ -1138,10 +1138,21 @@ sub mode_search {
 
   ## Sanitize the array inputs a little to prevent HTML injection in
   ## this one case. Also see html_safe in AmiGO.pm.
-  my @clean_filters = map { s{<}{&lt;}gso; s{>}{&gt;}gso; } @{$filters};
-  $filters = \@clean_filters;
-  my @clean_pins = map { s{<}{&lt;}gso; s{>}{&gt;}gso; } @{$pins};
-  $pins = \@clean_pins;
+  my $clean_filters = [];
+  foreach my $ci (@$filters){
+    $ci =~ s/</&lt;/gso;
+    $ci =~ s/>/&gt;/gso;
+    push @$clean_filters, $ci
+  }
+  $filters = $clean_filters;
+  ## And the pins.
+  my $clean_pins = [];
+  foreach my $ci (@$pins){
+    $ci =~ s/</&lt;/gso;
+    $ci =~ s/>/&gt;/gso;
+    push @$clean_pins, $ci
+  }
+  $pins = $clean_pins;
 
   ## Now add the filters that come in from the YAML-defined simple
   ## public bookmarking API.
