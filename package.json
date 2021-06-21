@@ -49,7 +49,7 @@
     "markdown": "0.5.0",
     "marked": "0.3.19",
     "minerva-requests": "0.0.15",
-    "minimist": "1.2.0",
+    "minimist": "1.2.3",
     "mustache": "2.3.0",
     "plotly.js": "1.35.2",
     "pup-tent": "0.9.10",
