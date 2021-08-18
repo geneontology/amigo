@@ -1,0 +1,8 @@
+---
+###############
+# Point stage_dir to a different locatiom. By default it will reside in the current directory.
+##############
+stage_dir: "{{ lookup('env', 'PWD') }}/stage_dir"
+branch: master
+tag: latest
+repo: https://github.com/geneontology/amigo.git
