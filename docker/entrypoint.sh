@@ -4,12 +4,23 @@
 ### AmiGO on Apache first.
 ###
 
-if [ -z $GULP_INSTALL ]; then
+if [ $GULP_INSTALL -eq 1 ]; then
    cp ./conf/examples/amigo.yaml.localhost_docker_loader ./conf/amigo.yaml
    npm install
    ./node_modules/.bin/gulp install
-   sed -i s,config.pl,/srv/amigo/perl/bin/config.pl,g /srv/amigo/perl/bin/*
-   sed -i s,config.pl,/srv/amigo/perl/bin/config.pl,g /srv/amigo/perl/lib/AmiGO.pm
+
+   for f in `ls /srv/amigo/perl/bin/*`
+   do
+     grep /srv/amigo/perl/bin/config.pl $f > /dev/null
+     if [ $? -ne 0 ]; then
+        sed -i s,config.pl,/srv/amigo/perl/bin/config.pl,g $f
+     fi
+   done
+
+   grep /srv/amigo/perl/bin/config.pl /srv/amigo/perl/lib/AmiGO.pm > /dev/null
+   if [ $? -ne 0 ]; then
+      sed -i s,config.pl,/srv/amigo/perl/bin/config.pl,g /srv/amigo/perl/lib/AmiGO.pm
+   fi
 fi
 
 echo "Starting the apache2 server with amigo installed"

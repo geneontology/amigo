@@ -6,3 +6,4 @@ stage_dir: "{{ lookup('env', 'PWD') }}/stage_dir"
 branch: master
 tag: latest
 repo: https://github.com/geneontology/amigo.git
+repo_dir: '{{ stage_dir }}/amigo'

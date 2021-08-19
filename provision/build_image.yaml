@@ -1,9 +1,7 @@
-- name: build docker images
+- name: build docker image
   hosts: all
   vars_files:
   - vars.yaml
-  vars:
-    repo_dir: '{{ stage_dir }}/amigo'
 
   tasks:
   - name: Checkout repos
@@ -11,7 +9,7 @@
      repo: '{{ repo }}'
      dest: '{{ repo_dir }}'
      version: '{{ branch }}'
-     force: yes 
+     force: yes
 
   - name: build image
     shell: "docker build -f {{ repo_dir }}/docker/Dockerfile -t 'amigo:{{ tag }}' {{ repo_dir }}"

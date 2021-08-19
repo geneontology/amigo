@@ -1,0 +1,15 @@
+version: '3'
+services:
+  amigo:
+    hostname: amigo
+    container_name: amigo 
+    image: amigo:{{ tag }}
+    environment:
+       GULP_INSTALL: 1
+    ports:
+      - 9999:9999
+      - 8080:8080
+    volumes:
+      - {{ stage_dir }}/srv-solr-data:/srv/solr/data
+      - {{ repo_dir }}/amigo:/srv/amigo
+    restart: unless-stopped
