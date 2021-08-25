@@ -5,11 +5,22 @@ services:
     container_name: amigo 
     image: amigo:{{ tag }}
     environment:
-       GULP_INSTALL: 1
-    ports:
-      - 9999:9999
-      - 8080:8080
+       GULP_INSTALL: {{ GULP_INSTALL }} 
     volumes:
       - {{ stage_dir }}/srv-solr-data:/srv/solr/data
-      - {{ repo_dir }}/amigo:/srv/amigo
+      - {{ repo_dir }}:/srv/amigo
     restart: unless-stopped
+
+  apache_amigo:
+    hostname: apache_amigo
+    container_name: apache_amigo
+    image: httpd:latest
+    restart: unless-stopped
+    volumes:
+      - {{ stage_dir }}//httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - {{ stage_dir }}/httpd-vhosts-amigo.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - amigo
+

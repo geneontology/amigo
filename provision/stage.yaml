@@ -20,9 +20,11 @@
       executable: /bin/bash
     when: not index_result.stat.exists
 
-  - name: install templates
+  - name: install docker-compose.yaml and http configs
     template:
-      src: '{{ repo_dir }}/provision/{{ item.file }}'
+      src: '{{ item.file }}'
       dest: '{{ stage_dir }}/{{ item.dir }}'
     with_items:
       - { file: 'docker-compose.yaml', dir: '' }
+      - { file: 'httpd-vhosts-amigo.conf', dir: '' }
+      - { file: 'httpd.conf', dir: '' }
