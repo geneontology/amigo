@@ -95,7 +95,7 @@ export HOST=`terraform -chdir=aws output -raw public_ip`
 export PRIVATE_KEY=`terraform -chdir=aws output -raw private_key_path`
 
 // Make sure this is an abosulte path.
-export STAGE_DIR=/home/ubuntu/stage_di
+export STAGE_DIR=/home/ubuntu/stage_dir
 
 ansible-playbook -e "stage_dir=$STAGE_DIR -u ubuntu -i "$HOST," build_image.yaml 
 ansible-playbook -e "stage_dir=$STAGE_DIR -u ubuntu -i "$HOST," stage.yaml 
@@ -121,7 +121,7 @@ docker-compose -f docker-compose.yaml up -d
 Enter container.
 
 ```sh
-docker exec -it purl /bin/bash
+docker exec -it amigo /bin/bash
 ps -ef 
 ```
 
