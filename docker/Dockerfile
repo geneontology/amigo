@@ -130,6 +130,6 @@ EXPOSE 8080 9999
 #CMD "/tmp/run-apache-solr.sh"
 
 COPY ./docker/entrypoint.sh /
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh && md5sum ./conf/amigo.yaml > amigo-hash
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD ["tail", "-f", "/dev/null" ]

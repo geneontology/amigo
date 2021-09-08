@@ -4,11 +4,11 @@
 ### AmiGO on Apache first.
 ###
 
-if [ $GULP_INSTALL -eq 1 ]; then
-   if [ ! -f ./conf/amigo.yaml ]; then
-       cp ./conf/examples/amigo.yaml.localhost_docker_loader ./conf/amigo.yaml
-   fi
+md5sum -c amigo-hash
+GULP_INSTALL=$?
+echo "GULP_INSTALL=$GULP_INSTALL"
 
+if [ $GULP_INSTALL -ne 0 ]; then
    npm install
    ./node_modules/.bin/gulp install
 
@@ -24,6 +24,8 @@ if [ $GULP_INSTALL -eq 1 ]; then
    if [ $? -ne 0 ]; then
       sed -i s,config.pl,/srv/amigo/perl/bin/config.pl,g /srv/amigo/perl/lib/AmiGO.pm
    fi
+
+   md5sum ./conf/amigo.yaml > amigo-hash
 fi
 
 echo "Starting the apache2 server with amigo installed"
