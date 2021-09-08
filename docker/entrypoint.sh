@@ -5,7 +5,10 @@
 ###
 
 if [ $GULP_INSTALL -eq 1 ]; then
-   cp ./conf/examples/amigo.yaml.localhost_docker_loader ./conf/amigo.yaml
+   if [ ! -f ./conf/amigo.yaml ]; then
+       cp ./conf/examples/amigo.yaml.localhost_docker_loader ./conf/amigo.yaml
+   fi
+
    npm install
    ./node_modules/.bin/gulp install
 

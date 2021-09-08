@@ -7,8 +7,9 @@ services:
     environment:
        GULP_INSTALL: {{ GULP_INSTALL }} 
     volumes:
-      - {{ stage_dir }}/srv-solr-data:/srv/solr/data
       - {{ repo_dir }}:/srv/amigo
+      - {{ stage_dir }}/srv-solr-data:/srv/solr/data
+      - {{ stage_dir }}/amigo.yaml:/srv/amigo/conf/amigo.yaml
     restart: unless-stopped
 
   apache_amigo:
@@ -23,4 +24,3 @@ services:
       - "80:80"
     depends_on:
       - amigo
-

@@ -97,8 +97,8 @@ export PRIVATE_KEY=`terraform -chdir=aws output -raw private_key_path`
 // Make sure this is an abosulte path.
 export STAGE_DIR=/home/ubuntu/stage_dir
 
-ansible-playbook -e "stage_dir=$STAGE_DIR -u ubuntu -i "$HOST," build_image.yaml 
-ansible-playbook -e "stage_dir=$STAGE_DIR -u ubuntu -i "$HOST," stage.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," build_image.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," stage.yaml 
 
 // or to specify a forked repo and different branch ...
 ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," build_image.yaml 
