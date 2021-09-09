@@ -124,6 +124,7 @@ Start the instance and access it using browser at http://{{ AMIGO_DYNAMIC }}/ami
 
 ```
 ssh -o StrictHostKeyChecking=no -i $PRIVATE_KEY ubuntu@$HOST
+// cd to stage_dir ....
 docker-compose -f docker-compose.yaml up -d
 
 // Tail logs, bring down, delete containers
