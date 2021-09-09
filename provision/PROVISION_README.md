@@ -45,6 +45,17 @@ variable eip_alloc_id {
 }
 ```
 
+#### DNS 
+
+Need to create two Route53 records pointing to the elastic ip created above.
+The two hostnames specified by these records will be used by the apache proxy 
+to forward traffic to either solr or to the amigo server.  
+
+Replace variables AMIGO_DYNAMIC and AMIGO_PUBLIC_GOLR with the hostnames accordingly in vars.tf.
+
+Note: These values can also be passed using the -e option. 
+
+
 #### Create AWS instance: 
 
 Note: Terraform creates some folders and files to maintain the state. 
@@ -97,23 +108,27 @@ export PRIVATE_KEY=`terraform -chdir=aws output -raw private_key_path`
 // Make sure this is an abosulte path.
 export STAGE_DIR=/home/ubuntu/stage_dir
 
-ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," build_image.yaml 
-ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," stage.yaml 
+// Using this repo and master branch
+ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY build_image.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY stage.yaml 
 
-// or to specify a forked repo and different branch ...
-ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," build_image.yaml 
-ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," stage.yaml 
-
-
+// Or to specify a forked repo and different branch ...
+ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY build_image.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY stage.yaml 
 ```
 
 #### Start Docker Instance: 
 
-Start the instance and access it from browser use http://REPLACE_WITH_ELASTIC_IP/
+Start the instance and access it using browser at http://{{ AMIGO_DYNAMIC }}/amigo
 
 ```
 ssh -o StrictHostKeyChecking=no -i $PRIVATE_KEY ubuntu@$HOST
 docker-compose -f docker-compose.yaml up -d
+
+// Tail logs, bring down, delete containers
+docker-compose -f docker-compose.yaml logs -f  
+docker-compose -f docker-compose.yaml down
+docker-compose -f docker-compose.yaml rm -f
 ```
 
 #### Testing Inside Container
