@@ -1,49 +1,9 @@
-# Provision AWS instance.
+# Provision Locally
 
 ## Requirements 
 
 - The steps below were successfully tested using:
-    - Terraform (0.14.4)
     - Ansible   (2.10.7) Python (3.8.5)
-
-#### Install Terraform
-
-- Go to [url](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-
-#### AWS Credentials.
-- Create a file or override the location in aws/provider.tf
-
-```
-[default]
-aws_access_key_id = XXXX
-aws_secret_access_key = XXXX
-```
-#### SSH Credentials.
-- In aws/vars.tf the private key and the public keys are assumed to be in the standard location
-
-```
-variable "public_key_path" {
-  default = "~/.ssh/id_rsa.pub"
-}
-
-variable "private_key_path" {
-  default = "~/.ssh/id_rsa"
-}
-
-```
-
-#### Elastic Ip
-
-Create elastic ip (VPC) and use its allocation_id aws/vars.tf 
-
-Note: A default elastic ip has already been created for region us-east-1
-      It can be used if not associated to an instance. 
-
-```sh
-variable eip_alloc_id {
-  default = "REPLACE_ME"
-}
-```
 
 #### DNS 
 
@@ -56,65 +16,23 @@ Replace variables AMIGO_DYNAMIC and AMIGO_PUBLIC_GOLR with the hostnames accordi
 Note: These values can also be passed using the -e option. 
 
 
-#### Create AWS instance: 
-
-Note: Terraform creates some folders and files to maintain the state. 
-      Once terraform is applied, you can see them using <i>ls -a aws</i>
-
-```sh
-cd provision
-
-# This will install the aws provider. 
-terraform -chdir=aws init
-
-# Validate the terraform scripts' syntax
-terraform -chdir=aws validate
-
-# View the plan that is going to be created.
-# This is very useful as it will also search for the elastic ip using 
-# the supplied eip_alloc_id. And would fail if it does not find it.
-terraform -chdir=aws plan
-
-# This will create the vpc, security group and the instance
-terraform -chdir=aws apply
-
-# To view the outputs
-terraform -chdir=aws output 
-
-#To view what was deployed:
-terraform -chdir=aws show 
-```
-
-#### Test AWS Instance: 
-
-```sh
-export HOST=`terraform -chdir=aws output -raw public_ip`
-export PRIVATE_KEY=`terraform -chdir=aws output -raw private_key_path`
-
-ssh -o StrictHostKeyChecking=no -i $PRIVATE_KEY ubuntu@$HOST
-docker ps
-which docker-compose
-```
-
-#### Stage To AWS Instance: 
+#### Stage Locallay
 
 Clone the repo on the AWS instance, build the docker image and finally copy the docker-compose file. 
 
 ```sh
 cd provision
-export HOST=`terraform -chdir=aws output -raw public_ip`
-export PRIVATE_KEY=`terraform -chdir=aws output -raw private_key_path`
 
 // Make sure this is an abosulte path.
 export STAGE_DIR=/home/ubuntu/stage_dir
 
 // Using this repo and master branch
-ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY build_image.yaml 
-ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY stage.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "localhost," --connection=local build_image.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "localhost," --connection=local stage.yaml 
 
 // Or to specify a forked repo and different branch ...
-ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY build_image.yaml 
-ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY stage.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "localhost," --connection=local build_image.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "localhost," --connection=local stage.yaml 
 ```
 
 #### Start Docker Instance: 
@@ -131,13 +49,17 @@ docker-compose -f docker-compose.yaml down
 docker-compose -f docker-compose.yaml rm -f
 ```
 
-#### Testing Inside Container
-
-Enter container.
+#### Accessing Containers
 
 ```sh
+// List containers.
+docker ps
+
+// Amigo
 docker exec -it amigo /bin/bash
-ps -ef 
+
+// Proxy
+docker exec -it apache_amigo /bin/bash
 ```
 
 #### Destroy AWS instance:
@@ -150,5 +72,3 @@ Note: The terraform state is stored in the directory aws.
 ```
 terraform -chdir=aws destroy
 ```
-
-
