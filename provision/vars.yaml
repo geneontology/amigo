@@ -8,17 +8,9 @@ tag: latest
 repo: https://github.com/geneontology/amigo.git
 repo_dir: '{{ stage_dir }}/amigo'
 
-####
-# Setting this to 1 would mount the repo and would allow for modifications to take place unpon restart
-GULP_INSTALL: 1 
-
-
 #####
 GOLR_SOLR_MEMORY: 4G
 GOLR_LOADER_MEMORY: 7G
-AMIGO_DYNAMIC: www.amigo..perl
-AMIGO_PUBLIC_GOLR: www.amigo.solr
+AMIGO_DYNAMIC: amigo.example.com
+AMIGO_PUBLIC_GOLR: amigo-golr.example.com
 AMIGO_PUBLIC_GOLR_BULK: '{{ AMIGO_PUBLIC_GOLR }}'
-
-
-apache_proxy_additional_rules: "    ## Prevent \"admin\" access.\n    ProxyPassMatch ^/admin(.*)$ http://amigo:8080/denied/$1\n    ProxyPassMatch ^/solr/admin(.*)$ http://amigo:8080/denied/$1\n    ProxyPassMatch ^/update(.*)$ http://amigo:8080/denied/$1\n    ProxyPassMatch ^/solr/update(.*)$ http://amigo:8080/denied/$1"

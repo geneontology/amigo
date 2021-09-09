@@ -4,8 +4,6 @@ services:
     hostname: amigo
     container_name: amigo 
     image: amigo:{{ tag }}
-    environment:
-       GULP_INSTALL: {{ GULP_INSTALL }} 
     volumes:
       - {{ repo_dir }}:/srv/amigo
       - {{ stage_dir }}/srv-solr-data:/srv/solr/data
@@ -19,7 +17,8 @@ services:
     restart: unless-stopped
     volumes:
       - {{ stage_dir }}//httpd.conf:/usr/local/apache2/conf/httpd.conf
-      - {{ stage_dir }}/httpd-vhosts-amigo.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
+      - {{ stage_dir }}/httpd-vhosts-amigo.conf:/usr/local/apache2/conf/extra/httpd-vhosts-amigo.conf
+      - {{ stage_dir }}/httpd-vhosts-golr.conf:/usr/local/apache2/conf/extra/httpd-vhosts-golr.conf
     ports:
       - "80:80"
     depends_on:

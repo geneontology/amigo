@@ -23,4 +23,5 @@
       - { file: 'amigo.yaml', dir: '' }
       - { file: 'docker-compose.yaml', dir: '' }
       - { file: 'httpd-vhosts-amigo.conf', dir: '' }
+      - { file: 'httpd-vhosts-golr.conf', dir: '' }
       - { file: 'httpd.conf', dir: '' }

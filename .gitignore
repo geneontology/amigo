@@ -70,3 +70,10 @@ tramp
 
 ## Would rather not have the minimal java stuff pollute.
 *.class
+
+
+stage_dir
+.terraform
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
