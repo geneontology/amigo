@@ -36,9 +36,9 @@ ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "
 ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "localhost," --connection=local stage.yaml 
 ```
 
-#### Start Docker Instance: 
+#### Start Docker Containers: 
 
-Start the instance and access it using browser at http://{{ AMIGO_DYNAMIC }}/amigo
+Start Containers and access amigo using the browser at http://{{ AMIGO_DYNAMIC }}/amigo
 
 ```
 cd $STAGE_DIR
