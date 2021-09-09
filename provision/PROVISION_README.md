@@ -7,7 +7,8 @@
 
 #### DNS 
 
-Need to create two Route53 records pointing to the elastic ip created above.
+You can just add two records to /etc/hosts.
+
 The two hostnames specified by these records will be used by the apache proxy 
 to forward traffic to either solr or to the amigo server.  
 
@@ -18,7 +19,7 @@ Note: These values can also be passed using the -e option.
 
 #### Stage Locallay
 
-Clone the repo on the AWS instance, build the docker image and finally copy the docker-compose file. 
+Clone the repo, build the docker image and finally copy the all templates such docker-compose.yaml 
 
 ```sh
 cd provision

@@ -98,7 +98,8 @@ which docker-compose
 
 #### Stage To AWS Instance: 
 
-Clone the repo on the AWS instance, build the docker image and finally copy the docker-compose file. 
+Clone the repo on the AWS instance, build the docker image and finally copy the docker-compose file
+and other templates. 
 
 ```sh
 cd provision
