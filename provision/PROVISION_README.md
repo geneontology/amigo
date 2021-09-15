@@ -25,7 +25,7 @@ Note: These values can also be passed using the -e option.
 
 #### Stage Locallay
 
-Clone the repo, build the docker image and finally copy the all templates such docker-compose.yaml 
+Clone the repo, build the docker image and finally copy all template files such docker-compose.yaml 
 
 ```sh
 cd provision
