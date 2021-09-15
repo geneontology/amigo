@@ -11,7 +11,7 @@
 - Go to [url](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 
 #### AWS Credentials.
-- Create a file or override the location in aws/provider.tf
+- Create a credential file at `~/.aws/credentials` or override the location in aws/provider.tf
 
 ```
 [default]
