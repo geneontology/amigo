@@ -24,6 +24,8 @@ Note: These values can also be passed using the -e option.
 
 #### About Solr Index
 You way want to check vars.tf and change the following variables accordingly.
+The stage.yaml installs the index under {{ stage_dir }}/srv-solr-data.
+If you have the solr index just place it in this location and stage.yaml will skip this step.
 
   - GOLR_SOLR_MEMORY
   - GOLR_LOADER_MEMORY
