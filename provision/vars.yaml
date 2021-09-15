@@ -8,9 +8,18 @@ tag: latest
 repo: https://github.com/geneontology/amigo.git
 repo_dir: '{{ stage_dir }}/amigo'
 
-#####
+########
+# Solr index. Change these accordingly.
+#######`
 GOLR_SOLR_MEMORY: 4G
 GOLR_LOADER_MEMORY: 7G
+GOLR_INPUT_ONTOLOGIES: "http://skyhook.berkeleybop.org/release/ontology/extensions/go-gaf.owl 
+                        http://skyhook.berkeleybop.org/release/ontology/extensions/gorel.owl" 
+
+GOLR_INPUT_GAFS: "http://current.geneontology.org/annotations/aspgd.gaf.gz
+                 http://skyhook.berkeleybop.org/release/annotations/cgd.gaf.gz"
+                  
+#####
 AMIGO_DYNAMIC: amigo.example.com
 AMIGO_PUBLIC_GOLR: amigo-golr.example.com
 AMIGO_PUBLIC_GOLR_BULK: '{{ AMIGO_PUBLIC_GOLR }}'

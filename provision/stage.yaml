@@ -10,7 +10,13 @@
 
   - name: Create Solr Index
     shell: | 
-         docker run --rm -e "GOLR_SOLR_MEMORY=4G" -e "GOLR_LOADER_MEMORY=7G" -e "GOLR_INPUT_ONTOLOGIES=http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl" -e "GOLR_INPUT_GAFS=http://current.geneontology.org/annotations/aspgd.gaf.gz" -v '{{ stage_dir }}/srv-solr-data:/srv/solr/data' -t geneontology/golr-autoindex
+         docker run --rm \
+             -e "GOLR_SOLR_MEMORY={{ GOLR_SOLR_MEMORY }}" \
+             -e "GOLR_LOADER_MEMORY={{ GOLR_LOADER_MEMORY }} " \
+             -e "GOLR_INPUT_ONTOLOGIES={{ GOLR_INPUT_ONTOLOGIES }} " \
+             -e "GOLR_INPUT_GAFS={{ GOLR_INPUT_GAFS }}" \
+             -v '{{ stage_dir }}/srv-solr-data:/srv/solr/data'\
+             -t geneontology/golr-autoindex
     args:
       executable: /bin/bash
     when: not index_result.stat.exists

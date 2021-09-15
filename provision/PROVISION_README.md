@@ -22,6 +22,13 @@ Note: These values can also be passed using the -e option.
 127.0.0.1 amigo-golr.example.com
 ```
 
+#### About Solr Index.
+You way want to check vars.tf and change the following variables accordingly.
+
+  - GOLR_SOLR_MEMORY
+  - GOLR_LOADER_MEMORY
+  - GOLR_INPUT_ONTOLOGIES
+  - GOLR_INPUT_GAFS
 
 #### Stage Locallay
 
