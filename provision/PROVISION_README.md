@@ -45,7 +45,7 @@ Note: apache_amigo is an apache proxy to amigo's services (jetty and solr)
 cd $STAGE_DIR
 docker-compose -f docker-compose.yaml up -d
 
-// Note: The amigo container can take some time to start when started for the first time.Ccheck the amigo logs first and make sure
+// Note: The amigo container can take some time when started for the first time. Check the amigo logs first and make sure
 // it is ready.  
 docker-compose -f docker-compose.yaml logs -f amigo
 ```
