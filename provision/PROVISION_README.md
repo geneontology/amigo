@@ -22,7 +22,7 @@ Note: These values can also be passed using the -e option.
 127.0.0.1 amigo-golr.example.com
 ```
 
-#### About Solr Index.
+#### About Solr Index
 You way want to check vars.tf and change the following variables accordingly.
 
   - GOLR_SOLR_MEMORY
@@ -30,7 +30,7 @@ You way want to check vars.tf and change the following variables accordingly.
   - GOLR_INPUT_ONTOLOGIES
   - GOLR_INPUT_GAFS
 
-#### Stage Locallay
+#### Stage Locally
 
 Clone the repo, build the docker image and finally copy all template files such as docker-compose.yaml 
 
@@ -49,7 +49,7 @@ ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "
 ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -i "localhost," --connection=local stage.yaml 
 ```
 
-#### Start Docker Containers using docker-compose: 
+#### Start Docker Containers using docker-compose
 
 Start containers amigo and apache_amigo and access amigo using the browser 
 at http://{{ AMIGO_DYNAMIC }}/amigo   (http://amigo.example.com/amigo if using default AMIGO_DYNAMIC)
@@ -65,7 +65,7 @@ docker-compose -f docker-compose.yaml up -d
 docker-compose -f docker-compose.yaml logs -f amigo
 ```
 
-#### Other useful docker-compose commands: 
+#### Other useful docker-compose commands
 
 ```
 // Tail logs both containers amigo and apache_amigo
@@ -75,7 +75,7 @@ docker-compose -f docker-compose.yaml logs -f
 docker-compose -f docker-compose.yaml down
 ```
 
-#### Accessing Containers using docker command:
+#### Accessing Containers using docker command
 
 ```sh
 // List containers.
