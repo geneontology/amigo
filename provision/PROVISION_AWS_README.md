@@ -130,7 +130,6 @@ docker-compose -f docker-compose.yaml up -d
 // Tail logs, bring down, delete containers
 docker-compose -f docker-compose.yaml logs -f  
 docker-compose -f docker-compose.yaml down
-docker-compose -f docker-compose.yaml rm -f
 ```
 
 #### Accessing Containers
