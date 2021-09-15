@@ -44,7 +44,9 @@ ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "
 
 #### Start Docker Containers using docker-compose: 
 
-Start containers amigo and apache_amigo and access amigo using the browser at http://{{ AMIGO_DYNAMIC }}/amigo
+Start containers amigo and apache_amigo and access amigo using the browser 
+at http://{{ AMIGO_DYNAMIC }}/amigo   (http://amigo.example.com/amigo if using default AMIGO_DYNAMIC)
+
 Note: apache_amigo is an apache proxy to amigo's services (jetty and solr)
 
 ```
