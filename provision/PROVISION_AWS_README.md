@@ -96,6 +96,17 @@ docker ps
 which docker-compose
 ```
 
+#### About Solr Index
+You way want to check vars.tf and change the following variables accordingly.
+The stage.yaml installs the index under {{ stage_dir }}/srv-solr-data.
+If you have the solr index just place it in this location and stage.yaml will skip this step.
+
+  - GOLR_SOLR_MEMORY
+  - GOLR_LOADER_MEMORY
+  - GOLR_INPUT_ONTOLOGIES
+  - GOLR_INPUT_GAFS
+
+
 #### Stage To AWS Instance: 
 
 Clone the repo on the AWS instance, build the docker image and finally copy the docker-compose file
