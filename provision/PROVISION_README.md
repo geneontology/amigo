@@ -25,32 +25,42 @@ Clone the repo, build the docker image and finally copy the all templates such d
 cd provision
 
 // Make sure this is an abosulte path.
-export STAGE_DIR=/home/ubuntu/stage_dir
+export STAGE_DIR=...
 
 // Using this repo and master branch
-ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "localhost," --connection=local build_image.yaml 
-ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "localhost," --connection=local stage.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -i "localhost," --connection=local build_image.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -i "localhost," --connection=local stage.yaml 
 
 // Or to specify a forked repo and different branch ...
-ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "localhost," --connection=local build_image.yaml 
-ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "localhost," --connection=local stage.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -i "localhost," --connection=local build_image.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -i "localhost," --connection=local stage.yaml 
 ```
 
-#### Start Docker Containers: 
+#### Start Docker Containers using docker-compose: 
 
-Start Containers and access amigo using the browser at http://{{ AMIGO_DYNAMIC }}/amigo
+Start Containers amigo and apache_amigo and access amigo using the browser at http://{{ AMIGO_DYNAMIC }}/amigo
+Note: apache_amigo is an apache proxy to amigo's services (jetty and solr)
 
 ```
 cd $STAGE_DIR
 docker-compose -f docker-compose.yaml up -d
 
-// Tail logs, bring down, delete containers
-docker-compose -f docker-compose.yaml logs -f  
-docker-compose -f docker-compose.yaml down
-docker-compose -f docker-compose.yaml rm -f
+// Note: The amigo container can take some time to start when started for the first time.Ccheck the amigo logs first and make sure
+// it is ready.  
+docker-compose -f docker-compose.yaml logs -f amigo
 ```
 
-#### Accessing Containers
+#### Other useful docker-compose commands: 
+
+```
+// Tail logs both containers amigo and apache_amigo
+docker-compose -f docker-compose.yaml logs -f  
+
+// Bring down both containers and remove them
+docker-compose -f docker-compose.yaml down
+```
+
+#### Accessing Containers using docker command:
 
 ```sh
 // List containers.
@@ -61,15 +71,4 @@ docker exec -it amigo /bin/bash
 
 // Proxy
 docker exec -it apache_amigo /bin/bash
-```
-
-#### Destroy AWS instance:
-
-Destroy when done.
-
-Note: The terraform state is stored in the directory aws. 
-      Do not lose it or delete it
-
-```
-terraform -chdir=aws destroy
 ```
