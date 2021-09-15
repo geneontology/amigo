@@ -11,7 +11,7 @@
 - Go to [url](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 
 #### AWS Credentials.
-- Create a file or override the location in aws/provider.tf
+- Create a credential file at `~/.aws/credentials` or override the location in aws/provider.tf
 
 ```
 [default]
@@ -130,7 +130,6 @@ docker-compose -f docker-compose.yaml up -d
 // Tail logs, bring down, delete containers
 docker-compose -f docker-compose.yaml logs -f  
 docker-compose -f docker-compose.yaml down
-docker-compose -f docker-compose.yaml rm -f
 ```
 
 #### Accessing Containers

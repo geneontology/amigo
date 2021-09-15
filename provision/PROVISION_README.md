@@ -32,7 +32,7 @@ You way want to check vars.tf and change the following variables accordingly.
 
 #### Stage Locallay
 
-Clone the repo, build the docker image and finally copy the all templates such docker-compose.yaml 
+Clone the repo, build the docker image and finally copy all template files such as docker-compose.yaml 
 
 ```sh
 cd provision
