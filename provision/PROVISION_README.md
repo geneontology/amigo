@@ -16,6 +16,12 @@ Replace variables AMIGO_DYNAMIC and AMIGO_PUBLIC_GOLR with the hostnames accordi
 
 Note: These values can also be passed using the -e option. 
 
+```
+# /etc/hosts for default values AMIGO_DYNAMIC and AMIGO_PUBLIC_GOLR 
+127.0.0.1 amigo.example.com
+127.0.0.1 amigo-golr.example.com
+```
+
 
 #### Stage Locallay
 
