@@ -18,8 +18,10 @@ Note: These values can also be passed using the -e option.
 
 ```
 # /etc/hosts for default values AMIGO_DYNAMIC and AMIGO_PUBLIC_GOLR 
-127.0.0.1 amigo.example.com
-127.0.0.1 amigo-golr.example.com
+# use the ip address of the host machine
+# On mac for example use `ipconfig getifaddr en0`
+XXX.XXX.XXX.XXX amigo.example.com
+XXX.XXX.XXX.XXX amigo-golr.example.com
 ```
 
 #### About Solr Index
