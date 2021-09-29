@@ -1153,6 +1153,9 @@ sub mode_search {
     push @$clean_pins, $ci
   }
   $pins = $clean_pins;
+  ## And the bookmarks itself (#622).
+  $bookmark =~ s/</&lt;/gso;
+  $bookmark =~ s/>/&gt;/gso;
 
   ## Now add the filters that come in from the YAML-defined simple
   ## public bookmarking API.
