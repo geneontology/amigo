@@ -47,7 +47,19 @@ describe('linker tests', function(){
     	assert.equal(l.url('XXXX:S000006169'),
     		     null,
     		     'linker: null');
-	
+
+      assert.equal(l.url('WB:WBGene00003001'),
+		  'http://www.wormbase.org/get?name=WBGene00003001&class=Gene',
+		  'linker: wb gene');
+        assert.equal(l.url('WB:WBRNAi00061231'),
+            'http://www.wormbase.org/get?name=WBRNAi00061231&class=RNAi',
+            'linker: wb RNAi');
+      assert.equal(l.url('WB:WBVar00249887'),
+		  'http://www.wormbase.org/get?name=WBVar00249887&class=Variation',
+		   'linker: wb variation');
+      assert.equal(l.url('WP:CE01843'),
+		   'http://www.wormbase.org/get?name=WP:CE01843&class=Protein',
+	           'linker: wb protein');
     });
 
     it('internal edge cases', function(){
@@ -77,7 +89,7 @@ describe('linker tests', function(){
     	assert.isTrue(_ends_with(l.url('foo', 'grebe'), '/grebe'),
     		      'interlink: grebe not special (3): ' +
 		      l.url('foo', 'grebe'));
-	
+
     });
 
     it('synonyms', function(){
@@ -101,13 +113,13 @@ describe('linker tests', function(){
     	assert.isNull(l.url(null), 'null url');
     	assert.isNull(l.url(''), "'' url");
     	assert.isNull(l.anchor(null), 'null anchor');
-	
+
     	// And make sure that we can do things like PANTHER's double.
     	// url_syntax: http://www.geneontology.org/gene-associations/submission/paint/[example_id]/[example_id].txt
-    	assert.equal(l.url('PAINT_REF:PTHR10046'),
-    		     'http://www.geneontology.org/gene-associations/submission/paint/PTHR10046/PTHR10046.txt',
+    	assert.equal(l.url('PAINT_REF:10046'),
+    		     'http://www.pantherdb.org/panther/lookupId.jsp?id=PTHR10046',
     		     'linker: panther');
-	
+
     });
 
 });
