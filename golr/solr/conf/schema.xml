@@ -23,7 +23,7 @@
     <!-- bioentity: Gene of gene product ID. -->
     <!-- annotation: A unique (and internal) combination of bioentity and ontology class. -->
     <!-- general: The mangled internal ID for this entity. -->
-    <!-- model_annotation: A unique (and internal) thing. -->
+    <!-- model_annotation: CURIE form of annoton (molecular function individual) -->
     <!-- noctua_model_meta: The mangled internal ID for this entity. -->
     <!-- family: Family ID. -->
     <!-- bbop_ann_ev_agg: Gene/product ID. -->
@@ -126,6 +126,8 @@
     <field name="topology_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"/>
     <!-- ontology: JSON blob form of the local relation transitivity graph. Uses various relations (including regulates, occurs in, capable_of). -->
     <field name="regulates_transitivity_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"/>
+    <!-- ontology: JSON blob form of the local relation transitivity graph. -->
+    <field name="isa_partof_transitivity_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"/>
     <!-- ontology: JSON blob form of all immediate neighbors of the term. -->
     <field name="neighborhood_graph_json" type="string" required="false" multiValued="false" indexed="false" stored="true"/>
     <!-- ontology: JSON blob form of all immediate neighbors of the term; in the case that there are too many neighbors to transport, the number will be artificially reduced. -->
@@ -201,14 +203,14 @@
     <!-- bioentity_for_browser: Taxonomic group -->
     <!-- annotation: Taxonomic group. -->
     <!-- annotation_for_browser: Taxonomic group. -->
-    <!-- model_annotation: GAF column 13 (taxon). -->
+    <!-- model_annotation: taxon of the entity in enabled_by -->
     <!-- bbop_ann_ev_agg: Column 13: taxon. -->
     <field name="taxon" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
     <!-- bioentity: Taxonomic group -->
     <!-- bioentity_for_browser: Taxonomic group -->
     <!-- annotation: Taxonomic group and ancestral groups. -->
     <!-- annotation_for_browser: Taxonomic group and ancestral groups. -->
-    <!-- model_annotation: Taxon derived from GAF column 13 and ncbi_taxonomy.obo. -->
+    <!-- model_annotation: label for taxon -->
     <!-- bbop_ann_ev_agg: Derived from C13 + ncbi_taxonomy.obo. -->
     <field name="taxon_label" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
     <!--An easily searchable (TextField tokenized) version of taxon_label.-->
@@ -218,14 +220,14 @@
     <!-- bioentity_for_browser: Taxonomic group and ancestral groups. -->
     <!-- annotation: Taxonomic group and ancestral groups. -->
     <!-- annotation_for_browser: Taxonomic group and ancestral groups. -->
-    <!-- model_annotation: Taxon IDs derived from GAF column 13 and ncbi_taxonomy.obo. -->
+    <!-- model_annotation: is_a closure of taxon -->
     <!-- bbop_ann_ev_agg: IDs derived from C13 + ncbi_taxonomy.obo. -->
     <field name="taxon_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"/>
     <!-- bioentity: Taxonomic group and ancestral groups. -->
     <!-- bioentity_for_browser: Taxonomic group and ancestral groups. -->
     <!-- annotation: Taxonomic group and ancestral groups. -->
     <!-- annotation_for_browser: Taxonomic group and ancestral groups. -->
-    <!-- model_annotation: Taxon label closure derived from GAF column 13 and ncbi_taxonomy.obo. -->
+    <!-- model_annotation: labels of is_a closure. -->
     <!-- bbop_ann_ev_agg: Labels derived from C13 + ncbi_taxonomy.obo. -->
     <field name="taxon_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"/>
     <!--An easily searchable (TextField tokenized) version of taxon_closure_label.-->
@@ -262,7 +264,7 @@
     <field name="annotation_class_list_map" type="string" required="false" multiValued="false" indexed="false" stored="true"/>
     <!-- bioentity: PANTHER families that are associated with this entity. -->
     <!-- annotation: PANTHER families that are associated with this entity. -->
-    <!-- model_annotation: PANTHER family IDs that are associated with this entity. -->
+    <!-- model_annotation: PANTHER family IDs that are associated with this entity, not yet populated. -->
     <!-- family: PANTHER family IDs that are associated with this entity. -->
     <!-- bbop_ann_ev_agg: Family IDs that are associated with this entity. -->
     <field name="panther_family" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
@@ -413,52 +415,102 @@
     <!--An easily searchable (TextField tokenized) version of general_blob.-->
     <field name="general_blob_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"/>
     <copyField source="general_blob" dest="general_blob_searchable"/>
-    <!-- model_annotation: ???. -->
+    <!-- model_annotation: Same as id -->
     <!-- noctua_model_meta: The title(s) associated with the model. -->
     <field name="annotation_unit" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
-    <!-- model_annotation: ???. -->
+    <!-- model_annotation: Generally not display but for debug purpose can be concatenation of gene product label, function, process etc -->
     <!-- noctua_model_meta: The title(s) associated with the model. -->
     <field name="annotation_unit_label" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
     <!--An easily searchable (TextField tokenized) version of annotation_unit_label.-->
     <field name="annotation_unit_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"/>
     <copyField source="annotation_unit_label" dest="annotation_unit_label_searchable"/>
-    <!-- model_annotation: ???. -->
+    <!-- model_annotation: The CURIE of the model to which the annoton belongs -->
     <field name="model" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
-    <!-- model_annotation: ???. -->
+    <!-- model_annotation: The dc:title of the model to which the annoton belongs -->
     <field name="model_label" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
     <!--An easily searchable (TextField tokenized) version of model_label.-->
     <field name="model_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"/>
     <copyField source="model_label" dest="model_label_searchable"/>
-    <!-- model_annotation: ???. -->
+    <!-- model_annotation: The URI of the model to which the annoton belongs -->
     <field name="model_url" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
-    <!-- model_annotation: ???. -->
+    <!-- model_annotation: Curation status -->
     <!-- noctua_model_meta: The editorial state of the model. -->
     <field name="model_state" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
     <!-- model_annotation: set of all literal values of all annotation assertions in model -->
     <field name="annotation_value" type="string" required="false" multiValued="true" indexed="true" stored="true"/>
-    <!-- model_annotation: ???. -->
+    <!-- model_annotation: Value of dc:contributor fields for the annoton -->
     <!-- noctua_model_meta: Contributor identity. -->
     <field name="contributor" type="string" required="false" multiValued="true" indexed="true" stored="true"/>
     <!--An easily searchable (TextField tokenized) version of contributor.-->
     <field name="contributor_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"/>
     <copyField source="contributor" dest="contributor_searchable"/>
-    <!-- model_annotation: Last modified -->
+    <!-- model_annotation: Value of dc:date field for the annoton -->
     <!-- noctua_model_meta: Model last modification dates. -->
     <field name="model_date" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
     <!--An easily searchable (TextField tokenized) version of model_date.-->
     <field name="model_date_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"/>
     <copyField source="model_date" dest="model_date_searchable"/>
-    <!-- model_annotation: ??? -->
+    <!-- model_annotation: The CURIE for the ro:enabled_by.rdf:type value of the annoton/MF individual -->
     <field name="enabled_by" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
     <!--An easily searchable (TextField tokenized) version of enabled_by.-->
     <field name="enabled_by_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"/>
     <copyField source="enabled_by" dest="enabled_by_searchable"/>
-    <!-- model_annotation: ??? -->
+    <!-- model_annotation: Searchable label version of the gene product -->
     <field name="enabled_by_label" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
     <!--An easily searchable (TextField tokenized) version of enabled_by_label.-->
     <field name="enabled_by_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"/>
     <copyField source="enabled_by_label" dest="enabled_by_label_searchable"/>
-    <!-- model_annotation: Function acc/ID. -->
+    <!-- model_annotation: The CURIE for the ro:enabled_by.rdf:type value of the annoton/MF individual -->
+    <field name="enabled_by_complex" type="" required="false" multiValued="false" indexed="true" stored="true"/>
+    <!--An easily searchable (TextField tokenized) version of enabled_by_complex.-->
+    <field name="enabled_by_complex_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"/>
+    <copyField source="enabled_by_complex" dest="enabled_by_complex_searchable"/>
+    <!-- model_annotation: Searchable label version of the complex -->
+    <field name="enabled_by_complex_label" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
+    <!--An easily searchable (TextField tokenized) version of enabled_by_complex_label.-->
+    <field name="enabled_by_complex_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"/>
+    <copyField source="enabled_by_complex_label" dest="enabled_by_complex_label_searchable"/>
+    <!-- model_annotation: The CURIE for the ro:has_participant.rdf:type value of the annoton/MF individual -->
+    <field name="has_participant" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
+    <!--An easily searchable (TextField tokenized) version of has_participant.-->
+    <field name="has_participant_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"/>
+    <copyField source="has_participant" dest="has_participant_searchable"/>
+    <!-- model_annotation: Searchable label version of participant entities -->
+    <field name="has_participant_label" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
+    <!--An easily searchable (TextField tokenized) version of has_participant_label.-->
+    <field name="has_participant_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"/>
+    <copyField source="has_participant_label" dest="has_participant_label_searchable"/>
+    <!-- model_annotation: The CURIE for the ro:has_participant.rdf:type value of the annoton/MF individual -->
+    <field name="has_complex_participant" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
+    <!--An easily searchable (TextField tokenized) version of has_complex_participant.-->
+    <field name="has_complex_participant_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"/>
+    <copyField source="has_complex_participant" dest="has_complex_participant_searchable"/>
+    <!-- model_annotation: Searchable label version of participant entities -->
+    <field name="has_complex_participant_label" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
+    <!--An easily searchable (TextField tokenized) version of has_complex_participant_label.-->
+    <field name="has_complex_participant_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"/>
+    <copyField source="has_complex_participant_label" dest="has_complex_participant_label_searchable"/>
+    <!-- model_annotation: The CURIE for the ro:has_output.rdf:type value of the annoton/MF individual -->
+    <field name="has_output" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
+    <!--An easily searchable (TextField tokenized) version of has_output.-->
+    <field name="has_output_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"/>
+    <copyField source="has_output" dest="has_output_searchable"/>
+    <!-- model_annotation: Searchable label version of output entities -->
+    <field name="has_output_label" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
+    <!--An easily searchable (TextField tokenized) version of has_output_label.-->
+    <field name="has_output_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"/>
+    <copyField source="has_output_label" dest="has_output_label_searchable"/>
+    <!-- model_annotation: The CURIE for the ro:has_output.rdf:type value of the annoton/MF individual -->
+    <field name="has_complex_output" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
+    <!--An easily searchable (TextField tokenized) version of has_complex_output.-->
+    <field name="has_complex_output_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"/>
+    <copyField source="has_complex_output" dest="has_complex_output_searchable"/>
+    <!-- model_annotation: Searchable label version of output entities -->
+    <field name="has_complex_output_label" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
+    <!--An easily searchable (TextField tokenized) version of has_complex_output_label.-->
+    <field name="has_complex_output_label_searchable" type="text_searchable" required="false" multiValued="false" indexed="true" stored="true"/>
+    <copyField source="has_complex_output_label" dest="has_complex_output_label_searchable"/>
+    <!-- model_annotation: This is the value of rdf:type for the annoton/MF instance -->
     <field name="function_class" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
     <!-- model_annotation: Common function name. -->
     <field name="function_class_label" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
@@ -527,6 +579,16 @@
     <!-- between evidence_type_(list|closure) and evidence_type_closure_label.-->
     <!-- It is not indexed for searching (JSON blob), but may be useful to the client. -->
     <field name="evidence_type_closure_map" type="string" required="false" multiValued="false" indexed="false" stored="true"/>
+    <!-- model_annotation: List the distinct relationship types -->
+    <field name="relationship" type="string" required="false" multiValued="true" indexed="true" stored="true"/>
+    <!--An easily searchable (TextField tokenized) version of relationship.-->
+    <field name="relationship_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"/>
+    <copyField source="relationship" dest="relationship_searchable"/>
+    <!-- model_annotation:  -->
+    <field name="relationship_label" type="string" required="false" multiValued="true" indexed="true" stored="true"/>
+    <!--An easily searchable (TextField tokenized) version of relationship_label.-->
+    <field name="relationship_label_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"/>
+    <copyField source="relationship_label" dest="relationship_label_searchable"/>
     <!-- family: Gene/products annotated with this protein family. -->
     <field name="bioentity_list" type="string" required="false" multiValued="true" indexed="true" stored="true"/>
     <!-- family: Gene/products annotated with this protein family. -->

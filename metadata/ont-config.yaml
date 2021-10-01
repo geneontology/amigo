@@ -195,7 +195,7 @@ fields:
       - "RO:0002216"
     indexed: false
   - id: isa_partof_transitivity_graph_json
-    description: "JSON blob form of the local relation transitivity graph.
+    description: "JSON blob form of the local relation transitivity graph."
     display_name: Isa-partof transitivity graph (JSON)
     type: string
     property:
