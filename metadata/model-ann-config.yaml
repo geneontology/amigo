@@ -90,66 +90,6 @@ fields:
     searchable: true
     type: string
     property: []
-  - id: enabled_by_complex
-    description: "The CURIE for the ro:enabled_by.rdf:type value of the annoton/MF individual"
-    display_name: Enabled by complex
-    searchable: true
-    type: []
-    property: []
-  - id: enabled_by_complex_label
-    description: "Searchable label version of the complex"
-    display_name: Enabled by complex label
-    searchable: true
-    type: string
-    property: []
-  - id: has_participant
-    description: "The CURIE for the ro:has_participant.rdf:type value of the annoton/MF individual"
-    display_name: Has participant
-    searchable: true
-    type: string
-    property: []
-  - id: has_participant_label
-    description: "Searchable label version of participant entities"
-    display_name: Has participant label
-    searchable: true
-    type: string
-    property: []
-  - id: has_complex_participant
-    description: "The CURIE for the ro:has_participant.rdf:type value of the annoton/MF individual"
-    display_name: Has complex participant
-    searchable: true
-    type: string
-    property: []
-  - id: has_complex_participant_label
-    description: "Searchable label version of participant entities"
-    display_name: Has complex participant label
-    searchable: true
-    type: string
-    property: []
-  - id: has_output
-    description: "The CURIE for the ro:has_output.rdf:type value of the annoton/MF individual"
-    display_name: Has output
-    searchable: true
-    type: string
-    property: []
-  - id: has_output_label
-    description: "Searchable label version of output entities"
-    display_name: Has output label
-    searchable: true
-    type: string
-    property: []
-  - id: has_complex_output
-    description: "The CURIE for the ro:has_output.rdf:type value of the annoton/MF individual"
-    display_name: Has complex output
-    searchable: true
-    type: string
-    property: []
-  - id: has_complex_output_label
-    description: "Searchable label version of output entities"
-    display_name: Has complex output label
-    searchable: true
-    type: string
-    property: []
 ## PANTHER
   - id: panther_family
     description: PANTHER family IDs that are associated with this entity, not yet populated.
@@ -310,21 +250,6 @@ fields:
   - id: reference
     description: "Database reference."
     display_name: Reference
-    type: string
-    searchable: true
-    cardinality: multi
-    property: []
-## Relationships Stats
-  - id: relationship
-    description: "List the distinct relationship types"
-    display_name: "Relationship"
-    type: string
-    searchable: true
-    cardinality: multi
-    property: []
-  - id: relationship_label
-    description: ""
-    display_name: "Searchable label version of relationships"
     type: string
     searchable: true
     cardinality: multi
