@@ -27,6 +27,11 @@ var jquery_engine = require('bbop-rest-manager').jquery;
 var golr_manager = require('bbop-manager-golr');
 var golr_response = require('bbop-response-golr');
 
+// Default closure relation. Starting setup to deal with future of
+// #620.
+//var default_closure_relation_set = 'regulates';
+var default_closure_relation_set = 'isa_partof';
+
 // // Graphs.
 // var model = require('bbop-graph');
 
@@ -40,20 +45,20 @@ var golr_response = require('bbop-response-golr');
 
 // Manager creation wrapper (we use it a couple of times).
 function _create_manager(personality){
-    
+
     // Create manager.
     var engine = new jquery_engine(golr_response);
     engine.method('GET');
     engine.use_jsonp(true);
     var manager = new golr_manager(gserv, gconf, engine, 'async');
-    
+
     // Manager settings.
     var confc = gconf.get_class(personality);
     manager.set_personality(personality);
     manager.add_query_filter('document_category',
 			     confc.document_category(), ['*']);
-    
-    return manager;	
+
+    return manager;
 }
 
 ///
@@ -61,12 +66,12 @@ function _create_manager(personality){
 ///
 
 function BrowseInit(){
-    
+
     ///
     /// General setup--resource locations.
     /// Solr server, GOlr config, etc.
     ///
-    
+
     ///
     /// The info shield.
     ///
@@ -103,7 +108,7 @@ function BrowseInit(){
 	    uid,
 	    {
 		'transitivity_graph_field':
-		'regulates_transitivity_graph_json',
+		default_closure_relation_set + '_transitivity_graph_json',
 		'base_icon_url': sd.image_base,
 		'info_icon': 'info',
 		'current_icon': 'current_term',

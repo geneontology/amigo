@@ -35,6 +35,11 @@ var golr_response = require('bbop-response-golr');
 // Aliases.
 var dlimit = defs.download_limit;
 
+// Default closure relation. Starting setup to deal with future of
+// #620.
+//var default_closure_relation_set = 'regulates';
+var default_closure_relation_set = 'isa_partof';
+
 // Take and element, look at it's contents, if it's above a certain
 // threshold, shrink with "more..." button, otherwise leave alone.
 function _shrink_wrap(elt_id){
@@ -48,13 +53,13 @@ function _shrink_wrap(elt_id){
     var br_regexp = new RegExp("\<br\ \/\>", "i"); // detect a <br />
 
     function _trim_and_store( in_str ){
-	
+
 	var retval = in_str;
 
 	// Let there be tests.
 	var list_p = br_regexp.test(retval);
 	var anchors_p = ea_regexp.test(retval);
-	
+
 	// Try and break without breaking anchors, etc.
 	var tease = null;
 	if( ! anchors_p && ! list_p ){
@@ -68,7 +73,7 @@ function _shrink_wrap(elt_id){
 	    //ll("\tT&S: single link so cannot work on!");
 	}else{
 	    //ll("\tT&S: we have a list to deal with");
-	    
+
 	    var new_str_list = retval.split(br_regexp);
 	    if( new_str_list.length <= 3 ){
 		// Let's just ignore lists that are only three
@@ -83,7 +88,7 @@ function _shrink_wrap(elt_id){
 		tease = new html.span(new_str, {'generate_id': true});
 	    }
 	}
-	
+
 	// If we have a tease (able to break down incoming string),
 	// assemble the rest of the packet to create the UI.
 	if( tease ){
@@ -101,21 +106,21 @@ function _shrink_wrap(elt_id){
 	    var more_b = new bgen('more', 'Display the complete list');
 	    var full = new html.span(retval, {'generate_id': true});
 	    var less_b = new bgen('less', 'Display the truncated list');
-	    
+
 	    // Store the different parts for later activation.
 	    var tease_id = tease.get_id();
 	    var more_b_id = more_b.get_id();
 	    var full_id = full.get_id();
 	    var less_b_id = less_b.get_id();
 	    _trim_hash[tease_id] = [tease_id, more_b_id, full_id, less_b_id];
-	    
+
 	    // New final string.
 	    retval = tease.to_string() + " " +
 		more_b.to_string() + " " +
 		full.to_string() + " " +
 		less_b.to_string();
 	}
-	
+
 	return retval;
     }
 
@@ -125,7 +130,7 @@ function _shrink_wrap(elt_id){
 	// Get the new value into the wild.
 	var new_str = _trim_and_store(pre_html);
 	if( new_str !== pre_html ){
-	    jQuery('#' + elt_id).html(new_str);  
+	    jQuery('#' + elt_id).html(new_str);
 
 	    // Bind the jQuery events to it.
 	    // Add the roll-up/down events to the doc.
@@ -134,11 +139,11 @@ function _shrink_wrap(elt_id){
     		var more_b_id = val[1];
     		var full_id = val[2];
     		var less_b_id = val[3];
-		
+
     		// Initial state.
     		jQuery('#' + full_id ).hide();
     		jQuery('#' + less_b_id ).hide();
-		
+
     		// Click actions to go back and forth.
     		jQuery('#' + more_b_id ).click(function(){
     		    jQuery('#' + tease_id ).hide();
@@ -152,7 +157,7 @@ function _shrink_wrap(elt_id){
     		    jQuery('#' + tease_id ).show('fast');
     		    jQuery('#' + more_b_id ).show('fast');
     		});
-	    });    
+	    });
 	}
     }
 }
@@ -163,7 +168,7 @@ function TermDetailsInit(){
     // Logger.
     var logger = new bbop.logger();
     logger.DEBUG = true;
-    function ll(str){ logger.kvetch('TD: ' + str); }    
+    function ll(str){ logger.kvetch('TD: ' + str); }
 
     ll('');
     ll('TermDetails.js');
@@ -179,8 +184,8 @@ function TermDetailsInit(){
     _shrink_wrap('syn-collapse-syn');
 
     // Go ahead and drop in the table sorter. Easy!
-    jQuery("#all-table-above").tablesorter(); 
-    jQuery("#all-table-below").tablesorter(); 
+    jQuery("#all-table-above").tablesorter();
+    jQuery("#all-table-below").tablesorter();
 
     // Tabify the layout if we can (may be in a non-tabby version).
     var dtabs = jQuery("#display-tabs");
@@ -203,7 +208,7 @@ function TermDetailsInit(){
     ///
     /// Manager setup.
     ///
-    
+
     var engine = new jquery_engine(golr_response);
     engine.method('GET');
     engine.use_jsonp(true);
@@ -227,7 +232,8 @@ function TermDetailsInit(){
 
     // Two sticky filters.
     gps.add_query_filter('document_category', 'annotation', ['*']);
-    gps.add_query_filter('regulates_closure', global_acc, ['*']);
+    gps.add_query_filter(default_closure_relation_set + '_closure',
+			 global_acc, ['*']);
     //gps.add_query_filter('annotation_class', global_acc, ['*']);
     // TODO: And or this in as well.
     //gps.add_query_filter('annotation_class', global_acc, ['*']);
@@ -270,7 +276,7 @@ function TermDetailsInit(){
 	results_title: 'Total annotations:&nbsp;',
     };
     var pager = new widgets.live_pager('pager', gps, pager_opts);
-    
+
     // Attach the results pane and download buttons to manager.
     var default_fields = confc.field_order_by_weight('result');
     var btmpl = widgets.display.button_templates;
@@ -319,14 +325,15 @@ function TermDetailsInit(){
 
 	man.set_personality('annotation');
 	man.add_query_filter('document_category', 'bioentity', ['*']);
-	man.add_query_filter('regulates_closure', global_acc);
+	man.add_query_filter(default_closure_relation_set + '_closure',
+			     global_acc);
 	var lstate = man.get_filter_query_string();
 	var lurl = linker.url(lstate, 'search', 'bioentity');
 	// Add it to the DOM.
 	jQuery('#prob_bio_href').attr('href', lurl);
 	jQuery('#prob_bio').removeClass('hidden');
     })();
-    
+
     // Get bookmark for annotations.
     (function(){
 	// Ready bookmark.
@@ -334,17 +341,18 @@ function TermDetailsInit(){
 	engine.method('GET');
 	engine.use_jsonp(true);
 	var man = new golr_manager(gserv, gconf, engine, 'async');
-	
+
 	man.set_personality('annotation');
 	man.add_query_filter('document_category', 'annotation', ['*']);
-	man.add_query_filter('regulates_closure', global_acc);
+	man.add_query_filter(default_closure_relation_set + '_closure',
+			     global_acc);
 	var lstate = man.get_filter_query_string();
 	var lurl = linker.url(lstate, 'search', 'annotation');
 	// Add it to the DOM.
 	jQuery('#prob_ann_href').attr('href', lurl);
 	jQuery('#prob_ann').removeClass('hidden');
     })();
-    
+
     // Get bookmark for annotation download.
     (function(){
 	// Ready bookmark.
@@ -355,7 +363,8 @@ function TermDetailsInit(){
 
 	man.set_personality('annotation');
 	man.add_query_filter('document_category', 'annotation', ['*']);
-	man.add_query_filter('regulates_closure', global_acc);
+	man.add_query_filter(default_closure_relation_set + '_closure',
+			     global_acc);
 	var dstate = man.get_download_url(defs.gaf_from_golr_fields, {
 	    'rows': dlimit,
 	    'encapsulator': '',
@@ -364,7 +373,7 @@ function TermDetailsInit(){
 	jQuery('#prob_ann_dl_href').attr('href', dstate);
 	jQuery('#prob_ann_dl').removeClass('hidden');
     })();
-    
+
     //
     ll('TermDetailsInit done.');
 }

@@ -25,6 +25,11 @@ var jquery_engine = require('bbop-rest-manager').jquery;
 var golr_manager = require('bbop-manager-golr');
 var golr_response = require('bbop-response-golr');
 
+// Default closure relation. Starting setup to deal with future of
+// #620.
+//var default_closure_relation_set = 'regulates';
+var default_closure_relation_set = 'isa_partof';
+
 // Graphs.
 var model = require('bbop-graph');
 
@@ -41,20 +46,20 @@ var global_root_docs = [];
 
 // Manager creation wrapper (we use it a couple of times).
 function _create_manager(personality){
-    
+
     // Create manager.
     var engine = new jquery_engine(golr_response);
     engine.method('GET');
     engine.use_jsonp(true);
     var manager = new golr_manager(gserv, gconf, engine, 'async');
-    
+
     // Manager settings.
     var confc = gconf.get_class(personality);
     manager.set_personality(personality);
     manager.add_query_filter('document_category',
 			     confc.document_category(), ['*']);
-    
-    return manager;	
+
+    return manager;
 }
 
 // Create a new function that returns a promise when called.
@@ -72,7 +77,7 @@ var _create_count_promise = function(term_id, filter_manager){
 	engine.method('GET');
 	engine.use_jsonp(true);
 	var manager = new golr_manager(gserv, gconf, engine, 'async');
-	
+
 	// Manager settings.
 	var personality = 'bioentity';
 	var confc = gconf.get_class(personality);
@@ -86,10 +91,11 @@ var _create_count_promise = function(term_id, filter_manager){
 	us.each(filter_strs, function(fas){
 	    manager.add_query_filter_as_string(fas, []);
 	});
-	
+
 	// Finally, filter on our term in question.
-	manager.add_query_filter('regulates_closure', term_id);
-	
+	manager.add_query_filter(default_closure_relation_set + '_closure',
+				 term_id);
+
 	return manager.search();
     };
 };
@@ -123,7 +129,7 @@ function CreateFilterManager(){
     engine.method('GET');
     engine.use_jsonp(true);
     var filter_manager = new golr_manager(gserv, gconf, engine, 'async');
-    
+
     // Manager settings.
     var personality = 'bioentity_for_browser';
     var confc = gconf.get_class(personality);
@@ -131,7 +137,7 @@ function CreateFilterManager(){
     filter_manager.add_query_filter('document_category',
 				    confc.document_category(), ['*']);
     filter_manager.set_results_count(0); // don't need any actual rows returned
-    
+
     // Add the filter widget and hook to manager.
     var hargs = {
 	meta_label: 'Total gene products:&nbsp;',
@@ -142,7 +148,7 @@ function CreateFilterManager(){
     var filters = new widgets.live_filters('accordion',
 					   filter_manager, gconf, hargs);
     filters.establish_display();
-    
+
     // Add pre and post run spinner (borrow filter's for now).
     filter_manager.register('prerun', function(){
 	filters.spin_up();
@@ -150,12 +156,12 @@ function CreateFilterManager(){
     filter_manager.register('postrun', function(){
 	filters.spin_down();
     });
-    
+
     filter_manager.register('search', function(resp, manager){
 	console.log('filter_manager search callback');
 	GetInitialRootInformation(filter_manager);
     });
-    
+
     filter_manager.search();
 }
 
@@ -179,9 +185,9 @@ function GetInitialRootInformation(filter_manager){
 
     // Ready the callback.
     search.register('search', function(resp, man){
-	
+
 	// Verify and extract initial response.
-	if( resp && resp.documents() && resp.documents().length ){	    
+	if( resp && resp.documents() && resp.documents().length ){
 	    global_root_docs = resp.documents();
 	    console.log('Starting root gene product search with (' +
 			global_root_docs.length + ') documents.');
@@ -208,27 +214,28 @@ function GetRootCountInformation(root_docs, filter_manager){
 
     var root_promises = [];
     us.each(root_ids, function(id){
-	    
+
 	//If it was not in our cache, we have to go out and
 	//find it.
 	var resp_promise = _create_count_promise(id, filter_manager);
 	root_promises.push(resp_promise);
-    });	
+    });
 
     // Action on getting a response.
     var id_to_count = {};
-    var accumulator_fun = function(resp){   
-	    
+    var closure_name = default_closure_relation_set + '_closure';
+    var accumulator_fun = function(resp){
+
 	// First, figure out who this was.
 	var acc = null;
 	var fqs = resp.parameter('fq');
 	us.each(fqs, function(fq){
-	    if( fq.substr(0, 17) === 'regulates_closure' ){
+	    if( fq.substr(0, 17) === closure_name ){
 		acc = fq.substr(18, fq.length-1);
 		acc = bbop.dequote(acc);
 	    }
 	});
-	    
+
 	console.log('root accumulation action for: ' + acc);
 
 	// Assuming we know...
@@ -236,25 +243,25 @@ function GetRootCountInformation(root_docs, filter_manager){
 
 	    // Get the annotation count...
             var total = resp.total_documents();
-	    
+
 	    // ...update the internal structures...
 	    id_to_count[acc] = total;
 	}
     };
-	
+
     // The final function is the data renderer.
     var final_fun = function(){
 	console.log('root count info collected: ', id_to_count);
 	ResetTreeWithRootInfo(root_docs, id_to_count, filter_manager);
     };
-	
+
     // In case of error.
     var error_fun = function(err){
 	if(err){
 	    console.log('error before end of batch (root): ' + err.toString());
 	}
     };
-	
+
     var coordinator = _create_manager('ontology');
     coordinator.run_promise_functions(
 	root_promises,
@@ -278,7 +285,7 @@ function ResetTreeWithRootInfo(root_docs, entity_counts, filter_manager){
     }
     //jQuery('#' + bid).empty();
     jQuery('#' + bid).html('<h4>Loading tree...</h4>');
-    
+
     // Convert a term callback into the proper json. This method is
     // used for the initial graph creation.
     function _roots2json(doc){
@@ -291,7 +298,8 @@ function ResetTreeWithRootInfo(root_docs, entity_counts, filter_manager){
 
 	// Extract the intersting graphs.
 	var topo_graph_field = 'topology_graph_json';
-	var trans_graph_field = 'regulates_transitivity_graph_json';
+	var trans_graph_field =
+	    default_closure_relation_set + '_transitivity_graph_json';
 	var topo_graph = new model.graph();
 	topo_graph.load_base_json(JSON.parse(doc[topo_graph_field]));
 	var trans_graph = new model.graph();
@@ -315,7 +323,7 @@ function ResetTreeWithRootInfo(root_docs, entity_counts, filter_manager){
 	var id_to_badge_text =
 		ac_badges.make_badge(root_id, entity_counts[root_id]);
 	var lbl_txt = doc['annotation_class_label'] || root_id;
-	    
+
 	var tmpl = {
 	    'id': root_id,
 	    'icon': 'glyphicon glyphicon-record',
@@ -342,7 +350,8 @@ function ResetTreeWithRootInfo(root_docs, entity_counts, filter_manager){
 
 	// Extract the intersting graphs.
 	var topo_graph_field = 'topology_graph_json';
-	var trans_graph_field = 'regulates_transitivity_graph_json';
+	var trans_graph_field =
+	    default_closure_relation_set + '_transitivity_graph_json';
 	var topo_graph = new model.graph();
 	topo_graph.load_base_json(JSON.parse(doc[topo_graph_field]));
 	var trans_graph = new model.graph();
@@ -370,7 +379,7 @@ function ResetTreeWithRootInfo(root_docs, entity_counts, filter_manager){
 	    var imgsrc = bbop.resourcify(sd.image_base, preds[0], 'gif');
 
 	    var lbl_txt =  kid.label() || sid;
-	    
+
 	    // Push template.
 	    kids.push({
 		'id': sid,
@@ -401,7 +410,7 @@ function ResetTreeWithRootInfo(root_docs, entity_counts, filter_manager){
     });
 
     //console.log(JSON.stringify(json));
-    
+
     // Render initial widget.
     jQuery('#' + bid).empty();
     jQuery('#' + bid).jstree({
@@ -466,7 +475,8 @@ function ResetTreeWithRootInfo(root_docs, entity_counts, filter_manager){
 
 		// Add a link to the entity search.
 		var ann_man = _create_manager('bioentity');
-		ann_man.add_query_filter('regulates_closure', tid);
+		ann_man.add_query_filter(
+		    default_closure_relation_set + '_closure', tid);
 		//ann_man.add_query_filter('isa_partof_closure', tid);
 
 		// Stack on the filters from the filter box.
@@ -481,7 +491,7 @@ function ResetTreeWithRootInfo(root_docs, entity_counts, filter_manager){
 
 		add_ons.push(['Gene products', '<a href="' + lurl + '" target="_blank"><b>retrieve gene products annotated to this term for this filter set</b></a>']);
 
-		// 
+		//
 		widgets.display.term_shield(doc, confc, linker, {}, add_ons);
 	    });
 	    o.search();
@@ -496,9 +506,9 @@ function ResetTreeWithRootInfo(root_docs, entity_counts, filter_manager){
 
 //
 function CountBadges(filter_manager){
-    
+
     var anchor = this;
-    
+
     // This is the main data structure.
     var id_to_count = {};
     var id_to_label = {};
@@ -512,7 +522,7 @@ function CountBadges(filter_manager){
 	    engine.method('GET');
 	    engine.use_jsonp(true);
 	    var manager = new golr_manager(gserv, gconf, engine, 'async');
-	    
+
 	    // Manager settings.
 	    var personality = 'bioentity';
 	    var confc = gconf.get_class(personality);
@@ -521,34 +531,34 @@ function CountBadges(filter_manager){
 				     confc.document_category());
 	    manager.set_results_count(0); // don't need any actual rows returned
             manager.set_facet_limit(0); // care not about facets
-	    
-	    manager.add_query_filter('regulates_closure', term_id);
-	    //manager.add_query_filter('isa_partof_closure', term_id);
-	    
+
+	    manager.add_query_filter(default_closure_relation_set + '_closure',
+				     term_id);
+
 	    return manager.search();
 	};
     };
 
     // Enode ID safely and uniquely to a hex string.
     anchor.node_id_to_elt_id = function(id){
-	
+
 	var result = "";
 	for( var i = 0;  i < id.length; i++ ){
 	    var hex_dig = id.charCodeAt(i).toString(16);
 	    hex_dig = "000" + hex_dig;
 	    result += hex_dig.slice(-4);
 	}
-	
+
 	return 'amigo_dd_browse_' + result;
     };
-    
+
     // The badge template.
     anchor.make_badge = function(id, count){
-	
+
 	var ret = '???';
 
 	// Generate a unique element ID to use.
-	var elt_id = anchor.node_id_to_elt_id(id);	
+	var elt_id = anchor.node_id_to_elt_id(id);
 	if( typeof(count) === 'undefined' || ! us.isNumber(count) ){
 	    ret = ' <span id="' + elt_id + '" class="badge">...</span>';
 	}else{
@@ -561,14 +571,14 @@ function CountBadges(filter_manager){
     // Return the text span of the badge to add to the tree term.
     var id_to_badge_text = {}; // sync deliverable
     anchor.get_future_badges = function(ids){
-	
+
 	var badge_promises = []; // async deliverables
 
 	us.each(ids, function(id){
 
 	    // Generate a unique element ID to use.
 	    var elt_id = anchor.node_id_to_elt_id(id);
-	
+
 	    // Search our cache.
 	    if( typeof(id_to_count[id]) !== 'undefined' ){
 		console.log('hit cache with: ' + id);
@@ -579,32 +589,33 @@ function CountBadges(filter_manager){
 
 	    }else{
 		console.log('missed cache with: ' + id);
-	    
+
 		//If it was not in our cache, we have to go out and
 		//find it.
 		var resp_promise = _create_count_promise(id, filter_manager);
 		badge_promises.push(resp_promise);
-		
+
 		// The easy case where we have it.
 		var btxt = anchor.make_badge(id);
 		id_to_badge_text[id] = btxt;
 	    }
-	});	
+	});
 
 	// Action on getting a response.
 	var came_back_too_fasts = [];
-	var accumulator_fun = function(resp){   
-	    
+	var closure_name = default_closure_relation_set + '_closure';
+	var accumulator_fun = function(resp){
+
 	    // First, figure out who this was.
 	    var acc = null;
 	    var fqs = resp.parameter('fq');
 	    us.each(fqs, function(fq){
-		if( fq.substr(0, 17) === 'regulates_closure' ){
+		if( fq.substr(0, 17) === closure_name ){
 		    acc = fq.substr(18, fq.length-1);
 		    acc = bbop.dequote(acc);
 		}
 	    });
-	    
+
 	    console.log('accumulation action for: ' + acc);
 
 	    // Assuming we know...
@@ -633,7 +644,7 @@ function CountBadges(filter_manager){
 		    came_back_too_fasts.push(acc);
 
 		}else{
-		    
+
 		    // ...update it in the DOM, if possible.
 		    //console.log('update: ' + elt_id + ' to ' + total);
 		    //console.log('update object: ', jQuery('#' + elt_id));
@@ -644,7 +655,7 @@ function CountBadges(filter_manager){
 		}
 	    }
         };
-	
+
         // The final function is the data renderer.
         var final_fun = function(){
 
@@ -655,7 +666,7 @@ function CountBadges(filter_manager){
 
 		us.each(came_back_too_fasts, function(acc){
 		    console.log('retry: ' + acc);
-		    
+
 		    var lbl = jQuery('#' + bid).jstree(true).get_text(acc);
 		    if( ! lbl ){
 			console.log('give up, still not there: ' + acc);
@@ -667,7 +678,7 @@ function CountBadges(filter_manager){
 		});
 	    }
         };
-	
+
         // In case of error.
         var error_fun = function(err){
 	    if(err){
@@ -675,14 +686,14 @@ function CountBadges(filter_manager){
 			    err.toString());
 	    }
         };
-	
+
 	var coordinator = _create_manager('ontology');
 	coordinator.run_promise_functions(
 	    badge_promises,
 	    accumulator_fun,
 	    final_fun,
 	    error_fun);
-	
+
 	// While that async completes, add a place for it in the
 	// DOM to come back to.
 	return id_to_badge_text;

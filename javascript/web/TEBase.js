@@ -13,6 +13,11 @@
 /* global global_live_search_filters */
 /* global global_live_search_pins */
 
+// Default closure relation. Starting setup to deal with future of
+// #620.
+//var default_closure_relation_set = 'regulates';
+var default_closure_relation_set = 'isa_partof';
+
 // TODO: Interact with the user, launch stage 01.
 function TEBaseInit(){
 
@@ -44,7 +49,7 @@ function TEBaseInit(){
     // gp_accs = [];
     //stage_01(gp_accs);
 
-    ll('Completed init!');    
+    ll('Completed init!');
 }
 
 // Get the information for the incoming accs, launch stage 02.
@@ -86,13 +91,13 @@ function stage_01(gp_accs){
     	// Set/reset for the next query.
     	go.reset_query_filters(); // reset from the last iteration
 
-	// 
+	//
 	go.add_query_filter('document_category', 'annotation', ['*']);
 	go.add_query_filter('bioentity', acc);
 	//go.add_query_filter('taxon', taxon_filter, ['*']); }
 	go.set('rows', 0); // we don't need any actual rows returned
 	go.set_facet_limit(-1); // we are only interested in facet counts
-	go.facets(['regulates_closure']);
+	go.facets([default_closure_relation_set + '_closure']);
     	go.add_to_batch();
 
 	gp_user_order[acc] = index;
@@ -100,7 +105,7 @@ function stage_01(gp_accs){
 
     var gp_info = {};
     // Fetch the data and grab the number we want.
-    var accumulator_fun = function(resp){	
+    var accumulator_fun = function(resp){
 
 	// Who was this?
 	var acc = null;
@@ -119,14 +124,14 @@ function stage_01(gp_accs){
 	if( acc ){
 	    //ll('Looking at info for: ' + acc);
 	    console.log(resp);
-	    
-	    var ffs = resp.facet_field('regulates_closure');
+
+	    var ffs = resp.facet_field(default_closure_relation_set +'_closure');
 	    each(ffs, function(pair){
 
 		console.log(pair);
 
 		// Ensure existance.
-		if( ! gp_info[acc] ){ 
+		if( ! gp_info[acc] ){
 		    gp_info[acc] = {};
 		}
 
@@ -150,7 +155,7 @@ function stage_01(gp_accs){
 
 }
 
-// 
+//
 function stage_02(gp_info, gp_accs){
 
     // Ready logging.
@@ -171,7 +176,7 @@ function stage_02(gp_info, gp_accs){
     jQuery('#tebase_results').append('<div class="panel panel-default">');
     jQuery('#tebase_results').append(dump(gp_info));
     jQuery('#tebase_results').append('</div>');
-    
+
 
     ll('Completed stage 02!');
     ll('Done!');
