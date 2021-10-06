@@ -25,6 +25,11 @@ sub new {
   my $args = shift || die "need an argument";
   my $self = $class->SUPER::new();
 
+  ## Default closure relation. Starting setup to deal with
+  ## future of #620.
+  #my $default_closure_relation_set = 'regulates';
+  my $default_closure_relation_set = 'isa_partof';
+
   #$self->kvetch('searcher: ' . $self->{AEJS_GOLR_DOC});
 
   ## Only array refs internally.
@@ -71,6 +76,8 @@ sub new {
 	 topology_graph_json => $found_doc->{topology_graph_json},
 	 regulates_transitivity_graph_json =>
 	 $found_doc->{regulates_transitivity_graph_json},
+	 isa_partof_transitivity_graph_json =>
+	 $found_doc->{isa_partof_transitivity_graph_json},
 	 neighborhood_graph_json =>
 	 $found_doc->{neighborhood_graph_json},
 	 neighborhood_limited_graph_json =>
@@ -86,7 +93,8 @@ sub new {
 	 chewable_graph =>
 	 AmiGO::ChewableGraph->new($found_doc->{id},
 				   $found_doc->{topology_graph_json},
-				   $found_doc->{regulates_transitivity_graph_json}),
+				   $found_doc->{$default_closure_relation_set .
+						'_transitivity_graph_json'}),
 	 chewable_neighborhood_graph =>
 	 AmiGO::ChewableGraph->new($found_doc->{id},
 				   $found_doc->{neighborhood_graph_json} || '{}',
