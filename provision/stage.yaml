@@ -27,6 +27,8 @@
       dest: '{{ stage_dir }}/{{ item.dir }}'
     with_items:
       - { file: 'amigo.yaml', dir: '' }
+      - { file: '001-inline-amigo.conf', dir: '' }
+      - { file: 'apache2.ports.conf', dir: '' }
       - { file: 'docker-compose.yaml', dir: '' }
       - { file: 'httpd-vhosts-amigo.conf', dir: '' }
       - { file: 'httpd-vhosts-golr.conf', dir: '' }

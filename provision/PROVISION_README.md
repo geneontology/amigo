@@ -55,10 +55,10 @@ ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "
 
 #### Start Docker Containers using docker-compose
 
-Start containers amigo and apache_amigo and access amigo using the browser 
+Start containers golr, amigo and apache_amigo and access amigo using the browser 
 at http://{{ AMIGO_DYNAMIC }}/amigo   (http://amigo.example.com/amigo if using default AMIGO_DYNAMIC)
 
-Note: apache_amigo is an apache proxy to amigo's services (jetty and solr)
+Note: apache_amigo is an apache proxy to amigo and golr containers.
 
 ```
 cd $STAGE_DIR
@@ -72,10 +72,10 @@ docker-compose -f docker-compose.yaml logs -f amigo
 #### Other useful docker-compose commands
 
 ```
-// Tail logs both containers amigo and apache_amigo
+// Tail logs of all containers amigo and apache_amigo
 docker-compose -f docker-compose.yaml logs -f  
 
-// Bring down both containers and remove them
+// Bring all containers and remove them
 docker-compose -f docker-compose.yaml down
 ```
 
