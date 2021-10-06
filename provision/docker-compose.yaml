@@ -26,7 +26,7 @@ services:
       - {{ stage_dir }}/amigo.yaml:/srv/amigo/conf/amigo.yaml
       - {{ stage_dir }}/001-inline-amigo.conf:/etc/apache2/sites-available/001-inline-amigo.conf
       - {{ stage_dir }}/apache2.ports.conf:/etc/apache2/ports.conf
-      - {{ stage_dir }}/amigo_logs:/var/log/apache2
+      - {{ stage_dir }}/apache_amigo_logs:/var/log/apache2
     restart: unless-stopped
     depends_on:
       - golr 
@@ -40,7 +40,7 @@ services:
       - {{ stage_dir }}//httpd.conf:/usr/local/apache2/conf/httpd.conf
       - {{ stage_dir }}/httpd-vhosts-amigo.conf:/usr/local/apache2/conf/extra/httpd-vhosts-amigo.conf
       - {{ stage_dir }}/httpd-vhosts-golr.conf:/usr/local/apache2/conf/extra/httpd-vhosts-golr.conf
-      - {{ stage_dir }}/apache_amigo_logs:/usr/local/apache2/logs
+      - {{ stage_dir }}/apache_proxy_logs:/usr/local/apache2/logs
     ports:
       - "80:80"
     depends_on:
