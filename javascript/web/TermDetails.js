@@ -331,7 +331,6 @@ function TermDetailsInit(){
 	var lurl = linker.url(lstate, 'search', 'bioentity');
 	// Add it to the DOM.
 	jQuery('#prob_bio_href').attr('href', lurl);
-	jQuery('#foofoofoo').attr('href', lurl);
 	jQuery('#prob_bio').removeClass('hidden');
     })();
 
@@ -390,7 +389,7 @@ function TermDetailsInit(){
 	var lstate = man.get_filter_query_string();
 	var lurl = linker.url(lstate, 'search', 'bioentity');
 	// Add it to the DOM.
-	jQuery('#foofoofoo').attr('href', lurl);
+	jQuery('#prob_bio_reg_href').attr('href', lurl);
     })();
 
     // Get regulates bookmark for annotations.
@@ -428,7 +427,7 @@ function TermDetailsInit(){
 	    'encapsulator': '',
 	    'golr_download_url': gserv_download
 	});
-	jQuery('#prob_ann_reg_dl_href').attr('href', dstate);
+	jQuery('#prob_ann_dl_href').attr('href', dstate);
     })();
 
     //
