@@ -331,6 +331,7 @@ function TermDetailsInit(){
 	var lurl = linker.url(lstate, 'search', 'bioentity');
 	// Add it to the DOM.
 	jQuery('#prob_bio_href').attr('href', lurl);
+	jQuery('#foofoofoo').attr('href', lurl);
 	jQuery('#prob_bio').removeClass('hidden');
     })();
 
