@@ -11,7 +11,7 @@
     </h3>
   </div>
   <div class="panel-body">
-    
+
     <!-- <div style="padding-bottom: 3px;"> -->
     <div style="float:right;">
       <a class="bbop-js-tooltip" title="Let us know if there are any additions, concerns, or other issues that you'd like to share about this data." href="http://help.geneontology.org">
@@ -21,7 +21,7 @@
     </div>
 
     <dl class="dl-horizontal amigo-detail-info">
-      
+
       <!-- Acc, name, and ont. -->
       <dt>Accession</dt>
       <dd>[% TERM_INFO.acc %]</dd>
@@ -33,7 +33,7 @@
       <dd>[% TERM_INFO.ontology_readable %]</dd>
       <!-- <dt>ID Space</dt> -->
       <!-- <dd>[% TERM_INFO.idspace %]</dd> -->
-      
+
       <!-- Synonyms -->
       <dt>Synonyms</dt>
       [% sl = TERM_INFO.synonyms %]
@@ -124,7 +124,7 @@
       <!-- <dd> -->
       <!-- <ul> -->
       [% FOREACH sub = TERM_INFO.subsets %]
-      [% #   TODO/BUG: need more info through for links %]	 
+      [% #   TODO/BUG: need more info through for links %]
       [% #   IF sub.search('goslim') %]
       <!-- <li><a href="[% sub.link %]" title="View details of the [% sub.name %] GO slim">[% sub.name %]</a></li> -->
       [% #   ELSE %]
@@ -138,7 +138,7 @@
       [% ELSE %]
       <dd>None</dd>
       [% END %]
-      
+
       [% # # Note that wikipedia is in here too. %]
       [% # INCLUDE common/term_details_community.tmpl %]
 
@@ -147,18 +147,21 @@
       <dd id="prob_bio" class="hidden">
 	<a id="prob_bio_href" href="#" class="btn btn-primary btn-xs">Link</a>
 	to all <strong>genes and gene products</strong> annotated to [% TERM_INFO.name %].
+	(using <a id="prob_bio_reg_href" href="#" class="">regulates</a>)
       </dd>
       <dd id="prob_ann" class="hidden">
 	<a id="prob_ann_href" href="#" class="btn btn-primary btn-xs">Link</a>
 	to all direct and indirect <strong>annotations</strong>
 	to [% TERM_INFO.name %].
+	(using <a id="prob_ann_reg_href" href="#" class="">regulates</a>)
       </dd>
       <dd id="prob_ann_dl" class="hidden">
 	<a id="prob_ann_dl_href" href="#" class="btn btn-primary btn-xs">Link</a>
 	to all direct and indirect <strong>annotations download</strong> (limited to first 10,000)
 	for [% TERM_INFO.name %].
+	(using <a id="prob_ann_reg_dl_href" href="#" class="">regulates</a>)
       </dd>
-      
+
       <!-- <\!-- -\-> -->
       <!-- <dt>Feedback</dt> -->
       <!-- <dd> -->
@@ -169,7 +172,7 @@
       <!-- </dd> -->
 
     </dl>
-    
+
   </div>
 </div>
 <!-- END template: term_details_main.tmpl -->
