@@ -427,7 +427,7 @@ function TermDetailsInit(){
 	    'encapsulator': '',
 	    'golr_download_url': gserv_download
 	});
-	jQuery('#prob_ann_dl_href').attr('href', dstate);
+	jQuery('#prob_ann_reg_dl_href').attr('href', dstate);
     })();
 
     //
