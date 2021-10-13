@@ -389,7 +389,7 @@ function TermDetailsInit(){
 	var lstate = man.get_filter_query_string();
 	var lurl = linker.url(lstate, 'search', 'bioentity');
 	// Add it to the DOM.
-	jQuery('#prob_bio_reg_href').attr('href', lurl);
+	jQuery('#foofoofoo').attr('href', lurl);
     })();
 
     // Get regulates bookmark for annotations.
