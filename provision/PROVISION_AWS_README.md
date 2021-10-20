@@ -51,7 +51,7 @@ Need to create two Route53 records pointing to the elastic ip created above.
 The two hostnames specified by these records will be used by the apache proxy 
 to forward traffic to either solr or to the amigo server.  
 
-Replace variables AMIGO_DYNAMIC and AMIGO_PUBLIC_GOLR with the hostnames accordingly in vars.tf.
+Replace variables AMIGO_DYNAMIC and AMIGO_PUBLIC_GOLR with the hostnames accordingly in vars.yaml.
 
 Note: These values can also be passed using the -e option. 
 
@@ -97,7 +97,7 @@ which docker-compose
 ```
 
 #### About Solr Index
-You way want to check vars.tf and change the following variables accordingly.
+You way want to check vars.yaml and change the following variables accordingly.
 The stage.yaml installs the index under {{ stage_dir }}/srv-solr-data.
 If you have the solr index just place it in this location and stage.yaml will skip this step.
 

@@ -12,7 +12,7 @@ You can just add two records to /etc/hosts.
 The two hostnames specified by these records will be used by the apache proxy 
 to forward traffic to either solr or to the amigo server.  
 
-Replace variables AMIGO_DYNAMIC and AMIGO_PUBLIC_GOLR with the hostnames accordingly in vars.tf.
+Replace variables AMIGO_DYNAMIC and AMIGO_PUBLIC_GOLR with the hostnames accordingly in vars.yaml.
 
 Note: These values can also be passed using the -e option. 
 
@@ -25,7 +25,7 @@ XXX.XXX.XXX.XXX amigo-golr.example.com
 ```
 
 #### About Solr Index
-You way want to check vars.tf and change the following variables accordingly.
+You way want to check vars.yaml and change the following variables accordingly.
 The stage.yaml installs the index under {{ stage_dir }}/srv-solr-data.
 If you have the solr index just place it in this location and stage.yaml will skip this step.
 
