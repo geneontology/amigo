@@ -1,0 +1,15 @@
+- name: build docker image
+  hosts: all
+  vars_files:
+  - vars.yaml
+
+  tasks:
+  - name: Checkout repos
+    git:
+     repo: '{{ repo }}'
+     dest: '{{ repo_dir }}'
+     version: '{{ branch }}'
+     force: yes
+
+  - name: build image
+    shell: "docker build -f {{ repo_dir }}/docker/Dockerfile -t 'amigo:{{ tag }}' {{ repo_dir }}"

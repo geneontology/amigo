@@ -1,0 +1,35 @@
+- hosts: all
+  vars_files:
+  - vars.yaml
+
+  tasks:
+  - name: Check if index exists
+    stat:
+      path: '{{ stage_dir }}/srv-solr-data/index'
+    register: index_result
+
+  - name: Create Solr Index
+    shell: | 
+         docker run --rm \
+             -e "GOLR_SOLR_MEMORY={{ GOLR_SOLR_MEMORY }}" \
+             -e "GOLR_LOADER_MEMORY={{ GOLR_LOADER_MEMORY }} " \
+             -e "GOLR_INPUT_ONTOLOGIES={{ GOLR_INPUT_ONTOLOGIES }} " \
+             -e "GOLR_INPUT_GAFS={{ GOLR_INPUT_GAFS }}" \
+             -v '{{ stage_dir }}/srv-solr-data:/srv/solr/data'\
+             -t geneontology/golr-autoindex
+    args:
+      executable: /bin/bash
+    when: not index_result.stat.exists
+
+  - name: install docker-compose.yaml and http configs
+    template:
+      src: '{{ item.file }}'
+      dest: '{{ stage_dir }}/{{ item.dir }}'
+    with_items:
+      - { file: 'amigo.yaml', dir: '' }
+      - { file: '001-inline-amigo.conf', dir: '' }
+      - { file: 'apache2.ports.conf', dir: '' }
+      - { file: 'docker-compose.yaml', dir: '' }
+      - { file: 'httpd-vhosts-amigo.conf', dir: '' }
+      - { file: 'httpd-vhosts-golr.conf', dir: '' }
+      - { file: 'httpd.conf', dir: '' }
