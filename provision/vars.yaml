@@ -8,8 +8,13 @@ tag: latest
 repo: https://github.com/geneontology/amigo.git
 repo_dir: '{{ stage_dir }}/amigo'
 
+# For downloading index archive
+golr_index_archive_url: http://current.geneontology.org/products/solr/golr-index-contents.tgz
+golr_timestamp: http://current.geneontology.org/products/solr/golr_timestamp.log
+release_archive_doi: http://current.geneontology.org/metadata/release-archive-doi.json
+
 ########
-# Solr index. Change these accordingly.
+# For creating Solr index. Change these accordingly.
 #######`
 GOLR_SOLR_MEMORY: 4G
 GOLR_LOADER_MEMORY: 7G

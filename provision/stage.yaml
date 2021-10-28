@@ -1,4 +1,6 @@
 - hosts: all
+  vars:
+  - timestamp: "{{ ansible_date_time.iso8601_basic }}"
   vars_files:
   - vars.yaml
 
@@ -8,18 +10,55 @@
       path: '{{ stage_dir }}/srv-solr-data/index'
     register: index_result
 
-  - name: Create Solr Index
-    shell: | 
-         docker run --rm \
-             -e "GOLR_SOLR_MEMORY={{ GOLR_SOLR_MEMORY }}" \
-             -e "GOLR_LOADER_MEMORY={{ GOLR_LOADER_MEMORY }} " \
-             -e "GOLR_INPUT_ONTOLOGIES={{ GOLR_INPUT_ONTOLOGIES }} " \
-             -e "GOLR_INPUT_GAFS={{ GOLR_INPUT_GAFS }}" \
-             -v '{{ stage_dir }}/srv-solr-data:/srv/solr/data'\
-             -t geneontology/golr-autoindex
-    args:
-      executable: /bin/bash
+  - name: Get remote golr_index archive 
+    get_url:
+      url: '{{ golr_index_archive_url }}'
+      dest: "/tmp/golr_index_{{ timestamp }}.tgz"
+      timeout: 1000
     when: not index_result.stat.exists
+
+  - name: ansible create golr_index directory
+    file:
+      path: '{{ stage_dir }}/srv-solr-data/index'
+      state: directory
+    when: not index_result.stat.exists
+
+  - name: Untar index 
+    unarchive:
+      src:  "/tmp/golr_index_{{ timestamp }}.tgz" 
+      dest: '{{ stage_dir }}/srv-solr-data/index'
+      remote_src: yes
+    when: not index_result.stat.exists
+
+  - name: Remove golr_index archive
+    file:
+      path: "/tmp/golr_index_{{ timestamp }}.tgz"
+      state: absent
+    when: not index_result.stat.exists
+
+  - name: Check if golr_timestamp.log file exists
+    stat:
+      path: "/{{ stage_dir }}/golr_timestamp.log"
+    register: golr_timestamp_result
+
+  - name: Get remote golr_timestamp.log 
+    get_url:
+      url: '{{ golr_timestamp }}'
+      dest: "/{{ stage_dir }}/golr_timestamp.log"
+      timeout: 1000
+    when: not golr_timestamp_result.stat.exists
+
+  - name: Check if release-archive-doi.json exists
+    stat:
+      path: "/{{ stage_dir }}/release-archive-doi.json"
+    register: release_archive_doi_result
+
+  - name: Get remote release-archive-doi.json
+    get_url:
+      url: '{{ release_archive_doi }}'
+      dest: "/{{ stage_dir }}/release-archive-doi.json"
+      timeout: 1000
+    when: not release_archive_doi_result.stat.exists
 
   - name: install docker-compose.yaml and http configs
     template:
