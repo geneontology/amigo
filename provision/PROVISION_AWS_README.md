@@ -171,4 +171,8 @@ Note: The terraform state is stored in the directory aws.
 terraform -chdir=aws destroy
 ```
 
+#### Force Reinstall
+
+During Development one can remove the `amigo_hash` file to force the reinstall of the amigo perl software.
+You would need to restart the amigo container. 
 

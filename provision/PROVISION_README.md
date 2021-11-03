@@ -99,3 +99,9 @@ docker exec -it amigo /bin/bash
 // Proxy
 docker exec -it apache_amigo /bin/bash
 ```
+
+#### Force Reinstall
+
+During Development one can remove the `amigo_hash` file to force the reinstall of the amigo perl software.
+You would need to restart the amigo container. 
+
