@@ -8,6 +8,9 @@ tag: latest
 repo: https://github.com/geneontology/amigo.git
 repo_dir: '{{ stage_dir }}/amigo'
 
+# If False download index otherwise create it
+CREATE_INDEX: False 
+
 # For downloading index archive
 golr_index_archive_url: http://current.geneontology.org/products/solr/golr-index-contents.tgz
 golr_timestamp: http://current.geneontology.org/products/solr/golr_timestamp.log
