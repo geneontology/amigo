@@ -12,6 +12,16 @@
 
   - name: Create index
     block:
+      - name: golr_timestamp.log is unused
+        file:
+          path: "{{ stage_dir }}/golr_timestamp.log"
+          state: absent
+
+      - name:  release-archive-doi.json is unused
+        file:
+          path: "{{ stage_dir }}/release-archive-doi.json"
+          state: absent
+
       - name: Create Solr Index
         shell: |
            docker run --rm \
@@ -56,14 +66,14 @@
       - name: Get remote golr_timestamp.log 
         get_url:
           url: '{{ golr_timestamp }}'
-          dest: "/{{ stage_dir }}/golr_timestamp.log"
+          dest: "{{ stage_dir }}/golr_timestamp.log"
           timeout: 1000
           force: no
 
       - name: Get remote release-archive-doi.json
         get_url:
           url: '{{ release_archive_doi }}'
-          dest: "/{{ stage_dir }}/release-archive-doi.json"
+          dest: "{{ stage_dir }}/release-archive-doi.json"
           timeout: 1000
           force: no
     rescue:
