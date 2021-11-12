@@ -15,6 +15,11 @@ variable "instance_type" {
   default = "t2.large" 
 }
 
+variable "disk_size" {
+  default = 200
+  description = "size of disk in Gigabytes"
+}
+
 variable "public_key_path" {
   default = "~/.ssh/id_rsa.pub"
 }

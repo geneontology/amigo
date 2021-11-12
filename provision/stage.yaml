@@ -1,25 +1,99 @@
 - hosts: all
+  vars:
+  - timestamp: "{{ ansible_date_time.iso8601_basic }}"
   vars_files:
   - vars.yaml
 
   tasks:
-  - name: Check if index exists
+  - name: Check if index archive exists
     stat:
       path: '{{ stage_dir }}/srv-solr-data/index'
     register: index_result
 
-  - name: Create Solr Index
-    shell: | 
-         docker run --rm \
+  - name: Create index
+    block:
+      - name: golr_timestamp.log is unused
+        file:
+          path: "{{ stage_dir }}/golr_timestamp.log"
+          state: absent
+
+      - name:  release-archive-doi.json is unused
+        file:
+          path: "{{ stage_dir }}/release-archive-doi.json"
+          state: absent
+
+      - name: Create Solr Index
+        shell: |
+           docker run --rm \
              -e "GOLR_SOLR_MEMORY={{ GOLR_SOLR_MEMORY }}" \
              -e "GOLR_LOADER_MEMORY={{ GOLR_LOADER_MEMORY }} " \
              -e "GOLR_INPUT_ONTOLOGIES={{ GOLR_INPUT_ONTOLOGIES }} " \
              -e "GOLR_INPUT_GAFS={{ GOLR_INPUT_GAFS }}" \
              -v '{{ stage_dir }}/srv-solr-data:/srv/solr/data'\
              -t geneontology/golr-autoindex
-    args:
-      executable: /bin/bash
-    when: not index_result.stat.exists
+        args:
+          executable: /bin/bash
+    rescue:
+      - name: Remove golr_index directory
+        file:
+          path: '{{ stage_dir }}/srv-solr-data/index' 
+          state: absent
+
+      - name: Failed to download index archive
+        command: /bin/false
+    when: 
+      - '{{ CREATE_INDEX }} == True'
+      - not index_result.stat.exists
+
+  - name: Download index ...
+    block:
+      - name: Get remote golr_index archive 
+        get_url:
+          url: '{{ golr_index_archive_url }}'
+          dest: "/tmp/golr_index_{{ timestamp }}.tgz"
+          timeout: 1000
+
+      - name: Create golr_index directory
+        file:
+          path: '{{ stage_dir }}/srv-solr-data/index'
+          state: directory
+
+      - name: Untar index archive 
+        unarchive:
+          src:  "/tmp/golr_index_{{ timestamp }}.tgz" 
+          dest: '{{ stage_dir }}/srv-solr-data/index'
+          remote_src: yes
+      - name: Get remote golr_timestamp.log 
+        get_url:
+          url: '{{ golr_timestamp }}'
+          dest: "{{ stage_dir }}/golr_timestamp.log"
+          timeout: 1000
+          force: no
+
+      - name: Get remote release-archive-doi.json
+        get_url:
+          url: '{{ release_archive_doi }}'
+          dest: "{{ stage_dir }}/release-archive-doi.json"
+          timeout: 1000
+          force: no
+    rescue:
+      - name: Remove golr_index directory
+        file:
+          path: '{{ stage_dir }}/srv-solr-data/index' 
+          state: absent
+
+      - name: Failed to download index archive
+        command: /bin/false
+
+    always:
+      - name: Remove golr_index archive
+        file:
+          path: "/tmp/golr_index_{{ timestamp }}.tgz"
+          state: absent
+    when: 
+      - '{{ CREATE_INDEX }} == False'
+      - not index_result.stat.exists
+
 
   - name: install docker-compose.yaml and http configs
     template:

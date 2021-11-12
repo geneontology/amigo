@@ -38,7 +38,7 @@ resource "aws_instance" "amigo_server" {
     device_name           = "/dev/sda1"
     delete_on_termination = true
     tags                  = var.tags
-    volume_size           = 100
+    volume_size           = var.disk_size
   }
 
   provisioner "remote-exec" {

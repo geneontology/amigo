@@ -97,15 +97,22 @@ which docker-compose
 ```
 
 #### About Solr Index
-You way want to check vars.yaml and change the following variables accordingly.
-The stage.yaml installs the index under {{ stage_dir }}/srv-solr-data.
-If you have the solr index just place it in this location and stage.yaml will skip this step.
 
+The stage.yaml installs the index under {{ stage_dir }}/srv-solr-data/index.
+In vars.yaml, set CREATE_INDEX and change the appropriate variables.                  
+
+##### Production:  Download index ...
+  - CREATE_INDEX=False
+  - golr_index_archive_url
+  - golr_timestamp 
+  - release_archive_doi
+
+##### Development: Create Index ... 
+  - CREATE_INDEX=True 
   - GOLR_SOLR_MEMORY
   - GOLR_LOADER_MEMORY
   - GOLR_INPUT_ONTOLOGIES
   - GOLR_INPUT_GAFS
-
 
 #### Stage To AWS Instance: 
 
@@ -164,4 +171,8 @@ Note: The terraform state is stored in the directory aws.
 terraform -chdir=aws destroy
 ```
 
+#### Force Reinstall
+
+During Development one can remove the `amigo_hash` file to force the reinstall of the amigo perl software.
+You would need to restart the amigo container. 
 
