@@ -31,4 +31,5 @@ GOLR_INPUT_GAFS: "http://current.geneontology.org/annotations/aspgd.gaf.gz
 AMIGO_DYNAMIC: amigo.example.com
 AMIGO_DYNAMIC_ALIAS: amigo.example.com
 AMIGO_PUBLIC_GOLR: amigo-golr.example.com
+AMIGO_PUBLIC_GOLR_ALIAS: amigo-golr.example.com
 AMIGO_PUBLIC_GOLR_BULK: '{{ AMIGO_PUBLIC_GOLR }}'
