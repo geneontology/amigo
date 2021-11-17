@@ -47,6 +47,7 @@ resource "aws_instance" "amigo_server" {
       "sudo sh /tmp/get-docker.sh",
       "sudo usermod -aG docker ubuntu",
       "sudo apt-get install -y docker-compose",
+      "sudo ln -s /usr/bin/python3 /usr/bin/python",
     ]
 
     connection {
