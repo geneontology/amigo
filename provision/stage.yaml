@@ -108,6 +108,5 @@
       - { file: 'docker-compose.yaml', dir: '' }
       - { file: 'httpd-vhosts-amigo.conf', dir: '' }
       - { file: 'httpd-vhosts-golr.conf', dir: '' }
-      - { file: 'logrotate-to-s3.sh', dir: '' }
       - { file: 'apache2', dir: '' }
       - { file: 's3cfg', dir: '' }

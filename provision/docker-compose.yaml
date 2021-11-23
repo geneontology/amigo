@@ -45,7 +45,6 @@ services:
       - {{ stage_dir }}/httpd-vhosts-amigo.conf:/etc/apache2/sites-enabled/httpd-vhosts-amigo.conf
       - {{ stage_dir }}/httpd-vhosts-golr.conf:/etc/apache2/sites-enabled/httpd-vhosts-golr.conf
       - {{ stage_dir }}/apache_proxy_logs:/var/log/apache2
-      - {{ stage_dir }}/logrotate-to-s3.sh:/opt/bin/logrotate-to-s3.sh
       - {{ stage_dir }}/apache2:/etc/logrotate.d/apache2
       - {{ stage_dir }}/s3cfg:/opt/credentials/s3cfg
     ports:

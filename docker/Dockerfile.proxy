@@ -22,6 +22,7 @@ RUN a2dismod mpm_event mpm_worker \
 EXPOSE 80
 
 COPY ./entrypoint-proxy.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh 
+COPY ./logrotate-to-s3.sh /opt/bin/logrotate-to-s3.sh
+RUN chmod +x /entrypoint.sh /opt/bin/logrotate-to-s3.sh
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD ["tail", "-f", "/dev/null" ]
