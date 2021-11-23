@@ -1,11 +1,11 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV TERM linux
 
 RUN apt-get update \
-    && apt-get install -y apache2 logrotate python-pip \
-    && pip install s3cmd \
+    && apt-get install -y apache2 logrotate python3-pip \
+    && pip3 install s3cmd \
     && apt-get -qq purge && apt-get -qq clean && rm -rf /var/lib/apt/lists/*
 
 RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d \
