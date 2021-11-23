@@ -1,0 +1,27 @@
+FROM ubuntu:18.04
+
+ENV DEBIAN_FRONTEND noninteractive
+ENV TERM linux
+
+RUN apt-get update \
+    && apt-get install -y apache2 logrotate python-pip \
+    && pip install s3cmd \
+    && apt-get -qq purge && apt-get -qq clean && rm -rf /var/lib/apt/lists/*
+
+RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d \
+    && rm -rf /var/log/apache2 \
+    && mkdir -p /var/log/apache2 \
+    && rm -f /etc/apache2/sites-available/*.conf \
+    && rm -f /etc/apache2/sites-enabled/*.conf
+
+RUN a2dismod mpm_event mpm_worker \
+    && a2enmod mpm_prefork \
+    && a2dismod cgid mpm_event mpm_worker \
+    && a2enmod alias mpm_prefork rewrite proxy proxy_http proxy_html macro headers
+
+EXPOSE 80
+
+COPY ./entrypoint-proxy.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh 
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD ["tail", "-f", "/dev/null" ]

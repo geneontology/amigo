@@ -27,6 +27,15 @@ GOLR_INPUT_ONTOLOGIES: "http://skyhook.berkeleybop.org/release/ontology/extensio
 GOLR_INPUT_GAFS: "http://current.geneontology.org/annotations/aspgd.gaf.gz
                  http://skyhook.berkeleybop.org/release/annotations/cgd.gaf.gz"
                   
+########
+# For logrotate to s3 bucket
+#######`
+USE_S3: 1
+S3_PATH: amigo 
+ACCESS_KEY: REPLACE_ME
+SECRET_KEY: REPLACE_ME
+S3_BUCKET: REPLACE_ME
+
 #####
 AMIGO_DYNAMIC: amigo.example.com
 AMIGO_DYNAMIC_ALIAS: amigo.example.com
