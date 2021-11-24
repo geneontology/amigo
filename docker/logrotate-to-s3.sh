@@ -4,7 +4,7 @@
 #
 
 usage() {
-  echo "Usage: logrotate-to-s3 your-bucket-name [ file ... ]" >&2
+  echo "Usage: logrotate-to-s3 [ file ... ]" >&2
   echo "To see help text, yun can run 'logrotate-to-s3 -h' for usage." >&2
   exit 1
 }
@@ -17,7 +17,7 @@ logrotate-to-s3:
 
 Usage:
 
-  logrotate-to-s3 your-bucket-name [ file ... ]
+  logrotate-to-s3 [ file ... ]
 
 Environment variables:
 
@@ -29,13 +29,13 @@ Environment variables:
 
 Examples:
 
-  $ logrotate-to-s3 mybucket /var/log/nginx/access.log
+  $ logrotate-to-s3 /var/log/nginx/access.log
     => s3://mybucket/logrotate/your-hostname/2016/01/access.log.20160102-030405.gz
 
-  $ S3_PATH=archive/staging NAME_PREFIX=nginx logrotate-to-s3 mybucket /var/log/nginx/access.log
+  $ S3_PATH=archive/staging NAME_PREFIX=nginx logrotate-to-s3 /var/log/nginx/access.log
     => s3://mybucket/archive/staging/your-hostname/2016/01/nginx-access.log.20160102-030405.gz
 
-  $ S3_PATH=app-log PREFIX="dt=$(date "+%Y-%m-%d")" logrotate-to-s3 mybucket /var/log/nginx/access.log
+  $ S3_PATH=app-log PREFIX="dt=$(date "+%Y-%m-%d")" logrotate-to-s3 /var/log/nginx/access.log
     => s3://mybucket/app-log/dt=2016-01-02/nginx-access.log.20160102-030405.gz
 
 Configuration logroate:
@@ -55,14 +55,14 @@ Configuration logroate:
     "/var/log/nginx/access.log" {
       sharedscripts
       postrotate
-        logrotate-to-s3 mybucket "$@"
+        logrotate-to-s3 "$@"
       endscript
     }
 
     # bad - because of wildcarded patterns
     /var/log/nginx/*.log {
       lastaction
-        logrotate-to-s3 mybucket "$@"
+        logrotate-to-s3 "$@"
       endscript
     }
 
@@ -70,7 +70,7 @@ Configuration logroate:
     /var/log/nginx/access.log {
       sharedscripts
       postrotate
-        logrotate-to-s3 mybucket "$@"
+        logrotate-to-s3 "$@"
       endscript
     }
 
@@ -78,7 +78,7 @@ Configuration logroate:
     /var/log/nginx/access.log{
       sharedscripts
       postrotate
-        logrotate-to-s3 mybucket "$@"
+        logrotate-to-s3 "$@"
       endscript
     }
 EOF
@@ -95,6 +95,7 @@ readonly default_suffix="$(date "+%Y%m%d-%H%M%S")"
 
 # Default Configurations
 readonly s3_path=${S3_PATH:-logrotate}
+readonly s3_bucket=${S3_BUCKET:-bucket}
 readonly name_prefix=${NAME_PREFIX:+$NAME_PREFIX-}
 readonly upload_cmd=${UPLOAD_CMD:-aws s3 cp}
 
@@ -154,8 +155,8 @@ main() {
 
   [[ $# -ge 1 ]] || usage
 
-  local bucket=$1
-  local -a paths=("${@:2}")
+  local bucket=$s3_bucket
+  local -a paths=("${@:1}")
 
   for path in "${paths[@]}"; do
     upload "$bucket" "$path"

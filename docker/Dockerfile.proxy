@@ -22,7 +22,14 @@ RUN a2dismod mpm_event mpm_worker \
 EXPOSE 80
 
 COPY ./entrypoint-proxy.sh /entrypoint.sh
+
+# used by logrotate-to-s3.sh
+ENV S3_PATH=logrotate
+ENV S3_BUCKET=bucket
+
+COPY ./apache2 /etc/logrotate.d/apache2
 COPY ./logrotate-to-s3.sh /opt/bin/logrotate-to-s3.sh
-RUN chmod +x /entrypoint.sh /opt/bin/logrotate-to-s3.sh
+
+RUN chmod +x /entrypoint.sh /opt/bin/logrotate-to-s3.sh && chmod 400 /etc/logrotate.d/apache2
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD ["tail", "-f", "/dev/null" ]
