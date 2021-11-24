@@ -60,12 +60,12 @@ cd provision
 export STAGE_DIR=...
 
 // Using this repo and master branch
-ansible-playbook -e "stage_dir=$STAGE_DIR" -i "localhost," --connection=local build_image.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -i "localhost," --connection=local build_images.yaml 
 ansible-playbook -e "stage_dir=$STAGE_DIR" -i "localhost," --connection=local stage.yaml 
 ansible-playbook -e "stage_dir=$STAGE_DIR" -i "localhost," --connection=local start_services.yaml 
 
 // Or to specify a forked repo and different branch ...
-ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -i "localhost," --connection=local build_image.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -i "localhost," --connection=local build_images.yaml 
 ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -i "localhost," --connection=local stage.yaml 
 ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -i "localhost," --connection=local start_services.yaml 
 ```
@@ -121,7 +121,7 @@ Test LogRotate. Use -f option to force log rotation.
 
 ```sh
 docker exec -it apache_amigo bash
-ps -ef | grep crond
+ps -ef | grep cron
 ps -ef | grep apache2 
 cat /opt/credentials/s3cfg
 logrotate -v -f /etc/logrotate.d/apache2

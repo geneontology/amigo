@@ -134,12 +134,12 @@ export PRIVATE_KEY=`terraform -chdir=aws output -raw private_key_path`
 export STAGE_DIR=/home/ubuntu/stage_dir
 
 // Using this repo and master branch
-ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY build_image.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY build_images.yaml 
 ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY stage.yaml 
 ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY start_services.yaml 
 
 // Or to specify a forked repo and different branch ...
-ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY build_image.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY build_images.yaml 
 ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY stage.yaml 
 ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY start_services.yaml 
 ```
@@ -190,7 +190,7 @@ Test LogRotate. Use -f option to force log rotation.
 
 ```sh
 docker exec -it apache_amigo bash
-ps -ef | grep crond
+ps -ef | grep cron
 ps -ef | grep apache2
 cat /opt/credentials/s3cfg
 logrotate -v -f /etc/logrotate.d/apache2
