@@ -114,6 +114,12 @@ In vars.yaml, set CREATE_INDEX and change the appropriate variables.
   - GOLR_INPUT_ONTOLOGIES
   - GOLR_INPUT_GAFS
 
+#### LogRotate To AWS S3
+  - USE_S3: 1
+  - ACCESS_KEY: REPLACE_ME
+  - SECRET_KEY: REPLACE_ME
+  - S3_BUCKET: REPLACE_ME
+
 #### Stage To AWS Instance: 
 
 Clone the repo on the AWS instance, build the docker image and finally copy the docker-compose file
@@ -128,12 +134,14 @@ export PRIVATE_KEY=`terraform -chdir=aws output -raw private_key_path`
 export STAGE_DIR=/home/ubuntu/stage_dir
 
 // Using this repo and master branch
-ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY build_image.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY build_images.yaml 
 ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY stage.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY start_services.yaml 
 
 // Or to specify a forked repo and different branch ...
-ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY build_image.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY build_images.yaml 
 ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY stage.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY start_services.yaml 
 ```
 
 #### Start Docker Containers: 
@@ -175,4 +183,17 @@ terraform -chdir=aws destroy
 
 During Development one can remove the `amigo_hash` file to force the reinstall of the amigo perl software.
 You would need to restart the amigo container. 
+
+#### Test LogRotate
+
+Test LogRotate. Use -f option to force log rotation.
+
+```sh
+docker exec -it apache_amigo bash
+ps -ef | grep cron
+ps -ef | grep apache2
+cat /opt/credentials/s3cfg
+logrotate -v -f /etc/logrotate.d/apache2
+```
+
 

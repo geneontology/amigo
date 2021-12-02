@@ -37,13 +37,17 @@ services:
   apache_amigo:
     hostname: apache_amigo
     container_name: apache_amigo
-    image: httpd:2.4.51
+    image: go-apache:{{ tag }}
     restart: unless-stopped
+    environment:
+      - USE_S3={{ USE_S3 }}
+      - S3_PATH={{ S3_PATH }}
+      - S3_BUCKET={{ S3_BUCKET }}
     volumes:
-      - {{ stage_dir }}//httpd.conf:/usr/local/apache2/conf/httpd.conf
-      - {{ stage_dir }}/httpd-vhosts-amigo.conf:/usr/local/apache2/conf/extra/httpd-vhosts-amigo.conf
-      - {{ stage_dir }}/httpd-vhosts-golr.conf:/usr/local/apache2/conf/extra/httpd-vhosts-golr.conf
-      - {{ stage_dir }}/apache_proxy_logs:/usr/local/apache2/logs
+      - {{ stage_dir }}/proxy-configs/s3cfg:/opt/credentials/s3cfg
+      - {{ stage_dir }}/proxy-configs/httpd-vhosts-amigo.conf:/etc/apache2/sites-enabled/httpd-vhosts-amigo.conf
+      - {{ stage_dir }}/proxy-configs/httpd-vhosts-golr.conf:/etc/apache2/sites-enabled/httpd-vhosts-golr.conf
+      - {{ stage_dir }}/apache_proxy_logs:/var/log/apache2
     ports:
       - "80:80"
     depends_on:

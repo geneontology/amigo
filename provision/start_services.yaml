@@ -1,0 +1,19 @@
+- hosts: all
+  vars_files:
+  - vars.yaml
+
+  tasks:
+  - name: Create and start services
+    docker_compose:
+      project_src: '{{ stage_dir }}'
+
+  - name: Check status
+    shell: |
+           docker-compose -f {{ stage_dir }}/docker-compose.yaml ps
+    register: output 
+    args:
+      executable: /bin/bash
+    changed_when: False
+
+  - debug: msg={{ output.stdout.split('\n') }}
+

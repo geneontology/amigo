@@ -42,6 +42,13 @@ In vars.yaml, set CREATE_INDEX and change the appropriate variables.
   - GOLR_INPUT_ONTOLOGIES
   - GOLR_INPUT_GAFS
 
+#### LogRotate To AWS S3
+  - USE_S3: 1
+  - ACCESS_KEY: REPLACE_ME
+  - SECRET_KEY: REPLACE_ME
+  - S3_BUCKET: REPLACE_ME
+
+
 #### Stage Locally
 
 Clone the repo, build the docker image and finally copy all template files such as docker-compose.yaml 
@@ -53,12 +60,14 @@ cd provision
 export STAGE_DIR=...
 
 // Using this repo and master branch
-ansible-playbook -e "stage_dir=$STAGE_DIR" -i "localhost," --connection=local build_image.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -i "localhost," --connection=local build_images.yaml 
 ansible-playbook -e "stage_dir=$STAGE_DIR" -i "localhost," --connection=local stage.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -i "localhost," --connection=local start_services.yaml 
 
 // Or to specify a forked repo and different branch ...
-ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -i "localhost," --connection=local build_image.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -i "localhost," --connection=local build_images.yaml 
 ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -i "localhost," --connection=local stage.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -i "localhost," --connection=local start_services.yaml 
 ```
 
 #### Start Docker Containers using docker-compose
@@ -104,4 +113,17 @@ docker exec -it apache_amigo /bin/bash
 
 During Development one can remove the `amigo_hash` file to force the reinstall of the amigo perl software.
 You would need to restart the amigo container. 
+
+
+#### Test LogRotate
+
+Test LogRotate. Use -f option to force log rotation.
+
+```sh
+docker exec -it apache_amigo bash
+ps -ef | grep cron
+ps -ef | grep apache2 
+cat /opt/credentials/s3cfg
+logrotate -v -f /etc/logrotate.d/apache2
+```
 

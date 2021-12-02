@@ -42,7 +42,7 @@
       - name: Failed to download index archive
         command: /bin/false
     when: 
-      - '{{ CREATE_INDEX }} == True'
+      - CREATE_INDEX
       - not index_result.stat.exists
 
   - name: Download index ...
@@ -59,10 +59,12 @@
           state: directory
 
       - name: Untar index archive 
-        unarchive:
-          src:  "/tmp/golr_index_{{ timestamp }}.tgz" 
-          dest: '{{ stage_dir }}/srv-solr-data/index'
-          remote_src: yes
+        shell: |
+           tar -I pigz -xvf "/tmp/golr_index_{{ timestamp }}.tgz" -C '{{ stage_dir }}/srv-solr-data/index' \
+            || tar -xvf "/tmp/golr_index_{{ timestamp }}.tgz" -C '{{ stage_dir }}/srv-solr-data/index'
+        args:
+          executable: /bin/bash
+
       - name: Get remote golr_timestamp.log 
         get_url:
           url: '{{ golr_timestamp }}'
@@ -91,19 +93,23 @@
           path: "/tmp/golr_index_{{ timestamp }}.tgz"
           state: absent
     when: 
-      - '{{ CREATE_INDEX }} == False'
+      - not CREATE_INDEX
       - not index_result.stat.exists
 
+  - name: Create proxy-configs directory
+    file:
+      path: '{{ stage_dir }}/proxy-configs'
+      state: directory
 
-  - name: install docker-compose.yaml and http configs
+  - name: install docker-compose.yaml and http configs ...
     template:
-      src: '{{ item.file }}'
-      dest: '{{ stage_dir }}/{{ item.dir }}'
+      src: 'templates/{{ item.file }}'
+      dest: '{{ stage_dir }}{{ item.dir }}/{{ item.file }}'
     with_items:
-      - { file: 'amigo.yaml', dir: '' }
-      - { file: '001-inline-amigo.conf', dir: '' }
-      - { file: 'apache2.ports.conf', dir: '' }
-      - { file: 'docker-compose.yaml', dir: '' }
-      - { file: 'httpd-vhosts-amigo.conf', dir: '' }
-      - { file: 'httpd-vhosts-golr.conf', dir: '' }
-      - { file: 'httpd.conf', dir: '' }
+      - { file: 'amigo.yaml', dir: '/' }
+      - { file: '001-inline-amigo.conf', dir: '/' }
+      - { file: 'apache2.ports.conf', dir: '/' }
+      - { file: 'docker-compose.yaml', dir: '/' }
+      - { file: 'httpd-vhosts-amigo.conf', dir: '/proxy-configs' }
+      - { file: 'httpd-vhosts-golr.conf', dir: '/proxy-configs' }
+      - { file: 's3cfg', dir: '/proxy-configs' }
