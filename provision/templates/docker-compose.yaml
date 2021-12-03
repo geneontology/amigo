@@ -1,9 +1,10 @@
-version: '3'
+version: '3.7'
 services:
   golr:
     hostname: golr 
     container_name: golr 
     image: amigo:{{ tag }}
+    init: true
     environment:
       - GOLR=1
       - AMIGO=0
@@ -17,6 +18,7 @@ services:
     hostname: amigo
     container_name: amigo
     image: amigo:{{ tag }}
+    init: true
     environment:
       - GOLR=0
       - AMIGO=1
@@ -38,6 +40,7 @@ services:
     hostname: apache_amigo
     container_name: apache_amigo
     image: go-apache:{{ tag }}
+    init: true
     restart: unless-stopped
     environment:
       - USE_S3={{ USE_S3 }}
