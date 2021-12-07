@@ -9,9 +9,10 @@ services:
       - GOLR=1
       - AMIGO=0
     volumes:
-      - {{ repo_dir }}:/srv/amigo
+      - {{ stage_dir }}/golr-configs/java-golr-monit:/etc/monit/conf-enabled/java
+      - {{ stage_dir }}/golr-configs/console-capture-golr.xml:/etc/jetty9/console-capture.xml
       - {{ stage_dir }}/srv-solr-data:/srv/solr/data
-      - {{ stage_dir }}/amigo.yaml:/srv/amigo/conf/amigo.yaml
+      - {{ stage_dir }}/golr_logs:/var/log
     restart: unless-stopped
 
   amigo:

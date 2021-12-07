@@ -45,7 +45,10 @@ RUN apt-get -qq update && apt-get -qq -y install \
 	libjson-xs-perl liburi-perl libwww-mechanize-perl \
 	liburi-encode-perl libxml-libxml-perl libxml-xpath-perl \
 	dh-make-perl apache2 openjdk-8-jdk openjdk-8-jre jetty9 \
-        monit psmisc
+        monit psmisc logrotate
+
+RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d \
+    && rm -rf /var/log && mkdir -p /var/log
 
 ## AmiGO weirdness.
 ADD docker/libsql-tokenizer-perl_0.24-2_all.deb /tmp/libsql-tokenizer-perl_0.24-2_all.deb
@@ -133,6 +136,8 @@ ENV GOLR_SOLR_MEMORY=4G
 COPY ./docker/entrypoint.sh /
 COPY ./docker/run-golr.sh /
 RUN chmod +x /entrypoint.sh /run-golr.sh && md5sum ./conf/amigo.yaml > amigo-hash
-COPY ./docker/java /etc/monit/conf-enabled/
+COPY ./docker/java-golr-monit /etc/monit/conf-enabled/java
+COPY ./docker/java-golr-monit /etc/monit/conf-enabled/java
+COPY ./docker/console-capture-golr.xml /etc/jetty9/console-capture.xml
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD ["tail", "-f", "/dev/null" ]

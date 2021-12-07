@@ -37,7 +37,9 @@ if [ $AMIGO -ne 0 ]; then
 fi
 
 if [ $GOLR -ne 0 ]; then
-   echo "Starting the jetty server with Solr installed"
+   echo "Starting crond"
+   /etc/init.d/cron start
+   echo "Starting monit which will start the jetty server with Solr installed"
    /etc/init.d/monit start
 fi
 

@@ -36,6 +36,12 @@ ACCESS_KEY: REPLACE_ME
 SECRET_KEY: REPLACE_ME
 S3_BUCKET: REPLACE_ME
 
+########
+# For golr monit and jetty.  
+#######`
+LOAD_AVG: 3
+JETTY_RETAIN_LOGS_IN_DAYS: 30
+
 #####
 AMIGO_DYNAMIC: amigo.example.com
 AMIGO_DYNAMIC_ALIAS: amigo.example.com
