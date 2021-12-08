@@ -48,15 +48,16 @@ In vars.yaml, set CREATE_INDEX and change the appropriate variables.
   - SECRET_KEY: REPLACE_ME
   - S3_BUCKET: REPLACE_ME
 
-
 #### Stage Locally
 
 Clone the repo, build the docker image and finally copy all template files such as docker-compose.yaml
 
+If using a local staging directory, you may want to add something like `mkdir -p /tmp/stage`.
+
 ```sh
 cd provision
 
-// Make sure this is an abosulte path.
+// Make sure this is an absolute path.
 export STAGE_DIR=...
 
 // Using this repo and master branch
