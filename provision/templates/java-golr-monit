@@ -1,0 +1,10 @@
+check system golr 
+        if loadavg (1min) > {{ LOAD_AVG }} then alert
+        if loadavg (5min) > {{ LOAD_AVG }} then exec "/run-golr.sh" 
+
+check process java 
+        matching "java"
+        start program = "/run-golr.sh"
+        stop program = "/usr/bin/killall java"
+        if failed port 8080 then restart
+        depend golr

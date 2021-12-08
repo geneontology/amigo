@@ -44,15 +44,20 @@ RUN apt-get -qq update && apt-get -qq -y install \
 	libfreezethaw-perl libgraph-perl libgraphviz-perl \
 	libjson-xs-perl liburi-perl libwww-mechanize-perl \
 	liburi-encode-perl libxml-libxml-perl libxml-xpath-perl \
-	dh-make-perl apache2 openjdk-8-jdk openjdk-8-jre jetty9
+	dh-make-perl apache2 openjdk-8-jdk openjdk-8-jre jetty9 \
+        monit psmisc logrotate
+
+RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d \
+    && rm -rf /var/log && mkdir -p /var/log
 
 ## AmiGO weirdness.
 ADD docker/libsql-tokenizer-perl_0.24-2_all.deb /tmp/libsql-tokenizer-perl_0.24-2_all.deb
 RUN dpkg -i /tmp/libsql-tokenizer-perl_0.24-2_all.deb
 
 ## Node.
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
-RUN apt-get install -y nodejs
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get -qq purge && apt-get -qq clean && rm -rf /var/lib/apt/lists/*
 
 ## Grab the AmiGO/GOlr repo and change context.
 RUN mkdir -p /srv
@@ -68,54 +73,52 @@ USER root
 ###
 
 ## Get apache setup as a generic worker. Installation grouped above.
-RUN a2dismod mpm_event mpm_worker
-RUN a2enmod mpm_prefork
-RUN a2dismod cgid mpm_event mpm_worker
-RUN a2enmod alias mpm_prefork cgi rewrite proxy proxy_http proxy_html macro headers xml2enc
+RUN a2dismod mpm_event mpm_worker \
+    && a2enmod mpm_prefork \
+    && a2dismod cgid mpm_event mpm_worker \
+    && a2enmod alias mpm_prefork cgi rewrite proxy proxy_http proxy_html macro headers xml2enc
 
 ###
 ### GOlr/Jetty.
 ###
 
 ## GOlr/Jetty setup. Installation grouped above.
-RUN cp ./golr/solr/solr.war /var/lib/jetty9/webapps/
-RUN chown jetty /var/lib/jetty9/webapps/solr.war
-RUN chgrp adm /var/lib/jetty9/webapps/solr.war
-RUN cp ./golr/jetty/jetty /etc/default/jetty9
-RUN mkdir -p /srv/solr/data
-RUN mkdir -p /srv/solr/conf
-RUN cp ./golr/solr/conf/schema.xml /srv/solr/conf/schema.xml
-RUN cp ./golr/solr/conf/solrconfig.xml /srv/solr/conf/solrconfig.xml
-RUN chown -R jetty /srv/solr/
-RUN chgrp -R adm /srv/solr/
+RUN cp ./golr/solr/solr.war /var/lib/jetty9/webapps/ \
+    && chown jetty /var/lib/jetty9/webapps/solr.war \
+    && chgrp adm /var/lib/jetty9/webapps/solr.war \
+    && cp ./golr/jetty/jetty /etc/default/jetty9 \
+    && mkdir -p /srv/solr/data \
+    && mkdir -p /srv/solr/conf \
+    && cp ./golr/solr/conf/schema.xml /srv/solr/conf/schema.xml \
+    && cp ./golr/solr/conf/solrconfig.xml /srv/solr/conf/solrconfig.xml \
+    && chown -R jetty /srv/solr/ \
+    && chgrp -R adm /srv/solr/
 
 ## Custom runtime locations for jetty9/solr for the Docker environment.
-RUN mkdir -p /tmp/jetty9
-RUN chown -R jetty /tmp/jetty9
-RUN chgrp -R adm /tmp/jetty9
+RUN mkdir -p /tmp/jetty9 \
+    && chown -R jetty /tmp/jetty9 \
+    && chgrp -R adm /tmp/jetty9
 
 ###
 ### AmiGO.
 ###
 
 ## Final Apache setup.
-RUN cp ./conf/examples/apache2.18_04.localhost_root.conf /etc/apache2/sites-available/001-inline-amigo.conf
-RUN cp /srv/amigo/conf/examples/apache2.ports.conf /etc/apache2/ports.conf
-RUN a2ensite 001-inline-amigo
-
 ## Get AmiGO docker config into place.
-RUN cp ./conf/examples/amigo.yaml.localhost_docker_loader ./conf/amigo.yaml
+RUN cp ./conf/examples/apache2.18_04.localhost_root.conf /etc/apache2/sites-available/001-inline-amigo.conf \
+    && cp /srv/amigo/conf/examples/apache2.ports.conf /etc/apache2/ports.conf \
+    && a2ensite 001-inline-amigo \
+    && cp ./conf/examples/amigo.yaml.localhost_docker_loader ./conf/amigo.yaml
 
 ## AmiGO install.
 USER root:www-data
-RUN npm install
-RUN ./node_modules/.bin/gulp install
+RUN npm install && ./node_modules/.bin/gulp install
 USER root
 
 ## The root environment seems to do something funny with the perl5
 ## execution path; modify tp make sure everybody can get at it.
-RUN sed -i s,config.pl,/srv/amigo/perl/bin/config.pl,g /srv/amigo/perl/bin/*
-RUN sed -i s,config.pl,/srv/amigo/perl/bin/config.pl,g /srv/amigo/perl/lib/AmiGO.pm
+RUN sed -i s,config.pl,/srv/amigo/perl/bin/config.pl,g /srv/amigo/perl/bin/* \
+    && sed -i s,config.pl,/srv/amigo/perl/bin/config.pl,g /srv/amigo/perl/lib/AmiGO.pm
 
 ###
 ### Finally.
@@ -129,7 +132,12 @@ EXPOSE 8080 9999
 #RUN ["chmod", "+x", "/tmp/run-apache-solr.sh"]
 #CMD "/tmp/run-apache-solr.sh"
 
+ENV GOLR_SOLR_MEMORY=4G
 COPY ./docker/entrypoint.sh /
-RUN chmod +x /entrypoint.sh && md5sum ./conf/amigo.yaml > amigo-hash
+COPY ./docker/run-golr.sh /
+RUN chmod +x /entrypoint.sh /run-golr.sh && md5sum ./conf/amigo.yaml > amigo-hash
+COPY ./docker/java-golr-monit /etc/monit/conf-enabled/java
+COPY ./docker/java-golr-monit /etc/monit/conf-enabled/java
+COPY ./docker/console-capture-golr.xml /etc/jetty9/console-capture.xml
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD ["tail", "-f", "/dev/null" ]

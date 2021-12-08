@@ -1,0 +1,5 @@
+check process java 
+        matching "java"
+        start program = "/run-golr.sh"
+        stop program = "/usr/bin/killall java"
+        if failed port 8080 then restart

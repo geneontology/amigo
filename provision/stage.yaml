@@ -96,20 +96,26 @@
       - not CREATE_INDEX
       - not index_result.stat.exists
 
-  - name: Create proxy-configs directory
+  - name: Create config directories
     file:
-      path: '{{ stage_dir }}/proxy-configs'
+      path: '{{ stage_dir }}/{{ item }}'
       state: directory
+    with_items:
+      - proxy-configs 
+      - golr-configs
+      - amigo-configs
 
   - name: install docker-compose.yaml and http configs ...
     template:
       src: 'templates/{{ item.file }}'
       dest: '{{ stage_dir }}{{ item.dir }}/{{ item.file }}'
     with_items:
-      - { file: 'amigo.yaml', dir: '/' }
-      - { file: '001-inline-amigo.conf', dir: '/' }
-      - { file: 'apache2.ports.conf', dir: '/' }
       - { file: 'docker-compose.yaml', dir: '/' }
+      - { file: 'amigo.yaml', dir: '/amigo-configs' }
+      - { file: '001-inline-amigo.conf', dir: '/amigo-configs' }
+      - { file: 'apache2.ports.conf', dir: '/amigo-configs' }
       - { file: 'httpd-vhosts-amigo.conf', dir: '/proxy-configs' }
       - { file: 'httpd-vhosts-golr.conf', dir: '/proxy-configs' }
       - { file: 's3cfg', dir: '/proxy-configs' }
+      - { file: 'java-golr-monit', dir: '/golr-configs' }
+      - { file: 'console-capture-golr.xml', dir: '/golr-configs' }
