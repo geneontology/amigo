@@ -28,9 +28,9 @@ services:
       - {{ stage_dir }}/amigo_working_path:/tmp
       - {{ stage_dir }}/golr_timestamp.log:/tmp/golr_timestamp.log
       - {{ stage_dir }}/release-archive-doi.json:/tmp/release-archive-doi.json
-      - {{ stage_dir }}/amigo.yaml:/srv/amigo/conf/amigo.yaml
-      - {{ stage_dir }}/001-inline-amigo.conf:/etc/apache2/sites-available/001-inline-amigo.conf
-      - {{ stage_dir }}/apache2.ports.conf:/etc/apache2/ports.conf
+      - {{ stage_dir }}/amigo-configs/amigo.yaml:/srv/amigo/conf/amigo.yaml
+      - {{ stage_dir }}/amigo-configs/001-inline-amigo.conf:/etc/apache2/sites-available/001-inline-amigo.conf
+      - {{ stage_dir }}/amigo-configs/apache2.ports.conf:/etc/apache2/ports.conf
       - {{ stage_dir }}/apache_amigo_logs:/var/log/apache2
     restart: unless-stopped
     depends_on:
