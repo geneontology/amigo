@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-###
-### AmiGO on Apache first.
-###
-
 AMIGO="${AMIGO:=1}" 
 GOLR="${GOLR:=1}" 
 
@@ -32,16 +28,15 @@ if [ $AMIGO -ne 0 ]; then
 
    echo "Starting the apache2 server with amigo installed"
    /etc/init.d/apache2 start
-   sleep 1
-   /etc/init.d/apache2 status
 fi
 
 if [ $GOLR -ne 0 ]; then
-   echo "Starting crond"
-   /etc/init.d/cron start
    echo "Starting monit which will start the jetty server with Solr installed"
    /etc/init.d/monit start
 fi
+
+echo "Starting crond"
+/etc/init.d/cron start
 
 cd /srv/amigo
 exec "$@"
