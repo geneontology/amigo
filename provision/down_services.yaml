@@ -4,6 +4,10 @@
 
   tasks:
   - name: Tear down existing services
-    docker_compose:
-      project_src: '{{ stage_dir }}'
-      state: absent
+    shell: docker-compose -f {{ stage_dir }}/docker-compose.yaml down 
+    register: output
+    args:
+      executable: /bin/bash
+
+  - debug: msg={{ output.stderr.split('\n') }}
+    when: output.stderr != "" 
