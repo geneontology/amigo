@@ -32,8 +32,7 @@ GOLR_INPUT_GAFS: "http://current.geneontology.org/annotations/aspgd.gaf.gz
 #######`
 USE_S3: 1
 S3_PATH: amigo 
-ACCESS_KEY: REPLACE_ME
-SECRET_KEY: REPLACE_ME
+S3_CRED_FILE: REPLACE_ME
 S3_BUCKET: REPLACE_ME
 
 ########
