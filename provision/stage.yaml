@@ -116,6 +116,17 @@
       - { file: 'apache2.ports.conf', dir: '/amigo-configs' }
       - { file: 'httpd-vhosts-amigo.conf', dir: '/proxy-configs' }
       - { file: 'httpd-vhosts-golr.conf', dir: '/proxy-configs' }
-      - { file: 's3cfg', dir: '/proxy-configs' }
       - { file: 'java-golr-monit', dir: '/golr-configs' }
       - { file: 'console-capture-golr.xml', dir: '/golr-configs' }
+
+  - name: s3cfg is unused delete it
+    file:
+      path: "{{ stage_dir }}/proxy-configs/s3cfg"
+      state: absent
+    when: not USE_S3 | bool
+
+  - name: copy s3cfg is unused delete it
+    copy:
+      src: "{{ S3_CRED_FILE }}"
+      dest: "{{ stage_dir }}/proxy-configs/s3cfg"
+    when: USE_S3 | bool

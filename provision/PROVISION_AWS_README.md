@@ -116,9 +116,16 @@ In vars.yaml, set CREATE_INDEX and change the appropriate variables.
 
 #### LogRotate To AWS S3
   - USE_S3: 1
-  - ACCESS_KEY: REPLACE_ME
-  - SECRET_KEY: REPLACE_ME
+  - S3_CRED_FILE: REPLACE_ME
   - S3_BUCKET: REPLACE_ME
+
+Format of S3_CRED_FILE:
+
+```
+[default]
+access_key = REPLACE_ME
+secret_key = REPLACE_ME
+```
 
 #### Stage To AWS Instance: 
 
