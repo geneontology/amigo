@@ -4,8 +4,10 @@
 
   tasks:
   - name: Create and start services
-    docker_compose:
-      project_src: '{{ stage_dir }}'
+    shell: nohup docker-compose -f {{ stage_dir }}/docker-compose.yaml up -d
+    register: output
+    args:
+      executable: /bin/bash
 
   - name: Check status
     shell: |
@@ -16,4 +18,3 @@
     changed_when: False
 
   - debug: msg={{ output.stdout.split('\n') }}
-
