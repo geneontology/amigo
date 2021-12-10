@@ -1,6 +1,6 @@
 # Provision AWS instance.
 
-## Requirements 
+## Requirements
 
 - The steps below were successfully tested using:
     - Terraform (0.14.4)
@@ -34,10 +34,10 @@ variable "private_key_path" {
 
 #### Elastic Ip
 
-Create elastic ip (VPC) and use its allocation_id aws/vars.tf 
+Create elastic ip (VPC) and use its allocation_id aws/vars.tf
 
 Note: A default elastic ip has already been created for region us-east-1
-      It can be used if not associated to an instance. 
+      It can be used if not associated to an instance.
 
 ```sh
 variable eip_alloc_id {
@@ -45,33 +45,33 @@ variable eip_alloc_id {
 }
 ```
 
-#### DNS 
+#### DNS
 
 Need to create two Route53 records pointing to the elastic ip created above.
-The two hostnames specified by these records will be used by the apache proxy 
-to forward traffic to either solr or to the amigo server.  
+The two hostnames specified by these records will be used by the apache proxy
+to forward traffic to either solr or to the amigo server.
 
 Replace variables AMIGO_DYNAMIC and AMIGO_PUBLIC_GOLR with the hostnames accordingly in vars.yaml.
 
-Note: These values can also be passed using the -e option. 
+Note: These values can also be passed using the -e option.
 
 
-#### Create AWS instance: 
+#### Create AWS instance:
 
-Note: Terraform creates some folders and files to maintain the state. 
+Note: Terraform creates some folders and files to maintain the state.
       Once terraform is applied, you can see them using <i>ls -a aws</i>
 
 ```sh
 cd provision
 
-# This will install the aws provider. 
+# This will install the aws provider.
 terraform -chdir=aws init
 
 # Validate the terraform scripts' syntax
 terraform -chdir=aws validate
 
 # View the plan that is going to be created.
-# This is very useful as it will also search for the elastic ip using 
+# This is very useful as it will also search for the elastic ip using
 # the supplied eip_alloc_id. And would fail if it does not find it.
 terraform -chdir=aws plan
 
@@ -79,13 +79,13 @@ terraform -chdir=aws plan
 terraform -chdir=aws apply
 
 # To view the outputs
-terraform -chdir=aws output 
+terraform -chdir=aws output
 
 #To view what was deployed:
-terraform -chdir=aws show 
+terraform -chdir=aws show
 ```
 
-#### Test AWS Instance: 
+#### Test AWS Instance:
 
 ```sh
 export HOST=`terraform -chdir=aws output -raw public_ip`
@@ -99,16 +99,16 @@ which docker-compose
 #### About Solr Index
 
 The stage.yaml installs the index under {{ stage_dir }}/srv-solr-data/index.
-In vars.yaml, set CREATE_INDEX and change the appropriate variables.                  
+In vars.yaml, set CREATE_INDEX and change the appropriate variables.
 
 ##### Production:  Download index ...
   - CREATE_INDEX=False
   - golr_index_archive_url
-  - golr_timestamp 
+  - golr_timestamp
   - release_archive_doi
 
-##### Development: Create Index ... 
-  - CREATE_INDEX=True 
+##### Development: Create Index ...
+  - CREATE_INDEX=True
   - GOLR_SOLR_MEMORY
   - GOLR_LOADER_MEMORY
   - GOLR_INPUT_ONTOLOGIES
@@ -127,10 +127,10 @@ access_key = REPLACE_ME
 secret_key = REPLACE_ME
 ```
 
-#### Stage To AWS Instance: 
+#### Stage To AWS Instance:
 
 Clone the repo on the AWS instance, build the docker image and finally copy the docker-compose file
-and other templates. 
+and other templates.
 
 ```sh
 cd provision
@@ -141,17 +141,17 @@ export PRIVATE_KEY=`terraform -chdir=aws output -raw private_key_path`
 export STAGE_DIR=/home/ubuntu/stage_dir
 
 // Using this repo and master branch
-ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY build_images.yaml 
-ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY stage.yaml 
-ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY start_services.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY build_images.yaml
+ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY stage.yaml
+ansible-playbook -e "stage_dir=$STAGE_DIR" -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY start_services.yaml
 
 // Or to specify a forked repo and different branch ...
-ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY build_images.yaml 
-ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY stage.yaml 
-ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY start_services.yaml 
+ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY build_images.yaml
+ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY stage.yaml
+ansible-playbook -e "stage_dir=$STAGE_DIR" -e "repo=https://github.com/..." -e "branch=..." -u ubuntu -i "$HOST," --private-key $PRIVATE_KEY start_services.yaml
 ```
 
-#### Start Docker Containers: 
+#### Start Docker Containers:
 
 Start Containers and access amigo using the browser at http://{{ AMIGO_DYNAMIC }}/amigo
 
@@ -161,7 +161,7 @@ ssh -o StrictHostKeyChecking=no -i $PRIVATE_KEY ubuntu@$HOST
 docker-compose -f docker-compose.yaml up -d
 
 // Tail logs, bring down, delete containers
-docker-compose -f docker-compose.yaml logs -f  
+docker-compose -f docker-compose.yaml logs -f
 docker-compose -f docker-compose.yaml down
 ```
 
@@ -179,7 +179,7 @@ docker exec -it apache_amigo /bin/bash
 
 Destroy when done.
 
-Note: The terraform state is stored in the directory aws. 
+Note: The terraform state is stored in the directory aws.
       Do not lose it or delete it
 
 ```
@@ -189,7 +189,7 @@ terraform -chdir=aws destroy
 #### Force Reinstall
 
 During Development one can remove the `amigo_hash` file to force the reinstall of the amigo perl software.
-You would need to restart the amigo container. 
+You would need to restart the amigo container.
 
 #### Test LogRotate
 
@@ -203,4 +203,6 @@ cat /opt/credentials/s3cfg
 logrotate -v -f /etc/logrotate.d/apache2
 ```
 
+#### Monit and GOlr
 
+The monit process monitor is within the "golr" container and produces an event log within that container at `/var/log/monit.log`.
