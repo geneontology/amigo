@@ -7,6 +7,7 @@ if [ $AMIGO -ne 0 ]; then
    md5sum -c amigo-hash
    GULP_INSTALL=$?
    echo "GULP_INSTALL=$GULP_INSTALL"
+   cp ./conf/amigo.yaml.orig ./conf/amigo.yaml
    if [ $GULP_INSTALL -ne 0 ]; then
       npm install
       ./node_modules/.bin/gulp install
@@ -23,7 +24,7 @@ if [ $AMIGO -ne 0 ]; then
          sed -i s,config.pl,/srv/amigo/perl/bin/config.pl,g /srv/amigo/perl/lib/AmiGO.pm
       fi
 
-      md5sum ./conf/amigo.yaml > amigo-hash
+      md5sum ./conf/amigo.yaml.orig > amigo-hash
    fi
 
    echo "Starting the apache2 server with amigo installed"
