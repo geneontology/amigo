@@ -119,13 +119,13 @@
       - { file: 'java-golr-monit', dir: '/golr-configs' }
       - { file: 'console-capture-golr.xml', dir: '/golr-configs' }
 
-  - name: s3cfg is unused delete it
+  - name: s3cfg is unused. delete it
     file:
       path: "{{ stage_dir }}/proxy-configs/s3cfg"
       state: absent
     when: not USE_S3 | bool
 
-  - name: copy s3cfg is unused delete it
+  - name: copy s3cfg
     copy:
       src: "{{ S3_CRED_FILE }}"
       dest: "{{ stage_dir }}/proxy-configs/s3cfg"
