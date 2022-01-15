@@ -1719,7 +1719,7 @@ sub mode_term_details {
       $self->{JS}->make_var('global_live_search_pins', $pins),
       $self->{JS}->make_var('global_label',
 			    $term_info_hash->{$input_term_id}{'name'}),
-      $self->{JS}->make_var('global_acc', $input_term_id)
+      $self->{JS}->make_var('global_acc', $input_term_id),
       $self->{JS}->make_var('global_default_relation', $default_relation)
      ],
      content =>
