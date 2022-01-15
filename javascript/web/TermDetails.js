@@ -40,6 +40,9 @@ var dlimit = defs.download_limit;
 // #620.
 //var default_closure_relation_set = 'regulates';
 var default_closure_relation_set = 'isa_partof';
+if( global_default_relation ){
+    default_closure_relation_set = global_default_relation;
+}
 
 // Take and element, look at it's contents, if it's above a certain
 // threshold, shrink with "more..." button, otherwise leave alone.
@@ -164,7 +167,7 @@ function _shrink_wrap(elt_id){
 }
 
 //
-function TermDetailsInit(relation){
+function TermDetailsInit(){
 
     // Logger.
     var logger = new bbop.logger();
@@ -174,7 +177,7 @@ function TermDetailsInit(relation){
     ll('');
     ll('TermDetails.js');
     ll('TermDetailsInit start...');
-    ll('Rel: ' + relation);
+    ll('Closure relation: ' + default_closure_relation_set);
 
     // // Use jQuery UI to tooltip-ify doc.
     // var tt_args = {'position': {'my': 'left bottom', 'at': 'right top'}};
@@ -234,7 +237,7 @@ function TermDetailsInit(relation){
 
     // Two sticky filters.
     gps.add_query_filter('document_category', 'annotation', ['*']);
-    gps.add_query_filter(relation + '_closure',
+    gps.add_query_filter(default_closure_relation_set + '_closure',
 			 global_acc, ['*']);
     //gps.add_query_filter('annotation_class', global_acc, ['*']);
     // TODO: And or this in as well.
@@ -327,7 +330,7 @@ function TermDetailsInit(relation){
 
 	man.set_personality('annotation');
 	man.add_query_filter('document_category', 'bioentity', ['*']);
-	man.add_query_filter(relation + '_closure',
+	man.add_query_filter(default_closure_relation_set + '_closure',
 			     global_acc);
 	var lstate = man.get_filter_query_string();
 	var lurl = linker.url(lstate, 'search', 'bioentity');
@@ -346,7 +349,7 @@ function TermDetailsInit(relation){
 
 	man.set_personality('annotation');
 	man.add_query_filter('document_category', 'annotation', ['*']);
-	man.add_query_filter(relation + '_closure',
+	man.add_query_filter(default_closure_relation_set + '_closure',
 			     global_acc);
 	var lstate = man.get_filter_query_string();
 	var lurl = linker.url(lstate, 'search', 'annotation');
@@ -365,7 +368,7 @@ function TermDetailsInit(relation){
 
 	man.set_personality('annotation');
 	man.add_query_filter('document_category', 'annotation', ['*']);
-	man.add_query_filter(relation + '_closure',
+	man.add_query_filter(default_closure_relation_set + '_closure',
 			     global_acc);
 	var dstate = man.get_download_url(defs.gaf_from_golr_fields, {
 	    'rows': dlimit,
@@ -438,10 +441,5 @@ function TermDetailsInit(relation){
 
 // Embed the jQuery setup runner.
 (function (){
-    jQuery(document).ready(function(){
-	if( global_default_relation ){
-	    default_closure_relation_set = global_default_relation;
-	}
-	TermDetailsInit(default_closure_relation_set);
-    });
+    jQuery(document).ready(function(){ TermDetailsInit(); });
 })();
