@@ -1421,10 +1421,11 @@ sub mode_term_details {
   my $input_term_id = $params->{cls};
   my $input_format = $params->{format} || 'html';
 
-  ## Get the standard default relation that we're going to be using.
+  ## Get the standard default relation that we're going to be
+  ## using. Default the default to 'isa_partof'.
   $params->{relation} = $self->param('relation')
     if ! $params->{relation} && $self->param('relation');
-  my $default_relation = $params->{relation};
+  my $default_relation = $params->{relation} || 'isa_partof';
 
   ## Optional RESTmark input for embedded search_pane--external
   ## version.

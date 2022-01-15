@@ -9,6 +9,7 @@
 /* global global_live_search_query */
 /* global global_live_search_filters */
 /* global global_live_search_pins */
+/* global global_default_relation */
 
 var us = require('underscore');
 var bbop = require('bbop-core');
@@ -39,6 +40,7 @@ var dlimit = defs.download_limit;
 // #620.
 //var default_closure_relation_set = 'regulates';
 var default_closure_relation_set = 'isa_partof';
+if
 
 // Take and element, look at it's contents, if it's above a certain
 // threshold, shrink with "more..." button, otherwise leave alone.
