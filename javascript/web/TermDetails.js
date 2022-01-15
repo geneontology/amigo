@@ -376,62 +376,6 @@ function TermDetailsInit(){
 	jQuery('#prob_ann_dl').removeClass('hidden');
     })();
 
-    // Get regulates bookmark for bioentities.
-    (function(){
-	// Ready bookmark.
-	var engine = new jquery_engine(golr_response);
-	engine.method('GET');
-	engine.use_jsonp(true);
-	var man = new golr_manager(gserv, gconf, engine, 'async');
-
-	man.set_personality('annotation');
-	man.add_query_filter('document_category', 'bioentity', ['*']);
-	man.add_query_filter('regulates_closure',
-			     global_acc);
-	var lstate = man.get_filter_query_string();
-	var lurl = linker.url(lstate, 'search', 'bioentity');
-	// Add it to the DOM.
-	jQuery('#prob_bio_reg_href').attr('href', lurl);
-    })();
-
-    // Get regulates bookmark for annotations.
-    (function(){
-	// Ready bookmark.
-	var engine = new jquery_engine(golr_response);
-	engine.method('GET');
-	engine.use_jsonp(true);
-	var man = new golr_manager(gserv, gconf, engine, 'async');
-
-	man.set_personality('annotation');
-	man.add_query_filter('document_category', 'annotation', ['*']);
-	man.add_query_filter('regulates_closure',
-			     global_acc);
-	var lstate = man.get_filter_query_string();
-	var lurl = linker.url(lstate, 'search', 'annotation');
-	// Add it to the DOM.
-	jQuery('#prob_ann_reg_href').attr('href', lurl);
-    })();
-
-    // Get regulates bookmark for annotation download.
-    (function(){
-	// Ready bookmark.
-	var engine = new jquery_engine(golr_response);
-	engine.method('GET');
-	engine.use_jsonp(true);
-	var man = new golr_manager(gserv, gconf, engine, 'async');
-
-	man.set_personality('annotation');
-	man.add_query_filter('document_category', 'annotation', ['*']);
-	man.add_query_filter('regulates_closure',
-			     global_acc);
-	var dstate = man.get_download_url(defs.gaf_from_golr_fields, {
-	    'rows': dlimit,
-	    'encapsulator': '',
-	    'golr_download_url': gserv_download
-	});
-	jQuery('#prob_ann_reg_dl_href').attr('href', dstate);
-    })();
-
     //
     ll('TermDetailsInit done.');
 }
