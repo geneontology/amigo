@@ -40,9 +40,6 @@ var dlimit = defs.download_limit;
 // #620.
 //var default_closure_relation_set = 'regulates';
 var default_closure_relation_set = 'isa_partof';
-if( global_default_relation ){
-    default_closure_relation_set = global_default_relation;
-}
 
 // Take and element, look at it's contents, if it's above a certain
 // threshold, shrink with "more..." button, otherwise leave alone.
@@ -440,5 +437,10 @@ function TermDetailsInit(){
 
 // Embed the jQuery setup runner.
 (function (){
-    jQuery(document).ready(function(){ TermDetailsInit(); });
+    jQuery(document).ready(function(){
+	if( global_default_relation ){
+	    default_closure_relation_set = global_default_relation;
+	}
+	TermDetailsInit();
+    });
 })();
