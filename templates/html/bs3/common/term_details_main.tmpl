@@ -170,15 +170,17 @@
 
     </dl>
 
+    [% IF DEFAULT_RELATION %]
     <div>
       [% IF DEFAULT_RELATION == 'regulates' %]
-      <a href="[% TERM_INFO.acc %]?relation=isa_partof" class="btn btn-primary">Exclude "regulates"</a>
+      <a href="/amigo/term/[% TERM_INFO.acc %]?relation=isa_partof" class="btn btn-primary">Exclude "regulates"</a>
       [% ELSIF DEFAULT_RELATION == 'isa_partof' %]
-      <a href="[% TERM_INFO.acc %]?relation=regulates" class="btn btn-primary"> Include "regulates"</a>
+      <a href="/amigo/term/[% TERM_INFO.acc %]?relation=regulates" class="btn btn-primary"> Include "regulates"</a>
       [% ELSE %]
       No default relation found.
       [% END %]
     </div>
+    [% END %]
 
   </div>
 </div>
