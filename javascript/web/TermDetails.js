@@ -164,7 +164,7 @@ function _shrink_wrap(elt_id){
 }
 
 //
-function TermDetailsInit(){
+function TermDetailsInit(relation){
 
     // Logger.
     var logger = new bbop.logger();
@@ -174,6 +174,7 @@ function TermDetailsInit(){
     ll('');
     ll('TermDetails.js');
     ll('TermDetailsInit start...');
+    ll('Rel: ' + relation);
 
     // // Use jQuery UI to tooltip-ify doc.
     // var tt_args = {'position': {'my': 'left bottom', 'at': 'right top'}};
@@ -233,7 +234,7 @@ function TermDetailsInit(){
 
     // Two sticky filters.
     gps.add_query_filter('document_category', 'annotation', ['*']);
-    gps.add_query_filter(default_closure_relation_set + '_closure',
+    gps.add_query_filter(relation + '_closure',
 			 global_acc, ['*']);
     //gps.add_query_filter('annotation_class', global_acc, ['*']);
     // TODO: And or this in as well.
@@ -326,7 +327,7 @@ function TermDetailsInit(){
 
 	man.set_personality('annotation');
 	man.add_query_filter('document_category', 'bioentity', ['*']);
-	man.add_query_filter(default_closure_relation_set + '_closure',
+	man.add_query_filter(relation + '_closure',
 			     global_acc);
 	var lstate = man.get_filter_query_string();
 	var lurl = linker.url(lstate, 'search', 'bioentity');
@@ -345,7 +346,7 @@ function TermDetailsInit(){
 
 	man.set_personality('annotation');
 	man.add_query_filter('document_category', 'annotation', ['*']);
-	man.add_query_filter(default_closure_relation_set + '_closure',
+	man.add_query_filter(relation + '_closure',
 			     global_acc);
 	var lstate = man.get_filter_query_string();
 	var lurl = linker.url(lstate, 'search', 'annotation');
@@ -364,7 +365,7 @@ function TermDetailsInit(){
 
 	man.set_personality('annotation');
 	man.add_query_filter('document_category', 'annotation', ['*']);
-	man.add_query_filter(default_closure_relation_set + '_closure',
+	man.add_query_filter(relation + '_closure',
 			     global_acc);
 	var dstate = man.get_download_url(defs.gaf_from_golr_fields, {
 	    'rows': dlimit,
@@ -441,6 +442,6 @@ function TermDetailsInit(){
 	if( global_default_relation ){
 	    default_closure_relation_set = global_default_relation;
 	}
-	TermDetailsInit();
+	TermDetailsInit(default_closure_relation_set);
     });
 })();
