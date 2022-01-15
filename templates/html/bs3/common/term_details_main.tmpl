@@ -170,6 +170,16 @@
 
     </dl>
 
+    <div>
+      [% IF DEFAULT_RELATION == 'regulates' %]
+      <a href="[% TERM_INFO.acc %]?relation=isa_partof">Exclude "regulates"</a>
+      [% ELSIF DEFAULT_RELATION == 'isa_partof' %]
+      <a href="[% TERM_INFO.acc %]?relation=regulates">Include "regulates"</a>
+      [% ELSE %]
+      No default relation found.
+      [% END %]
+    </div>
+
   </div>
 </div>
 <!-- END template: term_details_main.tmpl -->
