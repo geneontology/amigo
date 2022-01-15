@@ -88,6 +88,11 @@ sub input_profile {
     ## Public-facing bookmark API.
     $self->_link_search_bookmark_api();
 
+    ## Something hard-wired to all for switching the fundamental
+    ## relation for #634.
+    $self->_add_simple_argument('relation', 'isa_partof',
+				['isa_partof', 'regulates']);
+
   }elsif( $profile_name eq 'gp' ){
 
     ## REST API style bookmark for internal use and temporary

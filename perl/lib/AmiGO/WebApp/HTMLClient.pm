@@ -1421,6 +1421,11 @@ sub mode_term_details {
   my $input_term_id = $params->{cls};
   my $input_format = $params->{format} || 'html';
 
+  ## Get the standard default relation that we're going to be using.
+  $params->{relation} = $self->param('relation')
+    if ! $params->{relation} && $self->param('relation');
+  my $default_relation = $params->{relation};
+
   ## Optional RESTmark input for embedded search_pane--external
   ## version.
   my $query = $params->{q} || '';
@@ -1715,6 +1720,7 @@ sub mode_term_details {
       $self->{JS}->make_var('global_label',
 			    $term_info_hash->{$input_term_id}{'name'}),
       $self->{JS}->make_var('global_acc', $input_term_id)
+      $self->{JS}->make_var('global_default_relation', $default_relation)
      ],
      content =>
      [
