@@ -146,17 +146,18 @@
       <dt id="prob_related" class="hidden">Related</dt>
       <dd id="prob_bio" class="hidden">
 	<a id="prob_bio_href" href="#" class="btn btn-primary btn-xs">Link</a>
-	to all <strong>genes and gene products</strong> annotated to [% TERM_INFO.name %].
+	to all <strong>genes and gene products</strong> annotated to [% TERM_INFO.name %] [% IF DEFAULT_RELATION == 'regulates' %](including "regulates")[% ELSIF DEFAULT_RELATION == 'isa_partof' %](excluding "regulates")[% END %].
+
       </dd>
       <dd id="prob_ann" class="hidden">
 	<a id="prob_ann_href" href="#" class="btn btn-primary btn-xs">Link</a>
 	to all direct and indirect <strong>annotations</strong>
-	to [% TERM_INFO.name %].
+	to [% TERM_INFO.name %] [% IF DEFAULT_RELATION == 'regulates' %](including "regulates")[% ELSIF DEFAULT_RELATION == 'isa_partof' %](excluding "regulates")[% END %].
       </dd>
       <dd id="prob_ann_dl" class="hidden">
 	<a id="prob_ann_dl_href" href="#" class="btn btn-primary btn-xs">Link</a>
 	to all direct and indirect <strong>annotations download</strong> (limited to first 10,000)
-	for [% TERM_INFO.name %].
+	for [% TERM_INFO.name %] [% IF DEFAULT_RELATION == 'regulates' %](including "regulates")[% ELSIF DEFAULT_RELATION == 'isa_partof' %](excluding "regulates")[% END %].
       </dd>
 
       <!-- <\!-- -\-> -->
