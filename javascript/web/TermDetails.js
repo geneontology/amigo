@@ -235,7 +235,7 @@ function TermDetailsInit(){
     // Two sticky filters.
     gps.add_query_filter('document_category', 'annotation', ['*']);
     gps.add_query_filter(default_closure_relation_set + '_closure',
-			 global_acc, ['*']);
+			 global_acc);
     //gps.add_query_filter('annotation_class', global_acc, ['*']);
     // TODO: And or this in as well.
     //gps.add_query_filter('annotation_class', global_acc, ['*']);
