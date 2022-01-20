@@ -1,14 +1,3 @@
-// Search for eip by allocation_id
-// If found data.aws_eip.amigo_eip.public_ip will be the public ip.
-data "aws_eip" "amigo_eip" {
-  id = var.eip_alloc_id
-}
-
-resource "aws_eip_association" "eip_assoc" {
-  instance_id   = aws_instance.amigo_server.id
-  allocation_id = data.aws_eip.amigo_eip.id
-}
-
 resource "aws_instance" "amigo_server" {
   ami                    = var.ami
   instance_type          = var.instance_type
@@ -30,4 +19,14 @@ resource "aws_instance" "amigo_server" {
       tags,
     ]
   }
+}
+
+resource "aws_eip" "amigo_eip" {
+  vpc   = true
+  tags  = var.tags
+}
+
+resource "aws_eip_association" "eip_assoc" {
+  instance_id   = aws_instance.amigo_server.id
+  allocation_id = aws_eip.amigo_eip.id
 }

@@ -32,19 +32,6 @@ variable "private_key_path" {
 
 ```
 
-#### Elastic Ip
-
-Create elastic ip (VPC) and use its allocation_id aws/vars.tf
-
-Note: A default elastic ip has already been created for region us-east-1
-      It can be used if not associated to an instance.
-
-```sh
-variable eip_alloc_id {
-  default = "REPLACE_ME"
-}
-```
-
 #### DNS
 
 Need to create two Route53 records pointing to the elastic ip created above.
@@ -56,7 +43,7 @@ Replace variables AMIGO_DYNAMIC and AMIGO_PUBLIC_GOLR with the hostnames accordi
 Note: These values can also be passed using the -e option.
 
 
-#### Create AWS instance:
+#### Create AWS:
 
 Note: Terraform creates some folders and files to maintain the state.
       Once terraform is applied, you can see them using <i>ls -a aws</i>
