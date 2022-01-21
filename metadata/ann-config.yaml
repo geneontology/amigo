@@ -120,7 +120,7 @@ fields:
     property: []
     searchable: true
   - id: isa_partof_closure
-    description: "Annotations for this term or its children (over is_a/part_of)."
+    description: "Annotations for this term or its children (over is_a/part_of). When used to query bioentities, this corresponds to 'involved in' in RO"
     display_name: Involved in
     type: string
     cardinality: multi
@@ -133,13 +133,26 @@ fields:
     property: []
     searchable: true
   - id: regulates_closure
-    description: "Annotations for this term or its children (over regulates)."
+    description: "Annotations for this term or its children (over regulates, including isa/part-of). Note the field name is potentially confusing, as it includes cases where there are no actual regulates edges. When used to query bioentities, this corresponds to 'acts upstream of or within'"
     display_name: GO class
     type: string
     cardinality: multi
     property: []
   - id: regulates_closure_label
-    description: "Annotations for this term or its children (over regulates)."
+    description: "Annotations for this term or its children (over regulates, including isa/part-of)."
+    display_name: GO class
+    type: string
+    cardinality: multi
+    property: []
+    searchable: true
+  - id: regulates_strict_closure
+    description: "Annotations for this term or its children (over regulates, but not part-of). When used to query bioentities, this corresponds to 'involved in regulation of'"
+    display_name: GO class
+    type: string
+    cardinality: multi
+    property: []
+  - id: regulates_strict_closure_label
+    description: "Annotations for this term or its children (over regulates, but not part-of)."
     display_name: GO class
     type: string
     cardinality: multi
