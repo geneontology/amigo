@@ -194,6 +194,14 @@ fields:
       - "RO:0002215"
       - "RO:0002216"
     indexed: false
+  - id: isa_partof_transitivity_graph_json
+    description: "JSON blob form of the local relation transitivity graph."
+    display_name: Isa-partof transitivity graph (JSON)
+    type: string
+    property:
+      - "getLineageShuntGraphJSON"
+      - "BFO:0000050"
+    indexed: false
   - id: neighborhood_graph_json
     description: "JSON blob form of all immediate neighbors of the term."
     display_name: Term neighborhood graph (JSON)
