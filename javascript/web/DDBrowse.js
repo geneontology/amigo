@@ -230,10 +230,18 @@ function GetRootCountInformation(root_docs, filter_manager){
 	var acc = null;
 	var fqs = resp.parameter('fq');
 	us.each(fqs, function(fq){
-	    if( fq.substr(0, 17) === closure_name ){
-		acc = fq.substr(18, fq.length-1);
-		acc = bbop.dequote(acc);
-	    }
+            if( closure_name === 'regulates_closure'){
+                if( fq.substr(0, 17) === closure_name ){
+                    acc = fq.substr(18, fq.length-1);
+                    acc = bbop.dequote(acc);
+                }
+            }
+            if( closure_name === 'isa_partof_closure'){
+                if( fq.substr(0, 18) === closure_name ){
+                    acc = fq.substr(19, fq.length-1);
+                    acc = bbop.dequote(acc);
+                }
+            }
 	});
 
 	console.log('root accumulation action for: ' + acc);
