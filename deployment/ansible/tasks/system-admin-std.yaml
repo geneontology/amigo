@@ -1,4 +1,0 @@
----
-## Make sure the host is in sync time-wise.
-- name: add ntpdate cron to root
-  cron: name='keep the clock' minute=0 hour=0 job='/usr/sbin/ntpdate-debian -s pool.ntp.org'
