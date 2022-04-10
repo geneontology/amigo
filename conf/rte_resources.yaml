@@ -1,9 +1,0 @@
-####
-#### Known resources for RTE.
-####
-- id: PANTHER
-  label: PANTHER
-  description: ""
-  website: http://pantherdb.org
-  webservice: http://pantherdb.org/webservices/go/overrep.jsp
-  logo: logo_panther.jpg
