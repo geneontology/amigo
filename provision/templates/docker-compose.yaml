@@ -39,7 +39,7 @@ services:
   apache_amigo:
     hostname: apache_amigo
     container_name: apache_amigo
-    image: go-apache:{{ tag }}
+    image: {{ apache_proxy_image }}
     init: true
     restart: unless-stopped
     environment:

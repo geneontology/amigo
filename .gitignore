@@ -83,3 +83,6 @@ backend.tf
 go-ssh
 go-ssh.pub
 production-vars.txt
+config.yaml
+production-*.cfg
+production-*.tfvars.json

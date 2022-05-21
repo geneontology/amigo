@@ -8,6 +8,11 @@ tag: latest
 repo: https://github.com/geneontology/amigo.git
 repo_dir: '{{ stage_dir }}/amigo'
 
+#########
+# apache proxy image
+############
+apache_proxy_image: geneontology/apache-proxy:v1
+
 # If False download index otherwise create it
 CREATE_INDEX: False 
 

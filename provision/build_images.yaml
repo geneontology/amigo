@@ -13,6 +13,3 @@
 
   - name: build amigo image
     shell: "docker build -f {{ repo_dir }}/docker/Dockerfile -t 'amigo:{{ tag }}' {{ repo_dir }}"
-
-  - name: build proxy image
-    shell: "docker build -f {{ repo_dir }}/docker/Dockerfile.proxy -t 'go-apache:{{ tag }}' {{ repo_dir }}/docker"
