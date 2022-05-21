@@ -122,11 +122,14 @@ function MatrixUIInit(){
 	    var raw_text = jQuery('#input-terms').val();
 	    raw_text = raw_text.replace(/^\s+/,'');
 	    raw_text = raw_text.replace(/\s+$/,'');
+	    // Filter out/sanitize JS input; #647.
+            raw_text = raw_text.replace(/</g,'');
+            raw_text = raw_text.replace(/>/g,'');
 	    var term_accs = raw_text.split(/\s+/); // split on any ws
-	    
+
 	    // Unique-ify, take first in order.
 	    term_accs = us.uniq(term_accs);
-	    
+
 	    if( term_accs &&
 	        term_accs.length > 0 &&
 	        ! us.contains(term_accs, '') ){
@@ -137,7 +140,7 @@ function MatrixUIInit(){
 		jQuery('#progress-text').empty();
 		jQuery('#progress-bar').empty();
 		jQuery("#order-selector").hide();
-		
+
 		TermInfoStage(term_accs);
 
 	    }else{
@@ -158,7 +161,7 @@ function MatrixUIInit(){
 
     //stage_01(term_accs);
 
-    ll('Completed init!');    
+    ll('Completed init!');
 }
 
 // Get the information for the incoming terms, launch stage 02.
@@ -193,7 +196,7 @@ function TermInfoStage(term_accs){
 	    // Manager settings.
 	    var go = _new_manager();
 	    go.set_personality('ontology');
-	    
+
     	    // Set the next query and go.
     	    go.set_id(r);
     	    return go.search();
@@ -269,7 +272,7 @@ function TermDataStage(term_info, term_accs){
 
 	    var v = term_accs[v_i];
 	    var h = term_accs[h_i];
-	    
+
 	    mixed_pairs.push([v, h]);
 	}
     }
@@ -288,7 +291,7 @@ function TermDataStage(term_info, term_accs){
 	// naughty.
 	/* jshint ignore:start */
 	run_funs.push(function(){
-	    
+
 	    // Manager settings.
 	    var go = _new_manager();
 	    go.set_personality('bioentity');
@@ -296,7 +299,7 @@ function TermDataStage(term_info, term_accs){
 	    go.set_results_count(0); // we don't need any actual rows returned
 	    go.set_facet_limit(0); // don't need any actual facets returned
 	    //go.debug(false);
-	    
+
 	    // Stack on the filters from the filter box.
 	    us.each(filter_strs, function(fas){
 		go.add_query_filter_as_string(fas, []);
@@ -305,11 +308,11 @@ function TermDataStage(term_info, term_accs){
 	    // Set the next query.
 	    go.add_query_filter(closure_type, v);
 	    go.add_query_filter(closure_type, h);
-	    
+
 	    return go.search();
 	});
 	/* jshint ignore:end */
-	
+
 	request_count++;
     });
 
@@ -330,7 +333,7 @@ function TermDataStage(term_info, term_accs){
 	    go.set_results_count(0); // we don't need any actual rows returned
 	    go.set_facet_limit(0); // don't need any actual facets returned
 	    //go.debug(false);
-	    
+
 	    // Stack on the filters from the filter box.
 	    us.each(filter_strs, function(fas){
 		go.add_query_filter_as_string(fas, []);
@@ -338,11 +341,11 @@ function TermDataStage(term_info, term_accs){
 
     	    // Set the next query.
     	    go.add_query_filter(closure_type, r);
-	    
+
 	    return go.search();
 	});
 	/* jshint ignore:end */
-	
+
 	request_count++;
     });
 
@@ -360,7 +363,7 @@ function TermDataStage(term_info, term_accs){
     var max_count = 0;
     var requests_done = 0;
     // Fetch the data and grab the number we want.
-    var accumulator_fun = function(resp){	
+    var accumulator_fun = function(resp){
 
 	// Update the bar.
 	requests_done++;
@@ -383,7 +386,7 @@ function TermDataStage(term_info, term_accs){
 	var axes = [];
 	us.each(fprops, function(fval, fkey){
 	    axes.push(fkey);
-	});	
+	});
 	var axis1 = axes[0];
 	var axis2 = axes[1] || axis1; // the reflexive case
 
@@ -439,12 +442,12 @@ function TermDataStage(term_info, term_accs){
 		var li1 = sub + '_' + obj;
 		var li2 = obj + '_' + sub;
 		if( typeof(already_done_links[li1]) === 'undefined' ){
-		    
+
 		    // Add it to our done list. Either way
 		    // we'll catch it.
 		    already_done_links[li1] = true;
 		    already_done_links[li2] = true;
-		    
+
 		    // Push the new link data.
 		    var link = {
 			'source': term_info[sub]['index'],
@@ -507,7 +510,7 @@ function TermDataStage(term_info, term_accs){
 // 	    var name1 = id_to_name[key1];
 // 	    var name2 = id_to_name[key2];
 // 	    var val = val2;
-	    
+
 // 	    if( val !== 0 ){
 // 		anns.push({
 // 		    x: name2,
@@ -523,7 +526,7 @@ function TermDataStage(term_info, term_accs){
 // 	    }
 // 	});
 //     });
-    
+
 //     // Invariant layout data.
 //     var layout = {
 // 	title: 'Pair-wise co-annotation comparison',
@@ -586,7 +589,7 @@ function TermDataStage(term_info, term_accs){
 //     ///
 
 //     // Collect all extant color points.
-//     var values = [];    
+//     var values = [];
 //     us.each(collected_info.links, function(link){
 // 	values.push(link.value);
 //     });
@@ -612,7 +615,7 @@ function TermDataStage(term_info, term_accs){
 // 	    // 1-3 = pale green
 // 	    // 4-10 = yellow
 // 	    // 11-100 = orange
-// 	    // 101+ = red 
+// 	    // 101+ = red
 // 	    if( val <= 3 ){
 // 		//retval = '#79f853'; // green
 // 		retval = 'rgb(121,248,83)';
@@ -620,7 +623,7 @@ function TermDataStage(term_info, term_accs){
 // 		//retval = '#e8f129'; // yellow
 // 		retval = 'rgb(232,241,41)';
 // 	    }else if( val <= 100 ){
-// 		//retval = '#fd953b'; // orange		
+// 		//retval = '#fd953b'; // orange
 // 		retval = 'rgb(253,149,59)';
 // 	    }else{
 // 		//retval = '#ff4e53';
@@ -629,7 +632,7 @@ function TermDataStage(term_info, term_accs){
 // 	}
 // 	console.log('v2c: ', val + '->' + retval);
 // 	return retval;
-//     }    
+//     }
 //     us.each(values, function(cval, index){
 // 	step_colorscale.push([
 // 	    value_to_fold(cval),
@@ -644,7 +647,7 @@ function TermDataStage(term_info, term_accs){
 // 	// [0.2, 'rgb(254,224,210)'],
 // 	[1, 'rgb(255,0,0)']
 //     ];
-    
+
 //     // Decide our coloration live at this point.
 //     var colorscale_to_use = default_colorscale;
 //     var curr_color_selection = jQuery("input:radio[name=color]:checked").val();
@@ -674,7 +677,7 @@ function TermDataStage(term_info, term_accs){
 // 	var text_rows = [];
 
 // 	// Iterate over the mapped index, using the node order in data
-// 	// as the reference.	
+// 	// as the reference.
 // 	// Axis mapping.
 // 	us.each(new_order, function(mapped_index, true_index){
 
@@ -814,7 +817,7 @@ function TermDataStage(term_info, term_accs){
 // 	//     var infotext = data.points.map(function(d){
 // 	// 	return ('x= '+d.x+', y= '+d.y);
 // 	//     });
-	
+
 // 	//     hover_info.innerHTML = infotext.join('');
 // 	// })
 // 	// .on('plotly_unhover', function(data){
@@ -849,7 +852,7 @@ function RenderStage(data, max_count){
     // Total width.
     var width = 800;
     var height = 800;
-    
+
     var x = d3.scale.ordinal().rangeBands([0, width]);
     // var z = d3.scale.linear().domain([0, 4]).clamp(true);
     //var c = d3.scale.category10().domain(d3.range(10));
@@ -879,21 +882,21 @@ function RenderStage(data, max_count){
 	    // 1-3 = pale green
 	    // 4-10 = yellow
 	    // 11-100 = orange
-	    // 101+ = red 
+	    // 101+ = red
 	    if( val <= 3 ){
 		retval = '#79f853'; // green
 	    }else if( val <= 10 ){
 		//retval = '#f5ff2b'; // yellow
 		retval = '#e8f129'; // yellow
 	    }else if( val <= 100 ){
-		retval = '#fd953b'; // orange		
+		retval = '#fd953b'; // orange
 	    }else{
 		retval = '#ff4e53';
 	    }
 	}
 	return retval;
     }
-    
+
     // Decide our coloration live at this point.
     var value_to_color = value_to_color_dark; // default
     var curr_color_selection = jQuery("input:radio[name=color]:checked").val();
@@ -909,16 +912,16 @@ function RenderStage(data, max_count){
 	.style("margin-left", -margin.left + "px")
 	.append("g")
 	.attr("transform", "translate("+ margin.left +","+ margin.top +")");
-    
-    ///
-    /// Final data calculations. 
-    /// 
 
-    // 
+    ///
+    /// Final data calculations.
+    ///
+
+    //
     var matrix = [];
     var nodes = data.nodes;
     var n = nodes.length;
-    
+
     // Compute index per node.
     nodes.forEach(function(node, i) {
 	//node.index = i;
@@ -928,7 +931,7 @@ function RenderStage(data, max_count){
 		return {x: j, y: i, z: 0};
 	    });
     });
-    
+
     // TODO: Is this bit necessary?
     // Convert links to matrix; count character occurrences.
     data.links.forEach(function(link) {
@@ -945,14 +948,14 @@ function RenderStage(data, max_count){
     	nodes[link.source].count += link.value || 0;
     	nodes[link.target].count += link.value || 0;
     });
-    
+
     ll('Nodes: ' + bbop.dump(nodes));
     ll('Matrix: ' + bbop.dump(matrix));
 
     ///
     /// The ordering profiles.
     ///
-    
+
     // Precompute the orders.
     var orders = {
 	name: d3.range(n).sort(function(a, b) {
@@ -972,10 +975,10 @@ function RenderStage(data, max_count){
 	    return nodes[a].index - nodes[b].index;
 	})
     };
-    
+
     // The default sort order.
     x.domain(orders.index);
-    
+
     // Attach the off-color background.
     svg.append("rect")
 	//.attr("class", "background")
@@ -983,7 +986,7 @@ function RenderStage(data, max_count){
 	.attr("style", "fill: #ffffff;")
 	.attr("width", width)
 	.attr("height", height);
-    
+
     // For each of the row headers, translate them by a certain
     // amount, color, etc.
     var row = svg.selectAll(".row")
@@ -995,11 +998,11 @@ function RenderStage(data, max_count){
 	    return "translate(0," + x(i) + ")";
 	})
 	.each(row_fun);
-    
+
     // ???: Unfamiliar properties.
     row.append("line")
 	.attr("x2", width);
-    
+
     // Add row header text.
     row.append("text")
 	.attr("x", -6)
@@ -1009,7 +1012,7 @@ function RenderStage(data, max_count){
 	.text(function(d, i) {
 	    return nodes[i].name + ' (' + nodes[i].id + ')';
 	});
-    
+
     // For each of the column headers, translate them by a certain
     // amount, color, etc.
     var column = svg.selectAll(".column")
@@ -1020,11 +1023,11 @@ function RenderStage(data, max_count){
 	.attr("transform", function(d, i) {
 	    return "translate(" + x(i) + ")rotate(-90)";
 	});
-    
+
     // ???: Unfamiliar properties.
     column.append("line")
     	.attr("x1", -width);
-    
+
     // Add column header text.
     column.append("text")
 	.attr("x", 6)
@@ -1039,20 +1042,20 @@ function RenderStage(data, max_count){
     // Using jQuery so we get a continuous event stream (necessary for
     // proper hover following).
     jQuery(document).mousemove(function(event) {
-	
+
 	if( jQuery("#info").is(":visible") ){
-	    
+
 	    var pre_x = event.pageX;
 	    var pre_y = event.pageY;
-	    
+
 	    var xpos = pre_x + 10;
 	    var ypos = pre_y + 10;
-	    
+
 	    jQuery("#info").css('left', xpos);
 	    jQuery("#info").css('top', ypos);
 	}
     });
-    
+
     function mouseover(p) {
 
 	// Grab the shared bioentity count value.
@@ -1087,7 +1090,7 @@ function RenderStage(data, max_count){
 	// 					 return i == p.x;
 	// 				     });
     }
-    
+
     function mouseout(p) {
 
 	// First, get rid of the old info box.
@@ -1151,8 +1154,8 @@ function RenderStage(data, max_count){
 	widgets.display.dialog(kick.join(' '), {title: 'Cell information',
 						width: 500});
     }
-    
-    // Working:    
+
+    // Working:
     //  function row_fun(in_row) {
     // 	var cell = d3.select(this).selectAll(".cell")
     // 	    // .data(in_row.filter(
@@ -1193,7 +1196,7 @@ function RenderStage(data, max_count){
     // 	    .on("mouseover", mouseover)
     // 	    .on("mouseout", mouseout);
     // }
-    
+
     function row_fun(in_row) {
 
 	// Create container cells.
@@ -1228,7 +1231,7 @@ function RenderStage(data, max_count){
 		      //ll('out: ' + fs_len + ', ' + cw);
 		      if( fs_len > 1 && (cw / 10.0) < fs_len ){
 			  var tmp_size = (cw / 10.0) / (fs_len * 1.0);
-			  text_scale = 
+			  text_scale =
 			      Math.floor(text_scale * tmp_size);
 			  matrix[d.x][d.y].font_size = text_scale;
 		      }
@@ -1274,15 +1277,15 @@ function RenderStage(data, max_count){
 	    .on("click", clickcell);
 
     }
-    
+
     function order(value) {
 
 	ll('Reordering: ' + value);
 
 	x.domain(orders[value]);
-	
+
 	var t = svg.transition().duration(2500);
-	
+
 	t.selectAll(".row")
 	    .delay(function(d, i) { return x(i) * 4; })
 	    .attr("transform", function(d, i) {
@@ -1291,19 +1294,19 @@ function RenderStage(data, max_count){
 	    .selectAll(".cell")
 	    .delay(function(d) { return x(d.x) * 4; })
 	    .attr("x", function(d) { return x(d.x); });
-	
+
 	t.selectAll(".column")
 	    .delay(function(d, i) { return x(i) * 4; })
 	    .attr("transform", function(d, i) {
 		return "translate(" + x(i) + ")rotate(-90)";
 	    });
     }
-    
+
     d3.select("#order").on("change", function() {
 	//clearTimeout(timeout);
 	order(this.value);
     });
-    
+
     // var timeout = setTimeout(
     //     function() {
     // 	order("source");
@@ -1318,7 +1321,7 @@ function RenderStage(data, max_count){
 
     ///
     /// End the section from the example.
-    ///	
+    ///
     ll('Completed RenderStage!');
     ll('Done!');
 }

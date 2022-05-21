@@ -7,9 +7,9 @@ description: Associations between GO terms and genes or gene products.
 display_name: Annotations
 document_category: annotation
 weight: 20
-boost_weights: annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 bioentity_name^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 reference^1.0 panther_family^1.0 panther_family_label^1.0 bioentity_isoform^1.0 regulates_closure^1.0 regulates_closure_label^1.0
+boost_weights: annotation_class^2.0 annotation_class_label^1.0 bioentity^2.0 bioentity_label^1.0 bioentity_name^1.0 annotation_extension_class^2.0 annotation_extension_class_label^1.0 reference^1.0 panther_family^1.0 panther_family_label^1.0 bioentity_isoform^1.0 isa_partof_closure^1.0 isa_partof_closure_label^1.0
 result_weights: bioentity^7.0 bioentity_name^6.0 qualifier^5.0 annotation_class^4.7 annotation_extension_json^4.5 assigned_by^4.0 taxon^3.0 evidence_type^2.5 evidence_with^2.0 panther_family^1.5 type^1.0 bioentity_isoform^0.5 reference^0.25 date^0.10
-filter_weights: aspect^10.0 taxon_subset_closure_label^9.0 type^8.5 evidence_subset_closure_label^8.0 regulates_closure_label^7.0 annotation_class_label^6.0 qualifier^5.0 annotation_extension_class_closure_label^4.0 assigned_by^3.0 panther_family_label^2.0
+filter_weights: aspect^10.0 taxon_subset_closure_label^9.0 type^8.5 evidence_subset_closure_label^8.0 regulates_closure_label^7.5 isa_partof_closure_label^7.0 annotation_class_label^6.0 qualifier^5.0 annotation_extension_class_closure_label^4.0 assigned_by^3.0 panther_family_label^2.0
 fields:
   - id: id
     description: A unique (and internal) combination of bioentity and ontology class.
@@ -119,28 +119,28 @@ fields:
     cardinality: multi
     property: []
     searchable: true
-  - id: isa_partof_closure
-    description: "Annotations for this term or its children (over is_a/part_of)."
-    display_name: Involved in
-    type: string
-    cardinality: multi
-    property: []
-  - id: isa_partof_closure_label
-    description: "Annotations for this term or its children (over is_a/part_of)."
-    display_name: Involved in
-    type: string
-    cardinality: multi
-    property: []
-    searchable: true
   - id: regulates_closure
     description: "Annotations for this term or its children (over regulates)."
-    display_name: GO class
+    display_name: GO class (including "regulates")
     type: string
     cardinality: multi
     property: []
   - id: regulates_closure_label
     description: "Annotations for this term or its children (over regulates)."
-    display_name: GO class
+    display_name: GO class (including "regulates")
+    type: string
+    cardinality: multi
+    property: []
+    searchable: true
+  - id: isa_partof_closure
+    description: "Annotations for this term or its children (over is_a/part_of)."
+    display_name: GO class (excluding "regulates")
+    type: string
+    cardinality: multi
+    property: []
+  - id: isa_partof_closure_label
+    description: "Annotations for this term or its children (over is_a/part_of)."
+    display_name: GO class (excluding "regulates")
     type: string
     cardinality: multi
     property: []
