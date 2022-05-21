@@ -77,3 +77,9 @@ stage_dir
 .terraform.lock.hcl
 terraform.tfstate
 terraform.tfstate.backup
+
+s3cfg
+backend.tf
+go-ssh
+go-ssh.pub
+production-vars.txt
