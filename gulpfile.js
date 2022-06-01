@@ -270,6 +270,8 @@ var web_compilables = [
     // 'ReferenceDetails.js'    // current working set
     // 'AmiGOOntView.js'    // current working set
     ///
+    'AReactThing.js',
+    'AWebComponentThing.js',
     'AmiGOBioView.js',
     'AmiGOCytoView.js',
     'AmiGOOntView.js',
@@ -302,32 +304,58 @@ function _client_compile_task(file) {
     var infile = amigo_js_dev_path + '/' +file;
     //var outfile = amigo_js_out_path + '/' +file;
 
-    var b = browserify(infile);
-    return b
-    // not in npm, don't need in browser
-	.exclude('ringo/httpclient')
-	.bundle()
-    // desired output filename to vinyl-source-stream
-	.pipe(source(file))
-	.pipe(gulp.dest(amigo_js_out_path));
+    return new Promise(function (resolve, reject) {
+        var b = browserify(infile);
+        return b
+        // not in npm, don't need in browser
+        .exclude('ringo/httpclient')
+        .transform('babelify', { 
+            presets: ["@babel/preset-env", "@babel/preset-react"],
+            // @ui5/webcomponents and some of its dependencies are only distributed as ES6 modules.
+            // That means that we need babelify to transform them (even though they're not our
+            // code) before they get to browserify. See: 
+            // https://github.com/babel/babelify#why-arent-files-in-node_modules-being-transformed
+            global: true,
+            ignore: [/\/node_modules\/(?!@ui5|lit-html\/)/]
+        })
+        .transform('browserify-css', {
+            global: true,
+            ignore: [/\/node_modules\/(?!react-date-picker\/)/]
+        })
+        .bundle()
+        .on('error', function (err) {
+            console.log('Error while bundling ' + infile);
+            console.log(err);
+            reject(err)
+        })
+        // desired output filename to vinyl-source-stream
+        .pipe(source(file))
+        .pipe(gulp.dest(amigo_js_out_path))
+        .on('finish', function () {
+            console.log('Finished bundling ' + file);
+            resolve();
+        })
+    });
 }
 
 // Compile all JS used in AmiGO and move it to the staging/deployment
 // directory.
-gulp.task('compile', ['build'], function(cb){
-    us.each(web_compilables, function(file){
-	_client_compile_task(file);
-    });
-    cb(null);
+gulp.task('compile', ['build'], function(){
+    return Promise.all(
+        us.map(web_compilables, function(file){
+            return _client_compile_task(file);
+        })
+    );
 });
 
 // A version of compile that does not care about build--for rapid JS
 // development.
-gulp.task('compile-js-dev', function(cb){
-    us.each(web_compilables, function(file){
-	_client_compile_task(file);
-    });
-    cb(null);
+gulp.task('compile-js-dev', function(){
+    return Promise.all(
+        us.map(web_compilables, function(file){
+	        return _client_compile_task(file);
+        })
+    );
 });
 
 // Correctly build/deploy/roll out files into working AmiGO

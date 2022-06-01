@@ -22,6 +22,7 @@
     "npm": ">= 5.6.0"
   },
   "dependencies": {
+    "@ui5/webcomponents": "^1.4.0",
     "bbop": "2.4.3",
     "bbop-core": "0.0.5",
     "bbop-graph": "0.0.19",
@@ -53,6 +54,9 @@
     "mustache": "2.3.0",
     "plotly.js": "1.35.2",
     "pup-tent": "0.9.10",
+    "react": "^18.1.0",
+    "react-date-picker": "^8.4.0",
+    "react-dom": "^18.1.0",
     "request": "2.85.0",
     "solr-client": "0.7.0",
     "time": "0.12.0",
@@ -61,8 +65,13 @@
     "yamljs": "0.3.0"
   },
   "devDependencies": {
-    "browserify-shim": "^3.8.6",
+    "@babel/core": "^7.18.2",
+    "@babel/preset-env": "^7.18.2",
+    "@babel/preset-react": "^7.17.12",
+    "babelify": "^10.0.0",
     "browserify": "^16.1.1",
+    "browserify-css": "^0.15.0",
+    "browserify-shim": "^3.8.6",
     "chai": "^4.1.2",
     "gulp-bump": "^3.1.0",
     "gulp-develop-server": "0.5.2",

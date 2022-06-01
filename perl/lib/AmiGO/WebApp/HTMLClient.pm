@@ -1858,6 +1858,8 @@ sub mode_gene_product_details {
      ],
      javascript =>
      [
+      $self->{JS}->get_lib('AReactThing.js'),
+      $self->{JS}->get_lib('AWebComponentThing.js'),
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
       $self->{JS}->get_lib('GPDetails.js'),
       # $self->{JS}->make_var('global_count_data', $gpc_info),
