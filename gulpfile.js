@@ -316,7 +316,7 @@ function _client_compile_task(file) {
             // code) before they get to browserify. See: 
             // https://github.com/babel/babelify#why-arent-files-in-node_modules-being-transformed
             global: true,
-            ignore: [/\/node_modules\/(?!@ui5|lit-html\/)/]
+            ignore: [/\/node_modules\/(?!@ui5|lit-html|@geneontology|@stencil\/)/]
         })
         .transform('browserify-css', {
             global: true,

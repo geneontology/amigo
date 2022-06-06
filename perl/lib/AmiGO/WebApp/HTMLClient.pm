@@ -1865,6 +1865,7 @@ sub mode_gene_product_details {
       # $self->{JS}->make_var('global_count_data', $gpc_info),
       # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
       # $self->{JS}->make_var('global_acc_to_rand', $acc_to_rand),
+      $self->{JS}->make_var('global_gocam_id', '568b0f9600000284'),
       $self->{JS}->make_var('global_live_search_query', $query),
       $self->{JS}->make_var('global_live_search_filters', $filters),
       $self->{JS}->make_var('global_live_search_pins', $pins),

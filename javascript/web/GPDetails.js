@@ -15,6 +15,9 @@ var bbop = require('bbop-core');
 var widgets = require('bbop-widget-set');
 var html = widgets.html;
 
+var goCamViz = require('@geneontology/wc-gocam-viz/dist/custom-elements');
+goCamViz.defineCustomElements();
+
 // Config.
 var amigo = new (require('amigo2-instance-data'))(); // no overload
 var golr_conf = require('golr-conf');
@@ -211,5 +214,21 @@ function GPDetailsInit(){
 
 // Embed the jQuery setup runner.
 (function (){
-    jQuery(document).ready(function(){ GPDetailsInit(); });
+    jQuery(document).ready(function(){ 
+        GPDetailsInit(); 
+    
+        jQuery('#gocam-viz-wrapper').html(`
+            <wc-gocam-viz 
+                id="gocam-1"
+                gocam-id="${global_gocam_id}"
+                show-go-cam-selector=true
+                show-has-input=false
+                show-has-output=false
+                show-gene-product=true
+                show-activity=false
+                show-legend=false
+            >
+            </wc-gocam-viz>
+        `)
+    });
 })();
