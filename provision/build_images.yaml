@@ -12,4 +12,5 @@
      force: yes
 
   - name: build amigo image
-    shell: "docker build -f {{ repo_dir }}/docker/Dockerfile -t 'amigo:{{ tag }}' {{ repo_dir }}"
+    shell: "docker build -f {{ repo_dir }}/docker/Dockerfile -t '{{ amigo_image }}' {{ repo_dir }}"
+    when: not PROD_MODE | bool

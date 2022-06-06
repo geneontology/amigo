@@ -3,7 +3,7 @@ services:
   golr:
     hostname: golr 
     container_name: golr 
-    image: amigo:{{ tag }}
+    image: {{ amigo_image }}
     init: true
     environment:
       - GOLR=1
@@ -18,7 +18,7 @@ services:
   amigo:
     hostname: amigo
     container_name: amigo
-    image: amigo:{{ tag }}
+    image: {{ amigo_image }}
     init: true
     environment:
       - GOLR=0

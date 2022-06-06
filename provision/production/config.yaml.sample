@@ -10,8 +10,10 @@ instance:
 
 stack:
    vars:
+      PROD_MODE: 1
       S3_CRED_FILE: /Users/SOME_USER/S3/s3cfg
       S3_BUCKET: REPLACE_ME 
+      amigo_image: geneontology/amigo-base:V1
       apache_proxy_image: geneontology/apache-proxy:v1
       golr_index_archive_url: http://current.geneontology.org/products/solr/golr-index-contents.tgz
       golr_timestamp: http://current.geneontology.org/products/solr/golr_timestamp.log
