@@ -1669,7 +1669,8 @@ sub mode_generic_message {
 ## Catching mode errors through fatal.
 sub mode_exception {
   my $self = shift;
-  my $intended_runmode = shift;
+  my $intended_runmode = shift || '';
+  $intended_runmode = $self->{OUTPUT_SANITIZER}->encode($intended_runmode);
   return $self->mode_fatal("Looking for run mode \"$intended_runmode\", but found no such method.");
 }
 
