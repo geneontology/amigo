@@ -118,6 +118,9 @@
       - { file: 'httpd-vhosts-golr.conf', dir: '/proxy-configs' }
       - { file: 'java-golr-monit', dir: '/golr-configs' }
       - { file: 'console-capture-golr.xml', dir: '/golr-configs' }
+      - { file: 'docker-compose-production.yaml', dir: '/' }
+      - { file: 'httpd-vhosts-amigo-ssl.conf', dir: '/proxy-configs' }
+      - { file: 'httpd-vhosts-golr-ssl.conf', dir: '/proxy-configs' }
 
   - name: s3cfg is unused. delete it
     file:
@@ -130,3 +133,11 @@
       src: "{{ S3_CRED_FILE }}"
       dest: "{{ stage_dir }}/proxy-configs/s3cfg"
     when: USE_S3 | bool
+
+  - name: Checkout repos
+    git:
+     repo: '{{ repo }}'
+     dest: '{{ repo_dir }}'
+     version: '{{ branch }}'
+     force: no 
+    when: PROD_MODE | bool

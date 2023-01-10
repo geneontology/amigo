@@ -1,0 +1,63 @@
+version: '3.7'
+services:
+  golr:
+    hostname: golr 
+    container_name: golr 
+    image: {{ amigo_image }}
+    init: true
+    environment:
+      - GOLR=1
+      - AMIGO=0
+    volumes:
+      - {{ stage_dir }}/golr-configs/java-golr-monit:/etc/monit/conf-enabled/java
+      - {{ stage_dir }}/golr-configs/console-capture-golr.xml:/etc/jetty9/console-capture.xml
+      - {{ stage_dir }}/srv-solr-data:/srv/solr/data
+      - {{ stage_dir }}/golr_logs:/var/log
+    restart: unless-stopped
+
+  amigo:
+    hostname: amigo
+    container_name: amigo
+    image: {{ amigo_image }}
+    init: true
+    environment:
+      - GOLR=0
+      - AMIGO=1
+    volumes:
+      - {{ repo_dir }}:/srv/amigo
+      - {{ stage_dir }}/amigo_working_path:/tmp
+      - {{ stage_dir }}/golr_timestamp.log:/tmp/golr_timestamp.log
+      - {{ stage_dir }}/release-archive-doi.json:/tmp/release-archive-doi.json
+      - {{ stage_dir }}/amigo-configs/amigo.yaml:/srv/amigo/conf/amigo.yaml.orig
+      - {{ stage_dir }}/amigo-configs/001-inline-amigo.conf:/etc/apache2/sites-available/001-inline-amigo.conf
+      - {{ stage_dir }}/amigo-configs/apache2.ports.conf:/etc/apache2/ports.conf
+      - {{ stage_dir }}/apache_amigo_logs:/var/log/apache2
+    restart: unless-stopped
+    depends_on:
+      - golr 
+
+  apache_amigo:
+    hostname: apache_amigo
+    container_name: apache_amigo
+    image: {{ apache_proxy_image }}
+    init: true
+    restart: unless-stopped
+    environment:
+      - USE_S3={{ USE_S3 }}
+      - S3_PATH={{ S3_PATH }}
+      - S3_BUCKET={{ S3_BUCKET }}
+      - S3_SSL_CERTS_LOCATION={{ S3_SSL_CERTS_LOCATION }}
+    volumes:
+      - {{ stage_dir }}/proxy-configs/httpd-vhosts-amigo-ssl.conf:/etc/apache2/sites-enabled/httpd-vhosts-amigo-ssl.conf
+      - {{ stage_dir }}/proxy-configs/httpd-vhosts-golr-ssl.conf:/etc/apache2/sites-enabled/httpd-vhosts-golr-ssl.conf
+      - {{ stage_dir }}/proxy-configs/httpd-vhosts-amigo.conf:/etc/apache2/sites-enabled/httpd-vhosts-amigo.conf
+      - {{ stage_dir }}/proxy-configs/httpd-vhosts-golr.conf:/etc/apache2/sites-enabled/httpd-vhosts-golr.conf
+      - {{ stage_dir }}/apache_proxy_logs:/var/log/apache2
+      - {{ stage_dir }}/credentials:/opt/credentials
+      - {{ stage_dir }}/proxy-configs/s3cfg:/root/.aws/config
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - golr 
+      - amigo

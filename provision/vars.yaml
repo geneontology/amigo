@@ -43,6 +43,8 @@ USE_S3: 1
 S3_PATH: amigo 
 S3_CRED_FILE: REPLACE_ME
 S3_BUCKET: REPLACE_ME
+S3_SSL_CERTS_LOCATION: REPLACE_ME
+
 
 ########
 # For golr monit and jetty.  
