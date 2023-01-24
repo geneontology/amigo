@@ -4,14 +4,14 @@
 
   tasks:
   - name: Create and start services
-    shell: nohup docker-compose -f {{ stage_dir }}/docker-compose.yaml up -d
+    shell: nohup docker compose -f {{ stage_dir }}/docker-compose.yaml up -d
     register: output
     args:
       executable: /bin/bash
 
   - name: Check status
     shell: |
-           docker-compose -f {{ stage_dir }}/docker-compose.yaml ps
+           docker compose -f {{ stage_dir }}/docker-compose.yaml ps
     register: output 
     args:
       executable: /bin/bash
