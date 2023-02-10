@@ -4,9 +4,18 @@
 ##############
 stage_dir: "{{ lookup('env', 'PWD') }}/stage_dir"
 branch: master
-tag: latest
 repo: https://github.com/geneontology/amigo.git
 repo_dir: '{{ stage_dir }}/amigo'
+
+########
+# IN PROD MODE we do not mount the repo directory
+PROD_MODE: 0 
+
+#########
+# apache proxy image
+############
+amigo_image: go-amigo:latest
+apache_proxy_image: geneontology/apache-proxy:v1
 
 # If False download index otherwise create it
 CREATE_INDEX: False 
@@ -34,6 +43,8 @@ USE_S3: 1
 S3_PATH: amigo 
 S3_CRED_FILE: REPLACE_ME
 S3_BUCKET: REPLACE_ME
+S3_SSL_CERTS_LOCATION: REPLACE_ME
+
 
 ########
 # For golr monit and jetty.  

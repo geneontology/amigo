@@ -1,32 +1,46 @@
-resource "aws_instance" "amigo_server" {
-  ami                    = var.ami
-  instance_type          = var.instance_type
-  vpc_security_group_ids = [aws_security_group.amigo_sg.id]
-  subnet_id              = aws_subnet.amigo_app_stack_public_subnet.id
-  key_name               = aws_key_pair.ssh_key.key_name
-  tags                   = var.tags
-
-  ebs_block_device {
-    device_name           = "/dev/sda1"
-    delete_on_termination = true
-    tags                  = var.tags
-    volume_size           = var.disk_size
-  }
-
-  lifecycle {
-    ignore_changes = [
-      ebs_block_device,
-      tags,
-    ]
-  }
+variable "tags" {
+  type = map
+  default = { Name = "test-amigo" }
 }
 
-resource "aws_eip" "amigo_eip" {
-  vpc   = true
-  tags  = var.tags
+variable "instance_type" {
+  default = "t2.large"
 }
 
-resource "aws_eip_association" "eip_assoc" {
-  instance_id   = aws_instance.amigo_server.id
-  allocation_id = aws_eip.amigo_eip.id
+variable "disk_size" {
+  default = 200
+}
+
+variable "public_key_path" {
+  default = "/tmp/go-ssh.pub"
+}
+
+provider "aws" {
+  region = "us-east-1"
+  shared_credentials_files = [ "/tmp/go-aws-credentials" ]
+  profile = "default"
+}
+
+variable "open_ports" {
+  type = list
+  default = [22, 80]
+}
+
+// custom ubuntu jammy ami with docker, docker-compose, aws, python, pip installed
+variable "ami" {
+  default = "ami-019eb5c97ad39d701"
+}
+
+module "base" {
+  source = "git::https://github.com/geneontology/devops-aws-go-instance.git?ref=V2.0"
+  instance_type = var.instance_type
+  ami = var.ami
+  public_key_path = var.public_key_path
+  tags = var.tags
+  open_ports = var.open_ports
+  disk_size = var.disk_size
+}
+
+output "public_ip" {
+   value                  = module.base.public_ip
 }

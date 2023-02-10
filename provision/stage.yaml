@@ -105,19 +105,39 @@
       - golr-configs
       - amigo-configs
 
-  - name: install docker-compose.yaml and http configs ...
+  - name: install non production docker-compose.yaml and http configs ...
     template:
       src: 'templates/{{ item.file }}'
-      dest: '{{ stage_dir }}{{ item.dir }}/{{ item.file }}'
+      dest: '{{ stage_dir }}{{ item.dest }}'
     with_items:
-      - { file: 'docker-compose.yaml', dir: '/' }
-      - { file: 'amigo.yaml', dir: '/amigo-configs' }
-      - { file: '001-inline-amigo.conf', dir: '/amigo-configs' }
-      - { file: 'apache2.ports.conf', dir: '/amigo-configs' }
-      - { file: 'httpd-vhosts-amigo.conf', dir: '/proxy-configs' }
-      - { file: 'httpd-vhosts-golr.conf', dir: '/proxy-configs' }
-      - { file: 'java-golr-monit', dir: '/golr-configs' }
-      - { file: 'console-capture-golr.xml', dir: '/golr-configs' }
+      - { file: 'docker-compose.yaml', dest: '/' }
+      - { file: 'amigo.yaml', dest: '/amigo-configs' }
+      - { file: '001-inline-amigo.conf', dest: '/amigo-configs' }
+      - { file: 'apache2.ports.conf', dest: '/amigo-configs' }
+      - { file: 'httpd-vhosts-amigo.conf', dest: '/proxy-configs' }
+      - { file: 'httpd-vhosts-golr.conf', dest: '/proxy-configs' }
+      - { file: 'java-golr-monit', dest: '/golr-configs' }
+      - { file: 'console-capture-golr.xml', dest: '/golr-configs' }
+      - { file: 'httpd-vhosts-amigo-ssl.conf', dest: '/proxy-configs' }
+      - { file: 'httpd-vhosts-golr-ssl.conf', dest: '/proxy-configs' }
+    when: not PROD_MODE | bool
+
+  - name: install production docker-compose.yaml and http configs ...
+    template:
+      src: 'templates/{{ item.file }}'
+      dest: '{{ stage_dir }}{{ item.dest }}'
+    with_items:
+      - { file: 'amigo.yaml', dest: '/amigo-configs' }
+      - { file: '001-inline-amigo.conf', dest: '/amigo-configs' }
+      - { file: 'apache2.ports.conf', dest: '/amigo-configs' }
+      - { file: 'httpd-vhosts-amigo.conf', dest: '/proxy-configs' }
+      - { file: 'httpd-vhosts-golr.conf', dest: '/proxy-configs' }
+      - { file: 'java-golr-monit', dest: '/golr-configs' }
+      - { file: 'console-capture-golr.xml', dest: '/golr-configs' }
+      - { file: 'docker-compose-production.yaml', dest: '/docker-compose.yaml' }
+      - { file: 'httpd-vhosts-amigo-ssl.conf', dest: '/proxy-configs' }
+      - { file: 'httpd-vhosts-golr-ssl.conf', dest: '/proxy-configs' }
+    when: PROD_MODE | bool
 
   - name: s3cfg is unused. delete it
     file:
@@ -130,3 +150,11 @@
       src: "{{ S3_CRED_FILE }}"
       dest: "{{ stage_dir }}/proxy-configs/s3cfg"
     when: USE_S3 | bool
+
+  - name: Checkout repos
+    git:
+     repo: '{{ repo }}'
+     dest: '{{ repo_dir }}'
+     version: '{{ branch }}'
+     force: no 
+    when: PROD_MODE | bool
