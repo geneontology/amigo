@@ -1,0 +1,23 @@
+---
+###############
+# download ssl certs
+################
+USE_QOS: 1 
+
+# Maximum number of clients that mod_qos can track at any one time (not itself a limit on maximum clients allowed).
+QS_ClientEntries: 200000
+
+# Maximum number of connections allowed per IP, to server across all virtual hosts
+QS_SrvMaxConnPerIP: 20
+
+# Maximum requests allowed to / per second, per IP address
+QS_ClientEventPerSecLimit: 10
+
+# Maximum concurrent requests allowed per IP address
+QS_ClientEventRequestLimit: 10
+
+# Maximum requests allowed to / per ip address, per x seconds (number of requests, number of seconds)
+QS_ClientEventBlockCount: "350 300"
+
+# IP addresses excluded from request limits (office IP address) seperated by blank space.
+QS_ClientEventBlockExcludeIP: "9.9.9.9 8.8.8.8"

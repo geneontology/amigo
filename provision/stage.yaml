@@ -3,6 +3,7 @@
   - timestamp: "{{ ansible_date_time.iso8601_basic }}"
   vars_files:
   - vars.yaml
+  - qos-vars.yaml
 
   tasks:
   - name: Check if index archive exists
@@ -151,10 +152,34 @@
       dest: "{{ stage_dir }}/proxy-configs/s3cfg"
     when: USE_S3 | bool
 
+  - name: install qos config from templates directory
+    template:
+      src: qos.conf
+      dest: '{{ stage_dir }}/qos.conf'
+    when: USE_QOS | bool
+
+  - name: copy noop qos.conf
+    copy:
+      src: "files/qos-noop.conf"
+      dest: '{{ stage_dir }}/qos.conf'
+    when: not USE_QOS | bool
+
+  - name: copy robots.txt
+    copy:
+      src: "files/robots.txt"
+      dest: "{{ stage_dir }}/robots.txt"
+
+  - name: Check if index archive exists
+    stat:
+      path: '{{ repo_dir }}'
+    register: repo_dir_result
+
   - name: Checkout repos
     git:
      repo: '{{ repo }}'
      dest: '{{ repo_dir }}'
      version: '{{ branch }}'
      force: no 
-    when: PROD_MODE | bool
+    when: 
+      - PROD_MODE | bool 
+      - not repo_dir_result.stat.exists

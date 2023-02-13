@@ -15,6 +15,10 @@ stack:
       USE_SSL: 1
       S3_SSL_CERTS_LOCATION: s3://REPLACE_ME_CERT_BUCKET/REPLACE_ME_DOMAIN.tar.gz
 
+      USE_QOS: 1
+      QS_ClientEventBlockCount: "350 300"
+      QS_ClientEventBlockExcludeIP: "9.9.9.9"
+
 
       #golr_index_archive_url: http://skyhook.berkeleybop.org/issue-35-neo-test/products/solr/golr-index-contents.tgz
       golr_index_archive_url: http://current.geneontology.org/products/solr/golr-index-contents.tgz

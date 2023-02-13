@@ -55,6 +55,8 @@ services:
       - {{ stage_dir }}/apache_proxy_logs:/var/log/apache2
       - {{ stage_dir }}/credentials:/opt/credentials
       - {{ stage_dir }}/proxy-configs/s3cfg:/root/.aws/config
+      - {{ stage_dir }}/qos.conf:/etc/apache2/mods-enabled/qos.conf
+      - {{ stage_dir }}/robots.txt:/var/www/html/robots.txt
     ports:
       - "80:80"
       - "443:443"
