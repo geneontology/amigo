@@ -2,7 +2,9 @@
 #### Colors are X11: http://cng.seas.rochester.edu/CNG/docs/x11color.html
 #### For now, "manually" export into context.js.tmpl using:
 ####  [C-u M-!]
-####  /home/sjcarbon/local/src/git/amigo/node_modules/.bin/yaml2json /home/sjcarbon/local/src/git/amigo/conf/context.yaml --p
+####  /home/sjcarbon/local/src/git/amigo/node_modules/.bin/yaml2json /home/sjcarbon/local/src/git/amigo/conf/context.yaml --p > /tmp/foo.json
+####  Inject manually into:
+####  amigo/javascript/npm/amigo2-instance-data/generation-templates/context.js.tmpl
 ####
 'instance_of':
   readable: 'instance of'
@@ -221,7 +223,7 @@ activates:
   # green
   color: '#008000'
 'RO:0002407':
-  readable: 'indirectly activates'
+  readable: 'indirectly positively regulates'
   priority: 1
   aliases:
     - 'http://purl.obolibrary.org/obo/indirectly_activates'
@@ -253,7 +255,7 @@ upstream_of:
   # red
   color: '#FF0000'
 'RO:0002409':
-  readable: 'indirectly inhibits'
+  readable: 'indirectly negatively regulates'
   priority: 1
   aliases:
     - 'http://purl.obolibrary.org/obo/indirectly_inhibits'
