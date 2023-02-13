@@ -111,13 +111,14 @@ Check list:
 ```
 cp ./production/config-instance.yaml.sample config-instance.yaml
 cat ./config-instance.yaml   # Verify contents and modify if needed.
+export ANSIBLE_HOST_KEY_CHECKING=False
 go-deploy --workspace production-YYYY-MM-DD --working-directory aws -verbose --conf config-instance.yaml
 
 # The previous command creates a terraform tfvars. These variables override the variables in `aws/main.tf`
-cat production-YYYY-MM-DD.json
+cat production-YYYY-MM-DD.tfvars.json
 
 # The previous command creates a ansible inventory file.
-cat production-YYYY-MM-DD--inventory.cfg
+cat production-YYYY-MM-DD-inventory.cfg
 
 # Useful terraform commands to check what you have just done
 terraform -chdir=aws workspace show   # current terraform workspace
