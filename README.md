@@ -12,6 +12,10 @@
 The main installation information is available
 [on the wiki](http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Installation).
 
+# Provisioning & Orchestration
+
+See [docs](provision/production/PRODUCTION_PROVISION_README.md).
+
 # Jenkins (example)
 
 ## Loading
