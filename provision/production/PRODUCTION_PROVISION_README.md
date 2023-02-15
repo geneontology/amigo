@@ -1,14 +1,14 @@
-# Amigo Production Deployment
+# AmiGO Production Deployment
 
 
-This repository enables the deployment of the amigo stack to AWS. It includes 
-amigo and golr.    
+This repository enables the deployment of the amigo stack to AWS. It includes
+amigo and golr.
 
 ## Important ansible files:
 - vars.yaml
 - stage.yaml
 - start_services.yaml
-  
+
 ## Artifacts Deployed To Staging directory On AWS:
   - Cloned repositories: amigo
   - s3 credentials used to push apache logs to s3 buckets and to download ssl credentials from s3 bucket
@@ -16,7 +16,7 @@ amigo and golr.
 
 ## Requirements
 - Terraform. Tested using v1.1.4 and v1.3.3
-- Ansible. Tested using version 2.13.5 and 2.13.7 
+- Ansible. Tested using version 2.13.5 and 2.13.7
 - aws-cli/1.22.34 and aws-cli/2.1.17
 - python >=3.8
 
@@ -33,7 +33,7 @@ cd amigo/provision
 
 ## Install Python deployment Script. Skip if using Dev Environment
 Note the script has a <b>-dry-run</b> option. You can always copy the command and execute manually
-Useful to run the ansible playbooks. 
+Useful to run the ansible playbooks.
 
 ```
 >pip install go-deploy==0.4.1 # requires python >=3.8
@@ -44,7 +44,7 @@ Useful to run the ansible playbooks.
 
 We use S3 terraform backend to store terraform's state. See production/backend.tf.sample
 
-## DNS 
+## DNS
 
 DNS records are used for amigo and golr. Once the instance has been provisioned, you would need to point these to elastic ip of the VM. For testing purposes you can use aes-test-amigo.geneontology.io for amigo and aes-test-golr.geneontology.io for golr. Once you deploy the VM and have the public ip address go to AWS Route 52 and modify the A records to point to the VM's public IP address
 
@@ -129,13 +129,13 @@ terraform -chdir=aws output           # public ip of aws instance
 ## Deploy Stack to AWS
 
 Check list:
-- [ ] <b>Make DNS names for golr and amigo point to public ip address on AWS Route 53.</b> 
+- [ ] <b>Make DNS names for golr and amigo point to public ip address on AWS Route 53.</b>
 - [ ] Location of SSH keys may need to be replaced after copying config-stack.yaml.sample
 - [ ] s3 credentials are placed in a file using format described above
 - [ ] s3 uri if ssl is enabled. Location of ssl certs/key (S3_SSL_CERTS_LOCATION)
 - [ ] Use same workspace name as in previous step
 - [ ] Remember you can use the -dry-run option
-- [ ] Optional When Testing: change dns names in the config file for noctua, barista, and golr. 
+- [ ] Optional When Testing: change dns names in the config file for noctua, barista, and golr.
 - [ ] Execute the command set right below in "Command set".
 
 <b>Command set</b>:
@@ -157,9 +157,9 @@ Check list:
 
 - ssh to machine. username is ubuntu. Try using dns names to make sure they are fine
 - docker-compose -f stage_dir/docker-compose.yaml ps
-- docker-compose -f stage_dir/docker-compose.yaml down # whenever you make any changes 
+- docker-compose -f stage_dir/docker-compose.yaml down # whenever you make any changes
 - docker-compose -f stage_dir/docker-compose.yaml up -d
-- docker-compose -f stage_dir/docker-compose.yaml logs -f 
+- docker-compose -f stage_dir/docker-compose.yaml logs -f
 - Use -dry-run and copy and paste the command and execute it manually
 
 ## Destroy Instance and Delete Workspace.
@@ -217,4 +217,3 @@ Then, within the docker image:
 chown root /tmp/go-*
 chgrp root /tmp/go-*
 ```
-
