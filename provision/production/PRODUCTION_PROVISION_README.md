@@ -1,20 +1,24 @@
 # AmiGO Production Deployment
 
+This part of the repository enables the deployment of the AmiGO stack
+to AWS. It includes amigo and golr.
 
-This repository enables the deployment of the amigo stack to AWS. It includes
-amigo and golr.
+# Overview & Discussion
 
 ## Important ansible files:
+
 - vars.yaml
 - stage.yaml
 - start_services.yaml
 
 ## Artifacts Deployed To Staging directory On AWS:
-  - Cloned repositories: amigo
-  - s3 credentials used to push apache logs to s3 buckets and to download ssl credentials from s3 bucket
-  - docker-production-compose and various configuration files from template directory
+
+- Cloned repositories: amigo
+- S3 credentials used to push apache logs to S3 buckets and to download ssl credentials from a pre-determined S3 bucket.
+- docker-production-compose and various configuration files from template directory
 
 ## Requirements
+
 - Terraform. Tested using v1.1.4 and v1.3.3
 - Ansible. Tested using version 2.13.5 and 2.13.7
 - aws-cli/1.22.34 and aws-cli/2.1.17
@@ -25,15 +29,17 @@ amigo and golr.
 <b>We have a docker based dev environment with all these tools installed.</b> See last section of this README (Appendix I: Development Environment).
 
 The instructions in this document are run from the POV that we're working with this developement environment; i.e.:
+
 ```
-docker run --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.1  /bin/bash
+docker run --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.1 /bin/bash
+apt-get update && apt-get dist-upgrade
 git clone https://github.com/geneontology/amigo
 cd amigo/provision
 ```
 
-## Install Python deployment Script. Skip if using Dev Environment
-Note the script has a <b>-dry-run</b> option. You can always copy the command and execute manually
-Useful to run the ansible playbooks.
+## Install the Python deployment script (skip if using as dev environment)
+
+Note the script has a <b>-dry-run</b> option. You can always copy the command and execute manually--useful to run the ansible playbooks.
 
 ```
 >pip install go-deploy==0.4.1 # requires python >=3.8
@@ -42,30 +48,35 @@ Useful to run the ansible playbooks.
 
 ## S3 Terraform Backend
 
-We use S3 terraform backend to store terraform's state. See production/backend.tf.sample
+We use the Terraform S3 backend to store terraform's state. See
+backend.tf.sample.
 
 ## DNS
 
 DNS records are used for amigo and golr. Once the instance has been provisioned, you would need to point these to elastic ip of the VM. For testing purposes you can use aes-test-amigo.geneontology.io for amigo and aes-test-golr.geneontology.io for golr. Once you deploy the VM and have the public ip address go to AWS Route 52 and modify the A records to point to the VM's public IP address
 
 ## SSH Keys
-For testing purposes you can you your own ssh keys. But for production please ask for the go ssh keys.
+
+For testing purposes you can you your own ssh keys. But for production
+please ask for the go ssh keys.
+
+# Instructions
 
 ## Prepare The AWS Credentials
 
 The credentials are need by terraform to provision the AWS instance and are used by the provisioned instance to access the s3 bucket used as a certificate store and for apache logs. One could also copy in from an existing credential set, see Appendix I at the end for more details.
 
-- [ ] Copy and modify the aws credential file to the default location `/tmp/go-aws-credentials` <br/>`cp production/go-aws-credentials.sample /tmp/go-aws-credentials`
-- [ ] You will need to supply an `aws_access_key_id` and `aws_secret_access_key`. These will be marked with `REPLACE_ME`.
+- [ ] Copy and modify the aws credential file to the default location `/tmp/go-aws-credentials` <br/>`cp ./production/go-aws-credentials.sample /tmp/go-aws-credentials`
+- [ ] You will need to supply values for `aws_access_key_id` and `aws_secret_access_key` in `/tmp/go-aws-credentials`. These will be marked with `REPLACE_ME`.
 
 ## Prepare And Initialize The S3 Terraform Backend
 
 The S3 backend is used to store the terraform state.
 
 Check list:
-- [ ] Assumes you have prepared the aws credentials above.
+- [ ] Assumes you have prepared the AWS credentials above.
 - [ ] Copy the backend sample file <br/>`cp ./production/backend.tf.sample ./aws/backend.tf`
-- [ ] Make sure you have the correct s3 bucket configured in the bakend file <br/>`cat ./aws/backend.tf `
+- [ ] Make sure you have the correct S3 bucket configured in the backend file <br/>`cat ./aws/backend.tf`; replace `REPLACE_ME_AMIGO_S3_BACKEND` as needed. If this is a production environment, coordinate the location of this common-state bucket.
 - [ ] Execute the command set right below in "Command set".
 
 <b>Command set</b>:
@@ -74,7 +85,7 @@ Check list:
 # Use the aws cli to make sure you have access to the terraform s3 backend bucket
 
 export AWS_SHARED_CREDENTIALS_FILE=/tmp/go-aws-credentials
-aws s3 ls s3://REPLACE_ME_WITH_TERRAFORM_BACKEND_BUCCKET # S3 bucket
+aws s3 ls s3://REPLACE_ME_AMIGO_S3_BACKEND # S3 bucket from previous step
 go-deploy -init --working-directory aws -verbose
 ```
 
@@ -100,17 +111,17 @@ and re-provision if that is the intent.
 
 Check list:
 - [ ] <b>Choose your workspace name. We use the following pattern `production-YYYY-MM-DD`</b>. For example: `production-2023-01-30`.
-- [ ] Copy `production/config-instance.yaml.sample` to another location and modify using vim or emacs.
-- [ ] Verify the location of the ssh keys for your AWS instance in your copy of `config-instance.yaml` under `ssh_keys`.
-- [ ] Verify location of the public ssh key in `aws/main.tf`
+- [ ] Copy `production/config-instance.yaml.sample` to another location and modify using vim or emacs. E.g. `cp production/config-instance.yaml.sample ./config-instance.yaml`.
+- [ ] Verify the location of the ssh keys for your AWS instance in your copy of `config-instance.yaml` under `ssh_keys`. E.g `docker cp ~/LOCATION/ssh go-dev:/tmp/` and `docker cp ~/LOCATION/ssh.pub go-dev:/tmp/`.
+- [ ] Verify location of the public ssh key in `aws/main.tf`, if different than default.
 - [ ] Remember you can use the -dry-run and the -verbose options to test "go-deploy"
 - [ ] Execute the command set right below in "Command set".
-- [ ] Note down the ip address of the aws instance that is created. This can also be found in production-YYYY-MM-DD.cfg
+- [ ] Note down the ip address of the aws instance that is created. This can also be found in newly created `production-YYYY-MM-DD-inventory.cfg`.
 
 <b>Command set</b>:
 ```
-cp ./production/config-instance.yaml.sample config-instance.yaml
-cat ./config-instance.yaml   # Verify contents and modify if needed.
+cp ./production/config-instance.yaml.sample config-instance.yaml # if not already done
+cat ./config-instance.yaml   # verify contents and modify if needed.
 export ANSIBLE_HOST_KEY_CHECKING=False
 go-deploy --workspace production-YYYY-MM-DD --working-directory aws -verbose --conf config-instance.yaml
 
@@ -130,9 +141,9 @@ terraform -chdir=aws output           # public ip of aws instance
 
 Check list:
 - [ ] <b>Make DNS names for golr and amigo point to public ip address on AWS Route 53.</b>
-- [ ] Location of SSH keys may need to be replaced after copying config-stack.yaml.sample
-- [ ] s3 credentials are placed in a file using format described above
-- [ ] s3 uri if ssl is enabled. Location of ssl certs/key (S3_SSL_CERTS_LOCATION)
+- [ ] Location of SSH keys may need to be replaced after copying `production/config-stack.yaml.sample` from the above steps.
+- [ ] S3 credentials are placed in a file using format described above.
+- [ ] S3 URI if SSL is enabled. Location of ssl certs/key (S3\_SSL\_CERTS\_LOCATION)
 - [ ] Use same workspace name as in previous step
 - [ ] Remember you can use the -dry-run option
 - [ ] Optional When Testing: change dns names in the config file for noctua, barista, and golr.
@@ -142,14 +153,15 @@ Check list:
 
 ```
 cp ./production/config-stack.yaml.sample ./config-stack.yaml
-cat ./config-stack.yaml    # Verify contents and modify if needed.
+cat ./config-stack.yaml    # Verify contents and modify as needed, search for REPLACE_ME.
 export ANSIBLE_HOST_KEY_CHECKING=False
 go-deploy --workspace production-YYYY-MM-DD --working-directory aws -verbose --conf config-stack.yaml
 ```
 
-## Access amigo from a browser
+## Access AmiGO from a browser
 
 Check list:
+
 - [ ] amigo is up and healthy. We use health checks in docker compose file
 - [ ] Use amigo dns name. http://{{ AMIGO_DYNAMIC }}/amigo
 
@@ -174,7 +186,7 @@ terraform -chdir=aws destroy        # You would need to type Yes to approve.
 
 # Now delete workspace.
 terraform -chdir=aws workspace select default # change to default workspace
-terraform -chdir=aws workspace delete <name_of_workspace>  # delete workspace.
+terraform -chdir=aws workspace delete production-YYYY-MM-DD  # delete workspace.
 ```
 
 ## Appendix I: Development Environment
