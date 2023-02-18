@@ -158,6 +158,10 @@ export ANSIBLE_HOST_KEY_CHECKING=False
 go-deploy --workspace production-YYYY-MM-DD --working-directory aws -verbose --conf config-stack.yaml
 ```
 
+As a note, running this last set took about 20min to complete. The
+stack spinning up to functionality took another few minutes, so please
+be patient.
+
 ## Access AmiGO from a browser
 
 Check list:
