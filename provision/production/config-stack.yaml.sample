@@ -12,10 +12,11 @@ stack:
 
       S3_BUCKET: REPLACE_ME_APACHE_LOG_BUCKET
 
-      # APACHE PROXY WILL ALLOW FOR HTTPS
+      # APACHE PROXY WILL ALLOW FOR HTTPS. Recommended for PRODUCTION
       USE_SSL: 1
       S3_SSL_CERTS_LOCATION: s3://REPLACE_ME_CERT_BUCKET/REPLACE_ME_DOMAIN.tar.gz
 
+      # APACHE PROXY USE QOS module. Recommended for PRODUCTION
       USE_QOS: 1
       QS_ClientEventBlockCount: "350 300"
       QS_ClientEventBlockExcludeIP: "9.9.9.9"
