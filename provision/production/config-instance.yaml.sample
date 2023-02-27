@@ -4,7 +4,7 @@ ssh_keys:
 
 instance:
     tags:
-       Name: aes-amigo
+       Name: REPLACE_ME  # This will be the tag used in AWS 
     instance_type: t2.large
     disk_size: 200
     open_ports:
