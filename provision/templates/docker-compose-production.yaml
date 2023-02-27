@@ -46,12 +46,10 @@ services:
       - USE_S3={{ USE_S3 }}
       - S3_PATH={{ S3_PATH }}
       - S3_BUCKET={{ S3_BUCKET }}
+      - USE_SSL={{ USE_SSL }}
       - S3_SSL_CERTS_LOCATION={{ S3_SSL_CERTS_LOCATION }}
     volumes:
-      - {{ stage_dir }}/proxy-configs/httpd-vhosts-amigo-ssl.conf:/etc/apache2/sites-enabled/httpd-vhosts-amigo-ssl.conf
-      - {{ stage_dir }}/proxy-configs/httpd-vhosts-golr-ssl.conf:/etc/apache2/sites-enabled/httpd-vhosts-golr-ssl.conf
-      - {{ stage_dir }}/proxy-configs/httpd-vhosts-amigo.conf:/etc/apache2/sites-enabled/httpd-vhosts-amigo.conf
-      - {{ stage_dir }}/proxy-configs/httpd-vhosts-golr.conf:/etc/apache2/sites-enabled/httpd-vhosts-golr.conf
+      - {{ stage_dir }}/proxy-configs:/etc/apache2/sites-enabled
       - {{ stage_dir }}/apache_proxy_logs:/var/log/apache2
       - {{ stage_dir }}/credentials:/opt/credentials
       - {{ stage_dir }}/proxy-configs/s3cfg:/root/.aws/config

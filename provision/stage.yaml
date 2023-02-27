@@ -136,9 +136,18 @@
       - { file: 'java-golr-monit', dest: '/golr-configs' }
       - { file: 'console-capture-golr.xml', dest: '/golr-configs' }
       - { file: 'docker-compose-production.yaml', dest: '/docker-compose.yaml' }
+    when: PROD_MODE | bool
+
+  - name: install https configs ...
+    template:
+      src: 'templates/{{ item.file }}'
+      dest: '{{ stage_dir }}{{ item.dest }}'
+    with_items:
       - { file: 'httpd-vhosts-amigo-ssl.conf', dest: '/proxy-configs' }
       - { file: 'httpd-vhosts-golr-ssl.conf', dest: '/proxy-configs' }
-    when: PROD_MODE | bool
+    when:
+      - PROD_MODE | bool 
+      - USE_SSL | bool 
 
   - name: s3cfg is unused. delete it
     file:
