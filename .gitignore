@@ -86,3 +86,5 @@ production-vars.txt
 config.yaml
 production-*.cfg
 production-*.tfvars.json
+config-instance.yaml
+config-stack.yaml
