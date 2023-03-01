@@ -6,6 +6,15 @@
   - qos-vars.yaml
 
   tasks:
+  - name: Create config directories
+    file:
+      path: '{{ stage_dir }}/{{ item }}'
+      state: directory
+    with_items:
+      - proxy-configs 
+      - golr-configs
+      - amigo-configs
+
   - name: Check if index archive exists
     stat:
       path: '{{ stage_dir }}/srv-solr-data/index'
@@ -97,15 +106,6 @@
           path: "/tmp/golr_index_{{ timestamp }}.tgz"
           state: absent
     when: not CREATE_INDEX
-
-  - name: Create config directories
-    file:
-      path: '{{ stage_dir }}/{{ item }}'
-      state: directory
-    with_items:
-      - proxy-configs 
-      - golr-configs
-      - amigo-configs
 
   - name: install non production docker-compose.yaml and http configs ...
     template:
