@@ -6,6 +6,15 @@
   - qos-vars.yaml
 
   tasks:
+  - name: Create config directories
+    file:
+      path: '{{ stage_dir }}/{{ item }}'
+      state: directory
+    with_items:
+      - proxy-configs 
+      - golr-configs
+      - amigo-configs
+
   - name: Check if index archive exists
     stat:
       path: '{{ stage_dir }}/srv-solr-data/index'
@@ -48,24 +57,6 @@
 
   - name: Download index ...
     block:
-      - name: Get remote golr_index archive 
-        get_url:
-          url: '{{ golr_index_archive_url }}'
-          dest: "/tmp/golr_index_{{ timestamp }}.tgz"
-          timeout: 1000
-
-      - name: Create golr_index directory
-        file:
-          path: '{{ stage_dir }}/srv-solr-data/index'
-          state: directory
-
-      - name: Untar index archive 
-        shell: |
-           tar -I pigz -xvf "/tmp/golr_index_{{ timestamp }}.tgz" -C '{{ stage_dir }}/srv-solr-data/index' \
-            || tar -xvf "/tmp/golr_index_{{ timestamp }}.tgz" -C '{{ stage_dir }}/srv-solr-data/index'
-        args:
-          executable: /bin/bash
-
       - name: Get remote golr_timestamp.log 
         get_url:
           url: '{{ golr_timestamp }}'
@@ -79,6 +70,27 @@
           dest: "{{ stage_dir }}/release-archive-doi.json"
           timeout: 1000
           force: no
+
+      - name: Get remote golr_index archive 
+        get_url:
+          url: '{{ golr_index_archive_url }}'
+          dest: "/tmp/golr_index_{{ timestamp }}.tgz"
+          timeout: 1000
+        when: not index_result.stat.exists
+
+      - name: Create golr_index directory
+        file:
+          path: '{{ stage_dir }}/srv-solr-data/index'
+          state: directory
+        when: not index_result.stat.exists
+
+      - name: Untar index archive 
+        shell: |
+           tar -I pigz -xvf "/tmp/golr_index_{{ timestamp }}.tgz" -C '{{ stage_dir }}/srv-solr-data/index' \
+            || tar -xvf "/tmp/golr_index_{{ timestamp }}.tgz" -C '{{ stage_dir }}/srv-solr-data/index'
+        args:
+          executable: /bin/bash
+        when: not index_result.stat.exists
     rescue:
       - name: Remove golr_index directory
         file:
@@ -93,18 +105,7 @@
         file:
           path: "/tmp/golr_index_{{ timestamp }}.tgz"
           state: absent
-    when: 
-      - not CREATE_INDEX
-      - not index_result.stat.exists
-
-  - name: Create config directories
-    file:
-      path: '{{ stage_dir }}/{{ item }}'
-      state: directory
-    with_items:
-      - proxy-configs 
-      - golr-configs
-      - amigo-configs
+    when: not CREATE_INDEX
 
   - name: install non production docker-compose.yaml and http configs ...
     template:
@@ -128,10 +129,8 @@
       src: 'templates/{{ item.file }}'
       dest: '{{ stage_dir }}{{ item.dest }}'
     with_items:
-      - { file: 'amigo.yaml', dest: '/amigo-configs' }
       - { file: '001-inline-amigo.conf', dest: '/amigo-configs' }
       - { file: 'apache2.ports.conf', dest: '/amigo-configs' }
-      - { file: 'httpd-vhosts-amigo.conf', dest: '/proxy-configs' }
       - { file: 'httpd-vhosts-golr.conf', dest: '/proxy-configs' }
       - { file: 'java-golr-monit', dest: '/golr-configs' }
       - { file: 'console-capture-golr.xml', dest: '/golr-configs' }
@@ -143,7 +142,20 @@
       src: 'templates/{{ item.file }}'
       dest: '{{ stage_dir }}{{ item.dest }}'
     with_items:
+      - { file: 'httpd-vhosts-amigo.conf', dest: '/proxy-configs' }
+      - { file: 'amigo.yaml', dest: '/amigo-configs' }
+    when:
+      - PROD_MODE | bool 
+      - not USE_SSL | bool 
+
+  - name: install https configs ...
+    template:
+      src: 'templates/{{ item.file }}'
+      dest: '{{ stage_dir }}{{ item.dest }}'
+    with_items:
+      - { file: 'amigo-ssl.yaml', dest: '/amigo-configs/amigo.yaml' }
       - { file: 'httpd-vhosts-amigo-ssl.conf', dest: '/proxy-configs' }
+      - { file: 'httpd-vhosts-amigo-redirect.conf', dest: '/proxy-configs' }
       - { file: 'httpd-vhosts-golr-ssl.conf', dest: '/proxy-configs' }
     when:
       - PROD_MODE | bool 
