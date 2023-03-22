@@ -2,6 +2,16 @@
 
 [% INCLUDE common/noscript_js_limited.tmpl %]
 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js"></script>
+<script src="http://xenademo.berkeleybop.io/ribbon.js"></script>
+<script src="http://xenademo.berkeleybop.io/ribbon.js.map"></script>
+<script src="http://xenademo.berkeleybop.io/ribbon.css"></script>
+<script src="http://xenademo.berkeleybop.io/ribbon.css.map"></script>
+
+
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">
@@ -104,6 +114,11 @@
 
     </dl>
 
+<div id="go_ribbon">
+Gene Features Here
+
+</div>
+
   </div>
 </div>
 
@@ -139,5 +154,24 @@
 
   </div>
 </div>
+<script type="text/babel">
+class RibbonComponent extends React.Component {
+    render() {
+        let subject="ZFIN:ZDB-GENE-001103-1" ;
+        let slim = [];
+//		<RibbonDataProvider  subject={subject} slim={slim} heatColorArray={[6,100,100]} heatLevels={48}>
+//		</RibbonDataProvider>
+        return (
+	<div>
+              Ribbon Component 
+	</div>
+	)
+    }
+}
+ReactDOM.render(
+    <RibbonComponent />,
+    document.getElementById('go_ribbon')
+);
+</script>
 
 <!-- END template: gene_product_details.tmpl -->
