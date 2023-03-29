@@ -61,8 +61,12 @@
     "yamljs": "0.3.0"
   },
   "devDependencies": {
-    "browserify-shim": "^3.8.6",
+    "@babel/core": "^7.21.3",
+    "@babel/preset-env": "^7.20.2",
+    "babelify": "^10.0.0",
     "browserify": "^16.1.1",
+    "browserify-css": "^0.15.0",
+    "browserify-shim": "^3.8.6",
     "chai": "^4.1.2",
     "gulp-bump": "^3.1.0",
     "gulp-develop-server": "0.5.2",
@@ -113,6 +117,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "gulp compile",
     "release-instance-data": "cp ./conf/examples/amigo.yaml.public ./conf/amigo.yaml && npm install && gulp install"
   }
 }
