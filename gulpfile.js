@@ -303,6 +303,7 @@ function _client_compile_task(file) {
     //var outfile = amigo_js_out_path + '/' +file;
 
     return new Promise(function (resolve, reject) {
+        console.log('Bundling ' + file + '...')
         var b = browserify(infile);
         return b
             // not in npm, don't need in browser
@@ -312,7 +313,7 @@ function _client_compile_task(file) {
             })
             .bundle()
             .on('error', function (err) {
-                console.log('Error while bundling ' + infile);
+                console.log('Error while bundling ' + file);
                 console.log(err);
                 reject(err)
             })
@@ -548,12 +549,19 @@ gulp.task('clean-load-log', shell.task(_run_cmd_list(
 ///
 
 // Rerun tasks when a file changes.
-gulp.task('watch-js', function(cb) {
-    //gulp.watch(web_compilables, ['compile-js-dev']);
-    gulp.watch(us.map(web_compilables,
-		      function(file){ return amigo_js_dev_path + '/'+file; } ),
-	       ['compile-js-dev']);
-    cb(null);
+gulp.task('watch-js', function() {
+    const path_prefix = amigo_js_dev_path + '/';
+    const watch_files = us.map(web_compilables, function(file) { 
+        return path_prefix + file;
+    });
+    const watch_options = {
+        debounceDelay: 2000,
+    }
+    // https://github.com/gulpjs/gulp/blob/v3.8.11/docs/API.md#gulpwatchglob-opts-tasks
+    gulp.watch(watch_files, watch_options, function (event) {
+        const relative_path = event.path.replace(path_prefix, '');
+        return _client_compile_task(relative_path);
+    });
 });
 
 // Clean out stuff. There needs to be a "-x" to actually run.
