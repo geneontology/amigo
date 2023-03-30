@@ -10,24 +10,14 @@
 
 var { spawn } = require('child_process');
 var us = require('underscore');
-var fs = require('fs');
-var del = require('del');
 var { dest, parallel, src, series, watch } = require('gulp');
 var bump = require('gulp-bump');
-var flatten = require('gulp-flatten');
-var mocha = require('gulp-mocha');
-var uglify = require('gulp-uglify');
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var yaml = require('yamljs');
 var tilde = require('expand-home-dir');
 var request = require('request');
 var server_restarter = require('gulp-develop-server');
-//var watch = require('gulp-watch');
-//var git = require('gulp-git');
-//var watchify = require('watchify');
-//var concat = require('gulp-concat');
-//var sourcemaps = require('gulp-sourcemaps');
 
 ///
 /// Helpers.
