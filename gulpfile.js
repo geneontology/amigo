@@ -508,17 +508,9 @@ function clean_load_log() {
 
 // Rerun tasks when a file changes.
 function watch_js() {
-    const path_prefix = amigo_js_dev_path + '/';
-    const watch_files = us.map(web_compilables, function(file) { 
-        return path_prefix + file;
-    });
-    const watch_options = {
-        debounceDelay: 2000,
-    }
-    // https://github.com/gulpjs/gulp/blob/v3.8.11/docs/API.md#gulpwatchglob-opts-tasks
-    watch(watch_files, watch_options, function (event) {
-        const relative_path = event.path.replace(path_prefix, '');
-        return _client_compile_task(relative_path);
+    const watcher = watch(web_compilables, { cwd: amigo_js_dev_path });
+    watcher.on('all', function (event_name, path) {
+        return _client_compile_task(path);
     });
 }
 
