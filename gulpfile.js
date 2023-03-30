@@ -8,6 +8,7 @@
 //// Usage: npm install && node ./node_modules/.bin/gulp doc|build|test|watch|clean
 ////
 
+var { spawn } = require('child_process');
 var us = require('underscore');
 var fs = require('fs');
 var del = require('del');
@@ -15,7 +16,6 @@ var { dest, parallel, src, series, watch } = require('gulp');
 var bump = require('gulp-bump');
 var flatten = require('gulp-flatten');
 var mocha = require('gulp-mocha');
-var shell = require('gulp-shell');
 var uglify = require('gulp-uglify');
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
@@ -86,20 +86,32 @@ function _to_boolean(thing){
     return ret;
 }
 
-function _run_cmd(command_bits){
-    var final_command = command_bits.join(' ');
-    return ['echo \'' + final_command + '\'', final_command];
-}
-
-function _run_cmd_list(commands){
-    var final_list = [];
-
-    us.each(commands, function(cmd){
-	final_list.push('echo \'' + cmd + '\'');
-	final_list.push(cmd);
+function spawn_promise(command) {
+    // Use child_process.spawn here to get automatic stdio sharing. However,
+    // util.promisify does not work with child_process.spawn so we need to
+    // make our own Promise wrapper.
+    return new Promise(function(resolve, reject) {
+        var cmd = spawn(command, { shell: true, stdio: 'inherit' });
+        cmd.on('error', reject);
+        cmd.on('exit', function(code, signal) {
+            if (code !== null && code > 0) {
+                return reject('Command `' + command + '` exited with code: ' + code)
+            }
+            if (signal !== null) {
+                return reject('Command `' + command + '` exited with signal: ' + signal)
+            }
+            resolve()
+        })
     });
-
-    return final_list;
+}
+async function shell(commands) {
+    if (typeof commands === 'string') {
+        commands = [commands]
+    }
+    for (var command of commands) {
+        console.log(command)
+        await spawn_promise(command)
+    }    
 }
 
 ///
@@ -212,39 +224,31 @@ _ping_count();
 ///
 
 function test_meta() {
-    return src(metadata_list, {read: false})
-	.pipe(shell(_run_cmd_list([
-	    'kwalify -f ./scripts/schema.yaml <%= file.path %> | grep INVALID; test $? -ne 0'
-	])));
+    var cmds = metadata_list.map(function (path) {
+        return `kwalify -f ./scripts/schema.yaml ${path} | grep INVALID; test $? -ne 0`;
+    });
+    return shell(cmds)
 }
 
 function test_perl() {
-    var globs = paths['tests-perl'];
-    if (!globs || !globs.length) {
-        return Promise.resolve();
-    }
-    return src(globs, {read: false})
-	.pipe(shell([
-	    'perl -I ./perl/lib/ <%= file.path %>'
-	]));
+    var cmds = paths['tests-perl'].map(function (path) {
+        return `perl -I ./perl/lib/ ${path}`;
+    });
+    return shell(cmds)
 }
 
 function test_js() {
-    var globs = paths['tests-js'];
-    if (!globs || !globs.length) {
-        return Promise.resolve();
-    }
-    return src(globs, {read: false})
-	.pipe(shell(_run_cmd_list([
-	    'rhino -modules external/bbop.js -modules javascript/staging/amigo2.js -opt -1 -f <%= file.path %> | grep -i fail; test $? -ne 0'
-	])));
+    var cmds = paths['tests-js'].map(function (path) {
+        return `rhino -modules external/bbop.js -modules javascript/staging/amigo2.js -opt -1 -f ${path} | grep -i fail; test $? -ne 0'`;
+    });
+    return shell(cmds)
 }
 
 function test_app() {
-    return shell(_run_cmd_list(
-        ['bash -c "source ./test-app/behave/bin/activate && TARGET=' + amigo_url + ' BROWSER=phantomjs behave ./test-app/behave/"']
-        //['bash -c "source ./test-app/behave/bin/activate && TARGET=' + amigo_url + ' BROWSER=firefox behave ./test-app/behave/*.feature"']
-    ));
+    return shell([
+        'bash -c "source ./test-app/behave/bin/activate && TARGET=' + amigo_url + ' BROWSER=phantomjs behave ./test-app/behave/"',
+        //'bash -c "source ./test-app/behave/bin/activate && TARGET=' + amigo_url + ' BROWSER=firefox behave ./test-app/behave/*.feature"'
+    ]);
 }
 
 var tests = parallel(test_meta, test_perl, test_js, test_app);
@@ -254,10 +258,10 @@ var tests = parallel(test_meta, test_perl, test_js, test_app);
 ///
 
 function docs() {
-    return shell(_run_cmd_list(
-        [//'naturaldocs --rebuild-output --input ./javascript/lib/amigo --project javascript/docs/.naturaldocs_project/ --output html javascript/docs',
-        'naturaldocs --rebuild-output --input ./perl/lib/ --project perl/docs/.naturaldocs_project/ --output html perl/docs']
-    ));
+    return shell([
+        //'naturaldocs --rebuild-output --input ./javascript/lib/amigo --project javascript/docs/.naturaldocs_project/ --output html javascript/docs',
+        'naturaldocs --rebuild-output --input ./perl/lib/ --project perl/docs/.naturaldocs_project/ --output html perl/docs',
+    ]);
 }
 
 ///
@@ -346,23 +350,19 @@ function compile_js_dev() {
 // Correctly build/deploy/roll out files into working AmiGO
 // configuration.
 function build() {
-    return shell(_run_cmd_list(
+    return shell([
         // First, make sure our subservient amigo2 package has what it
         // needs to run at all.
-        [
-            'cd ./javascript/npm/amigo2-instance-data && npm install',
-            './install -v'
-        ]
-    ));
+        'cd ./javascript/npm/amigo2-instance-data && npm install',
+        './install -v',
+    ]);
 }
 
 var compile = series(build, compile_js_dev);
 var install = series(compile);
 
 function cache() {
-    return shell(_run_cmd_list(
-        ['node ./scripts/amigo-create-base-stats-cache.js']
-    ));
+    return shell('node ./scripts/amigo-create-base-stats-cache.js');
 }
 
 ///
@@ -370,212 +370,155 @@ function cache() {
 ///
 
 function golr_purge() {
-    return shell(_run_cmd(
-        [owltools_runner,
-        '--solr-url ', golr_private_url,
-        '--solr-purge']
-    ));
+    return shell(`${owltools_runner} --solr-url ${golr_private_url} --solr-purge`);
 }
 
 function golr_schema() {
-    return shell(_run_cmd(
-        [owltools_runner,
-        '--solr-config', metadata_string,
-        '--solr-schema-dump',
-        '|',
-        './golr/tools/remove-schema-cruft.pl',
-        '>',
-        './golr/solr/conf/schema.xml']
-    ));
+    return shell(`${owltools_runner} --solr-config ${metadata_string} --solr-schema-dump | ./golr/tools/remove-schema-cruft.pl > ./golr/solr/conf/schema.xml`);
 }
 
 // WARNING: Only useful for /some/ Ubuntu/Debian installations.
 function golr_install() { 
-    return shell(_run_cmd_list(
-    //'sudo ./golr/tools/golr.el' // Done with this.
-    ['sudo mkdir -p /srv/solr/data',
-     'sudo mkdir -p /srv/solr/conf',
-     // The now two jetty config ops:
-     'sudo cp ./golr/solr/solr.war /var/lib/jetty8/webapps/solr.war',
-     'sudo cp ./golr/jetty/jetty /etc/default/jetty8',
-     //'sudo cp ./golr/jetty/jetty.conf /etc/jetty/jetty.conf',
-     //'sudo cp ./golr/jetty/jetty-rewrite.xml /etc/jetty/jetty-rewrite.xml',
-     //'sudo cp ./golr/jetty/jetty.xml /etc/jetty/jetty.xml',
-     //'sudo cp ./golr/jetty/no_access.html /var/lib/jetty/webapps/root/no_access.html',
-     'sudo cp ./golr/solr/conf/schema.xml /srv/solr/conf/schema.xml',
-     'sudo cp ./golr/solr/conf/solrconfig.xml /srv/solr/conf/solrconfig.xml',
-     'sudo chown jetty /var/lib/jetty8/webapps/solr.war',
-     'sudo chgrp adm /var/lib/jetty8/webapps/solr.war',
-     'sudo chown -R jetty /srv/solr/',
-     'sudo chgrp -R adm /srv/solr/',
-     'sudo /etc/init.d/jetty8 stop',
-     'sudo /etc/init.d/jetty8 start']
-    ));
+    return shell([
+        //'sudo ./golr/tools/golr.el' // Done with this.
+        'sudo mkdir -p /srv/solr/data',
+        'sudo mkdir -p /srv/solr/conf',
+        // The now two jetty config ops:
+        'sudo cp ./golr/solr/solr.war /var/lib/jetty8/webapps/solr.war',
+        'sudo cp ./golr/jetty/jetty /etc/default/jetty8',
+        //'sudo cp ./golr/jetty/jetty.conf /etc/jetty/jetty.conf',
+        //'sudo cp ./golr/jetty/jetty-rewrite.xml /etc/jetty/jetty-rewrite.xml',
+        //'sudo cp ./golr/jetty/jetty.xml /etc/jetty/jetty.xml',
+        //'sudo cp ./golr/jetty/no_access.html /var/lib/jetty/webapps/root/no_access.html',
+        'sudo cp ./golr/solr/conf/schema.xml /srv/solr/conf/schema.xml',
+        'sudo cp ./golr/solr/conf/solrconfig.xml /srv/solr/conf/solrconfig.xml',
+        'sudo chown jetty /var/lib/jetty8/webapps/solr.war',
+        'sudo chgrp adm /var/lib/jetty8/webapps/solr.war',
+        'sudo chown -R jetty /srv/solr/',
+        'sudo chgrp -R adm /srv/solr/',
+        'sudo /etc/init.d/jetty8 stop',
+        'sudo /etc/init.d/jetty8 start',
+    ]);
 }
 
 function check_ontology_data() { 
-    return shell(_run_cmd(
-    [owltools_runner,
-     ontology_string,
-     owltools_ops_flags,
-     '--ontology-pre-check']
-    ));
+    return shell(`${owltools_runner} ${ontology_string} ${owltools_ops_flags} --ontology-pre-check`);
 }
 
 function load_ontology() {
-    return shell(_run_cmd(
-    [owltools_runner,
-     ontology_string,
-     owltools_ops_flags,
-     '--solr-url', golr_private_url,
-     '--solr-config', ontology_metadata,
-     '--solr-log', solr_load_log,
-     '--solr-load-ontology',
-     '--solr-load-ontology-general']
-    ));
+    return shell(
+        `${owltools_runner} ${ontology_string} ${owltools_ops_flags} \
+            --solr-url ${golr_private_url} \
+            --solr-config ${ontology_metadata} \
+            --solr-log ${solr_load_log} \
+            --solr-load-ontology \
+            --solr-load-ontology-general`
+    );
 }
 
 // Try and load a single ontology safely, with no timing gaps.
 // Use case NEO.
 function load_ontology_purge_safe() {
-    return shell(_run_cmd(
-    [owltools_runner,
-     ontology_string,
-     owltools_ops_flags,
-     '--ontology-pre-check',
-     '--solr-url', golr_private_url,
-     '--solr-config', ontology_metadata,
-     '--solr-log', solr_load_log,
-     '--solr-purge',
-     '--solr-load-ontology',
-     '--solr-load-ontology-general']
-    ));
+    return shell(
+        `${owltools_runner} ${ontology_string} ${owltools_ops_flags} \
+            --ontology-pre-check \
+            --solr-url ${golr_private_url} \
+            --solr-config ${ontology_metadata} \
+            --solr-log' ${solr_load_log} \
+            --solr-purge \
+            --solr-load-ontology \
+            --solr-load-ontology-general`
+    );
 }
 
 function load_gafs() {
-    return shell(_run_cmd(
-    [owltools_runner,
-     ontology_string,
-     owltools_ops_flags,
-     '--solr-url', golr_private_url,
-     '--solr-log', solr_load_log,
-     '--solr-load-gafs', gaf_string]
-    ));
+    return shell(
+        `${owltools_runner} ${ontology_string} ${owltools_ops_flags} \
+            --solr-url ${golr_private_url} \
+            --solr-log ${solr_load_log} \
+            --solr-load-gafs ${gaf_string}`
+    );
 }
 
 function load_gafs_with_panther() {
-    return shell(_run_cmd(
-    [owltools_runner,
-     ontology_string,
-     owltools_ops_flags,
-     '--solr-url', golr_private_url,
-     '--solr-log', solr_load_log,
-     // PANTHER (reading--annotations need them too)
-     '--read-panther', panther_file_path,
-     '--solr-load-gafs', gaf_string]
-    ));
+    return shell(
+        `${owltools_runner} ${ontology_string} ${owltools_ops_flags} \
+            --solr-url ${golr_private_url} \
+            --solr-log' ${solr_load_log} \
+            --read-panther ${panther_file_path} \
+            --solr-load-gafs ${gaf_string}`
+    );
 }
 
 function load_panther() {
-    return shell(_run_cmd(
-    [owltools_runner,
-     ontology_string,
-     owltools_ops_flags,
-     '--solr-url', golr_private_url,
-     '--solr-log', solr_load_log,
-     '--read-panther', panther_file_path,
-     '--solr-load-panther',
-     '--solr-load-panther-general']
-    ));
+    return shell(
+        `${owltools_runner} ${ontology_string} ${owltools_ops_flags} \
+            --solr-url ${golr_private_url} \
+            --solr-log ${solr_load_log} \
+            --read-panther ${panther_file_path} \
+            --solr-load-panther \
+            --solr-load-panther-general`
+    );
 }
 
 function load_models_all() {
-    return shell(_run_cmd(
-    [owltools_runner,
-     ontology_string,
-     owltools_ops_flags,
-     '--remove-equivalent-to-nothing-axioms', // roll out more generally?
-     '--solr-url', golr_private_url,
-     '--solr-log', solr_load_log,
-     //'--read-lego-catalogs', catalog_file,
-     '--read-model-folder', noctua_file_path,
-     '--read-model-url-prefix', noctua_model_prefix,
-     '--solr-load-models'
-    ]
-    ));
+    return shell(
+        `${owltools_runner} ${ontology_string} ${owltools_ops_flags} \
+            --remove-equivalent-to-nothing-axioms' \
+            --solr-url ${golr_private_url} \
+            --solr-log ${solr_load_log} \
+            --read-model-folder ${noctua_file_path} \
+            --read-model-url-prefix ${noctua_model_prefix} \
+            --solr-load-models`
+    );
 }
 
 function load_optimize() {
-    return shell(_run_cmd(
-    [owltools_runner,
-     '--solr-url', golr_private_url,
-     '--solr-optimize']
-    ));
+    return shell(`${owltools_runner} --solr-url ${golr_private_url} --solr-optimize`);
 }
 
 // A minimal working set with some of the more exotic stuff hanging
 // on (no opt).
 function load_most() {
-    return shell(_run_cmd(
-    [owltools_runner,
-     ontology_string,
-     owltools_ops_flags,
-     // General config.
-     '--solr-url', golr_private_url,
-     '--solr-log', solr_load_log,
-     // Ontology.
-     '--solr-config', ontology_metadata,
-     '--solr-load-ontology',
-     '--solr-load-ontology-general',
-     // PANTHER (reading--annotations need them too)
-     '--read-panther', panther_file_path,
-     // GAFs
-     '--solr-load-gafs', gaf_string
-    ]
-    ));
+    return shell(
+        `${owltools_runner} ${ontology_string} ${owltools_ops_flags} \
+            --solr-url ${golr_private_url} \
+            --solr-log ${solr_load_log} \
+            --solr-config ${ontology_metadata} \
+            --solr-load-ontology \
+            --solr-load-ontology-general \
+            --read-panther ${panther_file_path} \
+            --solr-load-gafs ${gaf_string}`
+    );
 }
 
 // TODO: Still need to add models.
 function load_all() {
-    return shell(_run_cmd(
-    [owltools_runner,
-     ontology_string,
-     owltools_ops_flags,
-     // General config.
-     '--solr-url', golr_private_url,
-     '--solr-log', solr_load_log,
-     // Ontology.
-     '--solr-config', ontology_metadata,
-     '--solr-load-ontology',
-     '--solr-load-ontology-general',
-     // PANTHER (reading--annotations need them too)
-     '--read-panther', panther_file_path,
-     // GAFs
-     '--solr-load-gafs', gaf_string,
-     // PANTHER (loading their own doc types)
-     '--solr-load-panther',
-     '--solr-load-panther-general',
-     // Optimize.
-     '--solr-optimize']
-    ));
+    return shell(
+        `${owltools_runner} ${ontology_string} ${owltools_ops_flags} \
+            --solr-url ${golr_private_url} \
+            --solr-log ${solr_load_log} \
+            --solr-config ${ontology_metadata} \
+            --solr-load-ontology \
+            --solr-load-ontology-general \
+            --read-panther ${panther_file_path} \
+            --solr-load-gafs ${gaf_string} \
+            --solr-load-panther \
+            --solr-load-panther-general \
+            --solr-optimize`
+    );
 }
 
 function message_load_start() {
-    return shell(_run_cmd_list(
-    ['./scripts/global-message.pl -e "GOlr is currently being reloaded (started at ' + date + ' on ' + time + '). Any results will be partial at best--please check back later."']
-    ));
+    return shell('./scripts/global-message.pl -e "GOlr is currently being reloaded (started at ' + date + ' on ' + time + '). Any results will be partial at best--please check back later."');
 }
 
 function message_load_clear() {
-    return shell(_run_cmd_list(
-    ['./scripts/global-message.pl -c']
-    ));
+    return shell('./scripts/global-message.pl -c');
 }
 
 function clean_load_log() {
-    return shell(_run_cmd_list(
-    ['echo -n "" > ' + solr_load_log]
-    ));
+    return shell('echo -n "" > ' + solr_load_log);
 }
 
 ///
@@ -600,21 +543,19 @@ function watch_js() {
 
 // Clean out stuff. There needs to be a "-x" to actually run.
 function clean_filesystem() {
-    return shell(_run_cmd_list(
-    ['./scripts/blank-kvetch.pl',
-     './scripts/clean-filesystem.pl -v -s',
-     './scripts/clean-filesystem.pl -v -c',
-     './scripts/clean-filesystem.pl -v -r']
-    ));
+    return shell([
+        './scripts/blank-kvetch.pl',
+        './scripts/clean-filesystem.pl -v -s',
+        './scripts/clean-filesystem.pl -v -c',
+        './scripts/clean-filesystem.pl -v -r'
+    ]);
 }
 
 // W3C HTML and CSS validation.
 // WARNING: This is currently hard-wired to the BETA instance.
 // CSS is currently valid, so dropping --css flag for now.
 function w3c_validate() {
-    return shell(_run_cmd_list(
-    ['./scripts/w3c-validate.pl -v --html']
-    ));
+    return shell('./scripts/w3c-validate.pl -v --html');
 }
 
 ///
@@ -665,10 +606,10 @@ function sync_package_version(cb) {
 
 // Use as: gulp buffer-check > /tmp/foo.txt
 function buffer_check() {
-    return shell(_run_cmd_list(
-        //['perl -e "for (0..1600000){ print STDOUT \\"0123456789\\n\\";}"'] // fail
-        ['perl -e "for (0..1500000){ print STDOUT \\"0123456789\\n\\";}"'] // okay
-    ));
+    return shell([
+        //'perl -e "for (0..1600000){ print STDOUT \\"0123456789\\n\\";}"' // fail
+        'perl -e "for (0..1500000){ print STDOUT \\"0123456789\\n\\";}"' // okay
+    ]);
 }
 
 ///
@@ -677,9 +618,7 @@ function buffer_check() {
 
 // Run the local-only/embedded testing server.
 function run_amigo() {
-    return shell(_run_cmd_list(
-    ['perl -I./perl/bin/ -I./perl/lib/ scripts/amigo-runner']
-    ));
+    return shell('perl -I./perl/bin/ -I./perl/lib/ scripts/amigo-runner');
 }
 
 ///
@@ -693,11 +632,7 @@ if( process && process.env && process.env['GOLR_URL'] ){
 }
 
 function run_amigo_api() {
-    return shell(_run_cmd([
-    'node', './bin/amigo.js',
-    '-g', amigo_api_golr,
-    '-p', amigo_api_port
-    ]));
+    return shell(`node ./bin/amigo.js -g ${amigo_api_golr} -p ${amigo_api_port}`);
 }
 
 // Quick restart development for AmiGO JSON API.

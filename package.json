@@ -73,7 +73,6 @@
     "gulp-flatten": "0.4.0",
     "gulp-git": "^2.5.2",
     "gulp-mocha": "^5.0.0",
-    "gulp-shell": "0.6.5",
     "gulp-uglify": "^3.0.0",
     "gulp-watch": "5.0.0",
     "mocha": "5.0.5",
