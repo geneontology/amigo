@@ -211,11 +211,6 @@ _ping_count();
 /// Tests (async).
 ///
 
-gulp.task('tests', ['test-meta',
-		    'test-perl',
-		    'test-js',
-		    'test-app']);
-
 gulp.task('test-meta', function () {
     return gulp.src(metadata_list, {read: false})
 	.pipe(shell(_run_cmd_list([
@@ -224,14 +219,22 @@ gulp.task('test-meta', function () {
 });
 
 gulp.task('test-perl', function () {
-    return gulp.src(paths['tests-perl'], {read: false})
+    var globs = paths['tests-perl'];
+    if (!globs || !globs.length) {
+        return Promise.resolve();
+    }
+    return gulp.src(globs, {read: false})
 	.pipe(shell([
 	    'perl -I ./perl/lib/ <%= file.path %>'
 	]));
 });
 
 gulp.task('test-js', function () {
-    return gulp.src(paths['tests-js'], {read: false})
+    var globs = paths['tests-js'];
+    if (!globs || !globs.length) {
+        return Promise.resolve();
+    }
+    return gulp.src(globs, {read: false})
 	.pipe(shell(_run_cmd_list([
 	    'rhino -modules external/bbop.js -modules javascript/staging/amigo2.js -opt -1 -f <%= file.path %> | grep -i fail; test $? -ne 0'
 	])));
@@ -242,6 +245,11 @@ gulp.task('test-app', shell.task(_run_cmd_list(
     ['bash -c "source ./test-app/behave/bin/activate && TARGET=' + amigo_url + ' BROWSER=phantomjs behave ./test-app/behave/"']
     //['bash -c "source ./test-app/behave/bin/activate && TARGET=' + amigo_url + ' BROWSER=firefox behave ./test-app/behave/*.feature"']
 )));
+
+gulp.task('tests', gulp.parallel('test-meta',
+		    'test-perl',
+		    'test-js',
+		    'test-app'));
 
 ///
 /// Docs.
@@ -255,8 +263,6 @@ gulp.task('docs', shell.task(_run_cmd_list(
 ///
 /// AmiGO install.
 ///
-
-gulp.task('install', ['compile', 'build']);
 
 // TODO/BUG: This should eventually be replaced by a read of
 // javascript/web. For now, we'll just have this so we can work our
@@ -327,16 +333,6 @@ function _client_compile_task(file) {
     });
 }
 
-// Compile all JS used in AmiGO and move it to the staging/deployment
-// directory.
-gulp.task('compile', ['build'], function() {
-    return Promise.all(
-        us.map(web_compilables, function(file) {
-            return _client_compile_task(file);
-        })
-    );
-});
-
 // A version of compile that does not care about build--for rapid JS
 // development.
 gulp.task('compile-js-dev', function(){
@@ -358,6 +354,18 @@ gulp.task('build', shell.task(_run_cmd_list(
 	]
     ))
 );
+
+// Compile all JS used in AmiGO and move it to the staging/deployment
+// directory.
+gulp.task('compile', gulp.series('build', function() {
+    return Promise.all(
+        us.map(web_compilables, function(file) {
+            return _client_compile_task(file);
+        })
+    );
+}));
+
+gulp.task('install', gulp.parallel('compile'));
 
 gulp.task('cache', shell.task(_run_cmd_list(
     ['node ./scripts/amigo-create-base-stats-cache.js']
@@ -583,12 +591,6 @@ gulp.task('w3c-validate', shell.task(_run_cmd_list(
 /// Versioning and publishing.
 ///
 
-// Release tools for patch release.
-gulp.task('release', ['install', // compile and roll out files and js templates
-		      'publish-npm', // put to
-		      'patch-bump', // bump the main amigo
-		      'sync-package-version']); // bump the subordinates
-
 // TODO
 gulp.task('publish-npm', function(cb) {
     var npm = require("npm");
@@ -626,6 +628,12 @@ gulp.task('sync-package-version', function(cb) {
     });
     cb(null);
 });
+
+// Release tools for patch release.
+gulp.task('release', gulp.series('install', // compile and roll out files and js templates
+		      'publish-npm', // put to
+		      'patch-bump', // bump the main amigo
+		      'sync-package-version')); // bump the subordinates
 
 ///
 /// DEBUG.
@@ -686,7 +694,7 @@ gulp.task('develop-amigo-api', function(){
 ///
 
 // The default task (called when you run `gulp` from cli)
-gulp.task('default', ['install', 'tests', 'docs']);
+gulp.task('default', gulp.series('install', 'tests', 'docs'));
 
 ///
 /// Old Makefile that has not yet been transferred.
