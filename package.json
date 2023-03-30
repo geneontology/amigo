@@ -75,7 +75,7 @@
     "npm-check-updates": "^2.14.1",
     "vinyl-source-stream": "2.0.0"
   },
-  "browserify": {
+  "browserify": { 
     "transform": [
       "browserify-shim"
     ]

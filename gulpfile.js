@@ -23,27 +23,23 @@ var server_restarter = require('gulp-develop-server');
 /// Helpers.
 ///
 
-function _die(str){
+function _die(str) {
     console.error(str);
     process.exit(-1);
 }
 
 // Ping server; used during certain commands.
 function _ping_count(){
-
-    if( count_url && typeof(count_url) === 'string' && count_url !== '' ){
-
-	request({
-	    url: count_url
-	}, function(error, response, body){
-	    if( error || response.statusCode !== 200 ){
-		console.log('Unable to ping: ' + count_url);
-	    }else{
-		console.log('Pinged: ' + count_url);
-	    }
-	});
-    }else{
-	console.log('Will not ping home.');
+    if (count_url && typeof(count_url) === 'string' && count_url !== '') {
+        request({url: count_url}, function(error, response, body) {
+            if (error || response.statusCode !== 200) {
+                console.log('Unable to ping: ' + count_url);
+            } else {
+                console.log('Pinged: ' + count_url);
+            }
+        });
+    } else {
+        console.log('Will not ping home.');
     }
 }
 
@@ -53,26 +49,24 @@ function _tilde_expand(ufile){
 
 function _tilde_expand_list(list){
     return us.map(list, function(ufile){
-	//console.log('ufile: ' + ufile);
-	return tilde(ufile);
+        //console.log('ufile: ' + ufile);
+        return tilde(ufile);
     });
 }
 
 function _to_boolean(thing){
     var ret = false;
-
-    if( typeof(thing) === 'string' ){
-	if( thing === 'true' ){
-	    ret = true;
-	}else if( thing === '1' ){
-	    ret = true;
-	}
-    }else if( typeof(thing) === 'number' ){
-	if( thing === 1 ){
-	    ret = true;
-	}
+    if (typeof(thing) === 'string') {
+        if (thing === 'true') {
+            ret = true;
+        } else if (thing === '1') {
+            ret = true;
+        }
+    } else if (typeof(thing) === 'number') {
+        if (thing === 1) {
+            ret = true;
+        }
     }
-
     return ret;
 }
 
@@ -115,16 +109,16 @@ var paths = {
 
     ],
     scripts: [
-	'scripts/*'
+        'scripts/*'
     ],
     'tests-perl': [
-	'perl/lib/t/*.t'
+        'perl/lib/t/*.t'
     ],
     'tests-js': [
-	// 'javascript/lib/amigo/*.js.tests',
-	// 'javascript/lib/amigo/data/*.js.tests',
-	// 'javascript/lib/amigo/ui/*.js.tests',
-	// 'javascript/lib/amigo/handlers/*.js.tests'
+        // 'javascript/lib/amigo/*.js.tests',
+        // 'javascript/lib/amigo/data/*.js.tests',
+        // 'javascript/lib/amigo/ui/*.js.tests',
+        // 'javascript/lib/amigo/handlers/*.js.tests'
     ]
 };
 
@@ -136,7 +130,7 @@ try {
 } catch(err) {
     _die('Unable to load "' + amigo_yaml_path + '", did you read the docs?');
 }
-if( ! a ){
+if (!a) {
     _die('Config "' + amigo_yaml_path + '" was bad!');
 }
 
@@ -167,8 +161,7 @@ var d = new Date();
 var time = d.getHours() + ':' + d.getSeconds();
 var date = d.getFullYear() + ':' + d.getMonth() + ':' + d.getDate();
 // Execute by default; variable must be present and empty to stop.
-var count_url =
-	'https://s3-us-west-1.amazonaws.com/go-amigo-usage-master/ping.json';
+var count_url = 'https://s3-us-west-1.amazonaws.com/go-amigo-usage-master/ping.json';
 if( a['AMIGO_COUNTER_URL'] && a['AMIGO_COUNTER_URL'].value ){
     count_url = a['AMIGO_COUNTER_URL'].value;
 }
@@ -194,15 +187,13 @@ var all_owltools_ops_flags_list = [
     '--solr-taxon-subset-name amigo_grouping_subset',
     '--solr-eco-subset-name go_groupings'
 ];
-var owltools_ops_flags =
-	all_owltools_ops_flags_list.join(' ').replace(/ +/g, ' ');
+var owltools_ops_flags = all_owltools_ops_flags_list.join(' ').replace(/ +/g, ' ');
 
 // Verbosity.
 //console.log('AmiGO version: ' + amigo_version);
 console.log('AmiGO location: ' + amigo_url);
 console.log('GOlr (private loading) location: ' + golr_private_url);
-console.log('OWLTools invocation: ' +
-	    owltools_runner + ' ' + owltools_ops_flags + '');
+console.log('OWLTools invocation: ' + owltools_runner + ' ' + owltools_ops_flags + '');
 //console.log('Ontologies: ' + ontology_string);
 //console.log('Ontology metadata: ' + ontology_metadata);
 
@@ -556,18 +547,18 @@ function w3c_validate() {
 function publish_npm(cb) {
     var npm = require("npm");
     npm.load(function(er, npm) {
-	// NPM
-	//    npm.commands.publish();
+    // NPM
+    //    npm.commands.publish();
     });
     cb(null);
 }
 
 function patch_bump(cb) {
     src('./package.json')
-	.pipe(bump({
-	    type: 'patch'
-	}))
-	.pipe(dest('./'));
+        .pipe(bump({
+            type: 'patch'
+        }))
+        .pipe(dest('./'));
     cb(null);
 }
 
@@ -577,15 +568,17 @@ function sync_package_version(cb) {
 
     var a_ver = require('./package.json').version;
 
-    var to_sync = ['./javascript/npm/amigo2-instance-data/',
-		   './javascript/npm/bbop-widget-set/'];
+    var to_sync = [
+        './javascript/npm/amigo2-instance-data/',
+        './javascript/npm/bbop-widget-set/'
+    ];
 
-    us.each(to_sync, function(pkg_path){
-	src(pkg_path + 'package.json')
-	    .pipe(bump({
-		version: a_ver
-	    }))
-	    .pipe(dest(pkg_path));
+    us.each(to_sync, function(pkg_path) {
+        src(pkg_path + 'package.json')
+            .pipe(bump({
+                version: a_ver
+            }))
+        .pipe(dest(pkg_path));
     });
     cb(null);
 }
@@ -628,19 +621,22 @@ function run_amigo_api() {
 // Quick restart development for AmiGO JSON API.
 function develop_amigo_api() {
     //console.log(server_restarter);
-    server_restarter.listen({path: './bin/amigo.js',
-			     args: ['-g', amigo_api_golr,
-				    '-p', amigo_api_port],
-			     successMessage: /started/,
-			     }, function(err){
-				 if( err ){
-				     console.log('Gulp startup error:', err);
-				 }
-			     });
+    server_restarter.listen({
+        path: './bin/amigo.js',
+        args: [
+            '-g', amigo_api_golr,
+            '-p', amigo_api_port
+        ],
+        successMessage: /started/,
+    }, function(err) {
+        if (err) {
+            console.log('Gulp startup error:', err);
+        }
+    });
     // Restart server if changed.
-    watch( ['./bin/amigo.js'], function(){
-	//console.log(server_restarter);
-	server_restarter.restart();
+    watch(['./bin/amigo.js'], function() {
+        //console.log(server_restarter);
+        server_restarter.restart();
     });
 }
 
