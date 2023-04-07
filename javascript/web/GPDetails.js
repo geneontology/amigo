@@ -15,6 +15,8 @@ var bbop = require('bbop-core');
 var widgets = require('bbop-widget-set');
 var html = widgets.html;
 
+require('@geneontology/wc-gocam-viz/dist/custom-elements').defineCustomElements();
+
 // Config.
 var amigo = new (require('amigo2-instance-data'))(); // no overload
 var golr_conf = require('golr-conf');
@@ -31,6 +33,7 @@ var handler = amigo.handler;
 var jquery_engine = require('bbop-rest-manager').jquery;
 var golr_manager = require('bbop-manager-golr');
 var golr_response = require('bbop-response-golr');
+var rest_response = require('bbop-rest-response').json;
 
 // Aliases.
 var dlimit = defs.download_limit;
@@ -53,10 +56,14 @@ function GPDetailsInit(){
 
     // Tabify the layout if we can (may be in a non-tabby version).
     var dtabs = jQuery("#display-tabs");
-    if( dtabs ){
-	ll('Apply tabs...');
-	jQuery("#display-tabs").tabs();
-	jQuery("#display-tabs").tabs('option', 'active', 0);
+    if (dtabs) {
+        ll('Apply tabs...');
+        var fragname = window?.location?.hash
+        if (fragname && fragname !== "#") {
+            jQuery('#display-tabs a[href="' + fragname + '"]').tab('show');
+        } else {
+            jQuery("#display-tabs a:first").tab('show');
+        }
     }
     
     ///
@@ -204,6 +211,85 @@ function GPDetailsInit(){
 	jQuery('#prob_ann_dl_href').attr('href', dstate);
 	jQuery('#prob_ann_dl').removeClass('hidden');
     })();
+
+    // Begin Models tab setup
+    var gocam_select = jQuery('#gomodel-select');
+    var gocam_select_group = jQuery('#gomodel-select-group');
+    var gocam_viz_container = jQuery('#gp-gocam-viz-container');
+    var gocam_viz = null;
+    var gocam_no_data_message = jQuery('#gocam-no-data-message');
+    var gocam_fetch_error_message = jQuery('#gocam-fetch-error-message');
+
+    // When the model select box changes, inform the go-cam widget of the new
+    // model ID.
+    gocam_select.on('change', function () {
+        var model_id = jQuery(this).val();
+        gocam_viz.setAttribute('gocam-id', model_id);
+    });
+
+    dtabs.on('shown.bs.tab', function (event) {
+        // The user has clicked on the Models tab and the wc-gocam-viz widget has
+        // not been set up yet (probably because this is the first time they've
+        // viewed the tab). Initializing the widget is deferred until this point
+        // because initializing it in a hidden element leads to a funky first render.
+        if ($(event.target).attr('href') === '#display-models-tab' && !gocam_viz) {
+            var model_id = gocam_select.val();
+            gocam_viz = document.createElement('wc-gocam-viz');
+            gocam_viz.setAttribute('gocam-id', model_id);
+            gocam_viz.setAttribute('show-go-cam-selector', 'false');
+            gocam_viz.setAttribute('show-has-input', 'false');
+            gocam_viz.setAttribute('show-has-output', 'false');
+            gocam_viz.setAttribute('show-gene-product', 'true');
+            gocam_viz.setAttribute('show-activity', 'false');
+            gocam_viz.setAttribute('show-legend', 'false');
+            gocam_viz_container.append(gocam_viz);
+        }
+    });
+    var barista_engine = new jquery_engine(rest_response);
+
+    // If the request to get models for this GP fails, show an error message
+    // and ensure the model selector, go-cam widget, and "no data" message are
+    // all hidden.
+    barista_engine.register('error', function () {
+        gocam_fetch_error_message.removeClass('hidden');
+        gocam_no_data_message.addClass('hidden');
+        gocam_select_group.addClass('hidden');
+        gocam_viz_container.addClass('hidden');
+    });
+
+    // When we successfully retrieve a list of models ensure the error message
+    // is hidden. Then if there are models in the response, populate the select
+    // box with those models as options. If there were no models in the response
+    // show the "no data" message instead of the select box.
+    barista_engine.register('success', function (resp) {
+        gocam_fetch_error_message.addClass('hidden');
+        gocam_select.empty();
+        var body = resp.raw();
+        if (body.models && body.models.length > 0) {
+            gocam_no_data_message.addClass('hidden');
+            gocam_select_group.removeClass('hidden');
+            gocam_viz_container.removeClass('hidden');
+            body.models.forEach(function (model) {
+                gocam_select.append(`<option value=${model.id}>${model.title}</option>`);
+            });
+        } else {
+            gocam_no_data_message.removeClass('hidden');
+            gocam_select_group.addClass('hidden');
+            gocam_viz_container.addClass('hidden');
+        }
+    });
+
+    // Initiate the request to get list of models for the GP
+    var base = 'http://barista.berkeleybop.org';
+    var endpoint = '/search/models';
+    // TODO: handle case where reponse returns more than 100 models
+    var query = {
+        offset: 0,
+        limit: 100,
+        gp: global_acc,
+        expand: true
+    };
+    barista_engine.start(base + endpoint, query, 'GET');
 
     //
     ll('GPDetailsInit done.');

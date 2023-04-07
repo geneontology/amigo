@@ -22,6 +22,7 @@
     "npm": ">= 5.6.0"
   },
   "dependencies": {
+    "@geneontology/wc-gocam-viz": "0.0.48",
     "bbop": "2.4.3",
     "bbop-core": "0.0.5",
     "bbop-graph": "0.0.19",
@@ -75,7 +76,7 @@
     "npm-check-updates": "^2.14.1",
     "vinyl-source-stream": "2.0.0"
   },
-  "browserify": { 
+  "browserify": {
     "transform": [
       "browserify-shim"
     ]
