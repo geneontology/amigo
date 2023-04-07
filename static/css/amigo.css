@@ -194,3 +194,94 @@ a:hover .hilite, a:active .hilite {
 .alert-warning .alert-link {
     color: #3b2e18;
 }
+
+/* Begin wc-gocam-viz widget customization */
+:root {
+    --gocam-width: 800px;
+    --gocam-height: 800px;
+    --gocam-border-radius: 3px;
+    --gocam-border-size: 0px;
+    --gocam-box-shadow: none;
+    --gocam-panel-box-shadow: none;
+    --gocam-panel-h1-color: rgb(51, 51, 51);
+    --gocam-panel-process-color: none;
+    --gocam-panel-process-font-color: black;
+    --gocam-panel-process-hover-font-color: black;
+    --gocam-panel-process-font-weight: 500;
+}
+.gocam-viz {
+    padding: 0;
+}
+.gocam-viz-container {
+    white-space: nowrap;
+    min-height: var(--gocam-height);
+}
+.h1-gcv {
+    text-align: left;
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0 0 8px 0;
+}
+.genes-panel__container__title {
+    margin: 0;
+}
+.genes-panel__container__title hr {
+    display: none;
+}
+.genes-panel__list {
+    height: calc(100% - 20px);
+    position: relative;  /* to correct genes-panel__item offsetParent */
+}
+.genes-panel__item {
+    box-shadow: none !important;
+    margin: 0;
+    padding: 5px;
+    border-radius: 0;
+    border-bottom: 1px solid #ddd;
+}
+.genes-panel__item:hover {
+    box-shadow: none;
+    background-color: #e9effa;
+}
+.genes-panel__item:last-child {
+    border: none;
+}
+.genes-panel__item.gp_item_selected {
+    background-color: #e9effa;
+}
+.genes-panel__item__activity {
+    margin: 0 !important;
+}
+.genes-panel__item__process {
+    box-shadow: none;
+    border: none;
+    margin: 0 0 24px 0;
+}
+.genes-panel__item__process__activities {
+    padding: 0;
+    margin: 0;
+}
+.genes-panel__item__process__list {
+    border-color: #ddd;
+    border-width: 0 0 2px 0;
+    border-radius: 0;
+    padding: 5px;
+    position: sticky;
+    top: 0;
+    background-color: white;
+}
+.genes-panel__item__process__list-name {
+    font-size: 14px;
+    padding: 0;
+}
+.genes-panel__item__title {
+    font-size: inherit;
+    font-weight: normal;
+    color: inherit;
+}
+.genes-panel__item__title__gp {
+    color: inherit;
+}
+.genes-panel__item__title__gp__taxon {
+    font-size: inherit;
+}
