@@ -301,9 +301,9 @@ function _client_compile_task(file) {
             .exclude('ringo/httpclient')
             .transform('babelify', { 
                 presets: ["@babel/preset-env"],
-                // Some of its dependencies are only distributed as ES6 modules.
-                // That means that we need babelify to transform them (even though they're not our
-                // code) before they get to browserify. See: 
+                // Some dependencies are only distributed as ES6 modules. That means that we need
+                // babelify to transform them (even though they're not our code) before they get 
+                // bundled by browserify. See: 
                 // https://github.com/babel/babelify#why-arent-files-in-node_modules-being-transformed
                 global: true,
                 ignore: [/\/node_modules\/(?!@geneontology|@stencil\/)/]
