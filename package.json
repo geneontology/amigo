@@ -64,6 +64,7 @@
     "@babel/core": "^7.21.3",
     "@babel/preset-env": "^7.20.2",
     "babelify": "^10.0.0",
+    "brfs": "^2.0.2",
     "browserify": "^16.1.1",
     "browserify-css": "^0.15.0",
     "browserify-shim": "^3.8.6",

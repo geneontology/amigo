@@ -17,6 +17,11 @@ var html = widgets.html;
 
 require('@geneontology/wc-gocam-viz/dist/custom-elements').defineCustomElements();
 
+// using 'fs' here is enabled by https://www.npmjs.com/package/brfs
+var fs = require('fs');
+var gocam_viz_legend_data = fs.readFileSync('node_modules/@geneontology/wc-gocam-viz/dist/wc-gocam-viz/assets/legendv2.png', 'base64');
+var gocam_viz_legend_url = 'data:image/png;base64,' + gocam_viz_legend_data;
+
 // Config.
 var amigo = new (require('amigo2-instance-data'))(); // no overload
 var golr_conf = require('golr-conf');
@@ -58,7 +63,7 @@ function GPDetailsInit(){
     var dtabs = jQuery("#display-tabs");
     if (dtabs) {
         ll('Apply tabs...');
-        var fragname = window?.location?.hash
+        var fragname = window.location && window.location.hash
         if (fragname && fragname !== "#") {
             jQuery('#display-tabs a[href="' + fragname + '"]').tab('show');
         } else {
@@ -220,6 +225,8 @@ function GPDetailsInit(){
     var gocam_no_data_message = jQuery('#gocam-no-data-message');
     var gocam_fetch_error_message = jQuery('#gocam-fetch-error-message');
 
+    jQuery('#gocam-viz-legend').attr('src', gocam_viz_legend_url);
+
     // When the model select box changes, inform the go-cam widget of the new
     // model ID.
     gocam_select.on('change', function () {
@@ -242,7 +249,7 @@ function GPDetailsInit(){
             gocam_viz.setAttribute('show-gene-product', 'true');
             gocam_viz.setAttribute('show-activity', 'false');
             gocam_viz.setAttribute('show-legend', 'false');
-            gocam_viz_container.append(gocam_viz);
+            gocam_viz_container.prepend(gocam_viz);
         }
     });
     var barista_engine = new jquery_engine(rest_response);

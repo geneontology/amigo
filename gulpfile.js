@@ -308,6 +308,7 @@ function _client_compile_task(file) {
                 global: true,
                 ignore: [/\/node_modules\/(?!@geneontology|@stencil\/)/]
             })
+            .transform('brfs')
             .bundle()
             .on('error', function (err) {
                 console.log('Error while bundling ' + file);

@@ -195,6 +195,15 @@ a:hover .hilite, a:active .hilite {
     color: #3b2e18;
 }
 
+.btn-collapse-toggle .glyphicon {
+    transition: transform 350ms ease;
+    transform: rotate(180deg);
+}
+
+.btn-collapse-toggle.collapsed .glyphicon {
+    transform: none;
+}
+
 /* Begin wc-gocam-viz widget customization */
 :root {
     --gocam-width: 800px;
