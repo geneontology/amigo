@@ -697,7 +697,7 @@ sub mode_medial_search {
   $params->{q} = $self->param('q')
     if ! $params->{q} && $self->param('q');
   $self->{CORE}->kvetch(Dumper($params));
-  my $q = $params->{q};
+  my $q = $self->{OUTPUT_SANITIZER}->encode($params->{q}) || '';
 
   ## Pull our query parameter.
   if( ! defined $q || $q eq '' ){
