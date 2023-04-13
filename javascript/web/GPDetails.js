@@ -253,12 +253,11 @@ function GPDetailsInit(){
             gocam_viz_container.prepend(gocam_viz);
         }
     });
-    var barista_engine = new jquery_engine(rest_response);
-
+    var gocam_fetch_engine = new jquery_engine(rest_response);
     // If the request to get models for this GP fails, show an error message
     // and ensure the model selector, go-cam widget, and "no data" message are
     // all hidden.
-    barista_engine.register('error', function () {
+    gocam_fetch_engine.register('error', function () {
         gocam_fetch_error_message.removeClass('hidden');
         gocam_no_data_message.addClass('hidden');
         gocam_select_group.addClass('hidden');
@@ -270,17 +269,17 @@ function GPDetailsInit(){
     // is hidden. Then if there are models in the response, populate the select
     // box with those models as options. If there were no models in the response
     // show the "no data" message instead of the select box.
-    barista_engine.register('success', function (resp) {
+    gocam_fetch_engine.register('success', function (resp) {
         gocam_fetch_error_message.addClass('hidden');
         gocam_select.empty();
-        var body = resp.raw();
-        models_tab.text(`Models (${body.models.length})`);
-        if (body.models && body.models.length > 0) {
+        var models = resp.raw();
+        models_tab.text(`Models (${models.length})`);
+        if (models && models.length > 0) {
             gocam_no_data_message.addClass('hidden');
             gocam_select_group.removeClass('hidden');
             gocam_viz_container.removeClass('hidden');
-            body.models.forEach(function (model) {
-                gocam_select.append(`<option value=${model.id}>${model.title}</option>`);
+            models.forEach(function (model) {
+                gocam_select.append(`<option value=${model.gocam}>${model.title}</option>`);
             });
         } else {
             gocam_no_data_message.removeClass('hidden');
@@ -290,16 +289,10 @@ function GPDetailsInit(){
     });
 
     // Initiate the request to get list of models for the GP
-    var base = 'http://barista.berkeleybop.org';
-    var endpoint = '/search/models';
-    // TODO: handle case where reponse returns more than 100 models
-    var query = {
-        offset: 0,
-        limit: 100,
-        gp: global_acc,
-        expand: true
-    };
-    barista_engine.start(base + endpoint, query, 'GET');
+    var base = 'http://api-sierra.geneontology.io';
+    var endpoint = `/api/gp/${global_acc}/models`;
+    var query = {};
+    gocam_fetch_engine.start(base + endpoint, query, 'GET');
     models_tab.text('Models (pending...)');
 
     //
