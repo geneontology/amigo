@@ -289,7 +289,7 @@ function GPDetailsInit(){
     });
 
     // Initiate the request to get list of models for the GP
-    var base = 'http://api-sierra.geneontology.io';
+    var base = process.env.GO_API_URL;
     var endpoint = `/api/gp/${global_acc}/models`;
     var query = {};
     gocam_fetch_engine.start(base + endpoint, query, 'GET');

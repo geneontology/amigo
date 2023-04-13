@@ -309,6 +309,9 @@ function _client_compile_task(file) {
                 ignore: [/\/node_modules\/(?!@geneontology|@stencil\/)/]
             })
             .transform('brfs')
+            .transform('loose-envify', {
+                GO_API_URL: a['GO_API_URL'].value,
+            })
             .bundle()
             .on('error', function (err) {
                 console.log('Error while bundling ' + file);
