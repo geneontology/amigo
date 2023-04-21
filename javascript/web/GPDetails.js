@@ -225,6 +225,7 @@ function GPDetailsInit(){
     var gocam_no_data_message = jQuery('#gocam-no-data-message');
     var gocam_fetch_error_message = jQuery('#gocam-fetch-error-message');
     var models_tab = jQuery('a[href=#display-models-tab]');
+    var models_tab_title = 'GO-CAMs';
 
     jQuery('#gocam-viz-legend').attr('src', gocam_viz_legend_url);
 
@@ -262,7 +263,7 @@ function GPDetailsInit(){
         gocam_no_data_message.addClass('hidden');
         gocam_select_group.addClass('hidden');
         gocam_viz_container.addClass('hidden');
-        models_tab.text('Models');
+        models_tab.text(models_tab_title);
     });
 
     // When we successfully retrieve a list of models ensure the error message
@@ -273,7 +274,7 @@ function GPDetailsInit(){
         gocam_fetch_error_message.addClass('hidden');
         gocam_select.empty();
         var models = resp.raw();
-        models_tab.text(`Models (${models.length})`);
+        models_tab.text(`${models_tab_title} (${models.length})`);
         if (models && models.length > 0) {
             gocam_no_data_message.addClass('hidden');
             gocam_select_group.removeClass('hidden');
@@ -293,7 +294,7 @@ function GPDetailsInit(){
     var endpoint = `/api/gp/${global_acc}/models`;
     var query = {};
     gocam_fetch_engine.start(base + endpoint, query, 'GET');
-    models_tab.text('Models (pending...)');
+    models_tab.text(`${models_tab_title} (pending...)`);
 
     //
     ll('GPDetailsInit done.');
