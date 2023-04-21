@@ -292,7 +292,9 @@ function GPDetailsInit(){
     // Initiate the request to get list of models for the GP
     var base = process.env.GO_API_URL;
     var endpoint = `/api/gp/${global_acc}/models`;
-    var query = {};
+    var query = {
+        'causalmf': '2',
+    };
     gocam_fetch_engine.start(base + endpoint, query, 'GET');
     models_tab.text(`${models_tab_title} (pending...)`);
 
