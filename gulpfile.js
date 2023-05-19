@@ -276,6 +276,7 @@ var web_compilables = [
     'Grebe.js',
     'Matrix.js',
     'Medial.js',
+    'ModelDetails.js',
     'LandingGraphs.js',
     'LiveSearchGOlr.js',
     'LoadDetails.js',

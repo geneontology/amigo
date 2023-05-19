@@ -27,6 +27,7 @@ use CGI::Application::Plugin::Redirect;
 use AmiGO::Worker::GOlr::Term;
 use AmiGO::Worker::GOlr::GeneProduct;
 use AmiGO::Worker::GOlr::ModelAnnotation;
+use AmiGO::External::JSON;
 use AmiGO::External::QuickGO::Term;
 use AmiGO::External::XML::GONUTS;
 #use AmiGO::External::Raw;
@@ -2048,19 +2049,35 @@ sub mode_model_details {
   ### Get full info.
   ###
 
-  ## Get the data from the store.
-  my $ma_worker = AmiGO::Worker::GOlr::ModelAnnotation->new($input_id);
-  my $ma_info_hash = $ma_worker->get_info();
+  ## Get the data from external API.
+  my $json_worker = AmiGO::External::JSON->new();
+  my $external_request_url = "https://api.geneontology.xyz/gocam/$input_id/raw";
+  $json_worker->get_external_data($external_request_url);
+  my $response = $json_worker->try();
 
   ## First make sure that things are defined.
-  if ( ! defined($ma_info_hash) ||
-       $self->{CORE}->empty_hash_p($ma_info_hash) ||
-       ! defined($ma_info_hash->{$input_id}) ) {
+  if ( ! defined($response) ||
+       $self->{CORE}->empty_hash_p($response) ) {
     return $self->mode_not_found($input_id, 'model');
   }
 
-  $self->{CORE}->kvetch('solr docs: ' . Dumper($ma_info_hash));
-  $self->set_template_parameter('MA_INFO', $ma_info_hash->{$input_id});
+  my $ma_info_hash;
+  $ma_info_hash->{'model_id'} = $response->{'id'};
+  my $model_annotations = $response->{'annotations'};
+  my $comments;
+  foreach my $annotation (@$model_annotations) {
+    if ( $annotation->{'key'} eq 'title' ) {
+      $ma_info_hash->{'model_label'} = $annotation->{'value'};
+    } elsif ( $annotation->{'key'} eq 'state' ) {
+      $ma_info_hash->{'model_state'} = $annotation->{'value'};
+    } elsif ( $annotation->{'key'} eq 'comment' ) {
+      push @$comments, $annotation->{'value'};
+    }
+  }
+  $ma_info_hash->{'model_comment'} = $comments;
+
+  $self->{CORE}->kvetch('model info: ' . Dumper($ma_info_hash));
+  $self->set_template_parameter('MA_INFO', $ma_info_hash);
 
   ###
   ### Standard setup.
@@ -2078,15 +2095,15 @@ sub mode_model_details {
 
   ## Figure out the best title we can.
   my $best_title = $input_id;	# start with the worst
-  if ( $ma_info_hash->{$input_id}{'model_label'} ) {
-    $best_title = $ma_info_hash->{$input_id}{'model_label'};
+  if ( $ma_info_hash->{'model_label'} ) {
+    $best_title = $ma_info_hash->{'model_label'};
   }
   $self->set_template_parameter('page_content_title', $best_title);
 
   ## Extract the string representation of the model.
   my $model_json = undef;
-  if ( $ma_info_hash->{$input_id}{'model_graph'} ) {
-    my $model_annotation_string = $ma_info_hash->{$input_id}{'model_graph'};
+  if ( $ma_info_hash->{'model_graph'} ) {
+    my $model_annotation_string = $ma_info_hash->{'model_graph'};
     $model_json = $self->{CORE}->_read_json_string($model_annotation_string);
   }
   ## Because of the round-tripping, it's possible to have information,
@@ -2136,8 +2153,7 @@ sub mode_model_details {
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
-      #$self->{JS}->get_lib('ModelDetails.js'),
-      $self->{JS}->get_lib('AmiGOCytoView.js'),
+      $self->{JS}->get_lib('ModelDetails.js'),
       ## Things to make AmiGOCytoView.js work. HACKY! TODO/BUG
       $self->{JS}->make_var('global_id', $input_id),
       ## TODO: get load to have same as wire protocol.
