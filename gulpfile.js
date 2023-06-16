@@ -301,6 +301,13 @@ function _client_compile_task(file) {
             .exclude('ringo/httpclient')
             .transform('babelify', { 
                 presets: ["@babel/preset-env"],
+                // The default sourceType is `module` which forces strict mode. Some of our crusty
+                // old JS relies on doing funky stuff with `this` that isn't compatible with strict mode.
+                // sourceType = script does not enforce strict mode, but also doesn't allow compiling
+                // ES modules which we'll need to do to use the pathway widget. So we need to use the
+                // `unambiguous` setting to treat the source as a module when it absolutely needs to
+                // and otherwise as a script.
+                sourceType: "unambiguous",
             })
             .bundle()
             .on('error', function (err) {
