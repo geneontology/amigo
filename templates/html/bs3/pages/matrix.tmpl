@@ -27,25 +27,25 @@
 <div id="input">
   <div class="panel panel-default">
     <div class="panel-body">
-      
+
       <div class="row">
-	
+
 	<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
 	  <div>
 	    <h4>Filter shared bioentities</h4>
 	    <div id="accordion" class="bbop-widget-set-live-filters">
 	      Loading...
 	    </div>
-	  </div>	  
+	  </div>
 	</div>
-	
+
 	<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
-	  
+
 	  <div>
-	    
+
 	    <div class="panel panel-default">
 	      <div class="panel-body">
-		
+
 		<div class="form-group">
 		  <label for="query">Input GO IDS</label>
 		  <textarea id="input-terms"
@@ -55,7 +55,7 @@
 			    rows="5"
 			    cols="80"></textarea>
 		</div>
-		
+
 		<h5>Transitivity type</h5>
 		<div class="form-group">
 		  <div class="radio">
@@ -75,7 +75,7 @@
 		    </label>
 		  </div>
 		</div>
-		
+
 		<h5>Coloration</h5>
 		<div class="form-group">
 		  <div class="radio">
@@ -93,20 +93,20 @@
 		    </label>
 		  </div>
 		</div>
-		
+
 		<div class="form-group">
 		  <button id="button"
 			  type="button"
 			  class="btn btn-primary">Process</button>
 		</div>
-		
+
 	      </div>
-	      
+
 	    </div>
-	    
+
 	    <div class="panel panel-default">
 	      <div class="panel-body">
-		
+
 		<div id="initial_placeholder">No results yet.</div>
 
 		<div id="progress-widget">
@@ -125,14 +125,14 @@
 		    <option value="index" selected="selected">by initial order</option>
 		  </select>
 		</div>
-		
+
 		<div id="matrix_plot"></div>
 
 	      </div>
-	    </div>  
-	    
+	    </div>
+
 	  </div>
-	  
+
 	</div>
       </div>
     </div>
@@ -145,6 +145,23 @@
 
 <!-- <div id="matrix_results" style="text-align: center; width: 800px; height:800px;" /> -->
 <div id="matrix_results" style="margin-left: 300px;"></div>
+
+<div class="clearboth"></div>
+
+<div></div>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h4 class="panel-title">
+      <a class="accordion-toggle" data-toggle="collapse" title="Click to display the data that was used to generated this graph." href="#dropheader">Graph data&nbsp;<span class="glyphicon glyphicon-question-sign"></span>
+      </a>
+    </h4>
+  </div>
+  <div id="dropheader" class="panel-collapse collapse">
+    <div class="panel-body">
+      <div id="datadrop">The raw data from your query will be displayed here.</div>
+    </div>
+  </div>
+</div>
 
 <div class="clearboth"></div>
 

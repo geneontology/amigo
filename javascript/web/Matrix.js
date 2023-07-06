@@ -435,6 +435,7 @@ function TermDataStage(term_info, term_accs){
 	// Next, we put our link information into the same format as
 	// the example.
 	var already_done_links = {};
+	var tstr = '<table id="datatable" class="table"><tbody>';
 	us.each(seen_links, function(sub_data, sub){
 	    us.each(sub_data, function(link_count, obj){
 
@@ -455,9 +456,37 @@ function TermDataStage(term_info, term_accs){
 			'value': link_count
 		    };
 		    data.links.push(link);
+
+		    tstr +=
+			'<tr>' +
+			'<td>' +
+			term_info[sub]['name'] +
+			'</td>' +
+			'<td>' +
+			sub +
+			'</td>' +
+			'<td>'+
+			term_info[sub]['source'] +
+			'</td>' +
+			'<td>' +
+			term_info[obj]['name'] +
+			'</td>' +
+			'<td>' +
+			obj +
+			'</td>' +
+			'<td>' +
+			term_info[obj]['source'] +
+			'</td>' +
+			'<td>' +
+			link_count +
+			'</td>'+
+			'</tr>';
 		}
 	    });
 	});
+	tstr += '</tbody></table>';
+	jQuery("#datadrop").empty();
+	jQuery("#datadrop").append(tstr);
 
 	ll(' Seen links: ' + bbop.dump(seen_links));
 	ll(' Data: ' + bbop.dump(data));

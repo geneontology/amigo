@@ -307,7 +307,15 @@ function _client_compile_task(file) {
                 // bundled by browserify. See: 
                 // https://github.com/babel/babelify#why-arent-files-in-node_modules-being-transformed
                 global: true,
-                ignore: [/\/node_modules\/(?!@geneontology|@stencil\/)/]
+                ignore: [/\/node_modules\/(?!@geneontology|@stencil\/)/],
+
+                // The default sourceType is `module` which forces strict mode. Some of our crusty
+                // old JS relies on doing funky stuff with `this` that isn't compatible with strict mode.
+                // sourceType = script does not enforce strict mode, but also doesn't allow compiling
+                // ES modules like the pathway widget (see above). So we need to use the `unambiguous`
+                // setting to treat the source as a module when it absolutely needs to and otherwise
+                // as a script.
+                sourceType: "unambiguous",
             })
             .transform('brfs')
             .transform('loose-envify', {
