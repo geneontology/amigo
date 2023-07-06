@@ -2064,17 +2064,17 @@ sub mode_model_details {
   my $ma_info_hash;
   $ma_info_hash->{'model_id'} = $response->{'id'};
   my $model_annotations = $response->{'annotations'};
-  my $comments;
   foreach my $annotation (@$model_annotations) {
     if ( $annotation->{'key'} eq 'title' ) {
       $ma_info_hash->{'model_label'} = $annotation->{'value'};
     } elsif ( $annotation->{'key'} eq 'state' ) {
       $ma_info_hash->{'model_state'} = $annotation->{'value'};
-    } elsif ( $annotation->{'key'} eq 'comment' ) {
-      push @$comments, $annotation->{'value'};
+    } elsif ( $annotation->{'key'} eq 'wasDerivedFrom' ) {
+      $ma_info_hash->{'derived_from_id'} = $annotation->{'value'};
+      $ma_info_hash->{'derived_from_link'} = $self->{CORE}->get_interlink({mode => 'model_details', 
+          arg => {acc=>$annotation->{'value'}}});
     }
   }
-  $ma_info_hash->{'model_comment'} = $comments;
 
   $self->{CORE}->kvetch('model info: ' . Dumper($ma_info_hash));
   $self->set_template_parameter('MA_INFO', $ma_info_hash);
@@ -2119,20 +2119,13 @@ sub mode_model_details {
   my $github_base =
     'https://github.com/geneontology/noctua-models/blob/master/models/';
   my $github_file_ext = '.ttl';
-  my $noctua_base = $self->{WEBAPP_TEMPLATE_PARAMS}{noctua_base};
-  my $editor_base = $noctua_base . 'editor/graph/';
-  my $viewer_base = $noctua_base . 'workbench/noctua-visual-pathway-editor/?model_id=';
   ## We need to translate some of the document information.
   ## TODO/BUG: This is temporary as we work out what we'll actually have.
   my @s = split(':', $input_id);
   my $fid = $s[scalar(@s) -1];
   ##
   my $repo_file_url = $github_base . $fid . $github_file_ext;
-  my $edit_file_url = $editor_base . $ma_info_hash->{'model_id'};
-  my $view_file_url = $viewer_base . $ma_info_hash->{'model_id'};
   $self->set_template_parameter('repo_file_url', $repo_file_url);
-  $self->set_template_parameter('edit_file_url', $edit_file_url);
-  $self->set_template_parameter('view_file_url', $view_file_url);
 
   ## Our AmiGO services CSS.
   my $prep =

@@ -16,53 +16,30 @@
       <!-- <dd>(n/a)</dd> -->
       <!-- [% END %] -->
       
-      <dt>ID</dt>
-      [% IF MA_INFO.model_id %]
-      <dd>[% MA_INFO.model_id %]</dd>
-      [% ELSE %]
-      <dd>(n/a)</dd>
-      [% END %]
-      
-      <dt>Label</dt>
+      <dt>Title</dt>
       [% IF MA_INFO.model_label %]
       <dd>[% MA_INFO.model_label %]</dd>
       [% ELSE %]
       <dd>(n/a)</dd>
       [% END %]
       
-      <dt>State</dt>
-      [% IF MA_INFO.model_state %]
-      <dd>[% MA_INFO.model_state %]</dd>
+      <dt>Model ID</dt>
+      [% IF MA_INFO.model_id %]
+      <dd>[% MA_INFO.model_id %]</dd>
       [% ELSE %]
       <dd>(n/a)</dd>
       [% END %]
       
-      <dt>Comment</dt>
-      [% IF MA_INFO.model_comment %]
-      [%    FOREACH comm IN MA_INFO.model_comment %]
-      <dd>[% comm %]</dd>
-      [% END %]
+      <dt>Derived From</dt>
+      [% IF MA_INFO.derived_from_id %]
+      <dd><a href="[% MA_INFO.derived_from_link %]">[% MA_INFO.derived_from_id %]</a></dd>
       [% ELSE %]
       <dd>(n/a)</dd>
       [% END %]
       
-      <dt>File</dt>
+      <dt>Data file (ttl)</dt>
       [% IF MA_INFO.model_id %]
       <dd><a href="[% repo_file_url %]">[% MA_INFO.model_id %]</a> <small>(@GitHub)</small></dd>
-      [% ELSE %]
-      <dd>(n/a)</dd>
-      [% END %]
-      
-      <dt>View</dt>
-      [% IF MA_INFO.model_id %]
-      <dd><a href="[% view_file_url %]">CytoView Workbench</a> (Noctua)</dd>
-      [% ELSE %]
-      <dd>(n/a)</dd>
-      [% END %]
-      
-      <dt>Edit</dt>
-      [% IF MA_INFO.model_id %]
-      <dd><a href="[% edit_file_url %]">Noctua</a></dd>
       [% ELSE %]
       <dd>(n/a)</dd>
       [% END %]
