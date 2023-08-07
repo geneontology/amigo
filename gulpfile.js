@@ -424,7 +424,7 @@ function load_ontology_purge_safe() {
             --ontology-pre-check \
             --solr-url ${golr_private_url} \
             --solr-config ${ontology_metadata} \
-            --solr-log' ${solr_load_log} \
+            --solr-log ${solr_load_log} \
             --solr-purge \
             --solr-load-ontology \
             --solr-load-ontology-general`
