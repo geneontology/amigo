@@ -27,8 +27,8 @@ sub new {
 
   ## Default closure relation. Starting setup to deal with
   ## future of #620.
-  #my $default_closure_relation_set = 'regulates';
-  my $default_closure_relation_set = 'isa_partof';
+  my $default_closure_relation_set = 'regulates';
+  #my $default_closure_relation_set = 'isa_partof';
 
   #$self->kvetch('searcher: ' . $self->{AEJS_GOLR_DOC});
 
