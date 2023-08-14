@@ -1426,7 +1426,8 @@ sub mode_term_details {
   ## using. Default the default to 'isa_partof'.
   $params->{relation} = $self->param('relation')
     if ! $params->{relation} && $self->param('relation');
-  my $default_relation = $params->{relation} || 'isa_partof';
+  #my $default_relation = $params->{relation} || 'isa_partof';
+  my $default_relation = $params->{relation} || 'regulates';
   $self->set_template_parameter('DEFAULT_RELATION', $default_relation);
 
   ## Optional RESTmark input for embedded search_pane--external
