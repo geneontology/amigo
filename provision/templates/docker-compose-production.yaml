@@ -8,6 +8,7 @@ services:
     environment:
       - GOLR=1
       - AMIGO=0
+      - GOLR_SOLR_MEMORY={{ GOLR_SOLR_MEMORY }}
     volumes:
       - {{ stage_dir }}/golr-configs/java-golr-monit:/etc/monit/conf-enabled/java
       - {{ stage_dir }}/golr-configs/console-capture-golr.xml:/etc/jetty9/console-capture.xml
@@ -38,11 +39,13 @@ services:
       - {{ stage_dir }}/amigo-configs/apache2.ports.conf:/etc/apache2/ports.conf
       - {{ stage_dir }}/apache_amigo_logs:/var/log/apache2
     restart: unless-stopped
-    healthcheck:
-       test: wget --no-verbose --timeout=5 --tries=5 --spider http://amigo:9999 || kill 1
-       interval: 60s
-       retries: 1
-       start_period: 30s
+    # Needs investigation: The server starts after a fresh install in about 90 seconds. But somehow it gets killed 
+    # after 60 seconds even though we set the start period to 300 seconds.
+    # healthcheck:
+    #   test: wget --no-verbose --timeout=5 --tries=5 --spider http://amigo:9999 || kill 1
+    #   interval: 60s
+    #   retries: 1
+    #   start_period: 300s
     depends_on:
       - golr 
 
@@ -58,6 +61,7 @@ services:
       - S3_BUCKET={{ S3_BUCKET }}
       - USE_SSL={{ USE_SSL }}
       - S3_SSL_CERTS_LOCATION={{ S3_SSL_CERTS_LOCATION }}
+      - USE_CLOUDFLARE={{ USE_CLOUDFLARE }}
     volumes:
       - {{ stage_dir }}/proxy-configs:/etc/apache2/sites-enabled
       - {{ stage_dir }}/apache_proxy_logs:/var/log/apache2

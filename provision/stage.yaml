@@ -190,7 +190,7 @@
       src: "files/robots.txt"
       dest: "{{ stage_dir }}/robots.txt"
 
-  - name: Check if index archive exists
+  - name: Check if repo exists
     stat:
       path: '{{ repo_dir }}'
     register: repo_dir_result

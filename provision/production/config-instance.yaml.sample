@@ -6,6 +6,11 @@ instance:
     tags:
        Name: REPLACE_ME  # This will be the tag used in AWS 
     instance_type: t2.large
+    use_elastic_ip: True
+
+    # LIST OF DNS type A records to create.
+    dns_record_name: [ "REPLACE_ME_FQDN_FOR_AMIGO", "REPLACE_ME_FQDN_FOR_GOLR" ]
+    dns_zone_id: "REPLACE_ME_FOR_DNS_ZONE_ID"
     disk_size: 200
     open_ports:
        - 80

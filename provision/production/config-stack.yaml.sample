@@ -7,7 +7,7 @@ stack:
       PROD_MODE: 1
       stage_dir: /home/ubuntu/stage_dir
       amigo_image: geneontology/amigo-base:V1
-      apache_proxy_image: geneontology/apache-proxy:v4
+      apache_proxy_image: geneontology/apache-proxy:v6
       S3_CRED_FILE: /tmp/go-aws-credentials
 
       S3_BUCKET: REPLACE_ME_APACHE_LOG_BUCKET
@@ -32,9 +32,13 @@ stack:
       release_archive_doi: http://current.geneontology.org/metadata/release-archive-doi.json
 
 
-      AMIGO_DYNAMIC: REPLACE_ME            # aes-test-amigo.geneontology.io
-      AMIGO_DYNAMIC_ALIAS: REPLACE_ME      # aes-test-amigo.geneontology.io
-      AMIGO_PUBLIC_GOLR: REPLACE_ME        # aes-test-golr.geneontology.io
-      AMIGO_PUBLIC_GOLR_ALIAS: REPLACE_ME  # aes-test-golr.geneontology.io
+      AMIGO_DYNAMIC: REPLACE_ME            # This should be managed by terraform
+      AMIGO_DYNAMIC_ALIAS: REPLACE_ME      # This should point to final fqdn
+      AMIGO_PUBLIC_GOLR: REPLACE_ME        # This should be managed by terraform
+      AMIGO_PUBLIC_GOLR_ALIAS: REPLACE_ME  # This should point to final fqdn
       AMIGO_PUBLIC_GOLR_BULK: REPLACE_ME   # aes-test-golr.geneontology.io
+
+      # Populate with url for go api if desired. 
+      GO_API_URL: ""
+      USE_CLOUDFLARE: 0
    scripts: [ "stage.yaml", "start_services.yaml" ]
