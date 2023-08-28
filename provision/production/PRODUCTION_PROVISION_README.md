@@ -31,7 +31,7 @@ to AWS. It includes amigo and golr.
 The instructions in this document are run from the POV that we're working with this developement environment; i.e.:
 
 ```
-docker run --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.1 /bin/bash
+docker run --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.2 /bin/bash
 apt-get update && apt-get dist-upgrade
 git clone https://github.com/geneontology/amigo
 cd amigo/provision
@@ -39,10 +39,10 @@ cd amigo/provision
 
 ## Install the Python deployment script (skip if using as dev environment)
 
-Note the script has a <b>-dry-run</b> option. You can always copy the command and execute manually--useful to run the ansible playbooks.
+Note the script has a <b>-dry-run</b> option. You can always copy the command and execute manually.
 
 ```
->pip install go-deploy==0.4.1 # requires python >=3.8
+>pip install go-deploy==0.4.2 # requires python >=3.8
 >go-deploy -h
 ```
 
@@ -53,7 +53,12 @@ backend.tf.sample.
 
 ## DNS
 
-DNS records are used for amigo and golr. Once the instance has been provisioned, you would need to point these to elastic ip of the VM. For testing purposes you can use aes-test-amigo.geneontology.io for amigo and aes-test-golr.geneontology.io for golr. Once you deploy the VM and have the public ip address go to AWS Route 52 and modify the A records to point to the VM's public IP address
+Note: DNS records are used for amigo and golr. The tool would create them during `create phase` and destroy them during `destroy phase`. See `dns_record_name` in the instance config file and `AMIGO_DYNAMIC` and `AMIGO_PUBLIC_GOLR` in the stack config file. 
+
+The aliases `AMIGO_DYNAMIC_ALIAS` and `AMIGO_PUBLIC_GOLR_ALIAS` should be FQDN of EXISTING DNS records. 
+They should NOT be managed by the tool otherwise the tool would delete them during the `destroy phase`. 
+
+Once the instance has been provisioned and tested, the aliases would need to modified manually and point to the public ip address of the vm.
 
 ## SSH Keys
 
@@ -123,24 +128,28 @@ Check list:
 cp ./production/config-instance.yaml.sample config-instance.yaml # if not already done
 cat ./config-instance.yaml   # verify contents and modify if needed.
 export ANSIBLE_HOST_KEY_CHECKING=False
+
+# Deploy command.
 go-deploy --workspace production-YYYY-MM-DD --working-directory aws -verbose --conf config-instance.yaml
 
-# The previous command creates a terraform tfvars. These variables override the variables in `aws/main.tf`
+# Display the terraform state
+go-deploy --workspace production-YYYY-MM-DD --working-directory aws -verbose -show
+
+# Display the public ip address of the aws instance. 
+go-deploy --workspace production-YYYY-MM-DD --working-directory aws -verbose -output
+
+#Useful Information When Debugging.
+# The deploy command creates a terraform tfvars. These variables override the variables in `aws/main.tf`
 cat production-YYYY-MM-DD.tfvars.json
 
-# The previous command creates a ansible inventory file.
+# The Deploy command creates a ansible inventory file.
 cat production-YYYY-MM-DD-inventory.cfg
-
-# Useful terraform commands to check what you have just done
-terraform -chdir=aws workspace show   # current terraform workspace
-terraform -chdir=aws show             # current state deployed ...
-terraform -chdir=aws output           # public ip of aws instance
 ```
 
 ## Deploy Stack to AWS
 
 Check list:
-- [ ] <b>Make DNS names for golr and amigo point to public ip address on AWS Route 53.</b>
+- [ ] <b>Check that DNS names for golr and amigo map point to public ip address on AWS Route 53.</b>
 - [ ] Location of SSH keys may need to be replaced after copying `production/config-stack.yaml.sample` from the above steps.
 - [ ] S3 credentials are placed in a file using format described above.
 - [ ] S3 URI if SSL is enabled. Location of ssl certs/key (S3\_SSL\_CERTS\_LOCATION)
@@ -181,28 +190,23 @@ Check list:
 ## Destroy Instance and Delete Workspace.
 
 ```sh
-# Make sure you pointing to the correct workspace before destroying the stack.
-terraform -chdir=aws workspace list
-terraform -chdir=aws workspace select <name_of_workspace>
-terraform -chdir=aws workspace show # shows the name of current workspace
-terraform -chdir=aws show           # shows the state you are about to destroy
-terraform -chdir=aws destroy        # You would need to type Yes to approve.
+Make sure you are deleting the correct workspace.
+go-deploy --workspace production-YYYY-MM-DD --working-directory aws -verbose -show
 
-# Now delete workspace.
-terraform -chdir=aws workspace select default # change to default workspace
-terraform -chdir=aws workspace delete production-YYYY-MM-DD  # delete workspace.
+# Destroy.
+go-deploy --workspace production-YYYY-MM-DD --working-directory aws -verbose -destroy
 ```
 
 ## Appendix I: Development Environment
 
 ```
 # Start docker container `go-dev` in interactive mode.
-docker run --rm --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.1  /bin/bash
+docker run --rm --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.2  /bin/bash
 
 # In the command above we used the `--rm` option which means the container will be deleted when you exit. If that is not
 # the intent and you want delete it later at your own convenience. Use the following `docker run` command.
 
-docker run --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.1  /bin/bash
+docker run --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.2  /bin/bash
 
 # Exit or stop the container.
 docker stop go-dev  # stop container with the intent of restarting it. This equivalent to `exit` inside the container

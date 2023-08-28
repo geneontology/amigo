@@ -36,6 +36,9 @@ GOLR_INPUT_ONTOLOGIES: "http://skyhook.berkeleybop.org/release/ontology/extensio
 GOLR_INPUT_GAFS: "http://current.geneontology.org/annotations/aspgd.gaf.gz
                  http://skyhook.berkeleybop.org/release/annotations/cgd.gaf.gz"
                   
+####
+#
+GO_API_URL: ""
 ########
 # For logrotate to s3 bucket
 #######`
@@ -62,3 +65,6 @@ AMIGO_DYNAMIC_ALIAS: amigo.example.com
 AMIGO_PUBLIC_GOLR: amigo-golr.example.com
 AMIGO_PUBLIC_GOLR_ALIAS: amigo-golr.example.com
 AMIGO_PUBLIC_GOLR_BULK: '{{ AMIGO_PUBLIC_GOLR }}'
+
+##
+USE_CLOUDFLARE: 0
