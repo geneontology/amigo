@@ -4,6 +4,6 @@
 - id: PANTHER
   label: PANTHER
   description: ""
-  website: http://pantherdb.org
-  webservice: http://pantherdb.org/webservices/go/overrep.jsp
+  website: https://pantherdb.org
+  webservice: https://pantherdb.org/webservices/go/overrep.jsp
   logo: logo_panther.jpg
