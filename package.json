@@ -34,7 +34,7 @@
     "bbop-rest-manager": "0.0.17",
     "bbop-rest-response": "0.0.4",
     "body-parser": "1.18.2",
-    "bootstrap": "4.0.0",
+    "bootstrap": "4.3.1",
     "class-expression": "0.0.13",
     "cors": "2.8.4",
     "cytoscape": "3.2.11",
