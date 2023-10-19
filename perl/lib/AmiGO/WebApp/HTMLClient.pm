@@ -1911,6 +1911,11 @@ sub mode_reference_details {
   ## public bookmarking API.
   $filters = $self->_add_search_bookmark_api_to_filters($params, $filters);
 
+  ## Normalize on PMID:123456 if 123456.
+  if( $input_ref_id =~ /^[0-9]{1,100}$/ ){
+      $input_ref_id = 'PMID:' . $input_ref_id;
+  }
+
   ## Input sanity check.
   if( $input_ref_id =~ /^pmid\:[0-9]{1,100}$/ ){
     return $self->mode_fatal("Please use a PubMed ID of the form: PMID:123456.");
@@ -2071,7 +2076,7 @@ sub mode_model_details {
       $ma_info_hash->{'model_state'} = $annotation->{'value'};
     } elsif ( $annotation->{'key'} eq 'wasDerivedFrom' ) {
       $ma_info_hash->{'derived_from_id'} = $annotation->{'value'};
-      $ma_info_hash->{'derived_from_link'} = $self->{CORE}->get_interlink({mode => 'model_details', 
+      $ma_info_hash->{'derived_from_link'} = $self->{CORE}->get_interlink({mode => 'model_details',
           arg => {acc=>$annotation->{'value'}}});
     }
   }
