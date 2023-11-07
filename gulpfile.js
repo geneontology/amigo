@@ -271,6 +271,7 @@ var web_compilables = [
     'FacetMatrix.js',
     'GeneralSearchForwarding.js',
     'Gannet.js',
+    'GOCAMWidgetLoader.js',
     'GOOSE.js',
     'GPDetails.js',
     'Grebe.js',
@@ -317,7 +318,6 @@ function _client_compile_task(file) {
                 // as a script.
                 sourceType: "unambiguous",
             })
-            .transform('brfs')
             .transform('loose-envify', {
                 GO_API_URL: a['GO_API_URL'].value,
             })

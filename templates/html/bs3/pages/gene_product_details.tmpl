@@ -132,14 +132,14 @@
           <label for="gomodel-select">Available GO-CAM models</label>
           <select class="form-control" id="gomodel-select"></select>
         </div>
-        <div id="gp-gocam-viz-container" class="gocam-viz-container">
+        <div id="gp-gocam-viz-container">
           <button class="btn btn-link btn-collapse-toggle collapsed" type="button" data-toggle="collapse" data-target="#gocam-viz-legend-container" aria-expanded="false" aria-controls="gocam-viz-legend-container">
             Legend <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> 
           </button>
-          <div class="collapse" id="gocam-viz-legend-container">
-            <img width="566" id="gocam-viz-legend">
+          <div class="collapse gocam-viz-legend-container" id="gocam-viz-legend-container">
+            <wc-gocam-legend></wc-gocam-legend>
           </div>
-          </div>
+        </div>
         <div id="gocam-no-data-message" class="hidden">
           <p>No GO-CAM models associated with Gene Product [% GP_INFO.internal_id %]</p>
           <p>To learn more about GO-CAM models visit <a href="http://geneontology.org/go-cam">http://geneontology.org/go-cam</a>.

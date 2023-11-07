@@ -112,7 +112,7 @@ AMIGO_WORKING_PATH:
 GO_API_URL:
   comment: Base URL of the GO API
   type: url
-  value: https://api-sierra.geneontology.io
+  value: https://api.geneontology.org
 GOLR_CATALOG_LOCATION:
   comment: The location of the GO catalog file for various work.
   type: file
