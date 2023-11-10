@@ -22,7 +22,7 @@
     "npm": ">= 5.6.0"
   },
   "dependencies": {
-    "@geneontology/wc-gocam-viz": "0.0.48",
+    "@geneontology/wc-gocam-viz": "^1.0.0",
     "bbop": "2.4.3",
     "bbop-core": "0.0.5",
     "bbop-graph": "0.0.19",
@@ -52,6 +52,7 @@
     "minimist": "1.2.0",
     "mustache": "2.3.0",
     "plotly.js": "1.35.2",
+    "popper.js": "^1.12.9",
     "pup-tent": "0.9.10",
     "request": "2.85.0",
     "solr-client": "0.7.0",
@@ -64,7 +65,6 @@
     "@babel/core": "^7.21.3",
     "@babel/preset-env": "^7.20.2",
     "babelify": "^10.0.0",
-    "brfs": "^2.0.2",
     "browserify": "^16.1.1",
     "browserify-css": "^0.15.0",
     "browserify-shim": "^3.8.6",

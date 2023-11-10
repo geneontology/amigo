@@ -15,13 +15,6 @@ var bbop = require('bbop-core');
 var widgets = require('bbop-widget-set');
 var html = widgets.html;
 
-require('@geneontology/wc-gocam-viz/dist/custom-elements').defineCustomElements();
-
-// using 'fs' here is enabled by https://www.npmjs.com/package/brfs
-var fs = require('fs');
-var gocam_viz_legend_data = fs.readFileSync('node_modules/@geneontology/wc-gocam-viz/dist/wc-gocam-viz/assets/legendv2.png', 'base64');
-var gocam_viz_legend_url = 'data:image/png;base64,' + gocam_viz_legend_data;
-
 // Config.
 var amigo = new (require('amigo2-instance-data'))(); // no overload
 var golr_conf = require('golr-conf');
@@ -227,8 +220,6 @@ function GPDetailsInit(){
     var models_tab = jQuery('a[href=#display-models-tab]');
     var models_tab_title = 'GO-CAMs';
 
-    jQuery('#gocam-viz-legend').attr('src', gocam_viz_legend_url);
-
     // When the model select box changes, inform the go-cam widget of the new
     // model ID.
     gocam_select.on('change', function () {
@@ -245,11 +236,6 @@ function GPDetailsInit(){
             var model_id = gocam_select.val();
             gocam_viz = document.createElement('wc-gocam-viz');
             gocam_viz.setAttribute('gocam-id', model_id);
-            gocam_viz.setAttribute('show-go-cam-selector', 'false');
-            gocam_viz.setAttribute('show-has-input', 'false');
-            gocam_viz.setAttribute('show-has-output', 'false');
-            gocam_viz.setAttribute('show-gene-product', 'true');
-            gocam_viz.setAttribute('show-activity', 'false');
             gocam_viz.setAttribute('show-legend', 'false');
             gocam_viz_container.prepend(gocam_viz);
         }
@@ -280,7 +266,7 @@ function GPDetailsInit(){
             gocam_select_group.removeClass('hidden');
             gocam_viz_container.removeClass('hidden');
             models.forEach(function (model) {
-                gocam_select.append(`<option value=${model.gocam}>${model.title}</option>`);
+                gocam_select.append(`<option value=${model.gocam.replace("http://model.geneontology.org/", "")}>${model.title}</option>`);
             });
         } else {
             gocam_no_data_message.removeClass('hidden');

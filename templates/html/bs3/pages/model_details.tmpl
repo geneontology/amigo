@@ -2,6 +2,10 @@
 
 [% INCLUDE common/noscript_js_limited.tmpl %]
 
+<script id="gocam-data" type='application/json'>
+  [% GOCAM_DATA %]
+</script>
+
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">Model Information</h3>
@@ -55,16 +59,14 @@
   </div>
   <div class="panel-body">
   [% IF MA_INFO.model_id %]
-    <wc-gocam-viz 
-      id="gocam-1"
-      gocam-id="[% MA_INFO.model_id %]"
-      show-go-cam-selector=false
-      show-has-input=false
-      show-has-output=false
-      show-gene-product=true
-      show-activity=false
-      show-legend=false
-    ></wc-gocam-viz>
+    <wc-gocam-viz id="gocam-1" show-legend=false></wc-gocam-viz>
+
+    <button class="btn btn-link btn-collapse-toggle collapsed" type="button" data-toggle="collapse" data-target="#gocam-viz-legend-container" aria-expanded="false" aria-controls="gocam-viz-legend-container">
+      Legend <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> 
+    </button>
+    <div class="collapse gocam-viz-legend-container" id="gocam-viz-legend-container">
+      <wc-gocam-legend></wc-gocam-legend>
+    </div>
   [% END %]
   </div>
 </div>

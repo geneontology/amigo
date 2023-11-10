@@ -1860,6 +1860,7 @@ sub mode_gene_product_details {
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('GOCAMWidgetLoader.js'),
       $self->{JS}->get_lib('GPDetails.js'),
       # $self->{JS}->make_var('global_count_data', $gpc_info),
       # $self->{JS}->make_var('global_rand_to_acc', $rand_to_acc),
@@ -2056,7 +2057,7 @@ sub mode_model_details {
 
   ## Get the data from external API.
   my $json_worker = AmiGO::External::JSON->new();
-  my $external_request_url = "https://api.geneontology.xyz/gocam/$input_id/raw";
+  my $external_request_url = $self->{CORE}->amigo_env('GO_API_URL') . "/api/go-cam/$input_id";
   $json_worker->get_external_data($external_request_url);
   my $response = $json_worker->try();
 
@@ -2083,6 +2084,7 @@ sub mode_model_details {
 
   $self->{CORE}->kvetch('model info: ' . Dumper($ma_info_hash));
   $self->set_template_parameter('MA_INFO', $ma_info_hash);
+  $self->set_template_parameter('GOCAM_DATA', $self->{CORE}->_write_json_string($response));
 
   ###
   ### Standard setup.
@@ -2152,6 +2154,7 @@ sub mode_model_details {
      javascript =>
      [
       $self->{JS}->get_lib('GeneralSearchForwarding.js'),
+      $self->{JS}->get_lib('GOCAMWidgetLoader.js'),
       $self->{JS}->get_lib('ModelDetails.js'),
       ## Things to make AmiGOCytoView.js work. HACKY! TODO/BUG
       $self->{JS}->make_var('global_id', $input_id),
