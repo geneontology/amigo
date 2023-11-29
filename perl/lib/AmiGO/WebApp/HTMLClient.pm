@@ -1589,6 +1589,24 @@ sub mode_term_details {
   $self->set_template_parameter('NEIGHBORHOOD_INFO', $nay_info);
 
   ###
+  ### Taxon constraints.
+  ###
+
+  my $tc = [];
+  foreach my $parent (@{$nay_info->{parents}}){
+    if( $parent->{acc} =~ /^NCBITaxon/ ){
+      push @$tc,
+	{
+	 taxon_rel_acc => $parent->{rel},
+	 taxon_name => $parent->{name},
+	 taxon_acc => $parent->{acc},
+	 taxon_link => $parent->{link}
+	};
+    }
+  }
+  $self->set_template_parameter('TAXON_CONSTRAINTS', $tc);
+
+  ###
   ### Bridge variables from old system.
   ###
 

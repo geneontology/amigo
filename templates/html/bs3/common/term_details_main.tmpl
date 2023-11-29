@@ -118,6 +118,27 @@
 		      title="See term history.">history for [% TERM_INFO.acc %]</a> at QuickGO</dd>
       [% END %]
 
+      <!-- Taxon constraints. -->
+      <dt>Taxon info</dt>
+      [% IF TAXON_CONSTRAINTS.size == 0 %]
+      <dd>None</dd>
+      [% ELSE %]
+      [%  FOREACH xtrain = TAXON_CONSTRAINTS %]
+      <dd>
+	[% IF xtrain.taxon_rel_acc == 'RO:0002160' %]
+	<i>only in taxon</i>
+	[% ELSIF xtrain.taxon_rel_acc == 'RO:0002161' %]
+	<i>never in taxon</i>
+	[% ELSIF xtrain.taxon_rel_acc == 'RO:0002162' %]
+	<i>in taxon</i>
+	[% ELSE %]
+	[% xtrain.taxon_rel_acc %]
+	[% END %]
+	<a href="[% xtrain.taxon_link %]">[% xtrain.taxon_name %]</a>
+      </dd>
+      [%  END %]
+      [% END %]
+
       <!-- Subsets -->
       <dt>Subset</dt>
       [% IF TERM_INFO.subsets.size != 0 %]
