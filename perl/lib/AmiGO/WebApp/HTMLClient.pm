@@ -1595,12 +1595,21 @@ sub mode_term_details {
   my $tc = [];
   foreach my $parent (@{$nay_info->{parents}}){
     if( $parent->{acc} =~ /^NCBITaxon/ ){
+
+      ## Use the general abbs linker.
+      my $tlink = undef;
+      my($cdb, $ckey) = $self->{CORE}->split_gene_product_acc($parent->{acc});
+      my $link_try = $self->{CORE}->database_link($cdb, $ckey);
+      if( $link_try ){
+	$tlink = $link_try;
+      }
+
       push @$tc,
 	{
 	 taxon_rel_acc => $parent->{rel},
 	 taxon_name => $parent->{name},
 	 taxon_acc => $parent->{acc},
-	 taxon_link => $parent->{link}
+	 taxon_link => $tlink
 	};
     }
   }

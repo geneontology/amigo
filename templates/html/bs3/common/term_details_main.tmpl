@@ -134,7 +134,11 @@
 	[% ELSE %]
 	[% xtrain.taxon_rel_acc %]
 	[% END %]
+	[%  IF xtrain.taxon_link %]
 	<a href="[% xtrain.taxon_link %]">[% xtrain.taxon_name %]</a>
+	[%  ELSE %]
+	[% xtrain.taxon_name %]
+	[%  END %]
       </dd>
       [%  END %]
       [% END %]
