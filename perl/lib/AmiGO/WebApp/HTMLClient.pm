@@ -1616,6 +1616,33 @@ sub mode_term_details {
   $self->set_template_parameter('TAXON_CONSTRAINTS', $tc);
 
   ###
+  ### Chemical reaction participants.
+  ###
+
+  my $crp = [];
+  foreach my $parent (@{$nay_info->{parents}}){
+    if( $parent->{rel} eq 'RO:0000057' ){
+
+      ## Use the general abbs linker.
+      my $tlink = undef;
+      my($cdb, $ckey) = $self->{CORE}->split_gene_product_acc($parent->{acc});
+      my $link_try = $self->{CORE}->database_link($cdb, $ckey);
+      if( $link_try ){
+	$tlink = $link_try;
+      }
+
+      push @$crp,
+	{
+	 crp_rel_acc => $parent->{rel},
+	 crp_name => $parent->{name},
+	 crp_acc => $parent->{acc},
+	 crp_link => $tlink
+	};
+    }
+  }
+  $self->set_template_parameter('CHEMICAL_REACTION_PARTICIPANTS', $crp);
+
+  ###
   ### Bridge variables from old system.
   ###
 

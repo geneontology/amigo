@@ -143,6 +143,23 @@
       [%  END %]
       [% END %]
 
+      <!-- Chemical reaction participants. -->
+      <dt>Chem. react.</dt>
+      [% IF CHEMICAL_REACTION_PARTICIPANTS.size == 0 %]
+      <dd>None</dd>
+      [% ELSE %]
+      [%  FOREACH crp = CHEMICAL_REACTION_PARTICIPANTS %]
+      <dd>
+	<i>has participant</i>
+	[% IF crp.crp_link %]
+	<a href="[% crp.crp_link %]">[% crp.crp_name %]</a>
+	[% ELSE %]
+	[%  crp.crp_name %]
+	[% END %]
+      </dd>
+      [%  END %]
+      [% END %]
+
       <!-- Subsets -->
       <dt>Subset</dt>
       [% IF TERM_INFO.subsets.size != 0 %]
