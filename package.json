@@ -22,6 +22,7 @@
     "npm": ">= 5.6.0"
   },
   "dependencies": {
+    "@geneontology/wc-gocam-viz": "^1.0.0",
     "bbop": "2.4.3",
     "bbop-core": "0.0.5",
     "bbop-graph": "0.0.19",
@@ -50,6 +51,7 @@
     "minimist": "1.2.0",
     "mustache": "2.3.0",
     "plotly.js": "1.35.2",
+    "popper.js": "^1.12.9",
     "pup-tent": "0.9.10",
     "request": "2.85.0",
     "solr-client": "0.7.0",
@@ -69,12 +71,13 @@
     "gulp": "^4.0.2",
     "gulp-bump": "^3.1.0",
     "gulp-develop-server": "0.5.2",
+    "loose-envify": "^1.4.0",
     "mocha": "5.0.5",
     "node-cache": "4.2.0",
     "npm-check-updates": "^2.14.1",
     "vinyl-source-stream": "2.0.0"
   },
-  "browserify": { 
+  "browserify": {
     "transform": [
       "browserify-shim"
     ]

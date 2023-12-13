@@ -15,7 +15,7 @@
     <!-- <div style="padding-bottom: 3px;"> -->
     <div style="float:right;">
       <a class="bbop-js-tooltip" title="Let us know if there are any additions, concerns, or other issues that you'd like to share about this data." href="http://help.geneontology.org">
-	<span class="label label-primary">Data health&nbsp;<span class="glyphicon glyphicon-heart"></span>
+	<span class="label label-primary">Feedback&nbsp;<span class="glyphicon glyphicon-heart"></span>
 	</span>
       </a>
     </div>
@@ -116,6 +116,48 @@
       <dt>History</dt>
       <dd>See term <a href="[% GO_HISTORY_LINK %]"
 		      title="See term history.">history for [% TERM_INFO.acc %]</a> at QuickGO</dd>
+      [% END %]
+
+      <!-- Taxon constraints. -->
+      <dt>Taxon info</dt>
+      [% IF TAXON_CONSTRAINTS.size == 0 %]
+      <dd>None</dd>
+      [% ELSE %]
+      [%  FOREACH xtrain = TAXON_CONSTRAINTS %]
+      <dd>
+	[% IF xtrain.taxon_rel_acc == 'RO:0002160' %]
+	<i>only in taxon</i>
+	[% ELSIF xtrain.taxon_rel_acc == 'RO:0002161' %]
+	<i>never in taxon</i>
+	[% ELSIF xtrain.taxon_rel_acc == 'RO:0002162' %]
+	<i>in taxon</i>
+	[% ELSE %]
+	[% xtrain.taxon_rel_acc %]
+	[% END %]
+	[%  IF xtrain.taxon_link %]
+	<a href="[% xtrain.taxon_link %]">[% xtrain.taxon_name %]</a>
+	[%  ELSE %]
+	[% xtrain.taxon_name %]
+	[%  END %]
+      </dd>
+      [%  END %]
+      [% END %]
+
+      <!-- Chemical reaction participants. -->
+      <dt>Chem. react.</dt>
+      [% IF CHEMICAL_REACTION_PARTICIPANTS.size == 0 %]
+      <dd>None</dd>
+      [% ELSE %]
+      [%  FOREACH crp = CHEMICAL_REACTION_PARTICIPANTS %]
+      <dd>
+	<i>has participant</i>
+	[% IF crp.crp_link %]
+	<a href="[% crp.crp_link %]">[% crp.crp_name %]</a>
+	[% ELSE %]
+	[%  crp.crp_name %]
+	[% END %]
+      </dd>
+      [%  END %]
       [% END %]
 
       <!-- Subsets -->

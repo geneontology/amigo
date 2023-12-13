@@ -271,11 +271,13 @@ var web_compilables = [
     'FacetMatrix.js',
     'GeneralSearchForwarding.js',
     'Gannet.js',
+    'GOCAMWidgetLoader.js',
     'GOOSE.js',
     'GPDetails.js',
     'Grebe.js',
     'Matrix.js',
     'Medial.js',
+    'ModelDetails.js',
     'LandingGraphs.js',
     'LiveSearchGOlr.js',
     'LoadDetails.js',
@@ -301,6 +303,23 @@ function _client_compile_task(file) {
             .exclude('ringo/httpclient')
             .transform('babelify', { 
                 presets: ["@babel/preset-env"],
+                // Some dependencies are only distributed as ES6 modules. That means that we need
+                // babelify to transform them (even though they're not our code) before they get 
+                // bundled by browserify. See: 
+                // https://github.com/babel/babelify#why-arent-files-in-node_modules-being-transformed
+                global: true,
+                ignore: [/\/node_modules\/(?!@geneontology|@stencil\/)/],
+
+                // The default sourceType is `module` which forces strict mode. Some of our crusty
+                // old JS relies on doing funky stuff with `this` that isn't compatible with strict mode.
+                // sourceType = script does not enforce strict mode, but also doesn't allow compiling
+                // ES modules like the pathway widget (see above). So we need to use the `unambiguous`
+                // setting to treat the source as a module when it absolutely needs to and otherwise
+                // as a script.
+                sourceType: "unambiguous",
+            })
+            .transform('loose-envify', {
+                GO_API_URL: a['GO_API_URL'].value,
             })
             .bundle()
             .on('error', function (err) {
@@ -405,7 +424,7 @@ function load_ontology_purge_safe() {
             --ontology-pre-check \
             --solr-url ${golr_private_url} \
             --solr-config ${ontology_metadata} \
-            --solr-log' ${solr_load_log} \
+            --solr-log ${solr_load_log} \
             --solr-purge \
             --solr-load-ontology \
             --solr-load-ontology-general`

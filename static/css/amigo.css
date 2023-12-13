@@ -194,3 +194,34 @@ a:hover .hilite, a:active .hilite {
 .alert-warning .alert-link {
     color: #3b2e18;
 }
+
+.btn-collapse-toggle .glyphicon {
+    transition: transform 350ms ease;
+    transform: rotate(180deg);
+}
+
+.btn-collapse-toggle.collapsed .glyphicon {
+    transform: none;
+}
+
+/* Begin wc-gocam-viz widget customization */
+wc-gocam-viz {
+    --button-background: #fff;
+    --button-color: #333;
+    --button-background-hover: #e6e6e6;
+    --button-border-width: 1px;
+    --button-border-color: #ccc;
+
+    --process-label-padding: 0.5rem;
+    --activity-padding: 0.5rem;
+    --gene-product-padding: 0 0 0.5rem 0;
+    --function-label-padding: 0 0 0.5rem 0;
+}
+wc-gocam-viz::part(gocam-title) {
+    display: none;
+}
+
+.gocam-viz-legend-container {
+    padding: 0 1.2rem;
+    width: 800px;
+}
