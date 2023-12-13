@@ -34,11 +34,6 @@ var golr_response = require('bbop-response-golr');
 // And a basic response.
 var rest_response = require('bbop-rest-response').base;
 
-// // XML.
-// var xpath = require('xpath');
-// var dom = require('xmldom').DOMParser;
-var jxon = require('jxon');
-
 // Aliases.
 var dlimit = defs.download_limit;
 
@@ -273,51 +268,41 @@ function ReferenceDetailsInit(){
 		// Run.
 		ncbi_engine.register('success', function(resp, man){
 		    
-		    var xml = resp.raw();
-		    //console.log(xml);
+			// Previous check for string vs json unneeded due to request parameters always being XML.
+			var xml = xmlParser.parseFromString(resp.raw(), 'text/xml');
+		    console.log(xml);
 
-		    var jx = null;
-		    if( typeof xml === 'string' ){
-			jx = jxon.stringToJs(xml);
-		    }else{
-			jx = jxon.xmlToJs(xml);
-		    }
-		    console.log(jx);
-
+			var BASE_ARTICLE_PATH = 'PubmedArticleSet PubmedArticle';
+			var FULL_ARTICLE_PATH = BASE_ARTICLE_PATH + ' MedlineCitation Article';
 		    // Our operating object.
-		    if( ! jx.PubmedArticleSet.PubmedArticle ){
+			if( ! xml.querySelector(BASE_ARTICLE_PATH) ){
 			UnableToMakeContact('<b>No such PubMed ID</b>.');
-		    }else if( ! jx.PubmedArticleSet.PubmedArticle.MedlineCitation.Article ){
+			}else if( ! xml.querySelector(FULL_ARTICLE_PATH) ){
 			UnableToMakeContact('<b>No such Article</b>.');
 		    }else{
-			var op = jx.PubmedArticleSet.PubmedArticle.MedlineCitation.Article;
+			var op = xml.querySelector(FULL_ARTICLE_PATH);
 
 			// Title.
-			var title = 'n/a';
-			if( op.ArticleTitle ){
-			    title = op.ArticleTitle;
-			}
+			var title = getXmlContent(op, 'ArticleTitle', 'n/a');
 
 			// Date.
 			var date = 'n/a';
-			if( op.ArticleDate ){
-			    var year = op.ArticleDate.Year || '???';
-			    var month = op.ArticleDate.Month || '???';
-			    var day = op.ArticleDate.Day || '???';
+			if( op.querySelector('AritcleDate') ){
+				var missingValue = '???';
+				var year = getXmlContent(op, 'ArticleDate.Year', missingValue);
+				var month = getXmlContent(op, 'ArticleDate.Month', missingValue);
+				var day = getXmlContent(op, 'ArticleDate.Day', missingValue);
 			    date = [year, month, day].join('-');
 			}
 
 			// Authors.
 			var authors = 'n/a';
-			if( op.AuthorList &&  op.AuthorList.Author ){
+			if( op.querySelector('AuthorList Author') ){
 			    
 			    var acache = [];
-			    us.each(op.AuthorList.Author, function(auth){
-				var name = '';
-				if( auth.ForeName ){ name += auth.ForeName; }
-				//if( auth.Initials ){ name+=' '+auth.Initials+'.'; }
-				if( auth.LastName ){ name +=' '+auth.LastName; }
-				acache.push(name);
+			    us.each(op.querySelectorAll('AuthorList Author'), function(auth){
+					var name = [getXmlContent(auth, 'ForeName', ''), getXmlContent(auth, 'LastName', '')].join(' ').trim();
+					acache.push(name);
 			    });
 			    if( ! us.isEmpty(acache) ){
 				authors = acache.join(', ');
@@ -326,19 +311,17 @@ function ReferenceDetailsInit(){
 			
 			// Abstract; list or string.
 			var abstract = 'n/a';
-			if( op.Abstract && op.Abstract.AbstractText ){
-			    if( us.isArray(op.Abstract.AbstractText) ){
-			    
+			var abstractXml = op.querySelectorAll('Abstract AbstractText');
+			if( abstractXml.length > 1 ){
 				var abscache = [];
-				us.each(op.Abstract.AbstractText, function(abs){
-				    if( abs._ ){ abscache.push(abs._); }
+				us.each(asbtractXml, function(abs){
+					if( abs.textContent ){ abscache.push(abs.textContent); }
 				});
 				if( ! us.isEmpty(abscache) ){
-				    abstract = abscache.join('<br />');
+					abstract = abscache.join('<br />');
 				}
-			    }else if( us.isString(op.Abstract.AbstractText) ){
-				abstract = op.Abstract.AbstractText;
-			    }
+			}else if( abstractXml.length === 1 ){
+				abstract = abstractXml[0].textContent;
 			}
 				
 			// Render.
@@ -422,7 +405,6 @@ function ReferenceDetailsInit(){
 		    'db': 'pubmed',
 		    'id': id_part
 		};
-		var meth = 'GET';
 		ncbi_engine.start(url + path, pay, 'GET');
 		
 	    }catch (e) {
@@ -554,4 +536,16 @@ function _shrink_wrap(elt_id){
 	    });    
 	}
     }
+}
+
+// Not certain what minimal browser support here is so avoided default parameter values (Chrome 49, Firefox 15, IE 11, Opera 36, Safari 9).
+function getXmlContent(xml, path, default_value){
+	var content = xml.querySelector(path);
+	if( content ){
+		return content.textContent;
+	}else if(default_value === undefined){
+		return null;
+	}else{
+		return default_value;
+	}
 }
