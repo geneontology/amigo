@@ -1,0 +1,18 @@
+# This Docker Compose file is for local development only!
+# For provisioning with Docker Compose see the docs in the `provision` directory
+services:
+
+  # Even though this Docker Compose file only defines one service for the entire AmiGO stack
+  # it is still useful in simplifying the commands used to start and attach to a running
+  # instance. See the Local Development with Docker Compose section of the README for details.
+  amigo:
+    container_name: amigo-local-dev
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "9999:9999"
+      - "8080:8080"
+    volumes:
+      - ../amigo-data/srv-solr-data:/srv/solr/data
+      - .:/srv/amigo

@@ -88,3 +88,7 @@ production-*.cfg
 production-*.tfvars.json
 config-instance.yaml
 config-stack.yaml
+amigo-hash
+
+.idea
+.env
