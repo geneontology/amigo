@@ -49,6 +49,7 @@ RUN apt-get -qq update && apt-get -qq -y install \
 
 RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d \
     && rm -rf /var/log && mkdir -p /var/log
+RUN mkdir -p /var/log/apache2/ && chmod -R 744 /var/log/apache2/
 
 ## AmiGO weirdness.
 ADD docker/libsql-tokenizer-perl_0.24-2_all.deb /tmp/libsql-tokenizer-perl_0.24-2_all.deb

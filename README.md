@@ -12,6 +12,57 @@
 The main installation information is available
 [on the wiki](http://wiki.geneontology.org/index.php/AmiGO_2_Manual:_Installation).
 
+# Local Development with Docker Compose
+
+## Initial Setup
+
+### GOlr Data
+
+This setup assumes that you have GOlr data saved in a sibling directory called `amigo-data`. Set that up by running:
+
+```bash
+mkdir -p ../amigo-data/srv-solr-data/index
+# Warning! This is a multi-gigabyte download. Make sure you're ready.
+wget -P ../amigo-data http://current.geneontology.org/products/solr/golr-index-contents.tgz
+tar -xvzf ../amigo-data/golr-index-contents.tgz -C ../amigo-data/srv-solr-data/index
+```
+
+### Config File
+
+Copy the provided example config file to the main config file:
+
+```bash
+cp conf/examples/amigo.yaml.localhost_docker_loader conf/amigo.yaml
+````
+
+## Running AmiGO
+
+Start the AmiGO service via Docker Compose:
+
+```bash
+docker compose up
+```
+
+### Viewing logs
+
+The Apache access and error logs can be viewed by running:
+
+```bash
+docker compose exec amigo tail -f /var/log/apache2/access.log /var/log/apache2/error.log
+```
+
+### Frontend Development
+
+JavaScript files can be watched and compiled by running:
+
+```bash
+docker compose exec -w /srv/amigo amigo node_modules/.bin/gulp watch-js
+````
+
+## Caveats
+
+This setup mounts your local checkout into the `/srv/amigo` directory in the Docker container. This means that any changes you make to the files in your local checkout will be reflected in the running AmiGO service. However, the AmiGO startup process will modify the path to `config.pl` in various files in `perl/bin` and `perl/lib`. **DO NOT COMMIT THESE CHANGES**.
+
 # Provisioning & Orchestration
 
 See [docs](provision/production/PRODUCTION_PROVISION_README.md).

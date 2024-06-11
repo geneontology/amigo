@@ -24,10 +24,10 @@
   "dependencies": {
     "@geneontology/wc-gocam-viz": "^1.0.0",
     "bbop": "2.4.3",
-    "bbop-core": "0.0.5",
+    "bbop-core": "0.0.6",
     "bbop-graph": "0.0.19",
     "bbop-graph-noctua": "0.0.32",
-    "bbop-manager-golr": "0.0.12",
+    "bbop-manager-golr": "0.0.13",
     "bbop-manager-minerva": "0.0.15",
     "bbop-response-barista": "0.0.9",
     "bbop-response-golr": "0.0.8",
