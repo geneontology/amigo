@@ -243,6 +243,12 @@ fields:
     cardinality: multi
     property: [getDummyStrings]
     searchable: true
+  - id: never_in_taxon
+    description: "Never in taxon."
+    display_name: Never in taxon
+    type: string
+    cardinality: multi
+    property: [getAnnotationPropertyValues, RO:0002161]
   ## TODO/BUG: These are currently populated by junk functions.
   ## Next items are defined in https://github.com/geneontology/amigo/issues/249
   - id: annotation_extension_owl_json
