@@ -1,0 +1,34 @@
+###
+### Additional packages for standard Apache 2 configuration.
+###
+---
+- name: install apache2
+  apt: pkg=apache2 state=present
+## WARNING: Manual temporary workaround for MPM bug in Ansible:
+## https://github.com/ansible/ansible-modules-core/issues/5328
+- name: mpm bug bypass 1
+  command: a2dismod mpm_event mpm_worker
+- name: mpm bug bypass 2
+  command: a2enmod mpm_prefork
+## Back to our regularly scheduled program.
+- name: remove unwanted mods
+  apache2_module: name={{ item }} state=absent
+  with_items:
+    - cgid
+    - mpm_event
+    - mpm_worker    
+- name: install base mods
+  apache2_module: name={{ item }} state=present
+  with_items:
+    - alias
+    - mpm_prefork
+    - cgi
+    - rewrite
+    - proxy
+    - proxy_http
+    - proxy_html
+    - macro
+    - headers
+    - xml2enc
+- name: restart apache (apache)
+  service: name=apache2 state=restarted

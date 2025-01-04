@@ -18,7 +18,7 @@
     ## Base package substrate and setup.
     - standard-distribution-noble-aws
     ## Base webserver.
-    #- webserver-apache
+    - webserver-apache
     # ## Actual AmiGO/GOlr.
     # - role: amigo-golr
     #   amigo_user: "{{ target_user | default('ubuntu') }}"
