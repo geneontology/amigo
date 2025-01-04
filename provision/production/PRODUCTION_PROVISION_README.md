@@ -9,10 +9,14 @@ these instructions.
 docker run --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.4 /bin/bash
 git clone https://github.com/geneontology/amigo.git
 cd amigo/provision
+```
+
+Test with:
+```
 go-deploy -h
 ```
 
-From "outside" again:
+From "outside" docker image, get deployment keys into place:
 
 ```
 docker cp go-ssh go-dev:/tmp
@@ -28,7 +32,7 @@ chmod 600 /tmp/go-ssh*
 Edit AWS credentials:
 
 ```
-emacs /tmp/go-aws-credentials
+emacs -nw /tmp/go-aws-credentials
 ```
 
 Using the template:
@@ -105,6 +109,19 @@ go-deploy --working-directory aws -list-workspaces -verbose
 ```
 
 ## Setup and start AmiGO/GOlr in AWS instance
+
+```
+emacs -nw hosts.amigo
+```
+
+- `REPLACE_ME`
+  - Should be IP address of new EC2 instance from above
+
+Then run ansible:
+
+```
+ansible-playbook amigo-golr-setup.yml --inventory=hosts.amigo --private-key="/tmp/go-ssh" -e target_host=amigo-in-aws -e target_user=ubuntu
+```
 
 TODO
 
