@@ -23,15 +23,15 @@ provider "aws" {
 
 variable "open_ports" {
   type = list
-  default = [22, 80]
+  default = [22, 80, 443]
 }
 
-// custom ubuntu jammy ami with docker, docker-compose, aws, python, pip installed
+// Standard default Ubuntu Noble 24.04 image.
 variable "ami" {
-  default = "ami-019eb5c97ad39d701"
+  default = "ami-079cb33ef719a7b78"
 }
 
-// optional will be created if value is not an menty string
+// optional will be created if value is not an empty string
 variable "dns_record_name" {
   type = list(string)
   description = "type A DNS records wich will be mapped to public ip"
