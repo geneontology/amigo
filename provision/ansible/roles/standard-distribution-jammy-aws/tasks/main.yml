@@ -1,0 +1,59 @@
+####
+#### Overlay for standard packages for Ubuntu 24.04 in standard AWS
+#### image.
+####
+---
+## Get everybody up to date.
+- name: apt-get update && apt-get dist-upgrade
+  apt: update_cache=yes upgrade=dist
+- name: install main packages
+  apt: pkg={{ item }} state=present
+  with_items:
+    ## General repo control.
+    - git
+    ## General dev.
+    - curl
+    - jq
+    - apt-utils
+    - ca-certificates
+    - software-properties-common
+    - apt-transport-https
+    - build-essential
+    ## Still need python 2 for ansible.
+    - python
+    ## Odds and ends utilities.
+    - apt-show-versions
+    - byobu
+    - di
+    - curl
+    - emacs
+    - emacs-goodies-el
+    - htop
+    - iotop
+    - kwalify
+    - less
+    - make
+    - mmv
+    - mg
+    - openssh-client
+    - openssh-server
+    - pandoc
+    - s3cmd
+    - sshfs
+    - ntpdate
+    - nscd
+    - unzip
+    - zip
+    - pigz
+    - virtualenv
+    - python3
+    - python3-yaml
+    - python3-venv
+    - python3-pip
+    - python3-boto3
+    - python3-requests-toolbelt
+    - python3-markdown
+    - python3-click
+    - python3-pycurl
+    ## Needed by new-filter-gafs.pl
+    - libjson-perl
