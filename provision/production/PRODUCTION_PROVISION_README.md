@@ -111,7 +111,7 @@ go-deploy --working-directory aws -list-workspaces -verbose
 ## Setup and start AmiGO/GOlr in AWS instance
 
 ```
-emacs -nw hosts.amigo
+emacs -nw ansible/hosts.amigo
 ```
 
 - `REPLACE_ME`
@@ -120,7 +120,7 @@ emacs -nw hosts.amigo
 Then run ansible:
 
 ```
-ansible-playbook amigo-golr-setup.yml --inventory=hosts.amigo --private-key="/tmp/go-ssh" -e target_host=amigo-in-aws -e target_user=ubuntu
+ansible-playbook ansible/amigo-golr-setup.yml --inventory=ansible/hosts.amigo --private-key="/tmp/go-ssh" -e target_host=amigo-in-aws -e target_user=ubuntu
 ```
 
 TODO
