@@ -16,7 +16,7 @@
   become: yes
   roles:
     ## Base package substrate and setup.
-    - standard-distribution-jammy-aws
+    - standard-distribution-noble-aws
     ## Base webserver.
     #- webserver-apache
     # ## Actual AmiGO/GOlr.

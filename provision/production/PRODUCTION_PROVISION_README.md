@@ -97,8 +97,16 @@ emacs -nw config-instance.yaml
 
 Deploy:
 
+If production (geneontology.org):
+
 ```
 go-deploy --workspace amigo-production-YYYY-MM-DD --working-directory aws -verbose --conf config-instance.yaml
+```
+
+If development (geneontology.io):
+
+```
+go-deploy --workspace amigo-development-YYYY-MM-DD --working-directory aws -verbose --conf config-instance.yaml
 ```
 
 To test, note public IP address in output and try:
