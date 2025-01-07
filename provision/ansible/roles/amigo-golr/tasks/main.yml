@@ -1,0 +1,124 @@
+####
+#### Get Apache, Jetty, AmiGO, and GOlr up.
+####
+---
+###
+### AmiGO.
+###
+## Try and get the right packages into play.
+- name: install amigo packages
+  apt: pkg={{ item }} state=present
+  with_items:
+    # core
+    - git
+    - make
+    - kwalify
+    - libcgi-application-perl
+    - libcgi-application-plugin-session-perl
+    - libcgi-application-plugin-tt-perl
+    - libcgi-application-server-perl
+    - libclone-perl
+    - libconfig-yaml-perl
+    - libdbi-perl
+    - libdbd-sqlite3-perl
+    - libdbd-mysql-perl
+    - libdata-formvalidator-perl
+    - libossp-uuid-perl
+    - libfile-type-perl
+    - libfile-slurp-perl
+    - libfreezethaw-perl
+    - libgraph-perl
+    - libgraphviz-perl
+    - libjson-xs-perl
+    - liburi-perl
+    - liburi-encode-perl
+    - libwww-mechanize-perl
+    - libxml-libxml-perl
+    - libxml-xpath-perl
+    # more build
+    - dh-make-perl
+## The SQL tokenizer has always been a problem pull in a static version
+## from Debian of the latest.
+- name: grab sql tokenizer
+  copy:
+    src: libsql-tokenizer-perl_0.24-2_all.deb
+    dest: /tmp/libsql-tokenizer-perl_0.24-2_all.deb
+- name: install sql tokenizer
+  apt:
+    deb: /tmp/libsql-tokenizer-perl_0.24-2_all.deb
+## TODO: want the repo as "{{ amigo_user }}", not "root".
+## - name: "(D) debug ansible_env"
+##   debug: msg=" ansible_env {{ ansible_env }}"
+- name: clear amigo2 directory
+  file:
+    state: absent
+    path: "{{ amigo_directory }}"
+- name: prep amigo2 directory
+  file: "path={{ amigo_directory }} state=directory owner={{ amigo_user }} group=www-data mode=0775"
+- name: get the amigo2 repo
+  git: "repo=https://github.com/geneontology/amigo.git dest={{ amigo_directory }} version={{ amigo_version }}"
+  become_user: "{{ amigo_user }}"
+## AmiGO conf.
+- name: get amigo config into place
+  template: "src={{ amigo_configuration }} dest={{ amigo_directory }}/conf/amigo.yaml owner={{ amigo_user }} group={{ amigo_user }}"
+- name: npm install
+  command: npm install
+  become_user: "{{ amigo_user }}"
+  args:
+    chdir: "{{ amigo_directory }}"
+- name: gulp install
+  command: ./node_modules/.bin/gulp install
+  become_user: "{{ amigo_user }}"
+  args:
+    chdir: "{{ amigo_directory }}"
+- name: gulp cache
+  command: ./node_modules/.bin/gulp cache
+  become_user: "{{ amigo_user }}"
+  args:
+    chdir: "{{ amigo_directory }}"
+## Ready apache.
+- name: setup/copy apache environment
+  template: "src=amigo2-apache.conf dest=/etc/apache2/sites-available/amigo2.conf owner=root group=root"
+- name: "ensure apache listens to amigo {{ amigo_port }}"
+  lineinfile: "dest=/etc/apache2/ports.conf line='Listen {{ amigo_port }}'"
+- name: a2ensite amigo2
+  command: a2ensite amigo2
+- name: restart apache (amigo)
+  service: name=apache2 state=restarted
+###
+### GOlr.
+### Remember: we're still in amigo/
+###
+- name: install golr packages
+  apt: pkg={{ item }} state=present
+  with_items:
+    - jetty9
+- name: setup/copy default jetty9 environment
+  template: "src=etc-default-jetty9 dest=/etc/default/jetty9 owner=root group=root"
+- name: golr setup commands
+  command: "{{ item }}"
+  with_items:
+    ## Solr to right spot.
+    - "cp ./golr/solr/solr.war /var/lib/jetty9/webapps/"
+    - "chown jetty /var/lib/jetty9/webapps/solr.war"
+    - "chgrp adm /var/lib/jetty9/webapps/solr.war"
+    ## See previous step.
+    #- "cp ./golr/jetty/jetty /etc/default/jetty9"
+    - "mkdir -p /srv/solr/data"
+    - "mkdir -p /srv/solr/conf"
+    - "cp ./golr/solr/conf/schema.xml /srv/solr/conf/schema.xml"
+    - "cp ./golr/solr/conf/solrconfig.xml /srv/solr/conf/solrconfig.xml"
+    - "chown -R jetty /srv/solr/"
+    - "chgrp -R adm /srv/solr/"
+    ## Restart does not work on initial run?
+    - "/etc/init.d/jetty9 stop"
+    - "/etc/init.d/jetty9 start"
+  args:
+    chdir: "{{ amigo_directory }}"
+# - name: restart jetty9 (golr)
+#   service: name=jetty9 state=restarted
+###
+### Push the index file to the right location.
+###
+- name: copy index to web server
+  template: "src=amigo-index.html dest=/var/www/html/index.html owner={{ amigo_user }} group=www-data mode=0644 force=yes backup=yes"

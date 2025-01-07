@@ -3,7 +3,7 @@
 Note: uniformly replace `YYYY-MM-DD` with the date that you start
 these instructions.
 
-## Dev docker and credentials setup
+## Dev docker setup
 
 ```
 docker run --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.4 /bin/bash
@@ -28,6 +28,8 @@ Back "inside":
 ```
 chmod 600 /tmp/go-ssh*
 ```
+
+## AWS credentials setup for instance creation
 
 Edit AWS credentials:
 
@@ -124,6 +126,21 @@ emacs -nw ansible/hosts.amigo
 
 - `REPLACE_ME`
   - Should be IP address of new EC2 instance from above
+
+```
+emacs -nw ansible/amigo-golr-setup.yml
+```
+
+- `amigo_version`
+  - Should likely be "master"
+- `amigo_url_string`
+  - https://amigo-development-YYYY-MM-DD.geneontology.io
+- `golr_url_string`
+  - https://golr-development-YYYY-MM-DD.geneontology.io
+- `golr_aux_url_string`
+  - https://golr-development-YYYY-MM-DD.geneontology.io
+- `amigo_version_note`
+  - amigo-development-YYYY-MM-DD
 
 Then run ansible:
 
