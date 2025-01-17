@@ -26,9 +26,9 @@ variable "open_ports" {
   default = [22, 80, 443]
 }
 
-// Standard default Ubuntu Noble 24.04 image.
+// Standard default Ubuntu Jammy Jellyfish 22.04 LTS image.
 variable "ami" {
-  default = "ami-079cb33ef719a7b78"
+  default = "ami-0e1bed4f06a3b463d"
 }
 
 // optional will be created if value is not an empty string
