@@ -37,15 +37,19 @@
     - libxml-xpath-perl
     # more build
     - dh-make-perl
-## The SQL tokenizer has always been a problem pull in a static version
-## from Debian of the latest.
-- name: grab sql tokenizer
-  copy:
-    src: libsql-tokenizer-perl_0.24-2_all.deb
-    dest: /tmp/libsql-tokenizer-perl_0.24-2_all.deb
-- name: install sql tokenizer
-  apt:
-    deb: /tmp/libsql-tokenizer-perl_0.24-2_all.deb
+# ## The SQL tokenizer has always been a problem pull in a static version
+# ## from Debian of the latest.
+# - name: grab sql tokenizer
+#   copy:
+#     src: libsql-tokenizer-perl_0.24-2_all.deb
+#     dest: /tmp/libsql-tokenizer-perl_0.24-2_all.deb
+# - name: install sql tokenizer
+#   apt:
+#     deb: /tmp/libsql-tokenizer-perl_0.24-2_all.deb
+- name: now have libsql-tokenizer-perl
+  apt: pkg={{ item }} state=present
+  with_items:
+    - libsql-tokenizer-perl
 ## TODO: want the repo as "{{ amigo_user }}", not "root".
 ## - name: "(D) debug ansible_env"
 ##   debug: msg=" ansible_env {{ ansible_env }}"
