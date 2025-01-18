@@ -70,15 +70,23 @@
 ## TODO: want the repo as "{{ amigo_user }}", not "root".
 ## - name: "(D) debug ansible_env"
 ##   debug: msg=" ansible_env {{ ansible_env }}"
+- name: clear ubuntu .npm
+  file:
+    state: absent
+    path: "/home/.npm"
+- name: clear ubuntu .node-gyp
+  file:
+    state: absent
+    path: "/home/.node-gyp"
 - name: clear amigo2 directory (this will include node_modules)
   file:
     state: absent
     path: "{{ amigo_directory }}"
-- name: prep amigo2 directory
-  file: "path={{ amigo_directory }} state=directory owner={{ amigo_user }} group=www-data mode=0775"
 - name: get the amigo2 repo
   git: "repo=https://github.com/geneontology/amigo.git dest={{ amigo_directory }} version={{ amigo_version }}"
   become_user: "{{ amigo_user }}"
+- name: prep amigo2 directory
+  file: "path={{ amigo_directory }} state=directory owner={{ amigo_user }} group=www-data mode=0775"
 ## AmiGO conf.
 - name: get amigo config into place
   template: "src={{ amigo_configuration }} dest={{ amigo_directory }}/conf/amigo.yaml owner={{ amigo_user }} group={{ amigo_user }}"
