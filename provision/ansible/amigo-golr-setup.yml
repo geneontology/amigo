@@ -19,20 +19,20 @@
     - standard-distribution-jammy-aws
     ## Base webserver.
     - webserver-apache
-    # ## Actual AmiGO/GOlr.
-    # - role: amigo-golr
-    #   amigo_user: "{{ target_user | default('ubuntu') }}"
-    #   amigo_version: master
-    #   amigo_directory: "/home/{{ target_user | default('ubuntu') }}/local/src/git/amigo"
-    #   amigo_configuration: amigo-go-public.yaml
-    #   amigo_url_string: https://amigo-development-YYYY-MM-DD.geneontology.io
-    #   golr_url_string: https://golr-development-YYYY-MM-DD.geneontology.io
-    #   golr_aux_url_string: https://golr-development-YYYY-MM-DD.geneontology.io
-    #   google_analytics_id: "???"
-    #   amigo_port: 9999
-    #   amigo_version_note: amigo-development-YYYY-MM-DD
-    #   owltools_java_max_memory: 8G
-    #   golr_java_max_memory: 8G
+    ## Actual AmiGO/GOlr.
+    - role: amigo-golr
+      amigo_user: "{{ target_user | default('ubuntu') }}"
+      amigo_version: master
+      amigo_directory: "/home/{{ target_user | default('ubuntu') }}/local/src/git/amigo"
+      amigo_configuration: amigo-go-public.yaml
+      amigo_url_string: https://amigo-development-YYYY-MM-DD.geneontology.io
+      golr_url_string: https://golr-development-YYYY-MM-DD.geneontology.io
+      golr_aux_url_string: https://golr-development-YYYY-MM-DD.geneontology.io
+      google_analytics_id: "???"
+      amigo_port: 9999
+      amigo_version_note: amigo-development-YYYY-MM-DD
+      owltools_java_max_memory: 8G
+      golr_java_max_memory: 8G
     #   ###
     #   ### Proxies back to the webservers on port.
     #   ###
