@@ -53,11 +53,6 @@
   become_user: "{{ amigo_user }}"
   args:
     chdir: /tmp
-- name: npm install w/6.17.1
-  command: PATH=$PATH:/tmp/node-v6.17.1-linux-x64/bin/ /tmp/node-v6.17.1-linux-x64/bin/npm install
-  become_user: "{{ amigo_user }}"
-  args:
-    chdir: "{{ amigo_directory }}"
 - name: Get second part of bootstrap v8.17.0
   ansible.builtin.get_url:
     url: https://nodejs.org/download/release/v8.17.0/node-v8.17.0-linux-x64.tar.gz
@@ -67,11 +62,6 @@
   become_user: "{{ amigo_user }}"
   args:
     chdir: /tmp
-- name: npm install w/8.17.0
-  command: PATH=$PATH:/tmp/node-v8.17.0-linux-x64/bin/ /tmp/node-v8.17.0-linux-x64/bin/npm install
-  become_user: "{{ amigo_user }}"
-  args:
-    chdir: "{{ amigo_directory }}"
 ## TODO: want the repo as "{{ amigo_user }}", not "root".
 ## - name: "(D) debug ansible_env"
 ##   debug: msg=" ansible_env {{ ansible_env }}"
@@ -87,6 +77,17 @@
 ## AmiGO conf.
 - name: get amigo config into place
   template: "src={{ amigo_configuration }} dest={{ amigo_directory }}/conf/amigo.yaml owner={{ amigo_user }} group={{ amigo_user }}"
+## Chained bootstrap 6 -> 8 -> 12 (system default).
+- name: npm install w/6.17.1
+  command: PATH=$PATH:/tmp/node-v6.17.1-linux-x64/bin/ /tmp/node-v6.17.1-linux-x64/bin/npm install
+  become_user: "{{ amigo_user }}"
+  args:
+    chdir: "{{ amigo_directory }}"
+- name: npm install w/8.17.0
+  command: PATH=$PATH:/tmp/node-v8.17.0-linux-x64/bin/ /tmp/node-v8.17.0-linux-x64/bin/npm install
+  become_user: "{{ amigo_user }}"
+  args:
+    chdir: "{{ amigo_directory }}"
 - name: npm install
   command: npm install
   become_user: "{{ amigo_user }}"
