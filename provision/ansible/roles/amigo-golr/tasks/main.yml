@@ -80,11 +80,15 @@
 ## Chained bootstrap 6 -> 8 -> 12 (system default).
 - name: npm install w/6.17.1
   command: /tmp/node-v6.17.1-linux-x64/bin/npm install
+  environment:
+    PATH: /tmp/node-v6.17.1-linux-x64/bin
   become_user: "{{ amigo_user }}"
   args:
     chdir: "{{ amigo_directory }}"
 - name: npm install w/8.17.0
   command: /tmp/node-v8.17.0-linux-x64/bin/npm install
+  environment:
+    PATH: /tmp/node-v8.17.0-linux-x64/bin
   become_user: "{{ amigo_user }}"
   args:
     chdir: "{{ amigo_directory }}"
