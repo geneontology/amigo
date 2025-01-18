@@ -79,12 +79,12 @@
   template: "src={{ amigo_configuration }} dest={{ amigo_directory }}/conf/amigo.yaml owner={{ amigo_user }} group={{ amigo_user }}"
 ## Chained bootstrap 6 -> 8 -> 12 (system default).
 - name: npm install w/6.17.1
-  command: PATH=$PATH:/tmp/node-v6.17.1-linux-x64/bin/ /tmp/node-v6.17.1-linux-x64/bin/npm install
+  command: /tmp/node-v6.17.1-linux-x64/bin/npm install
   become_user: "{{ amigo_user }}"
   args:
     chdir: "{{ amigo_directory }}"
 - name: npm install w/8.17.0
-  command: PATH=$PATH:/tmp/node-v8.17.0-linux-x64/bin/ /tmp/node-v8.17.0-linux-x64/bin/npm install
+  command: /tmp/node-v8.17.0-linux-x64/bin/npm install
   become_user: "{{ amigo_user }}"
   args:
     chdir: "{{ amigo_directory }}"
