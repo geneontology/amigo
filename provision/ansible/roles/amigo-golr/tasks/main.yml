@@ -5,6 +5,14 @@
 ###
 ### AmiGO.
 ###
+
+## For bootstrap later on, make sure the nodejs and npm packages are
+## not there.
+- name: remove node/npm packages
+  apt: pkg={{ item }} state=absent
+  with_items:
+    - nodejs
+    - npm
 ## Try and get the right packages into play.
 - name: install amigo packages
   apt: pkg={{ item }} state=present
@@ -37,9 +45,6 @@
     - libxml-xpath-perl
     # more build
     - dh-make-perl
-    # nodejs for later
-    - nodejs
-    - npm
     # this works now!
     - libsql-tokenizer-perl
 ## Bootstrap to a working version (for us) of nodejs.
@@ -65,7 +70,7 @@
 ## TODO: want the repo as "{{ amigo_user }}", not "root".
 ## - name: "(D) debug ansible_env"
 ##   debug: msg=" ansible_env {{ ansible_env }}"
-- name: clear amigo2 directory
+- name: clear amigo2 directory (this will include node_modules)
   file:
     state: absent
     path: "{{ amigo_directory }}"
@@ -92,6 +97,12 @@
   become_user: "{{ amigo_user }}"
   args:
     chdir: "{{ amigo_directory }}"
+## Bootstrap done; switch over to system nodejs/npm.
+- name: re-add system node/npm packages
+  apt: pkg={{ item }} state=present
+  with_items:
+    - nodejs
+    - npm
 - name: npm install
   command: npm install
   become_user: "{{ amigo_user }}"
