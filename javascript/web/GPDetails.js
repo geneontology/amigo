@@ -42,7 +42,7 @@ function GPDetailsInit(){
     // Logger.
     var logger = new bbop.logger();
     logger.DEBUG = true;
-    function ll(str){ logger.kvetch('GP: ' + str); }    
+    function ll(str){ logger.kvetch('GP: ' + str); }
 
     ll('');
     ll('GPDetails.js');
@@ -63,16 +63,16 @@ function GPDetailsInit(){
             jQuery("#display-tabs a:first").tab('show');
         }
     }
-    
+
     ///
     /// Manager setup.
     ///
-    
+
     var engine = new jquery_engine(golr_response);
     engine.method('GET');
     engine.use_jsonp(true);
     var gps = new golr_manager(gserv, gconf, engine, 'async');
-    
+
     var confc = gconf.get_class('annotation');
 
     // // Setup the annotation profile and make the annotation document
@@ -90,6 +90,9 @@ function GPDetailsInit(){
     // Set the manager profile.
     gps.set_personality('annotation'); // profile in gconf
     gps.include_highlighting(true);
+
+    // For #724.
+    gps.set('sort', 'evidence_type asc');
 
     // Two sticky filters.
     gps.add_query_filter('document_category', 'annotation', ['*']);
@@ -133,10 +136,10 @@ function GPDetailsInit(){
 	results_title: 'Total annotations:&nbsp;',
     };
     var pager = new widgets.live_pager('pager', gps, pager_opts);
-    
+
     // Attach the results pane and download buttons to manager.
     var default_fields = confc.field_order_by_weight('result');
-    var btmpl = widgets.display.button_templates;    
+    var btmpl = widgets.display.button_templates;
     var flex_download_button = btmpl.flexible_download_b3(
 	'Download <small>(up to ' + dlimit + ')</small>',
 	dlimit,
@@ -189,7 +192,7 @@ function GPDetailsInit(){
 	jQuery('#prob_ann_href').attr('href', lurl);
 	jQuery('#prob_ann').removeClass('hidden');
     })();
-    
+
     // Get bookmark for annotation download.
     (function(){
 	// Ready bookmark.
@@ -197,7 +200,7 @@ function GPDetailsInit(){
 	engine.method('GET');
 	engine.use_jsonp(true);
 	var man = new golr_manager(gserv, gconf, engine, 'async');
-	
+
 	man.set_personality('annotation');
 	man.add_query_filter('document_category', 'annotation', ['*']);
 	man.add_query_filter('bioentity', global_acc);
