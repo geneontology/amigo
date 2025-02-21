@@ -92,7 +92,8 @@ function GPDetailsInit(){
     gps.include_highlighting(true);
 
     // For #724.
-    gps.set('sort', 'evidence_type asc');
+    //gps.set('sort', 'evidence_type asc');
+    gps.set('bq', 'evidence_type:IBA^1000');
 
     // Two sticky filters.
     gps.add_query_filter('document_category', 'annotation', ['*']);
