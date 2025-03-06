@@ -2110,8 +2110,7 @@ sub mode_model_details {
   }
 
   ## Warn people away for now.
-  $self->add_mq('warning',
-		'This page is considered <strong>ALPHA</strong> software.');
+  #$self->add_mq('warning', 'This page is considered <strong>ALPHA</strong> software.');
 
   ###
   ### Get full info.
