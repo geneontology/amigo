@@ -137,6 +137,27 @@
   command: a2ensite amigo2
 - name: restart apache (amigo)
   service: name=apache2 state=restarted
+## Make sure that the ubuntu user allows path search for www-data.
+- name: www-data grp perms; step 1a
+  command: chgrp www-data /home/ubuntu
+- name: www-data mod perms; step 1b
+  command: chmod 775 /home/ubuntu
+- name: www-data grp perms; step 2a
+  command: chgrp www-data /home/ubuntu/local
+- name: www-data mod perms; step 2b
+  command: chmod 775 /home/ubuntu/local
+- name: www-data grp perms; step 3a
+  command: chgrp www-data /home/ubuntu/local/src
+- name: www-data mod perms; step 3b
+  command: chmod 775 /home/ubuntu/local/src
+- name: www-data grp perms; step 4a
+  command: chgrp www-data /home/ubuntu/local/src/git
+- name: www-data mod perms; step 4b
+  command: chmod 775 /home/ubuntu/local/src/git
+- name: www-data grp perms; step 5a
+  command: chgrp -R www-data /home/ubuntu/local/src/git/amigo
+#- name: www-data mod perms; step 5b
+#  command: chmod 775 /home/ubuntu/local/src/git/amigo
 ###
 ### GOlr.
 ### Remember: we're still in amigo/
