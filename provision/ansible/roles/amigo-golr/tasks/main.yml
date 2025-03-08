@@ -138,10 +138,10 @@
 - name: restart apache (amigo)
   service: name=apache2 state=restarted
 ## Make sure that the ubuntu user allows path search for www-data.
-- name: www-data grp perms; step 1a
-  command: chgrp www-data /home/ubuntu
-- name: www-data mod perms; step 1b
-  command: chmod 775 /home/ubuntu
+#- name: www-data grp perms; step 1a
+#  command: chgrp www-data /home/ubuntu
+#- name: www-data mod perms; step 1b
+#  command: chmod 775 /home/ubuntu
 - name: www-data grp perms; step 2a
   command: chgrp www-data /home/ubuntu/local
 - name: www-data mod perms; step 2b

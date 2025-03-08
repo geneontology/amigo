@@ -6,7 +6,8 @@ these instructions.
 ## Dev docker setup
 
 ```
-docker run --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.4 /bin/bash
+docker rm go-dev || true && docker run --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.4 /bin/bash
+cd /tmp
 git clone https://github.com/geneontology/amigo.git
 cd amigo/provision
 ```
@@ -141,6 +142,12 @@ emacs -nw ansible/amigo-golr-setup.yml
   - https://golr-development-YYYY-MM-DD.geneontology.io
 - `amigo_version_note`
   - amigo-development-YYYY-MM-DD
+- `mapping_host`
+  - amigo-development-2025-03-06.geneontology.io
+- `mapping_host`
+  - golr-development-2025-03-06.geneontology.io
+
+[At this point in time, also convert https to http.]
 
 Then run ansible:
 
@@ -148,7 +155,38 @@ Then run ansible:
 ansible-playbook ansible/amigo-golr-setup.yml --inventory=ansible/hosts.amigo --private-key="/tmp/go-ssh" -e target_host=amigo-in-aws -e target_user=ubuntu
 ```
 
-TODO
+## Load GOlr w/data
+
+In geneontology/operations/ansible:
+
+add target (amigo-noctua-dev) with IP above into (new) hosts.neo:
+
+```
+ansible-playbook update-golr-w-skyhook-forced.yaml --inventory=hosts.neo --private-key=/home/sjcarbon/local/share/secrets/go/ssh-keys/go-ssh -e target_branch=issue-35-neo-test -e target_host=amigo-noctua-dev -e target_user=ubuntu
+```
+## Setup HTTPS
+
+Currently, have to accept both "iffy" celf-signed certs before using
+AmiGO/GOlr.
+
+TODO: hook through cloudflare.
+
+
+## Destroy Instance and Delete Workspace.
+
+```sh
+Make sure you are deleting the correct workspace.
+go-deploy --workspace amigo-development-YYYY-MM-DD --working-directory aws -verbose -show
+
+# Destroy.
+go-deploy --workspace amigo-development-YYYY-MM-DD --working-directory aws -verbose -destroy
+```
+
+STOP
+
+
+
+
 
 # AmiGO Production Deployment
 
@@ -338,16 +376,6 @@ Check list:
 - docker-compose -f stage_dir/docker-compose.yaml up -d
 - docker-compose -f stage_dir/docker-compose.yaml logs -f
 - Use -dry-run and copy and paste the command and execute it manually
-
-## Destroy Instance and Delete Workspace.
-
-```sh
-Make sure you are deleting the correct workspace.
-go-deploy --workspace production-YYYY-MM-DD --working-directory aws -verbose -show
-
-# Destroy.
-go-deploy --workspace production-YYYY-MM-DD --working-directory aws -verbose -destroy
-```
 
 ## Appendix I: Development Environment
 

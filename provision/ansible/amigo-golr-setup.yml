@@ -47,31 +47,13 @@
       mapping_from_port: 80
       mapping_to_port: 8080
       apache_proxy_additional_rules: "    RewriteEngine on\n    ## Response to https://snyk.io/vuln/SNYK-JAVA-ORGAPACHESOLR-173769\n    RewriteCond %{QUERY_STRING} (?:^|&)shards=([^&]+) [NC]\n    RewriteRule .* - [F]\n    ## On principle, try and deny anything that's not Solr's \"select\".\n    RewriteCond %{REQUEST_URI} !^/(solr/)?select.* [NC]\n    RewriteRule .* - [F]\n    ## Prevent \"admin\" access.\n    ProxyPassMatch ^/admin(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1\n    ProxyPassMatch ^/solr/admin(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1\n    ProxyPassMatch ^/update(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1\n    ProxyPassMatch ^/solr/update(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1"
-    # - role: webserver-apache-proxy
-    #   mapping_host: amigo-aux.geneontology.io
-    #   mapping_from_port: 80
-    #   mapping_to_port: 9999
-    #   apache_proxy_additional_rules: ""
-    # - role: webserver-apache-proxy
-    #   mapping_host: golr-aux.geneontology.io
-    #   mapping_from_port: 80
-    #   mapping_to_port: 8080
-    #   apache_proxy_additional_rules: "    ## Prevent \"admin\" access.\n    ProxyPassMatch ^/admin(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1\n    ProxyPassMatch ^/solr/admin(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1\n    ProxyPassMatch ^/update(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1\n    ProxyPassMatch ^/solr/update(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1"
-    #   ## Traditional org.
-    # - role: webserver-apache-proxy
-    #   mapping_host: amigo.geneontology.org
-    #   mapping_from_port: 80
-    #   mapping_to_port: 9999
-    #   apache_proxy_additional_rules: ""
-    # - role: webserver-apache-proxy
-    #   mapping_host: golr.geneontology.org
-    #   mapping_from_port: 80
-    #   mapping_to_port: 8080
-    #   apache_proxy_additional_rules: "    ## Prevent \"admin\" access.\n    ProxyPassMatch ^/admin(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1\n    ProxyPassMatch ^/solr/admin(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1\n    ProxyPassMatch ^/update(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1\n    ProxyPassMatch ^/solr/update(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1"
-    # ## Make sure we get the logs out.
-    # - role: logrotate-to-s3
-    #   #var_s3_path: "go-service-logs"
-    #   var_s3_path: "amigo/production"
-    #   var_name_prefix: ""
-    #   var_s3_push_credentials: "/home/sjcarbon/local/share/secrets/bbop/aws/s3/.s3cfg.go-push"
-    #   target_service: "apache2"
+    - role: webserver-apache-proxy-ssl
+      mapping_host: amigo-development-YYYY-MM-DD.geneontology.io
+      mapping_from_port: 443
+      mapping_to_port: 9999
+      apache_proxy_additional_rules: ""
+    - role: webserver-apache-proxy-ssl
+      mapping_host: golr-development-YYYY-MM-DD.geneontology.io
+      mapping_from_port: 443
+      mapping_to_port: 8080
+      apache_proxy_additional_rules: ""
