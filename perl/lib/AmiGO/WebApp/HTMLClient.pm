@@ -2101,9 +2101,8 @@ sub mode_model_details {
     return $self->mode_fatal("No input model annotation argument.");
   }
 
-  ## Warn people away for now.
-  $self->add_mq('warning',
-		'This page is considered <strong>ALPHA</strong> software.');
+  ## ALPHA warning removed
+  # No longer displaying ALPHA banner
 
   ###
   ### Get full info.
@@ -2243,9 +2242,8 @@ sub mode_model_biology {
 
   my $self = shift;
 
-  ## Warn people away for now.
-  $self->add_mq('warning',
-		'This page is considered <strong>ALPHA</strong> software.');
+  ## ALPHA warning removed
+  # No longer displaying ALPHA banner
 
   ###
   ### Standard setup.
@@ -2308,9 +2306,8 @@ sub mode_ontologies {
 
   my $self = shift;
 
-  ## Warn people away for now.
-  $self->add_mq('warning',
-		'This page is considered <strong>ALPHA</strong> software.');
+  ## ALPHA warning removed
+  # No longer displaying ALPHA banner
 
   ###
   ### Standard setup.
