@@ -7,8 +7,6 @@
   interested in the related information found in
   [BBOP JS](https://github.com/berkeleybop/bbop-js).
 
-  Test
-
 # Installation
 
 The main installation information is available
