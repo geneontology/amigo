@@ -1,0 +1,54 @@
+# Defaults for jetty see /etc/init.d/jetty8 for more
+
+# change to 0 to allow Jetty to start
+#NO_START=1
+NO_START=0
+
+# change to 'no' or uncomment to use the default setting in /etc/default/rcS
+VERBOSE=yes
+
+# Run Jetty as this user ID (default: jetty)
+# Set this to an empty string to prevent Jetty from starting automatically
+#JETTY_USER=jetty
+
+# Listen to connections from this network host
+# Use 0.0.0.0 as host to accept all connections.
+# Uncomment to restrict access to localhost
+## NOTE: See JAVA_OPTIONS, as this didn't seem to work in jetty9. -SJC
+#JETTY_HOST=$(uname -n)
+
+# The network port used by Jetty
+#JETTY_PORT=8080
+
+# Timeout in seconds for the shutdown of all webapps
+#JETTY_SHUTDOWN=30
+
+# Additional arguments to pass to Jetty
+#JETTY_ARGS=
+
+# Extra options to pass to the JVM
+#JAVA_OPTIONS="-Xmx256m -Djava.awt.headless=true"
+#JAVA_OPTIONS="-Xmx256m -Djava.awt.headless=true -Dsolr.solr.home=/srv/solr"
+#JAVA_OPTIONS="-Xmx32g -Djava.awt.headless=true -Dsolr.solr.home=/srv/solr"
+JAVA_OPTIONS="-Xmx{{ golr_java_max_memory }} -Djava.awt.headless=true -Djetty.host=localhost -Dsolr.solr.home=/srv/solr"
+#JAVA_OPTIONS="-Xmx128g -Djava.awt.headless=true -Dsolr.solr.home=/srv/solr"
+
+# Home of Java installation.
+#JAVA_HOME=
+
+# The first existing directory is used for JAVA_HOME (if JAVA_HOME is not
+# defined in /etc/default/jetty). Should contain a list of space separated directories.
+#JDK_DIRS="/usr/lib/jvm/default-java /usr/lib/jvm/java-6-sun"
+
+# Java compiler to use for translating JavaServer Pages (JSPs). You can use all
+# compilers that are accepted by Ant's build.compiler property.
+#JSP_COMPILER=jikes
+
+# Jetty uses a directory to store temporary files like unpacked webapps
+#JETTY_TMP=/var/cache/jetty8
+
+# Jetty uses a config file to setup its boot classpath
+#JETTY_START_CONFIG=/etc/jetty8/start.config
+
+# Default for number of days to keep old log files in /var/log/jetty8/
+#LOGFILE_DAYS=14

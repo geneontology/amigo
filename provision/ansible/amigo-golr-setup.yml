@@ -1,0 +1,59 @@
+####
+#### WARNING: WIP
+####
+#### Install AmiGO and GOlr onto a production-style machine in AWS.
+#### Assumes that things like proper keys and S3 buckets are
+#### available. As well, this assumes that we're doing things with a
+#### default incommon AWS images, such as the base sudo user is
+#### "ubuntu", etc.
+####
+#### This playbook is for Ubuntu 22.04.
+####
+---
+- hosts: "{{ target_host | default('amigo-golr-production') }}"
+  #remote_user: bbop
+  remote_user: "{{ target_user | default('ubuntu') }}"
+  become: yes
+  roles:
+    ## Base package substrate and setup.
+    - standard-distribution-jammy-aws
+    ## Base webserver.
+    - webserver-apache
+    ## Actual AmiGO/GOlr.
+    - role: amigo-golr
+      amigo_user: "{{ target_user | default('ubuntu') }}"
+      amigo_version: master
+      amigo_directory: "/home/{{ target_user | default('ubuntu') }}/local/src/git/amigo"
+      amigo_configuration: amigo-go-public.yaml
+      amigo_url_string: https://amigo-development-YYYY-MM-DD.geneontology.io
+      golr_url_string: https://golr-development-YYYY-MM-DD.geneontology.io
+      golr_aux_url_string: https://golr-development-YYYY-MM-DD.geneontology.io
+      google_analytics_id: "???"
+      amigo_port: 9999
+      amigo_version_note: amigo-development-YYYY-MM-DD
+      owltools_java_max_memory: 8G
+      golr_java_max_memory: 8G
+      ###
+      ### Proxies back to the webservers on port.
+      ###
+      ## New style?
+    - role: webserver-apache-proxy
+      mapping_host: amigo-development-YYYY-MM-DD.geneontology.io
+      mapping_from_port: 80
+      mapping_to_port: 9999
+      apache_proxy_additional_rules: ""
+    - role: webserver-apache-proxy
+      mapping_host: golr-development-YYYY-MM-DD.geneontology.io
+      mapping_from_port: 80
+      mapping_to_port: 8080
+      apache_proxy_additional_rules: "    RewriteEngine on\n    ## Response to https://snyk.io/vuln/SNYK-JAVA-ORGAPACHESOLR-173769\n    RewriteCond %{QUERY_STRING} (?:^|&)shards=([^&]+) [NC]\n    RewriteRule .* - [F]\n    ## On principle, try and deny anything that's not Solr's \"select\".\n    RewriteCond %{REQUEST_URI} !^/(solr/)?select.* [NC]\n    RewriteRule .* - [F]\n    ## Prevent \"admin\" access.\n    ProxyPassMatch ^/admin(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1\n    ProxyPassMatch ^/solr/admin(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1\n    ProxyPassMatch ^/update(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1\n    ProxyPassMatch ^/solr/update(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1"
+    - role: webserver-apache-proxy-ssl
+      mapping_host: amigo-development-YYYY-MM-DD.geneontology.io
+      mapping_from_port: 443
+      mapping_to_port: 9999
+      apache_proxy_additional_rules: ""
+    - role: webserver-apache-proxy-ssl
+      mapping_host: golr-development-YYYY-MM-DD.geneontology.io
+      mapping_from_port: 443
+      mapping_to_port: 8080
+      apache_proxy_additional_rules: ""

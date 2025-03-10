@@ -1,0 +1,197 @@
+####
+#### Get Apache, Jetty, AmiGO, and GOlr up.
+####
+---
+###
+### AmiGO.
+###
+
+## For bootstrap later on, make sure the nodejs and npm packages are
+## not there.
+- name: remove node/npm packages
+  apt: pkg={{ item }} state=absent
+  with_items:
+    - nodejs
+    - npm
+## Try and get the right packages into play.
+- name: install amigo packages
+  apt: pkg={{ item }} state=present
+  with_items:
+    # core
+    - git
+    - make
+    - kwalify
+    - libcgi-application-perl
+    - libcgi-application-plugin-session-perl
+    - libcgi-application-plugin-tt-perl
+    - libcgi-application-server-perl
+    - libclone-perl
+    - libconfig-yaml-perl
+    - libdbi-perl
+    - libdbd-sqlite3-perl
+    - libdbd-mysql-perl
+    - libdata-formvalidator-perl
+    - libossp-uuid-perl
+    - libfile-type-perl
+    - libfile-slurp-perl
+    - libfreezethaw-perl
+    - libgraph-perl
+    - libgraphviz-perl
+    - libjson-xs-perl
+    - liburi-perl
+    - liburi-encode-perl
+    - libwww-mechanize-perl
+    - libxml-libxml-perl
+    - libxml-xpath-perl
+    # more build
+    - dh-make-perl
+    # this works now!
+    - libsql-tokenizer-perl
+## Bootstrap to a working version (for us) of nodejs.
+## https://nodejs.org/download/release/v8.17.0/node-v8.17.0-linux-x64.tar.gz
+- name: Get first part of bootstrap v6.17.1
+  ansible.builtin.get_url:
+    url: https://nodejs.org/download/release/v6.17.1/node-v6.17.1-linux-x64.tar.gz
+    dest: /tmp/node-v6.17.1-linux-x64.tar.gz
+- name: Extract first part of bootstrap v6.17.1
+  command: tar -zxvf node-v6.17.1-linux-x64.tar.gz
+  become_user: "{{ amigo_user }}"
+  args:
+    chdir: /tmp
+- name: Get second part of bootstrap v8.17.0
+  ansible.builtin.get_url:
+    url: https://nodejs.org/download/release/v8.17.0/node-v8.17.0-linux-x64.tar.gz
+    dest: /tmp/node-v8.17.0-linux-x64.tar.gz
+- name: Extract second part of bootstrap v8.17.0
+  command: tar -zxvf node-v8.17.0-linux-x64.tar.gz
+  become_user: "{{ amigo_user }}"
+  args:
+    chdir: /tmp
+## TODO: want the repo as "{{ amigo_user }}", not "root".
+## - name: "(D) debug ansible_env"
+##   debug: msg=" ansible_env {{ ansible_env }}"
+- name: clear ubuntu .npm
+  file:
+    state: absent
+    path: "/home/.npm"
+- name: clear ubuntu .node-gyp
+  file:
+    state: absent
+    path: "/home/.node-gyp"
+- name: clear amigo2 directory (this will include node_modules)
+  file:
+    state: absent
+    path: "{{ amigo_directory }}"
+- name: get the amigo2 repo
+  git: "repo=https://github.com/geneontology/amigo.git dest={{ amigo_directory }} version={{ amigo_version }}"
+  become_user: "{{ amigo_user }}"
+- name: prep amigo2 directory
+  file: "path={{ amigo_directory }} state=directory owner={{ amigo_user }} group=www-data mode=0775"
+## AmiGO conf.
+- name: get amigo config into place
+  template: "src={{ amigo_configuration }} dest={{ amigo_directory }}/conf/amigo.yaml owner={{ amigo_user }} group={{ amigo_user }}"
+## Chained bootstrap 6 -> 8 -> 12 (system default).
+- name: npm install w/6.17.1
+  command: /tmp/node-v6.17.1-linux-x64/bin/npm install
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/tmp/node-v6.17.1-linux-x64/bin"
+  become_user: "{{ amigo_user }}"
+  args:
+    chdir: "{{ amigo_directory }}"
+- name: npm install w/8.17.0
+  command: /tmp/node-v8.17.0-linux-x64/bin/npm install
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/tmp/node-v8.17.0-linux-x64/bin"
+  become_user: "{{ amigo_user }}"
+  args:
+    chdir: "{{ amigo_directory }}"
+## Bootstrap done; switch over to system nodejs/npm.
+- name: re-add system node/npm packages
+  apt: pkg={{ item }} state=present
+  with_items:
+    - nodejs
+    - npm
+- name: npm install
+  command: npm install
+  become_user: "{{ amigo_user }}"
+  args:
+    chdir: "{{ amigo_directory }}"
+- name: gulp install
+  command: ./node_modules/.bin/gulp install
+  become_user: "{{ amigo_user }}"
+  args:
+    chdir: "{{ amigo_directory }}"
+  ## Not sure why the non-zero status here. Proceed anyways.
+  ignore_errors: true
+- name: gulp cache
+  command: ./node_modules/.bin/gulp cache
+  become_user: "{{ amigo_user }}"
+  args:
+    chdir: "{{ amigo_directory }}"
+## Ready apache.
+- name: setup/copy apache environment
+  template: "src=amigo2-apache.conf dest=/etc/apache2/sites-available/amigo2.conf owner=root group=root"
+- name: "ensure apache listens to amigo {{ amigo_port }}"
+  lineinfile: "dest=/etc/apache2/ports.conf line='Listen {{ amigo_port }}'"
+- name: a2ensite amigo2
+  command: a2ensite amigo2
+- name: restart apache (amigo)
+  service: name=apache2 state=restarted
+## Make sure that the ubuntu user allows path search for www-data.
+#- name: www-data grp perms; step 1a
+#  command: chgrp www-data /home/ubuntu
+#- name: www-data mod perms; step 1b
+#  command: chmod 775 /home/ubuntu
+- name: www-data grp perms; step 2a
+  command: chgrp www-data /home/ubuntu/local
+- name: www-data mod perms; step 2b
+  command: chmod 775 /home/ubuntu/local
+- name: www-data grp perms; step 3a
+  command: chgrp www-data /home/ubuntu/local/src
+- name: www-data mod perms; step 3b
+  command: chmod 775 /home/ubuntu/local/src
+- name: www-data grp perms; step 4a
+  command: chgrp www-data /home/ubuntu/local/src/git
+- name: www-data mod perms; step 4b
+  command: chmod 775 /home/ubuntu/local/src/git
+- name: www-data grp perms; step 5a
+  command: chgrp -R www-data /home/ubuntu/local/src/git/amigo
+#- name: www-data mod perms; step 5b
+#  command: chmod 775 /home/ubuntu/local/src/git/amigo
+###
+### GOlr.
+### Remember: we're still in amigo/
+###
+- name: install golr packages
+  apt: pkg={{ item }} state=present
+  with_items:
+    - jetty9
+- name: setup/copy default jetty9 environment
+  template: "src=etc-default-jetty9 dest=/etc/default/jetty9 owner=root group=root"
+- name: golr setup commands
+  command: "{{ item }}"
+  with_items:
+    ## Solr to right spot.
+    - "cp ./golr/solr/solr.war /var/lib/jetty9/webapps/"
+    - "chown jetty /var/lib/jetty9/webapps/solr.war"
+    - "chgrp adm /var/lib/jetty9/webapps/solr.war"
+    ## See previous step.
+    #- "cp ./golr/jetty/jetty /etc/default/jetty9"
+    - "mkdir -p /srv/solr/data"
+    - "mkdir -p /srv/solr/conf"
+    - "cp ./golr/solr/conf/schema.xml /srv/solr/conf/schema.xml"
+    - "cp ./golr/solr/conf/solrconfig.xml /srv/solr/conf/solrconfig.xml"
+    - "chown -R jetty /srv/solr/"
+    - "chgrp -R adm /srv/solr/"
+    ## Restart does not work on initial run?
+    - "/etc/init.d/jetty9 stop"
+    - "/etc/init.d/jetty9 start"
+  args:
+    chdir: "{{ amigo_directory }}"
+# - name: restart jetty9 (golr)
+#   service: name=jetty9 state=restarted
+###
+### Push the index file to the right location.
+###
+- name: copy index to web server
+  template: "src=amigo-index.html dest=/var/www/html/index.html owner={{ amigo_user }} group=www-data mode=0644 force=yes backup=yes"

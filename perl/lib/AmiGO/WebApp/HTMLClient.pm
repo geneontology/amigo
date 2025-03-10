@@ -1857,6 +1857,14 @@ sub mode_gene_product_details {
     return $jdump;
   }
 
+  ## PAN-GO and Functionome information setup.
+  $self->set_template_parameter('functionome_p', 'no');
+  if( $input_gp_id =~ /^UniProt/ ){
+    if( $gp_info_hash->{$input_gp_id}{'taxon_readable'} eq 'Homo sapiens' ){
+      $self->set_template_parameter('functionome_p', 'yes');
+    }
+  }
+
   ## PANTHER info if there.
   my $pgraph = $gp_info_hash->{$input_gp_id}{'phylo_graph'};
   if( $pgraph ){

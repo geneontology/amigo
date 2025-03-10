@@ -1,3 +1,193 @@
+# New AmiGO Deployment Instructions
+
+Note: uniformly replace `YYYY-MM-DD` with the date that you start
+these instructions.
+
+## Dev docker setup
+
+```
+docker rm go-dev || true && docker run --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.4 /bin/bash
+cd /tmp
+git clone https://github.com/geneontology/amigo.git
+cd amigo/provision
+```
+
+Test with:
+```
+go-deploy -h
+```
+
+From "outside" docker image, get deployment keys into place:
+
+```
+docker cp go-ssh go-dev:/tmp
+docker cp go-ssh.pub go-dev:/tmp
+```
+
+Back "inside":
+
+```
+chmod 600 /tmp/go-ssh*
+```
+
+## AWS credentials setup for instance creation
+
+Edit AWS credentials:
+
+```
+emacs -nw /tmp/go-aws-credentials
+```
+
+Using the template:
+
+```
+[default]
+aws_access_key_id = XXXX
+aws_secret_access_key = XXXX
+```
+
+Add your personal dev keys into the file (Prerequisites 1); update the `aws_access_key_id` and `aws_secret_access_key`; then:
+
+```
+export AWS_SHARED_CREDENTIALS_FILE=/tmp/go-aws-credentials
+export ANSIBLE_HOST_KEY_CHECKING=False
+```
+
+Test with:
+
+```
+aws s3 ls s3://go-workspace-amigo
+```
+
+Setup Terraform backend:
+
+```
+cp ./production/backend.tf.sample ./aws/backend.tf
+emacs -nw ./aws/backend.tf
+```
+
+- `REPLACE_ME_AMIGO_S3_BACKEND` should be `go-workspace-amigo`.
+
+```
+go-deploy -init --working-directory aws -verbose
+```
+
+Test with:
+
+```
+go-deploy --working-directory aws -list-workspaces -verbose
+```
+
+## Provision instance for AmiGO in AWS
+
+```
+cp ./production/config-instance.yaml.sample config-instance.yaml
+emacs -nw config-instance.yaml
+```
+
+- `REPLACE_ME`
+  - If production, should be `amigo-production-YYYY-MM-DD`
+  - If development, should be `amigo-development-YYYY-MM-DD`
+- `REPLACE_ME_FQDN_FOR_AMIGO`
+  - If production, should be `amigo-production-YYYY-MM-DD.geneontology.org`
+  - If development, should be `amigo-development-YYYY-MM-DD.geneontology.io`
+- `REPLACE_ME_FQDN_FOR_GOLR`
+  - If production, should be `golr-production-YYYY-MM-DD.geneontology.org`
+  - If development, should be `golr-development-YYYY-MM-DD.geneontology.io`
+- `REPLACE_ME_FOR_DNS_ZONE_ID`
+  - If production (geneontology.org), should be `Z04640331A23NHVPCC784`
+  - If development (geneontology.io), should be `Z1SMAYFNVK75BZ`
+
+Deploy:
+
+If production (geneontology.org):
+
+```
+go-deploy --workspace amigo-production-YYYY-MM-DD --working-directory aws -verbose --conf config-instance.yaml
+```
+
+If development (geneontology.io):
+
+```
+go-deploy --workspace amigo-development-YYYY-MM-DD --working-directory aws -verbose --conf config-instance.yaml
+```
+
+To test, note public IP address in output and try:
+
+```
+ssh -i /tmp/go-ssh ubuntu@PUBLIC_IP
+go-deploy --working-directory aws -list-workspaces -verbose
+```
+
+## Setup and start AmiGO/GOlr in AWS instance
+
+```
+emacs -nw ansible/hosts.amigo
+```
+
+- `REPLACE_ME`
+  - Should be IP address of new EC2 instance from above
+
+```
+emacs -nw ansible/amigo-golr-setup.yml
+```
+
+- `amigo_version`
+  - Should likely be "master"
+- `amigo_url_string`
+  - https://amigo-development-YYYY-MM-DD.geneontology.io
+- `golr_url_string`
+  - https://golr-development-YYYY-MM-DD.geneontology.io
+- `golr_aux_url_string`
+  - https://golr-development-YYYY-MM-DD.geneontology.io
+- `amigo_version_note`
+  - amigo-development-YYYY-MM-DD
+- `mapping_host`
+  - amigo-development-2025-03-06.geneontology.io
+- `mapping_host`
+  - golr-development-2025-03-06.geneontology.io
+
+[At this point in time, also convert https to http.]
+
+Then run ansible:
+
+```
+ansible-playbook ansible/amigo-golr-setup.yml --inventory=ansible/hosts.amigo --private-key="/tmp/go-ssh" -e target_host=amigo-in-aws -e target_user=ubuntu
+```
+
+## Load GOlr w/data
+
+In geneontology/operations/ansible:
+
+add target (amigo-noctua-dev) with IP above into (new) hosts.neo:
+
+```
+ansible-playbook update-golr-w-skyhook-forced.yaml --inventory=hosts.neo --private-key=/home/sjcarbon/local/share/secrets/go/ssh-keys/go-ssh -e target_branch=issue-35-neo-test -e target_host=amigo-noctua-dev -e target_user=ubuntu
+```
+## Setup HTTPS
+
+Currently, have to accept both "iffy" celf-signed certs before using
+AmiGO/GOlr.
+
+TODO: hook through cloudflare.
+
+
+## Destroy Instance and Delete Workspace.
+
+```sh
+Make sure you are deleting the correct workspace.
+go-deploy --workspace amigo-development-YYYY-MM-DD --working-directory aws -verbose -show
+
+# Destroy.
+go-deploy --workspace amigo-development-YYYY-MM-DD --working-directory aws -verbose -destroy
+```
+
+STOP
+
+
+
+
+
 # AmiGO Production Deployment
 
 This part of the repository enables the deployment of the AmiGO stack
@@ -31,7 +221,7 @@ to AWS. It includes amigo and golr.
 The instructions in this document are run from the POV that we're working with this developement environment; i.e.:
 
 ```
-docker run --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.2 /bin/bash
+docker run --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.4 /bin/bash
 apt-get update && apt-get dist-upgrade
 git clone https://github.com/geneontology/amigo
 cd amigo/provision
@@ -53,10 +243,10 @@ backend.tf.sample.
 
 ## DNS
 
-Note: DNS records are used for amigo and golr. The tool would create them during `create phase` and destroy them during `destroy phase`. See `dns_record_name` in the instance config file and `AMIGO_DYNAMIC` and `AMIGO_PUBLIC_GOLR` in the stack config file. 
+Note: DNS records are used for amigo and golr. The tool would create them during `create phase` and destroy them during `destroy phase`. See `dns_record_name` in the instance config file and `AMIGO_DYNAMIC` and `AMIGO_PUBLIC_GOLR` in the stack config file.
 
-The aliases `AMIGO_DYNAMIC_ALIAS` and `AMIGO_PUBLIC_GOLR_ALIAS` should be FQDN of EXISTING DNS records. 
-They should NOT be managed by the tool otherwise the tool would delete them during the `destroy phase`. 
+The aliases `AMIGO_DYNAMIC_ALIAS` and `AMIGO_PUBLIC_GOLR_ALIAS` should be FQDN of EXISTING DNS records.
+They should NOT be managed by the tool otherwise the tool would delete them during the `destroy phase`.
 
 Once the instance has been provisioned and tested, the aliases would need to modified manually and point to the public ip address of the vm.
 
@@ -81,7 +271,7 @@ The S3 backend is used to store the terraform state.
 Check list:
 - [ ] Assumes you have prepared the AWS credentials above.
 - [ ] Copy the backend sample file <br/>`cp ./production/backend.tf.sample ./aws/backend.tf`
-- [ ] Make sure you have the correct S3 bucket configured in the backend file <br/>`cat ./aws/backend.tf`; replace `REPLACE_ME_AMIGO_S3_BACKEND` as needed. If this is a production environment, coordinate the location of this common-state bucket.
+- [ ] Make sure you have the correct S3 bucket configured in the backend file <br/>`cat ./aws/backend.tf`; replace `REPLACE_ME_AMIGO_S3_BACKEND` as needed: `go-workspace-amigo`. If this is a production environment, coordinate the location of this common-state bucket.
 - [ ] Execute the command set right below in "Command set".
 
 <b>Command set</b>:
@@ -115,7 +305,7 @@ provisionning of the aws instance. Or you can destroy the aws instance
 and re-provision if that is the intent.
 
 Check list:
-- [ ] <b>Choose your workspace name. We use the following pattern `production-YYYY-MM-DD`</b>. For example: `production-2023-01-30`.
+- [ ] <b>Choose your workspace name. We use the following pattern `production-YYYY-MM-DD`</b>. For example: `production-2023-01-30` or `neo-2024-12-06`.
 - [ ] Copy `production/config-instance.yaml.sample` to another location and modify using vim or emacs. E.g. `cp production/config-instance.yaml.sample ./config-instance.yaml`.
 - [ ] Verify the location of the ssh keys for your AWS instance in your copy of `config-instance.yaml` under `ssh_keys`. E.g `docker cp ~/LOCATION/ssh go-dev:/tmp/` and `docker cp ~/LOCATION/ssh.pub go-dev:/tmp/`.
 - [ ] Verify location of the public ssh key in `aws/main.tf`, if different than default.
@@ -135,7 +325,7 @@ go-deploy --workspace production-YYYY-MM-DD --working-directory aws -verbose --c
 # Display the terraform state
 go-deploy --workspace production-YYYY-MM-DD --working-directory aws -verbose -show
 
-# Display the public ip address of the aws instance. 
+# Display the public ip address of the aws instance.
 go-deploy --workspace production-YYYY-MM-DD --working-directory aws -verbose -output
 
 #Useful Information When Debugging.
@@ -186,16 +376,6 @@ Check list:
 - docker-compose -f stage_dir/docker-compose.yaml up -d
 - docker-compose -f stage_dir/docker-compose.yaml logs -f
 - Use -dry-run and copy and paste the command and execute it manually
-
-## Destroy Instance and Delete Workspace.
-
-```sh
-Make sure you are deleting the correct workspace.
-go-deploy --workspace production-YYYY-MM-DD --working-directory aws -verbose -show
-
-# Destroy.
-go-deploy --workspace production-YYYY-MM-DD --working-directory aws -verbose -destroy
-```
 
 ## Appendix I: Development Environment
 

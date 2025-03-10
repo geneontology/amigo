@@ -1,0 +1,11 @@
+####
+#### Get an Apache2 proxy running for a domain.
+####
+---
+## Copy over apache proxy config.
+- name: get ssl proxy config into place
+  template: "src=proxy-ssl.conf dest=/etc/apache2/sites-available/{{ mapping_host }}-proxy-{{ mapping_from_port }}-{{ mapping_to_port }}.conf owner=root group=root"
+- name: add proxy to enabled sites
+  command: "a2ensite {{ mapping_host }}-ssl-proxy-{{ mapping_from_port }}-{{ mapping_to_port }}"
+- name: restart apache (apache)
+  service: name=apache2 state=restarted

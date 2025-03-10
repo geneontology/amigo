@@ -23,29 +23,29 @@
     </div>
 
     <dl class="dl-horizontal amigo-detail-info">
-      
-      <dt>Symbol</dt> 
+
+      <dt>Symbol</dt>
       [% IF GP_INFO.label %]
       <dd>[% GP_INFO.label %]</dd>
       [% ELSE %]
       <dd>(n/a)</dd>
       [% END %]
-      
+
       <dt>Name(s)</dt>
       [% IF GP_INFO.name %]
       <dd>[% GP_INFO.name %]</dd>
       [% ELSE %]
       <dd>(n/a)</dd>
       [% END %]
-      
-      <dt>Type</dt> 
+
+      <dt>Type</dt>
       <dd>[% GP_INFO.type %]</dd>
-      
+
       <dt>Taxon</dt>
       <dd>[% GP_INFO.taxon_readable %]</dd>
       <!-- TODO: Oo! Copy below. -->
       <!-- <dd><a href="http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=44689" title="View Dictyostelium discoideum details on the NCBI taxonomy website">Dictyostelium discoideum</a></dd> -->
-      
+
       <!-- Synonyms -->
       <dt>Synonyms</dt>
       [% sl = GP_INFO.synonyms %]
@@ -63,6 +63,12 @@
       [%    END %]
       [% END %]
 
+      [% IF functionome_p == 'yes' %]
+      <dt>PAN-GO</dt>
+      <dd><a href="https://functionome.geneontology.org/gene/UniProtKB:[% GP_INFO.internal_id %]" title="View details of [% GP_INFO.internal_id %] at PAN-GO">PAN-GO functions and evidence for [% GP_INFO.name %]</a>
+      </dd>
+      [% END %]
+
       <dt>Database</dt>
       <dd>[% GP_INFO.source %], <a href="[% GP_INFO.db_link %]" title="View details of [% GP_INFO.internal_id %] at [% GP_INFO.source %]">[% GP_INFO.internal_id %]</a>
       </dd>
@@ -72,8 +78,8 @@
       <!--   <a class="blast-link" href="blast.cgi?action=blast&amp;seq_id=dictyBase:DDB_G0267178" title="Use sequence as BLAST query">use as BLAST query sequence</a></dd> -->
 
       [% IF PHYLO_TREE_LINK %]
-      <dt>PANTHER Family</dt>				
-      <dd><a title="View PANTHER tree" href="[% PHYLO_TREE_LINK %]">View PANTHER tree</a></dd> 
+      <dt>PANTHER Family</dt>
+      <dd><a title="View PANTHER tree" href="[% PHYLO_TREE_LINK %]">View PANTHER tree</a></dd>
       [% END %]
 
       <!-- JS dynamic links created by manager. -->
@@ -134,7 +140,7 @@
         </div>
         <div id="gp-gocam-viz-container">
           <button class="btn btn-link btn-collapse-toggle collapsed" type="button" data-toggle="collapse" data-target="#gocam-viz-legend-container" aria-expanded="false" aria-controls="gocam-viz-legend-container">
-            Legend <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> 
+            Legend <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
           </button>
           <div class="collapse gocam-viz-legend-container" id="gocam-viz-legend-container">
             <wc-gocam-legend></wc-gocam-legend>
