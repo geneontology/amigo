@@ -3,6 +3,7 @@
 ####
 
 from behave import *
+from urllib.parse import urlparse
 
 ## The basic and critical "go to page".
 @given('I go to page "{page}"')
@@ -30,6 +31,10 @@ def step_impl(context, title):
     #print(context.browser.title)
     #print(title)
     assert context.browser.title == title
+
+@then('the title should contain "{text}"')
+def step_impl(context, text):
+    assert text in context.browser.title
 
 @then('the class "{clss}" should contain "{text}"')
 def step_impl(context, clss, text):
@@ -108,3 +113,24 @@ def step_impl(context, tabname, text):
             # print(tab_area_elt.text)
             assert tab_area_elt and tab_area_elt.text.rfind(text) != -1
     assert found_tab
+
+## Check for broken images on the page
+@then('the page should not contain broken images')
+def step_impl(context):
+    from selenium.webdriver.common.by import By
+    
+    # Get all images on the page
+    images = context.browser.find_elements(By.TAG_NAME, 'img')
+    
+    # Check each image
+    broken_images = []
+    for img in images:
+        # Check if the image is displayed
+        if not img.is_displayed():
+            # Get image details for logging
+            img_src = img.get_attribute('src')
+            img_alt = img.get_attribute('alt')
+            broken_images.append(f"Broken image: src={img_src}, alt={img_alt}")
+    
+    # Assert that no broken images were found
+    assert len(broken_images) == 0, f"Found {len(broken_images)} broken images: {broken_images}"
