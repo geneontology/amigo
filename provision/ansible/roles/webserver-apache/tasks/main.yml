@@ -16,7 +16,7 @@
   with_items:
     - cgid
     - mpm_event
-    - mpm_worker    
+    - mpm_worker
 - name: install base mods
   apache2_module: name={{ item }} state=present
   with_items:
@@ -30,5 +30,6 @@
     - macro
     - headers
     - xml2enc
+    - ssl
 - name: restart apache (apache)
   service: name=apache2 state=restarted
