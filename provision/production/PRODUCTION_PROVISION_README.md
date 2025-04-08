@@ -5,28 +5,38 @@ these instructions.
 
 ## Dev docker setup
 
-```
-docker rm go-dev || true && docker run --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.4 /bin/bash
+Starting fresh:
+
+```bash
+docker rm amigo-devops || true && docker run --name amigo-devops -it geneontology/go-devops-base:tools-jammy-0.4.4 /bin/bash
 cd /tmp
 git clone https://github.com/geneontology/amigo.git
 cd amigo/provision
 ```
 
-Test with:
+If rejoining after having done this prep:
+
+```bash
+docker container start amigo-devops
+docker exec -it amigo-devops bash -c "/bin/bash"
+cd /tmp/amigo/provision
 ```
+
+Test with:
+```bash
 go-deploy -h
 ```
 
 From "outside" docker image, get deployment keys into place:
 
-```
-docker cp go-ssh go-dev:/tmp
-docker cp go-ssh.pub go-dev:/tmp
+```bash
+docker cp go-ssh amigo-devops:/tmp
+docker cp go-ssh.pub amigo-devops:/tmp
 ```
 
 Back "inside":
 
-```
+```bash
 chmod 600 /tmp/go-ssh*
 ```
 
@@ -34,53 +44,46 @@ chmod 600 /tmp/go-ssh*
 
 Edit AWS credentials:
 
-```
+```bash
+cp production/go-aws-credentials.sample /tmp/go-aws-credentials
 emacs -nw /tmp/go-aws-credentials
 ```
 
-Using the template:
+Add your personal dev keys into the file (Prerequisites 1), update the `aws_access_key_id` and `aws_secret_access_key`, then:
 
-```
-[default]
-aws_access_key_id = XXXX
-aws_secret_access_key = XXXX
-```
-
-Add your personal dev keys into the file (Prerequisites 1); update the `aws_access_key_id` and `aws_secret_access_key`; then:
-
-```
+```bash
 export AWS_SHARED_CREDENTIALS_FILE=/tmp/go-aws-credentials
 export ANSIBLE_HOST_KEY_CHECKING=False
 ```
 
 Test with:
 
-```
+```bash
 aws s3 ls s3://go-workspace-amigo
 ```
 
 Setup Terraform backend:
 
-```
+```bash
 cp ./production/backend.tf.sample ./aws/backend.tf
 emacs -nw ./aws/backend.tf
 ```
 
 - `REPLACE_ME_AMIGO_S3_BACKEND` should be `go-workspace-amigo`.
 
-```
+```bash
 go-deploy -init --working-directory aws -verbose
 ```
 
 Test with:
 
-```
+```bash
 go-deploy --working-directory aws -list-workspaces -verbose
 ```
 
 ## Provision instance for AmiGO in AWS
 
-```
+```bash
 cp ./production/config-instance.yaml.sample config-instance.yaml
 emacs -nw config-instance.yaml
 ```
@@ -102,33 +105,33 @@ Deploy:
 
 If production (geneontology.org):
 
-```
+```bash
 go-deploy --workspace amigo-production-YYYY-MM-DD --working-directory aws -verbose --conf config-instance.yaml
 ```
 
 If development (geneontology.io):
 
-```
+```bash
 go-deploy --workspace amigo-development-YYYY-MM-DD --working-directory aws -verbose --conf config-instance.yaml
 ```
 
 To test, note public IP address in output and try:
 
-```
+```bash
 ssh -i /tmp/go-ssh ubuntu@PUBLIC_IP
 go-deploy --working-directory aws -list-workspaces -verbose
 ```
 
 ## Setup and start AmiGO/GOlr in AWS instance
 
-```
+```bash
 emacs -nw ansible/hosts.amigo
 ```
 
 - `REPLACE_ME`
   - Should be IP address of new EC2 instance from above
 
-```
+```bash
 emacs -nw ansible/amigo-golr-setup.yml
 ```
 
@@ -151,7 +154,7 @@ emacs -nw ansible/amigo-golr-setup.yml
 
 Then run ansible:
 
-```
+```bash
 ansible-playbook ansible/amigo-golr-setup.yml --inventory=ansible/hosts.amigo --private-key="/tmp/go-ssh" -e target_host=amigo-in-aws -e target_user=ubuntu
 ```
 
@@ -221,7 +224,7 @@ to AWS. It includes amigo and golr.
 The instructions in this document are run from the POV that we're working with this developement environment; i.e.:
 
 ```
-docker run --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.4 /bin/bash
+docker run --name amigo-devops -it geneontology/go-devops-base:tools-jammy-0.4.4 /bin/bash
 apt-get update && apt-get dist-upgrade
 git clone https://github.com/geneontology/amigo
 cd amigo/provision
@@ -307,7 +310,7 @@ and re-provision if that is the intent.
 Check list:
 - [ ] <b>Choose your workspace name. We use the following pattern `production-YYYY-MM-DD`</b>. For example: `production-2023-01-30` or `neo-2024-12-06`.
 - [ ] Copy `production/config-instance.yaml.sample` to another location and modify using vim or emacs. E.g. `cp production/config-instance.yaml.sample ./config-instance.yaml`.
-- [ ] Verify the location of the ssh keys for your AWS instance in your copy of `config-instance.yaml` under `ssh_keys`. E.g `docker cp ~/LOCATION/ssh go-dev:/tmp/` and `docker cp ~/LOCATION/ssh.pub go-dev:/tmp/`.
+- [ ] Verify the location of the ssh keys for your AWS instance in your copy of `config-instance.yaml` under `ssh_keys`. E.g `docker cp ~/LOCATION/ssh amigo-devops:/tmp/` and `docker cp ~/LOCATION/ssh.pub amigo-devops:/tmp/`.
 - [ ] Verify location of the public ssh key in `aws/main.tf`, if different than default.
 - [ ] Remember you can use the -dry-run and the -verbose options to test "go-deploy"
 - [ ] Execute the command set right below in "Command set".
@@ -380,19 +383,19 @@ Check list:
 ## Appendix I: Development Environment
 
 ```
-# Start docker container `go-dev` in interactive mode.
-docker run --rm --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.2  /bin/bash
+# Start docker container `amigo-devops` in interactive mode.
+docker run --rm --name amigo-devops -it geneontology/go-devops-base:tools-jammy-0.4.2  /bin/bash
 
 # In the command above we used the `--rm` option which means the container will be deleted when you exit. If that is not
 # the intent and you want delete it later at your own convenience. Use the following `docker run` command.
 
-docker run --name go-dev -it geneontology/go-devops-base:tools-jammy-0.4.2  /bin/bash
+docker run --name amigo-devops -it geneontology/go-devops-base:tools-jammy-0.4.2  /bin/bash
 
 # Exit or stop the container.
-docker stop go-dev  # stop container with the intent of restarting it. This equivalent to `exit` inside the container
+docker stop amigo-devops  # stop container with the intent of restarting it. This equivalent to `exit` inside the container
 
-docker start -ia go-dev  # restart and attach to the container
-docker rm -f go-dev # get rid of it for good when ready.
+docker start -ia amigo-devops  # restart and attach to the container
+docker rm -f amigo-devops # get rid of it for good when ready.
 ```
 
 SSH/AWS Credentials:
@@ -406,9 +409,9 @@ Under /tmp you would need the following:
 - /tmp/go-ssh.pub
 
 ```
-# Example using `docker cp` to copy files from host to docker container named `go-dev`
+# Example using `docker cp` to copy files from host to docker container named `amigo-devops`
 
-docker cp <path_on_host> go-dev:/tmp/
+docker cp <path_on_host> amigo-devops:/tmp/
 ```
 
 Then, within the docker image:
