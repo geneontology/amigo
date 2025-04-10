@@ -195,3 +195,8 @@
 ###
 - name: copy index to web server
   template: "src=amigo-index.html dest=/var/www/html/index.html owner={{ amigo_user }} group=www-data mode=0644 force=yes backup=yes"
+###
+### Set perms globally to make
+###
+- name: www-data grp perms on ubuntu (for apache2 later on)
+  command: chgrp -R www-data /home/ubuntu
