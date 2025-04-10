@@ -1,0 +1,17 @@
+####
+#### WARNING: WIP
+####
+#### TODO
+####
+#### This playbook is for Ubuntu 22.04.
+####
+---
+- hosts: "{{ target_host | default('amigo-golr-production') }}"
+  #remote_user: bbop
+  remote_user: "{{ target_user | default('ubuntu') }}"
+  become: yes
+  roles:
+    ## Setup wildcard acquisition and update.
+    - role: get-wildcard-certs
+      var_ssl_wildcard_domain: "{{ target_domain | default('geneontology.org') }}"
+      var_aws_credentials: /tmp/aws-go-push.awscred
