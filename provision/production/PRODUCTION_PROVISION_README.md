@@ -130,8 +130,11 @@ go-deploy --working-directory aws -list-workspaces -verbose
 
 ## Setup hosts for ansible
 
+Go back to /tmp/amigo/production/ansible.
+
 ```bash
-emacs -nw ansible/hosts.amigo
+cd /tmp/amigo/provision/ansible
+emacs -nw hosts.amigo
 ```
 
 - `REPLACE_ME`
@@ -141,19 +144,21 @@ emacs -nw ansible/hosts.amigo
 
 Next, setup automatic cert retreival.
 
-Go back to /tmp/amigo/production/ansible.
-
 If production (geneontology.org):
 
 ```bash
 ansible-playbook wildcard-setup.yaml --inventory=hosts.amigo --private-key=/tmp/go-ssh -e target_domain=geneontology.org -e target_host=amigo-in-aws -e target_user=ubuntu
 ```
 
-Replace with geneontology.io as needed.
+If development (geneontology.io):
+
+```bash
+ansible-playbook wildcard-setup.yaml --inventory=hosts.amigo --private-key=/tmp/go-ssh -e target_domain=geneontology.io -e target_host=amigo-in-aws -e target_user=ubuntu
+```
 
 ## Setup and start AmiGO/GOlr in AWS instance
 
-Next, ready amigo/golr setup.
+Next, ready the amigo and golr setup.
 
 ```bash
 emacs -nw ansible/amigo-golr-setup.yml

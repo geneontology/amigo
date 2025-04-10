@@ -11,6 +11,8 @@
   remote_user: "{{ target_user | default('ubuntu') }}"
   become: yes
   roles:
+    ## Base package substrate and setup.
+    - standard-distribution-jammy-aws
     ## Setup wildcard acquisition and update.
     - role: get-wildcard-certs
       var_ssl_wildcard_domain: "{{ target_domain | default('geneontology.org') }}"
