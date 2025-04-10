@@ -4,6 +4,10 @@
 #### trying hew close to originals in devops-apache-proxy.
 ####
 ---
+- name: "Ensure /opt/credentials dir exists"
+  file:
+    path: "/opt/credentials"
+    state: directory
 - name: "Get credentials in place for record"
   copy:
     src: "{{ var_aws_credentials }}"

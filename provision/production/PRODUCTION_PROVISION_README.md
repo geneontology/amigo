@@ -179,9 +179,20 @@ emacs -nw hosts.neo
 then:
 
 ```bash
-ansible-playbook update-golr-w-skyhook-forced.yaml --inventory=hosts.neo --private-key=/home/sjcarbon/local/share/secrets/go/ssh-keys/go-ssh -e target_branch=issue-35-neo-test -e target_host=amigo-noctua-dev -e target_user=ubuntu
+ansible-playbook update-golr-w-skyhook-forced.yaml --inventory=hosts.neo --private-key=/tmp/go-ssh -e target_branch=issue-35-neo-test -e target_host=amigo-noctua-dev -e target_user=ubuntu
 ```
+
 ## Setup HTTPS
+
+Go back to production/ansible.
+
+If production (geneontology.org):
+
+```bash
+ansible-playbook wildcard-setup.yaml --inventory=hosts.amigo --private-key=/tmp/go-ssh -e target_domain=geneontology.org -e target_host=amigo-in-aws -e target_user=ubuntu
+```
+
+STOP
 
 Currently, have to accept both "iffy" celf-signed certs before using
 AmiGO/GOlr.
