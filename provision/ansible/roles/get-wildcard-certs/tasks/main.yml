@@ -1,0 +1,71 @@
+####
+#### Setup a naive getter and updater for our stored wildcard certs.
+#### Some location oddities (e.g. directly having files in root due to
+#### trying hew close to originals in devops-apache-proxy.
+####
+---
+- name: "Get credentials in place for record"
+  copy:
+    src: "{{ var_aws_credentials }}"
+    dest: "/opt/credentials/awscred.txt"
+    mode: 0600
+## Get default credential location setup (root)
+- name: "Ensure /root/.aws/ path"
+  file:
+    path: /root/.aws
+    state: directory
+    mode: 0700
+## Get default credential location setup (ubuntu)
+- name: "Ensure /home/ubuntu/.aws/ path"
+  file:
+    path: /home/ubuntu/.aws
+    state: directory
+    mode: 0700
+- name: "Get credentials in place for use (root)"
+  copy:
+    src: "{{ var_aws_credentials }}"
+    dest: "/root/.aws/credentials"
+    mode: 0600
+- name: "Get credentials in place for use (ubuntu)"
+  copy:
+    src: "{{ var_aws_credentials }}"
+    dest: "/home/ubuntu/.aws/credentials"
+    mode: 0600
+- name: "Need some packages"
+  apt: pkg={{ item }} state=present
+  with_items:
+    - awscli
+## Get script into place and setup.
+- name: "Ensure /opt/bin path"
+  file:
+    path: /opt/bin
+    state: directory
+    mode: 0755
+- name: "Keep the env vars location where our scripts want them to be"
+  shell: "echo 'S3_SSL_CERTS_LOCATION=s3://go-service-lockbox/{{ var_ssl_wildcard_domain }}.tar.gz' > /download_certs_source.sh"
+## NOTE: Would like to use ansible.builtin.git, but apparently I have
+## a verion problem with it.
+- name: "github checkout repo"
+  shell: "git clone https://github.com/geneontology/devops-apache-proxy.git /opt/devops-apache-proxy"
+  ## Okay of already there.
+  ignore_errors: yes
+- name: "test 01"
+  shell: "whoami"
+- name: "test 02"
+  shell: "ls -AlF /opt/devops-apache-proxy/download_certs.sh"
+- name: "Copy checked out script to 'default' location"
+  ## Not sure why only the last works.
+  # copy:
+  #   src: '/opt/devops-apache-proxy/download_certs.sh'
+  #   dest: '/opt/bin/download_certs.sh'
+  #   owner: root
+  #   group: root
+  #   mode: '0700'
+  # copy: "src=/opt/devops-apache-proxy/download_certs.sh dest=/opt/bin/download_certs.sh owner=root group=root mode=0700"
+  shell: "cp /opt/devops-apache-proxy/download_certs.sh /opt/bin/download_certs.sh"
+- name: "Set executable"
+  shell: "chmod 700 /opt/bin/download_certs.sh"
+- name: "Try and get wildercard getter to run without intervention"
+  cron: name='wildcard getter' weekday=0 minute=0 hour=0 job='/opt/bin/download_certs.sh >> /tmp/download_certs.log 2>&1'
+- name: "Run once on completion"
+  shell: '/opt/bin/download_certs.sh >> /tmp/download_certs.log 2>&1'

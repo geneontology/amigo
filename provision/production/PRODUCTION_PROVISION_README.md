@@ -34,6 +34,12 @@ docker cp go-ssh amigo-devops:/tmp
 docker cp go-ssh.pub amigo-devops:/tmp
 ```
 
+As well as AWS bucket credentials:
+
+```bash
+docker cp aws-go-push.awscred amigo-devops:/tmp/aws-go-push.awscred
+```
+
 Back "inside":
 
 ```bash
@@ -160,11 +166,19 @@ ansible-playbook ansible/amigo-golr-setup.yml --inventory=ansible/hosts.amigo --
 
 ## Load GOlr w/data
 
+IN TESTING:
+
 In geneontology/operations/ansible:
 
-add target (amigo-noctua-dev) with IP above into (new) hosts.neo:
+add target (amigo-noctua-dev) with the IP above into (new) hosts.neo:
 
+```bash
+emacs -nw hosts.neo
 ```
+
+then:
+
+```bash
 ansible-playbook update-golr-w-skyhook-forced.yaml --inventory=hosts.neo --private-key=/home/sjcarbon/local/share/secrets/go/ssh-keys/go-ssh -e target_branch=issue-35-neo-test -e target_host=amigo-noctua-dev -e target_user=ubuntu
 ```
 ## Setup HTTPS
