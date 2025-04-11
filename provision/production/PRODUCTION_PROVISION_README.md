@@ -3,7 +3,7 @@
 Note: uniformly replace `YYYY-MM-DD` with the date that you start
 these instructions.
 
-## Dev docker setup
+## Devops docker setup
 
 Starting fresh:
 
@@ -88,6 +88,13 @@ go-deploy --working-directory aws -list-workspaces -verbose
 ```
 
 ## Provision instance for AmiGO in AWS
+
+The default machine and disk size here (t2.large and 200GB) is for a
+functional and updatable installation of NEO (with some disk
+leftover). Other AmiGO loads are going to have different profiles. In
+the future, we can add them here. In addition to the items to be
+modified below, a different AmiGO load can be supported by changing
+the `instance_type` and `disk_size` variables in config-instance.yaml.
 
 ```bash
 cp ./production/config-instance.yaml.sample config-instance.yaml
