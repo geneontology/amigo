@@ -161,7 +161,7 @@ ansible-playbook wildcard-setup.yaml --inventory=hosts.amigo --private-key=/tmp/
 Next, ready the amigo and golr setup.
 
 ```bash
-emacs -nw ansible/amigo-golr-setup.yml
+emacs -nw amigo-golr-setup.yml
 ```
 
 If development/geneontology.io:
@@ -186,25 +186,29 @@ If development/geneontology.io:
 Then run ansible:
 
 ```bash
-ansible-playbook ansible/amigo-golr-setup.yml --inventory=ansible/hosts.amigo --private-key="/tmp/go-ssh" -e target_host=amigo-in-aws -e target_user=ubuntu
+ansible-playbook amigo-golr-setup.yml --inventory=hosts.amigo --private-key="/tmp/go-ssh" -e target_host=amigo-in-aws -e target_user=ubuntu
 ```
 
 ## Load GOlr w/data
 
-IN TESTING:
+Outside of docker image, we'll use our "traditional" tools to load
+this AmiGO image.
 
-In geneontology/operations/ansible:
+```bash
+git clone https://github.com/geneontology/operations.git
+```
 
-add target (amigo-noctua-dev) with the IP above into (new) hosts.neo:
+In geneontology/operations/ansible, add target (amigo-noctua-dev) with
+the IP above into (new) hosts.neo:
 
 ```bash
 emacs -nw hosts.neo
 ```
 
-then:
+then, changing `PATH` as needed for your local environment:
 
 ```bash
-ansible-playbook update-golr-w-skyhook-forced.yaml --inventory=hosts.neo --private-key=/tmp/go-ssh -e target_branch=issue-35-neo-test -e target_host=amigo-noctua-dev -e target_user=ubuntu
+ansible-playbook update-golr-w-skyhook-forced.yaml --inventory=hosts.neo --private-key=/PATH/go-ssh -e target_branch=issue-35-neo-test -e target_host=amigo-noctua-dev -e target_user=ubuntu
 ```
 
 ## Destroy instance and delete workspace
