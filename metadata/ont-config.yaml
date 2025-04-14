@@ -166,6 +166,13 @@ fields:
       - "RO:0002215"
       - "RO:0002216"
     searchable: true
+  - id: obograph_json
+    description: "JSON blob using obographs schema, see https://github.com/geneontology/obographs/."
+    display_name: OBO graph (JSON)
+    type: string
+    property:
+      - "getOboGraphJSONString"
+    indexed: false
   - id: topology_graph_json
     description: "JSON blob form of the local stepwise topology graph. Uses various relations (including regulates, occurs in, capable_of)."
     display_name: Topology graph (JSON)
