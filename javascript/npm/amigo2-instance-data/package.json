@@ -44,7 +44,7 @@
         "gulp-shell": "^0.6.5",
         "gulp-uglify": "^3.0.0",
         "jsdoc": "^3.3.0",
-        "npm-check-updates": "^2.14.1"
+        "npm-check-updates": "^18.0.1"
     },
     "bundleDependencies": [],
     "private": false,
