@@ -63,9 +63,9 @@ docker compose exec -w /srv/amigo amigo node_modules/.bin/gulp watch-js
 
 This setup mounts your local checkout into the `/srv/amigo` directory in the Docker container. This means that any changes you make to the files in your local checkout will be reflected in the running AmiGO service. However, the AmiGO startup process will modify the path to `config.pl` in various files in `perl/bin` and `perl/lib`. **DO NOT COMMIT THESE CHANGES**.
 
-# Provisioning & Orchestration
+# Provisioning, Orchestration, Docker, etc.
 
-See [docs](provision/production/PRODUCTION_PROVISION_README.md).
+See [docs](provision/production/README.md).
 
 # Jenkins (example)
 
