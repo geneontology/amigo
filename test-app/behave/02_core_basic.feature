@@ -32,3 +32,10 @@ Feature: AmiGO core data is okay
     Given I go to page "/amigo/gene_product/UniProtKB:P35222"
      then the class "page-header" should contain "Catenin beta-1"
      and the class "amigo-detail-info" should contain "Catenin beta-1"
+
+ ## Fix for broken relation icons
+ @go
+ Scenario: term details page shows relations without broken icons
+    Given I go to page "/amigo/term/GO:0001508"
+     then the title should contain "action potential"
+     and the page should not contain broken images
