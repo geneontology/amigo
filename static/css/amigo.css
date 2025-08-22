@@ -204,8 +204,8 @@ a:hover .hilite, a:active .hilite {
     transform: none;
 }
 
-/* Begin wc-gocam-viz widget customization */
-wc-gocam-viz {
+/* Begin go-gocam-viewer widget customization */
+go-gocam-viewer {
     --button-background: #fff;
     --button-color: #333;
     --button-background-hover: #e6e6e6;
@@ -217,11 +217,12 @@ wc-gocam-viz {
     --gene-product-padding: 0 0 0.5rem 0;
     --function-label-padding: 0 0 0.5rem 0;
 }
-wc-gocam-viz::part(gocam-title) {
-    display: none;
+go-gocam-viewer::part(gocam-title) {
+    visibility: hidden;
 }
 
-.gocam-viz-legend-container {
+
+.gocam-viewer-legend-container {
     padding: 0 1.2rem;
     width: 800px;
 }

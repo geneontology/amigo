@@ -22,7 +22,7 @@
     "npm": ">= 5.6.0"
   },
   "dependencies": {
-    "@geneontology/wc-gocam-viz": "^1.1.2",
+    "@geneontology/web-components": "0.2.0",
     "bbop": "2.4.3",
     "bbop-core": "0.0.6",
     "bbop-graph": "0.0.19",

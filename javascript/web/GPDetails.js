@@ -217,8 +217,8 @@ function GPDetailsInit(){
     // Begin Models tab setup
     var gocam_select = jQuery('#gomodel-select');
     var gocam_select_group = jQuery('#gomodel-select-group');
-    var gocam_viz_container = jQuery('#gp-gocam-viz-container');
-    var gocam_viz = null;
+    var gocam_viewer_container = jQuery('#gp-gocam-viewer-container');
+    var gocam_viewer_el = null;
     var gocam_no_data_message = jQuery('#gocam-no-data-message');
     var gocam_fetch_error_message = jQuery('#gocam-fetch-error-message');
     var models_tab = jQuery('a[href=#display-models-tab]');
@@ -228,20 +228,20 @@ function GPDetailsInit(){
     // model ID.
     gocam_select.on('change', function () {
         var model_id = jQuery(this).val();
-        gocam_viz.setAttribute('gocam-id', model_id);
+        gocam_viewer_el.setAttribute('gocam-id', model_id);
     });
 
     dtabs.on('shown.bs.tab', function (event) {
-        // The user has clicked on the Models tab and the wc-gocam-viz widget has
+        // The user has clicked on the Models tab and the go-gocam-viewer widget has
         // not been set up yet (probably because this is the first time they've
         // viewed the tab). Initializing the widget is deferred until this point
         // because initializing it in a hidden element leads to a funky first render.
-        if ($(event.target).attr('href') === '#display-models-tab' && !gocam_viz) {
+        if ($(event.target).attr('href') === '#display-models-tab' && !gocam_viewer_el) {
             var model_id = gocam_select.val();
-            gocam_viz = document.createElement('wc-gocam-viz');
-            gocam_viz.setAttribute('gocam-id', model_id);
-            gocam_viz.setAttribute('show-legend', 'false');
-            gocam_viz_container.prepend(gocam_viz);
+            gocam_viewer_el = document.createElement('go-gocam-viewer');
+            gocam_viewer_el.setAttribute('gocam-id', model_id);
+            gocam_viewer_el.setAttribute('show-legend', 'false');
+            gocam_viewer_container.prepend(gocam_viewer_el);
         }
     });
     var gocam_fetch_engine = new jquery_engine(rest_response);
@@ -252,7 +252,7 @@ function GPDetailsInit(){
         gocam_fetch_error_message.removeClass('hidden');
         gocam_no_data_message.addClass('hidden');
         gocam_select_group.addClass('hidden');
-        gocam_viz_container.addClass('hidden');
+        gocam_viewer_container.addClass('hidden');
         models_tab.text(models_tab_title);
     });
 
@@ -268,14 +268,14 @@ function GPDetailsInit(){
         if (models && models.length > 0) {
             gocam_no_data_message.addClass('hidden');
             gocam_select_group.removeClass('hidden');
-            gocam_viz_container.removeClass('hidden');
+            gocam_viewer_container.removeClass('hidden');
             models.forEach(function (model) {
                 gocam_select.append(`<option value=${model.gocam.replace("http://model.geneontology.org/", "")}>${model.title}</option>`);
             });
         } else {
             gocam_no_data_message.removeClass('hidden');
             gocam_select_group.addClass('hidden');
-            gocam_viz_container.addClass('hidden');
+            gocam_viewer_container.addClass('hidden');
         }
     });
 

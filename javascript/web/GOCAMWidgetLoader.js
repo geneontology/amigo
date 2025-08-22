@@ -1,3 +1,3 @@
-const goCamVizLoader = require('@geneontology/wc-gocam-viz/loader');
+const loader = require('@geneontology/web-components/loader');
 
-goCamVizLoader.defineCustomElements();
+loader.defineCustomElements();

@@ -59,13 +59,13 @@
   </div>
   <div class="panel-body">
   [% IF MA_INFO.model_id %]
-    <wc-gocam-viz id="gocam-1" show-legend=false></wc-gocam-viz>
+    <go-gocam-viewer id="gocam-1" show-legend=false></go-gocam-viewer>
 
-    <button class="btn btn-link btn-collapse-toggle collapsed" type="button" data-toggle="collapse" data-target="#gocam-viz-legend-container" aria-expanded="false" aria-controls="gocam-viz-legend-container">
+    <button class="btn btn-link btn-collapse-toggle collapsed" type="button" data-toggle="collapse" data-target="#gocam-viewer-legend-container" aria-expanded="false" aria-controls="gocam-viewer-legend-container">
       Legend <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> 
     </button>
-    <div class="collapse gocam-viz-legend-container" id="gocam-viz-legend-container">
-      <wc-gocam-legend></wc-gocam-legend>
+    <div class="collapse gocam-viewer-legend-container" id="gocam-viewer-legend-container">
+      <go-gocam-viewer-legend></go-gocam-viewer-legend>
     </div>
   [% END %]
   </div>
