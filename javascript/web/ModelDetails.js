@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
-  customElements.whenDefined('wc-gocam-viz').then(function () {
+  customElements.whenDefined('go-gocam-viewer').then(function () {
     const model = JSON.parse(document.getElementById("gocam-data").text);
-    const vizElement = document.getElementById("gocam-1");
-    vizElement.setModelData(model);
+    const viewerEl = document.getElementById("gocam-1");
+    viewerEl.setModelData(model);
   });
 });
