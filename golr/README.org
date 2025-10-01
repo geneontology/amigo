@@ -15,12 +15,12 @@
     : /etc/init.d jetty restart
 ** Solr schema
    schema.xml is currently generated something like:
-   : ~/local/src/svn/owltools/OWLTools-Runner/bin/owltools --solr-config ~/local/src/git/amigo/metadata/ont-config.yaml ~/local/src/git/amigo/metadata/bio-config.yaml ~/local/src/git/amigo/metadata/ann-config.yaml ~/local/src/git/amigo/metadata/ann_ev_agg-config.yaml --solr-schema-dump > ~/local/src/git/amigo/golr/solr/conf/schema.xml
+   : ~/local/src/git/owltools/OWLTools-Runner/bin/owltools --solr-config ~/local/src/git/amigo/metadata/ont-config.yaml ~/local/src/git/amigo/metadata/bio-config.yaml ~/local/src/git/amigo/metadata/ann_ev_agg-config.yaml ~/local/src/git/amigo/metadata/general-config.yaml ~/local/src/git/amigo/metadata/model-ann-config.yaml ~/local/src/git/amigo/metadata/noctua-model-meta-config.yaml ~/local/src/git/amigo/metadata/protein-family-config.yaml ~/local/src/git/amigo/metadata/ann-config.yaml ~/local/src/git/amigo/metadata/bio-config.browse.yaml ~/local/src/git/amigo/metadata/ann-config.browse.yaml --solr-schema-dump > ~/local/src/git/amigo/golr/solr/conf/schema.xml
 ** Experimental
    : sudo ./tools/golr.el
 * Updating the instance on stove
   - update all of the amigo2 stuff and roll it out in the usual way
-  - schema update and restart 
+  - schema update and restart
     to get the new schema and server ready:
     : sudo ./tools/golr.el"
   - to get the new fields out into the store
