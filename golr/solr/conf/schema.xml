@@ -294,6 +294,9 @@
     <!-- model_annotation: Evidence with/from. -->
     <!-- annotation: Evidence with/from. -->
     <field name="evidence_with" type="string" required="false" multiValued="true" indexed="true" stored="true"/>
+    <!--An easily searchable (TextField tokenized) version of evidence_with.-->
+    <field name="evidence_with_searchable" type="text_searchable" required="false" multiValued="true" indexed="true" stored="true"/>
+    <copyField source="evidence_with" dest="evidence_with_searchable"/>
     <!-- general: The ID/label for this entity. -->
     <field name="entity" type="string" required="false" multiValued="false" indexed="true" stored="true"/>
     <!-- general: The label for this entity. -->

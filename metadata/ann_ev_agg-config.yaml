@@ -49,6 +49,7 @@ fields:
     description:  All column 8s for this term/gene product pair
     display_name: Evidence with
     type: string
+    searchable: true
     cardinality: multi
     property: []
   - id: taxon
