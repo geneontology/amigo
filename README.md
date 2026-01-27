@@ -143,17 +143,25 @@ The SOP for a metadata release; i.e. new npm packages is:
 The SOP for a metadata release; i.e. new npm packages is:
 
 * [ Get geneontology/amigo-standalone running; might be easiest to just give it a small index and invade]
-* `docker ps`
-* `docker exec -u 0 -it whatever_name /bin/bash`
+* `docker run -p 8080:8080 -p 9999:9999 -v /tmp/srv-solr-data:/srv/solr/data -it geneontology/amigo-standalone bash -c "/bin/bash"`
 * `root@amigo:/srv/amigo# git reset --hard && git pull`
 * `root@amigo:/srv/amigo# npm install`
 * `root@amigo:/srv/amigo# cp conf/examples/amigo.yaml.public conf/amigo.yaml`
 * `root@amigo:/srv/amigo# mg conf/amigo.yaml`
 * [ fix metadata paths to '/srv/amigo' ]
 * `./node_modules/.bin/gulp install`
+* [ next: compile and bump versions ]
 * `./node_modules/.bin/gulp release`
 * `cd javascript/npm/amigo2-instance-data/`
 * `/srv/amigo/node_modules/.bin/gulp release`
+
+At this point we have a fail.
+- `npm install npm@latest` (to get OTP working)
+- `npm login`
+- `npm publish`
+
+TODO:
+
 * `cd ../bbop-widget-set && npm install gulp-mocha`
 * `/srv/amigo/node_modules/.bin/gulp release`
 * `cd ../../..`
@@ -161,6 +169,6 @@ The SOP for a metadata release; i.e. new npm packages is:
 The last step there errors out for various "Error: auth required for publishing" reasons, obviously.
 WIP items:
 
-* TODO: outline how to add npm auth
 * TODO: outline what to do with the package.json files (need GH auth)
-* TODO: outline outline what to do is the package-lock.json files get updated
+* TODO: outline outline what to do when the package-lock.json files get updated
+* TODO: get the npm-released versions re-aligned with the GH versioning.
