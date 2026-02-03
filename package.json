@@ -75,7 +75,7 @@
     "loose-envify": "^1.4.0",
     "mocha": "5.0.5",
     "node-cache": "4.2.0",
-    "npm-check-updates": "^2.14.1",
+    "npm-check-updates": "^19.3.2",
     "vinyl-source-stream": "2.0.0"
   },
   "browserify": {
