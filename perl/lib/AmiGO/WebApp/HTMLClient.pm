@@ -409,7 +409,8 @@ sub mode_base_statistics {
     };
   $self->add_template_bulk($prep);
 
-  return $self->generate_template_page_with();
+  #return $self->generate_template_page_with();
+  return $self->redirect('https://geneontology.org/stats', '302 Found');
 }
 
 
