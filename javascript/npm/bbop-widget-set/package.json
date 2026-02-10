@@ -48,7 +48,7 @@
         "gulp-shell": "^0.6.5",
         "gulp-uglify": "^3.0.0",
         "jsdoc": "^3.3.0",
-        "npm-check-updates": "^2.14.1",
+        "npm-check-updates": "^19.2.0",
         "vinyl-source-stream": "2.0.0"
     },
     "browserify": {
