@@ -56,4 +56,4 @@
       mapping_host: golr-development-YYYY-MM-DD.geneontology.io
       mapping_from_port: 443
       mapping_to_port: 8080
-      apache_proxy_additional_rules: ""
+      apache_proxy_additional_rules: "    RewriteEngine on\n    ## Response to https://snyk.io/vuln/SNYK-JAVA-ORGAPACHESOLR-173769\n    RewriteCond %{QUERY_STRING} (?:^|&)shards=([^&]+) [NC]\n    RewriteRule .* - [F]\n    ## On principle, try and deny anything that's not Solr's \"select\".\n    RewriteCond %{REQUEST_URI} !^/(solr/)?select.* [NC]\n    RewriteRule .* - [F]\n    ## Prevent \"admin\" access.\n    ProxyPassMatch ^/admin(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1\n    ProxyPassMatch ^/solr/admin(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1\n    ProxyPassMatch ^/update(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1\n    ProxyPassMatch ^/solr/update(.*)$ http://localhost:{{ mapping_to_port }}/denied/$1"
