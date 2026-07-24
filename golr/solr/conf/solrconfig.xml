@@ -453,9 +453,14 @@
     <!--              size="512" -->
     <!--              initialSize="512" -->
     <!--              autowarmCount="0"/> -->
+    <!-- Keep this bounded. A ceiling far above the working set means LRU
+         eviction never fires and the cache grows until the heap is exhausted.
+         Entries here are the expensive ones: a dense filter over the ~19M doc
+         index is a ~2.4 MB bitset, so this size bounds the worst case near
+         10 GB. Measured on production: ~230 entries live, 0.88 hit ratio. -->
     <filterCache class="solr.FastLRUCache"
-                 size="16777216"
-                 initialSize="4194304"
+                 size="4096"
+                 initialSize="1024"
                  autowarmCount="0"/>
 
     <!-- Query Result Cache
@@ -469,9 +474,13 @@
     <!--                  size="512" -->
     <!--                  initialSize="512" -->
     <!--                  autowarmCount="0"/> -->
+    <!-- Keep this bounded, as with filterCache above. Entries are cheap here
+         (capped by queryResultMaxDocsCached below), but this workload issues
+         mostly-unique queries and measures a 0.13 hit ratio on production, so
+         a small cache gives up very little. -->
     <queryResultCache class="solr.LRUCache"
-		      size="16777216"
-		      initialSize="4194304"
+		      size="2048"
+		      initialSize="512"
 		      autowarmCount="0"/>
 
     <!-- Document Cache
@@ -485,9 +494,15 @@
     <!--                size="512" -->
     <!--                initialSize="512" -->
     <!--                autowarmCount="0"/> -->
+    <!-- Keep this bounded, as with filterCache above. Entries are heavy: the
+         schema stores 177 fields per document. A bound also matters because
+         bulk CSV exports request rows=100000; with no eviction each export
+         permanently adds 100k documents to the cache instead of churning it.
+         Measured on production: 0.48 hit ratio. autowarmCount must stay 0,
+         since Lucene internal document ids are transient. -->
     <documentCache class="solr.LRUCache"
-		   size="16777216"
-		   initialSize="4194304"
+		   size="16384"
+		   initialSize="4096"
                    autowarmCount="0"/>
 
     <!-- Field Value Cache
