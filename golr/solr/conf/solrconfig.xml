@@ -474,13 +474,18 @@
     <!--                  size="512" -->
     <!--                  initialSize="512" -->
     <!--                  autowarmCount="0"/> -->
-    <!-- Keep this bounded, as with filterCache above. Entries are cheap here
-         (capped by queryResultMaxDocsCached below), but this workload issues
-         mostly-unique queries and measures a 0.13 hit ratio on production, so
-         a small cache gives up very little. -->
+    <!-- Bounded, as with filterCache above. Entries are cheap here — each is
+         an ordered doc-id list capped by queryResultMaxDocsCached below, so a
+         few KB — which is why this can be generous without heap risk: 16384
+         entries is roughly 60 MB.
+
+         It was pinned at its previous 2048 ceiling with 361k evictions and a
+         0.15 hit ratio. The low ratio is inherent (this workload issues
+         mostly-unique queries), so do not expect much from raising it; the
+         point is that constant eviction at this price buys nothing. -->
     <queryResultCache class="solr.LRUCache"
-		      size="2048"
-		      initialSize="512"
+		      size="16384"
+		      initialSize="2048"
 		      autowarmCount="0"/>
 
     <!-- Document Cache
@@ -494,15 +499,24 @@
     <!--                size="512" -->
     <!--                initialSize="512" -->
     <!--                autowarmCount="0"/> -->
-    <!-- Keep this bounded, as with filterCache above. Entries are heavy: the
-         schema stores 177 fields per document. A bound also matters because
-         bulk CSV exports request rows=100000; with no eviction each export
-         permanently adds 100k documents to the cache instead of churning it.
-         Measured on production: 0.48 hit ratio. autowarmCount must stay 0,
-         since Lucene internal document ids are transient. -->
+    <!-- Bounded, but sized to survive a bulk export. Entries are heavy: the
+         schema stores 177 fields per document, measured at ~9 KB as JSON and
+         so roughly 15 KB on-heap.
+
+         The size is driven by CSV exports, which request rows=100000. At the
+         previous 16384 a single export inserted 100k documents into a 16k
+         cache, flushing it six times over; at ~80 exports/day that churned
+         ~8M entries/day and the interactive working set never survived. Hit
+         ratio fell to 0.05 with 22.5M evictions over three days.
+
+         131072 holds one full 100k export plus ~31k hot documents, so
+         exports stop evicting interactive traffic. Cost is ~2 GB on-heap
+         against a measured live set of ~9 GB, which the fix in the same file
+         made affordable. autowarmCount must stay 0, since Lucene internal
+         document ids are transient. -->
     <documentCache class="solr.LRUCache"
-		   size="16384"
-		   initialSize="4096"
+		   size="131072"
+		   initialSize="16384"
                    autowarmCount="0"/>
 
     <!-- Field Value Cache
