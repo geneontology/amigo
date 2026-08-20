@@ -38,7 +38,7 @@
 	  name="goose_form_query"
 	  id="goose_form_query">
       [% IF galaxy_url %]
-      <input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
+      <input type="hidden" name="GALAXY_URL" value="[% FILTER html %][% galaxy_url %][% END %]" />
       [% END %]
 
       <div class="form-group">
@@ -184,7 +184,7 @@
 	    name="goose_form_download"
 	    id="goose_form_download">
 	[% IF galaxy_url %]
-	<input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
+	<input type="hidden" name="GALAXY_URL" value="[% FILTER html %][% galaxy_url %][% END %]" />
 	[% END %]
 	<input type="hidden" name="mirror" value="[% my_mirror %]" />
 	<input type="hidden" name="query" value="[% goose_query %]" />

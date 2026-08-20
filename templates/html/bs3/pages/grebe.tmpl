@@ -3,7 +3,7 @@
 [% INCLUDE common/noscript_js_limited.tmpl %]
 
 [% IF galaxy_url && galaxy_url_external_p %]
-<input type="hidden" name="GALAXY_URL" value="[% galaxy_url %]" />
+<input type="hidden" name="GALAXY_URL" value="[% FILTER html %][% galaxy_url %][% END %]" />
 [% END %]
 
 [% rollup_id = "info_header" %]

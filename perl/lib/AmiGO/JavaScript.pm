@@ -318,6 +318,24 @@ sub make_var {
   # }
   $conv_var =~ s/\n+//g;
 
+  ## This JSON goes inside a <script> element and JSON does not escape
+  ## angle brackets, so "</script>" in a value would end the element.
+  ## Escaped rather than stripped: JS reads \uXXXX back as the original
+  ## character, so consumers see an unchanged value.
+  $conv_var =~ s/</\\u003c/g;
+  $conv_var =~ s/>/\\u003e/g;
+
+  ## Legal raw in JSON, but line terminators to a JS parser. The utf8
+  ## encoder gives bytes and the fallback gives characters, and matching
+  ## the wrong one would also corrupt a real three-character run.
+  if( utf8::is_utf8($conv_var) ){
+    $conv_var =~ s/\x{2028}/\\u2028/g;
+    $conv_var =~ s/\x{2029}/\\u2029/g;
+  }else{
+    $conv_var =~ s/\xe2\x80\xa8/\\u2028/g;
+    $conv_var =~ s/\xe2\x80\xa9/\\u2029/g;
+  }
+
   push @mbuf, $conv_var;
 
   ## Add the ending to make this work.
