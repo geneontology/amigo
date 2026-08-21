@@ -455,12 +455,24 @@ sub galaxy_settings {
   my $in_galaxy = shift || '';
   my $galaxy_external_p = shift || undef;
 
+  ## Checked here rather than escaped per template because this reaches
+  ## a form "action" in gannet: escaping stops attribute breakout but
+  ## says nothing about where the form submits. A Galaxy URL is only
+  ## ever http(s).
+  if( $in_galaxy && $in_galaxy !~ m!\Ahttps?://!i ){
+    $self->{CORE}->kvetch('discarding non-http(s) GALAXY_URL');
+    $in_galaxy = '';
+    $galaxy_external_p = undef;
+  }
+
   if( $in_galaxy ){
     $retval = 1;
     $self->set_template_parameter('galaxy_url', $in_galaxy);
     $self->set_template_parameter('galaxy_url_external_p', $galaxy_external_p);
     if( $galaxy_external_p ){
-      $self->add_mq('notice', "Welcome Galaxy visitor from <a href=\"$in_galaxy\">$in_galaxy</a>!");
+      ## Known http(s) by now, but still caller text landing in HTML.
+      my $safe_galaxy = $self->{CORE}->html_safe($in_galaxy);
+      $self->add_mq('notice', "Welcome Galaxy visitor from <a href=\"$safe_galaxy\">$safe_galaxy</a>!");
     }
 
     ## Add a global galaxy URL if we're good.
