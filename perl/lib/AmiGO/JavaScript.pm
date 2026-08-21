@@ -606,7 +606,8 @@ sub parse_json_viz_data {
   my $regexp = $self->term_regexp_string();
   my $clean_perl_struct = {};
   foreach my $gid (keys %$perl_struct){
-    if( $gid =~ /$regexp/ ){
+    ## Anchored: unanchored, "<payload>GO:0000001" passes and is kept whole.
+    if( $gid =~ /\A(?:$regexp)\z/ ){
         #$self->kvetch("_2_" . $gid);
       $clean_perl_struct->{$gid} = $perl_struct->{$gid};
     }

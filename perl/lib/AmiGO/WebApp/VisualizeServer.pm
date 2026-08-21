@@ -533,7 +533,9 @@ sub mode_advanced {
       ## input. For example, somebody using an alternate id instead of
       ## the canonical one: https://github.com/kltm/amigo/issues/91
       if( ! $tinfo_item ){
-	$self->add_mq('error', 'The term ID that you are using '. $acc .' could not be satisfactorily resolved. Please make sure that you are using canonical IDs (rather than synonyms or alternate IDs) when using this tool.');
+	## Queued messages render as HTML; this one echoes caller input.
+	my $safe_acc = $self->{CORE}->html_safe($acc);
+	$self->add_mq('error', 'The term ID that you are using '. $safe_acc .' could not be satisfactorily resolved. Please make sure that you are using canonical IDs (rather than synonyms or alternate IDs) when using this tool.');
 	die "The term ID that you're using could not be satisfactorily resolved";
       }else{
 
