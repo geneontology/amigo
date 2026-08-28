@@ -5,7 +5,7 @@ id: bbop_term_ac
 schema_generating: false
 description: Easily find ontology classes in GO. For personality only - not a schema configuration.
 display_name: Term autocomplete
-document_category: ontology_class
+document_category: ontology_class_autocomplete
 weight: -20
 boost_weights: annotation_class^5.0 annotation_class_label^5.0 synonym^1.0 alternate_id^1.0
 result_weights: annotation_class^8.0 synonym^3.0 alternate_id^2.0
