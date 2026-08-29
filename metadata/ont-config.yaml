@@ -105,6 +105,12 @@ fields:
     type: string
     property: [getXref]
     cardinality: multi
+  - id: database_xref_idspace
+    description: "list of ID spaces xreffed. Useful for faceting"
+    display_name: DB
+    type: string
+    property: [TODO]
+    cardinality: multi
   - id: isa_partof_closure
     description: "Ancestral terms (is_a/part_of)."
     display_name: Is-a/part-of
