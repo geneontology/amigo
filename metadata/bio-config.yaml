@@ -113,13 +113,13 @@ fields:
     searchable: true
   - id: regulates_closure
     description: "Bioentities associated with this term or its children (over regulates)."
-    display_name: Inferred annotation
+    display_name: Inferred co-annotation
     type: string
     cardinality: multi
     property: []
   - id: regulates_closure_label
     description: "Bioentities associated with this term or its children (over regulates)."
-    display_name: Inferred annotation
+    display_name: Inferred co-annotation
     type: string
     cardinality: multi
     property: []
@@ -130,14 +130,14 @@ fields:
     type: string
     property: []
   - id: annotation_class_list
-    description: "Direct annotations."
-    display_name: Direct annotation
+    description: "Direct co-annotations."
+    display_name: Direct co-annotation
     type: string
     cardinality: multi
     property: []
   - id: annotation_class_list_label
-    description: "Direct annotations."
-    display_name: Direct annotation
+    description: "Direct co-annotations."
+    display_name: Direct co-annotation
     type: string
     cardinality: multi
     property: []
