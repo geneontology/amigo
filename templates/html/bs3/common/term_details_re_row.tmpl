@@ -13,13 +13,21 @@
   <td>
     <span class="nowrap">
       [% IF subject_chunk.inferred_p %]
+      [% IF subject_chunk.rel == "is_a" OR subject_chunk.rel == "part_of" OR subject_chunk.rel == "regulates" OR subject_chunk.rel == "negatively_regulates" OR subject_chunk.rel == "positively_regulates" OR subject_chunk.rel == "has_part" OR subject_chunk.rel == "occurs_in" OR subject_chunk.rel == "capable_of" OR subject_chunk.rel == "develops_from" OR subject_chunk.rel == "related_to" %]
       <img src="[% image_dir _ "/" _ subject_chunk.rel _ ".gif" %]"
 	   alt="[Inferred [% subject_chunk.rel %] relation]"
 	   title="Inferred [% subject_chunk.rel %] relation" />&nbsp;[% subject_chunk.rel %]&nbsp;(inferred)
       [% ELSE %]
+      [% subject_chunk.rel %]&nbsp;(inferred)
+      [% END %]
+      [% ELSE %]
+      [% IF subject_chunk.rel == "is_a" OR subject_chunk.rel == "part_of" OR subject_chunk.rel == "regulates" OR subject_chunk.rel == "negatively_regulates" OR subject_chunk.rel == "positively_regulates" OR subject_chunk.rel == "has_part" OR subject_chunk.rel == "occurs_in" OR subject_chunk.rel == "capable_of" OR subject_chunk.rel == "develops_from" OR subject_chunk.rel == "related_to" %]
       <img src="[% image_dir _ "/" _ subject_chunk.rel _ ".gif" %]"
 	   alt="[[% subject_chunk.rel %] relation]"
 	   title="[% subject_chunk.rel %] relation" />&nbsp;[% subject_chunk.rel %]&nbsp;
+      [% ELSE %]
+      [% subject_chunk.rel %]&nbsp;
+      [% END %]
       [% END %]
     </span>
   </td>
@@ -33,13 +41,21 @@
   <td>
     <span class="nowrap">
       [% IF object_chunk.inferred_p %]
+      [% IF object_chunk.rel == "is_a" OR object_chunk.rel == "part_of" OR object_chunk.rel == "regulates" OR object_chunk.rel == "negatively_regulates" OR object_chunk.rel == "positively_regulates" OR object_chunk.rel == "has_part" OR object_chunk.rel == "occurs_in" OR object_chunk.rel == "capable_of" OR object_chunk.rel == "develops_from" OR object_chunk.rel == "related_to" %]
       <img src="[% image_dir _ "/" _ object_chunk.rel _ ".gif" %]"
 	   alt="[Inferred [% object_chunk.rel %] relation]"
 	   title="Inferred [% object_chunk.rel %] relation" />&nbsp;[% object_chunk.rel %]&nbsp;(inferred)
       [% ELSE %]
+      [% object_chunk.rel %]&nbsp;(inferred)
+      [% END %]
+      [% ELSE %]
+      [% IF object_chunk.rel == "is_a" OR object_chunk.rel == "part_of" OR object_chunk.rel == "regulates" OR object_chunk.rel == "negatively_regulates" OR object_chunk.rel == "positively_regulates" OR object_chunk.rel == "has_part" OR object_chunk.rel == "occurs_in" OR object_chunk.rel == "capable_of" OR object_chunk.rel == "develops_from" OR object_chunk.rel == "related_to" %]
       <img src="[% image_dir _ "/" _ object_chunk.rel _ ".gif" %]"
 	   alt="[[% object_chunk.rel %] relation]"
 	   title="[% object_chunk.rel %] relation" />&nbsp;[% object_chunk.rel %]&nbsp;
+      [% ELSE %]
+      [% object_chunk.rel %]&nbsp;
+      [% END %]
       [% END %]
     </span>
   </td>
